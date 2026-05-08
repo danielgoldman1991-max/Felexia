@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Felexia
 
-## Getting Started
+Felexia est une fondation de mini-ERP SaaS B2B pour PME marocaines: tiers, articles, ventes, achats, stock, tresorerie, reporting et parametrage societe.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router 16
+- TypeScript
+- Tailwind CSS 4
+- Supabase Auth SSR avec `@supabase/ssr`
+- Supabase PostgreSQL, RLS et migrations SQL
+- Vercel ready
+
+## Installation locale
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Ouvrez `http://localhost:3000/dashboard`.
+
+## Variables d'environnement
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Utilisez une publishable key Supabase moderne. Une cle anon legacy peut depanner, mais la publishable key est recommandee.
+
+## Migration Supabase
+
+Avec le CLI Supabase:
+
+```bash
+supabase link --project-ref your-project-ref
+supabase db push
+```
+
+Ou depuis l'editeur SQL Supabase, executez:
+
+```text
+supabase/migrations/001_initial_schema.sql
+```
+
+## Seed de demonstration
+
+Apres la migration, executez:
+
+```text
+supabase/seed.sql
+```
+
+Le seed cree l'organisation `Felexia Demo`, des tiers marocains, articles, TVA, devis, factures, paiement partiel, relance, stock et tresorerie.
+
+## Creer un utilisateur Supabase Auth
+
+1. Dans Supabase Dashboard, ouvrez Authentication > Users.
+2. Creez un utilisateur avec email et mot de passe.
+3. Copiez son `id`.
+4. Ajoutez un profil et rattachez-le a l'organisation demo:
+
+```sql
+insert into profiles (id, full_name, email)
+values ('USER_UUID', 'Admin Felexia', 'admin@example.com');
+
+insert into organization_members (organization_id, user_id, role_id)
+select
+  '11111111-1111-1111-1111-111111111111',
+  'USER_UUID',
+  id
+from roles
+where organization_id = '11111111-1111-1111-1111-111111111111'
+  and name = 'admin';
+```
+
+## Tester le login
+
+1. Renseignez `.env.local` avec `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+2. Creez un utilisateur dans Supabase Auth.
+3. Ajoutez son profil et son rattachement a `organization_members` comme indique plus haut.
+4. Lancez l'application:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Ouvrez `/login`, connectez-vous, puis verifiez la redirection vers `/dashboard`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Les routes ERP redirigent vers `/login` sans session. Un utilisateur deja connecte qui ouvre `/login` est redirige vers `/dashboard`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Fonctionnel dans cette version
 
-## Learn More
+- Layout ERP professionnel avec sidebar, topbar et navigation modules.
+- Routes demandees creees.
+- Pages fonctionnelles: dashboard, tiers, clients, fournisseurs, articles, devis, factures, stock, tresorerie, rapports, parametres.
+- Composants reutilisables: Button, Input, Textarea, Select, Badge, Card, StatCard, Table, EmptyState, PageHeader, AppShell, Sidebar, Topbar, StatusBadge, MoneyDisplay.
+- Schema PostgreSQL multi-tenant avec `organization_id`, RLS, vues dashboard, triggers, numerotation, audit simple et fonctions stock/paiement.
 
-To learn more about Next.js, take a look at the following resources:
+## Limites V1
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Les pages utilisent encore des donnees de demonstration TypeScript pour garantir une interface testable sans projet Supabase connecte.
+- Les formulaires ne mutent pas encore la base.
+- La generation PDF et la facturation electronique marocaine sont preparees conceptuellement, pas implementees.
+- Les workflows metier avances restent a coder cote Server Actions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Prochaine etape recommandee
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Brancher les pages liste/detail sur Supabase via Server Components, ajouter les Server Actions de creation tiers/articles/documents, puis verrouiller les documents valides dans la couche applicative en plus des triggers SQL.
