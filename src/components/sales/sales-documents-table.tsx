@@ -11,6 +11,7 @@ const pathByType: Record<SalesDocumentType, string> = {
   quote: "/vente/devis",
   order: "/vente/commandes",
   delivery_note: "/vente/livraisons",
+  return_note: "/vente/retours",
 };
 
 export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[]; type: SalesDocumentType }) {

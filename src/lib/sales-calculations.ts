@@ -38,7 +38,7 @@ export function calculateSalesTotals(lines: SalesLineFormValue[]) {
   };
 }
 
-export function isIndivisibleUnit(line: Pick<SalesLineFormValue, "unit_id" | "unit_name">, units: UnitLike[] = []) {
+export function isIndivisibleUnit(line: { unit_id?: string | null; unit_name?: string | null }, units: UnitLike[] = []) {
   const unit = line.unit_id ? units.find((item) => item.id === line.unit_id) : null;
   const symbol = line.unit_name || unit?.symbol || unit?.name || "";
 

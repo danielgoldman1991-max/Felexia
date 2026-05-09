@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Archive, Pencil } from "lucide-react";
+import { Archive, History, Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -46,6 +46,16 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
             <Link href={`/articles/${product.id}/edit`}>
               <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
             </Link>
+            {!isService ? (
+              <>
+                <Link href={`/stock/mouvements?productId=${product.id}`}>
+                  <Button variant="secondary"><History className="h-4 w-4" /> Mouvements stock</Button>
+                </Link>
+                <Link href={`/stock/entrees/new?productId=${product.id}`}>
+                  <Button variant="secondary"><Plus className="h-4 w-4" /> Entree stock</Button>
+                </Link>
+              </>
+            ) : null}
             {product.status !== "archived" ? (
               <form action={archiveAction}>
                 <input type="hidden" name="id" value={product.id} />

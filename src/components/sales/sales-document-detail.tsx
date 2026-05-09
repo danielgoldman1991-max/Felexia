@@ -16,11 +16,11 @@ import {
   archiveSalesDocument,
   confirmOrder,
   convertQuoteToOrder,
-  createDeliveryFromOrder,
   markDeliveryAsDelivered,
   markQuoteAsSent,
   rejectQuote,
   validateDeliveryNote,
+  validateReturnNote,
 } from "@/lib/sales-actions";
 import type { SalesActionResult, SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
 import { SALES_DOCUMENT_LABELS } from "@/lib/sales-types";
@@ -72,6 +72,7 @@ export function SalesDocumentDetail({
   const isQuote = document.document_type === "quote";
   const isOrder = document.document_type === "order";
   const isDelivery = document.document_type === "delivery_note";
+  const isReturn = document.document_type === "return_note";
   const title = `${SALES_DOCUMENT_LABELS[document.document_type]} ${document.document_number}`;
 
   return (
@@ -91,6 +92,22 @@ export function SalesDocumentDetail({
             ) : null}
             {isOrder ? (
               <Link href={`/vente/commandes/${document.id}/print`} target="_blank">
+                <Button type="button" variant="secondary">
+                  <Printer className="h-4 w-4" />
+                  Imprimer / PDF
+                </Button>
+              </Link>
+            ) : null}
+            {isDelivery ? (
+              <Link href={`/vente/livraisons/${document.id}/print`} target="_blank">
+                <Button type="button" variant="secondary">
+                  <Printer className="h-4 w-4" />
+                  Imprimer / PDF
+                </Button>
+              </Link>
+            ) : null}
+            {isReturn ? (
+              <Link href={`/vente/retours/${document.id}/print`} target="_blank">
                 <Button type="button" variant="secondary">
                   <Printer className="h-4 w-4" />
                   Imprimer / PDF
@@ -122,14 +139,24 @@ export function SalesDocumentDetail({
                 <ActionForm label="Confirmer commande" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmOrder, document.id)} />
               </>
             ) : null}
-            {isOrder && document.status === "confirmed" ? (
-              <ActionForm label="Creer bon de livraison" icon={<Truck className="h-4 w-4" />} action={actionWithId(createDeliveryFromOrder, document.id)} />
+            {isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
+              <Link href={`/vente/commandes/${document.id}/livrer`}>
+                <Button variant="secondary"><Truck className="h-4 w-4" /> Creer une livraison</Button>
+              </Link>
             ) : null}
             {isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
             {isDelivery && document.status === "validated" ? (
               <ActionForm label="Marquer livre" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
+            ) : null}
+            {isDelivery && ["validated", "delivered"].includes(document.status) ? (
+              <Link href={`/vente/livraisons/${document.id}/retour`}>
+                <Button variant="secondary"><Truck className="h-4 w-4" /> Creer un retour</Button>
+              </Link>
+            ) : null}
+            {isReturn && document.status === "draft" ? (
+              <ActionForm label="Valider retour" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateReturnNote, document.id)} />
             ) : null}
             {document.status !== "cancelled" && document.status !== "converted" ? (
               <ActionForm
@@ -165,6 +192,9 @@ export function SalesDocumentDetail({
           <Info label="Date" value={formatDate(document.document_date)} />
           <Info label="Validite" value={document.valid_until ? formatDate(document.valid_until) : null} />
           <Info label="Livraison prevue" value={document.expected_delivery_date ? formatDate(document.expected_delivery_date) : null} />
+          <Info label="Commande liee" value={document.related_order_number} />
+          <Info label="BL lie" value={document.related_delivery_number} />
+          {isReturn ? <Info label="Motif retour" value={document.return_reason} /> : null}
           <Info
             label="Source"
             value={
@@ -232,7 +262,9 @@ export function SalesDocumentDetail({
       {isDelivery ? (
         <Card>
           <CardContent className="text-sm text-[var(--muted)]">
-            La mise a jour automatique du stock sera branchee dans le module Stock.
+            {document.stock_updated_at
+              ? `Stock mis a jour le ${formatDate(document.stock_updated_at)}.`
+              : "Stock non encore mis a jour. Il sera impacte a la validation du bon de livraison."}
           </CardContent>
         </Card>
       ) : null}

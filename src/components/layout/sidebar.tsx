@@ -8,6 +8,7 @@ import { useState } from "react";
 import {
   BriefcaseBusiness,
   Building2,
+  Boxes,
   CalendarDays,
   Calculator,
   ChevronDown,
@@ -87,6 +88,21 @@ const menuSections: MenuSection[] = [
       { label: "Commandes clients", href: "/vente/commandes" },
       { label: "Nouvelle commande", href: "/vente/commandes/new" },
       { label: "Bons de livraison", href: "/vente/livraisons" },
+      { label: "Nouveau bon de livraison", href: "/vente/livraisons/new" },
+      { label: "Retours client", href: "/vente/retours" },
+    ],
+  },
+  {
+    key: "stock",
+    label: "Stock",
+    href: "/stock",
+    icon: Boxes,
+    activePrefixes: ["/stock"],
+    items: [
+      { label: "Vue stock", href: "/stock" },
+      { label: "Mouvements par article", href: "/stock/mouvements" },
+      { label: "Entree manuelle", href: "/stock/entrees/new" },
+      { label: "Ajustement stock", href: "/stock/ajustements/new" },
     ],
   },
   {

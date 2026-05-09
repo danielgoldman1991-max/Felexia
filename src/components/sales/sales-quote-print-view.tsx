@@ -33,10 +33,12 @@ export function SalesQuotePrintView({
   document,
   lines,
   title = "DEVIS",
+  showSignature = false,
 }: {
   document: SalesDocumentRecord;
   lines: SalesDocumentLineRecord[];
   title?: string;
+  showSignature?: boolean;
 }) {
   return (
     <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
@@ -72,6 +74,8 @@ export function SalesQuotePrintView({
             {document.document_type === "order" ? (
               <p>Livraison prevue : {document.expected_delivery_date ? formatDate(document.expected_delivery_date) : "-"}</p>
             ) : null}
+            {document.related_order_number ? <p>Commande : {document.related_order_number}</p> : null}
+            {document.related_delivery_number ? <p>BL : {document.related_delivery_number}</p> : null}
             <p>Statut : {SALES_STATUS_LABELS[document.status] ?? document.status}</p>
           </div>
         </div>
@@ -138,6 +142,24 @@ export function SalesQuotePrintView({
         <section className="mt-8 rounded-lg border border-slate-200 p-5">
           <h2 className="text-xs font-bold uppercase tracking-wide text-[#2d2490]">Notes et observations</h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{document.notes}</p>
+        </section>
+      ) : null}
+
+      {document.return_reason ? (
+        <section className="mt-8 rounded-lg border border-slate-200 p-5">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-[#2d2490]">Motif de retour</h2>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{document.return_reason}</p>
+          {document.internal_notes ? (
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{document.internal_notes}</p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {showSignature ? (
+        <section className="mt-10 flex justify-end">
+          <div className="h-28 w-64 rounded-lg border border-dashed border-slate-300 p-4 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Signature et cachet du client
+          </div>
         </section>
       ) : null}
 

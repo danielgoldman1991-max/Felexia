@@ -2,8 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import type {
   CustomerForSalesSelect,
+  DeliveryPreparationLine,
+  ManualDeliveryOrderOption,
+  ManualDeliveryPreparation,
   PaginatedSalesResult,
   ProductForSalesSelect,
+  ReturnPreparationLine,
   SalesCounters,
   SalesDocumentLineRecord,
   SalesDocumentRecord,
@@ -15,17 +19,20 @@ import type {
 
 const SALES_DOCUMENT_SELECT = `
   id, organization_id, document_type, document_number, customer_id,
-  source_document_id, document_date, valid_until, expected_delivery_date,
+  source_document_id, related_order_id, related_delivery_id,
+  document_date, valid_until, expected_delivery_date,
   status, subtotal_ht, tax_total, total_ttc, notes, internal_notes,
+  return_reason, return_status, stock_updated_at, validated_at, delivered_at, returned_at,
   created_by, created_at, updated_at, archived_at,
   customer:customer_id (name, address, city, phone, email, ice),
   source_document:source_document_id (document_number, document_type)
 `;
 
 const SALES_LINE_SELECT = `
-  id, organization_id, document_id, line_order, product_id, product_name,
+  id, organization_id, document_id, line_order, source_line_id, product_id, product_name,
   description, quantity, unit_id, unit_name, unit_price_ht, discount_rate,
   tax_rate_id, tax_rate, subtotal_ht, tax_amount, total_ttc,
+  ordered_quantity, delivered_quantity, returned_quantity, remaining_quantity, stock_move_id,
   created_at, updated_at
 `;
 
@@ -66,6 +73,8 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     document_number: row.document_number as string,
     customer_id: row.customer_id as string,
     source_document_id: (row.source_document_id as string) ?? null,
+    related_order_id: (row.related_order_id as string) ?? null,
+    related_delivery_id: (row.related_delivery_id as string) ?? null,
     document_date: row.document_date as string,
     valid_until: (row.valid_until as string) ?? null,
     expected_delivery_date: (row.expected_delivery_date as string) ?? null,
@@ -75,6 +84,12 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     total_ttc: Number(row.total_ttc ?? 0),
     notes: (row.notes as string) ?? null,
     internal_notes: (row.internal_notes as string) ?? null,
+    return_reason: (row.return_reason as string) ?? null,
+    return_status: (row.return_status as string) ?? null,
+    stock_updated_at: (row.stock_updated_at as string) ?? null,
+    validated_at: (row.validated_at as string) ?? null,
+    delivered_at: (row.delivered_at as string) ?? null,
+    returned_at: (row.returned_at as string) ?? null,
     created_by: (row.created_by as string) ?? null,
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
@@ -87,7 +102,41 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     customer_ice: (customer?.ice as string | undefined) ?? null,
     source_document_number: (sourceDocument?.document_number as string | undefined) ?? null,
     source_document_type: (sourceDocument?.document_type as SalesDocumentType | undefined) ?? null,
+    related_order_number: null,
+    related_delivery_number: null,
   };
+}
+
+async function enrichRelatedDocumentNumbers(
+  organizationId: string,
+  documents: SalesDocumentRecord[],
+): Promise<SalesDocumentRecord[]> {
+  const relatedIds = Array.from(
+    new Set(
+      documents
+        .flatMap((document) => [document.related_order_id, document.related_delivery_id])
+        .filter(Boolean),
+    ),
+  ) as string[];
+
+  if (relatedIds.length === 0) return documents;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sales_documents")
+    .select("id, document_number")
+    .eq("organization_id", organizationId)
+    .in("id", relatedIds);
+
+  if (error) return documents;
+
+  const numbersById = new Map((data ?? []).map((document) => [document.id, document.document_number]));
+
+  return documents.map((document) => ({
+    ...document,
+    related_order_number: document.related_order_id ? numbersById.get(document.related_order_id) ?? null : null,
+    related_delivery_number: document.related_delivery_id ? numbersById.get(document.related_delivery_id) ?? null : null,
+  }));
 }
 
 function mapSalesLine(raw: unknown): SalesDocumentLineRecord {
@@ -98,6 +147,7 @@ function mapSalesLine(raw: unknown): SalesDocumentLineRecord {
     organization_id: row.organization_id as string,
     document_id: row.document_id as string,
     line_order: Number(row.line_order ?? 0),
+    source_line_id: (row.source_line_id as string) ?? null,
     product_id: (row.product_id as string) ?? null,
     product_name: (row.product_name as string) ?? null,
     description: row.description as string,
@@ -111,9 +161,54 @@ function mapSalesLine(raw: unknown): SalesDocumentLineRecord {
     subtotal_ht: Number(row.subtotal_ht ?? 0),
     tax_amount: Number(row.tax_amount ?? 0),
     total_ttc: Number(row.total_ttc ?? 0),
+    ordered_quantity: row.ordered_quantity === null || row.ordered_quantity === undefined ? null : Number(row.ordered_quantity),
+    delivered_quantity: Number(row.delivered_quantity ?? 0),
+    returned_quantity: Number(row.returned_quantity ?? 0),
+    remaining_quantity: row.remaining_quantity === null || row.remaining_quantity === undefined ? null : Number(row.remaining_quantity),
+    stock_move_id: (row.stock_move_id as string) ?? null,
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
   };
+}
+
+function sumBySourceLine(rows: { source_line_id: string | null; quantity: number }[]) {
+  return rows.reduce<Record<string, number>>((acc, row) => {
+    if (!row.source_line_id) return acc;
+    acc[row.source_line_id] = (acc[row.source_line_id] ?? 0) + Number(row.quantity ?? 0);
+    return acc;
+  }, {});
+}
+
+type ProductStockInfo = {
+  id: string;
+  type: string | null;
+  track_stock: boolean | null;
+  current_stock: number | null;
+};
+
+async function getProductStockInfo(organizationId: string, productIds: string[]) {
+  if (productIds.length === 0) return new Map<string, ProductStockInfo>();
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, type, track_stock, current_stock")
+    .eq("organization_id", organizationId)
+    .in("id", productIds);
+
+  if (error) throw new Error(error.message);
+
+  return new Map(
+    ((data ?? []) as ProductStockInfo[]).map((product) => [
+      product.id,
+      {
+        ...product,
+        current_stock: product.current_stock === null || product.current_stock === undefined
+          ? null
+          : Number(product.current_stock),
+      },
+    ]),
+  );
 }
 
 export async function getActiveOrganizationId() {
@@ -237,8 +332,13 @@ export async function listSalesDocuments(
   const { data, error, count } = await query;
   if (error) throw new Error(error.message);
 
+  const rows = await enrichRelatedDocumentNumbers(
+    organizationId,
+    ((data ?? []) as unknown[]).map(mapSalesDocument),
+  );
+
   return {
-    rows: ((data ?? []) as unknown[]).map(mapSalesDocument),
+    rows,
     total: count ?? 0,
     page,
     pageSize,
@@ -268,11 +368,182 @@ export async function getSalesDocumentDetail(id: string) {
   if (documentResult.error) throw new Error(documentResult.error.message);
   if (linesResult.error) throw new Error(linesResult.error.message);
 
+  const documents = documentResult.data
+    ? await enrichRelatedDocumentNumbers(organizationId, [mapSalesDocument(documentResult.data)])
+    : [];
+
   return {
-    document: documentResult.data ? mapSalesDocument(documentResult.data) : null,
+    document: documents[0] ?? null,
     customer: documentResult.data ? extractObject((documentResult.data as Record<string, unknown>).customer) : null,
     sourceDocument: documentResult.data ? extractObject((documentResult.data as Record<string, unknown>).source_document) : null,
     lines: ((linesResult.data ?? []) as unknown[]).map(mapSalesLine),
+  };
+}
+
+export async function getOrderDeliveryPreparation(orderId: string) {
+  const { document, lines } = await getSalesDocumentDetail(orderId);
+  if (!document || document.document_type !== "order") {
+    return { document: null, lines: [] as DeliveryPreparationLine[] };
+  }
+
+  const organizationId = await getActiveOrganizationId();
+  const supabase = await createClient();
+  const sourceLineIds = lines.map((line) => line.id);
+
+  const { data: deliveryLines, error } = sourceLineIds.length > 0
+    ? await supabase
+        .from("sales_document_lines")
+        .select("source_line_id, quantity, document:sales_documents!inner(document_type, status, organization_id)")
+        .eq("organization_id", organizationId)
+        .in("source_line_id", sourceLineIds)
+        .eq("document.document_type", "delivery_note")
+        .in("document.status", ["validated", "delivered"])
+    : { data: [], error: null };
+
+  if (error) throw new Error(error.message);
+  const deliveredByLine = sumBySourceLine((deliveryLines ?? []) as { source_line_id: string | null; quantity: number }[]);
+  const productIds = Array.from(new Set(lines.map((line) => line.product_id).filter(Boolean))) as string[];
+  const stockByProductId = await getProductStockInfo(organizationId, productIds);
+
+  return {
+    document,
+    lines: lines.map((line) => {
+      const alreadyDelivered = deliveredByLine[line.id] ?? 0;
+      const product = line.product_id ? stockByProductId.get(line.product_id) : null;
+      const trackStock = Boolean(product?.track_stock);
+      const productType = product?.type ?? null;
+      return {
+        ...line,
+        already_delivered: alreadyDelivered,
+        remaining_to_deliver: Math.max(Number(line.quantity) - alreadyDelivered, 0),
+        current_stock: product?.current_stock ?? null,
+        track_stock: trackStock,
+        product_type: productType,
+        is_stockable: trackStock && productType !== "service",
+      };
+    }),
+  };
+}
+
+export async function getManualDeliveryPreparation(orderId: string): Promise<ManualDeliveryPreparation> {
+  const { customer } = await getSalesDocumentDetail(orderId);
+  const preparation = await getOrderDeliveryPreparation(orderId);
+
+  return {
+    order: preparation.document,
+    customer,
+    lines: preparation.lines.map((line) => ({
+      ...line,
+      order_line_id: line.id,
+      ordered_quantity: Number(line.quantity ?? 0),
+      already_delivered_quantity: line.already_delivered,
+      remaining_quantity_to_deliver: line.remaining_to_deliver,
+    })),
+  };
+}
+
+export async function listDeliverableOrders(): Promise<ManualDeliveryOrderOption[]> {
+  const organizationId = await getActiveOrganizationId();
+  const supabase = await createClient();
+
+  const { data: orders, error: orderError } = await supabase
+    .from("sales_documents")
+    .select(SALES_DOCUMENT_SELECT)
+    .eq("organization_id", organizationId)
+    .eq("document_type", "order")
+    .in("status", ["confirmed", "partially_delivered"])
+    .is("archived_at", null)
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (orderError) throw new Error(orderError.message);
+  const documents = ((orders ?? []) as unknown[]).map(mapSalesDocument);
+  if (documents.length === 0) return [];
+
+  const orderIds = documents.map((order) => order.id);
+  const { data: orderLines, error: lineError } = await supabase
+    .from("sales_document_lines")
+    .select("id, document_id, quantity")
+    .eq("organization_id", organizationId)
+    .in("document_id", orderIds);
+
+  if (lineError) throw new Error(lineError.message);
+
+  const lineRows = (orderLines ?? []) as { id: string; document_id: string; quantity: number }[];
+  const sourceLineIds = lineRows.map((line) => line.id);
+
+  const { data: deliveryLines, error: deliveryError } = sourceLineIds.length > 0
+    ? await supabase
+        .from("sales_document_lines")
+        .select("source_line_id, quantity, document:sales_documents!inner(document_type, status, organization_id)")
+        .eq("organization_id", organizationId)
+        .in("source_line_id", sourceLineIds)
+        .eq("document.document_type", "delivery_note")
+        .in("document.status", ["validated", "delivered"])
+    : { data: [], error: null };
+
+  if (deliveryError) throw new Error(deliveryError.message);
+
+  const deliveredByLine = sumBySourceLine((deliveryLines ?? []) as { source_line_id: string | null; quantity: number }[]);
+
+  return documents
+    .map((order) => {
+      const lines = lineRows.filter((line) => line.document_id === order.id);
+      const orderedTotal = lines.reduce((sum, line) => sum + Number(line.quantity ?? 0), 0);
+      const deliveredTotal = lines.reduce(
+        (sum, line) => sum + Math.min(Number(line.quantity ?? 0), deliveredByLine[line.id] ?? 0),
+        0,
+      );
+      const remainingTotal = Math.max(orderedTotal - deliveredTotal, 0);
+
+      return {
+        id: order.id,
+        document_number: order.document_number,
+        customer_name: order.customer_name ?? null,
+        document_date: order.document_date,
+        status: order.status as ManualDeliveryOrderOption["status"],
+        total_ttc: order.total_ttc,
+        ordered_total_quantity: orderedTotal,
+        delivered_total_quantity: deliveredTotal,
+        remaining_total_quantity: remainingTotal,
+      };
+    })
+    .filter((order) => order.remaining_total_quantity > 0);
+}
+
+export async function getReturnPreparation(deliveryId: string) {
+  const { document, lines } = await getSalesDocumentDetail(deliveryId);
+  if (!document || document.document_type !== "delivery_note") {
+    return { document: null, lines: [] as ReturnPreparationLine[] };
+  }
+
+  const organizationId = await getActiveOrganizationId();
+  const supabase = await createClient();
+  const sourceLineIds = lines.map((line) => line.id);
+
+  const { data: returnLines, error } = sourceLineIds.length > 0
+    ? await supabase
+        .from("sales_document_lines")
+        .select("source_line_id, quantity, document:sales_documents!inner(document_type, status, organization_id)")
+        .eq("organization_id", organizationId)
+        .in("source_line_id", sourceLineIds)
+        .eq("document.document_type", "return_note")
+        .eq("document.status", "validated")
+    : { data: [], error: null };
+
+  if (error) throw new Error(error.message);
+  const returnedByLine = sumBySourceLine((returnLines ?? []) as { source_line_id: string | null; quantity: number }[]);
+
+  return {
+    document,
+    lines: lines.map((line) => {
+      const alreadyReturned = returnedByLine[line.id] ?? 0;
+      return {
+        ...line,
+        already_returned: alreadyReturned,
+        returnable_quantity: Math.max(Number(line.quantity) - alreadyReturned, 0),
+      };
+    }),
   };
 }
 
