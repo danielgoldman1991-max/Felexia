@@ -1,5 +1,11 @@
 import type { SalesLineFormValue, TaxRateForSalesSelect } from "@/lib/sales-types";
 
+type UnitLike = {
+  id: string;
+  name?: string | null;
+  symbol?: string | null;
+};
+
 export function round2(value: number) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }
@@ -30,6 +36,20 @@ export function calculateSalesTotals(lines: SalesLineFormValue[]) {
     tax_total: round2(lines.reduce((sum, line) => sum + Number(line.tax_amount || 0), 0)),
     total_ttc: round2(lines.reduce((sum, line) => sum + Number(line.total_ttc || 0), 0)),
   };
+}
+
+export function isIndivisibleUnit(line: Pick<SalesLineFormValue, "unit_id" | "unit_name">, units: UnitLike[] = []) {
+  const unit = line.unit_id ? units.find((item) => item.id === line.unit_id) : null;
+  const symbol = line.unit_name || unit?.symbol || unit?.name || "";
+
+  return symbol.trim().toUpperCase() === "U";
+}
+
+export function normalizeIndivisibleQuantity(quantity: number) {
+  const parsed = Number(quantity);
+  if (!Number.isFinite(parsed) || parsed < 1) return 1;
+
+  return Math.floor(parsed);
 }
 
 export function createEmptySalesLine(defaultTaxRate?: TaxRateForSalesSelect | null): SalesLineFormValue {

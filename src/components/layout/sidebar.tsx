@@ -85,6 +85,7 @@ const menuSections: MenuSection[] = [
       { label: "Devis", href: "/vente/devis" },
       { label: "Nouveau devis", href: "/vente/devis/new" },
       { label: "Commandes clients", href: "/vente/commandes" },
+      { label: "Nouvelle commande", href: "/vente/commandes/new" },
       { label: "Bons de livraison", href: "/vente/livraisons" },
     ],
   },

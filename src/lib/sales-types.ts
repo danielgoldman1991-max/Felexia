@@ -26,7 +26,11 @@ export type SalesDocumentRecord = {
   updated_at: string;
   archived_at: string | null;
   customer_name?: string | null;
+  customer_address?: string | null;
   customer_city?: string | null;
+  customer_phone?: string | null;
+  customer_email?: string | null;
+  customer_ice?: string | null;
   source_document_number?: string | null;
   source_document_type?: SalesDocumentType | null;
 };
@@ -109,6 +113,8 @@ export type ProductForSalesSelect = {
 export type CustomerForSalesSelect = {
   id: string;
   name: string;
+  commercial_name: string | null;
+  ice: string | null;
   city: string | null;
   email: string | null;
   phone: string | null;

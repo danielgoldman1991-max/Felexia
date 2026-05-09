@@ -14,6 +14,8 @@ const pathByType: Record<SalesDocumentType, string> = {
 };
 
 export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[]; type: SalesDocumentType }) {
+  const isOrderTable = type === "order";
+
   if (rows.length === 0) {
     return (
       <EmptyState
@@ -30,6 +32,7 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
           <Th>Numero</Th>
           <Th>Client</Th>
           <Th>Date</Th>
+          {isOrderTable ? <Th>Livraison prevue</Th> : null}
           <Th>Statut</Th>
           <Th>Total TTC</Th>
           <Th>Source</Th>
@@ -42,13 +45,23 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
             <Td className="font-medium">{row.document_number}</Td>
             <Td>{row.customer_name ?? "-"}</Td>
             <Td>{formatDate(row.document_date)}</Td>
+            {isOrderTable ? (
+              <Td>{row.expected_delivery_date ? formatDate(row.expected_delivery_date) : "-"}</Td>
+            ) : null}
             <Td><SalesStatusBadge status={row.status} /></Td>
             <Td><MoneyDisplay value={row.total_ttc} /></Td>
             <Td>{row.source_document_number ?? "-"}</Td>
             <Td>
-              <Link href={`${pathByType[type]}/${row.id}`}>
-                <Button type="button" variant="secondary">Consulter</Button>
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link href={`${pathByType[type]}/${row.id}`}>
+                  <Button type="button" variant="secondary">Consulter</Button>
+                </Link>
+                {isOrderTable && row.status === "draft" ? (
+                  <Link href={`${pathByType[type]}/${row.id}/edit`}>
+                    <Button type="button" variant="ghost">Modifier</Button>
+                  </Link>
+                ) : null}
+              </div>
             </Td>
           </tr>
         ))}

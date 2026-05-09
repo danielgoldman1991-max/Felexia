@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
 import { MoneyDisplay } from "@/components/erp/money-display";
+import { ProductCombobox } from "@/components/sales/product-combobox";
 import {
   calculateSalesLine,
   calculateSalesTotals,
   createEmptySalesLine,
+  isIndivisibleUnit,
+  normalizeIndivisibleQuantity,
 } from "@/lib/sales-calculations";
 import type {
   ProductForSalesSelect,
@@ -36,10 +39,20 @@ function createLineId() {
   return `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function formatQuantity(line: SalesLineFormValue, units: UnitForSalesSelect[]) {
+  if (isIndivisibleUnit(line, units)) return String(normalizeIndivisibleQuantity(line.quantity));
+
+  return new Intl.NumberFormat("fr-MA", {
+    maximumFractionDigits: 3,
+  }).format(line.quantity);
+}
+
 export function SalesLinesEditor({ lines, onChange, products, units, taxRates, defaultTaxRate }: Props) {
   const [draftLine, setDraftLine] = useState<SalesLineFormValue>(() => createEmptySalesLine(defaultTaxRate));
   const [error, setError] = useState<string | null>(null);
+  const descriptionInputRef = useRef<HTMLInputElement>(null);
   const totals = calculateSalesTotals(lines);
+  const draftUsesIndivisibleUnit = isIndivisibleUnit(draftLine, units);
 
   function updateDraft(nextLine: SalesLineFormValue) {
     setDraftLine(calculateSalesLine(nextLine));
@@ -48,7 +61,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
   function handleProductChange(productId: string) {
     const selectedProduct = products.find((product) => product.id === productId);
     if (!selectedProduct) {
-      updateDraft({ ...draftLine, mode: "free", product_id: "", product_name: "" });
+      updateDraft({ ...draftLine, product_id: "", product_name: "" });
       return;
     }
 
@@ -80,12 +93,42 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
     setError(null);
   }
 
+  function handleModeChange(mode: SalesLineFormValue["mode"]) {
+    if (mode === "free") {
+      setDraftLine(
+        calculateSalesLine({
+          ...createEmptySalesLine(defaultTaxRate),
+          id: draftLine.id,
+          mode: "free",
+        }),
+      );
+      setError(null);
+      requestAnimationFrame(() => descriptionInputRef.current?.focus());
+      return;
+    }
+
+    updateDraft({
+      ...draftLine,
+      mode: "product",
+      product_id: "",
+      product_name: "",
+    });
+    setError(null);
+  }
+
   function handleUnitChange(unitId: string) {
     const selectedUnit = units.find((unit) => unit.id === unitId);
-    updateDraft({
+    const nextLine = {
       ...draftLine,
       unit_id: unitId,
       unit_name: selectedUnit?.symbol ?? selectedUnit?.name ?? "",
+    };
+
+    updateDraft({
+      ...nextLine,
+      quantity: isIndivisibleUnit(nextLine, units)
+        ? normalizeIndivisibleQuantity(nextLine.quantity)
+        : nextLine.quantity,
     });
   }
 
@@ -111,6 +154,10 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
     }
     if (Number(preparedLine.quantity) <= 0) {
       setError("La quantite doit etre superieure a zero.");
+      return;
+    }
+    if (isIndivisibleUnit(preparedLine, units) && !Number.isInteger(Number(preparedLine.quantity))) {
+      setError("La quantite doit etre un nombre entier pour l'unite U.");
       return;
     }
     if (Number(preparedLine.unit_price_ht) < 0) {
@@ -146,12 +193,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
               value={draftLine.mode}
               onChange={(event) => {
                 const mode = event.target.value as SalesLineFormValue["mode"];
-                updateDraft({
-                  ...draftLine,
-                  mode,
-                  product_id: mode === "free" ? "" : draftLine.product_id,
-                  product_name: mode === "free" ? "" : draftLine.product_name,
-                });
+                handleModeChange(mode);
               }}
             >
               <option value="product">Article/service</option>
@@ -161,19 +203,15 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
 
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Article / Service</span>
-            <Select
-              className="w-72"
-              value={draftLine.product_id}
-              onChange={(event) => handleProductChange(event.target.value)}
-            >
-              <option value="">-- Selectionner --</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.sku ? `[${product.sku}] ` : ""}
-                  {product.name} ({product.type === "service" ? "Service" : "Produit"})
-                </option>
-              ))}
-            </Select>
+            <div className="w-80 max-w-full">
+              <ProductCombobox
+                products={products}
+                value={draftLine.product_id}
+                onChange={handleProductChange}
+                disabled={draftLine.mode === "free"}
+                placeholder="Rechercher un article ou service..."
+              />
+            </div>
           </label>
         </div>
 
@@ -181,6 +219,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
           <label className="flex flex-col gap-1 text-xs lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Description</span>
             <Input
+              ref={descriptionInputRef}
               value={draftLine.description}
               onChange={(event) => updateDraft({ ...draftLine, description: event.target.value })}
             />
@@ -211,11 +250,24 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             <span className="font-medium text-[var(--muted)]">Quantite</span>
             <Input
               type="number"
-              min="0"
-              step="0.01"
+              min={draftUsesIndivisibleUnit ? "1" : "0"}
+              step={draftUsesIndivisibleUnit ? "1" : "0.001"}
               value={draftLine.quantity}
-              onChange={(event) => updateDraft({ ...draftLine, quantity: toNumber(event.target.value) })}
+              onChange={(event) => {
+                const quantity = toNumber(event.target.value);
+                updateDraft({
+                  ...draftLine,
+                  quantity: draftUsesIndivisibleUnit
+                    ? normalizeIndivisibleQuantity(quantity)
+                    : quantity,
+                });
+              }}
             />
+            {draftUsesIndivisibleUnit ? (
+              <span className="text-[11px] text-[var(--muted)]">
+                Cette unite est indivisible : saisissez une quantite entiere.
+              </span>
+            ) : null}
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
@@ -277,7 +329,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
                 <Td>{index + 1}</Td>
                 <Td>{line.product_name || "Ligne libre"}</Td>
                 <Td>{line.description}</Td>
-                <Td>{line.quantity}</Td>
+                <Td>{formatQuantity(line, units)}</Td>
                 <Td>{line.unit_name || "-"}</Td>
                 <Td><MoneyDisplay value={line.unit_price_ht} /></Td>
                 <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td>

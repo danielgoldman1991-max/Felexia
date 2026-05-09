@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
@@ -13,7 +16,12 @@ export default async function SalesOrdersPage() {
     <ModulePage>
       <PageHeader
         title="Commandes clients"
-        description="Commandes creees depuis des devis acceptes ou convertis."
+        description="Commandes directes et commandes creees depuis les devis."
+        actions={
+          <Link href="/vente/commandes/new">
+            <Button type="button"><Plus className="h-4 w-4" /> Nouvelle commande</Button>
+          </Link>
+        }
       />
       <Card>
         <CardContent>

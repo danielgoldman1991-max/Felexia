@@ -18,7 +18,7 @@ const SALES_DOCUMENT_SELECT = `
   source_document_id, document_date, valid_until, expected_delivery_date,
   status, subtotal_ht, tax_total, total_ttc, notes, internal_notes,
   created_by, created_at, updated_at, archived_at,
-  customer:customer_id (name, city),
+  customer:customer_id (name, address, city, phone, email, ice),
   source_document:source_document_id (document_number, document_type)
 `;
 
@@ -80,7 +80,11 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     updated_at: row.updated_at as string,
     archived_at: (row.archived_at as string) ?? null,
     customer_name: (customer?.name as string | undefined) ?? null,
+    customer_address: (customer?.address as string | undefined) ?? null,
     customer_city: (customer?.city as string | undefined) ?? null,
+    customer_phone: (customer?.phone as string | undefined) ?? null,
+    customer_email: (customer?.email as string | undefined) ?? null,
+    customer_ice: (customer?.ice as string | undefined) ?? null,
     source_document_number: (sourceDocument?.document_number as string | undefined) ?? null,
     source_document_type: (sourceDocument?.document_type as SalesDocumentType | undefined) ?? null,
   };
@@ -122,7 +126,7 @@ export async function listSalesCustomers(): Promise<CustomerForSalesSelect[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("third_parties")
-    .select("id, name, city, email, phone")
+    .select("id, name, commercial_name, ice, city, email, phone")
     .eq("organization_id", organizationId)
     .contains("types", ["customer"])
     .eq("status", "active")

@@ -43,7 +43,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function SalesQuoteForm({
+function mapInitialLines(lines?: SalesDocumentLineRecord[]): SalesLineFormValue[] {
+  if (!lines?.length) return [];
+
+  return lines.map((line) => ({
+    id: line.id,
+    mode: line.product_id ? "product" : "free",
+    product_id: line.product_id ?? "",
+    product_name: line.product_name ?? "",
+    description: line.description,
+    quantity: line.quantity,
+    unit_id: line.unit_id ?? "",
+    unit_name: line.unit_name ?? "",
+    unit_price_ht: line.unit_price_ht,
+    discount_rate: line.discount_rate,
+    tax_rate_id: line.tax_rate_id ?? "",
+    tax_rate: line.tax_rate,
+    subtotal_ht: line.subtotal_ht,
+    tax_amount: line.tax_amount,
+    total_ttc: line.total_ttc,
+  }));
+}
+
+export function SalesOrderForm({
   mode,
   document,
   lines: initialLines,
@@ -56,26 +78,7 @@ export function SalesQuoteForm({
 }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [selectedCustomerId, setSelectedCustomerId] = useState(document?.customer_id ?? "");
-  const [lines, setLines] = useState<SalesLineFormValue[]>(() => {
-    if (!initialLines?.length) return [];
-    return initialLines.map((line) => ({
-      id: line.id,
-      mode: line.product_id ? "product" : "free",
-      product_id: line.product_id ?? "",
-      product_name: line.product_name ?? "",
-      description: line.description,
-      quantity: line.quantity,
-      unit_id: line.unit_id ?? "",
-      unit_name: line.unit_name ?? "",
-      unit_price_ht: line.unit_price_ht,
-      discount_rate: line.discount_rate,
-      tax_rate_id: line.tax_rate_id ?? "",
-      tax_rate: line.tax_rate,
-      subtotal_ht: line.subtotal_ht,
-      tax_amount: line.tax_amount,
-      total_ttc: line.total_ttc,
-    }));
-  });
+  const [lines, setLines] = useState<SalesLineFormValue[]>(() => mapInitialLines(initialLines));
   const totals = calculateSalesTotals(lines);
 
   return (
@@ -99,17 +102,21 @@ export function SalesQuoteForm({
               placeholder="Rechercher un client..."
             />
           </div>
-          <Field label="Date du devis">
-            <Input name="document_date" type="date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
+          <Field label="Date commande">
+            <Input
+              name="document_date"
+              type="date"
+              defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]}
+            />
           </Field>
-          <Field label="Validite jusqu'au">
-            <Input name="valid_until" type="date" defaultValue={document?.valid_until ?? ""} />
+          <Field label="Livraison prevue">
+            <Input name="expected_delivery_date" type="date" defaultValue={document?.expected_delivery_date ?? ""} />
           </Field>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Lignes du devis</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Lignes de commande</h2></CardHeader>
         <CardContent>
           <SalesLinesEditor
             lines={lines}
@@ -139,11 +146,11 @@ export function SalesQuoteForm({
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={document ? `/vente/devis/${document.id}` : "/vente/devis"}>
+        <Link href={document ? `/vente/commandes/${document.id}` : "/vente/commandes"}>
           <Button type="button" variant="secondary">Annuler</Button>
         </Link>
         <Button disabled={pending}>
-          {mode === "create" ? "Creer devis" : "Enregistrer"}
+          {mode === "create" ? "Creer commande" : "Enregistrer"}
         </Button>
       </div>
     </form>

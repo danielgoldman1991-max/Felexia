@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Archive, CheckCircle2, Pencil, Send, Truck, XCircle } from "lucide-react";
+import { Archive, CheckCircle2, Pencil, Printer, Send, Truck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
@@ -81,6 +81,22 @@ export function SalesDocumentDetail({
         description={document.customer_name ?? ""}
         actions={
           <>
+            {isQuote ? (
+              <Link href={`/vente/devis/${document.id}/print`} target="_blank">
+                <Button type="button" variant="secondary">
+                  <Printer className="h-4 w-4" />
+                  Imprimer / PDF
+                </Button>
+              </Link>
+            ) : null}
+            {isOrder ? (
+              <Link href={`/vente/commandes/${document.id}/print`} target="_blank">
+                <Button type="button" variant="secondary">
+                  <Printer className="h-4 w-4" />
+                  Imprimer / PDF
+                </Button>
+              </Link>
+            ) : null}
             {isQuote && document.status === "draft" ? (
               <>
                 <Link href={`/vente/devis/${document.id}/edit`}>
@@ -99,9 +115,14 @@ export function SalesDocumentDetail({
               <ActionForm label="Convertir en commande" action={actionWithId(convertQuoteToOrder, document.id)} />
             ) : null}
             {isOrder && document.status === "draft" ? (
-              <ActionForm label="Confirmer commande" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmOrder, document.id)} />
+              <>
+                <Link href={`/vente/commandes/${document.id}/edit`}>
+                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
+                </Link>
+                <ActionForm label="Confirmer commande" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmOrder, document.id)} />
+              </>
             ) : null}
-            {isOrder && ["draft", "confirmed"].includes(document.status) ? (
+            {isOrder && document.status === "confirmed" ? (
               <ActionForm label="Creer bon de livraison" icon={<Truck className="h-4 w-4" />} action={actionWithId(createDeliveryFromOrder, document.id)} />
             ) : null}
             {isDelivery && document.status === "draft" ? (
@@ -144,6 +165,16 @@ export function SalesDocumentDetail({
           <Info label="Date" value={formatDate(document.document_date)} />
           <Info label="Validite" value={document.valid_until ? formatDate(document.valid_until) : null} />
           <Info label="Livraison prevue" value={document.expected_delivery_date ? formatDate(document.expected_delivery_date) : null} />
+          <Info
+            label="Source"
+            value={
+              document.source_document_number && document.source_document_type === "quote" ? (
+                <Link className="font-medium text-[var(--secondary)] hover:text-[var(--primary)]" href={`/vente/devis/${document.source_document_id}`}>
+                  Voir le devis source
+                </Link>
+              ) : document.source_document_number
+            }
+          />
         </CardContent>
       </Card>
 
