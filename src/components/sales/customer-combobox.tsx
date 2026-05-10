@@ -10,6 +10,8 @@ export type CustomerOption = {
   id: string;
   name: string;
   commercial_name?: string | null;
+  types?: string[] | null;
+  primary_type?: string | null;
   ice?: string | null;
   email?: string | null;
   phone?: string | null;
@@ -30,6 +32,7 @@ function normalize(value: string | null | undefined) {
 
 function secondaryLine(customer: CustomerOption) {
   return [
+    recipientTypeLabel(customer),
     customer.ice ? `ICE: ${customer.ice}` : null,
     customer.city,
     customer.phone,
@@ -37,12 +40,23 @@ function secondaryLine(customer: CustomerOption) {
   ].filter(Boolean).join(" · ");
 }
 
+function recipientTypeLabel(customer: CustomerOption) {
+  const types = customer.types ?? [];
+  const isProspect = types.includes("prospect");
+  const isCustomer = types.includes("customer");
+
+  if (isProspect && isCustomer) return "Client + Prospect";
+  if (isProspect) return "Prospect";
+  if (isCustomer) return "Client";
+  return customer.primary_type === "prospect" ? "Prospect" : "Client";
+}
+
 export function CustomerCombobox({
   customers,
   value,
   onChange,
   name,
-  placeholder = "Rechercher un client...",
+  placeholder = "Rechercher un client ou prospect...",
 }: CustomerComboboxProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +77,8 @@ export function CustomerCombobox({
             customer.email,
             customer.phone,
             customer.city,
+            ...(customer.types ?? []),
+            customer.primary_type,
           ]
             .filter(Boolean)
             .some((field) => normalize(field).includes(normalizedQuery)),
@@ -178,8 +194,13 @@ export function CustomerCombobox({
                     {selected ? <Check className="h-4 w-4" /> : null}
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-[var(--foreground)]">
-                      {customer.name}
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate text-sm font-medium text-[var(--foreground)]">
+                        {customer.name}
+                      </span>
+                      <span className="shrink-0 rounded-full bg-[var(--primary-soft)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--secondary)]">
+                        {recipientTypeLabel(customer)}
+                      </span>
                     </span>
                     {secondaryLine(customer) ? (
                       <span className="mt-0.5 block truncate text-xs text-[var(--muted)]">
@@ -192,12 +213,12 @@ export function CustomerCombobox({
             })
           ) : (
             <div className="px-3 py-3">
-              <p className="text-sm font-medium text-[var(--foreground)]">Aucun client trouve</p>
+              <p className="text-sm font-medium text-[var(--foreground)]">Aucun client ou prospect trouve</p>
               <Link
-                href="/tiers/new?type=customer"
+                href="/tiers/new?type=prospect"
                 className="mt-2 inline-flex text-sm font-medium text-[var(--secondary)] hover:text-[var(--primary)]"
               >
-                Creer un client
+                Creer un client ou prospect
               </Link>
             </div>
           )}
@@ -206,7 +227,7 @@ export function CustomerCombobox({
 
       {selectedCustomer ? (
         <p className="mt-1 text-xs text-[var(--muted)]">
-          Client selectionne : {selectedCustomer.name}
+          Client / Prospect selectionne : {selectedCustomer.name}
         </p>
       ) : null}
     </div>

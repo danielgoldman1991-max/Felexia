@@ -40,6 +40,8 @@ export type SalesDocumentRecord = {
   customer_phone?: string | null;
   customer_email?: string | null;
   customer_ice?: string | null;
+  customer_types?: string[] | null;
+  customer_primary_type?: string | null;
   source_document_number?: string | null;
   source_document_type?: SalesDocumentType | null;
   related_order_number?: string | null;
@@ -145,10 +147,19 @@ export type CustomerForSalesSelect = {
   id: string;
   name: string;
   commercial_name: string | null;
+  types?: string[] | null;
+  primary_type?: string | null;
   ice: string | null;
   city: string | null;
   email: string | null;
   phone: string | null;
+  status?: string | null;
+};
+
+export type SalesThirdPartyOption = CustomerForSalesSelect & {
+  types: string[] | null;
+  primary_type: string | null;
+  status: string | null;
 };
 
 export type UnitForSalesSelect = {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Archive, CheckCircle2, Pencil, Printer, Send, Truck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
@@ -32,6 +33,17 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
       <div className="mt-1 text-sm">{value ?? "-"}</div>
     </div>
   );
+}
+
+function recipientTypeLabel(document: SalesDocumentRecord) {
+  const types = document.customer_types ?? [];
+  const isProspect = types.includes("prospect");
+  const isCustomer = types.includes("customer");
+
+  if (isProspect && isCustomer) return "Client + Prospect";
+  if (isProspect) return "Prospect";
+  if (isCustomer) return "Client";
+  return document.customer_primary_type === "prospect" ? "Prospect" : "Client";
 }
 
 function actionWithId(action: (prev: SalesActionResult, formData: FormData) => Promise<SalesActionResult>, id: string) {
@@ -74,6 +86,7 @@ export function SalesDocumentDetail({
   const isDelivery = document.document_type === "delivery_note";
   const isReturn = document.document_type === "return_note";
   const title = `${SALES_DOCUMENT_LABELS[document.document_type]} ${document.document_number}`;
+  const recipientLabel = recipientTypeLabel(document);
 
   return (
     <div className="space-y-6">
@@ -178,6 +191,7 @@ export function SalesDocumentDetail({
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
           <SalesStatusBadge status={document.status} />
+          <Badge tone={recipientLabel.includes("Prospect") ? "warning" : "info"}>{recipientLabel}</Badge>
           <span className="text-sm text-[var(--muted)]">Cree le {formatDate(document.created_at)}</span>
           {document.source_document_number ? (
             <span className="text-sm text-[var(--muted)]">Source {document.source_document_number}</span>
@@ -188,7 +202,7 @@ export function SalesDocumentDetail({
       <Card>
         <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Info label="Client" value={document.customer_name} />
+          <Info label="Client / Prospect" value={document.customer_name} />
           <Info label="Date" value={formatDate(document.document_date)} />
           <Info label="Validite" value={document.valid_until ? formatDate(document.valid_until) : null} />
           <Info label="Livraison prevue" value={document.expected_delivery_date ? formatDate(document.expected_delivery_date) : null} />

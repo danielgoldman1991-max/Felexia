@@ -287,7 +287,8 @@ export async function convertProspectToCustomer(
     return { success: false, error: "Ce tiers n'est pas un prospect de votre organisation." };
   }
 
-  const types = Array.from(new Set([...(thirdParty.types as string[]), "customer"]));
+  const currentTypes = Array.isArray(thirdParty.types) ? thirdParty.types as string[] : [];
+  const types = Array.from(new Set(currentTypes.filter((type) => type !== "prospect").concat("customer")));
   const { error } = await supabase
     .from("third_parties")
     .update({
@@ -295,6 +296,7 @@ export async function convertProspectToCustomer(
       primary_type: "customer",
       prospect_status: "gagne",
       converted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
@@ -309,7 +311,7 @@ export async function convertProspectToCustomer(
     table_name: "third_parties",
     record_id: id,
     action: "CONVERT_PROSPECT_TO_CUSTOMER",
-    changes: { types },
+    changes: { previous_types: currentTypes, next_types: types },
   });
 
   revalidatePath(`/tiers/${id}`);

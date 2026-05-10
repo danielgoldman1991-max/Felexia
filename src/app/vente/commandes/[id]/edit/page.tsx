@@ -6,7 +6,7 @@ import { updateSalesOrder } from "@/lib/sales-actions";
 import {
   getDefaultSalesTaxRate,
   getSalesDocumentDetail,
-  listSalesCustomers,
+  listSalesQuoteThirdParties,
   listSalesProducts,
   listSalesTaxRates,
   listSalesUnits,
@@ -18,7 +18,7 @@ export default async function EditSalesOrderPage({ params }: { params: Promise<{
   const { id } = await params;
   const [{ document, lines }, customers, products, units, taxRates, defaultTaxRate] = await Promise.all([
     getSalesDocumentDetail(id),
-    listSalesCustomers(),
+    listSalesQuoteThirdParties(),
     listSalesProducts(),
     listSalesUnits(),
     listSalesTaxRates(),

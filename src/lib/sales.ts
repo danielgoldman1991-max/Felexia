@@ -13,6 +13,7 @@ import type {
   SalesDocumentRecord,
   SalesDocumentType,
   SalesListFilters,
+  SalesThirdPartyOption,
   TaxRateForSalesSelect,
   UnitForSalesSelect,
 } from "@/lib/sales-types";
@@ -24,7 +25,7 @@ const SALES_DOCUMENT_SELECT = `
   status, subtotal_ht, tax_total, total_ttc, notes, internal_notes,
   return_reason, return_status, stock_updated_at, validated_at, delivered_at, returned_at,
   created_by, created_at, updated_at, archived_at,
-  customer:customer_id (name, address, city, phone, email, ice),
+  customer:customer_id (name, address, city, phone, email, ice, types, primary_type),
   source_document:source_document_id (document_number, document_type)
 `;
 
@@ -100,6 +101,8 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     customer_phone: (customer?.phone as string | undefined) ?? null,
     customer_email: (customer?.email as string | undefined) ?? null,
     customer_ice: (customer?.ice as string | undefined) ?? null,
+    customer_types: (customer?.types as string[] | undefined) ?? null,
+    customer_primary_type: (customer?.primary_type as string | undefined) ?? null,
     source_document_number: (sourceDocument?.document_number as string | undefined) ?? null,
     source_document_type: (sourceDocument?.document_type as SalesDocumentType | undefined) ?? null,
     related_order_number: null,
@@ -221,7 +224,7 @@ export async function listSalesCustomers(): Promise<CustomerForSalesSelect[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("third_parties")
-    .select("id, name, commercial_name, ice, city, email, phone")
+    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status")
     .eq("organization_id", organizationId)
     .contains("types", ["customer"])
     .eq("status", "active")
@@ -230,6 +233,22 @@ export async function listSalesCustomers(): Promise<CustomerForSalesSelect[]> {
 
   if (error) throw new Error(error.message);
   return (data ?? []) as CustomerForSalesSelect[];
+}
+
+export async function listSalesQuoteThirdParties(): Promise<SalesThirdPartyOption[]> {
+  const organizationId = await getActiveOrganizationId();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("third_parties")
+    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status")
+    .eq("organization_id", organizationId)
+    .overlaps("types", ["prospect", "customer"])
+    .eq("status", "active")
+    .is("archived_at", null)
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as SalesThirdPartyOption[];
 }
 
 export async function listSalesProducts(): Promise<ProductForSalesSelect[]> {

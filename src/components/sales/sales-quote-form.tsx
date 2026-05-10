@@ -91,12 +91,12 @@ export function SalesQuoteForm({
         <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Client *</span>
+            <span className="font-medium text-[var(--muted)]">Client / Prospect *</span>
             <CustomerCombobox
               customers={customers}
               value={selectedCustomerId}
               onChange={setSelectedCustomerId}
-              placeholder="Rechercher un client..."
+              placeholder="Rechercher un client ou prospect..."
             />
           </div>
           <Field label="Date du devis">

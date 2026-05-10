@@ -274,6 +274,64 @@ async function updateOrderDeliveryStatus(organizationId: string, orderId: string
     .eq("id", orderId);
 }
 
+async function convertProspectToCustomerAfterOrderConfirmation(
+  organizationId: string,
+  userId: string,
+  orderId: string,
+) {
+  const supabase = await createClient();
+  const { data: order, error: orderError } = await supabase
+    .from("sales_documents")
+    .select("id, document_number, customer_id, document_type, status")
+    .eq("organization_id", organizationId)
+    .eq("id", orderId)
+    .maybeSingle();
+
+  if (orderError || !order || order.document_type !== "order" || order.status !== "confirmed") return;
+
+  const { data: thirdParty, error: thirdPartyError } = await supabase
+    .from("third_parties")
+    .select("id, types")
+    .eq("organization_id", organizationId)
+    .eq("id", order.customer_id)
+    .maybeSingle();
+
+  if (thirdPartyError || !thirdParty) return;
+
+  const currentTypes = Array.isArray(thirdParty.types) ? thirdParty.types as string[] : [];
+  if (!currentTypes.includes("prospect")) return;
+
+  const nextTypes = Array.from(new Set(currentTypes.filter((type) => type !== "prospect").concat("customer")));
+  const { error: updateError } = await supabase
+    .from("third_parties")
+    .update({
+      types: nextTypes,
+      primary_type: "customer",
+      prospect_status: "gagne",
+      converted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("organization_id", organizationId)
+    .eq("id", thirdParty.id);
+
+  if (updateError) return;
+
+  await supabase.from("audit_logs").insert({
+    organization_id: organizationId,
+    actor_id: userId,
+    table_name: "third_parties",
+    record_id: thirdParty.id,
+    action: "convert_prospect_to_customer",
+    changes: {
+      message: `Prospect converti automatiquement en client apres confirmation de la commande ${order.document_number}.`,
+      order_id: order.id,
+      order_number: order.document_number,
+      previous_types: currentTypes,
+      next_types: nextTypes,
+    },
+  });
+}
+
 async function getDefaultWarehouseId(organizationId: string) {
   const supabase = await createClient();
   const { data: existing, error: existingError } = await supabase
@@ -408,7 +466,7 @@ export async function createSalesQuote(
   void previousState;
   const workspace = await requireActiveWorkspace();
   const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
+  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
@@ -461,7 +519,7 @@ export async function updateSalesQuote(
   if (!id) return { success: false, error: "Identifiant devis manquant." };
 
   const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
+  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
@@ -523,7 +581,7 @@ export async function createSalesOrder(
   void previousState;
   const workspace = await requireActiveWorkspace();
   const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
+  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
@@ -576,7 +634,7 @@ export async function updateSalesOrder(
   if (!id) return { success: false, error: "Identifiant commande manquant." };
 
   const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
+  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
@@ -772,9 +830,14 @@ export async function convertQuoteToOrder(prev: SalesActionResult, formData: For
 
 export async function confirmOrder(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
+  const workspace = await requireActiveWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Commande introuvable." };
   const result = await updateDocumentStatus(id, "confirmed", "order", ["draft"]);
+  if (result.success) {
+    await convertProspectToCustomerAfterOrderConfirmation(workspace.organization.id, workspace.userId, id);
+    revalidatePath("/tiers");
+  }
   revalidatePath(`/vente/commandes/${id}`);
   return result;
 }

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { createSalesQuote } from "@/lib/sales-actions";
 import {
   getDefaultSalesTaxRate,
-  listSalesCustomers,
+  listSalesQuoteThirdParties,
   listSalesProducts,
   listSalesTaxRates,
   listSalesUnits,
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewSalesQuotePage() {
   const [customers, products, units, taxRates, defaultTaxRate] = await Promise.all([
-    listSalesCustomers(),
+    listSalesQuoteThirdParties(),
     listSalesProducts(),
     listSalesUnits(),
     listSalesTaxRates(),
