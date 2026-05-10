@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f7fb;
-  --foreground: #111733;
-  --muted: #65708a;
-  --border: #dfe4ee;
+  --background: #f8fafc;
+  --foreground: #020617;
+  --muted: #64748b;
+  --border: #e2e8f0;
   --surface: #ffffff;
-  --surface-soft: #f0f3fa;
+  --surface-soft: #f8fafc;
   --surface-raised: #ffffff;
-  --primary: #7c4ff2;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --primary-soft: #ede7ff;
-  --secondary: #2d2490;
-  --secondary-deep: #16124a;
-  --accent: #41c9d3;
-  --accent-soft: #e6fbfd;
-  --success: #16845f;
-  --success-soft: #e7f7f0;
-  --warning: #ad7515;
-  --warning-soft: #fff4d8;
-  --danger: #c0395b;
-  --danger-soft: #fde8ee;
-  --ring: #7c4ff2;
-  --shadow-sm: 0 1px 2px rgb(17 23 51 / 6%);
-  --shadow-md: 0 10px 30px rgb(45 36 144 / 10%);
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
+  --primary-soft: #dbeafe;
+  --secondary: #0f172a;
+  --secondary-deep: #020617;
+  --accent: #38bdf8;
+  --accent-soft: #e0f2fe;
+  --success: #22c55e;
+  --success-soft: #dcfce7;
+  --warning: #f59e0b;
+  --warning-soft: #fef3c7;
+  --danger: #f43f5e;
+  --danger-soft: #ffe4e6;
+  --ring: #2563eb;
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
+  --shadow-md: 0 18px 45px rgb(15 23 42 / 10%);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
 }
 
 @theme inline {
@@ -48,9 +48,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(circle at 15% 0%, rgb(124 79 242 / 7%), transparent 28rem),
-    linear-gradient(180deg, #fafbff 0%, var(--background) 32rem);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
 }

@@ -1,95 +1,91 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  BriefcaseBusiness,
-  Building2,
+  ArrowLeftRight,
+  BadgeDollarSign,
+  Banknote,
+  BarChart3,
+  BellRing,
+  BookOpen,
   Boxes,
-  CalendarDays,
+  Building2,
   Calculator,
   ChevronDown,
-  Files,
-  Folder,
-  Home,
+  ChevronsLeft,
+  ClipboardList,
+  CreditCard,
+  FileClock,
+  FileText,
+  Gauge,
   Landmark,
-  PackageOpen,
+  LayoutDashboard,
+  Package,
+  Plus,
   Receipt,
-  Wallet,
-  Wrench,
+  RotateCcw,
+  Search,
+  Settings,
+  ShieldAlert,
+  Sparkles,
+  Target,
+  Truck,
+  Users,
+  WalletCards,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type MenuItem = {
+type SidebarItem = {
   label: string;
   href: string;
+  icon?: ComponentType<{ className?: string }>;
+  badge?: string;
+  badgeTone?: "danger" | "warning" | "info";
 };
 
-type MenuSection = {
+type SidebarSection = {
   key: string;
   label: string;
   href: string;
   icon: ComponentType<{ className?: string }>;
-  activePrefixes: string[];
-  items: MenuItem[];
+  items?: SidebarItem[];
 };
 
-const menuSections: MenuSection[] = [
+const quickActions: SidebarItem[] = [
+  { label: "Nouveau devis", href: "/vente/devis/new", icon: Plus },
+  { label: "Nouvelle facture", href: "/facturation/factures/new", icon: Plus },
+  { label: "Paiement recu", href: "/facturation/paiements/new", icon: Plus },
+];
+
+const sections: SidebarSection[] = [
+  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   {
-    key: "accueil",
-    label: "Accueil",
-    href: "/dashboard",
-    icon: Home,
-    activePrefixes: ["/dashboard"],
-    items: [],
-  },
-  {
-    key: "tiers",
-    label: "Tiers",
-    href: "/tiers",
-    icon: Building2,
-    activePrefixes: ["/tiers"],
-    items: [
-      { label: "Tous les tiers", href: "/tiers" },
-      { label: "Prospects", href: "/tiers/prospects" },
-      { label: "Clients", href: "/tiers/clients" },
-      { label: "Fournisseurs", href: "/tiers/fournisseurs" },
-    ],
-  },
-  {
-    key: "produits-services",
-    label: "Produits | Services",
-    href: "/articles",
-    icon: PackageOpen,
-    activePrefixes: ["/articles"],
-    items: [
-      { label: "Tous les articles", href: "/articles" },
-      { label: "Produits", href: "/articles/produits" },
-      { label: "Services", href: "/articles/services" },
-      { label: "Nouvel article/service", href: "/articles/new" },
-      { label: "Categories", href: "/articles/categories" },
-      { label: "Unites", href: "/articles/unites" },
-      { label: "TVA", href: "/articles/tva" },
-    ],
-  },
-  {
-    key: "vente",
-    label: "Vente",
+    key: "ventes",
+    label: "Ventes",
     href: "/vente",
-    icon: BriefcaseBusiness,
-    activePrefixes: ["/vente"],
+    icon: BadgeDollarSign,
     items: [
-      { label: "Tableau des ventes", href: "/vente" },
-      { label: "Devis", href: "/vente/devis" },
-      { label: "Nouveau devis", href: "/vente/devis/new" },
-      { label: "Commandes clients", href: "/vente/commandes" },
-      { label: "Nouvelle commande", href: "/vente/commandes/new" },
-      { label: "Bons de livraison", href: "/vente/livraisons" },
-      { label: "Nouveau bon de livraison", href: "/vente/livraisons/new" },
-      { label: "Retours client", href: "/vente/retours" },
+      { label: "Devis", href: "/vente/devis", icon: FileText },
+      { label: "Commandes", href: "/vente/commandes", icon: ClipboardList },
+      { label: "Bons de livraison", href: "/vente/livraisons", icon: Truck },
+      { label: "Retours client", href: "/vente/retours", icon: RotateCcw },
+    ],
+  },
+  {
+    key: "facturation",
+    label: "Facturation & Paiements",
+    href: "/facturation",
+    icon: Receipt,
+    items: [
+      { label: "Factures", href: "/facturation/factures", icon: FileText },
+      { label: "Avoirs", href: "/facturation/avoirs", icon: RotateCcw },
+      { label: "Paiements recus", href: "/facturation/paiements", icon: WalletCards },
+      { label: "Impayes", href: "/facturation/factures?paymentStatus=unpaid", icon: ShieldAlert, badge: "12", badgeTone: "danger" },
+      { label: "Relances", href: "/facturation/relances", icon: BellRing },
     ],
   },
   {
@@ -97,205 +93,176 @@ const menuSections: MenuSection[] = [
     label: "Stock",
     href: "/stock",
     icon: Boxes,
-    activePrefixes: ["/stock"],
     items: [
-      { label: "Vue stock", href: "/stock" },
-      { label: "Mouvements par article", href: "/stock/mouvements" },
-      { label: "Entree manuelle", href: "/stock/entrees/new" },
-      { label: "Ajustement stock", href: "/stock/ajustements/new" },
+      { label: "Vue globale", href: "/stock", icon: Gauge },
+      { label: "Produits", href: "/articles/produits", icon: Package },
+      { label: "Mouvements", href: "/stock/mouvements", icon: ArrowLeftRight },
+      { label: "Ajustements", href: "/stock/ajustements/new", icon: Calculator },
+      { label: "Alertes stock", href: "/stock", icon: ShieldAlert, badge: "3", badgeTone: "warning" },
     ],
   },
   {
-    key: "facturation",
-    label: "Facturation",
-    href: "/facturation",
-    icon: Receipt,
-    activePrefixes: ["/facturation"],
-    items: [
-      { label: "Tableau facturation", href: "/facturation" },
-      { label: "Factures clients", href: "/facturation/factures" },
-      { label: "Nouvelle facture", href: "/facturation/factures/new" },
-      { label: "Paiements clients", href: "/facturation/paiements" },
-      { label: "Nouveau paiement", href: "/facturation/paiements/new" },
-      { label: "Affectation paiements", href: "/facturation/paiements/affectation" },
-      { label: "Relances", href: "/facturation/relances" },
-      { label: "Nouvelle relance", href: "/facturation/relances/new" },
-      { label: "Avoirs clients", href: "/facturation/avoirs" },
-      { label: "Nouvel avoir", href: "/facturation/avoirs/new" },
-    ],
-  },
-  {
-    key: "banques-caisses",
-    label: "Banques | Caisses",
+    key: "tresorerie",
+    label: "Tresorerie",
     href: "/tresorerie",
-    icon: Wallet,
-    activePrefixes: ["/tresorerie", "/banques", "/caisses", "/encaissements", "/decaissements"],
+    icon: Landmark,
     items: [
-      { label: "Tresorerie", href: "/tresorerie" },
-      { label: "Banques", href: "/banques" },
-      { label: "Caisses", href: "/caisses" },
-      { label: "Encaissements", href: "/encaissements" },
-      { label: "Decaissements", href: "/decaissements" },
-      { label: "Previsions", href: "/tresorerie/previsions" },
+      { label: "Comptes bancaires", href: "/banques", icon: Landmark },
+      { label: "Caisses", href: "/caisses", icon: Banknote },
+      { label: "Depenses", href: "/decaissements", icon: CreditCard },
+      { label: "Encaissements", href: "/encaissements", icon: WalletCards },
+      { label: "Virements", href: "/tresorerie/virements", icon: ArrowLeftRight },
+      { label: "Rapprochements", href: "/tresorerie/rapprochements", icon: BarChart3 },
+    ],
+  },
+  {
+    key: "crm",
+    label: "CRM",
+    href: "/tiers",
+    icon: Users,
+    items: [
+      { label: "Clients", href: "/tiers/clients", icon: Building2 },
+      { label: "Prospects", href: "/tiers/prospects", icon: Target },
+      { label: "Activites", href: "/agenda", icon: BellRing },
+      { label: "Taches", href: "/agenda/taches", icon: ClipboardList },
     ],
   },
   {
     key: "comptabilite",
     label: "Comptabilite",
     href: "/comptabilite",
-    icon: Calculator,
-    activePrefixes: ["/comptabilite"],
+    icon: BookOpen,
     items: [
-      { label: "Tableau comptable", href: "/comptabilite" },
-      { label: "Journaux", href: "/comptabilite/journaux" },
-      { label: "Plan comptable", href: "/comptabilite/plan-comptable" },
-      { label: "Ecritures", href: "/comptabilite/ecritures" },
-      { label: "TVA", href: "/comptabilite/tva" },
-      { label: "Exports comptables", href: "/comptabilite/exports" },
+      { label: "Ecritures", href: "/comptabilite/ecritures", icon: FileText },
+      { label: "Journal", href: "/comptabilite/journaux", icon: BookOpen },
+      { label: "Grand livre", href: "/comptabilite/grand-livre", icon: BookOpen },
+      { label: "Balance", href: "/comptabilite/balance", icon: BarChart3 },
+      { label: "TVA", href: "/comptabilite/tva", icon: Calculator },
+      { label: "Resultat", href: "/comptabilite/resultat", icon: BarChart3 },
     ],
   },
-  {
-    key: "documents",
-    label: "Documents",
-    href: "/documents",
-    icon: Folder,
-    activePrefixes: ["/documents"],
-    items: [
-      { label: "Tous les documents", href: "/documents" },
-      { label: "Modeles PDF", href: "/documents/modeles" },
-      { label: "Pieces jointes", href: "/documents/pieces-jointes" },
-      { label: "Archives", href: "/documents/archives" },
-    ],
-  },
-  {
-    key: "agenda",
-    label: "Agenda",
-    href: "/agenda",
-    icon: CalendarDays,
-    activePrefixes: ["/agenda"],
-    items: [
-      { label: "Agenda", href: "/agenda" },
-      { label: "Taches", href: "/agenda/taches" },
-      { label: "Rappels", href: "/agenda/rappels" },
-      { label: "Relances a faire", href: "/agenda/relances" },
-      { label: "Echeances", href: "/agenda/echeances" },
-    ],
-  },
-  {
-    key: "outils",
-    label: "Outils",
-    href: "/outils",
-    icon: Wrench,
-    activePrefixes: ["/outils", "/parametres"],
-    items: [
-      { label: "Parametres", href: "/parametres" },
-      { label: "Utilisateurs", href: "/parametres/utilisateurs" },
-      { label: "Roles & permissions", href: "/parametres/roles" },
-      { label: "Numerotation", href: "/parametres/numerotation" },
-      { label: "Import / Export", href: "/outils/import-export" },
-      { label: "Audit log", href: "/outils/audit-log" },
-    ],
-  },
+  { key: "settings", label: "Parametres", href: "/parametres", icon: Settings },
 ];
 
 function pathMatches(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const cleanHref = href.split("?")[0];
+  return pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
 }
 
-function sectionIsActive(pathname: string, section: MenuSection) {
-  return section.activePrefixes.some((prefix) => pathMatches(pathname, prefix));
-}
-
-export function Sidebar() {
-  const pathname = usePathname();
-  const [openSections, setOpenSections] = useState<string[]>([]);
-
-  const toggleSection = (key: string) => {
-    setOpenSections((current) =>
-      current.includes(key)
-        ? current.filter((item) => item !== key)
-        : [...current, key],
-    );
+function Badge({ value, tone = "info" }: { value: string; tone?: "danger" | "warning" | "info" }) {
+  const styles = {
+    danger: "bg-rose-500 text-white",
+    warning: "bg-amber-400 text-slate-950",
+    info: "bg-blue-500 text-white",
   };
+  return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", styles[tone])}>{value}</span>;
+}
 
-  const parentClass = (active: boolean) =>
-    cn(
-      "group flex min-h-10 flex-1 items-center gap-3 rounded-[var(--radius-md)] border-l-4 px-3 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#42D6D6]/70",
-      active
-        ? "border-[#42D6D6] bg-[#243B78] text-white shadow-sm"
-        : "border-transparent text-white/80 hover:bg-white/10 hover:text-white",
-    );
+export function Sidebar({
+  collapsed,
+  mobileOpen,
+  onCloseMobile,
+  onToggleCollapsed,
+}: {
+  collapsed: boolean;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
+  onToggleCollapsed: () => void;
+}) {
+  const pathname = usePathname();
+  const initiallyOpen = useMemo(() => sections.filter((section) => section.items?.some((item) => pathMatches(pathname, item.href)) || pathMatches(pathname, section.href)).map((section) => section.key), [pathname]);
+  const [open, setOpen] = useState<string[]>(initiallyOpen);
 
-  const subLinkClass = (href: string) =>
-    cn(
-      "block rounded-[var(--radius-sm)] border-l-2 px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#42D6D6]/70",
-      pathname === href
-        ? "border-[#42D6D6] bg-[#243B78] text-white shadow-sm"
-        : "border-transparent text-white/65 hover:bg-white/10 hover:text-white",
-    );
+  function toggle(key: string) {
+    setOpen((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key]);
+  }
 
   return (
-    <aside className="hidden min-h-screen w-72 shrink-0 border-r border-white/10 bg-[linear-gradient(180deg,var(--secondary-deep)_0%,#20186f_58%,#16124a_100%)] text-white shadow-[18px_0_40px_rgb(22_18_74_/_10%)] lg:flex lg:flex-col">
-      <div className="border-b border-white/10 px-5 py-5">
-        <Link href="/dashboard" className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-white/7 p-3 ring-1 ring-white/10 transition hover:bg-white/10">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)] bg-white shadow-[var(--shadow-sm)]">
-            <Image
-              src="/felexia-conseils-logo.jpg"
-              alt="Logo Felexia Conseils"
-              width={44}
-              height={44}
-              className="h-11 w-11 object-contain"
-              priority
-            />
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-white/10 bg-slate-950 text-white shadow-2xl transition-transform duration-300 lg:translate-x-0",
+        collapsed ? "lg:w-24" : "lg:w-[280px]",
+        mobileOpen ? "translate-x-0" : "-translate-x-full",
+      )}
+    >
+      <div className="flex h-20 items-center gap-3 border-b border-white/10 px-5">
+        <Link href="/dashboard" className="flex min-w-0 flex-1 items-center gap-3" onClick={onCloseMobile}>
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-600/25">
+            <Sparkles className="h-5 w-5" />
           </span>
-          <span className="min-w-0">
-            <span className="block text-sm font-semibold leading-5 text-white">
-              Felexia facilite
+          {!collapsed ? (
+            <span className="min-w-0">
+              <span className="block truncate text-lg font-bold tracking-tight">Felexia</span>
+              <span className="block truncate text-xs text-slate-400">Gestion PME</span>
             </span>
-            <span className="block text-sm font-semibold leading-5 text-white">
-              ta gestion
-            </span>
-          </span>
+          ) : null}
         </Link>
+        <button type="button" className="rounded-xl p-2 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden" onClick={onCloseMobile} aria-label="Fermer le menu">
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {menuSections.map((section) => {
-          const Icon = section.icon;
-          const active = sectionIsActive(pathname, section);
-          const open = active || openSections.includes(section.key);
-          const hasChildren = section.items.length > 0;
-
-          return (
-            <div key={section.key} className="space-y-1">
-              <div className="flex items-center gap-1">
-                <Link href={section.href} className={parentClass(active)}>
-                  <Icon className="h-4 w-4 shrink-0 text-current opacity-90 transition group-hover:opacity-100" />
-                  <span className="min-w-0 flex-1 truncate">{section.label}</span>
+      {!collapsed ? (
+        <div className="space-y-4 border-b border-white/10 px-4 py-4">
+          <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-slate-400">
+            <Search className="h-4 w-4" />
+            <span className="flex-1">Rechercher...</span>
+            <span className="rounded-lg border border-white/10 px-1.5 py-0.5 text-[10px] text-slate-500">Ctrl K</span>
+          </div>
+          <div className="grid gap-2">
+            {quickActions.map((item) => {
+              const Icon = item.icon ?? Plus;
+              return (
+                <Link key={item.href} href={item.href} onClick={onCloseMobile} className="flex items-center gap-2 rounded-xl bg-blue-600/15 px-3 py-2 text-sm font-medium text-blue-100 ring-1 ring-blue-400/20 transition hover:bg-blue-600/25">
+                  <Icon className="h-4 w-4" />
+                  {item.label}
                 </Link>
-                {hasChildren ? (
-                  <button
-                    type="button"
-                    onClick={() => toggleSection(section.key)}
-                    className={cn(
-                      "flex h-10 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-white/65 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#42D6D6]/70",
-                      open ? "text-white" : "",
-                    )}
-                    aria-label={open ? `Fermer ${section.label}` : `Ouvrir ${section.label}`}
-                    aria-expanded={open}
-                  >
-                    <ChevronDown className={cn("h-4 w-4 transition-transform", open ? "rotate-180" : "")} />
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        {sections.map((section) => {
+          const Icon = section.icon;
+          const active = pathMatches(pathname, section.href) || Boolean(section.items?.some((item) => pathMatches(pathname, item.href)));
+          const expanded = !collapsed && (open.includes(section.key) || active);
+          return (
+            <div key={section.key}>
+              <div className="flex items-center gap-1">
+                <Link
+                  href={section.href}
+                  onClick={onCloseMobile}
+                  className={cn(
+                    "group relative flex min-h-11 flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition",
+                    active ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white",
+                  )}
+                  title={collapsed ? section.label : undefined}
+                >
+                  <span className={cn("absolute left-0 top-2 h-7 w-1 rounded-r-full bg-blue-400 transition-opacity", active ? "opacity-100" : "opacity-0")} />
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {!collapsed ? <span className="min-w-0 flex-1 truncate">{section.label}</span> : null}
+                </Link>
+                {!collapsed && section.items ? (
+                  <button type="button" onClick={() => toggle(section.key)} className="flex h-10 w-9 items-center justify-center rounded-xl text-slate-500 hover:bg-white/5 hover:text-white" aria-label={`Ouvrir ${section.label}`}>
+                    <ChevronDown className={cn("h-4 w-4 transition", expanded ? "rotate-180" : "")} />
                   </button>
                 ) : null}
               </div>
-
-              {hasChildren && open ? (
-                <div className="ml-7 space-y-1 border-l border-white/10 pl-3">
-                  {section.items.map((item) => (
-                    <Link key={item.href} href={item.href} className={subLinkClass(item.href)}>
-                      {item.label}
-                    </Link>
-                  ))}
+              {expanded && section.items ? (
+                <div className="ml-5 mt-1 space-y-1 border-l border-white/10 pl-3">
+                  {section.items.map((item) => {
+                    const ItemIcon = item.icon;
+                    const itemActive = pathMatches(pathname, item.href);
+                    return (
+                      <Link key={`${section.key}-${item.label}`} href={item.href} onClick={onCloseMobile} className={cn("flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition", itemActive ? "bg-blue-600/20 text-blue-100" : "text-slate-500 hover:bg-white/5 hover:text-white")}>
+                        {ItemIcon ? <ItemIcon className="h-3.5 w-3.5" /> : null}
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {item.badge ? <Badge value={item.badge} tone={item.badgeTone} /> : null}
+                      </Link>
+                    );
+                  })}
                 </div>
               ) : null}
             </div>
@@ -303,15 +270,11 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-white/10 px-5 py-4 text-xs text-white/45">
-        <div className="flex items-center gap-2">
-          <Landmark className="h-3.5 w-3.5" />
-          Gestion PME
-        </div>
-        <div className="mt-2 flex items-center gap-2">
-          <Files className="h-3.5 w-3.5" />
-          Modules progressifs
-        </div>
+      <div className="border-t border-white/10 p-4">
+        <button type="button" onClick={onToggleCollapsed} className="hidden w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-slate-400 transition hover:bg-white/10 hover:text-white lg:flex">
+          <ChevronsLeft className={cn("h-4 w-4 transition", collapsed ? "rotate-180" : "")} />
+          {!collapsed ? "Reduire le menu" : null}
+        </button>
       </div>
     </aside>
   );

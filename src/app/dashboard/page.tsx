@@ -1,74 +1,68 @@
-import { AlertTriangle, Banknote, Boxes, FileClock, Receipt, TrendingUp, Users } from "lucide-react";
-import { DocumentTable, CashTable } from "@/components/erp/data-tables";
+import Link from "next/link";
+import { CalendarDays } from "lucide-react";
 import { ModulePage } from "@/components/erp/module-page";
-import { MoneyDisplay } from "@/components/erp/money-display";
-import { PageHeader } from "@/components/erp/page-header";
-import { StatCard } from "@/components/erp/stat-card";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { dashboard, invoices, cashTransactions, thirdParties } from "@/lib/demo-data";
+import { KpiCard } from "@/components/dashboard/kpi-card";
+import { DashboardChart } from "@/components/dashboard/dashboard-chart";
+import { SalesDonut } from "@/components/dashboard/sales-donut";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { TopClients } from "@/components/dashboard/top-clients";
+import { MobileAppBanner } from "@/components/dashboard/mobile-app-banner";
+import { operationalStats, activityFeed, kpiCards, revenueSeries, salesSplit, topClients } from "@/lib/mock-dashboard-data";
 import { requireActiveWorkspace } from "@/lib/auth";
 
 export default async function DashboardPage() {
   const workspace = await requireActiveWorkspace();
-  const remaining = dashboard.revenue - dashboard.collected;
+  const firstName = workspace.profile?.full_name?.split(" ")[0] || "Youssef";
 
   return (
     <ModulePage>
-      <PageHeader
-        title="Tableau de bord"
-        description={`Vue financiere et operationnelle de ${workspace.organization.name}.`}
-      />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="CA facture" value={<MoneyDisplay value={dashboard.revenue} />} icon={<Receipt className="h-5 w-5" />} />
-        <StatCard title="Montant encaisse" value={<MoneyDisplay value={dashboard.collected} />} icon={<Banknote className="h-5 w-5" />} />
-        <StatCard title="Reste a encaisser" value={<MoneyDisplay value={remaining} />} icon={<FileClock className="h-5 w-5" />} />
-        <StatCard title="Factures en retard" value={dashboard.overdueInvoices} caption="Relance prioritaire" icon={<AlertTriangle className="h-5 w-5" />} />
-        <StatCard title="Dettes fournisseurs" value={<MoneyDisplay value={dashboard.supplierDebt} />} />
-        <StatCard title="Solde tresorerie" value={<MoneyDisplay value={dashboard.cashBalance} />} />
-        <StatCard title="Marge brute estimee" value={`${dashboard.grossMargin}%`} icon={<TrendingUp className="h-5 w-5" />} />
-        <StatCard title="Alertes stock faible" value={dashboard.lowStock} icon={<Boxes className="h-5 w-5" />} />
-      </div>
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <Card>
-          <CardHeader>
-            <h2 className="font-semibold">Dernieres factures</h2>
-          </CardHeader>
-          <CardContent>
-            <DocumentTable rows={invoices} basePath="/factures" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <h2 className="font-semibold">Top clients debiteurs</h2>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {thirdParties
-              .filter((party) => party.balance > 0)
-              .map((party) => (
-                <div key={party.id} className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--surface-soft)] text-sm font-semibold">
-                      <Users className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{party.name}</p>
-                      <p className="text-xs text-[var(--muted)]">{party.city}</p>
-                    </div>
+      <div className="space-y-8">
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+          <div>
+            <p className="text-sm font-semibold text-blue-600">Felexia ERP</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Dashboard</h1>
+            <p className="mt-2 text-slate-500">Bonjour {firstName}, voici un apercu de votre activite.</p>
+          </div>
+          <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+            <CalendarDays className="h-4 w-4 text-blue-600" />
+            01 Mai - 31 Mai 2024
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {kpiCards.map((card) => <KpiCard key={card.title} {...card} />)}
+        </div>
+
+        <div className="grid gap-5 xl:grid-cols-[1.65fr_0.95fr]">
+          <DashboardChart data={revenueSeries} />
+          <SalesDonut data={salesSplit} />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {operationalStats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <Link key={stat.label} href={stat.href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <MoneyDisplay value={party.balance} />
+                  <span className="text-2xl font-bold text-slate-950">{stat.value}</span>
                 </div>
-              ))}
-          </CardContent>
-        </Card>
+                <p className="mt-4 text-sm font-semibold text-slate-900">{stat.label}</p>
+                <p className="mt-1 text-sm text-slate-500">{stat.amount}</p>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <ActivityFeed items={activityFeed} />
+          <TopClients clients={topClients} />
+        </div>
+
+        <MobileAppBanner />
       </div>
-      <Card className="mt-6">
-        <CardHeader>
-          <h2 className="font-semibold">Derniers paiements</h2>
-        </CardHeader>
-        <CardContent>
-          <CashTable rows={cashTransactions} />
-        </CardContent>
-      </Card>
     </ModulePage>
   );
 }
