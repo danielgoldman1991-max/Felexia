@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,10 +85,10 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
             </Select>
           </Field>
           <Field label="Date document">
-            <Input name="document_date" type="date" defaultValue={quote?.document_date ?? new Date().toISOString().split("T")[0]} />
+            <DateField name="document_date" defaultValue={quote?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Validite jusqu au">
-            <Input name="valid_until" type="date" defaultValue={quote?.valid_until ?? ""} />
+            <DateField name="valid_until" defaultValue={quote?.valid_until ?? ""} />
           </Field>
           <Field label="Delai paiement (jours)">
             <Input name="payment_terms_days" type="number" min="0" defaultValue={quote?.payment_terms_days ?? 30} />

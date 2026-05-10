@@ -8,7 +8,8 @@ export type StockMoveType =
   | "manual_stock_in"
   | "manual_stock_out"
   | "initial_stock"
-  | "purchase_in";
+  | "purchase_in"
+  | "purchase_receipt_in";
 
 export type StockProductOption = {
   id: string;
@@ -95,4 +96,5 @@ export const STOCK_MOVE_TYPE_LABELS: Record<StockMoveType, string> = {
   manual_stock_out: "Sortie manuelle",
   initial_stock: "Stock initial",
   purchase_in: "Entree achat",
+  purchase_receipt_in: "Reception fournisseur",
 };

@@ -9,7 +9,7 @@ export function TopClients({ clients }: { clients: Client[] }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5">
         <h2 className="text-base font-semibold text-slate-950">Top 5 clients</h2>
-        <p className="text-sm text-slate-500">Contribution au chiffre d'affaires.</p>
+        <p className="text-sm text-slate-500">Contribution au chiffre d&apos;affaires.</p>
       </div>
       <div className="space-y-4">
         {clients.map((client, index) => (

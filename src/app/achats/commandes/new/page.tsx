@@ -1,12 +1,14 @@
-import { DocumentForm } from "@/components/erp/document-form";
 import { ModulePage } from "@/components/erp/module-page";
-import { PageHeader } from "@/components/erp/page-header";
+import { SupplierOrderForm } from "@/components/purchases/supplier-order-form";
+import { listPurchaseSuppliers, listPurchaseProducts } from "@/lib/purchases";
 
-export default function NewPurchaseOrderPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewSupplierOrderPage() {
+  const [suppliers, products] = await Promise.all([listPurchaseSuppliers(), listPurchaseProducts()]);
   return (
     <ModulePage>
-      <PageHeader title="Nouvelle commande fournisseur" />
-      <DocumentForm title="Commande fournisseur" />
+      <SupplierOrderForm suppliers={suppliers} products={products} />
     </ModulePage>
   );
 }

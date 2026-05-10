@@ -9,7 +9,7 @@ export function Table({ children, className }: { children: ReactNode; className?
   );
 }
 
-export function Th({ children }: { children: ReactNode }) {
+export function Th({ children }: { children?: ReactNode }) {
   return <th className="bg-[#f4f6fb] px-4 py-3 text-xs font-semibold uppercase tracking-[0.03em] text-[var(--muted)]">{children}</th>;
 }
 

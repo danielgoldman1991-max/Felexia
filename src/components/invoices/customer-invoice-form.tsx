@@ -9,6 +9,7 @@ import { InvoiceLinesEditor } from "@/components/invoices/invoice-lines-editor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
@@ -201,11 +202,11 @@ export function CustomerInvoiceForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date facture</span>
-            <Input type="date" name="invoice_date" defaultValue={initialInvoiceDate} />
+            <DateField name="invoice_date" defaultValue={initialInvoiceDate} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date echeance</span>
-            <Input type="date" name="due_date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <DateField name="due_date" value={dueDate} onChange={(iso) => setDueDate(iso)} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Conditions de paiement</span>

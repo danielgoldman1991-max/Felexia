@@ -6,6 +6,7 @@ import { CustomerCombobox } from "@/components/sales/customer-combobox";
 import { CustomerOpenItems } from "@/components/payments/customer-open-items";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -144,11 +145,11 @@ export function CustomerPaymentForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date paiement</span>
-            <Input type="date" name="payment_date" defaultValue={initialValues?.payment_date ?? today()} />
+            <DateField name="payment_date" defaultValue={initialValues?.payment_date ?? today()} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date valeur</span>
-            <Input type="date" name="value_date" defaultValue={initialValues?.value_date ?? ""} />
+            <DateField name="value_date" defaultValue={initialValues?.value_date ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Montant *</span>
@@ -172,7 +173,7 @@ export function CustomerPaymentForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Echeance cheque/effet</span>
-            <Input type="date" name="due_date" defaultValue={initialValues?.due_date ?? ""} />
+            <DateField name="due_date" defaultValue={initialValues?.due_date ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Notes</span>

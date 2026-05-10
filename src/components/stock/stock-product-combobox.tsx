@@ -63,28 +63,30 @@ export function StockProductCombobox({ products, value, onSelect, pushUrl = true
         aria-expanded={open}
       />
       {open ? (
-        <div className="absolute z-20 mt-2 max-h-80 w-full overflow-auto rounded-[var(--radius-md)] border border-[var(--border)] bg-white shadow-[var(--shadow-md)]">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <button
-                key={product.id}
-                type="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => selectProduct(product)}
-                className={cn(
-                  "block w-full border-b border-[var(--border)] px-3 py-2 text-left text-sm transition hover:bg-[var(--surface-soft)]",
-                  product.id === value ? "bg-[var(--primary-soft)]" : "",
-                )}
-              >
-                <span className="block font-medium text-[var(--foreground)]">{productLabel(product)}</span>
-                <span className="mt-1 block text-xs text-[var(--muted)]">
-                  Stock actuel : {formatNumber(product.current_stock)} {product.unit_symbol ?? ""} · {product.track_stock ? "Suivi en stock" : "Non suivi"}
-                </span>
-              </button>
-            ))
-          ) : (
-            <div className="px-3 py-4 text-sm text-[var(--muted)]">Aucun article trouve.</div>
-          )}
+        <div className="absolute left-0 top-full z-[100] mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+          <div className="max-h-80 overflow-y-auto">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <button
+                  key={product.id}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectProduct(product)}
+                  className={cn(
+                    "w-full border-b border-slate-100 px-4 py-3 text-left text-sm text-slate-900 transition last:border-b-0 hover:bg-indigo-50 hover:text-indigo-900",
+                    product.id === value ? "bg-indigo-50 font-medium text-indigo-700" : "",
+                  )}
+                >
+                  <span className="block font-medium">{productLabel(product)}</span>
+                  <span className="mt-1 block text-xs text-slate-500">
+                    Stock actuel : {formatNumber(product.current_stock)} {product.unit_symbol ?? ""} &middot; {product.track_stock ? "Suivi en stock" : "Non suivi"}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="px-4 py-4 text-sm text-slate-500">Aucun article trouve.</div>
+            )}
+          </div>
         </div>
       ) : null}
     </div>

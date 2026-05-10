@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DateField } from "@/components/ui/date-field";
 import { CustomerCombobox } from "@/components/sales/customer-combobox";
 import { SalesLinesEditor } from "@/components/sales/sales-lines-editor";
 import { calculateSalesTotals } from "@/lib/sales-calculations";
@@ -123,14 +123,10 @@ export function SalesOrderForm({
             />
           </div>
           <Field label="Date commande">
-            <Input
-              name="document_date"
-              type="date"
-              defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]}
-            />
+            <DateField name="document_date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Livraison prevue">
-            <Input name="expected_delivery_date" type="date" defaultValue={document?.expected_delivery_date ?? ""} />
+            <DateField name="expected_delivery_date" defaultValue={document?.expected_delivery_date ?? ""} placeholder="jj/mm/aaaa" />
           </Field>
         </CardContent>
       </Card>

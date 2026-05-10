@@ -15,7 +15,13 @@ function segment(value: number, offset: number) {
 }
 
 export function SalesDonut({ data }: { data: DonutItem[] }) {
-  let offset = 0;
+  const segments = data.reduce<Array<{ item: DonutItem; offset: number }>>(
+    (acc, item) => {
+      const previousOffset = acc.reduce((sum, s) => sum + s.item.value, 0);
+      return [...acc, { item, offset: previousOffset }];
+    },
+    [],
+  );
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5">
@@ -26,11 +32,9 @@ export function SalesDonut({ data }: { data: DonutItem[] }) {
         <div className="relative h-48 w-48">
           <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90">
             <circle cx="80" cy="80" r="62" fill="none" stroke="#e2e8f0" strokeWidth="18" />
-            {data.map((item) => {
-              const current = offset;
-              offset += item.value;
-              return <circle key={item.label} cx="80" cy="80" r="62" fill="none" stroke={item.color} strokeWidth="18" strokeLinecap="round" {...segment(item.value, current)} />;
-            })}
+            {segments.map(({ item, offset }) => (
+              <circle key={item.label} cx="80" cy="80" r="62" fill="none" stroke={item.color} strokeWidth="18" strokeLinecap="round" {...segment(item.value, offset)} />
+            ))}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="text-xl font-bold text-slate-950">125 430</span>

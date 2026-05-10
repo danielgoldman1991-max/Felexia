@@ -8,7 +8,7 @@ export function MobileAppBanner() {
           <p className="mb-3 text-sm font-semibold text-blue-300">Application mobile</p>
           <h2 className="max-w-2xl text-2xl font-bold tracking-tight sm:text-3xl">Gerez votre entreprise partout, a tout moment</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Accedez a vos donnees, creez des documents et suivez votre activite depuis l'application mobile.
+            Accedez a vos donnees, creez des documents et suivez votre activite depuis l&apos;application mobile.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <button type="button" className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-slate-950">App Store</button>

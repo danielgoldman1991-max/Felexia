@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
+import { COUNTRY_OPTIONS } from "@/lib/location-options";
+import { SUPPLIER_PURCHASE_TERMS_OPTIONS, SUPPLIER_PAYMENT_METHOD_OPTIONS } from "@/lib/supplier-options";
 import type { ThirdPartyKind } from "@/lib/third-party-types";
 
 const ATTACHMENTS_BUCKET = "third-party-attachments";
@@ -171,6 +173,29 @@ function validateThirdParty(formData: FormData): ParsedThirdParty {
   }
   if (paymentMethodValue && !(validMethods as readonly string[]).includes(paymentMethodValue)) {
     return { error: "Modalite de paiement invalide." };
+  }
+
+  const countryValue = text(formData, "country") ?? "MA";
+  const validCountries = COUNTRY_OPTIONS.map((o) => o.value);
+  if (!validCountries.includes(countryValue as typeof validCountries[number])) {
+    return { error: "Pays invalide." };
+  }
+
+  const supplierPaymentTermsValue = text(formData, "supplier_payment_terms");
+  const validSupplierTerms = SUPPLIER_PURCHASE_TERMS_OPTIONS.map((o) => o.value);
+  if (supplierPaymentTermsValue && !(validSupplierTerms as readonly string[]).includes(supplierPaymentTermsValue)) {
+    return { error: "Condition d'achat invalide." };
+  }
+
+  const supplierPaymentMethodValue = text(formData, "supplier_payment_method");
+  const validSupplierMethods = SUPPLIER_PAYMENT_METHOD_OPTIONS.map((o) => o.value);
+  if (supplierPaymentMethodValue && !(validSupplierMethods as readonly string[]).includes(supplierPaymentMethodValue)) {
+    return { error: "Mode de paiement fournisseur invalide." };
+  }
+
+  const deliveryDelay = optionalInteger(formData, "supplier_delivery_delay_days");
+  if (deliveryDelay !== undefined && deliveryDelay < 0) {
+    return { error: "Le delai de livraison doit etre positif." };
   }
 
   return {
@@ -595,7 +620,8 @@ export async function updateThirdPartyAddress(
       address: text(formData, "address"),
       postal_code: text(formData, "postal_code"),
       city: text(formData, "city"),
-      country: text(formData, "country") ?? "MA",
+    country: text(formData, "country") ?? "MA",
+    department: text(formData, "department"),
       is_default: formData.get("is_default") === "on",
     })
     .eq("organization_id", workspace.organization.id)

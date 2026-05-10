@@ -6,8 +6,16 @@ import type { ThirdPartyActionResult } from "@/lib/third-party-actions";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
 import { PROSPECT_SOURCES, PROSPECT_STATUSES, normalizeTypes } from "@/lib/third-party-types";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
+import { COUNTRY_OPTIONS, getCitiesForCountry, getDefaultCountry } from "@/lib/location-options";
+import {
+  SUPPLIER_CATEGORY_OPTIONS,
+  SUPPLIER_PURCHASE_TERMS_OPTIONS,
+  SUPPLIER_RATING_OPTIONS,
+  SUPPLIER_PAYMENT_METHOD_OPTIONS,
+} from "@/lib/supplier-options";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +47,13 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
     return ["prospect"];
   }, [thirdParty, initialType]);
   const [types, setTypes] = useState<ThirdPartyKind[]>(initialTypes);
+  const [country, setCountry] = useState(thirdParty?.country ?? getDefaultCountry());
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    const raw = thirdParty?.supplier_product_categories ?? "";
+    if (!raw) return [];
+    return raw.split(",").map((s) => s.trim()).filter(Boolean);
+  });
+  const cities = useMemo(() => getCitiesForCountry(country), [country]);
 
   const toggle = (type: ThirdPartyKind) => {
     setTypes((current) =>
@@ -48,6 +63,14 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
     );
   };
 
+  function toggleCategory(value: string) {
+    setSelectedCategories((current) =>
+      current.includes(value)
+        ? current.filter((v) => v !== value)
+        : [...current, value],
+    );
+  }
+
   const hasProspect = types.includes("prospect");
   const hasCustomer = types.includes("customer");
   const hasSupplier = types.includes("supplier");
@@ -55,6 +78,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
   return (
     <form action={formAction} className="space-y-5">
       {thirdParty ? <input type="hidden" name="id" value={thirdParty.id} /> : null}
+      <input type="hidden" name="supplier_product_categories" value={selectedCategories.join(",")} />
       <Card>
         <CardHeader>
           <h2 className="font-semibold">En-tete / Type de tiers</h2>
@@ -107,14 +131,27 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
           <Field label="Code postal">
             <Input name="postal_code" defaultValue={thirdParty?.postal_code ?? ""} />
           </Field>
-          <Field label="Ville">
-            <Input name="city" defaultValue={thirdParty?.city ?? ""} />
-          </Field>
           <Field label="Pays">
-            <Select name="country" defaultValue={thirdParty?.country ?? "MA"}>
-              <option value="MA">Maroc</option>
-              <option value="FR">France</option>
-              <option value="ES">Espagne</option>
+            <Select
+              name="country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+            >
+              {COUNTRY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Ville">
+            <Select
+              name="city"
+              defaultValue={thirdParty?.city ?? ""}
+              key={country}
+            >
+              <option value="">Selectionner une ville...</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>{city}</option>
+              ))}
             </Select>
           </Field>
           <Field label="Telephone">
@@ -182,7 +219,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
               </Select>
             </Field>
             <Field label="Valeur potentielle"><Input name="potential_value" type="number" min="0" step="0.01" defaultValue={thirdParty?.potential_value ?? 0} /></Field>
-            <Field label="Prochain rappel"><Input name="next_follow_up_date" type="date" defaultValue={thirdParty?.next_follow_up_date ?? ""} /></Field>
+            <Field label="Prochain rappel"><DateField name="next_follow_up_date" defaultValue={thirdParty?.next_follow_up_date ?? ""} /></Field>
             <Field label="Niveau d'interet"><Input name="interest_level" defaultValue={thirdParty?.interest_level ?? ""} /></Field>
             <Field label="Commercial responsable"><Input name="sales_owner" defaultValue={thirdParty?.sales_owner ?? ""} /></Field>
             <Field label="Notes de prospection"><Textarea name="prospect_notes" defaultValue={thirdParty?.prospect_notes ?? ""} /></Field>
@@ -233,13 +270,61 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
         <Card>
           <CardHeader><h2 className="font-semibold">Informations fournisseur</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-3">
-            <Field label="Categories produits/services"><Textarea name="supplier_product_categories" defaultValue={thirdParty?.supplier_product_categories ?? ""} /></Field>
-            <Field label="Conditions d'achat"><Textarea name="supplier_payment_terms" defaultValue={thirdParty?.supplier_payment_terms ?? ""} /></Field>
-            <Field label="Delai moyen livraison"><Input name="supplier_delivery_delay_days" type="number" min="0" defaultValue={thirdParty?.supplier_delivery_delay_days ?? 0} /></Field>
-            <Field label="Evaluation fournisseur"><Input name="supplier_rating" type="number" min="1" max="5" defaultValue={thirdParty?.supplier_rating ?? ""} /></Field>
-            <Field label="Contact achat principal"><Input name="supplier_main_contact" defaultValue={thirdParty?.supplier_main_contact ?? ""} /></Field>
-            <Field label="Mode de paiement fournisseur"><Input name="supplier_payment_method" defaultValue={thirdParty?.supplier_payment_method ?? ""} /></Field>
-            <Field label="Notes achat"><Textarea name="supplier_notes" defaultValue={thirdParty?.supplier_notes ?? ""} /></Field>
+            <div className="space-y-1.5 text-sm lg:col-span-3">
+              <span className="font-medium text-[var(--muted)]">Categories produits/services</span>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {SUPPLIER_CATEGORY_OPTIONS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors ${
+                      selectedCategories.includes(opt.value)
+                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={selectedCategories.includes(opt.value)}
+                      onChange={() => toggleCategory(opt.value)}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <Field label="Conditions d'achat">
+              <Select name="supplier_payment_terms" defaultValue={thirdParty?.supplier_payment_terms ?? ""}>
+                <option value="">-- Selectionner --</option>
+                {SUPPLIER_PURCHASE_TERMS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Delai moyen livraison (jours)">
+              <Input name="supplier_delivery_delay_days" type="number" min="0" step="1" defaultValue={thirdParty?.supplier_delivery_delay_days ?? ""} placeholder="Ex : 3" />
+            </Field>
+            <Field label="Evaluation fournisseur">
+              <Select name="supplier_rating" defaultValue={thirdParty?.supplier_rating != null ? String(thirdParty.supplier_rating) : ""}>
+                {SUPPLIER_RATING_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Contact achat principal">
+              <Input name="supplier_main_contact" defaultValue={thirdParty?.supplier_main_contact ?? ""} placeholder="Nom du contact achat principal" />
+            </Field>
+            <Field label="Mode de paiement fournisseur">
+              <Select name="supplier_payment_method" defaultValue={thirdParty?.supplier_payment_method ?? ""}>
+                <option value="">-- Selectionner --</option>
+                {SUPPLIER_PAYMENT_METHOD_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Notes achat">
+              <Textarea name="supplier_notes" defaultValue={thirdParty?.supplier_notes ?? ""} placeholder="Notes internes liees aux achats, conditions particulieres, historique fournisseur..." />
+            </Field>
           </CardContent>
         </Card>
       ) : null}

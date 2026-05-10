@@ -1,5 +1,24 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ModulePage } from "@/components/erp/module-page";
+import { PageHeader } from "@/components/erp/page-header";
+import { SupplierInvoicesTable } from "@/components/purchases/purchase-documents-table";
+import { listSupplierInvoices } from "@/lib/purchases";
 
-export default function SupplierInvoicesPage() {
-  return <PlaceholderPage title="Factures fournisseurs" description="Dettes fournisseurs, echeances et paiements." />;
+export const dynamic = "force-dynamic";
+
+export default async function SupplierInvoicesPage() {
+  const { rows } = await listSupplierInvoices();
+  return (
+    <ModulePage>
+      <PageHeader
+        title="Factures fournisseurs"
+        description="Factures recues des fournisseurs."
+        actions={<Link href="/achats/factures/new"><Button><Plus className="h-4 w-4" /> Nouvelle facture</Button></Link>}
+      />
+      <Card><CardContent><SupplierInvoicesTable rows={rows} /></CardContent></Card>
+    </ModulePage>
+  );
 }

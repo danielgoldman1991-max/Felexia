@@ -25,7 +25,7 @@ export function DashboardChart({ data }: { data: ChartPoint[] }) {
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-slate-950">Evolution du chiffre d'affaires</h2>
+          <h2 className="text-base font-semibold text-slate-950">Evolution du chiffre d&apos;affaires</h2>
           <p className="text-sm text-slate-500">Tendance mensuelle des ventes facturees.</p>
         </div>
         <button type="button" className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">Par jour</button>

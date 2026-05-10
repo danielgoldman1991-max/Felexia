@@ -21,6 +21,13 @@ import {
   deleteThirdPartyContact,
 } from "@/lib/third-party-actions";
 import { getPaymentTermLabel, getPaymentMethodLabel } from "@/lib/payment-terms";
+import { getCountryLabel } from "@/lib/location-options";
+import {
+  getSupplierPurchaseTermsLabel,
+  getSupplierRatingLabel,
+  getSupplierPaymentMethodLabel,
+  formatSupplierCategories,
+} from "@/lib/supplier-options";
 import type {
   ThirdPartyActivityItem,
   ThirdPartyAddress,
@@ -153,6 +160,7 @@ export function ThirdPartyDetail({
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Adresse" value={thirdParty.address} />
             <Info label="Ville" value={`${thirdParty.postal_code ?? ""} ${thirdParty.city ?? ""}`} />
+            <Info label="Pays" value={getCountryLabel(thirdParty.country)} />
             <Info label="Telephone" value={thirdParty.phone} />
             <Info label="Portable" value={thirdParty.mobile} />
             <Info label="Email" value={thirdParty.email} />
@@ -194,12 +202,12 @@ export function ThirdPartyDetail({
           <Card>
             <CardHeader><h2 className="font-semibold">Informations achats</h2></CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <Info label="Categories fournies" value={thirdParty.supplier_product_categories} />
-              <Info label="Conditions achat" value={thirdParty.supplier_payment_terms} />
+              <Info label="Categories fournies" value={formatSupplierCategories(thirdParty.supplier_product_categories)} />
+              <Info label="Conditions achat" value={getSupplierPurchaseTermsLabel(thirdParty.supplier_payment_terms)} />
               <Info label="Delai livraison" value={thirdParty.supplier_delivery_delay_days ? `${thirdParty.supplier_delivery_delay_days} jours` : null} />
-              <Info label="Evaluation" value={thirdParty.supplier_rating ? `${thirdParty.supplier_rating}/5` : null} />
+              <Info label="Evaluation" value={getSupplierRatingLabel(thirdParty.supplier_rating)} />
               <Info label="Contact achat" value={thirdParty.supplier_main_contact} />
-              <Info label="Paiement fournisseur" value={thirdParty.supplier_payment_method} />
+              <Info label="Paiement fournisseur" value={getSupplierPaymentMethodLabel(thirdParty.supplier_payment_method)} />
             </CardContent>
           </Card>
         ) : null}

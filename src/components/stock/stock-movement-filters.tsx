@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Select } from "@/components/ui/select";
 import { STOCK_MOVE_TYPE_LABELS } from "@/lib/stock-types";
 import type { StockMoveType, WarehouseOption } from "@/lib/stock-types";
@@ -18,8 +18,8 @@ export function StockMovementFilters({
   return (
     <form className="grid gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 md:grid-cols-2 xl:grid-cols-6">
       <input type="hidden" name="productId" value={productId} />
-      <Input name="dateFrom" type="date" defaultValue={values.dateFrom ?? ""} />
-      <Input name="dateTo" type="date" defaultValue={values.dateTo ?? ""} />
+      <DateField name="dateFrom" defaultValue={values.dateFrom ?? ""} />
+      <DateField name="dateTo" defaultValue={values.dateTo ?? ""} />
       <Select name="moveType" defaultValue={values.moveType ?? "all"}>
         <option value="all">Tous les types</option>
         {moveTypes.map((type) => (

@@ -18,13 +18,13 @@ import {
   ChevronsLeft,
   ClipboardList,
   CreditCard,
-  FileClock,
   FileText,
   Gauge,
   Landmark,
   LayoutDashboard,
   Package,
   Plus,
+  ShoppingCart,
   Receipt,
   RotateCcw,
   Search,
@@ -57,12 +57,27 @@ type SidebarSection = {
 
 const quickActions: SidebarItem[] = [
   { label: "Nouveau devis", href: "/vente/devis/new", icon: Plus },
+  { label: "Nouvelle commande", href: "/achats/commandes/new", icon: Plus },
   { label: "Nouvelle facture", href: "/facturation/factures/new", icon: Plus },
   { label: "Paiement recu", href: "/facturation/paiements/new", icon: Plus },
 ];
 
 const sections: SidebarSection[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  {
+    key: "achats",
+    label: "Achats",
+    href: "/achats",
+    icon: ShoppingCart,
+    items: [
+      { label: "Tableau achats", href: "/achats", icon: Gauge },
+      { label: "Fournisseurs", href: "/achats/fournisseurs", icon: Users },
+      { label: "Commandes", href: "/achats/commandes", icon: ClipboardList },
+      { label: "Receptions", href: "/achats/receptions", icon: Truck },
+      { label: "Factures", href: "/achats/factures", icon: Receipt },
+      { label: "Paiements", href: "/achats/paiements", icon: WalletCards },
+    ],
+  },
   {
     key: "ventes",
     label: "Ventes",

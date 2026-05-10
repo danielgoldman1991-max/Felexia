@@ -184,45 +184,47 @@ export function ProductCombobox({
         <div
           id="product-combobox-listbox"
           role="listbox"
-          className="absolute z-30 mt-2 max-h-80 w-full overflow-auto rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-1 shadow-[var(--shadow-md)]"
+          className="absolute z-[100] mt-2 max-h-80 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product, index) => {
-              const selected = product.id === value;
-              const active = index === activeIndex;
+          <div className="max-h-80 overflow-y-auto p-1.5">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product, index) => {
+                const selected = product.id === value;
+                const active = index === activeIndex;
 
-              return (
-                <button
-                  key={product.id}
-                  type="button"
-                  role="option"
-                  aria-selected={selected}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => selectProduct(product)}
-                  className={cn(
-                    "flex w-full items-start gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-left transition",
-                    active ? "bg-[var(--primary-soft)]" : "hover:bg-[var(--surface-soft)]",
-                  )}
-                >
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-[var(--secondary)]">
-                    {selected ? <Check className="h-4 w-4" /> : null}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-[var(--foreground)]">
-                      {productMainLine(product)}
+                return (
+                  <button
+                    key={product.id}
+                    type="button"
+                    role="option"
+                    aria-selected={selected}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onClick={() => selectProduct(product)}
+                    className={cn(
+                      "flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition",
+                      active ? "bg-indigo-50" : "hover:bg-indigo-50",
+                    )}
+                  >
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-indigo-600">
+                      {selected ? <Check className="h-4 w-4" /> : null}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-[var(--muted)]">
-                      {productSecondaryLine(product)}
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium text-slate-900">
+                        {productMainLine(product)}
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">
+                        {productSecondaryLine(product)}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })
-          ) : (
-            <div className="px-3 py-3 text-sm font-medium text-[var(--foreground)]">
-              Aucun article/service trouve
-            </div>
-          )}
+                  </button>
+                );
+              })
+            ) : (
+              <div className="px-3 py-3 text-sm font-medium text-slate-900">
+                Aucun article/service trouve
+              </div>
+            )}
+          </div>
         </div>
       ) : null}
     </div>

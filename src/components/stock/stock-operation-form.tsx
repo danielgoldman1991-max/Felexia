@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,7 +119,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
 
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Date</span>
-            <Input name="movement_date" type="date" defaultValue={today()} required />
+            <DateField name="movement_date" defaultValue={today()} required />
           </label>
 
           <label className="space-y-2 text-sm lg:col-span-2">

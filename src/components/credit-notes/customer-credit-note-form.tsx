@@ -8,6 +8,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCustomerCreditNote } from "@/lib/credit-note-actions";
@@ -55,7 +56,7 @@ export function CustomerCreditNoteForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date avoir</span>
-            <Input type="date" name="credit_note_date" defaultValue={today()} />
+            <DateField name="credit_note_date" defaultValue={today()} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Origine</span>

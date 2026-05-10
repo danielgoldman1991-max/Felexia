@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -67,7 +68,7 @@ export function CustomerReminderForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date relance</span>
-            <Input type="date" name="reminder_date" defaultValue={today()} />
+            <DateField name="reminder_date" defaultValue={today()} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Niveau</span>

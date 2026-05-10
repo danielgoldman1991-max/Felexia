@@ -5,6 +5,7 @@ import { useActionState, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Table, Td, Th } from "@/components/ui/table";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
 import { formatNumber } from "@/lib/format";
@@ -89,7 +90,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Date du BL</span>
-            <Input type="date" name="document_date" defaultValue={today()} />
+            <DateField name="document_date" defaultValue={today()} />
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Adresse de livraison</span>

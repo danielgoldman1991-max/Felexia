@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,10 +82,10 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
             </Select>
           </Field>
           <Field label="Date document">
-            <Input name="document_date" type="date" defaultValue={order?.document_date ?? new Date().toISOString().split("T")[0]} />
+            <DateField name="document_date" defaultValue={order?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Livraison prevue le">
-            <Input name="expected_delivery_date" type="date" defaultValue={order?.expected_delivery_date ?? ""} />
+            <DateField name="expected_delivery_date" defaultValue={order?.expected_delivery_date ?? ""} />
           </Field>
           <Field label="Delai paiement (jours)">
             <Input name="payment_terms_days" type="number" min="0" defaultValue={order?.payment_terms_days ?? 30} />

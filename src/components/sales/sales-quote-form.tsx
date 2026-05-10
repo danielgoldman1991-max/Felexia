@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Textarea } from "@/components/ui/textarea";
 import { CustomerCombobox } from "@/components/sales/customer-combobox";
 import { SalesLinesEditor } from "@/components/sales/sales-lines-editor";
@@ -120,10 +120,10 @@ export function SalesQuoteForm({
             />
           </div>
           <Field label="Date du devis">
-            <Input name="document_date" type="date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
+            <DateField name="document_date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Validite jusqu'au">
-            <Input name="valid_until" type="date" defaultValue={document?.valid_until ?? ""} />
+            <DateField name="valid_until" defaultValue={document?.valid_until ?? ""} placeholder="jj/mm/aaaa" />
           </Field>
         </CardContent>
       </Card>

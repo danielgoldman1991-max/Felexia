@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { DateField } from "@/components/ui/date-field";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { CommercialLinesEditor } from "@/components/commerce/commercial-lines-editor";
@@ -81,10 +81,10 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
             </Select>
           </Field>
           <Field label="Date document">
-            <Input name="document_date" type="date" defaultValue={delivery?.document_date ?? new Date().toISOString().split("T")[0]} />
+            <DateField name="document_date" defaultValue={delivery?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Date livraison">
-            <Input name="delivery_date" type="date" defaultValue={delivery?.delivery_date ?? ""} />
+            <DateField name="delivery_date" defaultValue={delivery?.delivery_date ?? ""} />
           </Field>
           <Field label="Adresse livraison">
             <Textarea name="delivery_address" defaultValue={delivery?.delivery_address ?? ""} rows={2} />
