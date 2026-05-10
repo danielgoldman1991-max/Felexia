@@ -23,7 +23,9 @@ const SALES_DOCUMENT_SELECT = `
   source_document_id, related_order_id, related_delivery_id,
   document_date, valid_until, expected_delivery_date,
   status, subtotal_ht, tax_total, total_ttc, notes, internal_notes,
-  return_reason, return_status, stock_updated_at, validated_at, delivered_at, returned_at,
+  return_reason, return_status, payment_terms, payment_method, payment_terms_days,
+  custom_payment_terms, custom_payment_method,
+  stock_updated_at, validated_at, delivered_at, returned_at,
   created_by, created_at, updated_at, archived_at,
   customer:customer_id (name, address, city, phone, email, ice, types, primary_type),
   source_document:source_document_id (document_number, document_type)
@@ -87,6 +89,11 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     internal_notes: (row.internal_notes as string) ?? null,
     return_reason: (row.return_reason as string) ?? null,
     return_status: (row.return_status as string) ?? null,
+    payment_terms: (row.payment_terms as string) ?? null,
+    payment_method: (row.payment_method as string) ?? null,
+    payment_terms_days: row.payment_terms_days != null ? Number(row.payment_terms_days) : null,
+    custom_payment_terms: (row.custom_payment_terms as string) ?? null,
+    custom_payment_method: (row.custom_payment_method as string) ?? null,
     stock_updated_at: (row.stock_updated_at as string) ?? null,
     validated_at: (row.validated_at as string) ?? null,
     delivered_at: (row.delivered_at as string) ?? null,
@@ -214,6 +221,41 @@ async function getProductStockInfo(organizationId: string, productIds: string[])
   );
 }
 
+async function enrichReturnLinesWithProgress(organizationId: string, lines: SalesDocumentLineRecord[]) {
+  const sourceLineIds = Array.from(new Set(lines.map((line) => line.source_line_id).filter(Boolean))) as string[];
+  if (sourceLineIds.length === 0) return lines;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sales_document_lines")
+    .select("source_line_id, quantity, document:sales_documents!inner(document_type, status, organization_id)")
+    .eq("organization_id", organizationId)
+    .in("source_line_id", sourceLineIds)
+    .eq("document.document_type", "return_note")
+    .neq("document.status", "cancelled");
+
+  if (error) return lines;
+
+  const returnedBySourceLine = sumBySourceLine((data ?? []) as { source_line_id: string | null; quantity: number }[]);
+
+  return lines.map((line) => {
+    if (!line.source_line_id) return line;
+
+    const totalReturned = returnedBySourceLine[line.source_line_id] ?? 0;
+    const alreadyReturnedBefore = Math.max(totalReturned - Number(line.quantity ?? 0), 0);
+    const deliveredInSourceDelivery = line.ordered_quantity ?? null;
+    const remaining = deliveredInSourceDelivery === null
+      ? line.remaining_quantity
+      : Math.max(deliveredInSourceDelivery - totalReturned, 0);
+
+    return {
+      ...line,
+      returned_quantity: alreadyReturnedBefore,
+      remaining_quantity: remaining,
+    };
+  });
+}
+
 export async function getActiveOrganizationId() {
   const workspace = await requireActiveWorkspace();
   return workspace.organization.id;
@@ -224,7 +266,7 @@ export async function listSalesCustomers(): Promise<CustomerForSalesSelect[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("third_parties")
-    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status")
+    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status, payment_terms, payment_method, payment_terms_days, custom_payment_terms, custom_payment_method")
     .eq("organization_id", organizationId)
     .contains("types", ["customer"])
     .eq("status", "active")
@@ -240,7 +282,7 @@ export async function listSalesQuoteThirdParties(): Promise<SalesThirdPartyOptio
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("third_parties")
-    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status")
+    .select("id, name, commercial_name, types, primary_type, ice, city, email, phone, status, payment_terms, payment_method, payment_terms_days, custom_payment_terms, custom_payment_method")
     .eq("organization_id", organizationId)
     .overlaps("types", ["prospect", "customer"])
     .eq("status", "active")
@@ -391,11 +433,14 @@ export async function getSalesDocumentDetail(id: string) {
     ? await enrichRelatedDocumentNumbers(organizationId, [mapSalesDocument(documentResult.data)])
     : [];
 
+  const document = documents[0] ?? null;
+  const lines = ((linesResult.data ?? []) as unknown[]).map(mapSalesLine);
+
   return {
-    document: documents[0] ?? null,
+    document,
     customer: documentResult.data ? extractObject((documentResult.data as Record<string, unknown>).customer) : null,
     sourceDocument: documentResult.data ? extractObject((documentResult.data as Record<string, unknown>).source_document) : null,
-    lines: ((linesResult.data ?? []) as unknown[]).map(mapSalesLine),
+    lines: document?.document_type === "return_note" ? await enrichReturnLinesWithProgress(organizationId, lines) : lines,
   };
 }
 

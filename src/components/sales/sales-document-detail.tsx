@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Archive, CheckCircle2, Pencil, Printer, Send, Truck, XCircle } from "lucide-react";
+import { Archive, CheckCircle2, Pencil, Printer, Receipt, Send, Truck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -11,7 +11,8 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
 import { SalesStatusBadge } from "@/components/sales/sales-status-badge";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatNumber } from "@/lib/format";
+import { getPaymentTermLabel, getPaymentMethodLabel } from "@/lib/payment-terms";
 import {
   acceptQuote,
   archiveSalesDocument,
@@ -24,7 +25,7 @@ import {
   validateReturnNote,
 } from "@/lib/sales-actions";
 import type { SalesActionResult, SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
-import { SALES_DOCUMENT_LABELS } from "@/lib/sales-types";
+import { hasDiscount, SALES_DOCUMENT_LABELS } from "@/lib/sales-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -52,6 +53,30 @@ function actionWithId(action: (prev: SalesActionResult, formData: FormData) => P
     formData.set("id", id);
     return action(prev, formData);
   };
+}
+
+function deliveryOrderedQuantity(line: SalesDocumentLineRecord) {
+  return line.ordered_quantity ?? null;
+}
+
+function deliveryRemainingQuantity(line: SalesDocumentLineRecord) {
+  return line.remaining_quantity ?? null;
+}
+
+function deliveryAlreadyDeliveredBefore(line: SalesDocumentLineRecord) {
+  const ordered = deliveryOrderedQuantity(line);
+  const remaining = deliveryRemainingQuantity(line);
+  if (ordered === null || remaining === null) return null;
+  return Math.max(ordered - remaining - line.quantity, 0);
+}
+
+function DeliveryProgressBadge({ remaining }: { remaining: number | null }) {
+  if (remaining === null) return <Badge tone="neutral">Reliquat non disponible</Badge>;
+  return remaining <= 0 ? (
+    <Badge tone="success">Livre totalement</Badge>
+  ) : (
+    <Badge tone="warning">Reste a livrer : {formatNumber(remaining)}</Badge>
+  );
 }
 
 function ActionForm({
@@ -85,6 +110,8 @@ export function SalesDocumentDetail({
   const isOrder = document.document_type === "order";
   const isDelivery = document.document_type === "delivery_note";
   const isReturn = document.document_type === "return_note";
+  const isLogisticsDocument = isDelivery || isReturn;
+  const discountPresent = !isLogisticsDocument && hasDiscount(lines);
   const title = `${SALES_DOCUMENT_LABELS[document.document_type]} ${document.document_number}`;
   const recipientLabel = recipientTypeLabel(document);
 
@@ -157,6 +184,11 @@ export function SalesDocumentDetail({
                 <Button variant="secondary"><Truck className="h-4 w-4" /> Creer une livraison</Button>
               </Link>
             ) : null}
+            {isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) ? (
+              <Link href={`/facturation/factures/new?sourceType=order&sourceId=${document.id}`}>
+                <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer facture</Button>
+              </Link>
+            ) : null}
             {isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
@@ -166,6 +198,11 @@ export function SalesDocumentDetail({
             {isDelivery && ["validated", "delivered"].includes(document.status) ? (
               <Link href={`/vente/livraisons/${document.id}/retour`}>
                 <Button variant="secondary"><Truck className="h-4 w-4" /> Creer un retour</Button>
+              </Link>
+            ) : null}
+            {isDelivery && ["validated", "delivered"].includes(document.status) ? (
+              <Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}>
+                <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer facture</Button>
               </Link>
             ) : null}
             {isReturn && document.status === "draft" ? (
@@ -209,6 +246,12 @@ export function SalesDocumentDetail({
           <Info label="Commande liee" value={document.related_order_number} />
           <Info label="BL lie" value={document.related_delivery_number} />
           {isReturn ? <Info label="Motif retour" value={document.return_reason} /> : null}
+          {(document.payment_terms || document.payment_method) && !isDelivery && !isReturn ? (
+            <>
+              <Info label="Conditions de paiement" value={getPaymentTermLabel(document.payment_terms) || (document.payment_terms_days ? `${document.payment_terms_days} jours` : null)} />
+              <Info label="Modalites de paiement" value={getPaymentMethodLabel(document.payment_method)} />
+            </>
+          ) : null}
           <Info
             label="Source"
             value={
@@ -229,56 +272,122 @@ export function SalesDocumentDetail({
             <EmptyState title="Aucune ligne" description="Ce document ne contient aucune ligne." />
           ) : (
             <Table>
-              <thead>
-                <tr>
-                  <Th>#</Th>
-                  <Th>Produit</Th>
-                  <Th>Description</Th>
-                  <Th>Quantite</Th>
-                  <Th>Unite</Th>
-                  <Th>Prix HT</Th>
-                  <Th>Remise %</Th>
-                  <Th>Total HT</Th>
-                  <Th>TVA %</Th>
-                  <Th>Total TTC</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {lines.map((line, index) => (
-                  <tr key={line.id}>
-                    <Td>{index + 1}</Td>
-                    <Td>{line.product_name || "Ligne libre"}</Td>
-                    <Td>{line.description}</Td>
-                    <Td>{line.quantity}</Td>
-                    <Td>{line.unit_name ?? "-"}</Td>
-                    <Td><MoneyDisplay value={line.unit_price_ht} /></Td>
-                    <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td>
-                    <Td><MoneyDisplay value={line.subtotal_ht} /></Td>
-                    <Td>{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</Td>
-                    <Td><MoneyDisplay value={line.total_ttc} /></Td>
+              {isDelivery ? (
+                <thead>
+                  <tr>
+                    <Th>#</Th>
+                    <Th>Article</Th>
+                    <Th>Designation</Th>
+                    <Th>Unite</Th>
+                    <Th>Commande</Th>
+                    <Th>Deja livre</Th>
+                    <Th>Livre dans ce BL</Th>
+                    <Th>Reste</Th>
+                    <Th>Stock</Th>
                   </tr>
-                ))}
+                </thead>
+              ) : isReturn ? (
+                <thead>
+                  <tr>
+                    <Th>#</Th>
+                    <Th>Article</Th>
+                    <Th>Designation</Th>
+                    <Th>Unite</Th>
+                    <Th>Livre dans le BL</Th>
+                    <Th>Deja retourne</Th>
+                    <Th>Retourne dans ce bon</Th>
+                    <Th>Stock</Th>
+                  </tr>
+                </thead>
+              ) : (
+                <thead>
+                  <tr>
+                    <Th>#</Th>
+                    <Th>Produit</Th>
+                    <Th>Description</Th>
+                    <Th>Quantite</Th>
+                    <Th>Unite</Th>
+                    <Th>Prix HT</Th>
+                    {discountPresent ? <Th>Remise %</Th> : null}
+                    <Th>Total HT</Th>
+                    <Th>TVA %</Th>
+                    <Th>Total TTC</Th>
+                  </tr>
+                </thead>
+              )}
+              <tbody>
+                {lines.map((line, index) => {
+                  const ordered = deliveryOrderedQuantity(line);
+                  const alreadyDeliveredBefore = deliveryAlreadyDeliveredBefore(line);
+                  const remaining = deliveryRemainingQuantity(line);
+
+                  return isDelivery ? (
+                    <tr key={line.id}>
+                      <Td>{index + 1}</Td>
+                      <Td>{line.product_name || "Ligne libre"}</Td>
+                      <Td>{line.description}</Td>
+                      <Td>{line.unit_name ?? "-"}</Td>
+                      <Td>{ordered === null ? "-" : formatNumber(ordered)}</Td>
+                      <Td>{alreadyDeliveredBefore === null ? "-" : formatNumber(alreadyDeliveredBefore)}</Td>
+                      <Td className="font-semibold text-[var(--secondary)]">{formatNumber(line.quantity)}</Td>
+                      <Td><DeliveryProgressBadge remaining={remaining} /></Td>
+                      <Td>{line.stock_move_id ? "Impacte" : document.stock_updated_at ? "Non impacte" : "En attente"}</Td>
+                    </tr>
+                  ) : isReturn ? (
+                    <tr key={line.id}>
+                      <Td>{index + 1}</Td>
+                      <Td>{line.product_name || "Ligne libre"}</Td>
+                      <Td>{line.description}</Td>
+                      <Td>{line.unit_name ?? "-"}</Td>
+                      <Td>{line.ordered_quantity === null ? "-" : formatNumber(line.ordered_quantity)}</Td>
+                      <Td>{formatNumber(line.returned_quantity)}</Td>
+                      <Td className="font-semibold text-[var(--secondary)]">{formatNumber(line.quantity)}</Td>
+                      <Td>{line.stock_move_id ? "Reintegre" : document.stock_updated_at ? "Non impacte" : "En attente"}</Td>
+                    </tr>
+                  ) : (
+                    <tr key={line.id}>
+                      <Td>{index + 1}</Td>
+                      <Td>{line.product_name || "Ligne libre"}</Td>
+                      <Td>{line.description}</Td>
+                      <Td>{line.quantity}</Td>
+                      <Td>{line.unit_name ?? "-"}</Td>
+                      <Td><MoneyDisplay value={line.unit_price_ht} /></Td>
+                      {discountPresent ? <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td> : null}
+                      <Td><MoneyDisplay value={line.subtotal_ht} /></Td>
+                      <Td>{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</Td>
+                      <Td><MoneyDisplay value={line.total_ttc} /></Td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </Table>
           )}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><h2 className="font-semibold">Totaux</h2></CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
-          <Info label="Total HT" value={<MoneyDisplay value={document.subtotal_ht} />} />
-          <Info label="Total TVA" value={<MoneyDisplay value={document.tax_total} />} />
-          <Info label="Total TTC" value={<span className="font-semibold"><MoneyDisplay value={document.total_ttc} /></span>} />
-        </CardContent>
-      </Card>
+      {!isLogisticsDocument ? (
+        <Card>
+          <CardHeader><h2 className="font-semibold">Totaux</h2></CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-3">
+            <Info label="Total HT" value={<MoneyDisplay value={document.subtotal_ht} />} />
+            <Info label="Total TVA" value={<MoneyDisplay value={document.tax_total} />} />
+            <Info label="Total TTC" value={<span className="font-semibold"><MoneyDisplay value={document.total_ttc} /></span>} />
+          </CardContent>
+        </Card>
+      ) : null}
 
-      {isDelivery ? (
+      {isLogisticsDocument ? (
         <Card>
           <CardContent className="text-sm text-[var(--muted)]">
-            {document.stock_updated_at
-              ? `Stock mis a jour le ${formatDate(document.stock_updated_at)}.`
-              : "Stock non encore mis a jour. Il sera impacte a la validation du bon de livraison."}
+            {document.stock_updated_at ? (
+              isReturn
+                ? `Stock reintegre le ${formatDate(document.stock_updated_at)}.`
+                : `Stock mis a jour le ${formatDate(document.stock_updated_at)}.`
+            ) : isReturn ? (
+              "Stock non encore reintegre. Il sera impacte a la validation du bon de retour."
+            ) : (
+              "Stock non encore mis a jour. Il sera impacte a la validation du bon de livraison."
+            )}
           </CardContent>
         </Card>
       ) : null}

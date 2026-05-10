@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { formatDate, formatMoney } from "@/lib/format";
-import { SALES_STATUS_LABELS } from "@/lib/sales-types";
+import { formatDate, formatMoney, formatNumber } from "@/lib/format";
+import { hasDiscount, SALES_STATUS_LABELS } from "@/lib/sales-types";
 import type { SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
 
 function ClientBlock({ document }: { document: SalesDocumentRecord }) {
@@ -29,6 +29,10 @@ function ClientBlock({ document }: { document: SalesDocumentRecord }) {
   );
 }
 
+function deliveryRemainingQuantity(line: SalesDocumentLineRecord) {
+  return line.remaining_quantity ?? null;
+}
+
 export function SalesQuotePrintView({
   document,
   lines,
@@ -40,6 +44,11 @@ export function SalesQuotePrintView({
   title?: string;
   showSignature?: boolean;
 }) {
+  const isDelivery = document.document_type === "delivery_note";
+  const isReturn = document.document_type === "return_note";
+  const isLogisticsDocument = isDelivery || isReturn;
+  const discountPresent = !isLogisticsDocument && hasDiscount(lines);
+
   return (
     <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
       <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
@@ -87,56 +96,104 @@ export function SalesQuotePrintView({
 
       <section className="mt-8">
         <table className="w-full border-collapse text-left text-xs">
-          <thead>
-            <tr className="bg-[#ede7ff] text-[#2d2490]">
-              <th className="border border-slate-200 px-3 py-2">#</th>
-              <th className="border border-slate-200 px-3 py-2">Designation</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Quantite</th>
-              <th className="border border-slate-200 px-3 py-2">Unite</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Prix HT</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Remise</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">TVA</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Total HT</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Total TTC</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lines.map((line, index) => (
-              <tr key={line.id} className="align-top">
-                <td className="border border-slate-200 px-3 py-3">{index + 1}</td>
-                <td className="border border-slate-200 px-3 py-3">
-                  <p className="font-medium text-slate-900">{line.description}</p>
-                  {line.product_name ? <p className="mt-1 text-[11px] text-slate-500">{line.product_name}</p> : null}
-                </td>
-                <td className="border border-slate-200 px-3 py-3 text-right">{line.quantity}</td>
-                <td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td>
-                <td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.unit_price_ht)}</td>
-                <td className="border border-slate-200 px-3 py-3 text-right">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td>
-                <td className="border border-slate-200 px-3 py-3 text-right">{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</td>
-                <td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.subtotal_ht)}</td>
-                <td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatMoney(line.total_ttc)}</td>
+          {isDelivery ? (
+            <thead>
+              <tr className="bg-[#ede7ff] text-[#2d2490]">
+                <th className="border border-slate-200 px-3 py-2">#</th>
+                <th className="border border-slate-200 px-3 py-2">Reference / Article</th>
+                <th className="border border-slate-200 px-3 py-2">Designation</th>
+                <th className="border border-slate-200 px-3 py-2">Unite</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Quantite livree</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Reste a livrer</th>
               </tr>
-            ))}
+            </thead>
+          ) : isReturn ? (
+            <thead>
+              <tr className="bg-[#ede7ff] text-[#2d2490]">
+                <th className="border border-slate-200 px-3 py-2">#</th>
+                <th className="border border-slate-200 px-3 py-2">Reference / Article</th>
+                <th className="border border-slate-200 px-3 py-2">Designation</th>
+                <th className="border border-slate-200 px-3 py-2">Unite</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Quantite retournee</th>
+              </tr>
+            </thead>
+          ) : (
+            <thead>
+              <tr className="bg-[#ede7ff] text-[#2d2490]">
+                <th className="border border-slate-200 px-3 py-2">#</th>
+                <th className="border border-slate-200 px-3 py-2">Designation</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Quantite</th>
+                <th className="border border-slate-200 px-3 py-2">Unite</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Prix HT</th>
+                {discountPresent ? <th className="border border-slate-200 px-3 py-2 text-right">Remise</th> : null}
+                <th className="border border-slate-200 px-3 py-2 text-right">TVA</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Total HT</th>
+                <th className="border border-slate-200 px-3 py-2 text-right">Total TTC</th>
+              </tr>
+            </thead>
+          )}
+          <tbody>
+            {lines.map((line, index) => {
+              const remaining = deliveryRemainingQuantity(line);
+
+              return isDelivery ? (
+                <tr key={line.id} className="align-top">
+                  <td className="border border-slate-200 px-3 py-3">{index + 1}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.product_name || "Ligne libre"}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.description}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatNumber(line.quantity)}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right">
+                    {remaining === null ? "-" : remaining <= 0 ? "Livre totalement" : formatNumber(remaining)}
+                  </td>
+                </tr>
+              ) : isReturn ? (
+                <tr key={line.id} className="align-top">
+                  <td className="border border-slate-200 px-3 py-3">{index + 1}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.product_name || "Ligne libre"}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.description}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatNumber(line.quantity)}</td>
+                </tr>
+              ) : (
+                <tr key={line.id} className="align-top">
+                  <td className="border border-slate-200 px-3 py-3">{index + 1}</td>
+                  <td className="border border-slate-200 px-3 py-3">
+                    <p className="font-medium text-slate-900">{line.description}</p>
+                    {line.product_name ? <p className="mt-1 text-[11px] text-slate-500">{line.product_name}</p> : null}
+                  </td>
+                  <td className="border border-slate-200 px-3 py-3 text-right">{line.quantity}</td>
+                  <td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.unit_price_ht)}</td>
+                  {discountPresent ? <td className="border border-slate-200 px-3 py-3 text-right">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td> : null}
+                  <td className="border border-slate-200 px-3 py-3 text-right">{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.subtotal_ht)}</td>
+                  <td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatMoney(line.total_ttc)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>
 
-      <section className="mt-8 flex justify-end">
-        <div className="w-72 rounded-lg border border-slate-200">
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm">
-            <span>Total HT</span>
-            <span>{formatMoney(document.subtotal_ht)}</span>
+      {!isLogisticsDocument ? (
+        <section className="mt-8 flex justify-end">
+          <div className="w-72 rounded-lg border border-slate-200">
+            <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm">
+              <span>Total HT</span>
+              <span>{formatMoney(document.subtotal_ht)}</span>
+            </div>
+            <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm">
+              <span>Total TVA</span>
+              <span>{formatMoney(document.tax_total)}</span>
+            </div>
+            <div className="flex justify-between rounded-b-lg bg-[#2d2490] px-4 py-4 text-base font-bold text-white">
+              <span>Total TTC</span>
+              <span>{formatMoney(document.total_ttc)}</span>
+            </div>
           </div>
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm">
-            <span>Total TVA</span>
-            <span>{formatMoney(document.tax_total)}</span>
-          </div>
-          <div className="flex justify-between rounded-b-lg bg-[#2d2490] px-4 py-4 text-base font-bold text-white">
-            <span>Total TTC</span>
-            <span>{formatMoney(document.total_ttc)}</span>
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {document.notes ? (
         <section className="mt-8 rounded-lg border border-slate-200 p-5">

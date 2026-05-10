@@ -16,6 +16,9 @@ const pathByType: Record<SalesDocumentType, string> = {
 
 export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[]; type: SalesDocumentType }) {
   const isOrderTable = type === "order";
+  const isDeliveryTable = type === "delivery_note";
+  const isReturnTable = type === "return_note";
+  const isLogisticsTable = isDeliveryTable || isReturnTable;
 
   if (rows.length === 0) {
     return (
@@ -34,8 +37,9 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
           <Th>Client</Th>
           <Th>Date</Th>
           {isOrderTable ? <Th>Livraison prevue</Th> : null}
+          {isReturnTable ? <Th>Motif</Th> : null}
           <Th>Statut</Th>
-          <Th>Total TTC</Th>
+          {isLogisticsTable ? <Th>Stock</Th> : <Th>Total TTC</Th>}
           <Th>Source</Th>
           <Th>Actions</Th>
         </tr>
@@ -49,8 +53,13 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
             {isOrderTable ? (
               <Td>{row.expected_delivery_date ? formatDate(row.expected_delivery_date) : "-"}</Td>
             ) : null}
+            {isReturnTable ? <Td>{row.return_reason ?? "-"}</Td> : null}
             <Td><SalesStatusBadge status={row.status} /></Td>
-            <Td><MoneyDisplay value={row.total_ttc} /></Td>
+            {isLogisticsTable ? (
+              <Td>{row.stock_updated_at ? "Mis a jour" : "En attente"}</Td>
+            ) : (
+              <Td><MoneyDisplay value={row.total_ttc} /></Td>
+            )}
             <Td>{row.source_document_number ?? "-"}</Td>
             <Td>
               <div className="flex flex-wrap gap-2">

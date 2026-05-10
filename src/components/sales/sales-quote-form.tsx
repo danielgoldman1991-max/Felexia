@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CustomerCombobox } from "@/components/sales/customer-combobox";
 import { SalesLinesEditor } from "@/components/sales/sales-lines-editor";
 import { calculateSalesTotals } from "@/lib/sales-calculations";
+import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import type {
   CustomerForSalesSelect,
   ProductForSalesSelect,
@@ -56,6 +57,11 @@ export function SalesQuoteForm({
 }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [selectedCustomerId, setSelectedCustomerId] = useState(document?.customer_id ?? "");
+  const [paymentTerms, setPaymentTerms] = useState(document?.payment_terms ?? "");
+  const [paymentMethod, setPaymentMethod] = useState(document?.payment_method ?? "");
+  const [paymentTermsDays, setPaymentTermsDays] = useState(document?.payment_terms_days ?? null);
+  const [customPaymentTerms, setCustomPaymentTerms] = useState(document?.custom_payment_terms ?? "");
+  const [customPaymentMethod, setCustomPaymentMethod] = useState(document?.custom_payment_method ?? "");
   const [lines, setLines] = useState<SalesLineFormValue[]>(() => {
     if (!initialLines?.length) return [];
     return initialLines.map((line) => ({
@@ -76,6 +82,19 @@ export function SalesQuoteForm({
       total_ttc: line.total_ttc,
     }));
   });
+
+  function handleCustomerChange(id: string) {
+    setSelectedCustomerId(id);
+    const customer = customers.find((c) => c.id === id);
+    if (customer && !document) {
+      setPaymentTerms(customer.payment_terms ?? "");
+      setPaymentMethod(customer.payment_method ?? "");
+      setPaymentTermsDays(customer.payment_terms_days ?? null);
+      setCustomPaymentTerms(customer.custom_payment_terms ?? "");
+      setCustomPaymentMethod(customer.custom_payment_method ?? "");
+    }
+  }
+
   const totals = calculateSalesTotals(lines);
 
   return (
@@ -86,6 +105,7 @@ export function SalesQuoteForm({
       <input type="hidden" name="subtotal_ht" value={totals.subtotal_ht} />
       <input type="hidden" name="tax_total" value={totals.tax_total} />
       <input type="hidden" name="total_ttc" value={totals.total_ttc} />
+      <input type="hidden" name="payment_terms_days" value={paymentTermsDays ?? ""} />
 
       <Card>
         <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
@@ -95,7 +115,7 @@ export function SalesQuoteForm({
             <CustomerCombobox
               customers={customers}
               value={selectedCustomerId}
-              onChange={setSelectedCustomerId}
+              onChange={handleCustomerChange}
               placeholder="Rechercher un client ou prospect..."
             />
           </div>
@@ -119,6 +139,60 @@ export function SalesQuoteForm({
             taxRates={taxRates}
             defaultTaxRate={defaultTaxRate}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
+        <CardContent className="grid gap-4 lg:grid-cols-3">
+          <Field label="Conditions de paiement">
+            <select
+              name="payment_terms"
+              value={paymentTerms}
+              onChange={(e) => setPaymentTerms(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
+            >
+              <option value="">-- Selectionner --</option>
+              {PAYMENT_TERMS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Modalites de paiement">
+            <select
+              name="payment_method"
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
+            >
+              <option value="">-- Selectionner --</option>
+              {PAYMENT_METHOD_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </Field>
+          {paymentTerms === "custom" ? (
+            <Field label="Detail condition personnalisee">
+              <input
+                name="custom_payment_terms"
+                value={customPaymentTerms}
+                onChange={(e) => setCustomPaymentTerms(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
+                placeholder="Decrivez la condition..."
+              />
+            </Field>
+          ) : null}
+          {paymentMethod === "other" ? (
+            <Field label="Detail modalite personnalisee">
+              <input
+                name="custom_payment_method"
+                value={customPaymentMethod}
+                onChange={(e) => setCustomPaymentMethod(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
+                placeholder="Decrivez la modalite..."
+              />
+            </Field>
+          ) : null}
         </CardContent>
       </Card>
 

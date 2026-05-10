@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, Td, Th } from "@/components/ui/table";
-import { MoneyDisplay } from "@/components/erp/money-display";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
 import { formatNumber } from "@/lib/format";
 import type { DeliveryPreparationLine, SalesActionResult, SalesDocumentRecord } from "@/lib/sales-types";
@@ -124,7 +123,6 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                 <Th>A livrer maintenant</Th>
                 <Th>Stock disponible</Th>
                 <Th>Alerte</Th>
-                <Th>Total TTC</Th>
               </tr>
             </thead>
             <tbody>
@@ -182,12 +180,11 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                         <span className="text-xs text-[var(--muted)]">Aucun mouvement</span>
                       )}
                     </Td>
-                    <Td><MoneyDisplay value={line.total_ttc} /></Td>
                   </tr>
                 );
               }) : (
                 <tr>
-                  <td colSpan={10} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
+                  <td colSpan={9} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
                     Cette commande ne contient plus de lignes a livrer.
                   </td>
                 </tr>

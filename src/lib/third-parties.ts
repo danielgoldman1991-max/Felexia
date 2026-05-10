@@ -3,11 +3,15 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import type {
   PaginatedResult,
   ThirdPartyAddress,
+  ThirdPartyActivityItem,
+  ThirdPartyAttachment,
   ThirdPartyContact,
   ThirdPartyFilters,
   ThirdPartyKind,
   ThirdPartyRecord,
 } from "@/lib/third-party-types";
+
+const ATTACHMENTS_BUCKET = "third-party-attachments";
 
 const SELECT_COLUMNS = `
   id, organization_id, code, primary_type, types, name, alternative_name,
@@ -19,7 +23,8 @@ const SELECT_COLUMNS = `
   prospect_status, potential_value, next_follow_up_date, interest_level,
   sales_owner, prospect_notes, supplier_product_categories,
   supplier_payment_terms, supplier_rating, supplier_delivery_delay_days,
-  supplier_main_contact, supplier_payment_method, supplier_notes, status,
+  supplier_main_contact, supplier_payment_method, supplier_notes,
+  payment_terms, payment_method, custom_payment_terms, custom_payment_method, status,
   notes, converted_at, created_at, updated_at, archived_at
 `;
 
@@ -117,11 +122,11 @@ export async function getThirdPartyDetail(id: string) {
   const { workspace, thirdParty } = await getThirdParty(id);
 
   if (!thirdParty) {
-    return { workspace, thirdParty: null, contacts: [], addresses: [] };
+    return { workspace, thirdParty: null, contacts: [], addresses: [], attachments: [], activity: [] };
   }
 
   const supabase = await createClient();
-  const [contactsResult, addressesResult] = await Promise.all([
+  const [contactsResult, addressesResult, attachmentsResult, activityResult] = await Promise.all([
     supabase
       .from("third_party_contacts")
       .select("*")
@@ -138,6 +143,21 @@ export async function getThirdPartyDetail(id: string) {
       .is("archived_at", null)
       .order("is_default", { ascending: false })
       .order("created_at", { ascending: true }),
+    supabase
+      .from("third_party_attachments")
+      .select("*")
+      .eq("organization_id", workspace.organization.id)
+      .eq("third_party_id", id)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("audit_logs")
+      .select("id, actor_id, action, changes, created_at")
+      .eq("organization_id", workspace.organization.id)
+      .eq("table_name", "third_parties")
+      .eq("record_id", id)
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
 
   if (contactsResult.error) {
@@ -148,11 +168,82 @@ export async function getThirdPartyDetail(id: string) {
     throw new Error(addressesResult.error.message);
   }
 
+  if (attachmentsResult.error) {
+    throw new Error(attachmentsResult.error.message);
+  }
+
+  if (activityResult.error) {
+    throw new Error(activityResult.error.message);
+  }
+
+  const attachments = (attachmentsResult.data ?? []) as ThirdPartyAttachment[];
+  const activityRows = (activityResult.data ?? []) as Array<{
+    id: string;
+    actor_id: string | null;
+    action: string;
+    changes: Record<string, unknown> | null;
+    created_at: string;
+  }>;
+  const userIds = Array.from(new Set([
+    ...attachments.map((attachment) => attachment.uploaded_by).filter(Boolean),
+    ...activityRows.map((row) => row.actor_id).filter(Boolean),
+  ])) as string[];
+
+  const profilesResult = userIds.length > 0
+    ? await supabase.from("profiles").select("id, full_name, email").in("id", userIds)
+    : { data: [], error: null };
+
+  if (profilesResult.error) {
+    throw new Error(profilesResult.error.message);
+  }
+
+  const profilesById = new Map(
+    (profilesResult.data ?? []).map((profile) => [
+      profile.id as string,
+      {
+        full_name: profile.full_name as string | null,
+        email: profile.email as string | null,
+      },
+    ]),
+  );
+
+  const attachmentsWithUrls = await Promise.all(
+    attachments.map(async (attachment) => {
+      const profile = attachment.uploaded_by ? profilesById.get(attachment.uploaded_by) : null;
+      const { data } = await supabase.storage
+        .from(ATTACHMENTS_BUCKET)
+        .createSignedUrl(attachment.file_path, 60 * 60);
+
+      return {
+        ...attachment,
+        uploaded_by_name: profile?.full_name ?? null,
+        uploaded_by_email: profile?.email ?? null,
+        signed_url: data?.signedUrl ?? null,
+      };
+    }),
+  );
+
+  const activity: ThirdPartyActivityItem[] = activityRows.map((row) => {
+    const profile = row.actor_id ? profilesById.get(row.actor_id) : null;
+    return {
+      id: row.id,
+      action: row.action,
+      description: typeof row.changes?.message === "string" ? row.changes.message : null,
+      created_at: row.created_at,
+      user_id: row.actor_id,
+      user_name: profile?.full_name ?? null,
+      user_email: profile?.email ?? null,
+      metadata: row.changes,
+    };
+  });
+
   return {
     workspace,
     thirdParty,
     contacts: (contactsResult.data ?? []) as ThirdPartyContact[],
     addresses: (addressesResult.data ?? []) as ThirdPartyAddress[],
+    attachments: attachmentsWithUrls,
+    activity,
   };
 }
 

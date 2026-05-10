@@ -5,7 +5,7 @@ import { getThirdPartyDetail } from "@/lib/third-parties";
 
 export default async function TierDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { thirdParty, contacts, addresses } = await getThirdPartyDetail(id);
+  const { thirdParty, contacts, addresses, attachments, activity } = await getThirdPartyDetail(id);
 
   if (!thirdParty) {
     notFound();
@@ -13,7 +13,13 @@ export default async function TierDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <ModulePage>
-      <ThirdPartyDetail thirdParty={thirdParty} contacts={contacts} addresses={addresses} />
+      <ThirdPartyDetail
+        thirdParty={thirdParty}
+        contacts={contacts}
+        addresses={addresses}
+        attachments={attachments}
+        activity={activity}
+      />
     </ModulePage>
   );
 }

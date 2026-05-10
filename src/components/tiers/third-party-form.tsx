@@ -5,6 +5,7 @@ import { useActionState, useMemo, useState } from "react";
 import type { ThirdPartyActionResult } from "@/lib/third-party-actions";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
 import { PROSPECT_SOURCES, PROSPECT_STATUSES, normalizeTypes } from "@/lib/third-party-types";
+import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -189,18 +190,41 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
         </Card>
       ) : null}
 
-      {hasCustomer ? (
+      {hasCustomer || hasProspect ? (
         <Card>
-          <CardHeader><h2 className="font-semibold">Informations client</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-4">
-            <Field label="Conditions de paiement"><Input name="payment_terms_days" type="number" min="0" defaultValue={thirdParty?.payment_terms_days ?? 30} /></Field>
+            <Field label="Conditions de paiement">
+              <Select name="payment_terms" defaultValue={thirdParty?.payment_terms ?? ""}>
+                <option value="">-- Selectionner --</option>
+                {PAYMENT_TERMS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Modalites de paiement">
+              <Select name="payment_method" defaultValue={thirdParty?.payment_method ?? ""}>
+                <option value="">-- Selectionner --</option>
+                {PAYMENT_METHOD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Delai de paiement (jours)">
+              <Input name="payment_terms_days" type="number" min="0" defaultValue={thirdParty?.payment_terms_days ?? 30} />
+            </Field>
+            <Field label="Detail condition personnalisee">
+              <Input name="custom_payment_terms" defaultValue={thirdParty?.custom_payment_terms ?? ""} placeholder="Si paiement personnalise" />
+            </Field>
+            <Field label="Detail modalite personnalisee">
+              <Input name="custom_payment_method" defaultValue={thirdParty?.custom_payment_method ?? ""} placeholder="Si autre modalite" />
+            </Field>
             <Field label="Limite de credit"><Input name="credit_limit" type="number" min="0" step="0.01" defaultValue={thirdParty?.credit_limit ?? 0} /></Field>
             <Field label="CA cumule"><Input name="cumulative_revenue" type="number" min="0" step="0.01" defaultValue={thirdParty?.cumulative_revenue ?? 0} /></Field>
             <Field label="Encours actuel"><Input name="current_outstanding" type="number" min="0" step="0.01" defaultValue={thirdParty?.current_outstanding ?? 0} /></Field>
             <Field label="Remise commerciale par defaut"><Input name="default_discount_rate" type="number" min="0" step="0.01" defaultValue={thirdParty?.default_discount_rate ?? 0} /></Field>
             <Field label="Categorie client"><Input name="customer_category" defaultValue={thirdParty?.customer_category ?? ""} /></Field>
             <Field label="Niveau de risque"><Input name="risk_level" defaultValue={thirdParty?.risk_level ?? ""} /></Field>
-            <Field label="Mode de paiement prefere"><Input name="preferred_payment_method" defaultValue={thirdParty?.preferred_payment_method ?? ""} /></Field>
           </CardContent>
         </Card>
       ) : null}

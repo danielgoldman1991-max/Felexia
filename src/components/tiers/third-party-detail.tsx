@@ -20,9 +20,17 @@ import {
   deleteThirdPartyAddress,
   deleteThirdPartyContact,
 } from "@/lib/third-party-actions";
-import type { ThirdPartyAddress, ThirdPartyContact, ThirdPartyRecord } from "@/lib/third-party-types";
+import { getPaymentTermLabel, getPaymentMethodLabel } from "@/lib/payment-terms";
+import type {
+  ThirdPartyActivityItem,
+  ThirdPartyAddress,
+  ThirdPartyAttachment,
+  ThirdPartyContact,
+  ThirdPartyRecord,
+} from "@/lib/third-party-types";
 import { formatDate } from "@/lib/format";
 import { ThirdPartyBadges } from "@/components/tiers/third-party-badges";
+import { ThirdPartyAttachments } from "@/components/tiers/third-party-attachments";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -33,14 +41,52 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+const ACTIVITY_LABELS: Record<string, string> = {
+  create: "Creation du tiers",
+  update: "Modification du tiers",
+  archive: "Archivage du tiers",
+  convert_prospect_to_customer: "Conversion prospect en client",
+  CONVERT_PROSPECT_TO_CUSTOMER: "Conversion prospect en client",
+  create_contact: "Contact ajoute",
+  update_contact: "Contact modifie",
+  delete_contact: "Contact archive",
+  create_address: "Adresse ajoutee",
+  update_address: "Adresse modifiee",
+  delete_address: "Adresse archivee",
+  upload_attachment: "Piece jointe ajoutee",
+  archive_attachment: "Piece jointe archivee",
+};
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("fr-MA", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function activityLabel(action: string) {
+  return ACTIVITY_LABELS[action] ?? action;
+}
+
+function activityUser(activity: ThirdPartyActivityItem) {
+  return activity.user_name || activity.user_email || "Utilisateur inconnu";
+}
+
 export function ThirdPartyDetail({
   thirdParty,
   contacts,
   addresses,
+  attachments,
+  activity,
 }: {
   thirdParty: ThirdPartyRecord;
   contacts: ThirdPartyContact[];
   addresses: ThirdPartyAddress[];
+  attachments: ThirdPartyAttachment[];
+  activity: ThirdPartyActivityItem[];
 }) {
   const isProspect = thirdParty.types?.includes("prospect");
   const isCustomer = thirdParty.types?.includes("customer");
@@ -128,11 +174,14 @@ export function ThirdPartyDetail({
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        {isCustomer ? (
+        {isCustomer || isProspect ? (
           <Card>
-            <CardHeader><h2 className="font-semibold">Informations commerciales</h2></CardHeader>
+            <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <Info label="Conditions paiement" value={`${thirdParty.payment_terms_days ?? 0} jours`} />
+              <Info label="Conditions de paiement" value={getPaymentTermLabel(thirdParty.payment_terms) || `${thirdParty.payment_terms_days ?? 0} jours`} />
+              <Info label="Modalites de paiement" value={getPaymentMethodLabel(thirdParty.payment_method)} />
+              {thirdParty.custom_payment_terms ? <Info label="Detail condition" value={thirdParty.custom_payment_terms} /> : null}
+              {thirdParty.custom_payment_method ? <Info label="Detail modalite" value={thirdParty.custom_payment_method} /> : null}
               <Info label="Limite credit" value={<MoneyDisplay value={thirdParty.credit_limit} />} />
               <Info label="CA cumule" value={<MoneyDisplay value={thirdParty.cumulative_revenue} />} />
               <Info label="Encours actuel" value={<MoneyDisplay value={thirdParty.current_outstanding} />} />
@@ -258,15 +307,31 @@ export function ThirdPartyDetail({
         <Card>
           <CardHeader><h2 className="font-semibold">Pieces jointes</h2></CardHeader>
           <CardContent>
-            <EmptyState title="Pieces jointes a venir" description="Structure prete pour RC, contrats, ICE, attestations et documents fiscaux." />
+            <ThirdPartyAttachments thirdPartyId={thirdParty.id} attachments={attachments} />
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader><h2 className="font-semibold">Activite recente</h2></CardHeader>
-        <CardContent className="text-sm text-[var(--muted)]">
-          Derniere mise a jour le {formatDate(thirdParty.updated_at)}.
+        <CardContent>
+          {activity.length ? (
+            <div className="space-y-3">
+              {activity.map((item) => (
+                <div key={item.id} className="rounded-lg border border-[var(--border)] bg-white p-3">
+                  <p className="text-sm font-medium text-[var(--foreground)]">
+                    {activityLabel(item.action)} par {activityUser(item)}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">{formatDateTime(item.created_at)}</p>
+                  {item.description ? (
+                    <p className="mt-2 text-sm text-[var(--muted)]">{item.description}</p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="Aucune activite recente" description="Les prochaines modifications du tiers apparaitront ici." />
+          )}
         </CardContent>
       </Card>
     </div>

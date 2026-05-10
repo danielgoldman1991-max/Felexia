@@ -26,6 +26,11 @@ export type SalesDocumentRecord = {
   internal_notes: string | null;
   return_reason: string | null;
   return_status: string | null;
+  payment_terms: string | null;
+  payment_method: string | null;
+  payment_terms_days: number | null;
+  custom_payment_terms: string | null;
+  custom_payment_method: string | null;
   stock_updated_at: string | null;
   validated_at: string | null;
   delivered_at: string | null;
@@ -115,6 +120,11 @@ export type SalesDocumentFormValues = {
   expected_delivery_date?: string;
   notes?: string;
   internal_notes?: string;
+  payment_terms?: string | null;
+  payment_method?: string | null;
+  payment_terms_days?: number | null;
+  custom_payment_terms?: string | null;
+  custom_payment_method?: string | null;
   lines: SalesLineFormValue[];
 };
 
@@ -154,6 +164,11 @@ export type CustomerForSalesSelect = {
   email: string | null;
   phone: string | null;
   status?: string | null;
+  payment_terms?: string | null;
+  payment_method?: string | null;
+  payment_terms_days?: number | null;
+  custom_payment_terms?: string | null;
+  custom_payment_method?: string | null;
 };
 
 export type SalesThirdPartyOption = CustomerForSalesSelect & {
@@ -235,6 +250,10 @@ export type PaginatedSalesResult<T> = {
   pageSize: number;
   totalPages: number;
 };
+
+export function hasDiscount(lines: { discount_rate: number }[]): boolean {
+  return lines.some(l => l.discount_rate > 0);
+}
 
 export const SALES_DOCUMENT_LABELS: Record<SalesDocumentType, string> = {
   quote: "Devis",

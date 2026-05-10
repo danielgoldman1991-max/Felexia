@@ -492,6 +492,11 @@ export async function createSalesQuote(
       total_ttc: totals.total_ttc,
       notes: text(formData, "notes"),
       internal_notes: text(formData, "internal_notes"),
+      payment_terms: text(formData, "payment_terms"),
+      payment_method: text(formData, "payment_method"),
+      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
+      custom_payment_terms: text(formData, "custom_payment_terms"),
+      custom_payment_method: text(formData, "custom_payment_method"),
       created_by: workspace.userId,
     })
     .select("id, document_number")
@@ -552,6 +557,11 @@ export async function updateSalesQuote(
       total_ttc: totals.total_ttc,
       notes: text(formData, "notes"),
       internal_notes: text(formData, "internal_notes"),
+      payment_terms: text(formData, "payment_terms"),
+      payment_method: text(formData, "payment_method"),
+      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
+      custom_payment_terms: text(formData, "custom_payment_terms"),
+      custom_payment_method: text(formData, "custom_payment_method"),
     })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
@@ -607,6 +617,11 @@ export async function createSalesOrder(
       total_ttc: totals.total_ttc,
       notes: text(formData, "notes"),
       internal_notes: text(formData, "internal_notes"),
+      payment_terms: text(formData, "payment_terms"),
+      payment_method: text(formData, "payment_method"),
+      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
+      custom_payment_terms: text(formData, "custom_payment_terms"),
+      custom_payment_method: text(formData, "custom_payment_method"),
       created_by: workspace.userId,
     })
     .select("id, document_number")
@@ -667,6 +682,11 @@ export async function updateSalesOrder(
       total_ttc: totals.total_ttc,
       notes: text(formData, "notes"),
       internal_notes: text(formData, "internal_notes"),
+      payment_terms: text(formData, "payment_terms"),
+      payment_method: text(formData, "payment_method"),
+      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
+      custom_payment_terms: text(formData, "custom_payment_terms"),
+      custom_payment_method: text(formData, "custom_payment_method"),
     })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
@@ -807,6 +827,11 @@ export async function convertQuoteToOrder(prev: SalesActionResult, formData: For
       total_ttc: quote.total_ttc,
       notes: quote.notes,
       internal_notes: quote.internal_notes,
+      payment_terms: quote.payment_terms,
+      payment_method: quote.payment_method,
+      payment_terms_days: quote.payment_terms_days,
+      custom_payment_terms: quote.custom_payment_terms,
+      custom_payment_method: quote.custom_payment_method,
       created_by: workspace.userId,
     })
     .select("id")

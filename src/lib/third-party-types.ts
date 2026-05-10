@@ -49,6 +49,10 @@ export type ThirdPartyRecord = {
   supplier_main_contact: string | null;
   supplier_payment_method: string | null;
   supplier_notes: string | null;
+  payment_terms: string | null;
+  payment_method: string | null;
+  custom_payment_terms: string | null;
+  custom_payment_method: string | null;
   status: ThirdPartyStatus | string;
   notes: string | null;
   converted_at: string | null;
@@ -87,6 +91,34 @@ export type ThirdPartyAddress = {
   created_at: string;
   updated_at: string;
   archived_at: string | null;
+};
+
+export type ThirdPartyAttachment = {
+  id: string;
+  organization_id: string;
+  third_party_id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string | null;
+  mime_type: string | null;
+  file_size: number | null;
+  uploaded_by: string | null;
+  uploaded_by_name?: string | null;
+  uploaded_by_email?: string | null;
+  signed_url?: string | null;
+  created_at: string;
+  archived_at: string | null;
+};
+
+export type ThirdPartyActivityItem = {
+  id: string;
+  action: string;
+  description?: string | null;
+  created_at: string;
+  user_id?: string | null;
+  user_name?: string | null;
+  user_email?: string | null;
+  metadata?: Record<string, unknown> | null;
 };
 
 export type ThirdPartyFilters = {

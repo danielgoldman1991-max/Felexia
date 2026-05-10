@@ -5,7 +5,6 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, Td, Th } from "@/components/ui/table";
-import { MoneyDisplay } from "@/components/erp/money-display";
 import { formatDate, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ManualDeliveryOrderOption } from "@/lib/sales-types";
@@ -62,7 +61,6 @@ export function DeliveryOrderSelector({ orders, selectedOrderId }: Props) {
                 <Th>Statut</Th>
                 <Th>Avancement</Th>
                 <Th>Reste a livrer</Th>
-                <Th>Total TTC</Th>
               </tr>
             </thead>
             <tbody>
@@ -92,13 +90,12 @@ export function DeliveryOrderSelector({ orders, selectedOrderId }: Props) {
                       <Td className="font-semibold text-[var(--secondary)]">
                         {formatNumber(order.remaining_total_quantity)}
                       </Td>
-                      <Td><MoneyDisplay value={order.total_ttc} /></Td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
+                  <td colSpan={6} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
                     Aucune commande livrable trouvee.
                   </td>
                 </tr>
