@@ -1,26 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/auth"];
-const PROTECTED_ROUTES = [
-  "/dashboard",
-  "/tiers",
-  "/clients",
-  "/fournisseurs",
-  "/articles",
-  "/devis",
-  "/commandes",
-  "/livraisons",
-  "/factures",
-  "/paiements",
-  "/relances",
-  "/achats",
-  "/stock",
-  "/tresorerie",
-  "/rapports",
-  "/parametres",
-];
-
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -47,27 +27,41 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
-    request.nextUrl.pathname.startsWith(route),
-  );
-  const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
-    request.nextUrl.pathname === route ||
-    request.nextUrl.pathname.startsWith(`${route}/`),
-  );
+  const pathname = request.nextUrl.pathname;
 
-  const { data } = await supabase.auth.getClaims();
-
-  if (data?.claims && request.nextUrl.pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  if (pathname === "/") {
+    try {
+      const { data } = await supabase.auth.getClaims();
+      if (data?.claims) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (!data?.claims && isProtectedRoute && !isPublicRoute) {
+  try {
+    const { data } = await supabase.auth.getClaims();
+
+    if (data?.claims && pathname === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+
+    if (!data?.claims) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
+  } catch {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
-
-  return supabaseResponse;
 }

@@ -21,7 +21,7 @@ export default async function NewStockEntryPage({
     <ModulePage>
       <PageHeader
         title="Entree manuelle de stock"
-        description="Ajoutez une entree de stock rattachee au depot principal ou a un depot existant."
+        description="Ajoutez une entree de stock rattachee a un emplacement de stock."
       />
       <StockOperationForm
         mode="entry"

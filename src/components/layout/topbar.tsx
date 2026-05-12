@@ -1,7 +1,8 @@
 "use client";
 
-import { Bell, CircleHelp, Menu, Plus, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Bell, CircleHelp, Menu } from "lucide-react";
+import { GlobalSearch } from "@/components/layout/global-search";
+import { QuickCreateMenu } from "@/components/layout/quick-create-menu";
 import { initials } from "@/lib/utils";
 import type { ActiveWorkspace } from "@/lib/auth";
 
@@ -21,14 +22,8 @@ export function Topbar({ workspace, onOpenMenu }: { workspace: ActiveWorkspace; 
           <p className="max-w-52 truncate text-sm font-semibold text-slate-900">{workspace.organization.name || "Societe SARL"}</p>
         </div>
 
-        <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input className="h-11 rounded-2xl border-slate-200 bg-slate-50 pl-10 text-sm shadow-none" placeholder="Rechercher un client, document, produit..." />
-        </div>
-
-        <button type="button" className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700" aria-label="Creer">
-          <Plus className="h-5 w-5" />
-        </button>
+        <GlobalSearch />
+        <QuickCreateMenu />
         <button type="button" className="relative hidden h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 sm:flex" aria-label="Notifications">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />

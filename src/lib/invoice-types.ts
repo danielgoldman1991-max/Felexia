@@ -1,6 +1,7 @@
 export type CustomerInvoiceStatus = "draft" | "validated" | "sent" | "partially_paid" | "paid" | "overdue" | "cancelled";
 export type CustomerInvoicePaymentStatus = "unpaid" | "partial" | "paid";
 export type CustomerInvoiceSourceType = "manual" | "order" | "delivery_note" | "grouped_delivery_notes";
+export type CustomerInvoiceAccountingStatus = "posted" | "not_posted" | "pending_validation" | "not_applicable";
 
 export type CustomerInvoiceRecord = {
   id: string;
@@ -46,6 +47,9 @@ export type CustomerInvoiceRecord = {
   source_document_number?: string | null;
   source_order_number?: string | null;
   source_delivery_number?: string | null;
+  accounting_entry_id?: string | null;
+  accounting_entry_number?: string | null;
+  accounting_status?: CustomerInvoiceAccountingStatus;
 };
 
 export type CustomerInvoiceLineRecord = {

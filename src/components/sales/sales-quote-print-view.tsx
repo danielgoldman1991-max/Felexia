@@ -55,8 +55,8 @@ export function SalesQuotePrintView({
         <div className="flex max-w-[55%] items-start gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
             <Image
-              src="/felexia-conseils-logo.jpg"
-              alt="Logo Felexia Conseils"
+              src="/brand/felexia-logo.svg"
+              alt="Logo Felexia"
               fill
               className="object-contain p-1"
               priority

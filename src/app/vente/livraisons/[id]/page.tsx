@@ -1,13 +1,16 @@
 import { notFound } from "next/navigation";
 import { ModulePage } from "@/components/erp/module-page";
 import { SalesDocumentDetail } from "@/components/sales/sales-document-detail";
-import { getSalesDocumentDetail } from "@/lib/sales";
+import { getSalesDocumentDetail, getSalesDocumentFlow } from "@/lib/sales";
 
 export const dynamic = "force-dynamic";
 
 export default async function SalesDeliveryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { document, lines } = await getSalesDocumentDetail(id);
+  const [{ document, lines }, documentFlow] = await Promise.all([
+    getSalesDocumentDetail(id),
+    getSalesDocumentFlow(id),
+  ]);
 
   if (!document || document.document_type !== "delivery_note") {
     notFound();
@@ -15,7 +18,7 @@ export default async function SalesDeliveryDetailPage({ params }: { params: Prom
 
   return (
     <ModulePage>
-      <SalesDocumentDetail document={document} lines={lines} />
+      <SalesDocumentDetail document={document} lines={lines} documentFlow={documentFlow} />
     </ModulePage>
   );
 }

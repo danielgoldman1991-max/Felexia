@@ -4,6 +4,7 @@ import { calculateInvoiceLine } from "@/lib/invoice-calculations";
 import type {
   BillableDeliveryOption,
   BillableOrderOption,
+  CustomerInvoiceAccountingStatus,
   CustomerInvoiceLineRecord,
   CustomerInvoiceRecord,
   InvoiceCounters,
@@ -13,6 +14,8 @@ import type {
   InvoiceProductOption,
 } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
+import { getSalesDocumentFlow } from "@/lib/sales";
 
 const INVOICE_SELECT = `
   id, organization_id, invoice_number, customer_id, source_type, source_document_id,
@@ -96,6 +99,52 @@ function mapInvoice(raw: unknown): CustomerInvoiceRecord {
     customer_email: customer?.email as string | null,
     customer_ice: customer?.ice as string | null,
   };
+}
+
+function invoiceAccountingStatus(invoice: CustomerInvoiceRecord, entry?: { id: string; entry_number: string } | null): CustomerInvoiceAccountingStatus {
+  if (entry) return "posted";
+  if (invoice.status === "draft") return "pending_validation";
+  if (invoice.status === "cancelled") return "not_applicable";
+  return "not_posted";
+}
+
+async function enrichInvoicesAccountingStatus(organizationId: string, invoices: CustomerInvoiceRecord[]) {
+  if (invoices.length === 0) return invoices;
+  const ids = invoices.map((invoice) => invoice.id);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("accounting_entries")
+    .select("id, entry_number, source_document_id")
+    .eq("organization_id", organizationId)
+    .eq("source_document_type", "customer_invoice")
+    .in("source_document_id", ids)
+    .neq("status", "cancelled");
+
+  if (error) {
+    return invoices.map((invoice) => ({
+      ...invoice,
+      accounting_entry_id: null,
+      accounting_entry_number: null,
+      accounting_status: invoiceAccountingStatus(invoice),
+    }));
+  }
+
+  const byInvoiceId = new Map(
+    (data ?? []).map((entry) => [
+      entry.source_document_id as string,
+      { id: entry.id as string, entry_number: entry.entry_number as string },
+    ]),
+  );
+
+  return invoices.map((invoice) => {
+    const entry = byInvoiceId.get(invoice.id) ?? null;
+    return {
+      ...invoice,
+      accounting_entry_id: entry?.id ?? null,
+      accounting_entry_number: entry?.entry_number ?? null,
+      accounting_status: invoiceAccountingStatus(invoice, entry),
+    };
+  });
 }
 
 function mapLine(raw: unknown): CustomerInvoiceLineRecord {
@@ -227,8 +276,9 @@ export async function listCustomerInvoices(filters: InvoiceListFilters = {}) {
 
   const { data, error, count } = await query;
   if (error) throw new Error(error.message);
+  const rows = await enrichInvoicesAccountingStatus(organizationId, (data ?? []).map(mapInvoice));
   return {
-    rows: (data ?? []).map(mapInvoice),
+    rows,
     total: count ?? 0,
     page,
     pageSize,
@@ -251,6 +301,76 @@ export async function getCustomerInvoiceDetail(id: string) {
     invoice: invoiceResult.data ? await enrichInvoiceSources(organizationId, mapInvoice(invoiceResult.data)) : null,
     lines: (linesResult.data ?? []).map(mapLine),
   };
+}
+
+function invoiceStep(invoice: CustomerInvoiceRecord, isCurrent = true): DocumentFlowStep {
+  return {
+    label: "Facture",
+    number: invoice.invoice_number,
+    href: `/facturation/factures/${invoice.id}`,
+    status: invoice.status,
+    isCurrent,
+    type: "customer_invoice",
+  };
+}
+
+function groupedDeliveryStep(deliveries: Array<{ id: string; document_number: string }>): DocumentFlowStep {
+  const firstNumbers = deliveries.slice(0, 2).map((delivery) => delivery.document_number).join(" / ");
+  const suffix = deliveries.length > 2 ? ` +${deliveries.length - 2}` : "";
+  return {
+    label: `${deliveries.length} BL factures`,
+    number: `${firstNumbers}${suffix}`,
+    href: deliveries.length === 1 ? `/vente/livraisons/${deliveries[0].id}` : undefined,
+    type: "delivery_note",
+  };
+}
+
+export async function getCustomerInvoiceDocumentFlow(invoiceId: string): Promise<DocumentFlowStep[]> {
+  const { invoice, lines } = await getCustomerInvoiceDetail(invoiceId);
+  if (!invoice) return [];
+
+  const deliveryIds = Array.from(
+    new Set(
+      [
+        invoice.source_delivery_id,
+        invoice.source_type === "delivery_note" ? invoice.source_document_id : null,
+        ...lines.map((line) => line.source_document_id),
+      ].filter(Boolean),
+    ),
+  ) as string[];
+
+  if (deliveryIds.length === 1) {
+    const sourceFlow = await getSalesDocumentFlow(deliveryIds[0]);
+    return [...sourceFlow.map((step) => ({ ...step, isCurrent: false })), invoiceStep(invoice)];
+  }
+
+  if (deliveryIds.length > 1) {
+    const organizationId = await activeOrganizationId();
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("sales_documents")
+      .select("id, document_number, related_order_id")
+      .eq("organization_id", organizationId)
+      .in("id", deliveryIds)
+      .is("archived_at", null);
+
+    const deliveries = (data ?? []) as Array<{ id: string; document_number: string; related_order_id: string | null }>;
+    const orderIds = Array.from(new Set(deliveries.map((delivery) => delivery.related_order_id).filter(Boolean))) as string[];
+    const orderFlow = orderIds.length === 1 ? await getSalesDocumentFlow(orderIds[0]) : [];
+    return [
+      ...orderFlow.map((step) => ({ ...step, isCurrent: false })).filter((step) => step.type !== "delivery_note"),
+      groupedDeliveryStep(deliveries),
+      invoiceStep(invoice),
+    ];
+  }
+
+  if (invoice.source_order_id || (invoice.source_type === "order" && invoice.source_document_id)) {
+    const orderId = invoice.source_order_id ?? invoice.source_document_id;
+    const sourceFlow = orderId ? await getSalesDocumentFlow(orderId) : [];
+    return [...sourceFlow.map((step) => ({ ...step, isCurrent: false })), invoiceStep(invoice)];
+  }
+
+  return [invoiceStep(invoice)];
 }
 
 async function enrichInvoiceSources(organizationId: string, invoice: CustomerInvoiceRecord) {

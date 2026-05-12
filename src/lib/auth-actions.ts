@@ -26,24 +26,44 @@ export async function loginAction(
     return { error: "Veuillez saisir votre email et votre mot de passe." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    return { error: "Impossible d'initialiser la connexion. Veuillez reessayer." };
+  }
 
-  if (error) {
+  let signInError;
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    signInError = error;
+  } catch {
+    return {
+      error:
+        "Impossible de contacter le serveur d'authentification. Verifiez votre connexion internet et reessayez.",
+    };
+  }
+
+  if (signInError) {
     return { error: "Email ou mot de passe incorrect." };
   }
 
-  const workspace = await getActiveWorkspace();
-
-  if (!workspace) {
+  let workspace;
+  try {
+    workspace = await getActiveWorkspace();
+  } catch {
     await supabase.auth.signOut();
     return {
       error:
-        "Compte connecte, mais non rattache a une organisation active. Demandez a un administrateur de vous inviter.",
+        "Erreur lors de la verification de votre compte. Veuillez reessayer.",
     };
+  }
+
+  if (!workspace) {
+    redirect("/onboarding/inscription");
   }
 
   redirect("/dashboard");
@@ -51,8 +71,12 @@ export async function loginAction(
 
 export async function logoutAction() {
   if (hasSupabaseConfig()) {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = await createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Continue even if signOut fails
+    }
   }
 
   redirect("/login");

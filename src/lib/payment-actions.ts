@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getCustomerOpenItems } from "@/lib/payments";
 import { createClient } from "@/lib/supabase/server";
+import { createTreasuryTransactionFromPayment } from "@/lib/treasury-actions";
 import type { PaymentActionResult } from "@/lib/payment-types";
 
 function text(formData: FormData, key: string) {
@@ -177,9 +178,11 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
   const thirdPartyId = text(formData, "third_party_id") ?? text(formData, "customer_id");
   const amount = numberValue(formData.get("amount"));
   const paymentMethod = text(formData, "payment_method");
+  const treasuryAccountId = text(formData, "treasury_account_id");
   if (!thirdPartyId) return { success: false, error: "Selectionnez un client." };
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a zero." };
   if (!paymentMethod) return { success: false, error: "Selectionnez une modalite de paiement." };
+  if (!treasuryAccountId) return { success: false, error: "Selectionnez un compte d encaissement." };
   const thirdPartyValidation = await validateThirdParty(workspace.organization.id, thirdPartyId);
   if (thirdPartyValidation.error) return { success: false, error: thirdPartyValidation.error };
 
@@ -197,6 +200,7 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
       payment_number: "",
       third_party_id: thirdPartyId,
       customer_id: thirdPartyId,
+      treasury_account_id: treasuryAccountId,
       payment_date: text(formData, "payment_date") ?? new Date().toISOString().split("T")[0],
       value_date: text(formData, "value_date"),
       amount,
@@ -224,6 +228,20 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
 
   const allocationResult = await createAllocationRows(workspace.organization.id, workspace.userId, data.id, thirdPartyId, allocations);
   if (allocationResult.error) return { success: false, error: allocationResult.error };
+  const treasuryResult = await createTreasuryTransactionFromPayment({
+    organizationId: workspace.organization.id,
+    userId: workspace.userId,
+    treasuryAccountId,
+    direction: "in",
+    amount,
+    transactionDate: text(formData, "payment_date") ?? new Date().toISOString().split("T")[0],
+    valueDate: text(formData, "value_date"),
+    label: `Encaissement client`,
+    reference: text(formData, "reference") ?? text(formData, "transfer_reference"),
+    thirdPartyId,
+    customerPaymentId: data.id,
+  });
+  if (treasuryResult.error) return { success: false, error: treasuryResult.error };
   revalidatePath("/facturation/paiements");
   revalidatePath("/facturation/factures");
   redirect(`/facturation/paiements/${data.id}`);

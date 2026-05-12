@@ -2,17 +2,22 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { CheckCircle2, Pencil, Printer, XCircle } from "lucide-react";
+import { BookOpenCheck, CheckCircle2, Pencil, Printer, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
+import { DocumentFlowMap } from "@/components/shared/document-flow-map";
 import { formatDate } from "@/lib/format";
 import { SupplierInvoiceStatusBadge } from "@/components/purchases/supplier-invoice-status-badge";
 import { validateSupplierInvoice, cancelSupplierInvoice } from "@/lib/purchase-actions";
+import { postSupplierInvoiceToAccounting } from "@/lib/accounting-actions";
+import type { AccountingActionResult } from "@/lib/accounting-types";
 import type { PurchaseActionResult, SupplierInvoiceLineRecord, SupplierInvoiceRecord } from "@/lib/purchase-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return <div><p className="text-xs font-medium uppercase text-[var(--muted)]">{label}</p><div className="mt-1 text-sm">{value ?? "-"}</div></div>;
@@ -36,7 +41,23 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function SupplierInvoiceDetail({ invoice, lines }: { invoice: SupplierInvoiceRecord; lines: SupplierInvoiceLineRecord[] }) {
+function ComptabiliserForm({ invoiceId }: { invoiceId: string }) {
+  const [state, formAction, pending] = useActionState<AccountingActionResult, FormData>(postSupplierInvoiceToAccounting, { success: true });
+  return (
+    <form action={formAction} className="inline-flex flex-col gap-1">
+      <input type="hidden" name="supplier_invoice_id" value={invoiceId} />
+      <Button variant="secondary" disabled={pending}><BookOpenCheck className="h-4 w-4" /> Comptabiliser</Button>
+      {!state.success && state.error ? <span className="text-xs text-red-600">{state.error}</span> : null}
+    </form>
+  );
+}
+
+type AccountingEntryInfo = {
+  entry: Record<string, unknown> | null;
+  lines: Array<Record<string, unknown>>;
+};
+
+export function SupplierInvoiceDetail({ invoice, lines, accountingEntry, documentFlow }: { invoice: SupplierInvoiceRecord; lines: SupplierInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[] }) {
   const canEdit = invoice.status === "draft";
   const canValidate = invoice.status === "draft";
   const canPay = ["validated", "partially_paid"].includes(invoice.status);
@@ -71,6 +92,8 @@ export function SupplierInvoiceDetail({ invoice, lines }: { invoice: SupplierInv
         }
       />
 
+      <DocumentFlowMap steps={documentFlow ?? []} />
+
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
           <SupplierInvoiceStatusBadge status={invoice.status} />
@@ -84,8 +107,13 @@ export function SupplierInvoiceDetail({ invoice, lines }: { invoice: SupplierInv
           <Info label="Fournisseur" value={invoice.supplier_name} />
           <Info label="Date facture" value={formatDate(invoice.invoice_date)} />
           <Info label="Echeance" value={invoice.due_date ? formatDate(invoice.due_date) : null} />
-          <Info label="N Facture fournisseur" value={invoice.supplier_invoice_number ?? "-"} />
+          <Info label="N Facture fournisseur" value={invoice.supplier_invoice_number ?? <span className="text-amber-600">Non renseigne</span>} />
         </CardContent>
+        {invoice.status === "draft" && !invoice.supplier_invoice_number ? (
+          <CardContent className="border-t border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-sm text-amber-800">Le numéro de facture fournisseur doit être renseigne avant validation.</p>
+          </CardContent>
+        ) : null}
       </Card>
 
       <Card>
@@ -126,6 +154,42 @@ export function SupplierInvoiceDetail({ invoice, lines }: { invoice: SupplierInv
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
+        <CardContent>
+          {accountingEntry?.entry ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm">
+                    Ecriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
+                  </p>
+                  <p className="text-xs text-[var(--muted)]">
+                    Journal: {String(accountingEntry.entry.journal_code ?? "-")} | {formatDate(String(accountingEntry.entry.entry_date ?? ""))}
+                  </p>
+                </div>
+                <Badge tone={(accountingEntry.entry.status as string) === "posted" ? "success" : "neutral"}>
+                  {String(accountingEntry.entry.status ?? "") === "posted" ? "Comptabilisee" : String(accountingEntry.entry.status ?? "")}
+                </Badge>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
+                <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
+              </div>
+              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
+                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
+              </Link>
+            </div>
+          ) : invoice.status === "draft" || invoice.status === "cancelled" ? (
+            <p className="text-sm text-[var(--muted)]">Validez d&apos;abord la facture fournisseur avant de la comptabiliser.</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour cette facture.</p>
+              <ComptabiliserForm invoiceId={invoice.id} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
       {invoice.notes || invoice.internal_notes ? (
         <Card>
           <CardHeader><h2 className="font-semibold">Notes</h2></CardHeader>

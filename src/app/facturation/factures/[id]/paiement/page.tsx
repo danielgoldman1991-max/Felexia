@@ -5,12 +5,14 @@ import { CustomerPaymentForm } from "@/components/payments/customer-payment-form
 import { createPaymentAndAllocateToInvoice } from "@/lib/payment-actions";
 import { getCustomerInvoiceDetail } from "@/lib/invoices";
 import { getCustomerOpenItems, listPaymentCustomers } from "@/lib/payments";
+import { getDefaultTreasuryAccountId, listActiveTreasuryAccounts } from "@/lib/treasury";
 
 export const dynamic = "force-dynamic";
 
 export default async function CreatePaymentFromInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ invoice }, customers] = await Promise.all([getCustomerInvoiceDetail(id), listPaymentCustomers()]);
+  await getDefaultTreasuryAccountId();
+  const [{ invoice }, customers, treasuryAccounts] = await Promise.all([getCustomerInvoiceDetail(id), listPaymentCustomers(), listActiveTreasuryAccounts()]);
   if (!invoice || invoice.status === "cancelled" || invoice.remaining_amount <= 0) notFound();
   const initialOpenItems = await getCustomerOpenItems(invoice.customer_id);
   return (
@@ -19,6 +21,7 @@ export default async function CreatePaymentFromInvoicePage({ params }: { params:
       <CustomerPaymentForm
         action={createPaymentAndAllocateToInvoice}
         customers={customers}
+        treasuryAccounts={treasuryAccounts}
         initialOpenItems={initialOpenItems}
         initialCustomerId={invoice.customer_id}
         initialInvoiceId={invoice.id}

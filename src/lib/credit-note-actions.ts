@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { calculateInvoiceLine, calculateInvoiceTotals, getCustomerCreditNoteDetail } from "@/lib/credit-notes";
+import { calculateInvoiceLine, calculateInvoiceTotals, getCustomerCreditNoteDetail, getCreditNoteReturnPreparation } from "@/lib/credit-notes";
 import { createClient } from "@/lib/supabase/server";
 import type { CreditNoteActionResult, CreditNoteLineFormValue } from "@/lib/credit-note-types";
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
@@ -27,6 +27,7 @@ function parseLines(formData: FormData): CreditNoteLineFormValue[] {
       return {
         id: typeof item.id === "string" ? item.id : `line-${index}`,
         source_invoice_line_id: typeof item.source_line_id === "string" ? item.source_line_id : typeof item.source_invoice_line_id === "string" ? item.source_invoice_line_id : null,
+        source_return_line_id: typeof item.source_return_line_id === "string" ? item.source_return_line_id : typeof item.return_line_id === "string" ? item.return_line_id : null,
         product_id: typeof item.product_id === "string" ? item.product_id : null,
         product_name: typeof item.product_name === "string" ? item.product_name : null,
         description: typeof item.description === "string" ? item.description : "",
@@ -90,6 +91,9 @@ function linePayload(organizationId: string, creditNoteId: string, line: Invoice
 
 export async function createCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
+  if (text(formData, "source_type") === "return" || text(formData, "source_return_id")) {
+    return createCreditNoteFromReturn({ success: true }, formData);
+  }
   const workspace = await requireActiveWorkspace();
   const customerId = text(formData, "customer_id");
   if (!customerId) return { success: false, error: "Selectionnez un client." };
@@ -108,6 +112,7 @@ export async function createCustomerCreditNote(prev: CreditNoteActionResult, for
       credit_note_number: "",
       customer_id: customerId,
       source_invoice_id: text(formData, "source_invoice_id"),
+      source_return_id: text(formData, "source_return_id"),
       source_type: text(formData, "source_type") ?? "manual",
       credit_note_date: text(formData, "credit_note_date") ?? new Date().toISOString().split("T")[0],
       subtotal_ht: totals.subtotal_ht,
@@ -134,6 +139,84 @@ export async function createCustomerCreditNote(prev: CreditNoteActionResult, for
 }
 
 export const createCreditNoteFromInvoice = createCustomerCreditNote;
+
+export async function createCreditNoteFromReturn(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
+  void prev;
+  const workspace = await requireActiveWorkspace();
+  const returnId = text(formData, "source_return_id") ?? text(formData, "return_id");
+  if (!returnId) return { success: false, error: "Bon de retour introuvable." };
+
+  const supabase = await createClient();
+  const { data: returnDocument, error: returnError } = await supabase
+    .from("sales_documents")
+    .select("id, organization_id, customer_id, document_type, document_number, status, return_reason, archived_at")
+    .eq("organization_id", workspace.organization.id)
+    .eq("id", returnId)
+    .maybeSingle();
+  if (returnError) return { success: false, error: returnError.message };
+  if (!returnDocument || returnDocument.document_type !== "return_note") return { success: false, error: "Bon de retour introuvable." };
+  if (returnDocument.archived_at) return { success: false, error: "Impossible de creer un avoir depuis un retour archive." };
+  if (returnDocument.status !== "validated") return { success: false, error: "Validez d'abord le bon de retour avant de creer un avoir." };
+
+  const { data: existingCreditNote, error: existingError } = await supabase
+    .from("customer_credit_notes")
+    .select("id")
+    .eq("organization_id", workspace.organization.id)
+    .eq("source_return_id", returnId)
+    .neq("status", "cancelled")
+    .is("archived_at", null)
+    .limit(1)
+    .maybeSingle();
+  if (existingError) return { success: false, error: existingError.message };
+  if (existingCreditNote) return { success: false, error: "Ce bon de retour est deja rattache a un avoir client." };
+
+  const rawLines = parseLines(formData);
+  if (rawLines.length === 0) return { success: false, error: "Ajoutez au moins une ligne a l'avoir." };
+  const lines = rawLines.map(normalizeLine);
+  if (lines.some((line) => !line.description || line.quantity <= 0 || line.unit_price_ht < 0)) return { success: false, error: "Verifiez les lignes de l'avoir." };
+  const totals = calculateInvoiceTotals(lines);
+  if (totals.total_ttc <= 0) return { success: false, error: "Le total de l'avoir doit etre superieur a zero." };
+
+  let sourceInvoiceId = text(formData, "source_invoice_id");
+  if (!sourceInvoiceId) {
+    const preparation = await getCreditNoteReturnPreparation(returnId);
+    sourceInvoiceId = preparation.relatedInvoice?.id ?? null;
+  }
+
+  const { data, error } = await supabase
+    .from("customer_credit_notes")
+    .insert({
+      organization_id: workspace.organization.id,
+      credit_note_number: "",
+      customer_id: returnDocument.customer_id,
+      source_type: "return",
+      source_return_id: returnId,
+      source_invoice_id: sourceInvoiceId,
+      credit_note_date: text(formData, "credit_note_date") ?? new Date().toISOString().split("T")[0],
+      subtotal_ht: totals.subtotal_ht,
+      discount_total: totals.discount_total,
+      tax_total: totals.tax_total,
+      total_ttc: totals.total_ttc,
+      applied_amount: 0,
+      available_amount: 0,
+      reason: text(formData, "reason") ?? returnDocument.return_reason ?? "Avoir suite retour client",
+      notes: text(formData, "notes"),
+      internal_notes: text(formData, "internal_notes"),
+      created_by: workspace.userId,
+    })
+    .select("id")
+    .single();
+  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer l'avoir." };
+
+  const { error: lineError } = await supabase.from("customer_credit_note_lines").insert(
+    lines.map((line, index) => linePayload(workspace.organization.id, data.id, line, rawLines[index].source_invoice_line_id ?? null, index)),
+  );
+  if (lineError) return { success: false, error: lineError.message };
+
+  revalidatePath(`/vente/retours/${returnId}`);
+  revalidatePath("/facturation/avoirs");
+  redirect(`/facturation/avoirs/${data.id}`);
+}
 
 async function recalculateCreditNote(organizationId: string, creditNoteId: string) {
   const supabase = await createClient();
@@ -177,10 +260,22 @@ export async function validateCustomerCreditNote(prev: CreditNoteActionResult, f
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Avoir introuvable." };
   const supabase = await createClient();
-  const { data: note } = await supabase.from("customer_credit_notes").select("id, status, total_ttc").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
+  const { data: note } = await supabase.from("customer_credit_notes").select("id, status, total_ttc, source_return_id").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
   if (!note) return { success: false, error: "Avoir introuvable." };
   if (note.status !== "draft") return { success: false, error: "Seul un avoir brouillon peut etre valide." };
   if (Number(note.total_ttc ?? 0) <= 0) return { success: false, error: "Le total de l'avoir doit etre superieur a zero." };
+  if (note.source_return_id) {
+    const { data: returnDocument, error: returnError } = await supabase
+      .from("sales_documents")
+      .select("id, document_type, status")
+      .eq("organization_id", workspace.organization.id)
+      .eq("id", note.source_return_id)
+      .maybeSingle();
+    if (returnError) return { success: false, error: returnError.message };
+    if (!returnDocument || returnDocument.document_type !== "return_note" || returnDocument.status !== "validated") {
+      return { success: false, error: "Validez d'abord le bon de retour avant de valider cet avoir." };
+    }
+  }
   const { error } = await supabase.from("customer_credit_notes").update({ status: "validated", validated_at: new Date().toISOString(), available_amount: Number(note.total_ttc ?? 0) }).eq("organization_id", workspace.organization.id).eq("id", id);
   if (error) return { success: false, error: error.message };
   revalidatePath(`/facturation/avoirs/${id}`);

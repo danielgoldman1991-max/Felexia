@@ -6,5 +6,30 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/achats/:path*",
+    "/vente/:path*",
+    "/ventes/:path*",
+    "/facturation/:path*",
+    "/stock/:path*",
+    "/tresorerie/:path*",
+    "/tiers/:path*",
+    "/comptabilite/:path*",
+    "/parametres/:path*",
+    "/articles/:path*",
+    "/devis/:path*",
+    "/commandes/:path*",
+    "/livraisons/:path*",
+    "/factures/:path*",
+    "/paiements/:path*",
+    "/relances/:path*",
+    "/rapports/:path*",
+    "/agenda/:path*",
+    "/documents/:path*",
+    "/clients/:path*",
+    "/fournisseurs/:path*",
+    "/outils/:path*",
+  ],
 };

@@ -8,6 +8,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierPayment } from "@/lib/purchase-actions";
+import type { TreasuryAccountRecord } from "@/lib/treasury-types";
 import type { SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { formatDate } from "@/lib/format";
 
@@ -16,17 +17,22 @@ export function SupplierPaymentForm({
   openInvoices,
   preselectedSupplierId,
   preselectedInvoiceId,
+  treasuryAccounts = [],
 }: {
   suppliers: { id: string; name: string; ice: string | null }[];
   openInvoices: SupplierInvoiceRecord[];
   preselectedSupplierId?: string;
   preselectedInvoiceId?: string;
+  treasuryAccounts?: TreasuryAccountRecord[];
 }) {
-  const [supplierId, setSupplierId] = useState(preselectedSupplierId ?? "");
-  const [amount, setAmount] = useState(0);
+  const initialSupplierId = preselectedSupplierId ?? "";
+  const preselectedInvoice = preselectedInvoiceId ? openInvoices.find((invoice) => invoice.id === preselectedInvoiceId) : undefined;
+  const [supplierId, setSupplierId] = useState(initialSupplierId);
+  const [amount, setAmount] = useState(preselectedInvoice?.remaining_amount ?? 0);
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [valueDate, setValueDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [treasuryAccountId, setTreasuryAccountId] = useState(treasuryAccounts[0]?.id ?? "");
   const [reference, setReference] = useState("");
   const [bankName, setBankName] = useState("");
   const [checkNumber, setCheckNumber] = useState("");
@@ -34,19 +40,7 @@ export function SupplierPaymentForm({
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
   const filteredInvoices = useMemo(() => openInvoices.filter((inv) => inv.supplier_id === supplierId), [openInvoices, supplierId]);
-
-  const initialAlloc = (() => {
-    if (preselectedInvoiceId && filteredInvoices.length > 0) {
-      const inv = filteredInvoices.find((i) => i.id === preselectedInvoiceId);
-      if (inv) {
-        setAmount(inv.remaining_amount);
-        return { [inv.id]: inv.remaining_amount };
-      }
-    }
-    return {};
-  })();
-
-  const [allocations, setAllocations] = useState<Record<string, number>>(initialAlloc);
+  const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice ? { [preselectedInvoice.id]: preselectedInvoice.remaining_amount } : {});
 
   const [state, formAction, pending] = useActionState(createSupplierPayment, { success: true });
 
@@ -67,12 +61,19 @@ export function SupplierPaymentForm({
 
   const totalAllocated = Object.values(allocations).reduce((s, v) => s + v, 0);
 
+  function handleSupplierChange(nextSupplierId: string) {
+    setSupplierId(nextSupplierId);
+    setAllocations({});
+    setAmount(0);
+  }
+
   function handleSubmit(formData: FormData) {
     formData.set("supplier_id", supplierId);
     formData.set("amount", String(amount));
     formData.set("payment_date", paymentDate);
     if (valueDate) formData.set("value_date", valueDate);
     if (paymentMethod) formData.set("payment_method", paymentMethod);
+    if (treasuryAccountId) formData.set("treasury_account_id", treasuryAccountId);
     if (reference) formData.set("reference", reference);
     if (bankName) formData.set("bank_name", bankName);
     if (checkNumber) formData.set("check_number", checkNumber);
@@ -96,7 +97,7 @@ export function SupplierPaymentForm({
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
-              <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
+              <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={handleSupplierChange} />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Montant</label>
@@ -114,6 +115,13 @@ export function SupplierPaymentForm({
                 <option value="bank_card">Carte bancaire</option>
                 <option value="direct_debit">Prelevement</option>
                 <option value="other">Autre</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium uppercase text-[var(--muted)]">Compte de decaissement</label>
+              <select value={treasuryAccountId} onChange={(e) => setTreasuryAccountId(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option value="">Selectionner...</option>
+                {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
               </select>
             </div>
             <div>
@@ -186,7 +194,7 @@ export function SupplierPaymentForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || !supplierId || amount <= 0}>
+          <Button type="submit" disabled={pending || !supplierId || !treasuryAccountId || amount <= 0}>
             Creer paiement fournisseur
           </Button>
         </div>

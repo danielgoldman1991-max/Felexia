@@ -14,6 +14,10 @@ export type ActiveWorkspace = {
     slug: string;
   };
   role: string | null;
+  subscription: {
+    status: string;
+    planSlug: string;
+  } | null;
 };
 
 export function hasSupabaseConfig() {
@@ -88,12 +92,31 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
     return null;
   }
 
+  let subscription: { status: string; planSlug: string } | null = null;
+  try {
+    const { data: sub } = await supabase
+      .from("organization_subscriptions")
+      .select("status, plan:subscription_plans(slug)")
+      .eq("organization_id", organization.id)
+      .limit(1)
+      .maybeSingle();
+    if (sub) {
+      subscription = {
+        status: sub.status,
+        planSlug: (sub.plan as unknown as { slug: string } | null)?.slug ?? "starter",
+      };
+    }
+  } catch {
+    // Table doesn't exist yet (migration not applied)
+  }
+
   return {
     userId: user.id,
     email: user.email ?? null,
     profile,
     organization,
     role: role?.name ?? null,
+    subscription,
   };
 }
 

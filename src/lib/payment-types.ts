@@ -24,6 +24,7 @@ export type CustomerPaymentRecord = {
   source_type: string | null;
   source_invoice_id: string | null;
   source_invoice_number?: string | null;
+  treasury_account_id?: string | null;
   notes: string | null;
   internal_notes: string | null;
   confirmed_at: string | null;
@@ -69,6 +70,7 @@ export type CustomerPaymentFormValues = {
   due_date?: string | null;
   notes?: string | null;
   internal_notes?: string | null;
+  treasury_account_id?: string | null;
 };
 
 export type PaymentAllocationFormValues = {

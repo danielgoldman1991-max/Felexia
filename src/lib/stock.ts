@@ -67,12 +67,21 @@ export async function listWarehouses(): Promise<WarehouseOption[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("warehouses")
-    .select("id, name")
+    .select("id, name, code, location_type, is_default")
     .eq("organization_id", workspace.organization.id)
-    .order("created_at", { ascending: true });
+    .eq("status", "active")
+    .is("archived_at", null)
+    .order("is_default", { ascending: false })
+    .order("name", { ascending: true });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as WarehouseOption[];
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    name: row.is_default ? `${row.name as string} (par defaut)` : row.name as string,
+    code: (row.code as string) ?? null,
+    location_type: row.location_type as WarehouseOption["location_type"],
+    is_default: Boolean(row.is_default),
+  }));
 }
 
 export async function getProductStockSummary(productId: string) {

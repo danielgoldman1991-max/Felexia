@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Printer, XCircle } from "lucide-react";
+import { BookOpenCheck, Printer, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, Td, Th } from "@/components/ui/table";
 import { PaymentStatusBadge } from "@/components/payments/payment-status-badge";
 import { cancelCustomerPayment, unallocatePaymentFromInvoice } from "@/lib/payment-actions";
+import { postCustomerPaymentToAccounting } from "@/lib/accounting-actions";
 import { getPaymentMethodLabel } from "@/lib/payment-terms";
 import { formatDate } from "@/lib/format";
 import type { CustomerPaymentAllocationRecord, CustomerPaymentRecord, PaymentActionResult } from "@/lib/payment-types";
@@ -18,6 +20,14 @@ function actionWithId(action: (prev: PaymentActionResult, formData: FormData) =>
   return (prev: PaymentActionResult) => {
     const formData = new FormData();
     formData.set(key, id);
+    return action(prev, formData);
+  };
+}
+
+function accountingActionWithPaymentId(action: (prev: PaymentActionResult, formData: FormData) => Promise<PaymentActionResult>, paymentId: string) {
+  return (prev: PaymentActionResult) => {
+    const formData = new FormData();
+    formData.set("payment_id", paymentId);
     return action(prev, formData);
   };
 }
@@ -31,7 +41,12 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return <div><p className="text-xs font-medium uppercase text-[var(--muted)]">{label}</p><div className="mt-1 text-sm">{value ?? "-"}</div></div>;
 }
 
-export function CustomerPaymentDetail({ payment, allocations }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[] }) {
+type AccountingEntryInfo = {
+  entry: Record<string, unknown> | null;
+  lines: Array<Record<string, unknown>>;
+};
+
+export function CustomerPaymentDetail({ payment, allocations, accountingEntry }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null }) {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -76,6 +91,42 @@ export function CustomerPaymentDetail({ payment, allocations }: { payment: Custo
               ))}
             </tbody>
           </Table>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
+        <CardContent>
+          {accountingEntry?.entry ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm">
+                    Ecriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
+                  </p>
+                  <p className="text-xs text-[var(--muted)]">
+                    Journal: {String(accountingEntry.entry.journal_code ?? "-")} | {formatDate(String(accountingEntry.entry.entry_date ?? ""))}
+                  </p>
+                </div>
+                <Badge tone={(accountingEntry.entry.status as string) === "posted" ? "success" : "neutral"}>
+                  {String(accountingEntry.entry.status ?? "") === "posted" ? "Comptabilisee" : String(accountingEntry.entry.status ?? "")}
+                </Badge>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
+                <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
+              </div>
+              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
+                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
+              </Link>
+            </div>
+          ) : payment.status === "draft" || payment.status === "cancelled" ? (
+            <p className="text-sm text-[var(--muted)]">Confirmez d&apos;abord le paiement client avant de le comptabiliser.</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour ce paiement.</p>
+              <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postCustomerPaymentToAccounting, payment.id)} />
+            </div>
+          )}
         </CardContent>
       </Card>
       {payment.notes || payment.internal_notes ? <Card><CardHeader><h2 className="font-semibold">Notes</h2></CardHeader><CardContent className="grid gap-4 md:grid-cols-2"><Info label="Notes" value={payment.notes} /><Info label="Notes internes" value={payment.internal_notes} /></CardContent></Card> : null}

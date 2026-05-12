@@ -14,6 +14,7 @@ import type {
   ReceivableSupplierOrderLine,
   BillableSupplierReceipt,
 } from "@/lib/purchase-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 
 const PURCHASE_DOCUMENT_SELECT = `
   id, organization_id, document_type, document_number, supplier_id,
@@ -21,8 +22,10 @@ const PURCHASE_DOCUMENT_SELECT = `
   document_date, expected_receipt_date, receipt_date,
   status, subtotal_ht, discount_total, tax_total, total_ttc, currency,
   notes, internal_notes, validated_at, stock_updated_at,
+  warehouse_id,
   created_by, created_at, updated_at, archived_at,
-  supplier:supplier_id (name, ice, phone, email)
+  supplier:supplier_id (name, ice, phone, email),
+  warehouse:warehouse_id (name)
 `;
 
 const PURCHASE_DOCUMENT_LINE_SELECT = `
@@ -62,9 +65,16 @@ function extractSupplier(raw: Record<string, unknown>): { name: string | null; i
   };
 }
 
+function extractWarehouse(raw: Record<string, unknown>): { name: string | null } {
+  const w = raw.warehouse as Record<string, unknown> | undefined;
+  if (!w || typeof w !== "object") return { name: null };
+  return { name: (w.name as string) ?? null };
+}
+
 function mapPurchaseDocument(raw: Record<string, unknown>): PurchaseDocumentRecord {
   const supplier = extractSupplier(raw);
-  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_phone: supplier.phone, supplier_email: supplier.email } as unknown as PurchaseDocumentRecord;
+  const warehouse = extractWarehouse(raw);
+  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_phone: supplier.phone, supplier_email: supplier.email, warehouse_name: warehouse.name } as unknown as PurchaseDocumentRecord;
 }
 
 function mapSupplierInvoice(raw: Record<string, unknown>): SupplierInvoiceRecord {
@@ -163,6 +173,64 @@ export async function getPurchaseDocumentDetail(id: string): Promise<{ document:
   ]);
   if (docRes.error) return { document: null, lines: [] };
   return { document: mapPurchaseDocument(docRes.data as Record<string, unknown>), lines: (linesRes.data ?? []) as PurchaseDocumentLineRecord[] };
+}
+
+type PurchaseFlowRow = {
+  id: string;
+  document_type: PurchaseDocumentType;
+  document_number: string;
+  status: string | null;
+  source_document_id: string | null;
+  related_order_id: string | null;
+};
+
+function purchaseStep(row: PurchaseFlowRow, currentId: string): DocumentFlowStep {
+  const isOrder = row.document_type === "supplier_order";
+  return {
+    label: isOrder ? "Commande fournisseur" : "Reception",
+    number: row.document_number,
+    href: isOrder ? `/achats/commandes/${row.id}` : `/achats/receptions/${row.id}`,
+    status: row.status,
+    isCurrent: row.id === currentId,
+    type: row.document_type,
+  };
+}
+
+export async function getPurchaseDocumentFlow(documentId: string): Promise<DocumentFlowStep[]> {
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
+  const rowsById = new Map<string, PurchaseFlowRow>();
+  const idsToFetch = new Set<string>([documentId]);
+
+  for (let pass = 0; pass < 3; pass += 1) {
+    const missingIds = [...idsToFetch].filter((id) => !rowsById.has(id));
+    if (missingIds.length === 0) break;
+    const { data, error } = await supabase
+      .from("purchase_documents")
+      .select("id, document_type, document_number, status, source_document_id, related_order_id")
+      .eq("organization_id", orgId)
+      .in("id", missingIds)
+      .is("archived_at", null);
+    if (error) return [];
+    for (const row of (data ?? []) as PurchaseFlowRow[]) {
+      rowsById.set(row.id, row);
+      if (row.source_document_id) idsToFetch.add(row.source_document_id);
+      if (row.related_order_id) idsToFetch.add(row.related_order_id);
+    }
+  }
+
+  const current = rowsById.get(documentId);
+  if (!current) return [];
+  const order = current.document_type === "supplier_order"
+    ? current
+    : current.related_order_id
+      ? rowsById.get(current.related_order_id)
+      : null;
+  return [order, current]
+    .filter((row): row is PurchaseFlowRow => Boolean(row))
+    .filter((row, index, rows) => rows.findIndex((candidate) => candidate.id === row.id) === index)
+    .map((row) => purchaseStep(row, documentId));
 }
 
 /** Compute REAL received quantities for order lines from validated receipts. */
@@ -334,6 +402,62 @@ export async function getSupplierInvoiceDetail(id: string): Promise<{ invoice: S
   return { invoice: mapSupplierInvoice(invRes.data as Record<string, unknown>), lines: (linesRes.data ?? []) as SupplierInvoiceLineRecord[] };
 }
 
+function supplierInvoiceStep(invoice: SupplierInvoiceRecord): DocumentFlowStep {
+  return {
+    label: "Facture fournisseur",
+    number: invoice.invoice_number,
+    href: `/achats/factures/${invoice.id}`,
+    status: invoice.status,
+    isCurrent: true,
+    type: "supplier_invoice",
+  };
+}
+
+function groupedReceiptStep(receipts: Array<{ id: string; document_number: string }>): DocumentFlowStep {
+  const firstNumbers = receipts.slice(0, 2).map((receipt) => receipt.document_number).join(" / ");
+  const suffix = receipts.length > 2 ? ` +${receipts.length - 2}` : "";
+  return {
+    label: `${receipts.length} receptions`,
+    number: `${firstNumbers}${suffix}`,
+    href: receipts.length === 1 ? `/achats/receptions/${receipts[0].id}` : undefined,
+    type: "supplier_receipt",
+  };
+}
+
+export async function getSupplierInvoiceDocumentFlow(invoiceId: string): Promise<DocumentFlowStep[]> {
+  const { invoice, lines } = await getSupplierInvoiceDetail(invoiceId);
+  if (!invoice) return [];
+
+  const receiptIds = Array.from(new Set([invoice.source_receipt_id, ...lines.map((line) => line.source_document_id)].filter(Boolean))) as string[];
+  if (receiptIds.length === 1) {
+    const sourceFlow = await getPurchaseDocumentFlow(receiptIds[0]);
+    return [...sourceFlow.map((step) => ({ ...step, isCurrent: false })), supplierInvoiceStep(invoice)];
+  }
+
+  if (receiptIds.length > 1) {
+    const supabase = await createClient();
+    const workspace = await requireActiveWorkspace();
+    const orgId = workspace.organization.id;
+    const { data } = await supabase
+      .from("purchase_documents")
+      .select("id, document_number, related_order_id")
+      .eq("organization_id", orgId)
+      .in("id", receiptIds)
+      .is("archived_at", null);
+
+    const receipts = (data ?? []) as Array<{ id: string; document_number: string; related_order_id: string | null }>;
+    const orderIds = Array.from(new Set(receipts.map((receipt) => receipt.related_order_id).filter(Boolean))) as string[];
+    const orderFlow = orderIds.length === 1 ? await getPurchaseDocumentFlow(orderIds[0]) : [];
+    return [
+      ...orderFlow.map((step) => ({ ...step, isCurrent: false })).filter((step) => step.type !== "supplier_receipt"),
+      groupedReceiptStep(receipts),
+      supplierInvoiceStep(invoice),
+    ];
+  }
+
+  return [supplierInvoiceStep(invoice)];
+}
+
 export async function listSupplierPayments(filters?: { status?: string; supplierId?: string }) {
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
@@ -380,6 +504,19 @@ export async function getSupplierOpenInvoices(supplierId: string) {
     .is("archived_at", null)
     .order("created_at");
   return (data ?? []).map((r: Record<string, unknown>) => mapSupplierInvoice(r));
+}
+
+export async function getSupplierInvoiceByReceiptId(receiptId: string): Promise<SupplierInvoiceRecord | null> {
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const { data } = await supabase
+    .from("supplier_invoices")
+    .select(SUPPLIER_INVOICE_SELECT)
+    .eq("organization_id", workspace.organization.id)
+    .eq("source_receipt_id", receiptId)
+    .not("status", "eq", "cancelled")
+    .maybeSingle();
+  return data ? mapSupplierInvoice(data as Record<string, unknown>) : null;
 }
 
 export async function getPurchaseProductWithPrice(productId: string) {

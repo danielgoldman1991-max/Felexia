@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { getDefaultStockLocationId } from "@/lib/stock-locations";
+import { createTreasuryTransactionFromPayment } from "@/lib/treasury-actions";
 import type { PurchaseActionResult } from "@/lib/purchase-types";
 import { getSupplierOrderLineProgress } from "@/lib/purchases";
 
@@ -281,10 +283,11 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
   const receiptDate = text(formData, "receipt_date") ?? new Date().toISOString().slice(0, 10);
   const notes = text(formData, "notes");
   const internalNotes = text(formData, "internal_notes");
+  const warehouseId = text(formData, "warehouse_id") ?? await getDefaultStockLocationId(orgId);
 
   const { data: doc, error: docError } = await supabase
     .from("purchase_documents")
-    .insert({ organization_id: orgId, document_type: "supplier_receipt", document_number: "", supplier_id: order.supplier_id, source_document_id: orderId, related_order_id: orderId, document_date: receiptDate, receipt_date: receiptDate, notes, internal_notes: internalNotes, status: "draft" })
+    .insert({ organization_id: orgId, document_type: "supplier_receipt", document_number: "", supplier_id: order.supplier_id, source_document_id: orderId, related_order_id: orderId, warehouse_id: warehouseId, document_date: receiptDate, receipt_date: receiptDate, notes, internal_notes: internalNotes, status: "draft" })
     .select("id, document_number")
     .single();
   if (docError) return { success: false, error: docError.message };
@@ -340,7 +343,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
-  const { data: doc } = await supabase.from("purchase_documents").select("id, document_type, status, stock_updated_at, supplier_id, related_order_id").eq("id", id).eq("organization_id", orgId).single();
+  const { data: doc } = await supabase.from("purchase_documents").select("id, document_type, status, stock_updated_at, supplier_id, related_order_id, warehouse_id").eq("id", id).eq("organization_id", orgId).single();
   if (!doc) return { success: false, error: "Document introuvable." };
   if (doc.document_type !== "supplier_receipt") return { success: false, error: "Ce n'est pas une reception." };
   if (doc.status !== "draft") return { success: false, error: "Seules les receptions brouillon peuvent etre validees." };
@@ -364,7 +367,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
     }
   }
 
-  const defaultWarehouse = await getOrCreateDefaultWarehouse(supabase as never, orgId);
+  const defaultWarehouse = doc.warehouse_id ?? await getDefaultStockLocationId(orgId);
 
   for (const line of lines) {
     if (!line.product_id) continue;
@@ -380,17 +383,6 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
       const currentStock = Number(product.current_stock ?? 0);
       const { error: stockError } = await supabase.from("products").update({ current_stock: currentStock + quantity }).eq("id", line.product_id);
       if (stockError) return { success: false, error: `Erreur mise a jour stock: ${stockError.message}` };
-
-      if (defaultWarehouse) {
-        const { data: existingLevel } = await supabase.from("stock_levels").select("quantity").eq("organization_id", orgId).eq("warehouse_id", defaultWarehouse).eq("product_id", line.product_id).maybeSingle();
-        if (existingLevel) {
-          const { error: levelError } = await supabase.from("stock_levels").update({ quantity: Number(existingLevel.quantity) + quantity, updated_at: new Date().toISOString() }).eq("organization_id", orgId).eq("warehouse_id", defaultWarehouse).eq("product_id", line.product_id);
-          if (levelError) return { success: false, error: `Erreur mise a jour stock_levels: ${levelError.message}` };
-        } else {
-          const { error: levelError } = await supabase.from("stock_levels").insert({ organization_id: orgId, warehouse_id: defaultWarehouse, product_id: line.product_id, quantity });
-          if (levelError) return { success: false, error: `Erreur creation stock_levels: ${levelError.message}` };
-        }
-      }
 
       const { error: moveError } = await supabase.from("stock_moves").insert({
         organization_id: orgId,
@@ -458,14 +450,6 @@ async function updateOrderStatusFromReceipts(supabase: any, orderId: string) {
   await supabase.from("purchase_documents").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", orderId);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getOrCreateDefaultWarehouse(supabase: any, orgId: string): Promise<string | null> {
-  const { data: existing } = await supabase.from("warehouses").select("id").eq("organization_id", orgId).limit(1).maybeSingle();
-  if (existing) return existing.id;
-  const { data: created } = await supabase.from("warehouses").insert({ organization_id: orgId, name: "Depot principal", code: "MAIN" }).select("id").single();
-  return created?.id ?? null;
-}
-
 export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
@@ -498,9 +482,32 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
   const dueDate = text(formData, "due_date");
   const supplierInvoiceNumber = text(formData, "supplier_invoice_number");
+  if (!supplierInvoiceNumber) return { success: false, error: "Le numéro de facture fournisseur est obligatoire." };
+
+  const { data: dup } = await supabase
+    .from("supplier_invoices")
+    .select("id")
+    .eq("organization_id", orgId)
+    .eq("supplier_id", supplierId)
+    .eq("supplier_invoice_number", supplierInvoiceNumber)
+    .not("status", "eq", "cancelled")
+    .maybeSingle();
+  if (dup) return { success: false, error: "Une facture avec ce numéro existe déjà pour ce fournisseur." };
+
   const notes = text(formData, "notes");
   const internalNotes = text(formData, "internal_notes");
   const sourceReceiptId = text(formData, "source_receipt_id");
+
+  if (sourceReceiptId) {
+    const { data: existingByReceipt } = await supabase
+      .from("supplier_invoices")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("source_receipt_id", sourceReceiptId)
+      .not("status", "eq", "cancelled")
+      .maybeSingle();
+    if (existingByReceipt) return { success: false, error: "Cette reception a deja ete facturee." };
+  }
 
   const lines = parseJsonLines(formData, "lines");
   if (lines.length === 0) return { success: false, error: "Ajoutez au moins une ligne." };
@@ -573,6 +580,23 @@ export async function updateSupplierInvoice(prev: PurchaseActionResult, formData
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
   const dueDate = text(formData, "due_date");
   const supplierInvoiceNumber = text(formData, "supplier_invoice_number");
+  if (!supplierInvoiceNumber) return { success: false, error: "Le numéro de facture fournisseur est obligatoire." };
+
+  const { data: existingInv } = await supabase.from("supplier_invoices").select("supplier_id").eq("id", invoiceId).eq("organization_id", orgId).single();
+  const invSupplierId = existingInv?.supplier_id;
+  if (invSupplierId) {
+    const { data: dup } = await supabase
+      .from("supplier_invoices")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("supplier_id", invSupplierId)
+      .eq("supplier_invoice_number", supplierInvoiceNumber)
+      .not("status", "eq", "cancelled")
+      .neq("id", invoiceId)
+      .maybeSingle();
+    if (dup) return { success: false, error: "Une facture avec ce numéro existe déjà pour ce fournisseur." };
+  }
+
   const notes = text(formData, "notes");
   const internalNotes = text(formData, "internal_notes");
 
@@ -628,15 +652,73 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
   void prev;
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
-  const { data: inv } = await supabase.from("supplier_invoices").select("status").eq("id", id).eq("organization_id", workspace.organization.id).single();
+  const { data: inv, error: invoiceError } = await supabase
+    .from("supplier_invoices")
+    .select("id, status, supplier_id, total_ttc, paid_amount, archived_at, supplier_invoice_number")
+    .eq("id", id)
+    .eq("organization_id", orgId)
+    .maybeSingle();
+  if (invoiceError) return { success: false, error: invoiceError.message };
   if (!inv) return { success: false, error: "Facture introuvable." };
+  if (inv.archived_at) return { success: false, error: "Impossible de valider une facture archivee." };
   if (inv.status !== "draft") return { success: false, error: "Seules les factures brouillon peuvent etre validees." };
+  if (!inv.supplier_id) return { success: false, error: "Fournisseur obligatoire pour valider la facture." };
+  if (!inv.supplier_invoice_number || !inv.supplier_invoice_number.trim()) return { success: false, error: "Le numéro de facture fournisseur est obligatoire avant validation." };
 
-  await supabase.from("supplier_invoices").update({ status: "validated", validated_at: new Date().toISOString(), payment_status: "unpaid", remaining_amount: supabase.from("supplier_invoices").select("total_ttc").eq("id", id).then(r => r.data?.[0]?.total_ttc ?? 0) as unknown as number }).eq("id", id);
+  const { data: supplier, error: supplierError } = await supabase
+    .from("third_parties")
+    .select("id")
+    .eq("id", inv.supplier_id)
+    .eq("organization_id", orgId)
+    .is("archived_at", null)
+    .maybeSingle();
+  if (supplierError) return { success: false, error: supplierError.message };
+  if (!supplier) return { success: false, error: "Fournisseur introuvable ou archive." };
+
+  const { data: lines, error: linesError } = await supabase
+    .from("supplier_invoice_lines")
+    .select("subtotal_ht, discount_amount, tax_amount, total_ttc")
+    .eq("invoice_id", id)
+    .eq("organization_id", orgId);
+  if (linesError) return { success: false, error: linesError.message };
+  if (!lines || lines.length === 0) return { success: false, error: "Impossible de valider une facture sans ligne." };
+
+  const subtotalHt = lines.reduce((sum, line) => sum + Number(line.subtotal_ht ?? 0), 0);
+  const discountTotal = lines.reduce((sum, line) => sum + Number(line.discount_amount ?? 0), 0);
+  const taxTotal = lines.reduce((sum, line) => sum + Number(line.tax_amount ?? 0), 0);
+  const totalTtc = lines.reduce((sum, line) => sum + Number(line.total_ttc ?? 0), 0);
+  if (totalTtc <= 0) return { success: false, error: "Total facture invalide." };
+
+  const paidAmount = Math.max(Number(inv.paid_amount ?? 0), 0);
+  const remainingAmount = Math.max(totalTtc - paidAmount, 0);
+  const paymentStatus = paidAmount <= 0 ? "unpaid" : paidAmount >= totalTtc ? "paid" : "partial";
+  const nextStatus = paymentStatus === "paid" ? "paid" : paymentStatus === "partial" ? "partially_paid" : "validated";
+
+  const { error: updateError } = await supabase
+    .from("supplier_invoices")
+    .update({
+      status: nextStatus,
+      validated_at: new Date().toISOString(),
+      payment_status: paymentStatus,
+      subtotal_ht: subtotalHt,
+      discount_total: discountTotal,
+      tax_total: taxTotal,
+      total_ttc: totalTtc,
+      paid_amount: paidAmount,
+      remaining_amount: remainingAmount,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("organization_id", orgId);
+  if (updateError) return { success: false, error: updateError.message };
+
   revalidatePath("/achats/factures");
+  revalidatePath(`/achats/factures/${id}`);
+  revalidatePath("/achats/paiements/new");
   return { success: true };
 }
 
@@ -680,10 +762,12 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const transferReference = text(formData, "transfer_reference");
   const dueDate = text(formData, "due_date");
   const notes = text(formData, "notes");
+  const treasuryAccountId = text(formData, "treasury_account_id");
+  if (!treasuryAccountId) return { success: false, error: "Selectionnez un compte de decaissement." };
 
   const { data: payment, error: payError } = await supabase
     .from("supplier_payments")
-    .insert({ organization_id: orgId, payment_number: "", supplier_id: supplierId, amount, payment_date: paymentDate, value_date: valueDate, payment_method: paymentMethod, reference: reference, bank_name: bankName, check_number: checkNumber, transfer_reference: transferReference, due_date: dueDate, notes, status: "confirmed", allocated_amount: 0, available_amount: amount })
+    .insert({ organization_id: orgId, payment_number: "", supplier_id: supplierId, treasury_account_id: treasuryAccountId, amount, payment_date: paymentDate, value_date: valueDate, payment_method: paymentMethod, reference: reference, bank_name: bankName, check_number: checkNumber, transfer_reference: transferReference, due_date: dueDate, notes, status: "confirmed", allocated_amount: 0, available_amount: amount })
     .select("id, payment_number")
     .single();
   if (payError) return { success: false, error: payError.message };
@@ -704,6 +788,21 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   if (totalAllocated > 0) {
     await supabase.from("supplier_payments").update({ allocated_amount: totalAllocated, available_amount: amount - totalAllocated, status: totalAllocated >= amount ? "allocated" : "partially_allocated" }).eq("id", payment.id);
   }
+
+  const treasuryResult = await createTreasuryTransactionFromPayment({
+    organizationId: orgId,
+    userId: workspace.userId,
+    treasuryAccountId,
+    direction: "out",
+    amount,
+    transactionDate: paymentDate,
+    valueDate,
+    label: `Paiement fournisseur ${payment.payment_number || ""}`.trim(),
+    reference: reference ?? transferReference,
+    thirdPartyId: supplierId,
+    supplierPaymentId: payment.id,
+  });
+  if (treasuryResult.error) return { success: false, error: treasuryResult.error };
 
   revalidatePath("/achats/paiements");
   redirect(`/achats/paiements/${payment.id}`);

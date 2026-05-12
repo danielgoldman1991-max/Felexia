@@ -8,10 +8,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
+import { DocumentFlowMap } from "@/components/shared/document-flow-map";
 import { formatDate, formatNumber } from "@/lib/format";
 import { SupplierReceiptStatusBadge } from "@/components/purchases/purchase-status-badge";
 import { validateSupplierReceipt, cancelSupplierReceipt, archivePurchaseDocument } from "@/lib/purchase-actions";
-import type { PurchaseActionResult, PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
+import type { PurchaseActionResult, PurchaseDocumentLineRecord, PurchaseDocumentRecord, SupplierInvoiceRecord } from "@/lib/purchase-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 import { PURCHASE_DOCUMENT_LABELS } from "@/lib/purchase-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
@@ -36,7 +38,7 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function SupplierReceiptDetail({ document, lines }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[] }) {
+export function SupplierReceiptDetail({ document, lines, documentFlow, existingInvoice }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[]; documentFlow?: DocumentFlowStep[]; existingInvoice?: SupplierInvoiceRecord | null }) {
   const canValidate = document.status === "draft";
   const canCancel = document.status === "draft";
 
@@ -49,6 +51,15 @@ export function SupplierReceiptDetail({ document, lines }: { document: PurchaseD
         description={document.supplier_name ?? ""}
         actions={
           <>
+            {existingInvoice ? (
+              <Link href={`/achats/factures/${existingInvoice.id}`}>
+                <Button variant="secondary">Voir facture</Button>
+              </Link>
+            ) : document.status === "validated" ? (
+              <Link href={`/achats/factures/new?receiptId=${document.id}`}>
+                <Button variant="secondary">Creer facture</Button>
+              </Link>
+            ) : null}
             {canValidate ? (
               <ActionForm label="Valider reception" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateSupplierReceipt, document.id)} />
             ) : null}
@@ -67,6 +78,8 @@ export function SupplierReceiptDetail({ document, lines }: { document: PurchaseD
           </>
         }
       />
+
+      <DocumentFlowMap steps={documentFlow ?? []} />
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
@@ -90,7 +103,7 @@ export function SupplierReceiptDetail({ document, lines }: { document: PurchaseD
         <CardContent>
           {lines.length === 0 ? <EmptyState title="Aucune ligne" description="Cette reception ne contient aucune ligne." /> : (
             <Table>
-              <thead><tr><Th>#</Th><Th>Article</Th><Th>Designation</Th><Th>Unite</Th><Th>Quantite recue</Th></tr></thead>
+              <thead><tr><Th>#</Th><Th>Article</Th><Th>Designation</Th><Th>Unite</Th><Th>Quantite recue</Th><Th>Emplacement</Th></tr></thead>
               <tbody>
                 {lines.map((line, index) => (
                   <tr key={line.id}>
@@ -99,6 +112,7 @@ export function SupplierReceiptDetail({ document, lines }: { document: PurchaseD
                     <Td>{line.description}</Td>
                     <Td>{line.unit_name ?? "-"}</Td>
                     <Td className="font-semibold">{formatNumber(line.quantity)}</Td>
+                    <Td>{document.warehouse_name ? <span className="inline-block rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-700">{document.warehouse_name}</span> : <span className="text-xs text-gray-400">Non renseigne</span>}</Td>
                   </tr>
                 ))}
               </tbody>

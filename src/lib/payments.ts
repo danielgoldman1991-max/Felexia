@@ -14,7 +14,7 @@ import type {
 } from "@/lib/payment-types";
 
 const PAYMENT_SELECT = `
-  id, organization_id, payment_number, third_party_id, customer_id, payment_date, value_date,
+  id, organization_id, payment_number, third_party_id, customer_id, treasury_account_id, payment_date, value_date,
   amount, allocated_amount, available_amount, currency, payment_method,
   reference, bank_name, check_number, transfer_reference, due_date,
   status, payment_type, source_type, source_invoice_id, notes, internal_notes,
@@ -66,6 +66,7 @@ function mapPayment(raw: unknown): CustomerPaymentRecord {
     source_type: row.source_type as string | null,
     source_invoice_id: row.source_invoice_id as string | null,
     source_invoice_number: sourceInvoice?.invoice_number as string | null,
+    treasury_account_id: row.treasury_account_id as string | null,
     notes: row.notes as string | null,
     internal_notes: row.internal_notes as string | null,
     confirmed_at: row.confirmed_at as string | null,

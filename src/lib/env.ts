@@ -1,0 +1,25 @@
+export function getEnv() {
+  return {
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+    supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+    stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "",
+    appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  };
+}
+
+export function hasRequiredEnv(): boolean {
+  const env = getEnv();
+  return Boolean(env.supabaseUrl && env.supabaseAnonKey);
+}
+
+export function hasStripeEnv(): boolean {
+  const env = getEnv();
+  return Boolean(env.stripeSecretKey && env.stripeWebhookSecret && env.stripePublishableKey);
+}
+
+export function hasServiceRoleKey(): boolean {
+  return Boolean(getEnv().supabaseServiceRoleKey);
+}

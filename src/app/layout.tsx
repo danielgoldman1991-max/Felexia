@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Felexia",
   description: "Mini-ERP SaaS pour PME marocaines",
+  icons: {
+    icon: "/brand/favicon.svg",
+    apple: "/brand/favicon.svg",
+  },
 };
 
 export default function RootLayout({

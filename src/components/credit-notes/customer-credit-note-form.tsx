@@ -13,7 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCustomerCreditNote } from "@/lib/credit-note-actions";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import type { CreditNoteActionResult } from "@/lib/credit-note-types";
+import type { CreditNoteActionResult, CustomerCreditNoteSourceType } from "@/lib/credit-note-types";
 import type { InvoiceCustomerOption, InvoiceLineFormValue, InvoiceProductOption } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 
@@ -28,6 +28,10 @@ export function CustomerCreditNoteForm({
   taxRates,
   initialCustomerId = "",
   sourceInvoiceId = "",
+  sourceReturnId = "",
+  sourceReturnNumber = "",
+  sourceType,
+  defaultReason = "",
   initialLines = [],
 }: {
   customers: InvoiceCustomerOption[];
@@ -36,16 +40,23 @@ export function CustomerCreditNoteForm({
   taxRates: TaxRateForSalesSelect[];
   initialCustomerId?: string;
   sourceInvoiceId?: string;
+  sourceReturnId?: string;
+  sourceReturnNumber?: string;
+  sourceType?: CustomerCreditNoteSourceType;
+  defaultReason?: string;
   initialLines?: InvoiceLineFormValue[];
 }) {
   const [state, formAction, pending] = useActionState<CreditNoteActionResult, FormData>(createCustomerCreditNote, { success: true });
   const [customerId, setCustomerId] = useState(initialCustomerId);
   const [lines, setLines] = useState(initialLines);
   const totals = calculateInvoiceTotals(lines);
+  const hasMissingPrices = lines.some((line) => line.unit_price_ht <= 0);
+  const defaultSourceType = sourceType ?? (sourceInvoiceId ? "invoice_partial" : "manual");
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="customer_id" value={customerId} />
       <input type="hidden" name="source_invoice_id" value={sourceInvoiceId} />
+      <input type="hidden" name="source_return_id" value={sourceReturnId} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <Card>
         <CardHeader><h2 className="font-semibold">Informations avoir</h2></CardHeader>
@@ -60,17 +71,31 @@ export function CustomerCreditNoteForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Origine</span>
-            <Select name="source_type" defaultValue={sourceInvoiceId ? "invoice_partial" : "manual"}>
-              <option value="manual">Libre</option>
-              <option value="invoice_total">Facture totale</option>
-              <option value="invoice_partial">Facture partielle</option>
-              <option value="commercial_gesture">Geste commercial</option>
-              <option value="correction">Correction</option>
-            </Select>
+            {sourceReturnId ? (
+              <>
+                <input type="hidden" name="source_type" value="return" />
+                <div className="rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+                  Bon de retour {sourceReturnNumber || sourceReturnId}
+                </div>
+              </>
+            ) : (
+              <Select name="source_type" defaultValue={defaultSourceType}>
+                <option value="manual">Libre</option>
+                <option value="invoice_total">Facture totale</option>
+                <option value="invoice_partial">Facture partielle</option>
+                <option value="commercial_gesture">Geste commercial</option>
+                <option value="correction">Correction</option>
+              </Select>
+            )}
           </label>
+          {sourceReturnId && hasMissingPrices ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 lg:col-span-2">
+              Prix a completer manuellement pour une ou plusieurs lignes.
+            </div>
+          ) : null}
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Motif</span>
-            <Input name="reason" placeholder="Correction facture, geste commercial..." />
+            <Input name="reason" defaultValue={defaultReason} placeholder="Correction facture, geste commercial..." />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Notes client</span>

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ModulePage } from "@/components/erp/module-page";
 import { SupplierReceiptForm } from "@/components/purchases/supplier-receipt-form";
+import { listActiveStockLocations } from "@/lib/stock-locations";
 import { listReceivableSupplierOrders, getSupplierReceiptPreparation } from "@/lib/purchases";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +10,9 @@ export default async function NewSupplierReceiptPage({ searchParams }: { searchP
   const { orderId } = await searchParams;
 
   if (orderId) {
-    const order = await getSupplierReceiptPreparation(orderId);
+    const [order, stockLocations] = await Promise.all([getSupplierReceiptPreparation(orderId), listActiveStockLocations()]);
     if (!order) return <ModulePage><p className="text-sm text-red-600">Commande non trouvee ou deja entierement recue.</p></ModulePage>;
-    return <ModulePage><SupplierReceiptForm order={order} /></ModulePage>;
+    return <ModulePage><SupplierReceiptForm order={order} stockLocations={stockLocations} /></ModulePage>;
   }
 
   const orders = await listReceivableSupplierOrders();

@@ -1,3 +1,5 @@
+import type { InvoiceLineFormValue } from "@/lib/invoice-types";
+
 export type CustomerCreditNoteStatus = "draft" | "validated" | "applied" | "partially_applied" | "cancelled";
 export type CustomerCreditNoteSourceType = "manual" | "invoice_total" | "invoice_partial" | "return" | "commercial_gesture" | "correction";
 
@@ -9,6 +11,8 @@ export type CustomerCreditNoteRecord = {
   customer_name?: string | null;
   source_invoice_id: string | null;
   source_invoice_number?: string | null;
+  source_return_id: string | null;
+  source_return_number?: string | null;
   source_type: CustomerCreditNoteSourceType;
   credit_note_date: string;
   status: CustomerCreditNoteStatus;
@@ -68,6 +72,8 @@ export type CustomerCreditNoteDetail = {
 export type CreditNoteLineFormValue = {
   id: string;
   source_invoice_line_id?: string | null;
+  source_return_line_id?: string | null;
+  price_source?: "invoice" | "order" | "delivery" | "product" | "missing" | null;
   product_id?: string | null;
   product_name?: string | null;
   description: string;
@@ -85,6 +91,34 @@ export type CreditNoteCounters = {
   validated: number;
   availableTotal: number;
   availableCount: number;
+};
+
+export type CreditNoteReturnPreparationLine = InvoiceLineFormValue & {
+  return_line_id: string;
+  source_delivery_line_id: string | null;
+  quantity_returned: number;
+  source_invoice_line_id?: string | null;
+  source_return_line_id?: string | null;
+  price_source?: "invoice" | "order" | "delivery" | "product" | "missing" | null;
+};
+
+export type CreditNoteReturnPreparation = {
+  returnDocument: {
+    id: string;
+    document_number: string;
+    customer_id: string;
+    status: string;
+    return_reason: string | null;
+    related_delivery_id: string | null;
+    related_order_id: string | null;
+    stock_updated_at: string | null;
+  } | null;
+  customer: { id: string; name: string | null } | null;
+  relatedDelivery: { id: string; document_number: string } | null;
+  relatedOrder: { id: string; document_number: string } | null;
+  relatedInvoice: { id: string; invoice_number: string } | null;
+  existingCreditNote: CustomerCreditNoteRecord | null;
+  lines: CreditNoteReturnPreparationLine[];
 };
 
 export type CreditNoteActionResult = {
@@ -105,7 +139,7 @@ export const CREDIT_NOTE_SOURCE_LABELS: Record<string, string> = {
   manual: "Libre",
   invoice_total: "Facture totale",
   invoice_partial: "Facture partielle",
-  return: "Retour",
+  return: "Retour client",
   commercial_gesture: "Geste commercial",
   correction: "Correction",
 };

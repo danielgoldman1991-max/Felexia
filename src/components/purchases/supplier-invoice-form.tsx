@@ -18,24 +18,31 @@ export function SupplierInvoiceForm({
   billableReceipts,
   invoice,
   lines: initialLines,
+  prefillSupplierId: prefilledSupplierId,
+  prefillSourceReceiptId: prefilledSourceReceiptId,
+  prefillLines,
 }: {
   suppliers: { id: string; name: string; ice: string | null }[];
   products: PurchaseProductOption[];
   billableReceipts?: BillableSupplierReceipt[];
   invoice?: SupplierInvoiceRecord | null;
   lines?: SupplierInvoiceLineRecord[];
+  prefillSupplierId?: string;
+  prefillSourceReceiptId?: string;
+  prefillLines?: SupplierInvoiceLineFormValue[];
 }) {
   const isEdit = !!invoice;
-  const [supplierId, setSupplierId] = useState(invoice?.supplier_id ?? "");
+  const [supplierId, setSupplierId] = useState(invoice?.supplier_id ?? prefilledSupplierId ?? "");
   const [invoiceDate, setInvoiceDate] = useState(invoice?.invoice_date ?? new Date().toISOString().slice(0, 10));
   const [dueDate, setDueDate] = useState(invoice?.due_date ?? "");
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState(invoice?.supplier_invoice_number ?? "");
   const [notes, setNotes] = useState(invoice?.notes ?? "");
-  const [sourceReceiptId, setSourceReceiptId] = useState(invoice?.source_receipt_id ?? "");
+  const [sourceReceiptId, setSourceReceiptId] = useState(invoice?.source_receipt_id ?? prefilledSourceReceiptId ?? "");
   const [showReceiptsModal, setShowReceiptsModal] = useState(false);
 
   const [lines, setLines] = useState<SupplierInvoiceLineFormValue[]>(() => {
     if (initialLines && initialLines.length > 0) return initialLines.map((l) => ({ id: l.id, mode: "product" as const, product_id: l.product_id ?? "", product_name: l.product_name ?? "", description: l.description, quantity: l.quantity, unit_id: l.unit_id ?? "", unit_name: l.unit_name ?? "", unit_price_ht: l.unit_price_ht, discount_rate: l.discount_rate, tax_rate_id: l.tax_rate_id ?? "", tax_rate: l.tax_rate, subtotal_ht: l.subtotal_ht, discount_amount: l.discount_amount, tax_amount: l.tax_amount, total_ttc: l.total_ttc, source_line_id: l.source_line_id, source_document_id: l.source_document_id }));
+    if (prefillLines && prefillLines.length > 0) return prefillLines;
     return [];
   });
 
@@ -105,7 +112,7 @@ export function SupplierInvoiceForm({
     formData.set("supplier_id", supplierId);
     formData.set("invoice_date", invoiceDate);
     if (dueDate) formData.set("due_date", dueDate);
-    if (supplierInvoiceNumber) formData.set("supplier_invoice_number", supplierInvoiceNumber);
+    formData.set("supplier_invoice_number", supplierInvoiceNumber);
     if (notes) formData.set("notes", notes);
     if (sourceReceiptId) formData.set("source_receipt_id", sourceReceiptId);
     formData.set("lines", JSON.stringify(lines.map((l) => ({ ...l, unit_id: l.unit_id || null, unit_name: l.unit_name || null, tax_rate_id: l.tax_rate_id || null }))));
@@ -129,8 +136,8 @@ export function SupplierInvoiceForm({
             <DateField label="Date facture" value={invoiceDate} onChange={setInvoiceDate} />
             <DateField label="Echeance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
             <div>
-              <label className="text-xs font-medium uppercase text-[var(--muted)]">N Facture fournisseur</label>
-              <input value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Numero facture fournisseur" className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className="text-xs font-medium uppercase text-[var(--muted)]">N Facture fournisseur <span className="text-red-500">*</span></label>
+              <input value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex: FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
@@ -193,7 +200,7 @@ export function SupplierInvoiceForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || !supplierId || lines.length === 0}>
+          <Button type="submit" disabled={pending || !supplierId || !supplierInvoiceNumber.trim() || lines.length === 0}>
             {isEdit ? "Enregistrer" : "Creer facture fournisseur"}
           </Button>
         </div>

@@ -14,10 +14,12 @@ import { getCustomerOpenItemsAction } from "@/lib/payment-actions";
 import { PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import { CUSTOMER_PAYMENT_TYPE_LABELS, type CustomerOpenItems as CustomerOpenItemsType, type OpenInvoiceForAllocation, type PaymentActionResult } from "@/lib/payment-types";
 import type { InvoiceCustomerOption } from "@/lib/invoice-types";
+import type { TreasuryAccountRecord } from "@/lib/treasury-types";
 
 type Props = {
   action: (state: PaymentActionResult, formData: FormData) => Promise<PaymentActionResult>;
   customers: InvoiceCustomerOption[];
+  treasuryAccounts?: TreasuryAccountRecord[];
   invoices?: OpenInvoiceForAllocation[];
   initialOpenItems?: CustomerOpenItemsType | null;
   initialCustomerId?: string;
@@ -73,6 +75,7 @@ function openItemsFromInvoices(invoices: OpenInvoiceForAllocation[]): CustomerOp
 export function CustomerPaymentForm({
   action,
   customers,
+  treasuryAccounts = [],
   invoices = [],
   initialOpenItems = null,
   initialCustomerId = "",
@@ -141,6 +144,13 @@ export function CustomerPaymentForm({
             <span className="font-medium text-[var(--muted)]">Modalite *</span>
             <Select name="payment_method" defaultValue={initialValues?.payment_method ?? "bank_transfer"}>
               {PAYMENT_METHOD_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </Select>
+          </label>
+          <label className="space-y-1.5 text-sm">
+            <span className="font-medium text-[var(--muted)]">Compte d&apos;encaissement *</span>
+            <Select name="treasury_account_id" defaultValue={treasuryAccounts[0]?.id ?? ""} required>
+              <option value="">Selectionner...</option>
+              {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
             </Select>
           </label>
           <label className="space-y-1.5 text-sm">

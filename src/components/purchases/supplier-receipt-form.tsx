@@ -7,11 +7,14 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
 import { createSupplierReceipt } from "@/lib/purchase-actions";
 import { DateField } from "@/components/ui/date-field";
+import { Select } from "@/components/ui/select";
 import { formatNumber } from "@/lib/format";
+import type { WarehouseOption } from "@/lib/stock-types";
 import type { ReceivableSupplierOrder } from "@/lib/purchase-types";
 
-export function SupplierReceiptForm({ order }: { order: ReceivableSupplierOrder }) {
+export function SupplierReceiptForm({ order, stockLocations }: { order: ReceivableSupplierOrder; stockLocations: WarehouseOption[] }) {
   const [receiptDate, setReceiptDate] = useState(new Date().toISOString().slice(0, 10));
+  const [warehouseId, setWarehouseId] = useState(stockLocations[0]?.id ?? "");
   const [notes, setNotes] = useState("");
   const [quantities, setQuantities] = useState<Record<string, number>>(() => {
     const q: Record<string, number> = {};
@@ -28,6 +31,7 @@ export function SupplierReceiptForm({ order }: { order: ReceivableSupplierOrder 
   function handleSubmit(formData: FormData) {
     formData.set("order_id", order.id);
     formData.set("receipt_date", receiptDate);
+    if (warehouseId) formData.set("warehouse_id", warehouseId);
     if (notes) formData.set("notes", notes);
 
     const lines = order.lines.map((l) => ({
@@ -54,6 +58,13 @@ export function SupplierReceiptForm({ order }: { order: ReceivableSupplierOrder 
           <CardHeader><h2 className="font-semibold">Reception fournisseur</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <DateField label="Date reception" value={receiptDate} onChange={setReceiptDate} />
+            <label className="space-y-1 text-sm">
+              <span className="text-xs font-medium uppercase text-[var(--muted)]">Emplacement de reception</span>
+              <Select value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)}>
+                <option value="">Emplacement par defaut</option>
+                {stockLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
+              </Select>
+            </label>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />

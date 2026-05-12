@@ -1,14 +1,25 @@
 import { redirect } from "next/navigation";
-import Image from "next/image";
+import { cookies } from "next/headers";
+import { Logo } from "@/components/brand/Logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth/login-form";
 import { getActiveWorkspace } from "@/lib/auth";
 
 export default async function LoginPage() {
-  const workspace = await getActiveWorkspace();
+  const cookieStore = await cookies();
+  const supabaseProjectRef = process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname.split(".")[0]
+    : null;
+  const authCookieName = supabaseProjectRef ? `sb-${supabaseProjectRef}-auth-token` : null;
+  const hasAuthCookie = authCookieName
+    ? cookieStore.getAll().some((c) => c.name.startsWith(authCookieName))
+    : false;
 
-  if (workspace) {
-    redirect("/dashboard");
+  if (hasAuthCookie) {
+    const workspace = await getActiveWorkspace();
+    if (workspace) {
+      redirect("/dashboard");
+    }
   }
 
   return (
@@ -17,7 +28,7 @@ export default async function LoginPage() {
         <CardHeader>
           <div className="mb-3 flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-white">
-              <Image src="/felexia-conseils-logo.jpg" alt="Logo Felexia Conseils" width={44} height={44} className="h-11 w-11 object-contain" />
+              <Logo size={36} />
             </span>
             <p className="text-sm font-semibold text-[var(--secondary)]">Felexia facilite ta gestion</p>
           </div>

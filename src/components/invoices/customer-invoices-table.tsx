@@ -3,6 +3,7 @@ import { Eye, Pencil, Printer } from "lucide-react";
 import { Table, Td, Th } from "@/components/ui/table";
 import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
+import { AccountingStatusBadge } from "@/components/invoices/accounting-status-badge";
 import { InvoicePaymentStatusBadge, InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { formatDate } from "@/lib/format";
 import type { CustomerInvoiceRecord } from "@/lib/invoice-types";
@@ -16,7 +17,7 @@ export function CustomerInvoicesTable({ rows }: { rows: CustomerInvoiceRecord[] 
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th><Th>Client</Th><Th>Date</Th><Th>Echeance</Th><Th>Statut</Th><Th>Paiement</Th><Th>Total TTC</Th><Th>Paye</Th><Th>Reste</Th><Th>Actions</Th>
+          <Th>Numero</Th><Th>Client</Th><Th>Date</Th><Th>Echeance</Th><Th>Statut</Th><Th>Paiement</Th><Th>Compta</Th><Th>Total TTC</Th><Th>Paye</Th><Th>Reste</Th><Th>Actions</Th>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +36,13 @@ export function CustomerInvoicesTable({ rows }: { rows: CustomerInvoiceRecord[] 
             <Td>{row.due_date ? formatDate(row.due_date) : "-"}</Td>
             <Td><InvoiceStatusBadge status={row.status} /></Td>
             <Td><InvoicePaymentStatusBadge status={row.payment_status} /></Td>
+            <Td>
+              <AccountingStatusBadge
+                status={row.accounting_status}
+                entryId={row.accounting_entry_id}
+                entryNumber={row.accounting_entry_number}
+              />
+            </Td>
             <Td><MoneyDisplay value={row.total_ttc} /></Td>
             <Td><MoneyDisplay value={row.paid_amount} /></Td>
             <Td><MoneyDisplay value={row.remaining_amount} /></Td>

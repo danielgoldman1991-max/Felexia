@@ -50,6 +50,7 @@ export function SupplierInvoicesTable({ rows }: { rows: SupplierInvoiceRecord[] 
     <Table>
       <thead><tr>
         <Th>N Facture</Th>
+        <Th>N fournisseur</Th>
         <Th>Fournisseur</Th>
         <Th>Date</Th>
         <Th>Total TTC</Th>
@@ -61,6 +62,7 @@ export function SupplierInvoicesTable({ rows }: { rows: SupplierInvoiceRecord[] 
         {rows.map((row) => (
           <tr key={row.id}>
             <Td className="font-medium">{row.invoice_number}</Td>
+            <Td className="text-xs text-[var(--muted)]">{row.supplier_invoice_number ?? "-"}</Td>
             <Td>{row.supplier_name ?? "-"}</Td>
             <Td>{formatDate(row.invoice_date)}</Td>
             <Td><MoneyDisplay value={row.total_ttc} /></Td>

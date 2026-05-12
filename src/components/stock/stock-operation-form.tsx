@@ -92,9 +92,9 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
           ) : null}
 
           <label className="space-y-2 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Depot</span>
+            <span className="font-medium text-[var(--foreground)]">Emplacement de stock</span>
             <Select name="warehouse_id" defaultValue={warehouses[0]?.id ?? ""}>
-              <option value="">Depot principal</option>
+              <option value="">Emplacement par defaut</option>
               {warehouses.map((warehouse) => (
                 <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
               ))}

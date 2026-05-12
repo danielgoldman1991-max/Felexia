@@ -1,5 +1,41 @@
 export type StockMoveDirection = "in" | "out";
 
+export type StockLocationType =
+  | "warehouse"
+  | "depot"
+  | "store"
+  | "site"
+  | "zone"
+  | "rack"
+  | "bin"
+  | "vehicle"
+  | "project"
+  | "other";
+
+export type StockLocationStatus = "active" | "inactive" | "archived";
+
+export type StockLocationRecord = {
+  id: string;
+  organization_id: string;
+  name: string;
+  code: string | null;
+  location_type: StockLocationType;
+  parent_id: string | null;
+  parent_name?: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  manager_name: string | null;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  is_default: boolean;
+  status: StockLocationStatus;
+  created_at: string;
+  updated_at: string;
+  archived_at: string | null;
+};
+
 export type StockMoveType =
   | "delivery_out"
   | "customer_return_in"
@@ -79,6 +115,9 @@ export type StockMovementSummary = {
 export type WarehouseOption = {
   id: string;
   name: string;
+  code?: string | null;
+  location_type?: StockLocationType;
+  is_default?: boolean;
 };
 
 export type StockActionResult = {
@@ -97,4 +136,23 @@ export const STOCK_MOVE_TYPE_LABELS: Record<StockMoveType, string> = {
   initial_stock: "Stock initial",
   purchase_in: "Entree achat",
   purchase_receipt_in: "Reception fournisseur",
+};
+
+export const STOCK_LOCATION_TYPE_LABELS: Record<StockLocationType, string> = {
+  warehouse: "Entrepot",
+  depot: "Depot",
+  store: "Magasin",
+  site: "Site",
+  zone: "Zone",
+  rack: "Rayonnage",
+  bin: "Emplacement",
+  vehicle: "Vehicule",
+  project: "Chantier",
+  other: "Autre",
+};
+
+export const STOCK_LOCATION_STATUS_LABELS: Record<StockLocationStatus, string> = {
+  active: "Actif",
+  inactive: "Inactif",
+  archived: "Archive",
 };

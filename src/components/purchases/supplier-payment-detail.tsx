@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { XCircle, ArrowLeftRight } from "lucide-react";
+import { BookOpenCheck, XCircle, ArrowLeftRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { formatDate } from "@/lib/format";
 import { cancelSupplierPayment } from "@/lib/purchase-actions";
+import { postSupplierPaymentToAccounting } from "@/lib/accounting-actions";
 import type { PurchaseActionResult, SupplierPaymentAllocationRecord, SupplierPaymentRecord } from "@/lib/purchase-types";
 import { SUPPLIER_PAYMENT_STATUS_LABELS, SUPPLIER_PAYMENT_TYPE_LABELS } from "@/lib/purchase-types";
 
@@ -24,6 +26,14 @@ function actionWithId(action: (prev: PurchaseActionResult, formData: FormData) =
   };
 }
 
+function accountingActionWithPaymentId(action: (prev: PurchaseActionResult, formData: FormData) => Promise<PurchaseActionResult>, paymentId: string) {
+  return (prev: PurchaseActionResult) => {
+    const formData = new FormData();
+    formData.set("payment_id", paymentId);
+    return action(prev, formData);
+  };
+}
+
 function ActionForm({ label, icon, action, variant = "secondary" }: { label: string; icon?: React.ReactNode; action: (prev: PurchaseActionResult) => Promise<PurchaseActionResult>; variant?: "primary" | "secondary" | "ghost" | "danger" }) {
   const [state, formAction, pending] = useActionState(action, { success: true });
   return (
@@ -34,12 +44,19 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
+type AccountingEntryInfo = {
+  entry: Record<string, unknown> | null;
+  lines: Array<Record<string, unknown>>;
+};
+
 export function SupplierPaymentDetail({
   payment,
   allocations,
+  accountingEntry,
 }: {
   payment: SupplierPaymentRecord;
   allocations: SupplierPaymentAllocationRecord[];
+  accountingEntry?: AccountingEntryInfo | null;
 }) {
   const canAllocate = payment.available_amount > 0;
   const canCancel = payment.status !== "cancelled";
@@ -90,6 +107,43 @@ export function SupplierPaymentDetail({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
+        <CardContent>
+          {accountingEntry?.entry ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm">
+                    Ecriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
+                  </p>
+                  <p className="text-xs text-[var(--muted)]">
+                    Journal: {String(accountingEntry.entry.journal_code ?? "-")} | {formatDate(String(accountingEntry.entry.entry_date ?? ""))}
+                  </p>
+                </div>
+                <Badge tone={(accountingEntry.entry.status as string) === "posted" ? "success" : "neutral"}>
+                  {String(accountingEntry.entry.status ?? "") === "posted" ? "Comptabilisee" : String(accountingEntry.entry.status ?? "")}
+                </Badge>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
+                <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
+              </div>
+              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
+                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
+              </Link>
+            </div>
+          ) : payment.status === "draft" || payment.status === "cancelled" ? (
+            <p className="text-sm text-[var(--muted)]">Confirmez d&apos;abord le paiement fournisseur avant de le comptabiliser.</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour ce paiement.</p>
+              <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postSupplierPaymentToAccounting, payment.id)} />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {allocations.length > 0 ? (
         <Card>

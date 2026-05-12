@@ -11,6 +11,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
 import { SalesStatusBadge } from "@/components/sales/sales-status-badge";
+import { DocumentFlowMap } from "@/components/shared/document-flow-map";
 import { formatDate, formatNumber } from "@/lib/format";
 import { getPaymentTermLabel, getPaymentMethodLabel } from "@/lib/payment-terms";
 import {
@@ -26,6 +27,8 @@ import {
 } from "@/lib/sales-actions";
 import type { SalesActionResult, SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
 import { hasDiscount, SALES_DOCUMENT_LABELS } from "@/lib/sales-types";
+import type { CustomerCreditNoteRecord } from "@/lib/credit-note-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -102,9 +105,13 @@ function ActionForm({
 export function SalesDocumentDetail({
   document,
   lines,
+  returnCreditNote,
+  documentFlow,
 }: {
   document: SalesDocumentRecord;
   lines: SalesDocumentLineRecord[];
+  returnCreditNote?: CustomerCreditNoteRecord | null;
+  documentFlow?: DocumentFlowStep[];
 }) {
   const isQuote = document.document_type === "quote";
   const isOrder = document.document_type === "order";
@@ -208,6 +215,17 @@ export function SalesDocumentDetail({
             {isReturn && document.status === "draft" ? (
               <ActionForm label="Valider retour" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateReturnNote, document.id)} />
             ) : null}
+            {isReturn && document.status === "validated" ? (
+              returnCreditNote ? (
+                <Link href={`/facturation/avoirs/${returnCreditNote.id}`}>
+                  <Button variant="secondary"><Receipt className="h-4 w-4" /> Voir avoir</Button>
+                </Link>
+              ) : (
+                <Link href={`/facturation/avoirs/new?returnId=${document.id}`}>
+                  <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer avoir</Button>
+                </Link>
+              )
+            ) : null}
             {document.status !== "cancelled" && document.status !== "converted" ? (
               <ActionForm
                 label="Archiver"
@@ -224,6 +242,8 @@ export function SalesDocumentDetail({
           </>
         }
       />
+
+      <DocumentFlowMap steps={documentFlow ?? []} />
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
@@ -387,6 +407,36 @@ export function SalesDocumentDetail({
               "Stock non encore reintegre. Il sera impacte a la validation du bon de retour."
             ) : (
               "Stock non encore mis a jour. Il sera impacte a la validation du bon de livraison."
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {isReturn ? (
+        <Card>
+          <CardHeader><h2 className="font-semibold">Avoir client</h2></CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            {returnCreditNote ? (
+              <>
+                <div>
+                  <p className="font-medium">{returnCreditNote.credit_note_number}</p>
+                  <p className="text-[var(--muted)]">
+                    Statut : {returnCreditNote.status} · Total : <MoneyDisplay value={returnCreditNote.total_ttc} /> · Disponible : <MoneyDisplay value={returnCreditNote.available_amount} />
+                  </p>
+                </div>
+                <Link href={`/facturation/avoirs/${returnCreditNote.id}`}>
+                  <Button type="button" variant="secondary">Voir avoir</Button>
+                </Link>
+              </>
+            ) : document.status === "validated" ? (
+              <>
+                <p className="text-[var(--muted)]">Aucun avoir financier n&apos;est encore rattache a ce bon de retour.</p>
+                <Link href={`/facturation/avoirs/new?returnId=${document.id}`}>
+                  <Button type="button" variant="secondary"><Receipt className="h-4 w-4" /> Creer avoir</Button>
+                </Link>
+              </>
+            ) : (
+              <p className="text-[var(--muted)]">Validez d&apos;abord le bon de retour avant de creer un avoir.</p>
             )}
           </CardContent>
         </Card>

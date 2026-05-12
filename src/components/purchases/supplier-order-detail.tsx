@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { Archive, CheckCircle2, Pencil, Printer, Truck, XCircle } from "lucide-react";
+import { SupplierOrderSendActions } from "@/components/purchases/supplier-order-send-actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
+import { DocumentFlowMap } from "@/components/shared/document-flow-map";
 import { formatDate, formatNumber } from "@/lib/format";
 import { SupplierOrderStatusBadge } from "@/components/purchases/purchase-status-badge";
 import { confirmSupplierOrder, cancelSupplierOrder, archivePurchaseDocument } from "@/lib/purchase-actions";
 import type { PurchaseActionResult, PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 import { PURCHASE_DOCUMENT_LABELS } from "@/lib/purchase-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
@@ -37,7 +40,7 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function SupplierOrderDetail({ document, lines }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[] }) {
+export function SupplierOrderDetail({ document, lines, documentFlow }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[]; documentFlow?: DocumentFlowStep[] }) {
   const canEdit = document.status === "draft";
   const canConfirm = document.status === "draft";
   const canCancel = !["cancelled", "received"].includes(document.status);
@@ -68,6 +71,7 @@ export function SupplierOrderDetail({ document, lines }: { document: PurchaseDoc
             <Link href={`/achats/commandes/${document.id}/print`} target="_blank">
               <Button variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button>
             </Link>
+            <SupplierOrderSendActions document={document} />
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierOrder, document.id)} />
             ) : null}
@@ -80,6 +84,8 @@ export function SupplierOrderDetail({ document, lines }: { document: PurchaseDoc
           </>
         }
       />
+
+      <DocumentFlowMap steps={documentFlow ?? []} />
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">

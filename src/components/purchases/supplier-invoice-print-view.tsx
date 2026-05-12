@@ -8,7 +8,7 @@ export function SupplierInvoicePrintView({ invoice, lines }: { invoice: Supplier
       <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
         <div className="flex max-w-[55%] items-start gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <Image src="/felexia-conseils-logo.jpg" alt="Logo" fill className="object-contain p-1" priority />
+            <Image src="/brand/felexia-logo.svg" alt="Logo Felexia" fill className="object-contain p-1" priority />
           </div>
           <div>
             <p className="text-xl font-bold text-[#2d2490]">Felexia Conseils</p>

@@ -1,20 +1,36 @@
-import { CashTable } from "@/components/erp/data-tables";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
-import { StatCard } from "@/components/erp/stat-card";
-import { MoneyDisplay } from "@/components/erp/money-display";
-import { cashTransactions, dashboard } from "@/lib/demo-data";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { TreasuryDashboardCards } from "@/components/treasury/treasury-dashboard-cards";
+import { TreasuryTransactionsTable } from "@/components/treasury/treasury-transactions-table";
+import { TreasuryAccountsTable } from "@/components/treasury/treasury-accounts-table";
+import { getTreasuryDashboard } from "@/lib/treasury";
 
-export default function TresoreriePage() {
+export const dynamic = "force-dynamic";
+
+export default async function TreasuryDashboardPage() {
+  const dashboard = await getTreasuryDashboard();
   return (
     <ModulePage>
-      <PageHeader title="Tresorerie" description="Comptes banque/caisse, encaissements et decaissements." />
-      <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <StatCard title="Solde consolide" value={<MoneyDisplay value={dashboard.cashBalance} />} />
-        <StatCard title="Encaissements recents" value={<MoneyDisplay value={36000} />} />
-        <StatCard title="Decaissements recents" value={<MoneyDisplay value={13380} />} />
+      <PageHeader
+        title="Tresorerie"
+        description="Suivez les comptes bancaires, caisses, encaissements, decaissements et rapprochements."
+        actions={<Link href="/tresorerie/mouvements/new"><Button><Plus className="h-4 w-4" /> Nouveau mouvement</Button></Link>}
+      />
+      <div className="space-y-6">
+        <TreasuryDashboardCards counters={dashboard} />
+        <Card>
+          <CardHeader><h2 className="font-semibold">Comptes avec soldes</h2></CardHeader>
+          <CardContent><TreasuryAccountsTable rows={dashboard.accounts} /></CardContent>
+        </Card>
+        <Card>
+          <CardHeader><h2 className="font-semibold">Derniers mouvements</h2></CardHeader>
+          <CardContent><TreasuryTransactionsTable rows={dashboard.recentTransactions} /></CardContent>
+        </Card>
       </div>
-      <CashTable rows={cashTransactions} />
     </ModulePage>
   );
 }

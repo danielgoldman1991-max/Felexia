@@ -17,6 +17,7 @@ import type {
   TaxRateForSalesSelect,
   UnitForSalesSelect,
 } from "@/lib/sales-types";
+import type { DocumentFlowStep } from "@/lib/document-flow-types";
 
 const SALES_DOCUMENT_SELECT = `
   id, organization_id, document_type, document_number, customer_id,
@@ -442,6 +443,95 @@ export async function getSalesDocumentDetail(id: string) {
     sourceDocument: documentResult.data ? extractObject((documentResult.data as Record<string, unknown>).source_document) : null,
     lines: document?.document_type === "return_note" ? await enrichReturnLinesWithProgress(organizationId, lines) : lines,
   };
+}
+
+type SalesFlowRow = {
+  id: string;
+  document_type: SalesDocumentType;
+  document_number: string;
+  status: string | null;
+  source_document_id: string | null;
+  related_order_id: string | null;
+  related_delivery_id: string | null;
+};
+
+function salesDocumentHref(row: SalesFlowRow) {
+  if (row.document_type === "quote") return `/vente/devis/${row.id}`;
+  if (row.document_type === "order") return `/vente/commandes/${row.id}`;
+  if (row.document_type === "delivery_note") return `/vente/livraisons/${row.id}`;
+  return `/vente/retours/${row.id}`;
+}
+
+function salesDocumentShortLabel(type: SalesDocumentType) {
+  if (type === "quote") return "Devis";
+  if (type === "order") return "Commande";
+  if (type === "delivery_note") return "BL";
+  return "Retour";
+}
+
+function salesFlowStep(row: SalesFlowRow, currentId: string): DocumentFlowStep {
+  return {
+    label: salesDocumentShortLabel(row.document_type),
+    number: row.document_number,
+    href: salesDocumentHref(row),
+    status: row.status,
+    isCurrent: row.id === currentId,
+    type: row.document_type,
+  };
+}
+
+export async function getSalesDocumentFlow(documentId: string): Promise<DocumentFlowStep[]> {
+  const organizationId = await getActiveOrganizationId();
+  const supabase = await createClient();
+
+  const rowsById = new Map<string, SalesFlowRow>();
+  const idsToFetch = new Set<string>([documentId]);
+
+  for (let pass = 0; pass < 4; pass += 1) {
+    const missingIds = [...idsToFetch].filter((id) => !rowsById.has(id));
+    if (missingIds.length === 0) break;
+
+    const { data, error } = await supabase
+      .from("sales_documents")
+      .select("id, document_type, document_number, status, source_document_id, related_order_id, related_delivery_id")
+      .eq("organization_id", organizationId)
+      .in("id", missingIds)
+      .is("archived_at", null);
+
+    if (error) return [];
+
+    for (const row of (data ?? []) as SalesFlowRow[]) {
+      rowsById.set(row.id, row);
+      if (row.source_document_id) idsToFetch.add(row.source_document_id);
+      if (row.related_order_id) idsToFetch.add(row.related_order_id);
+      if (row.related_delivery_id) idsToFetch.add(row.related_delivery_id);
+    }
+  }
+
+  const current = rowsById.get(documentId);
+  if (!current) return [];
+
+  const quote = current.document_type === "quote"
+    ? current
+    : [...rowsById.values()].find((row) => row.document_type === "quote" && row.id === (rowsById.get(current.related_order_id ?? "")?.source_document_id ?? current.source_document_id));
+  const order = current.document_type === "order"
+    ? current
+    : current.related_order_id
+      ? rowsById.get(current.related_order_id)
+      : current.document_type === "delivery_note" || current.document_type === "return_note"
+        ? [...rowsById.values()].find((row) => row.document_type === "order" && (row.id === current.related_order_id || row.id === rowsById.get(current.related_delivery_id ?? "")?.related_order_id))
+        : null;
+  const delivery = current.document_type === "delivery_note"
+    ? current
+    : current.related_delivery_id
+      ? rowsById.get(current.related_delivery_id)
+      : null;
+
+  const orderedRows = [quote, order, delivery, current]
+    .filter((row): row is SalesFlowRow => Boolean(row))
+    .filter((row, index, rows) => rows.findIndex((candidate) => candidate.id === row.id) === index);
+
+  return orderedRows.map((row) => salesFlowStep(row, documentId));
 }
 
 export async function getOrderDeliveryPreparation(orderId: string) {

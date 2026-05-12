@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
 import { ModulePage } from "@/components/erp/module-page";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { DashboardChart } from "@/components/dashboard/dashboard-chart";
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-600">Felexia ERP</p>
+            <Logo size={20} withText className="text-blue-600" />
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Dashboard</h1>
             <p className="mt-2 text-slate-500">Bonjour {firstName}, voici un apercu de votre activite.</p>
           </div>

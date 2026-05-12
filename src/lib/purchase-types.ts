@@ -25,6 +25,7 @@ export type PurchaseDocumentRecord = {
   internal_notes: string | null;
   validated_at: string | null;
   stock_updated_at: string | null;
+  warehouse_id: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -33,6 +34,7 @@ export type PurchaseDocumentRecord = {
   supplier_ice?: string | null;
   supplier_phone?: string | null;
   supplier_email?: string | null;
+  warehouse_name?: string | null;
   source_document_number?: string | null;
   related_order_number?: string | null;
 };
@@ -189,6 +191,7 @@ export type SupplierPaymentRecord = {
   organization_id: string;
   payment_number: string;
   supplier_id: string;
+  treasury_account_id?: string | null;
   payment_date: string;
   value_date: string | null;
   amount: number;
