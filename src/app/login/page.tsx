@@ -37,9 +37,6 @@ export default async function LoginPage() {
         </CardHeader>
         <CardContent>
           <LoginForm />
-          <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
-            Utilisez un compte Supabase Auth rattache a une organisation active.
-          </p>
         </CardContent>
       </Card>
     </main>
