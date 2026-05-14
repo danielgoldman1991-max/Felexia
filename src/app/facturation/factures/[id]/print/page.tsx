@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { PrintActions } from "@/components/sales/print-actions";
 import { CustomerInvoicePrintView } from "@/components/invoices/customer-invoice-print-view";
 import { getCustomerInvoiceDetail } from "@/lib/invoices";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
+import { requireActiveWorkspace } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +13,13 @@ export default async function CustomerInvoicePrintPage({ params }: { params: Pro
 
   if (!invoice) notFound();
 
+  const workspace = await requireActiveWorkspace();
+  const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
       <PrintActions backHref={`/facturation/factures/${invoice.id}`} backLabel="Retour facture" />
-      <CustomerInvoicePrintView invoice={invoice} lines={lines} />
+      <CustomerInvoicePrintView invoice={invoice} lines={lines} identity={identity} />
     </main>
   );
 }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { formatDate, formatMoney, formatNumber } from "@/lib/format";
 import { hasDiscount, SALES_STATUS_LABELS } from "@/lib/sales-types";
 import type { SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
+import type { OrganizationIdentity } from "@/lib/company-identity";
 
 function ClientBlock({ document }: { document: SalesDocumentRecord }) {
   const clientLines = [
@@ -36,11 +37,13 @@ function deliveryRemainingQuantity(line: SalesDocumentLineRecord) {
 export function SalesQuotePrintView({
   document,
   lines,
+  identity,
   title = "DEVIS",
   showSignature = false,
 }: {
   document: SalesDocumentRecord;
   lines: SalesDocumentLineRecord[];
+  identity: OrganizationIdentity;
   title?: string;
   showSignature?: boolean;
 }) {
@@ -49,25 +52,40 @@ export function SalesQuotePrintView({
   const isLogisticsDocument = isDelivery || isReturn;
   const discountPresent = !isLogisticsDocument && hasDiscount(lines);
 
+  const companyInfoLines = [
+    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
+    identity.address && !identity.city ? identity.address : null,
+    identity.ice ? `ICE : ${identity.ice}` : null,
+    identity.rc && identity.ifNumber ? `RC : ${identity.rc} - IF : ${identity.ifNumber}` : identity.rc ? `RC : ${identity.rc}` : identity.ifNumber ? `IF : ${identity.ifNumber}` : null,
+  ].filter(Boolean);
+
+  const companyContact = [
+    identity.email,
+    identity.phone,
+    identity.website,
+  ].filter(Boolean).join(" - ");
+
   return (
     <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
       <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
         <div className="flex max-w-[55%] items-start gap-4">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <Image
-              src="/brand/felexia-logo.svg"
-              alt="Logo Felexia"
-              fill
-              className="object-contain p-1"
-              priority
-            />
-          </div>
+          {identity.logoUrl ? (
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <Image src={identity.logoUrl} alt="Logo" fill className="object-contain p-1" priority />
+            </div>
+          ) : (
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
+              <span className="text-2xl font-bold text-[#2d2490]">{identity.name.charAt(0)}</span>
+            </div>
+          )}
           <div>
-            <p className="text-xl font-bold text-[#2d2490]">Felexia Conseils</p>
+            <p className="text-xl font-bold text-[#2d2490]">{identity.name || "Mon Entreprise"}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Casablanca, Maroc<br />
-              ICE : 000000000000000<br />
-              RC : Casablanca - IF : 00000000
+              {companyInfoLines.length
+                ? companyInfoLines.map((line, i) => (
+                    <span key={i}>{line}{i < companyInfoLines.length - 1 && <br />}</span>
+                  ))
+                : "-"}
             </p>
           </div>
         </div>
@@ -221,8 +239,8 @@ export function SalesQuotePrintView({
       ) : null}
 
       <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">
-        <p className="font-semibold text-slate-700">Merci pour votre confiance.</p>
-        <p>Felexia Conseils - Casablanca, Maroc - contact@felexia.ma - +212 522 000 000</p>
+        <p className="font-semibold text-slate-700">{identity.footerText || "Merci pour votre confiance."}</p>
+        {companyContact && <p>{identity.name} - {companyContact}</p>}
       </footer>
     </main>
   );

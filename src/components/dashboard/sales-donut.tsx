@@ -14,7 +14,21 @@ function segment(value: number, offset: number) {
   };
 }
 
-export function SalesDonut({ data }: { data: DonutItem[] }) {
+export function SalesDonut({ data, total }: { data: DonutItem[]; total: number }) {
+  if (data.length === 0) {
+    return (
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-5">
+          <h2 className="text-base font-semibold text-slate-950">Repartition des ventes</h2>
+          <p className="text-sm text-slate-500">Par famille de revenus.</p>
+        </div>
+        <div className="flex h-64 flex-col items-center justify-center gap-3 text-slate-400">
+          <p className="text-sm">Aucune vente a repartir pour le moment.</p>
+        </div>
+      </section>
+    );
+  }
+
   const segments = data.reduce<Array<{ item: DonutItem; offset: number }>>(
     (acc, item) => {
       const previousOffset = acc.reduce((sum, s) => sum + s.item.value, 0);
@@ -22,6 +36,9 @@ export function SalesDonut({ data }: { data: DonutItem[] }) {
     },
     [],
   );
+
+  const totalFormatted = new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 0 }).format(total);
+
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5">
@@ -37,7 +54,7 @@ export function SalesDonut({ data }: { data: DonutItem[] }) {
             ))}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-xl font-bold text-slate-950">125 430</span>
+            <span className="text-xl font-bold text-slate-950">{totalFormatted}</span>
             <span className="text-xs font-medium text-slate-500">DH</span>
           </div>
         </div>

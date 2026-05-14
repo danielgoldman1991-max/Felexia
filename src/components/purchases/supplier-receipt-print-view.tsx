@@ -1,18 +1,44 @@
 import Image from "next/image";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
+import type { OrganizationIdentity } from "@/lib/company-identity";
 
-export function SupplierReceiptPrintView({ document, lines }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[] }) {
+export function SupplierReceiptPrintView({
+  document,
+  lines,
+  identity,
+}: {
+  document: PurchaseDocumentRecord;
+  lines: PurchaseDocumentLineRecord[];
+  identity: OrganizationIdentity;
+}) {
+  const companyInfoLines = [
+    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
+    identity.ice ? `ICE : ${identity.ice}` : null,
+  ].filter(Boolean);
+
   return (
     <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
       <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
         <div className="flex max-w-[55%] items-start gap-4">
-          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <Image src="/brand/felexia-logo.svg" alt="Logo Felexia" fill className="object-contain p-1" priority />
-          </div>
+          {identity.logoUrl ? (
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
+              <Image src={identity.logoUrl} alt="Logo" fill className="object-contain p-1" priority />
+            </div>
+          ) : (
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
+              <span className="text-2xl font-bold text-[#2d2490]">{identity.name.charAt(0)}</span>
+            </div>
+          )}
           <div>
-            <p className="text-xl font-bold text-[#2d2490]">Felexia Conseils</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Casablanca, Maroc<br />ICE : 000000000000000</p>
+            <p className="text-xl font-bold text-[#2d2490]">{identity.name || "Mon Entreprise"}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {companyInfoLines.length
+                ? companyInfoLines.map((line, i) => (
+                    <span key={i}>{line}{i < companyInfoLines.length - 1 && <br />}</span>
+                  ))
+                : "-"}
+            </p>
           </div>
         </div>
         <div className="text-right">
@@ -75,7 +101,7 @@ export function SupplierReceiptPrintView({ document, lines }: { document: Purcha
 
       <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">
         <p className="font-semibold text-slate-700">Bon de reception fournisseur - Document logistique</p>
-        <p>Felexia Conseils - Casablanca, Maroc</p>
+        {identity.name && <p>{identity.name}{identity.city ? ` - ${identity.city}${identity.country ? `, ${identity.country}` : ""}` : ""}</p>}
       </footer>
     </main>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, AlertTriangle, Banknote, Building2, FileClock, Receipt, TrendingUp } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { ModulePage } from "@/components/erp/module-page";
 import { KpiCard } from "@/components/dashboard/kpi-card";
@@ -8,12 +8,79 @@ import { SalesDonut } from "@/components/dashboard/sales-donut";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { TopClients } from "@/components/dashboard/top-clients";
 import { MobileAppBanner } from "@/components/dashboard/mobile-app-banner";
-import { operationalStats, activityFeed, kpiCards, revenueSeries, salesSplit, topClients } from "@/lib/mock-dashboard-data";
+import { getDashboardData } from "@/lib/dashboard-data";
 import { requireActiveWorkspace } from "@/lib/auth";
 
 export default async function DashboardPage() {
   const workspace = await requireActiveWorkspace();
   const firstName = workspace.profile?.full_name?.split(" ")[0] || "Youssef";
+  const data = await getDashboardData();
+
+  const kpiCards = [
+    {
+      title: "Chiffre d'affaires",
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.revenue)} DH`,
+      change: "+",
+      caption: "Ce mois",
+      tone: "success" as const,
+      icon: TrendingUp,
+    },
+    {
+      title: "Encaissements",
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.collections)} DH`,
+      change: "+",
+      caption: "Ce mois",
+      tone: "success" as const,
+      icon: Banknote,
+    },
+    {
+      title: "Impayes",
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.unpaidAmount)} DH`,
+      change: "+",
+      caption: "Total",
+      tone: "danger" as const,
+      icon: AlertTriangle,
+    },
+    {
+      title: "Tresorerie disponible",
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.availableCash)} DH`,
+      change: "+",
+      caption: "Tous comptes confondus",
+      tone: "success" as const,
+      icon: Building2,
+    },
+  ];
+
+  const operationalStats = [
+    {
+      label: "Devis en attente",
+      value: String(data.pendingQuotesCount),
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.pendingQuotesAmount)} DH`,
+      icon: FileClock,
+      href: "/vente/devis",
+    },
+    {
+      label: "Commandes en cours",
+      value: String(data.activeOrdersCount),
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.activeOrdersAmount)} DH`,
+      icon: Receipt,
+      href: "/vente/commandes",
+    },
+    {
+      label: "Livraisons a faire",
+      value: String(data.deliveriesToDoCount),
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.deliveriesToDoAmount)} DH`,
+      icon: Receipt,
+      href: "/vente/livraisons",
+    },
+    {
+      label: "Stocks faibles",
+      value: String(data.lowStockCount),
+      amount: "Voir les alertes",
+      icon: AlertTriangle,
+      href: "/stock",
+    },
+  ];
 
   return (
     <ModulePage>
@@ -26,7 +93,7 @@ export default async function DashboardPage() {
           </div>
           <button type="button" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
             <CalendarDays className="h-4 w-4 text-blue-600" />
-            01 Mai - 31 Mai 2024
+            Ce mois
           </button>
         </div>
 
@@ -35,8 +102,8 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid gap-5 xl:grid-cols-[1.65fr_0.95fr]">
-          <DashboardChart data={revenueSeries} />
-          <SalesDonut data={salesSplit} />
+          <DashboardChart data={data.revenueSeries} />
+          <SalesDonut data={data.salesBreakdown} total={data.revenue} />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -58,8 +125,8 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-          <ActivityFeed items={activityFeed} />
-          <TopClients clients={topClients} />
+          <ActivityFeed items={data.recentActivities} />
+          <TopClients clients={data.topClients} />
         </div>
 
         <MobileAppBanner />

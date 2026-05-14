@@ -4,6 +4,8 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { getCustomerPaymentDetail } from "@/lib/payments";
 import { formatDate } from "@/lib/format";
 import { getPaymentMethodLabel } from "@/lib/payment-terms";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
+import { requireActiveWorkspace } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +13,14 @@ export default async function CustomerPaymentPrintPage({ params }: { params: Pro
   const { id } = await params;
   const { payment, allocations } = await getCustomerPaymentDetail(id);
   if (!payment) notFound();
+  const workspace = await requireActiveWorkspace();
+  const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
       <PrintActions backHref={`/facturation/paiements/${payment.id}`} backLabel="Retour paiement" />
       <section className="mx-auto min-h-[297mm] max-w-[210mm] bg-white p-10 text-slate-900 shadow print:min-h-0 print:shadow-none">
         <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-          <div><h1 className="text-2xl font-bold">RECU DE PAIEMENT</h1><p className="mt-2 text-sm text-slate-500">Felexia Conseils</p></div>
+          <div><h1 className="text-2xl font-bold">RECU DE PAIEMENT</h1><p className="mt-2 text-sm text-slate-500">{identity.name || "Mon Entreprise"}</p></div>
           <div className="text-right text-sm"><p className="font-semibold">{payment.payment_number}</p><p>{formatDate(payment.payment_date)}</p></div>
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2">

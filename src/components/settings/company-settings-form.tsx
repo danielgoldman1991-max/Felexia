@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useActionState } from "react";
+import { Upload } from "lucide-react";
 import { updateCompanyAction, type CompanyState } from "@/lib/actions/company";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,17 @@ export function CompanySettingsForm({
   canEdit: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateCompanyAction, initialState);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const s = settings ?? {};
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  }
+
+  const currentLogo = s.logo_url as string | null | undefined;
 
   if (!canEdit) {
     return (
@@ -33,6 +44,56 @@ export function CompanySettingsForm({
   return (
     <form action={formAction}>
       <Card>
+        <CardHeader>
+          <h2 className="font-semibold">Logo</h2>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 transition hover:border-slate-300">
+            {logoPreview || currentLogo ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative h-24 w-24 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={logoPreview ?? currentLogo ?? ""}
+                    alt="Logo actuel"
+                    className="h-full w-full object-contain p-2"
+                  />
+                </div>
+                <label className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
+                  Changer le logo
+                  <input
+                    name="logo"
+                    type="file"
+                    accept=".png,.jpg,.jpeg,.webp"
+                    className="hidden"
+                    onChange={handleLogoChange}
+                  />
+                </label>
+                <p className="text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo</p>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer flex-col items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                  <Upload className="h-5 w-5" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-slate-700">Ajouter un logo</p>
+                  <p className="mt-1 text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo</p>
+                </div>
+                <input
+                  name="logo"
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp"
+                  className="hidden"
+                  onChange={handleLogoChange}
+                />
+              </label>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4">
         <CardHeader>
           <h2 className="font-semibold">Informations légales</h2>
         </CardHeader>
@@ -62,8 +123,8 @@ export function CompanySettingsForm({
             <Input name="cnss" defaultValue={String(s.cnss ?? "")} />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Identifiant fiscal</label>
-            <Input name="tax_identifier" defaultValue={String(s.tax_identifier ?? "")} />
+            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Patente</label>
+            <Input name="patente" defaultValue={String(s.patente ?? "")} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Activité</label>
@@ -77,7 +138,7 @@ export function CompanySettingsForm({
           <h2 className="font-semibold">Coordonnées</h2>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
-          <div>
+          <div className="md:col-span-2">
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Adresse</label>
             <Input name="address" defaultValue={String(s.address ?? "")} />
           </div>
@@ -87,7 +148,7 @@ export function CompanySettingsForm({
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Pays</label>
-            <Input name="country" defaultValue={String(s.country ?? "")} />
+            <Input name="country" defaultValue={String(s.country ?? "Maroc")} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Téléphone</label>
@@ -104,6 +165,19 @@ export function CompanySettingsForm({
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Devise</label>
             <Input name="currency" defaultValue={String(s.currency ?? "MAD")} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4">
+        <CardHeader>
+          <h2 className="font-semibold">Documents</h2>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Texte de pied de page</label>
+            <Input name="footer_text" defaultValue={String(s.footer_text ?? "")} placeholder="Merci pour votre confiance" />
+            <p className="mt-1 text-xs text-[var(--muted)]">Ce texte apparaîtra sur vos factures et devis.</p>
           </div>
         </CardContent>
       </Card>

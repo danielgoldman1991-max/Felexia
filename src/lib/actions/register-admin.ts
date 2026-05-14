@@ -18,7 +18,6 @@ export async function registerAdminAction(
   const lastName = String(formData.get("lastName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const phone = String(formData.get("phone") ?? "").trim();
 
   const fieldErrors: Record<string, string> = {};
 
@@ -39,7 +38,6 @@ export async function registerAdminAction(
     options: {
       data: {
         full_name: `${firstName} ${lastName}`,
-        phone,
       },
     },
   });

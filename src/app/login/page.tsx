@@ -1,10 +1,7 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { Logo } from "@/components/brand/Logo";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
-import { getUserOnboardingStatus } from "@/lib/saas";
 
 export default async function LoginPage({
   searchParams,
@@ -12,24 +9,8 @@ export default async function LoginPage({
   searchParams: Promise<{ mode?: string }>;
 }) {
   const { mode } = await searchParams;
-  const isLoginMode = mode === "login";
-  const isRegisterMode = !isLoginMode;
-
-  const cookieStore = await cookies();
-  const supabaseProjectRef = process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname.split(".")[0]
-    : null;
-  const authCookieName = supabaseProjectRef ? `sb-${supabaseProjectRef}-auth-token` : null;
-  const hasAuthCookie = authCookieName
-    ? cookieStore.getAll().some((c) => c.name.startsWith(authCookieName))
-    : false;
-
-  if (hasAuthCookie) {
-    const status = await getUserOnboardingStatus();
-    if (status.nextPath !== "/login") {
-      redirect(status.nextPath);
-    }
-  }
+  const isRegisterMode = mode === "register";
+  const isLoginMode = !isRegisterMode;
 
   return (
     <main className="flex min-h-screen bg-white">
@@ -63,7 +44,7 @@ export default async function LoginPage({
 
           <div className="mt-8 flex gap-6 border-b border-slate-200">
             <Link
-              href="/"
+              href="/login?mode=register"
               className={`pb-3 text-sm font-medium transition ${
                 isRegisterMode
                   ? "border-b-2 border-blue-600 text-blue-600"
@@ -73,7 +54,7 @@ export default async function LoginPage({
               Créer mon compte
             </Link>
             <Link
-              href="/login?mode=login"
+              href="/login"
               className={`pb-3 text-sm font-medium transition ${
                 isLoginMode
                   ? "border-b-2 border-blue-600 text-blue-600"
@@ -91,7 +72,7 @@ export default async function LoginPage({
           {isLoginMode && (
             <p className="mt-6 text-center text-sm text-slate-500">
               Pas encore de compte ?{" "}
-              <Link href="/" className="font-medium text-blue-600 hover:text-blue-700">
+              <Link href="/login?mode=register" className="font-medium text-blue-600 hover:text-blue-700">
                 Créer mon compte
               </Link>
             </p>

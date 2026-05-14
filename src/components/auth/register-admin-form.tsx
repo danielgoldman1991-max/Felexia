@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useActionState } from "react";
-import { User, Mail, Lock, Phone, Eye, EyeOff } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { registerAdminAction, type RegisterAdminState } from "@/lib/actions/register-admin";
 import { Button } from "@/components/ui/button";
 
@@ -81,15 +81,6 @@ export function RegisterAdminForm() {
           </div>
         </Field>
         <p className="-mt-2 text-xs text-slate-400">Minimum 8 caractères.</p>
-        <Field icon={Phone}>
-          <input
-            name="phone"
-            type="tel"
-            placeholder="Téléphone"
-            defaultValue=""
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-          />
-        </Field>
       </div>
 
       {state.error && (

@@ -63,9 +63,6 @@ export async function loginAction(
   }
 
   const status = await getUserOnboardingStatus();
-  if (status.nextPath === "/onboarding/entreprise") {
-    redirect("/login");
-  }
   redirect(status.nextPath);
 }
 

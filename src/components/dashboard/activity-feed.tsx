@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type Activity = {
   title: string;
   time: string;
-  tone: string;
+  tone: "success" | "info" | "warning";
 };
 
 export function ActivityFeed({ items }: { items: Activity[] }) {
@@ -14,19 +14,25 @@ export function ActivityFeed({ items }: { items: Activity[] }) {
         <h2 className="text-base font-semibold text-slate-950">Dernieres activites</h2>
         <Clock3 className="h-4 w-4 text-slate-400" />
       </div>
-      <div className="space-y-4">
-        {items.map((item) => (
-          <div key={`${item.title}-${item.time}`} className="flex gap-3">
-            <span className={cn("mt-0.5 flex h-8 w-8 items-center justify-center rounded-full", item.tone === "success" ? "bg-green-50 text-green-600" : item.tone === "warning" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600")}>
-              <CheckCircle2 className="h-4 w-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-900">{item.title}</p>
-              <p className="text-xs text-slate-500">{item.time}</p>
+      {items.length === 0 ? (
+        <div className="flex h-40 flex-col items-center justify-center text-slate-400">
+          <p className="text-sm">Aucune activite recente.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item) => (
+            <div key={`${item.title}-${item.time}`} className="flex gap-3">
+              <span className={cn("mt-0.5 flex h-8 w-8 items-center justify-center rounded-full", item.tone === "success" ? "bg-green-50 text-green-600" : item.tone === "warning" ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600")}>
+                <CheckCircle2 className="h-4 w-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-slate-900">{item.title}</p>
+                <p className="text-xs text-slate-500">{item.time}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
