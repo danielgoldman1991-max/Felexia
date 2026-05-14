@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import type { ThirdPartyActionResult } from "@/lib/third-party-actions";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
+import type { CustomerCategory } from "@/lib/customer-categories";
 import { PROSPECT_SOURCES, PROSPECT_STATUSES, normalizeTypes } from "@/lib/third-party-types";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import { COUNTRY_OPTIONS, getCitiesForCountry, getDefaultCountry } from "@/lib/location-options";
@@ -13,8 +14,10 @@ import {
   SUPPLIER_RATING_OPTIONS,
   SUPPLIER_PAYMENT_METHOD_OPTIONS,
 } from "@/lib/supplier-options";
+import { quickCreateCustomerCategory } from "@/lib/actions/quick-create";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ComboboxCreate } from "@/components/ui/combobox-create";
 import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -25,6 +28,7 @@ type Props = {
   thirdParty?: ThirdPartyRecord;
   action: (state: ThirdPartyActionResult, formData: FormData) => Promise<ThirdPartyActionResult>;
   initialType?: ThirdPartyKind;
+  customerCategories: CustomerCategory[];
 };
 
 const initialState: ThirdPartyActionResult = { success: true };
@@ -38,8 +42,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props) {
+export function ThirdPartyForm({ mode, thirdParty, action, initialType, customerCategories }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [customerCatList, setCustomerCatList] = useState<CustomerCategory[]>(customerCategories);
   const initialTypes = useMemo<ThirdPartyKind[]>(() => {
     const fromRecord = normalizeTypes(thirdParty?.types);
     if (fromRecord.length) return fromRecord;
@@ -54,6 +59,10 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
     return raw.split(",").map((s) => s.trim()).filter(Boolean);
   });
   const cities = useMemo(() => getCitiesForCountry(country), [country]);
+
+  const [customerCategoryValue, setCustomerCategoryValue] = useState(
+    thirdParty?.customer_category_id ?? "",
+  );
 
   const toggle = (type: ThirdPartyKind) => {
     setTypes((current) =>
@@ -87,9 +96,8 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
           <Field label="Nom du tiers *">
             <Input name="name" defaultValue={thirdParty?.name ?? ""} required />
           </Field>
-          <Field label="Nom commercial / marque">
-            <Input name="commercial_name" defaultValue={thirdParty?.commercial_name ?? ""} />
-          </Field>
+          {/* Nom commercial / marque masqué pour simplification PME */}
+          <input type="hidden" name="commercial_name" value={thirdParty?.commercial_name ?? ""} />
           <div className="space-y-2 lg:col-span-2">
             <p className="text-sm font-medium text-[var(--muted)]">Categories</p>
             <div className="flex flex-wrap gap-3">
@@ -250,18 +258,36 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType }: Props)
             <Field label="Delai de paiement (jours)">
               <Input name="payment_terms_days" type="number" min="0" defaultValue={thirdParty?.payment_terms_days ?? 30} />
             </Field>
-            <Field label="Detail condition personnalisee">
-              <Input name="custom_payment_terms" defaultValue={thirdParty?.custom_payment_terms ?? ""} placeholder="Si paiement personnalise" />
+            {/* Champs masqués pour simplification PME (données conservées en base) */}
+            <input type="hidden" name="custom_payment_terms" value={thirdParty?.custom_payment_terms ?? ""} />
+            <input type="hidden" name="custom_payment_method" value={thirdParty?.custom_payment_method ?? ""} />
+            <input type="hidden" name="credit_limit" value={thirdParty?.credit_limit ?? 0} />
+            <input type="hidden" name="cumulative_revenue" value={thirdParty?.cumulative_revenue ?? 0} />
+            <input type="hidden" name="current_outstanding" value={thirdParty?.current_outstanding ?? 0} />
+            <input type="hidden" name="default_discount_rate" value={thirdParty?.default_discount_rate ?? 0} />
+            <input type="hidden" name="customer_category" value={thirdParty?.customer_category ?? ""} />
+            <input type="hidden" name="risk_level" value={thirdParty?.risk_level ?? ""} />
+            <Field label="Categorie client">
+              <ComboboxCreate
+                options={customerCatList.map((c) => ({ id: c.id, label: c.name }))}
+                value={customerCategoryValue}
+                onChange={(id) => setCustomerCategoryValue(id)}
+                placeholder="Selectionner ou creer une categorie"
+                createLabel="+ Creer une nouvelle categorie"
+                onCreate={async () => {
+                  const name = window.prompt("Nom de la nouvelle categorie client :");
+                  if (!name?.trim()) return;
+                  const result = await quickCreateCustomerCategory(name.trim());
+                  if ("error" in result) {
+                    alert(result.error);
+                    return;
+                  }
+                  setCustomerCatList((prev) => [...prev, { id: result.id, name: result.name, description: null, is_default: false, organization_id: "", created_at: "", updated_at: "" }]);
+                  setCustomerCategoryValue(result.id);
+                }}
+              />
+              <input type="hidden" name="customer_category_id" value={customerCategoryValue} />
             </Field>
-            <Field label="Detail modalite personnalisee">
-              <Input name="custom_payment_method" defaultValue={thirdParty?.custom_payment_method ?? ""} placeholder="Si autre modalite" />
-            </Field>
-            <Field label="Limite de credit"><Input name="credit_limit" type="number" min="0" step="0.01" defaultValue={thirdParty?.credit_limit ?? 0} /></Field>
-            <Field label="CA cumule"><Input name="cumulative_revenue" type="number" min="0" step="0.01" defaultValue={thirdParty?.cumulative_revenue ?? 0} /></Field>
-            <Field label="Encours actuel"><Input name="current_outstanding" type="number" min="0" step="0.01" defaultValue={thirdParty?.current_outstanding ?? 0} /></Field>
-            <Field label="Remise commerciale par defaut"><Input name="default_discount_rate" type="number" min="0" step="0.01" defaultValue={thirdParty?.default_discount_rate ?? 0} /></Field>
-            <Field label="Categorie client"><Input name="customer_category" defaultValue={thirdParty?.customer_category ?? ""} /></Field>
-            <Field label="Niveau de risque"><Input name="risk_level" defaultValue={thirdParty?.risk_level ?? ""} /></Field>
           </CardContent>
         </Card>
       ) : null}

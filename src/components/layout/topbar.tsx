@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, CircleHelp, Menu } from "lucide-react";
+import { CircleHelp, Menu } from "lucide-react";
 import { GlobalSearch } from "@/components/layout/global-search";
 import { QuickCreateMenu } from "@/components/layout/quick-create-menu";
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 import { initials } from "@/lib/utils";
 import type { ActiveWorkspace } from "@/lib/auth";
 
@@ -24,10 +25,9 @@ export function Topbar({ workspace, onOpenMenu }: { workspace: ActiveWorkspace; 
 
         <GlobalSearch />
         <QuickCreateMenu />
-        <button type="button" className="relative hidden h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 sm:flex" aria-label="Notifications">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
-        </button>
+        <div className="hidden sm:flex">
+          <NotificationDropdown />
+        </div>
         <button type="button" className="hidden h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-900 sm:flex" aria-label="Aide">
           <CircleHelp className="h-5 w-5" />
         </button>

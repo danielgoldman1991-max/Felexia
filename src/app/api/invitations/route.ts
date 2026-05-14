@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getEnv, hasServiceRoleKey } from "@/lib/env";
+
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {

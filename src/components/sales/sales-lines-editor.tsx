@@ -7,6 +7,7 @@ import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { ProductCombobox } from "@/components/sales/product-combobox";
+import { QuickArticleModal } from "@/components/sales/quick-article-modal";
 import {
   calculateSalesLine,
   calculateSalesTotals,
@@ -20,6 +21,7 @@ import type {
   TaxRateForSalesSelect,
   UnitForSalesSelect,
 } from "@/lib/sales-types";
+import type { ProductCategory, TaxRate, Unit } from "@/lib/product-types";
 
 type Props = {
   lines: SalesLineFormValue[];
@@ -28,6 +30,9 @@ type Props = {
   units: UnitForSalesSelect[];
   taxRates: TaxRateForSalesSelect[];
   defaultTaxRate?: TaxRateForSalesSelect | null;
+  productCategories?: ProductCategory[];
+  allUnits?: Unit[];
+  allTaxRates?: TaxRate[];
 };
 
 function toNumber(value: string) {
@@ -47,9 +52,10 @@ function formatQuantity(line: SalesLineFormValue, units: UnitForSalesSelect[]) {
   }).format(line.quantity);
 }
 
-export function SalesLinesEditor({ lines, onChange, products, units, taxRates, defaultTaxRate }: Props) {
+export function SalesLinesEditor({ lines, onChange, products, units, taxRates, defaultTaxRate, productCategories, allUnits, allTaxRates }: Props) {
   const [draftLine, setDraftLine] = useState<SalesLineFormValue>(() => createEmptySalesLine(defaultTaxRate));
   const [error, setError] = useState<string | null>(null);
+  const [quickModalOpen, setQuickModalOpen] = useState(false);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
   const totals = calculateSalesTotals(lines);
   const draftUsesIndivisibleUnit = isIndivisibleUnit(draftLine, units);
@@ -203,17 +209,53 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
 
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Article / Service</span>
-            <div className="w-80 max-w-full">
-              <ProductCombobox
-                products={products}
-                value={draftLine.product_id}
-                onChange={handleProductChange}
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <ProductCombobox
+                  products={products}
+                  value={draftLine.product_id}
+                  onChange={handleProductChange}
+                  disabled={draftLine.mode === "free"}
+                  placeholder="Rechercher un article ou service..."
+                />
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
                 disabled={draftLine.mode === "free"}
-                placeholder="Rechercher un article ou service..."
-              />
+                onClick={() => setQuickModalOpen(true)}
+                className="shrink-0 text-xs"
+              >
+                + Nouvel article
+              </Button>
             </div>
           </label>
         </div>
+        <QuickArticleModal
+          open={quickModalOpen}
+          onClose={() => setQuickModalOpen(false)}
+          onCreated={(productId, productName, unitId, unitName, salePriceHt, taxRateId, taxRateValue) => {
+            const nextLine = calculateSalesLine({
+              ...createEmptySalesLine(defaultTaxRate),
+              id: draftLine.id,
+              mode: "product",
+              product_id: productId,
+              product_name: productName,
+              description: productName,
+              unit_id: unitId,
+              unit_name: unitName,
+              unit_price_ht: salePriceHt,
+              tax_rate_id: taxRateId,
+              tax_rate: taxRateValue,
+              quantity: 1,
+            });
+            setDraftLine(nextLine);
+            setQuickModalOpen(false);
+          }}
+          categories={productCategories ?? []}
+          units={allUnits ?? []}
+          taxRates={allTaxRates ?? []}
+        />
 
         <div className="mb-3 grid gap-3 lg:grid-cols-6">
           <label className="flex flex-col gap-1 text-xs lg:col-span-2">
@@ -287,7 +329,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             <Select value={draftLine.tax_rate_id} onChange={(event) => handleTaxRateChange(event.target.value)}>
               <option value="">--</option>
               {taxRates.map((taxRate) => (
-                <option key={taxRate.id} value={taxRate.id}>{taxRate.name} ({taxRate.rate}%)</option>
+                <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>
               ))}
             </Select>
           </label>

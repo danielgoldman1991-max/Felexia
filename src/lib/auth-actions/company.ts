@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { initializeOrganizationDefaults } from "@/lib/org-defaults";
 
 export type CompanyState = {
   error: string | null;
@@ -46,6 +47,8 @@ export async function createCompanyAction(
   if (!orgId) {
     return { error: "Impossible de creer l'entreprise. Veuillez reessayer." };
   }
+
+  await initializeOrganizationDefaults(orgId);
 
   redirect("/onboarding/formule");
 }

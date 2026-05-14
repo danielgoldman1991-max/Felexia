@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createStripeCustomer, createCheckoutSession } from "@/lib/stripe";
+import { createStripeCustomer, createCheckoutSession, createModuleCheckoutSession } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
@@ -15,10 +15,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifie" }, { status: 401 });
     }
 
-    const { priceId, billingInterval, planSlug } = await req.json();
-    if (!priceId || !planSlug) {
-      return NextResponse.json({ error: "priceId et planSlug requis" }, { status: 400 });
-    }
+    const body = await req.json();
+    const { moduleKeys, billingInterval } = body;
 
     const interval = billingInterval === "yearly" ? "yearly" : "monthly";
 
@@ -67,9 +65,26 @@ export async function POST(req: NextRequest) {
       customerId = customer.id;
     }
 
-    const session = await createCheckoutSession(
+    // Backward-compatible: if priceId and planSlug provided, use old flow
+    const { priceId, planSlug } = body;
+    if (priceId && planSlug) {
+      const session = await createCheckoutSession(
+        customerId,
+        priceId,
+        orgId,
+        interval,
+      );
+      return NextResponse.json({ url: session.url }, { status: 200 });
+    }
+
+    // Module-based checkout
+    if (!moduleKeys || !Array.isArray(moduleKeys) || moduleKeys.length === 0) {
+      return NextResponse.json({ error: "moduleKeys requis" }, { status: 400 });
+    }
+
+    const session = await createModuleCheckoutSession(
       customerId,
-      priceId,
+      moduleKeys,
       orgId,
       interval,
     );

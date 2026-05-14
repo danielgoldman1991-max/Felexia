@@ -2,62 +2,86 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, CreditCard, AlertTriangle } from "lucide-react";
+import { Check, CreditCard, Puzzle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { activatePlanAction } from "@/lib/actions/activate-plan";
+import type { ModuleInfo } from "@/lib/saas";
 
 export function SubscriptionManage({
   currentSubscription,
   plans,
-  organizationId,
   memberCount,
   hasStripe,
+  enabledModules,
+  catalog,
+  ..._rest
 }: {
   currentSubscription: Record<string, unknown> | null;
   plans: Record<string, unknown>[];
   organizationId: string;
   memberCount: number;
   hasStripe: boolean;
+  enabledModules?: string[];
+  catalog?: ModuleInfo[];
 }) {
+  void _rest;
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
 
   const currentPlanId = currentSubscription?.plan_id as string | undefined;
   const subStatus = currentSubscription?.status as string | undefined;
+  const selectedModules = currentSubscription?.selected_modules as string[] | undefined;
+  const isModuleBased = !currentPlanId && !!(selectedModules ?? enabledModules)?.length;
+  const monthlyAmount = Number(currentSubscription?.monthly_amount ?? 0);
+  const trialEnd = currentSubscription?.trial_end as string | null;
 
   const statusBadge: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" }> = {
     active: { label: "Actif", tone: "success" },
-    trialing: { label: "Essai", tone: "info" as "neutral" },
+    trialing: { label: "Essai gratuit", tone: "info" as "neutral" },
     past_due: { label: "Paiement en retard", tone: "danger" },
     canceled: { label: "Résilié", tone: "neutral" },
     incomplete: { label: "En attente", tone: "warning" },
   };
 
-  async function handleSelectPlan(planSlug: string) {
-    setLoading(planSlug);
-    setError(null);
+  const moduleList = isModuleBased
+    ? (catalog ?? []).filter((m) => (selectedModules ?? enabledModules ?? []).includes(m.module_key))
+    : [];
 
-    if (hasStripe) {
-      router.push("/parametres/facturation");
-      setLoading(null);
-      return;
+  async function handlePayNow() {
+    setPaying(true);
+    try {
+      const moduleKeys = selectedModules ?? enabledModules ?? [];
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleKeys, billingInterval: "monthly" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      // silent
+    } finally {
+      setPaying(false);
     }
+  }
 
-    const form = new FormData();
-    form.set("planSlug", planSlug);
-    form.set("organizationId", organizationId);
-    const result = await activatePlanAction({ error: null }, form);
-    if (result.error) setError(result.error);
-    setLoading(null);
+  function formatPrice(price: number): string {
+    if (price === 0) return "Gratuit";
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "MAD",
+      maximumFractionDigits: 0,
+    }).format(price);
   }
 
   return (
     <div className="space-y-6">
-      {currentSubscription && (
+      {(subStatus || moduleList.length > 0) && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -72,10 +96,55 @@ export function SubscriptionManage({
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="space-y-3 text-sm">
+            {trialEnd && (
+              <p>
+                Essai gratuit jusqu&apos;au:{" "}
+                <span className="font-medium">{new Date(trialEnd).toLocaleDateString("fr-FR")}</span>
+              </p>
+            )}
             <p>Utilisateurs: <span className="font-medium">{memberCount}</span></p>
+            {monthlyAmount > 0 && (
+              <p>
+                Montant: <span className="font-medium">{formatPrice(monthlyAmount)}/mois</span>
+              </p>
+            )}
           </CardContent>
+          {subStatus && ["trialing", "past_due", "canceled"].includes(subStatus) && (
+            <CardContent className="border-t border-[var(--border)] pt-4">
+              <Button onClick={handlePayNow} disabled={paying} className="w-full">
+                {paying ? "Redirection..." : "Payer maintenant"}
+              </Button>
+            </CardContent>
+          )}
+          {moduleList.length > 0 && (
+            <CardContent className="border-t border-[var(--border)] pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Puzzle className="h-4 w-4 text-blue-600" />
+                <h3 className="text-sm font-semibold">Modules actifs</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {moduleList.map((m) => (
+                  <span
+                    key={m.module_key}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-medium"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    {m.name}
+                  </span>
+                ))}
+              </div>
+            </CardContent>
+          )}
         </Card>
+      )}
+
+      {hasStripe && (
+        <div className="flex justify-end">
+          <Button variant="secondary" onClick={() => router.push("/parametres/facturation")}>
+            Gérer le paiement
+          </Button>
+        </div>
       )}
 
       <div>
@@ -119,7 +188,10 @@ export function SubscriptionManage({
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleSelectPlan(p.slug)}
+                      onClick={() => {
+                        setLoading(p.slug);
+                        router.push("/parametres/facturation");
+                      }}
                       disabled={loading !== null}
                       className="w-full"
                     >
@@ -133,9 +205,6 @@ export function SubscriptionManage({
         </div>
       </div>
 
-      {error && (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
-      )}
     </div>
   );
 }

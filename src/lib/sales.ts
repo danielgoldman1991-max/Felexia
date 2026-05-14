@@ -342,17 +342,9 @@ export async function listSalesUnits(): Promise<UnitForSalesSelect[]> {
 }
 
 export async function listSalesTaxRates(): Promise<TaxRateForSalesSelect[]> {
-  const organizationId = await getActiveOrganizationId();
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("tax_rates")
-    .select("id, name, rate, is_default, status")
-    .eq("organization_id", organizationId)
-    .is("archived_at", null)
-    .order("rate", { ascending: true });
-
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((row) => ({
+  const { getGlobalTaxRates } = await import("@/lib/products");
+  const taxRates = await getGlobalTaxRates();
+  return taxRates.map((row) => ({
     id: row.id,
     name: row.name,
     rate: Number(row.rate ?? 0),

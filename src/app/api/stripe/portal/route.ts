@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createPortalSession } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     if (!hasStripeEnv()) {
       return NextResponse.json({ error: "Stripe non configure" }, { status: 500 });

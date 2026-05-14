@@ -33,6 +33,7 @@ export type ThirdPartyRecord = {
   current_outstanding: number | null;
   default_discount_rate: number | null;
   customer_category: string | null;
+  customer_category_id: string | null;
   risk_level: string | null;
   preferred_payment_method: string | null;
   prospect_source: string | null;

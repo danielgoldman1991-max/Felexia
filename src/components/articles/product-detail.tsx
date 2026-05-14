@@ -89,7 +89,7 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Prix d'achat HT" value={<MoneyDisplay value={product.purchase_price_ht} />} />
             <Info label="Prix de vente HT" value={<MoneyDisplay value={product.sale_price_ht} />} />
-            <Info label="TVA" value={product.tax_rate_name ? `${product.tax_rate_name} (${product.tax_rate_value ?? 0}%)` : null} />
+            <Info label="TVA" value={product.tax_rate_name ?? null} />
             <Info label="Prix vente TTC" value={<MoneyDisplay value={product.sale_price_ttc} />} />
             <Info label="Marge estimee" value={<MoneyDisplay value={product.margin_amount} />} />
             <Info label="Taux de marge" value={product.margin_rate ? `${product.margin_rate.toFixed(1)}%` : null} />

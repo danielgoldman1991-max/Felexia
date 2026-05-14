@@ -11,18 +11,22 @@ import {
   listSalesTaxRates,
   listSalesUnits,
 } from "@/lib/sales";
+import { listProductCategories, listUnits, listTaxRates } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditSalesQuotePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ document, lines }, customers, products, units, taxRates, defaultTaxRate] = await Promise.all([
+  const [{ document, lines }, customers, products, units, taxRates, defaultTaxRate, productCategories, fullUnits, fullTaxRates] = await Promise.all([
     getSalesDocumentDetail(id),
     listSalesQuoteThirdParties(),
     listSalesProducts(),
     listSalesUnits(),
     listSalesTaxRates(),
     getDefaultSalesTaxRate(),
+    listProductCategories(),
+    listUnits(),
+    listTaxRates(),
   ]);
 
   if (!document || document.document_type !== "quote") {
@@ -42,6 +46,9 @@ export default async function EditSalesQuotePage({ params }: { params: Promise<{
         taxRates={taxRates}
         defaultTaxRate={defaultTaxRate}
         action={updateSalesQuote}
+        productCategories={productCategories}
+        allUnits={fullUnits}
+        allTaxRates={fullTaxRates}
       />
     </ModulePage>
   );

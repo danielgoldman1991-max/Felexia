@@ -19,7 +19,7 @@ const SELECT_COLUMNS = `
   mobile, fax, website, email, rc, patente, if_number, cnss, ice,
   vat_subject, vat_number, payment_terms_days, credit_limit,
   cumulative_revenue, current_outstanding, default_discount_rate,
-  customer_category, risk_level, preferred_payment_method, prospect_source,
+  customer_category, customer_category_id, risk_level, preferred_payment_method, prospect_source,
   prospect_status, potential_value, next_follow_up_date, interest_level,
   sales_owner, prospect_notes, supplier_product_categories,
   supplier_payment_terms, supplier_rating, supplier_delivery_delay_days,

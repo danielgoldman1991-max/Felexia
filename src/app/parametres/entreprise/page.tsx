@@ -19,7 +19,6 @@ export default async function CompanyPage() {
     <div>
       <PageHeader title="Entreprise" description="Informations légales et coordonnées de votre société." />
       <CompanySettingsForm
-        organizationId={workspace.organization.id}
         settings={company}
         canEdit={isOwner}
       />

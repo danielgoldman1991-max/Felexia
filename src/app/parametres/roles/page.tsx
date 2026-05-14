@@ -54,7 +54,6 @@ export default async function RolesSettingsPage() {
         userCountByRole={userCountByRole}
         systemRoles={systemRoles}
         isOwner={isOwner}
-        organizationId={workspace.organization.id}
       />
     </div>
   );

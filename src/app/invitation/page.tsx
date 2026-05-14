@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
-import { hasServiceRoleKey } from "@/lib/env";
 import { AcceptInviteForm } from "@/components/auth/accept-invite-form";
 
 export default async function InvitationPage({

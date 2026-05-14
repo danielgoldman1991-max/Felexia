@@ -134,7 +134,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates 
               update({ ...draft, tax_rate_id: event.target.value, tax_rate: Number(taxRate?.rate ?? 0) });
             }}>
               <option value="">--</option>
-              {taxRates.map((taxRate) => <option key={taxRate.id} value={taxRate.id}>{taxRate.name} ({taxRate.rate}%)</option>)}
+              {taxRates.map((taxRate) => <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>)}
             </Select>
           </label>
         </div>

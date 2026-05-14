@@ -42,6 +42,7 @@ export type ProductRecord = {
 export type ProductCategory = {
   id: string;
   organization_id: string;
+  code: string | null;
   name: string;
   description: string | null;
   parent_id: string | null;
@@ -71,6 +72,7 @@ export type TaxRate = {
   organization_id: string;
   name: string;
   rate: number;
+  code: string | null;
   description: string | null;
   is_default: boolean;
   status: string;

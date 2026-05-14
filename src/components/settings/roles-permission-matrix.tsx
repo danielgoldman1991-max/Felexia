@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Plus, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { createRoleAction, deleteRoleAction, updateRolePermissionsAction } from "@/lib/actions/roles";
 
@@ -32,7 +31,6 @@ export function RolesPermissionMatrix({
   userCountByRole,
   systemRoles,
   isOwner,
-  organizationId,
 }: {
   roles: { id: string; name: string; description: string | null; created_at: string }[];
   permissions: { id: string; code: string; description: string | null }[];
@@ -40,7 +38,6 @@ export function RolesPermissionMatrix({
   userCountByRole: Record<string, number>;
   systemRoles: string[];
   isOwner: boolean;
-  organizationId: string;
 }) {
   const router = useRouter();
   const [editingRole, setEditingRole] = useState<string | null>(null);
@@ -61,11 +58,6 @@ export function RolesPermissionMatrix({
     const pid = permMap[permCode];
     if (!pid) return false;
     return getRolePermIds(roleId).includes(pid);
-  }
-
-  async function startEdit(roleId: string) {
-    setEditingRole(roleId);
-    setEditPerms(getRolePermIds(roleId));
   }
 
   async function saveEdit() {

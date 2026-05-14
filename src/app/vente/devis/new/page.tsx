@@ -9,16 +9,20 @@ import {
   listSalesTaxRates,
   listSalesUnits,
 } from "@/lib/sales";
+import { listProductCategories, listUnits, listTaxRates } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewSalesQuotePage() {
-  const [customers, products, units, taxRates, defaultTaxRate] = await Promise.all([
+  const [customers, products, units, taxRates, defaultTaxRate, productCategories, fullUnits, fullTaxRates] = await Promise.all([
     listSalesQuoteThirdParties(),
     listSalesProducts(),
     listSalesUnits(),
     listSalesTaxRates(),
     getDefaultSalesTaxRate(),
+    listProductCategories(),
+    listUnits(),
+    listTaxRates(),
   ]);
 
   return (
@@ -32,6 +36,9 @@ export default async function NewSalesQuotePage() {
         taxRates={taxRates}
         defaultTaxRate={defaultTaxRate}
         action={createSalesQuote}
+        productCategories={productCategories}
+        allUnits={fullUnits}
+        allTaxRates={fullTaxRates}
       />
     </ModulePage>
   );

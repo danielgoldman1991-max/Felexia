@@ -377,14 +377,6 @@ const ACCOUNT_FALLBACKS: Record<string, { name: string; type: string }> = {
   "4455": { name: "Etat - TVA facturee", type: "tax" },
 };
 
-const JOURNAL_FALLBACKS: Record<string, { name: string; type: string }> = {
-  VE: { name: "Journal des ventes", type: "sales" },
-  AC: { name: "Journal des achats", type: "purchases" },
-  BQ: { name: "Journal banque", type: "bank" },
-  CA: { name: "Journal caisse", type: "cash" },
-  OD: { name: "Operations diverses", type: "od" },
-};
-
 async function ensureAccounts(organizationId: string, codes: string[]) {
   const supabase = await createClient();
   const { data: existing } = await supabase
@@ -408,34 +400,7 @@ async function ensureAccounts(organizationId: string, codes: string[]) {
   }
 }
 
-async function ensureJournals(organizationId: string, codes: string[]) {
-  const supabase = await createClient();
-  const { data: existing } = await supabase
-    .from("accounting_journals")
-    .select("id, code")
-    .eq("organization_id", organizationId)
-    .in("code", codes);
-  const existingCodes = new Set((existing ?? []).map((journal) => journal.code));
-  const missing = codes.filter((code) => !existingCodes.has(code));
-  if (missing.length > 0) {
-    await supabase.from("accounting_journals").insert(
-      missing.map((code) => ({
-        organization_id: organizationId,
-        code,
-        name: JOURNAL_FALLBACKS[code]?.name ?? `Journal ${code}`,
-        type: JOURNAL_FALLBACKS[code]?.type ?? "od",
-        is_active: true,
-      })),
-    );
-  }
-}
 
-async function ensureAccountingBaseSetup(organizationId: string) {
-  await Promise.all([
-    ensureAccounts(organizationId, ["3421", "4411", "5141", "5161", "6111", "6122", "7111", "7121", "7124", "3455", "34552", "4455"]),
-    ensureJournals(organizationId, ["VE", "AC", "BQ", "CA", "OD"]),
-  ]);
-}
 
 async function getTreasuryPostingSetup(organizationId: string, treasuryAccountId: string | null) {
   const supabase = await createClient();

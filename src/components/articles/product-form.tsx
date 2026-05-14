@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import type { ProductActionResult } from "@/lib/product-actions";
 import type { ProductCategory, ProductRecord, ProductType, TaxRate, Unit } from "@/lib/product-types";
+import { quickCreateProductCategory, quickCreateUnit } from "@/lib/actions/quick-create";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ComboboxCreate } from "@/components/ui/combobox-create";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,9 +36,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export function ProductForm({ mode, product, categories, units, taxRates, action, initialType }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [type, setType] = useState<ProductType>(initialType ?? (product?.type as ProductType) ?? "product");
+  const [catList, setCatList] = useState(categories);
+  const [unitList, setUnitList] = useState(units);
   const [taxRateId, setTaxRateId] = useState(() => product?.tax_rate_id ?? taxRates.find((t) => t.is_default)?.id ?? "");
   const [purchasePrice, setPurchasePrice] = useState(product?.purchase_price_ht ?? 0);
   const [salePrice, setSalePrice] = useState(product?.sale_price_ht ?? 0);
+  const [categoryId, setCategoryId] = useState(product?.category_id ?? "");
+  const [unitId, setUnitId] = useState(product?.unit_id ?? "");
 
   const selectedTaxRate = useMemo(
     () => taxRates.find((t) => t.id === taxRateId),
@@ -50,6 +56,8 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
   return (
     <form action={formAction} className="space-y-5">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
+      <input type="hidden" name="sku" value={product?.sku ?? ""} />
+      <input type="hidden" name="default_discount_rate" value={product?.default_discount_rate ?? 0} />
 
       <Card>
         <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
@@ -60,9 +68,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
               <option value="service">Service</option>
             </Select>
           </Field>
-          <Field label="Reference interne (SKU)">
-            <Input name="sku" defaultValue={product?.sku ?? ""} placeholder="Optionnel" />
-          </Field>
+          {/* Reference interne (SKU) masquée pour simplification PME */}
           <Field label="Code-barres">
             <Input name="barcode" defaultValue={product?.barcode ?? ""} placeholder="Optionnel" />
           </Field>
@@ -73,20 +79,58 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             <Textarea name="description" defaultValue={product?.description ?? ""} />
           </Field>
           <Field label="Categorie">
-            <Select name="category_id" defaultValue={product?.category_id ?? ""}>
-              <option value="">Sélectionner une categorie</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </Select>
+            <ComboboxCreate
+              options={catList.map((c) => ({ id: c.id, label: c.code ? `${c.code} — ${c.name}` : c.name }))}
+              value={categoryId}
+              onChange={(id) => setCategoryId(id)}
+              placeholder="Rechercher une categorie..."
+              createLabel="+ Creer une nouvelle categorie"
+              onCreate={async () => {
+                const code = window.prompt("Code de la categorie (ex: PF) :");
+                if (!code?.trim()) return;
+                const name = window.prompt("Nom de la categorie (ex: Produits finis) :");
+                if (!name?.trim()) return;
+                const result = await quickCreateProductCategory(code.trim(), name.trim());
+                if ("error" in result) {
+                  alert(result.error);
+                  return;
+                }
+                setCatList((prev) => [...prev, {
+                  id: result.id, name: result.name, code: result.code ?? null,
+                  organization_id: "", description: null, parent_id: null, type: "product", status: "active",
+                  created_by: null, created_at: "", updated_at: "", archived_at: null,
+                }]);
+                setCategoryId(result.id);
+              }}
+            />
+            <input type="hidden" name="category_id" value={categoryId} />
           </Field>
           <Field label="Unite">
-            <Select name="unit_id" defaultValue={product?.unit_id ?? ""}>
-              <option value="">Selectionner une unite</option>
-              {units.map((u) => (
-                <option key={u.id} value={u.id}>{u.name} ({u.symbol})</option>
-              ))}
-            </Select>
+            <ComboboxCreate
+              options={unitList.map((u) => ({ id: u.id, label: `${u.name} (${u.symbol})` }))}
+              value={unitId}
+              onChange={(id) => setUnitId(id)}
+              placeholder="Rechercher une unite..."
+              createLabel="+ Creer une nouvelle unite"
+              onCreate={async () => {
+                const name = window.prompt("Nom de l'unite (ex: Kilogramme) :");
+                if (!name?.trim()) return;
+                const symbol = window.prompt("Symbole de l'unite (ex: KG) :");
+                if (!symbol?.trim()) return;
+                const result = await quickCreateUnit(name.trim(), symbol.trim());
+                if ("error" in result) {
+                  alert(result.error);
+                  return;
+                }
+                setUnitList((prev) => [...prev, {
+                  id: result.id, name: result.name, symbol: result.symbol,
+                  organization_id: "", description: null, status: "active",
+                  created_by: null, created_at: "", updated_at: "", archived_at: null,
+                }]);
+                setUnitId(result.id);
+              }}
+            />
+            <input type="hidden" name="unit_id" value={unitId} />
           </Field>
           <Field label="Statut">
             <Select name="status" defaultValue={product?.status ?? "active"}>
@@ -124,7 +168,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             <Select name="tax_rate_id" value={taxRateId} onChange={(e) => setTaxRateId(e.target.value)}>
               <option value="">Sélectionner</option>
               {taxRates.map((t) => (
-                <option key={t.id} value={t.id}>{t.name} ({t.rate}%)</option>
+                <option key={t.id} value={t.id}>{t.name}</option>
               ))}
             </Select>
           </Field>
@@ -195,9 +239,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             <input name="is_purchasable" type="checkbox" defaultChecked={product?.is_purchasable ?? true} />
             Achetable
           </label>
-          <Field label="Remise par defaut (%)">
-            <Input name="default_discount_rate" type="number" min="0" max="100" step="0.01" defaultValue={product?.default_discount_rate ?? 0} />
-          </Field>
+          {/* Remise par defaut masquée pour simplification PME */}
           <Field label="Notes internes">
             <Textarea name="notes" defaultValue={product?.notes ?? ""} />
           </Field>

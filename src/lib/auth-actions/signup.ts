@@ -45,5 +45,5 @@ export async function signUpAction(
     return { error: error.message };
   }
 
-  redirect("/onboarding/societe");
+  redirect("/onboarding/entreprise");
 }

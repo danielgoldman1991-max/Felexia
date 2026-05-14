@@ -93,10 +93,66 @@ async function handleCheckoutCompleted(
       .eq("id", organizationId);
   }
 
-  if (subscriptionId) {
-    const stripe = getStripe();
-    const stripeSub = await stripe.subscriptions.retrieve(subscriptionId) as any;
+  if (!subscriptionId) return;
 
+  const stripe = getStripe();
+  const stripeSub = await stripe.subscriptions.retrieve(subscriptionId) as any;
+
+  const moduleKeysRaw = session.metadata?.module_keys;
+  const isModuleBased = !!moduleKeysRaw;
+
+  if (isModuleBased) {
+    // Module-based subscription
+    const moduleKeys: string[] = JSON.parse(moduleKeysRaw);
+    const { data: catalog } = await supabase
+      .from("modules_catalog")
+      .select("*")
+      .eq("is_active", true);
+
+    const monthlyAmount = catalog
+      ? catalog
+          .filter((m) => moduleKeys.includes(m.module_key))
+          .reduce((sum, m) => sum + Number(m.monthly_price), 0)
+      : 0;
+
+    const yearlyAmount = catalog
+      ? catalog
+          .filter((m) => moduleKeys.includes(m.module_key))
+          .reduce((sum, m) => sum + Number(m.yearly_price), 0)
+      : 0;
+
+    // Enable organization_modules
+    const moduleRows = moduleKeys.map((key: string) => ({
+      organization_id: organizationId,
+      module_key: key,
+      enabled: true,
+    }));
+
+    await supabase
+      .from("organization_modules")
+      .upsert(moduleRows, { onConflict: "organization_id, module_key" });
+
+    const interval = stripeSub.items.data[0]?.price?.recurring?.interval === "year" ? "yearly" : "monthly";
+
+    await supabase.from("organization_subscriptions").upsert({
+      organization_id: organizationId,
+      plan_id: null,
+      stripe_subscription_id: subscriptionId,
+      stripe_customer_id: customerId,
+      status: stripeSub.status,
+      billing_interval: interval,
+      monthly_amount: monthlyAmount,
+      yearly_amount: yearlyAmount,
+      selected_modules: JSON.parse(JSON.stringify(moduleKeys)),
+      current_period_start: stripeSub.current_period_start ? new Date(stripeSub.current_period_start * 1000).toISOString() : null,
+      current_period_end: stripeSub.current_period_end ? new Date(stripeSub.current_period_end * 1000).toISOString() : null,
+      trial_start: stripeSub.trial_start ? new Date(stripeSub.trial_start * 1000).toISOString() : null,
+      trial_end: stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000).toISOString() : null,
+    }, {
+      onConflict: "organization_id",
+    });
+  } else {
+    // Legacy plan-based subscription
     const planSlug = mapPriceToPlanSlug(stripeSub.items.data[0]?.price?.id);
     if (!planSlug) return;
 
@@ -120,7 +176,7 @@ async function handleCheckoutCompleted(
       trial_start: stripeSub.trial_start ? new Date(stripeSub.trial_start * 1000).toISOString() : null,
       trial_end: stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000).toISOString() : null,
     }, {
-      onConflict: "organization_id, stripe_subscription_id",
+      onConflict: "organization_id",
     });
   }
 }

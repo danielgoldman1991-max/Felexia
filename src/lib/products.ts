@@ -270,14 +270,19 @@ export async function listUnits() {
 }
 
 export async function listTaxRates() {
-  const workspace = await requireActiveWorkspace();
+  return getGlobalTaxRates();
+}
+
+export async function getGlobalTaxRates(): Promise<TaxRate[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tax_rates")
     .select("*")
-    .eq("organization_id", workspace.organization.id)
-    .is("archived_at", null)
-    .order("rate", { ascending: true });
+    .is("organization_id", null)
+    .eq("status", "active")
+    .eq("is_system", true)
+    .in("code", ["VAT_0", "VAT_7", "VAT_10", "VAT_14", "VAT_20", "VAT_EXEMPT"])
+    .order("sort_order", { ascending: true });
 
   if (error) throw new Error(error.message);
   return (data ?? []) as TaxRate[];

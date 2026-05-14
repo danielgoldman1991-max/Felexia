@@ -7,6 +7,7 @@ const navItems = [
   { label: "Utilisateurs", href: "/parametres/utilisateurs", key: "utilisateurs" },
   { label: "Rôles & habilitations", href: "/parametres/roles", key: "roles" },
   { label: "Abonnement", href: "/parametres/abonnement", key: "abonnement" },
+  { label: "Modules", href: "/parametres/modules", key: "modules" },
   { label: "Facturation", href: "/parametres/facturation", key: "facturation" },
   { label: "Documents", href: "/parametres/documents", key: "documents" },
   { label: "Sécurité", href: "/parametres/securite", key: "securite" },

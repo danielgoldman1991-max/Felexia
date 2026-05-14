@@ -9,11 +9,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 const initialState: DocState = { error: null, success: false };
 
 export function DocumentSettingsForm({
-  organizationId,
   settings,
   canEdit,
 }: {
-  organizationId: string;
   settings: Record<string, unknown> | null;
   canEdit: boolean;
 }) {

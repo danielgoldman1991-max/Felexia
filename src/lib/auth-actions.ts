@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveWorkspace, hasSupabaseConfig } from "@/lib/auth";
+import { getUserOnboardingStatus } from "@/lib/saas";
 
 export type LoginState = {
   error: string | null;
@@ -51,9 +52,8 @@ export async function loginAction(
     return { error: "Email ou mot de passe incorrect." };
   }
 
-  let workspace;
   try {
-    workspace = await getActiveWorkspace();
+    await getActiveWorkspace();
   } catch {
     await supabase.auth.signOut();
     return {
@@ -62,11 +62,11 @@ export async function loginAction(
     };
   }
 
-  if (!workspace) {
-    redirect("/onboarding/inscription");
+  const status = await getUserOnboardingStatus();
+  if (status.nextPath === "/onboarding/entreprise") {
+    redirect("/login");
   }
-
-  redirect("/dashboard");
+  redirect(status.nextPath);
 }
 
 export async function logoutAction() {

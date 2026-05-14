@@ -18,8 +18,6 @@ export default async function PreferencesPage() {
     <div>
       <PageHeader title="Préférences" description="Langue, thème et affichage de l'interface." />
       <UserPreferencesForm
-        userId={workspace.userId}
-        organizationId={workspace.organization.id}
         preferences={prefs as Record<string, unknown> | null}
       />
     </div>

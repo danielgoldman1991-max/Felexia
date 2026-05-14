@@ -250,7 +250,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
             <Select value={draftLine.tax_rate_id} onChange={(event) => handleTaxChange(event.target.value)}>
               <option value="">--</option>
               {taxRates.map((taxRate) => (
-                <option key={taxRate.id} value={taxRate.id}>{taxRate.name} ({taxRate.rate}%)</option>
+                <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>
               ))}
             </Select>
           </label>

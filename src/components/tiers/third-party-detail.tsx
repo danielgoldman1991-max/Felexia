@@ -185,16 +185,10 @@ export function ThirdPartyDetail({
         {isCustomer || isProspect ? (
           <Card>
             <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <Info label="Conditions de paiement" value={getPaymentTermLabel(thirdParty.payment_terms) || `${thirdParty.payment_terms_days ?? 0} jours`} />
-              <Info label="Modalites de paiement" value={getPaymentMethodLabel(thirdParty.payment_method)} />
-              {thirdParty.custom_payment_terms ? <Info label="Detail condition" value={thirdParty.custom_payment_terms} /> : null}
-              {thirdParty.custom_payment_method ? <Info label="Detail modalite" value={thirdParty.custom_payment_method} /> : null}
-              <Info label="Limite credit" value={<MoneyDisplay value={thirdParty.credit_limit} />} />
-              <Info label="CA cumule" value={<MoneyDisplay value={thirdParty.cumulative_revenue} />} />
-              <Info label="Encours actuel" value={<MoneyDisplay value={thirdParty.current_outstanding} />} />
-              <Info label="Categorie" value={thirdParty.customer_category} />
-              <Info label="Risque" value={thirdParty.risk_level} />
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Info label="Conditions de paiement" value={getPaymentTermLabel(thirdParty.payment_terms) || `${thirdParty.payment_terms_days ?? 0} jours`} />
+            <Info label="Modalites de paiement" value={getPaymentMethodLabel(thirdParty.payment_method)} />
+            <Info label="Categorie" value={thirdParty.customer_category} />
             </CardContent>
           </Card>
         ) : null}

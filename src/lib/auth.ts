@@ -18,6 +18,7 @@ export type ActiveWorkspace = {
     status: string;
     planSlug: string;
   } | null;
+  enabledModules: string[];
 };
 
 export function hasSupabaseConfig() {
@@ -110,6 +111,20 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
     // Table doesn't exist yet (migration not applied)
   }
 
+  let enabledModules: string[] = [];
+  try {
+    const { data: modules } = await supabase
+      .from("organization_modules")
+      .select("module_key")
+      .eq("organization_id", organization.id)
+      .eq("enabled", true);
+    if (modules) {
+      enabledModules = modules.map((m) => m.module_key as string);
+    }
+  } catch {
+    // Table doesn't exist yet (migration not applied)
+  }
+
   return {
     userId: user.id,
     email: user.email ?? null,
@@ -117,6 +132,7 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
     organization,
     role: role?.name ?? null,
     subscription,
+    enabledModules,
   };
 }
 

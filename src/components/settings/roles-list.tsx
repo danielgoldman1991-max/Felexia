@@ -24,12 +24,10 @@ export function RolesList({
   roles,
   permissions,
   rolePermissions,
-  isAdmin,
 }: {
   roles: Role[];
   permissions: Permission[];
   rolePermissions: RolePermission[];
-  isAdmin: boolean;
 }) {
   return (
     <div className="space-y-4">

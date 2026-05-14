@@ -1,11 +1,20 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { Logo } from "@/components/brand/Logo";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth/login-form";
-import { getActiveWorkspace } from "@/lib/auth";
+import { RegisterAdminForm } from "@/components/auth/register-admin-form";
+import { getUserOnboardingStatus } from "@/lib/saas";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string }>;
+}) {
+  const { mode } = await searchParams;
+  const isLoginMode = mode === "login";
+  const isRegisterMode = !isLoginMode;
+
   const cookieStore = await cookies();
   const supabaseProjectRef = process.env.NEXT_PUBLIC_SUPABASE_URL
     ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname.split(".")[0]
@@ -16,29 +25,111 @@ export default async function LoginPage() {
     : false;
 
   if (hasAuthCookie) {
-    const workspace = await getActiveWorkspace();
-    if (workspace) {
-      redirect("/dashboard");
+    const status = await getUserOnboardingStatus();
+    if (status.nextPath !== "/login") {
+      redirect(status.nextPath);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4">
-      <Card className="w-full max-w-md shadow-[var(--shadow-md)]">
-        <CardHeader>
-          <div className="mb-3 flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-white">
-              <Logo size={36} />
+    <main className="flex min-h-screen bg-white">
+      <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
+        <div className="w-full max-w-xl">
+          <div className="mb-8">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white">
+              <Logo size={28} />
             </span>
-            <p className="text-sm font-semibold text-[var(--secondary)]">Felexia facilite ta gestion</p>
           </div>
-          <h1 className="mt-2 text-2xl font-semibold">Connexion</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">Accedez a votre espace ERP securise.</p>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-        </CardContent>
-      </Card>
+
+          {isRegisterMode ? (
+            <>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Créez votre compte administrateur
+              </h1>
+              <p className="mt-3 text-base text-slate-500">
+                Votre email servira de login pour accéder à Felexia.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Connexion
+              </h1>
+              <p className="mt-3 text-base text-slate-500">
+                Accédez à votre espace Felexia.
+              </p>
+            </>
+          )}
+
+          <div className="mt-8 flex gap-6 border-b border-slate-200">
+            <Link
+              href="/"
+              className={`pb-3 text-sm font-medium transition ${
+                isRegisterMode
+                  ? "border-b-2 border-blue-600 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Créer mon compte
+            </Link>
+            <Link
+              href="/login?mode=login"
+              className={`pb-3 text-sm font-medium transition ${
+                isLoginMode
+                  ? "border-b-2 border-blue-600 text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              Se connecter
+            </Link>
+          </div>
+
+          <div className="mt-8">
+            {isRegisterMode ? <RegisterAdminForm /> : <LoginForm />}
+          </div>
+
+          {isLoginMode && (
+            <p className="mt-6 text-center text-sm text-slate-500">
+              Pas encore de compte ?{" "}
+              <Link href="/" className="font-medium text-blue-600 hover:text-blue-700">
+                Créer mon compte
+              </Link>
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:bg-slate-50 lg:px-12">
+        <div className="max-w-md text-center">
+          <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+            <Logo size={48} />
+          </div>
+          <blockquote className="text-lg font-medium text-slate-700">
+            &ldquo;Felexia a transformé notre gestion d&apos;entreprise. Factures, devis, comptabilité — tout est centralisé.&rdquo;
+          </blockquote>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-slate-300" />
+            <div className="text-left">
+              <p className="text-sm font-semibold text-slate-900">Karim B.</p>
+              <p className="text-xs text-slate-500">CEO, Atlas Distribution</p>
+            </div>
+          </div>
+          <div className="mt-10 flex items-center justify-center gap-8 text-xs text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Facturation
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Comptabilité
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Stock
+            </span>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

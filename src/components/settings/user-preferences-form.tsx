@@ -9,12 +9,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 const initialState: PrefsState = { error: null, success: false };
 
 export function UserPreferencesForm({
-  userId,
-  organizationId,
   preferences,
 }: {
-  userId: string;
-  organizationId: string;
   preferences: Record<string, unknown> | null;
 }) {
   const [state, formAction, pending] = useActionState(updatePreferencesAction, initialState);

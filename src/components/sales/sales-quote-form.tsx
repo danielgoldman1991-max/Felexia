@@ -20,6 +20,7 @@ import type {
   TaxRateForSalesSelect,
   UnitForSalesSelect,
 } from "@/lib/sales-types";
+import type { ProductCategory, TaxRate, Unit } from "@/lib/product-types";
 
 type Props = {
   mode: "create" | "edit";
@@ -31,6 +32,9 @@ type Props = {
   taxRates: TaxRateForSalesSelect[];
   defaultTaxRate?: TaxRateForSalesSelect | null;
   action: (state: SalesActionResult, formData: FormData) => Promise<SalesActionResult>;
+  productCategories?: ProductCategory[];
+  allUnits?: Unit[];
+  allTaxRates?: TaxRate[];
 };
 
 const initialState: SalesActionResult = { success: true };
@@ -54,6 +58,9 @@ export function SalesQuoteForm({
   taxRates,
   defaultTaxRate,
   action,
+  productCategories,
+  allUnits,
+  allTaxRates,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [selectedCustomerId, setSelectedCustomerId] = useState(document?.customer_id ?? "");
@@ -138,6 +145,9 @@ export function SalesQuoteForm({
             units={units}
             taxRates={taxRates}
             defaultTaxRate={defaultTaxRate}
+            productCategories={productCategories}
+            allUnits={allUnits}
+            allTaxRates={allTaxRates}
           />
         </CardContent>
       </Card>

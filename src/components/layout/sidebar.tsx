@@ -40,16 +40,25 @@ export function Sidebar({
   workspace?: ActiveWorkspace | null;
 }) {
   const pathname = usePathname();
+  const visibleSections = useMemo(
+    () =>
+      sections.filter((section) => {
+        if (!section.moduleKey) return true;
+        return workspace?.enabledModules?.includes(section.moduleKey) ?? false;
+      }),
+    [workspace?.enabledModules],
+  );
+
   const initiallyOpen = useMemo(
     () =>
-      sections
+      visibleSections
         .filter(
           (section) =>
             section.items?.some((item) => pathMatches(pathname, item.href)) ||
             pathMatches(pathname, section.href),
         )
         .map((section) => section.key),
-    [pathname],
+    [pathname, visibleSections],
   );
   const [open, setOpen] = useState<string[]>(initiallyOpen);
 
@@ -134,7 +143,7 @@ export function Sidebar({
           </div>
 
           <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-thumb-white/10">
-            {sections.map((section) => {
+            {visibleSections.map((section) => {
               const Icon = section.icon;
               const active =
                 pathMatches(pathname, section.href) ||

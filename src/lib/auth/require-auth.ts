@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveWorkspace, requireActiveWorkspace } from "@/lib/auth";
+import { requireActiveWorkspace } from "@/lib/auth";
 import type { ActiveWorkspace } from "@/lib/auth";
 
 export async function getCurrentUserId(): Promise<string> {

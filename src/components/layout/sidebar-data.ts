@@ -42,6 +42,7 @@ export type SidebarSection = {
   href: string;
   icon: ComponentType<{ className?: string }>;
   items?: SidebarItem[];
+  moduleKey?: string; // if set, section is hidden when module is disabled
 };
 
 export const quickActions: SidebarItem[] = [
@@ -58,6 +59,7 @@ export const sections: SidebarSection[] = [
     label: "Achats",
     href: "/achats",
     icon: ShoppingCart,
+    moduleKey: "purchases",
     items: [
       { label: "Tableau achats", href: "/achats", icon: Gauge },
       { label: "Fournisseurs", href: "/achats/fournisseurs", icon: Users },
@@ -72,6 +74,7 @@ export const sections: SidebarSection[] = [
     label: "Ventes",
     href: "/vente",
     icon: BadgeDollarSign,
+    moduleKey: "quotes",
     items: [
       { label: "Devis", href: "/vente/devis", icon: FileText },
       { label: "Commandes", href: "/vente/commandes", icon: ClipboardList },
@@ -84,6 +87,7 @@ export const sections: SidebarSection[] = [
     label: "Facturation & Paiements",
     href: "/facturation",
     icon: Receipt,
+    moduleKey: "invoicing",
     items: [
       { label: "Factures", href: "/facturation/factures", icon: FileText },
       { label: "Avoirs", href: "/facturation/avoirs", icon: RotateCcw },
@@ -97,6 +101,7 @@ export const sections: SidebarSection[] = [
     label: "Stock",
     href: "/stock",
     icon: Boxes,
+    moduleKey: "stock",
     items: [
       { label: "Vue globale", href: "/stock", icon: Gauge },
       { label: "Emplacements", href: "/stock/emplacements", icon: Building2 },
@@ -111,6 +116,7 @@ export const sections: SidebarSection[] = [
     label: "Trésorerie",
     href: "/tresorerie",
     icon: Landmark,
+    moduleKey: "treasury",
     items: [
       { label: "Tableau trésorerie", href: "/tresorerie", icon: Gauge },
       { label: "Consultation", href: "/tresorerie/consultation", icon: Search },
@@ -126,6 +132,7 @@ export const sections: SidebarSection[] = [
     label: "CRM",
     href: "/tiers",
     icon: Users,
+    moduleKey: "crm",
     items: [
       { label: "Clients", href: "/tiers/clients", icon: Building2 },
       { label: "Prospects", href: "/tiers/prospects", icon: Target },
@@ -138,6 +145,7 @@ export const sections: SidebarSection[] = [
     label: "Comptabilité",
     href: "/comptabilite",
     icon: BookOpen,
+    moduleKey: "accounting",
     items: [
       { label: "Écritures", href: "/comptabilite/ecritures", icon: FileText },
       { label: "Journaux", href: "/comptabilite/journaux", icon: BookOpen },
@@ -145,6 +153,18 @@ export const sections: SidebarSection[] = [
       { label: "Grand livre", href: "/comptabilite/grand-livre", icon: BookOpen },
       { label: "Balance", href: "/comptabilite/balance", icon: BarChart3 },
       { label: "TVA", href: "/comptabilite/tva", icon: Calculator },
+    ],
+  },
+  {
+    key: "documents",
+    label: "Documents",
+    href: "/documents",
+    icon: FileText,
+    moduleKey: "documents",
+    items: [
+      { label: "Tous les documents", href: "/documents", icon: FileText },
+      { label: "Audit log", href: "/outils/audit-log", icon: ClipboardList },
+      { label: "Import/Export", href: "/outils/import-export", icon: ArrowLeftRight },
     ],
   },
   { key: "settings", label: "Paramètres", href: "/parametres", icon: Settings },

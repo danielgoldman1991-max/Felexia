@@ -19,7 +19,6 @@ export default async function DocumentsPage() {
     <div>
       <PageHeader title="Documents commerciaux" description="Préfixes, numérotation et mentions légales sur vos PDF." />
       <DocumentSettingsForm
-        organizationId={workspace.organization.id}
         settings={docSettings as Record<string, unknown> | null}
         canEdit={isAdmin}
       />

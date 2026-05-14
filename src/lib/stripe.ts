@@ -52,6 +52,62 @@ export async function createCheckoutSession(
   return session;
 }
 
+export async function createModuleCheckoutSession(
+  customerId: string,
+  moduleKeys: string[],
+  organizationId: string,
+  billingInterval: "monthly" | "yearly",
+  successUrl?: string,
+  cancelUrl?: string,
+): Promise<Stripe.Checkout.Session> {
+  const stripe = getStripe();
+  const env = getEnv();
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  const { data: modules } = await supabase
+    .from("modules_catalog")
+    .select("module_key, stripe_monthly_price_id, stripe_yearly_price_id")
+    .in("module_key", moduleKeys)
+    .eq("is_active", true);
+
+  if (!modules || modules.length === 0) {
+    throw new Error("Aucun module trouvé");
+  }
+
+  const priceField = billingInterval === "yearly" ? "stripe_yearly_price_id" : "stripe_monthly_price_id";
+
+  const lineItems = modules
+    .filter((m) => m[priceField as keyof typeof m])
+    .map((m) => ({
+      price: m[priceField as keyof typeof m] as string,
+      quantity: 1,
+    }));
+
+  if (lineItems.length === 0) {
+    throw new Error("Aucun module avec Stripe price ID configuré");
+  }
+
+  const session = await stripe.checkout.sessions.create({
+    customer: customerId,
+    mode: "subscription",
+    line_items: lineItems,
+    metadata: {
+      organization_id: organizationId,
+      module_keys: JSON.stringify(moduleKeys),
+    },
+    subscription_data: {
+      metadata: {
+        organization_id: organizationId,
+        module_keys: JSON.stringify(moduleKeys),
+      },
+    },
+    success_url: successUrl || `${env.appUrl}/parametres/abonnement?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`,
+  });
+  return session;
+}
+
 export async function createPortalSession(
   customerId: string,
   returnUrl?: string,

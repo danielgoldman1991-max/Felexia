@@ -245,6 +245,7 @@ function thirdPartyPayload(
     current_outstanding: numberOrZero(formData, "current_outstanding"),
     default_discount_rate: numberOrZero(formData, "default_discount_rate"),
     customer_category: text(formData, "customer_category"),
+    customer_category_id: text(formData, "customer_category_id"),
     risk_level: text(formData, "risk_level"),
     preferred_payment_method: text(formData, "preferred_payment_method"),
     prospect_source: text(formData, "prospect_source"),
