@@ -3,7 +3,9 @@ import { PrintActions } from "@/components/sales/print-actions";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Table, Td, Th } from "@/components/ui/table";
 import { getCustomerCreditNoteDetail } from "@/lib/credit-notes";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { formatDate } from "@/lib/format";
+import { PrintCompanyBrand } from "@/components/shared/print-company-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -11,15 +13,21 @@ export default async function CreditNotePrintPage({ params }: { params: Promise<
   const { id } = await params;
   const { creditNote, lines } = await getCustomerCreditNoteDetail(id);
   if (!creditNote) notFound();
+  const identity = await getOrganizationDocumentIdentity(creditNote.organization_id);
   return (
     <main className="mx-auto max-w-5xl bg-white p-8 print:p-0">
       <PrintActions backHref={`/facturation/avoirs/${creditNote.id}`} backLabel="Retour avoir" />
-      <h1 className="text-2xl font-bold">AVOIR CLIENT</h1>
+      <div className="flex items-start justify-between border-b border-slate-200 pb-6">
+        <PrintCompanyBrand identity={identity} />
+        <div className="text-right">
+          <h1 className="text-2xl font-bold">AVOIR CLIENT</h1>
+          <p className="mt-2">{creditNote.credit_note_number}</p>
+          <p>{formatDate(creditNote.credit_note_date)}</p>
+        </div>
+      </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <div><p className="text-sm text-[var(--muted)]">Client</p><p className="font-semibold">{creditNote.customer_name}</p></div>
         <div className="text-right">
-          <p>{creditNote.credit_note_number}</p>
-          <p>{formatDate(creditNote.credit_note_date)}</p>
           {creditNote.source_return_number ? <p>Origine : Bon de retour {creditNote.source_return_number}</p> : null}
           {creditNote.source_invoice_number ? <p>Facture source : {creditNote.source_invoice_number}</p> : null}
         </div>

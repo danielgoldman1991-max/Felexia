@@ -35,7 +35,13 @@ export async function getOrganizationDocumentIdentity(
     .eq("id", organizationId)
     .maybeSingle();
 
-  const logoUrl = companySettings?.logo_url ?? organization?.logo_url ?? null;
+  const nonEmpty = (value: unknown) => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  };
+
+  const logoUrl = nonEmpty(organization?.logo_url) ?? nonEmpty(companySettings?.logo_url);
 
   const name =
     companySettings?.legal_name ??

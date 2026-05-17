@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, AlertTriangle, Banknote, Building2, FileClock, Receipt, TrendingUp } from "lucide-react";
+import { CalendarDays, AlertTriangle, ArrowRight, Banknote, Building2, CheckCircle2, FileClock, Receipt, TrendingUp } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { ModulePage } from "@/components/erp/module-page";
 import { KpiCard } from "@/components/dashboard/kpi-card";
@@ -10,11 +10,16 @@ import { TopClients } from "@/components/dashboard/top-clients";
 import { MobileAppBanner } from "@/components/dashboard/mobile-app-banner";
 import { getDashboardData } from "@/lib/dashboard-data";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
 
 export default async function DashboardPage() {
   const workspace = await requireActiveWorkspace();
   const firstName = workspace.profile?.full_name?.split(" ")[0] || "Youssef";
-  const data = await getDashboardData();
+  const [data, checklist] = await Promise.all([
+    getDashboardData(),
+    getOnboardingChecklist(workspace.organization.id),
+  ]);
+  const showOnboardingCard = !isOnboardingChecklistComplete(checklist);
 
   const kpiCards = [
     {
@@ -96,6 +101,32 @@ export default async function DashboardPage() {
             Ce mois
           </button>
         </div>
+
+        {showOnboardingCard ? (
+          <Link
+            href="/bienvenue"
+            className="flex flex-col gap-4 rounded-2xl border border-blue-100 bg-blue-50 p-5 shadow-sm transition hover:border-blue-200 hover:bg-blue-50/80 md:flex-row md:items-center md:justify-between"
+          >
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                <CheckCircle2 className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-semibold text-slate-950">Complétez la configuration de votre entreprise</p>
+                <p className="mt-1 text-sm text-slate-600">
+                  {checklist.completedCount}/{checklist.totalCount} étapes complétées. Continuez le guide pour finaliser votre espace.
+                </p>
+                <div className="mt-3 h-2 max-w-sm overflow-hidden rounded-full bg-white">
+                  <div className="h-full rounded-full bg-blue-600" style={{ width: `${checklist.progress}%` }} />
+                </div>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700">
+              Continuer la configuration
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {kpiCards.map((card) => <KpiCard key={card.title} {...card} />)}

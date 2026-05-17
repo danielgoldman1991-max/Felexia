@@ -31,5 +31,6 @@ export const config = {
     "/clients/:path*",
     "/fournisseurs/:path*",
     "/outils/:path*",
+    "/onboarding/:path*",
   ],
 };

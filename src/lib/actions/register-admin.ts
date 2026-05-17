@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@/lib/supabase/service";
 
 export type RegisterAdminState = {
   error: string | null;
@@ -18,6 +17,7 @@ export async function registerAdminAction(
   const lastName = String(formData.get("lastName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
   const fieldErrors: Record<string, string> = {};
 
@@ -25,6 +25,10 @@ export async function registerAdminAction(
   if (!lastName) fieldErrors.lastName = "Nom requis";
   if (!email || !email.includes("@")) fieldErrors.email = "Email valide requis";
   if (!password || password.length < 8) fieldErrors.password = "Minimum 8 caractères";
+  if (!confirmPassword) fieldErrors.confirmPassword = "Veuillez confirmer le mot de passe.";
+  if (password && confirmPassword && password !== confirmPassword) {
+    fieldErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
+  }
 
   if (Object.keys(fieldErrors).length > 0) {
     return { error: "Veuillez corriger les champs en erreur.", fieldErrors };
@@ -50,21 +54,26 @@ export async function registerAdminAction(
     return { error: "Impossible de créer le compte utilisateur." };
   }
 
-  const userId = authData.user.id;
-
-  const svc = createServiceClient();
-
-  await svc.from("profiles").upsert({
-    id: userId,
+  // Forcer la connexion pour garantir que la session est dans les cookies
+  const { error: signInError } = await supabase.auth.signInWithPassword({
     email,
-    full_name: `${firstName} ${lastName}`,
-  }, { onConflict: "id" });
+    password,
+  });
 
-  if (authData.session === null) {
+  if (signInError) {
     return {
       success: "Compte créé. Veuillez confirmer votre email pour continuer la configuration de votre entreprise.",
       error: null,
     };
+  }
+
+  const { error: profileError } = await supabase.rpc("ensure_user_profile", {
+    p_full_name: `${firstName} ${lastName}`,
+    p_email: email,
+  });
+
+  if (profileError) {
+    return { error: "Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer." };
   }
 
   redirect("/onboarding/entreprise");

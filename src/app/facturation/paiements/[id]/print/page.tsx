@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/format";
 import { getPaymentMethodLabel } from "@/lib/payment-terms";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { PrintCompanyBrand } from "@/components/shared/print-company-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,10 @@ export default async function CustomerPaymentPrintPage({ params }: { params: Pro
       <PrintActions backHref={`/facturation/paiements/${payment.id}`} backLabel="Retour paiement" />
       <section className="mx-auto min-h-[297mm] max-w-[210mm] bg-white p-10 text-slate-900 shadow print:min-h-0 print:shadow-none">
         <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-          <div><h1 className="text-2xl font-bold">RECU DE PAIEMENT</h1><p className="mt-2 text-sm text-slate-500">{identity.name || "Mon Entreprise"}</p></div>
+          <PrintCompanyBrand identity={identity} />
           <div className="text-right text-sm"><p className="font-semibold">{payment.payment_number}</p><p>{formatDate(payment.payment_date)}</p></div>
         </div>
+        <h1 className="mt-8 text-2xl font-bold">RECU DE PAIEMENT</h1>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <div><h2 className="font-semibold">Client</h2><p className="mt-2">{payment.customer_name}</p></div>
           <div className="space-y-1 text-sm">

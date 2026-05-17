@@ -62,10 +62,10 @@ export default async function TrialConfirmationPage() {
             Profitez de toutes les fonctionnalités sélectionnées. Aucune carte bancaire requise.
           </p>
           <Link
-            href="/dashboard"
+            href="/bienvenue"
             className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-blue-600 px-6 text-sm font-medium text-white shadow-sm transition-all hover:bg-blue-500"
           >
-            Accéder au tableau de bord
+            Finaliser ma configuration
           </Link>
         </CardContent>
       </Card>

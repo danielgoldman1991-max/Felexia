@@ -54,6 +54,7 @@ export const quickActions: SidebarItem[] = [
 
 export const sections: SidebarSection[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { key: "welcome", label: "Guide de démarrage", href: "/bienvenue", icon: Sparkles },
   {
     key: "achats",
     label: "Achats",

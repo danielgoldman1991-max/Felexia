@@ -31,8 +31,8 @@ export async function updateSession(request: NextRequest) {
 
   if (pathname === "/") {
     try {
-      const { data } = await supabase.auth.getClaims();
-      if (data?.claims) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";
         return NextResponse.redirect(url);
@@ -44,24 +44,23 @@ export async function updateSession(request: NextRequest) {
   }
 
   try {
-    const { data } = await supabase.auth.getClaims();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (data?.claims && pathname === "/login") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
-    }
-
-    if (!data?.claims) {
+    if (!user && pathname !== "/login") {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
+      url.search = `?next=${encodeURIComponent(`${pathname}${request.nextUrl.search}`)}`;
       return NextResponse.redirect(url);
     }
 
     return supabaseResponse;
   } catch {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    if (pathname !== "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `?next=${encodeURIComponent(`${pathname}${request.nextUrl.search}`)}`;
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
   }
 }

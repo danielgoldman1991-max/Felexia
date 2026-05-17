@@ -3,14 +3,20 @@ import { Logo } from "@/components/brand/Logo";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
 
+// RULE: This page must NEVER auto-redirect on load.
+// Redirects happen ONLY after user actions (loginAction or registerAdminForm).
+// Even if a user is already logged in, /login must remain accessible.
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>;
+  searchParams: Promise<{ mode?: string; next?: string }>;
 }) {
-  const { mode } = await searchParams;
+  const { mode, next } = await searchParams;
   const isRegisterMode = mode === "register";
   const isLoginMode = !isRegisterMode;
+  const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : "";
+  const nextQuery = safeNext ? `&next=${encodeURIComponent(safeNext)}` : "";
 
   return (
     <main className="flex min-h-screen bg-white">
@@ -44,7 +50,7 @@ export default async function LoginPage({
 
           <div className="mt-8 flex gap-6 border-b border-slate-200">
             <Link
-              href="/login?mode=register"
+              href={`/login?mode=register${nextQuery}`}
               className={`pb-3 text-sm font-medium transition ${
                 isRegisterMode
                   ? "border-b-2 border-blue-600 text-blue-600"
@@ -54,7 +60,7 @@ export default async function LoginPage({
               Créer mon compte
             </Link>
             <Link
-              href="/login"
+              href={safeNext ? `/login?next=${encodeURIComponent(safeNext)}` : "/login"}
               className={`pb-3 text-sm font-medium transition ${
                 isLoginMode
                   ? "border-b-2 border-blue-600 text-blue-600"
@@ -66,13 +72,13 @@ export default async function LoginPage({
           </div>
 
           <div className="mt-8">
-            {isRegisterMode ? <RegisterAdminForm /> : <LoginForm />}
+            {isRegisterMode ? <RegisterAdminForm /> : <LoginForm nextPath={safeNext} />}
           </div>
 
           {isLoginMode && (
             <p className="mt-6 text-center text-sm text-slate-500">
               Pas encore de compte ?{" "}
-              <Link href="/login?mode=register" className="font-medium text-blue-600 hover:text-blue-700">
+              <Link href={`/login?mode=register${nextQuery}`} className="font-medium text-blue-600 hover:text-blue-700">
                 Créer mon compte
               </Link>
             </p>

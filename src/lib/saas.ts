@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
+import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
 
 export type ModuleInfo = {
   module_key: string;
@@ -186,7 +187,8 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   } else if (!hasValidSubscription) {
     nextPath = "/parametres/abonnement";
   } else {
-    nextPath = "/dashboard";
+    const checklist = await getOnboardingChecklist(organizationId);
+    nextPath = isOnboardingChecklistComplete(checklist) ? "/dashboard" : "/bienvenue";
   }
 
   return { hasOrganization, organizationId, hasSelectedModules, hasValidSubscription, nextPath };

@@ -22,6 +22,10 @@ export async function loginAction(
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const requestedNext = String(formData.get("next") ?? "").trim();
+  const safeNext = requestedNext.startsWith("/") && !requestedNext.startsWith("//")
+    ? requestedNext
+    : "";
 
   if (!email || !password) {
     return { error: "Veuillez saisir votre email et votre mot de passe." };
@@ -63,6 +67,9 @@ export async function loginAction(
   }
 
   const status = await getUserOnboardingStatus();
+  if (safeNext) {
+    redirect(safeNext);
+  }
   redirect(status.nextPath);
 }
 

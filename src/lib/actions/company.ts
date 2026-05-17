@@ -2,12 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@/lib/supabase/service";
-import { hasServiceRoleKey } from "@/lib/env";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
 
 export type CompanyState = { error: string | null; success: boolean; fieldErrors?: Record<string, string> };
+
+function canManageCompanySettings(roleName: string | null): boolean {
+  if (!roleName) return false;
+  const normalized = roleName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  return ["owner", "admin", "administrator", "administrateur"].includes(normalized);
+}
 
 export async function updateCompanyAction(
   _prev: CompanyState,
@@ -16,7 +26,7 @@ export async function updateCompanyAction(
   try {
     const workspace = await requireActiveWorkspace();
 
-    if (workspace.role !== "owner" && workspace.role !== "admin") {
+    if (!canManageCompanySettings(workspace.role)) {
       return { error: "Vous n'avez pas les droits nécessaires.", success: false };
     }
 
@@ -38,67 +48,31 @@ export async function updateCompanyAction(
     let logoPath: string | null = null;
 
     if (logoFile && logoFile.size > 0) {
-      if (logoFile.size > 5 * 1024 * 1024) {
-        return { error: "Logo trop volumineux (max 5 Mo).", success: false };
-      }
-
-      const allowedMime = ["image/png", "image/jpg", "image/jpeg", "image/webp"];
-      if (!allowedMime.includes(logoFile.type)) {
-        return { error: "Format accepté : PNG, JPG, JPEG, WEBP", success: false };
-      }
-
-      if (!hasServiceRoleKey()) {
-        return { error: "Configuration serveur incomplète.", success: false };
-      }
-
-      const serviceClient = createServiceClient();
       const orgId = workspace.organization.id;
-      const ext = logoFile.name.split(".").pop() ?? "png";
-      logoPath = `organization-logos/${orgId}/logo.${ext}`;
-
-      const { data: buckets } = await serviceClient.storage.listBuckets();
-      const bucketExists = buckets?.some((b) => b.name === "organization-logos");
-      if (!bucketExists) {
-        await serviceClient.storage.createBucket("organization-logos", {
-          public: true,
-          fileSizeLimit: 5 * 1024 * 1024,
-          allowedMimeTypes: ["image/png", "image/jpg", "image/jpeg", "image/webp"],
-        });
+      const uploadResult = await uploadOrganizationLogoForOrganization(orgId, logoFile);
+      if (!uploadResult.success) {
+        return { error: uploadResult.error ?? "Erreur upload logo.", success: false };
       }
+      logoUrl = uploadResult.logo_url ?? null;
+      logoPath = uploadResult.logo_path ?? null;
+    }
 
-      const { error: uploadErr } = await serviceClient.storage
-        .from("organization-logos")
-        .upload(logoPath, logoFile, {
-          contentType: logoFile.type,
-          upsert: true,
-        });
+    const upsertData: Record<string, unknown> = {
+      organization_id: workspace.organization.id,
+      ...data,
+    };
 
-      if (!uploadErr) {
-        const { data: pubUrl } = serviceClient.storage
-          .from("organization-logos")
-          .getPublicUrl(logoPath);
-        logoUrl = pubUrl?.publicUrl ?? null;
-      }
+    // Ne mettre à jour le logo que si un nouveau fichier a été uploadé
+    if (logoUrl !== null && logoPath !== null) {
+      upsertData.logo_url = logoUrl;
+      upsertData.logo_path = logoPath;
     }
 
     const { error } = await supabase
       .from("company_settings")
-      .upsert({
-        organization_id: workspace.organization.id,
-        ...data,
-        logo_url: logoUrl,
-        logo_path: logoPath,
-      }, { onConflict: "organization_id" });
+      .upsert(upsertData, { onConflict: "organization_id" });
 
     if (error) return { error: error.message, success: false };
-
-    await supabase
-      .from("organizations")
-      .update({
-        logo_url: logoUrl,
-        logo_path: logoPath,
-      })
-      .eq("id", workspace.organization.id);
 
     await logAudit(
       workspace.organization.id,

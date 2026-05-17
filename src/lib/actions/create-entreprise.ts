@@ -2,9 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@/lib/supabase/service";
 import { hasServiceRoleKey } from "@/lib/env";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
+import { formatMoroccanPhone, isValidMoroccanPhone } from "@/lib/morocco-format";
+import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
 
 export type CreateEntrepriseState = {
   error: string | null;
@@ -20,33 +21,50 @@ export async function createEntrepriseAction(
 
   if (userError || !user) {
     console.error("createEntreprise: auth error", userError?.message);
-    return { error: "Vous devez être connecté pour créer une entreprise." };
+    return { error: "Votre session a expiré. Veuillez vous reconnecter avant de créer l’entreprise." };
   }
 
-  const raisonSociale = String(formData.get("raisonSociale") ?? "").trim();
-  const ice = String(formData.get("ice") ?? "").trim();
+  const raisonSociale = String(formData.get("raisonSociale") ?? "").trim().toLocaleUpperCase("fr-FR");
   const ville = String(formData.get("ville") ?? "").trim();
-  const telephone = String(formData.get("telephone") ?? "").trim();
-  const emailEnt = String(formData.get("emailEnt") ?? "").trim();
+  const telephone = formatMoroccanPhone(String(formData.get("telephone") ?? "").trim());
+  const emailEnt = String(formData.get("emailEnt") ?? "").trim().toLowerCase();
   const adresse = String(formData.get("adresse") ?? "").trim();
-  const secteur = String(formData.get("secteur") ?? "").trim();
-  const taille = String(formData.get("taille") ?? "").trim();
-  const devise = String(formData.get("devise") ?? "MAD");
+  const devise = "MAD";
   const logoFile = formData.get("logo") as File | null;
 
   const fieldErrors: Record<string, string> = {};
 
-  if (!raisonSociale) {
-    fieldErrors.raisonSociale = "Raison sociale requise";
+  if (raisonSociale.length < 2) {
+    fieldErrors.raisonSociale = "La raison sociale est obligatoire.";
+  }
+
+  if (adresse.length < 5) {
+    fieldErrors.adresse = "L’adresse complète est obligatoire.";
+  }
+
+  if (!ville) {
+    fieldErrors.ville = "La ville est obligatoire.";
+  }
+
+  if (!String(formData.get("telephone") ?? "").trim()) {
+    fieldErrors.telephone = "Le numéro de téléphone est obligatoire.";
+  } else if (!isValidMoroccanPhone(telephone)) {
+    fieldErrors.telephone = "Le numéro de téléphone doit respecter le format +212 524 10 10 10.";
+  }
+
+  if (!emailEnt) {
+    fieldErrors.emailEnt = "L’adresse mail est obligatoire.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEnt)) {
+    fieldErrors.emailEnt = "L’adresse mail est invalide.";
   }
 
   if (logoFile && logoFile.size > 0 && logoFile.size > 5 * 1024 * 1024) {
     fieldErrors.logo = "Logo trop volumineux (max 5 Mo)";
   }
 
-  const allowedMime = ["image/png", "image/jpg", "image/jpeg", "image/webp"];
+  const allowedMime = ["image/png", "image/jpeg", "image/webp"];
   if (logoFile && logoFile.size > 0 && !allowedMime.includes(logoFile.type)) {
-    fieldErrors.logo = "Format accepté : PNG, JPG, JPEG, WEBP";
+    fieldErrors.logo = "Format accepté : PNG, JPG, WEBP";
   }
 
   if (Object.keys(fieldErrors).length > 0) {
@@ -79,84 +97,50 @@ export async function createEntrepriseAction(
     return { error: "Impossible de créer l'entreprise. Veuillez réessayer." };
   }
 
-  if (!hasServiceRoleKey()) {
-    return { error: "Configuration serveur incomplète. Veuillez contacter l'administrateur." };
-  }
-
-  const serviceClient = createServiceClient();
-
   let logoUrl: string | null = null;
   let logoPath: string | null = null;
 
   if (logoFile && logoFile.size > 0) {
-    const ext = logoFile.name.split(".").pop() ?? "png";
-    logoPath = `organization-logos/${orgId}/logo.${ext}`;
-
-    const { data: buckets } = await serviceClient.storage.listBuckets();
-    const bucketExists = buckets?.some((b) => b.name === "organization-logos");
-    if (!bucketExists) {
-      await serviceClient.storage.createBucket("organization-logos", {
-        public: true,
-        fileSizeLimit: 5 * 1024 * 1024,
-        allowedMimeTypes: ["image/png", "image/jpg", "image/jpeg", "image/webp"],
-      });
-    }
-
-    const { error: uploadErr } = await serviceClient.storage
-      .from("organization-logos")
-      .upload(logoPath, logoFile, {
-        contentType: logoFile.type,
-        upsert: true,
-      });
-
-    if (!uploadErr) {
-      const { data: pubUrl } = serviceClient.storage
-        .from("organization-logos")
-        .getPublicUrl(logoPath);
-      logoUrl = pubUrl?.publicUrl ?? null;
+    const uploadResult = await uploadOrganizationLogoForOrganization(orgId, logoFile);
+    if (uploadResult.success) {
+      logoUrl = uploadResult.logo_url ?? null;
+      logoPath = uploadResult.logo_path ?? null;
     } else {
-      console.error("createEntreprise: logo upload error", uploadErr.message);
+      console.error("createEntreprise: logo upload error", uploadResult.error);
     }
   }
 
-  await serviceClient
-    .from("organizations")
-    .update({
-      phone: telephone || null,
-      email: emailEnt || null,
-      city: ville || null,
-      address: adresse || null,
-      logo_url: logoUrl,
-      logo_path: logoPath,
-    })
-    .eq("id", orgId);
+  const { error: finalizeError } = await supabase.rpc("finalize_organization_onboarding", {
+    p_organization_id: orgId,
+    p_name: raisonSociale,
+    p_address: adresse,
+    p_city: ville,
+    p_phone: telephone,
+    p_email: emailEnt,
+    p_currency: devise,
+    p_logo_url: logoUrl,
+    p_logo_path: logoPath,
+  });
 
-  await serviceClient
-    .from("company_settings")
-    .upsert({
-      organization_id: orgId,
-      legal_name: raisonSociale,
-      ice: ice || null,
-      address: adresse || null,
-      city: ville || null,
-      phone: telephone || null,
-      email: emailEnt || null,
-      secteur: secteur || null,
-      taille: taille || null,
-      currency: devise,
-      logo_url: logoUrl,
-      logo_path: logoPath,
-    }, { onConflict: "organization_id" });
+  if (finalizeError) {
+    console.error("createEntreprise: finalize RPC error", finalizeError.message);
+    if (finalizeError.message.toLowerCase().includes("function")) {
+      return { error: "La fonction de finalisation de l’entreprise n’est pas installée. Veuillez appliquer les migrations Supabase puis réessayer." };
+    }
+    if (finalizeError.message.toLowerCase().includes("column")) {
+      return { error: "Une colonne nécessaire à la finalisation de l’entreprise est absente. Veuillez appliquer les migrations Supabase puis réessayer." };
+    }
+    return { error: `Finalisation entreprise impossible : ${finalizeError.message}` };
+  }
 
-  await initializeOrganizationDefaults(orgId);
-
-  try {
-    await serviceClient
-      .from("profiles")
-      .update({ default_organization_id: orgId })
-      .eq("id", user.id);
-  } catch (profileErr) {
-    console.error("createEntreprise: profiles.update error", profileErr);
+  if (hasServiceRoleKey()) {
+    try {
+      await initializeOrganizationDefaults(orgId);
+    } catch (defaultsErr) {
+      console.error("createEntreprise: defaults initialization error", defaultsErr);
+    }
+  } else {
+    console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
   redirect("/onboarding/modules");

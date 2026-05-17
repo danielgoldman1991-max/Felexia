@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { updateCompanyAction, type CompanyState } from "@/lib/actions/company";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const initialState: CompanyState = { error: null, success: false };
+const MAX_LOGO_SIZE = 5 * 1024 * 1024;
+const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 export function CompanySettingsForm({
   settings,
@@ -18,12 +20,67 @@ export function CompanySettingsForm({
 }) {
   const [state, formAction, pending] = useActionState(updateCompanyAction, initialState);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoPreviewRef = useRef<string | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
   const s = settings ?? {};
+
+  useEffect(() => {
+    return () => {
+      if (logoPreviewRef.current) URL.revokeObjectURL(logoPreviewRef.current);
+    };
+  }, []);
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    setLogoError(null);
+
+    if (logoPreviewRef.current) {
+      URL.revokeObjectURL(logoPreviewRef.current);
+      logoPreviewRef.current = null;
+    }
+    setLogoPreview(null);
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > MAX_LOGO_SIZE) {
+      setLogoError("Le logo ne doit pas dépasser 5 Mo.");
+      e.target.value = "";
+      return;
+    }
+
+    if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+      setLogoError("Format non autorisé. Utilisez PNG, JPG ou WEBP.");
+      e.target.value = "";
+      return;
+    }
+
     if (file) {
-      setLogoPreview(URL.createObjectURL(file));
+      const previewUrl = URL.createObjectURL(file);
+      logoPreviewRef.current = previewUrl;
+      setLogoPreview(previewUrl);
+    }
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const file = logoInputRef.current?.files?.[0];
+
+    if (!file) {
+      setLogoError(null);
+      return;
+    }
+
+    if (file.size > MAX_LOGO_SIZE) {
+      event.preventDefault();
+      setLogoError("Le logo ne doit pas dépasser 5 Mo.");
+      return;
+    }
+
+    if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+      event.preventDefault();
+      setLogoError("Format non autorisé. Utilisez PNG, JPG ou WEBP.");
     }
   }
 
@@ -42,13 +99,22 @@ export function CompanySettingsForm({
   }
 
   return (
-    <form action={formAction}>
+    <form action={formAction} onSubmit={handleSubmit}>
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Logo</h2>
         </CardHeader>
         <CardContent>
           <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 transition hover:border-slate-300">
+            <input
+              ref={logoInputRef}
+              id="company-logo"
+              name="logo"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleLogoChange}
+            />
             {logoPreview || currentLogo ? (
               <div className="flex flex-col items-center gap-4">
                 <div className="relative h-24 w-24 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -59,36 +125,25 @@ export function CompanySettingsForm({
                     className="h-full w-full object-contain p-2"
                   />
                 </div>
-                <label className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
+                <label htmlFor="company-logo" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
                   Changer le logo
-                  <input
-                    name="logo"
-                    type="file"
-                    accept=".png,.jpg,.jpeg,.webp"
-                    className="hidden"
-                    onChange={handleLogoChange}
-                  />
                 </label>
-                <p className="text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo</p>
+                <p className="text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo. Utilisez de préférence un logo inférieur à 1 Mo.</p>
               </div>
             ) : (
-              <label className="flex cursor-pointer flex-col items-center gap-3">
+              <label htmlFor="company-logo" className="flex cursor-pointer flex-col items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                   <Upload className="h-5 w-5" />
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium text-slate-700">Ajouter un logo</p>
-                  <p className="mt-1 text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo</p>
+                  <p className="mt-1 text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo. Idéalement moins de 1 Mo.</p>
                 </div>
-                <input
-                  name="logo"
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp"
-                  className="hidden"
-                  onChange={handleLogoChange}
-                />
               </label>
             )}
+            {logoError ? (
+              <p className="mt-3 text-center text-xs text-red-600">{logoError}</p>
+            ) : null}
           </div>
         </CardContent>
       </Card>
@@ -194,7 +249,7 @@ export function CompanySettingsForm({
       )}
 
       <div className="mt-6 flex justify-end">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || Boolean(logoError)}>
           {pending ? "Enregistrement..." : "Enregistrer les modifications"}
         </Button>
       </div>

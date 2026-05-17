@@ -3,13 +3,21 @@ import { Logo } from "@/components/brand/Logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EntrepriseForm } from "@/components/auth/entreprise-form";
 import { getUserOnboardingStatus } from "@/lib/saas";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function EntreprisePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?next=/onboarding/entreprise");
+  }
+
   const status = await getUserOnboardingStatus();
 
   // Not authenticated → redirect to login
   if (status.nextPath === "/login") {
-    redirect("/login");
+    redirect("/login?next=/onboarding/entreprise");
   }
 
   // Already has an organization → go to correct next step
@@ -31,7 +39,7 @@ export default async function EntreprisePage() {
           <p className="mt-1 text-sm text-[var(--muted)]">Ces informations sont modifiables plus tard dans les paramètres.</p>
         </CardHeader>
         <CardContent>
-          <EntrepriseForm />
+          <EntrepriseForm initialEmail={user.email ?? ""} />
         </CardContent>
       </Card>
     </main>

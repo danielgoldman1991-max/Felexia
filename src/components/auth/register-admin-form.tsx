@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { registerAdminAction, type RegisterAdminState } from "@/lib/actions/register-admin";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-
-const initialState: RegisterAdminState = { error: null };
 
 function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; error?: string }) {
   return (
@@ -22,14 +20,117 @@ function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ cl
 }
 
 export function RegisterAdminForm() {
-  const [state, formAction, pending] = useActionState(registerAdminAction, initialState);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+    setFieldErrors({});
+
+    const formData = new FormData(e.currentTarget);
+    const firstName = String(formData.get("firstName") ?? "").trim();
+    const lastName = String(formData.get("lastName") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
+    const password = String(formData.get("password") ?? "");
+    const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+    const errors: Record<string, string> = {};
+    if (!firstName) errors.firstName = "Prénom requis";
+    if (!lastName) errors.lastName = "Nom requis";
+    if (!email || !email.includes("@")) errors.email = "Email valide requis";
+    if (!password || password.length < 8) errors.password = "Minimum 8 caractères";
+    if (!confirmPassword) errors.confirmPassword = "Veuillez confirmer le mot de passe.";
+    if (password && confirmPassword && password !== confirmPassword) {
+      errors.confirmPassword = "Les mots de passe ne correspondent pas.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setPending(false);
+      return;
+    }
+
+    const supabase = createClient();
+
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: `${firstName} ${lastName}`,
+        },
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      setPending(false);
+      return;
+    }
+
+    if (!signUpData.user) {
+      setError("Impossible de créer le compte utilisateur.");
+      setPending(false);
+      return;
+    }
+
+    let hasSession = Boolean(signUpData.session);
+
+    if (!hasSession) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError || !signInData.session) {
+        setError("Compte créé. Veuillez confirmer votre email puis vous connecter pour créer votre entreprise.");
+        setPending(false);
+        window.location.assign("/login?next=/onboarding/entreprise");
+        return;
+      }
+
+      hasSession = true;
+    }
+
+    if (hasSession) {
+      await supabase.auth.getSession();
+    }
+
+    // Create profile via server action
+    try {
+      const response = await fetch("/api/auth/create-profile", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          fullName: `${firstName} ${lastName}`,
+        }),
+      });
+
+      if (!response.ok) {
+        setError("Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer.");
+        setPending(false);
+        return;
+      }
+    } catch {
+      setError("Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer.");
+      setPending(false);
+      return;
+    }
+
+    window.location.assign("/onboarding/entreprise");
+  }
+
   return (
-    <form action={formAction} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field icon={User} error={state.fieldErrors?.firstName}>
+          <Field icon={User} error={fieldErrors.firstName}>
             <input
               name="firstName"
               placeholder="Prénom *"
@@ -38,7 +139,7 @@ export function RegisterAdminForm() {
               required
             />
           </Field>
-          <Field icon={User} error={state.fieldErrors?.lastName}>
+          <Field icon={User} error={fieldErrors.lastName}>
             <input
               name="lastName"
               placeholder="Nom *"
@@ -48,7 +149,7 @@ export function RegisterAdminForm() {
             />
           </Field>
         </div>
-        <Field icon={Mail} error={state.fieldErrors?.email}>
+        <Field icon={Mail} error={fieldErrors.email}>
           <input
             name="email"
             type="email"
@@ -59,7 +160,7 @@ export function RegisterAdminForm() {
           />
         </Field>
         <p className="-mt-2 text-xs text-slate-400">Votre email servira de login pour accéder à Felexia.</p>
-        <Field icon={Lock} error={state.fieldErrors?.password}>
+        <Field icon={Lock} error={fieldErrors.password}>
           <div className="relative">
             <input
               name="password"
@@ -81,23 +182,38 @@ export function RegisterAdminForm() {
           </div>
         </Field>
         <p className="-mt-2 text-xs text-slate-400">Minimum 8 caractères.</p>
+        <Field icon={Lock} error={fieldErrors.confirmPassword}>
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showPassword ? "text" : "password"}
+              placeholder="Confirmation du mot de passe *"
+              defaultValue=""
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              required
+              minLength={8}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
+        </Field>
       </div>
 
-      {state.error && (
+      {error && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
-          {state.error}
+          {error}
         </p>
       )}
 
       <Button type="submit" disabled={pending} className="h-12 w-full rounded-xl text-base font-semibold">
         {pending ? "Création en cours..." : "Créer mon compte et continuer"}
       </Button>
-
-      {state.success && (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
-          {state.success}
-        </p>
-      )}
 
       <div className="flex items-center justify-center gap-6 text-xs text-slate-400">
         <span className="flex items-center gap-1.5">
