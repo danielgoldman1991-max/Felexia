@@ -60,9 +60,19 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
   });
   const cities = useMemo(() => getCitiesForCountry(country), [country]);
 
-  const [customerCategoryValue, setCustomerCategoryValue] = useState(
-    thirdParty?.customer_category_id ?? "",
-  );
+  const defaultCustomerCategory = useMemo(() => {
+    if (mode === "edit" || thirdParty?.customer_category_id) return thirdParty?.customer_category_id ?? "";
+    if (initialType === "prospect") {
+      return customerCategories.find((c) => c.name === "Prospect")?.id ?? "";
+    }
+    if (initialType === "customer") {
+      return customerCategories.find((c) => c.name === "Client professionnel")?.id ??
+        customerCategories.find((c) => c.is_default)?.id ?? "";
+    }
+    return "";
+  }, [mode, thirdParty, initialType, customerCategories]);
+
+  const [customerCategoryValue, setCustomerCategoryValue] = useState(defaultCustomerCategory);
 
   const toggle = (type: ThirdPartyKind) => {
     setTypes((current) =>

@@ -4,7 +4,8 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
 import { AccountsTable, ChartOfAccountFilters, PaginationBar } from "@/components/accounting/accounts-table";
-import { listChartOfAccounts } from "@/lib/accounting";
+import { ensureAccountingBaseSetup, listChartOfAccounts } from "@/lib/accounting";
+import { requireActiveWorkspace } from "@/lib/auth";
 import type { ChartOfAccountFilters as Filters } from "@/lib/accounting-types";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,9 @@ function parseFilters(sp: URLSearchParams): Filters {
 }
 
 export default async function ChartOfAccountsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const workspace = await requireActiveWorkspace();
+  await ensureAccountingBaseSetup(workspace.organization.id);
+
   const params = await searchParams;
   const sp = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {

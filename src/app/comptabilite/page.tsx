@@ -3,8 +3,13 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { listAccountingJournals, listAccountingAccounts, listAccountingEntries } from "@/lib/accounting-actions";
+import { ensureAccountingBaseSetup } from "@/lib/accounting";
+import { requireActiveWorkspace } from "@/lib/auth";
 
 export default async function AccountingPage() {
+  const workspace = await requireActiveWorkspace();
+  await ensureAccountingBaseSetup(workspace.organization.id);
+
   const [journalsResult, accountsResult, entriesResult] = await Promise.all([
     listAccountingJournals(),
     listAccountingAccounts(),

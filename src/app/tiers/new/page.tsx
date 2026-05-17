@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { ThirdPartyForm } from "@/components/tiers/third-party-form";
 import { createThirdParty } from "@/lib/third-party-actions";
 import { listCustomerCategories } from "@/lib/customer-categories";
+import { ensureCustomerCategories } from "@/lib/actions/ensure-reference-data";
 import type { ThirdPartyKind } from "@/lib/third-party-types";
 
 export default async function NewTierPage({
@@ -16,6 +17,7 @@ export default async function NewTierPage({
     ? (rawType as ThirdPartyKind)
     : undefined;
 
+  await ensureCustomerCategories();
   const customerCategories = await listCustomerCategories();
 
   return (

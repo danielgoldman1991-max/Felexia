@@ -38,11 +38,28 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
   const [type, setType] = useState<ProductType>(initialType ?? (product?.type as ProductType) ?? "product");
   const [catList, setCatList] = useState(categories);
   const [unitList, setUnitList] = useState(units);
-  const [taxRateId, setTaxRateId] = useState(() => product?.tax_rate_id ?? taxRates.find((t) => t.is_default)?.id ?? "");
+  const [taxRateId, setTaxRateId] = useState(() => product?.tax_rate_id ?? taxRates.find((t) => t.is_default)?.id ?? taxRates.find((t) => Number(t.rate) === 20)?.id ?? taxRates[0]?.id ?? "");
   const [purchasePrice, setPurchasePrice] = useState(product?.purchase_price_ht ?? 0);
   const [salePrice, setSalePrice] = useState(product?.sale_price_ht ?? 0);
-  const [categoryId, setCategoryId] = useState(product?.category_id ?? "");
-  const [unitId, setUnitId] = useState(product?.unit_id ?? "");
+
+  const defaultCategoryId = useMemo(() => {
+    if (mode === "edit" || product?.category_id) return product?.category_id ?? "";
+    const targetType = initialType ?? "product";
+    if (targetType === "service") {
+      return categories.find((c) => c.name === "Services")?.id ??
+        categories.find((c) => c.type === "service")?.id ?? "";
+    }
+    return categories.find((c) => c.name === "Marchandises")?.id ??
+      categories.find((c) => c.type === "product")?.id ?? "";
+  }, [mode, product, initialType, categories]);
+
+  const defaultUnitId = useMemo(() => {
+    if (mode === "edit" || product?.unit_id) return product?.unit_id ?? "";
+    return units.find((u) => u.symbol === "U")?.id ?? units[0]?.id ?? "";
+  }, [mode, product, units]);
+
+  const [categoryId, setCategoryId] = useState(defaultCategoryId);
+  const [unitId, setUnitId] = useState(defaultUnitId);
 
   const selectedTaxRate = useMemo(
     () => taxRates.find((t) => t.id === taxRateId),

@@ -61,7 +61,18 @@ export async function quickCreateProduct(formData: FormData): Promise<{ success:
   if (!name) return { success: false, error: "Le nom est obligatoire." };
 
   const type = String(formData.get("type") ?? "product") as ProductType;
-  const taxRateId = String(formData.get("tax_rate_id") ?? "").trim() || null;
+  let taxRateId = String(formData.get("tax_rate_id") ?? "").trim() || null;
+  if (!taxRateId) {
+    const { data: defaultTax } = await supabase
+      .from("tax_rates")
+      .select("id")
+      .is("organization_id", null)
+      .eq("status", "active")
+      .eq("is_system", true)
+      .eq("code", "VAT_20")
+      .maybeSingle();
+    taxRateId = defaultTax?.id ?? null;
+  }
   let salePriceTtc = 0;
 
   if (taxRateId) {

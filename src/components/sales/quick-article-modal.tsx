@@ -23,7 +23,7 @@ export function QuickArticleModal({ open, onClose, onCreated, categories, units,
   const [categoryId, setCategoryId] = useState("");
   const [unitId, setUnitId] = useState("");
   const [salePriceHt, setSalePriceHt] = useState(0);
-  const [taxRateId, setTaxRateId] = useState(taxRates.find((t) => t.is_default)?.id ?? "");
+  const [taxRateId, setTaxRateId] = useState(taxRates.find((t) => t.is_default)?.id ?? taxRates.find((t) => Number(t.rate) === 20)?.id ?? taxRates[0]?.id ?? "");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export function QuickArticleModal({ open, onClose, onCreated, categories, units,
     setCategoryId("");
     setUnitId("");
     setSalePriceHt(0);
-    setTaxRateId(taxRates.find((t) => t.is_default)?.id ?? "");
+    setTaxRateId(taxRates.find((t) => t.is_default)?.id ?? taxRates.find((t) => Number(t.rate) === 20)?.id ?? taxRates[0]?.id ?? "");
     setDescription("");
     setError(null);
     onClose();

@@ -25,6 +25,46 @@ export type AccountingLine = {
   label: string;
 };
 
+export const DEFAULT_CHART_OF_ACCOUNTS = [
+  { code: "1111", name: "Capital social", type: "equity" },
+  { code: "1191", name: "Resultat net de l'exercice", type: "equity" },
+  { code: "2111", name: "Frais preliminaires", type: "asset" },
+  { code: "2332", name: "Materiel de transport", type: "asset" },
+  { code: "2355", name: "Materiel informatique", type: "asset" },
+  { code: "3111", name: "Marchandises", type: "asset" },
+  { code: "3421", name: "Clients", type: "third_party" },
+  { code: "3455", name: "Etat - TVA recuperable", type: "tax" },
+  { code: "3488", name: "Divers debiteurs", type: "asset" },
+  { code: "4411", name: "Fournisseurs", type: "third_party" },
+  { code: "4455", name: "Etat - TVA facturee", type: "tax" },
+  { code: "4488", name: "Divers crediteurs", type: "liability" },
+  { code: "4501", name: "Etat - Impots et taxes", type: "liability" },
+  { code: "5141", name: "Banques", type: "treasury" },
+  { code: "5161", name: "Caisses", type: "treasury" },
+  { code: "5520", name: "Credit de tresorerie", type: "liability" },
+  { code: "6111", name: "Achats de marchandises", type: "expense" },
+  { code: "6122", name: "Achats consommes / services", type: "expense" },
+  { code: "6147", name: "Services bancaires", type: "expense" },
+  { code: "6156", name: "Honoraires", type: "expense" },
+  { code: "6161", name: "Impots et taxes", type: "expense" },
+  { code: "6171", name: "Charges de personnel", type: "expense" },
+  { code: "6311", name: "Interets des emprunts", type: "expense" },
+  { code: "6588", name: "Autres charges diverses", type: "expense" },
+  { code: "7111", name: "Ventes de marchandises", type: "revenue" },
+  { code: "7121", name: "Ventes de biens et services produits", type: "revenue" },
+  { code: "7124", name: "Prestations de services", type: "revenue" },
+  { code: "7381", name: "Interets et produits assimiles", type: "revenue" },
+  { code: "7588", name: "Autres produits divers", type: "revenue" },
+] as const;
+
+export const DEFAULT_ACCOUNTING_JOURNALS = [
+  { code: "VE", name: "Journal des ventes", type: "sales", description: "Ecritures de ventes et facturation client" },
+  { code: "AC", name: "Journal des achats", type: "purchases", description: "Ecritures d'achats et facturation fournisseur" },
+  { code: "BQ", name: "Journal banque", type: "bank", description: "Operations bancaires" },
+  { code: "CA", name: "Journal caisse", type: "cash", description: "Operations de caisse" },
+  { code: "OD", name: "Operations diverses", type: "od", description: "Ecritures diverses et corrections" },
+] as const;
+
 function round2(value: number) {
   return Math.round(value * 100) / 100;
 }
@@ -488,14 +528,13 @@ export async function getOrCreateAccountId(
 }
 
 export async function ensureAccountingBaseSetup(organizationId: string) {
-  const requiredAccounts = ["3421", "4411", "7111", "7124", "6111", "6122", "4455", "34552", "5141", "5161"];
-  const results = await Promise.all(
-    requiredAccounts.map((code) => getAccountByNumber(organizationId, code)),
-  );
-  const missing = requiredAccounts.filter((_, i) => !results[i]);
-  if (missing.length > 0) {
-    await Promise.all(missing.map((code) => getOrCreateAccountId(organizationId, code)));
-  }
+  const [accounts, journals, settings] = await Promise.all([
+    ensureDefaultChartOfAccounts(organizationId),
+    ensureDefaultAccountingJournals(organizationId),
+    ensureAccountingSettings(organizationId),
+  ]);
+
+  return { accounts, journals, settings };
 }
 
 function padNumber(n: number, width: number) {
@@ -854,47 +893,13 @@ export async function isAccountUsedInEntries(accountId: string): Promise<boolean
 }
 
 export async function ensureDefaultChartOfAccounts(organizationId: string) {
-  const DEFAULTS = [
-    { code: "1111", name: "Capital social", type: "equity" as const },
-    { code: "1121", name: "Reserves legales", type: "equity" as const },
-    { code: "2111", name: "Frais de constitution", type: "asset" as const },
-    { code: "2121", name: "Immobilisations incorporelles", type: "asset" as const },
-    { code: "2131", name: "Immobilisations corporelles", type: "asset" as const },
-    { code: "2341", name: "Immobilisations financieres", type: "asset" as const },
-    { code: "3111", name: "Marchandises", type: "asset" as const },
-    { code: "3121", name: "Matieres premieres", type: "asset" as const },
-    { code: "3421", name: "Clients", type: "third_party" as const },
-    { code: "3424", name: "Clients - Effets a recevoir", type: "third_party" as const },
-    { code: "3455", name: "Etat - TVA recuperable", type: "tax" as const },
-    { code: "34552", name: "Etat - TVA recuperable sur charges", type: "tax" as const },
-    { code: "3488", name: "Charges constatees d'avance", type: "asset" as const },
-    { code: "4411", name: "Fournisseurs", type: "third_party" as const },
-    { code: "4414", name: "Fournisseurs - Effets a payer", type: "liability" as const },
-    { code: "4455", name: "Etat - TVA facturee", type: "tax" as const },
-    { code: "4488", name: "Produits constates d'avance", type: "liability" as const },
-    { code: "5141", name: "Banques", type: "treasury" as const },
-    { code: "5161", name: "Caisses", type: "treasury" as const },
-    { code: "6111", name: "Achats de marchandises", type: "expense" as const },
-    { code: "6122", name: "Achats consommes de matieres et fournitures", type: "expense" as const },
-    { code: "6147", name: "Services bancaires", type: "expense" as const },
-    { code: "6156", name: "Honoraires", type: "expense" as const },
-    { code: "6181", name: "Frais postaux et telecommunications", type: "expense" as const },
-    { code: "6311", name: "Salaires et appointements", type: "expense" as const },
-    { code: "6411", name: "Charges sociales", type: "expense" as const },
-    { code: "6588", name: "Autres charges diverses", type: "expense" as const },
-    { code: "7111", name: "Ventes de marchandises", type: "revenue" as const },
-    { code: "7121", name: "Ventes de biens et services produits", type: "revenue" as const },
-    { code: "7124", name: "Prestations de services", type: "revenue" as const },
-    { code: "7588", name: "Autres produits divers", type: "revenue" as const },
-  ];
-
   const supabase = await createClient();
   const { data: existing } = await supabase
     .from("accounting_accounts")
     .select("code")
     .eq("organization_id", organizationId);
   const existingCodes = new Set((existing ?? []).map((a) => a.code as string));
-  const missing = DEFAULTS.filter((d) => !existingCodes.has(d.code));
+  const missing = DEFAULT_CHART_OF_ACCOUNTS.filter((d) => !existingCodes.has(d.code));
 
   if (missing.length > 0) {
     const { error } = await supabase.from("accounting_accounts").insert(
@@ -904,13 +909,74 @@ export async function ensureDefaultChartOfAccounts(organizationId: string) {
         name: d.name,
         class_number: d.code.charAt(0),
         type: d.type,
+        is_active: true,
+        is_movement_allowed: true,
+        is_auxiliary_required: false,
+        is_auxiliary: false,
         is_system: true,
       })),
     );
     if (error) throw new Error(`Erreur lors de la creation des comptes par defaut: ${error.message}`);
   }
 
-  return { created: missing.length, total: DEFAULTS.length };
+  return { created: missing.length, existing: existingCodes.size, total: DEFAULT_CHART_OF_ACCOUNTS.length };
+}
+
+export async function ensureDefaultAccountingJournals(organizationId: string) {
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("accounting_journals")
+    .select("code")
+    .eq("organization_id", organizationId);
+  const existingCodes = new Set((existing ?? []).map((journal) => journal.code as string));
+  const missing = DEFAULT_ACCOUNTING_JOURNALS.filter((journal) => !existingCodes.has(journal.code));
+
+  if (missing.length > 0) {
+    const { error } = await supabase.from("accounting_journals").insert(
+      missing.map((journal) => ({
+        organization_id: organizationId,
+        code: journal.code,
+        name: journal.name,
+        type: journal.type,
+        description: journal.description,
+        is_active: true,
+      })),
+    );
+    if (error) throw new Error(`Erreur lors de la creation des journaux par defaut: ${error.message}`);
+  }
+
+  return { created: missing.length, existing: existingCodes.size, total: DEFAULT_ACCOUNTING_JOURNALS.length };
+}
+
+export async function ensureAccountingSettings(organizationId: string) {
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("accounting_settings")
+    .select("organization_id")
+    .eq("organization_id", organizationId)
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) return { created: 0, skipped: true };
+
+  const payload = {
+    organization_id: organizationId,
+    sales_journal_code: "VE",
+    purchases_journal_code: "AC",
+    bank_journal_code: "BQ",
+    cash_journal_code: "CA",
+    od_journal_code: "OD",
+  };
+
+  const { error } = await supabase
+    .from("accounting_settings")
+    .insert(payload);
+
+  if (error) {
+    return { created: 0, skipped: true, error: error.message };
+  }
+
+  return { created: 1, skipped: false };
 }
 
 function getNextPeriod(): string {

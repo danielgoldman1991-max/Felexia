@@ -3,6 +3,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { createProduct } from "@/lib/product-actions";
 import { listProductCategories, listTaxRates, listUnits } from "@/lib/products";
+import { ensureProductCategories, ensureUnits } from "@/lib/actions/ensure-reference-data";
 
 export default async function NewArticlePage({
   searchParams,
@@ -13,6 +14,7 @@ export default async function NewArticlePage({
   const rawType = Array.isArray(params.type) ? params.type[0] : params.type;
   const initialType = rawType === "product" || rawType === "service" ? rawType : undefined;
 
+  await Promise.all([ensureProductCategories(), ensureUnits()]);
   const [categories, units, taxRates] = await Promise.all([
     listProductCategories(),
     listUnits(),

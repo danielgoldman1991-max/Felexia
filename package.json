@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ensure:accounting-defaults": "node --experimental-strip-types scripts/ensure-accounting-defaults-all-organizations.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

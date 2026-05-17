@@ -17,6 +17,67 @@ function text(formData: FormData, key: string) {
   return value === "" ? null : value;
 }
 
+async function resolveCategoryId(type: ProductType, organizationId: string): Promise<string | null> {
+  const defaultName = type === "service" ? "Services" : "Marchandises";
+  const fallbackName = type === "service" ? "Autre" : "Marchandises";
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("product_categories")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("name", defaultName)
+    .is("archived_at", null)
+    .maybeSingle();
+
+  if (data) return data.id;
+
+  const { data: fallback } = await supabase
+    .from("product_categories")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("name", fallbackName)
+    .is("archived_at", null)
+    .maybeSingle();
+
+  if (fallback) return fallback.id;
+
+  const { data: anyCat } = await supabase
+    .from("product_categories")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .is("archived_at", null)
+    .limit(1)
+    .maybeSingle();
+
+  return anyCat?.id ?? null;
+}
+
+async function resolveTaxRateId(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tax_rates")
+    .select("id")
+    .is("organization_id", null)
+    .eq("status", "active")
+    .eq("is_system", true)
+    .eq("code", "VAT_20")
+    .maybeSingle();
+
+  if (data) return data.id;
+
+  const { data: first } = await supabase
+    .from("tax_rates")
+    .select("id")
+    .is("organization_id", null)
+    .eq("status", "active")
+    .eq("is_system", true)
+    .limit(1)
+    .maybeSingle();
+
+  return first?.id ?? null;
+}
+
 function numberValue(formData: FormData, key: string) {
   const raw = text(formData, key);
   if (!raw) return null;
@@ -62,7 +123,10 @@ export async function createProduct(
   if (minStock < 0) return { success: false, error: "Le stock minimum doit etre positif." };
   if (currentStock < 0) return { success: false, error: "Le stock actuel doit etre positif." };
 
-  const taxRateId = text(formData, "tax_rate_id");
+  let taxRateId = text(formData, "tax_rate_id");
+  if (!taxRateId) {
+    taxRateId = await resolveTaxRateId();
+  }
   let salePriceTtc = salePriceHt;
   let marginAmount = 0;
   let marginRate = 0;
@@ -82,6 +146,11 @@ export async function createProduct(
   marginAmount = salePriceHt - purchasePriceHt;
   marginRate = salePriceHt > 0 ? (marginAmount / salePriceHt) * 100 : 0;
 
+  const rawCategoryId = text(formData, "category_id");
+  const categoryId = (!rawCategoryId || rawCategoryId === "-")
+    ? await resolveCategoryId(type, workspace.organization.id)
+    : rawCategoryId;
+
   const supabase = await createClient();
   const { error } = await supabase.from("products").insert({
     organization_id: workspace.organization.id,
@@ -90,7 +159,7 @@ export async function createProduct(
     barcode: text(formData, "barcode"),
     name,
     description: text(formData, "description"),
-    category_id: text(formData, "category_id"),
+    category_id: categoryId,
     unit_id: text(formData, "unit_id"),
     tax_rate_id: taxRateId,
     purchase_price_ht: purchasePriceHt,
@@ -146,7 +215,10 @@ export async function updateProduct(
     return { success: false, error: "La remise doit etre comprise entre 0 et 100." };
   }
 
-  const taxRateId = text(formData, "tax_rate_id");
+  let taxRateId = text(formData, "tax_rate_id");
+  if (!taxRateId) {
+    taxRateId = await resolveTaxRateId();
+  }
   let salePriceTtc = salePriceHt;
 
   if (taxRateId) {
@@ -164,6 +236,11 @@ export async function updateProduct(
   const marginAmount = salePriceHt - purchasePriceHt;
   const marginRate = salePriceHt > 0 ? (marginAmount / salePriceHt) * 100 : 0;
 
+  const rawCategoryId = text(formData, "category_id");
+  const categoryId = (!rawCategoryId || rawCategoryId === "-")
+    ? await resolveCategoryId(type, workspace.organization.id)
+    : rawCategoryId;
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("products")
@@ -173,7 +250,7 @@ export async function updateProduct(
       barcode: text(formData, "barcode"),
       name,
       description: text(formData, "description"),
-      category_id: text(formData, "category_id"),
+      category_id: categoryId,
       unit_id: text(formData, "unit_id"),
       tax_rate_id: taxRateId,
       purchase_price_ht: purchasePriceHt,

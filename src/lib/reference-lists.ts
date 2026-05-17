@@ -1,0 +1,48 @@
+export const DEFAULT_CUSTOMER_CATEGORIES = [
+  { name: "Prospect", description: "Prospect non qualifie", is_default: false },
+  { name: "Client particulier", description: "Client particulier / B2C", is_default: false },
+  { name: "Client professionnel", description: "Client professionnel / B2B", is_default: true },
+  { name: "Client revendeur", description: "Client revendeur / distributeur", is_default: false },
+  { name: "Client grand compte", description: "Grand compte / entreprise", is_default: false },
+  { name: "Client administration", description: "Administration publique", is_default: false },
+  { name: "Client association", description: "Association / ONG", is_default: false },
+  { name: "Autre", description: "Autre categorie client", is_default: false },
+];
+
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  { code: "MAR", name: "Marchandises", description: "Marchandises destinees a la revente", type: "product" as const },
+  { code: "PF", name: "Produits finis", description: "Produits finis", type: "product" as const },
+  { code: "MP", name: "Matières premières", description: "Matières premières", type: "product" as const },
+  { code: "CON", name: "Consommables", description: "Consommables", type: "product" as const },
+  { code: "PDR", name: "Pièces détachées", description: "Pièces détachées", type: "product" as const },
+  { code: "FDB", name: "Fournitures bureau", description: "Fournitures de bureau", type: "product" as const },
+  { code: "INF", name: "Matériel informatique", description: "Matériel informatique", type: "product" as const },
+  { code: "EQP", name: "Équipement", description: "Équipement", type: "product" as const },
+  { code: "SRV", name: "Services", description: "Prestations de services", type: "service" as const },
+  { code: "PST", name: "Prestations", description: "Prestations diverses", type: "service" as const },
+  { code: "MNT", name: "Maintenance", description: "Maintenance", type: "service" as const },
+  { code: "TRP", name: "Transport", description: "Transport", type: "service" as const },
+  { code: "LOC", name: "Location", description: "Location", type: "service" as const },
+  { code: "ABO", name: "Abonnement", description: "Abonnement", type: "service" as const },
+  { code: "AUT", name: "Autre", description: "Autre categorie", type: "mixed" as const },
+];
+
+export const DEFAULT_UNITS = [
+  { name: "Unité", symbol: "U", description: "Unité standard" },
+  { name: "Heure", symbol: "h", description: "Heure de travail" },
+  { name: "Jour", symbol: "j", description: "Jour" },
+  { name: "Mois", symbol: "mois", description: "Mois" },
+  { name: "Forfait", symbol: "forfait", description: "Forfait" },
+  { name: "Kilogramme", symbol: "kg", description: "Kilogramme" },
+  { name: "Gramme", symbol: "g", description: "Gramme" },
+  { name: "Litre", symbol: "L", description: "Litre" },
+  { name: "Mètre", symbol: "m", description: "Mètre" },
+  { name: "Mètre carré", symbol: "m²", description: "Mètre carré" },
+  { name: "Mètre cube", symbol: "m³", description: "Mètre cube" },
+  { name: "Boîte", symbol: "boîte", description: "Boîte" },
+  { name: "Carton", symbol: "carton", description: "Carton" },
+  { name: "Pack", symbol: "pack", description: "Pack" },
+  { name: "Lot", symbol: "lot", description: "Lot" },
+  { name: "Paire", symbol: "paire", description: "Paire" },
+  { name: "Pièce", symbol: "pièce", description: "Pièce" },
+];

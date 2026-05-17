@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasServiceRoleKey } from "@/lib/env";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
+import { ensureAccountingBaseSetup } from "@/lib/accounting";
 import { formatMoroccanPhone, isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
 
@@ -131,6 +132,12 @@ export async function createEntrepriseAction(
       return { error: "Une colonne nécessaire à la finalisation de l’entreprise est absente. Veuillez appliquer les migrations Supabase puis réessayer." };
     }
     return { error: `Finalisation entreprise impossible : ${finalizeError.message}` };
+  }
+
+  try {
+    await ensureAccountingBaseSetup(orgId);
+  } catch (accountingErr) {
+    console.error("createEntreprise: accounting defaults error", accountingErr);
   }
 
   if (hasServiceRoleKey()) {

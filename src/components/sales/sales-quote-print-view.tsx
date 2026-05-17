@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { formatDate, formatMoney, formatNumber } from "@/lib/format";
 import { hasDiscount, SALES_STATUS_LABELS } from "@/lib/sales-types";
 import type { SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
 import type { OrganizationIdentity } from "@/lib/company-identity";
+import { PrintOrganizationLogo } from "@/components/shared/print-organization-logo";
 
 function ClientBlock({ document }: { document: SalesDocumentRecord }) {
   const clientLines = [
@@ -69,15 +69,7 @@ export function SalesQuotePrintView({
     <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
       <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
         <div className="flex max-w-[55%] items-start gap-4">
-          {identity.logoUrl ? (
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
-              <Image src={identity.logoUrl} alt="Logo" fill className="object-contain p-1" priority />
-            </div>
-          ) : (
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
-              <span className="text-2xl font-bold text-[#2d2490]">{identity.name.charAt(0)}</span>
-            </div>
-          )}
+          <PrintOrganizationLogo identity={identity} />
           <div>
             <p className="text-xl font-bold text-[#2d2490]">{identity.name || "Mon Entreprise"}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">

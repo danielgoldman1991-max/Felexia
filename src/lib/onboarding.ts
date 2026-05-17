@@ -18,7 +18,7 @@ export type OnboardingChecklistStep = {
 export type OnboardingChecklist = {
   organizationName: string;
   completedCount: number;
-  totalCount: 5;
+  totalCount: number;
   progress: number;
   steps: OnboardingChecklistStep[];
 };
@@ -56,7 +56,6 @@ export async function getOnboardingChecklist(
     organization?.phone ?? companySettings?.phone,
     organization?.email ?? companySettings?.email,
   ].every(hasText);
-
   const logoCompleted = hasText(organization?.logo_url) || hasText(companySettings?.logo_url);
 
   const [
@@ -147,8 +146,8 @@ export async function getOnboardingChecklist(
       (companySettings?.legal_name as string | null | undefined) ??
       "votre entreprise",
     completedCount,
-    totalCount: 5,
-    progress: Math.round((completedCount / 5) * 100),
+    totalCount: steps.length,
+    progress: steps.length > 0 ? Math.round((completedCount / steps.length) * 100) : 0,
     steps,
   };
 }

@@ -1,66 +1,103 @@
 import { createClient } from "@/lib/supabase/service";
+import { DEFAULT_ACCOUNTING_JOURNALS, DEFAULT_CHART_OF_ACCOUNTS } from "@/lib/accounting";
+import { DEFAULT_CUSTOMER_CATEGORIES, DEFAULT_PRODUCT_CATEGORIES, DEFAULT_UNITS } from "@/lib/reference-lists";
 
 export async function initializeOrganizationDefaults(organizationId: string) {
   const svc = createClient();
 
-  // Customer categories (3 defaults)
-  await svc.from("customer_categories").upsert([
-    { organization_id: organizationId, name: "Client Comptoir", description: "Client comptoir / vente directe", is_default: true },
-    { organization_id: organizationId, name: "Particulier", description: "Client particulier", is_default: true },
-    { organization_id: organizationId, name: "Grand Compte", description: "Grand compte / entreprise", is_default: true },
-  ], { onConflict: "organization_id,name", ignoreDuplicates: true });
+  // Customer categories
+  const customerCategories = DEFAULT_CUSTOMER_CATEGORIES.map((cat) => ({
+    organization_id: organizationId,
+    name: cat.name,
+    description: cat.description,
+    is_default: cat.is_default,
+  }));
+  await svc.from("customer_categories").upsert(customerCategories, {
+    onConflict: "organization_id,name",
+    ignoreDuplicates: true,
+  });
 
-  // Item categories — new table (7 defaults)
-  await svc.from("item_categories").upsert([
-    { organization_id: organizationId, code: "PF", name: "Produits finis", description: "Produits finis" },
-    { organization_id: organizationId, code: "MP", name: "Matières premières", description: "Matières premières" },
-    { organization_id: organizationId, code: "PDR", name: "Pièces de rechange", description: "Pièces de rechange" },
-    { organization_id: organizationId, code: "CON", name: "Consommables", description: "Consommables" },
-    { organization_id: organizationId, code: "MOB", name: "Mobilier", description: "Mobilier" },
-    { organization_id: organizationId, code: "INF", name: "Matériel informatique", description: "Matériel informatique" },
-    { organization_id: organizationId, code: "FDB", name: "Fourniture de bureau", description: "Fourniture de bureau" },
-  ], { onConflict: "organization_id,code", ignoreDuplicates: true });
+  // Product categories
+  const productCategories = DEFAULT_PRODUCT_CATEGORIES.map((cat) => ({
+    organization_id: organizationId,
+    code: cat.code,
+    name: cat.name,
+    description: cat.description,
+    type: cat.type,
+    status: "active",
+  }));
+  await svc.from("product_categories").upsert(productCategories, {
+    onConflict: "organization_id,name",
+    ignoreDuplicates: true,
+  });
 
-  // Item units — new table (12 defaults)
-  await svc.from("item_units").upsert([
-    { organization_id: organizationId, code: "U", name: "Unité" },
-    { organization_id: organizationId, code: "PCS", name: "Pièce" },
-    { organization_id: organizationId, code: "KG", name: "Kilogramme" },
-    { organization_id: organizationId, code: "G", name: "Gramme" },
-    { organization_id: organizationId, code: "L", name: "Litre" },
-    { organization_id: organizationId, code: "M", name: "Mètre" },
-    { organization_id: organizationId, code: "M2", name: "Mètre carré" },
-    { organization_id: organizationId, code: "M3", name: "Mètre cube" },
-    { organization_id: organizationId, code: "H", name: "Heure" },
-    { organization_id: organizationId, code: "J", name: "Jour" },
-    { organization_id: organizationId, code: "LOT", name: "Lot" },
-    { organization_id: organizationId, code: "BOITE", name: "Boîte" },
-  ], { onConflict: "organization_id,code", ignoreDuplicates: true });
+  // Units
+  const units = DEFAULT_UNITS.map((unit) => ({
+    organization_id: organizationId,
+    name: unit.name,
+    symbol: unit.symbol,
+    description: unit.description,
+    status: "active",
+  }));
+  await svc.from("units").upsert(units, {
+    onConflict: "organization_id,symbol",
+    ignoreDuplicates: true,
+  });
 
-  // Legacy product_categories (7 defaults) — for backward compat with existing UI
-  await svc.from("product_categories").upsert([
-    { organization_id: organizationId, code: "PF", name: "Produits finis", description: "Produits finis", type: "product", status: "active" },
-    { organization_id: organizationId, code: "MP", name: "Matières premières", description: "Matières premières", type: "product", status: "active" },
-    { organization_id: organizationId, code: "PDR", name: "Pièces de rechange", description: "Pièces de rechange", type: "product", status: "active" },
-    { organization_id: organizationId, code: "CON", name: "Consommables", description: "Consommables", type: "product", status: "active" },
-    { organization_id: organizationId, code: "MOB", name: "Mobilier", description: "Mobilier", type: "product", status: "active" },
-    { organization_id: organizationId, code: "INF", name: "Matériel informatique", description: "Matériel informatique", type: "product", status: "active" },
-    { organization_id: organizationId, code: "FDB", name: "Fourniture de bureau", description: "Fourniture de bureau", type: "product", status: "active" },
-  ], { onConflict: "organization_id,name", ignoreDuplicates: true });
+  const [{ data: existingAccounts }, { data: existingJournals }] = await Promise.all([
+    svc.from("accounting_accounts").select("code").eq("organization_id", organizationId),
+    svc.from("accounting_journals").select("code").eq("organization_id", organizationId),
+  ]);
 
-  // Legacy units (12 defaults) — for backward compat with existing UI
-  await svc.from("units").upsert([
-    { organization_id: organizationId, name: "Unité", symbol: "U", status: "active" },
-    { organization_id: organizationId, name: "Pièce", symbol: "PCS", status: "active" },
-    { organization_id: organizationId, name: "Kilogramme", symbol: "KG", status: "active" },
-    { organization_id: organizationId, name: "Gramme", symbol: "G", status: "active" },
-    { organization_id: organizationId, name: "Litre", symbol: "L", status: "active" },
-    { organization_id: organizationId, name: "Mètre", symbol: "M", status: "active" },
-    { organization_id: organizationId, name: "Mètre carré", symbol: "M2", status: "active" },
-    { organization_id: organizationId, name: "Mètre cube", symbol: "M3", status: "active" },
-    { organization_id: organizationId, name: "Heure", symbol: "H", status: "active" },
-    { organization_id: organizationId, name: "Jour", symbol: "J", status: "active" },
-    { organization_id: organizationId, name: "Lot", symbol: "LOT", status: "active" },
-    { organization_id: organizationId, name: "Boîte", symbol: "BOITE", status: "active" },
-  ], { onConflict: "organization_id,symbol", ignoreDuplicates: true });
+  const existingAccountCodes = new Set((existingAccounts ?? []).map((account) => account.code as string));
+  const missingAccounts = DEFAULT_CHART_OF_ACCOUNTS.filter((account) => !existingAccountCodes.has(account.code));
+  if (missingAccounts.length > 0) {
+    await svc.from("accounting_accounts").insert(
+      missingAccounts.map((account) => ({
+        organization_id: organizationId,
+        code: account.code,
+        name: account.name,
+        class_number: account.code.charAt(0),
+        type: account.type,
+        is_active: true,
+        is_movement_allowed: true,
+        is_auxiliary_required: false,
+        is_auxiliary: false,
+        is_system: true,
+      })),
+    );
+  }
+
+  const existingJournalCodes = new Set((existingJournals ?? []).map((journal) => journal.code as string));
+  const missingJournals = DEFAULT_ACCOUNTING_JOURNALS.filter((journal) => !existingJournalCodes.has(journal.code));
+  if (missingJournals.length > 0) {
+    await svc.from("accounting_journals").insert(
+      missingJournals.map((journal) => ({
+        organization_id: organizationId,
+        code: journal.code,
+        name: journal.name,
+        type: journal.type,
+        description: journal.description,
+        is_active: true,
+      })),
+    );
+  }
+
+  const { data: existingSettings } = await svc
+    .from("accounting_settings")
+    .select("organization_id")
+    .eq("organization_id", organizationId)
+    .limit(1)
+    .maybeSingle();
+
+  if (!existingSettings) {
+    await svc.from("accounting_settings").insert({
+      organization_id: organizationId,
+      sales_journal_code: "VE",
+      purchases_journal_code: "AC",
+      bank_journal_code: "BQ",
+      cash_journal_code: "CA",
+      od_journal_code: "OD",
+    });
+  }
 }

@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { APP_BRAND } from "@/lib/brand";
 
 export type LogoProps = {
   size?: number;
@@ -7,28 +9,19 @@ export type LogoProps = {
 };
 
 export function Logo({ size = 32, withText = false, className }: LogoProps) {
+  const src = withText ? APP_BRAND.logo : APP_BRAND.icon;
+  const alt = withText ? APP_BRAND.logoAlt : APP_BRAND.name;
+
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <svg
+      <Image
+        src={src}
+        alt={alt}
         width={size}
         height={size}
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="shrink-0"
-        aria-hidden="true"
-      >
-        <circle cx="50" cy="50" r="48" fill="#000000" />
-        <polygon points="50,22 78,72 22,72" fill="#ffffff" />
-      </svg>
-      {withText ? (
-        <span
-          className="font-bold tracking-tight"
-          style={{ fontSize: Math.round(size * 0.4) }}
-        >
-          Felexia
-        </span>
-      ) : null}
+        className="shrink-0 object-contain"
+        unoptimized
+      />
     </div>
   );
 }
