@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { calculateInvoiceLine, calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import { getDeliveryNotesInvoicePreparation, listBillableDeliveryNotesByCustomer } from "@/lib/invoices";
+import { getDeliveryNotesInvoicePreparation, listBillableDeliveryNotesByCustomer, validateInvoiceSourceBillingLock } from "@/lib/invoices";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
 import type { InvoiceActionResult, InvoiceLineFormValue } from "@/lib/invoice-types";
 
@@ -152,6 +152,14 @@ async function buildInvoicePayload(formData: FormData) {
   const selectedDeliveryNoteIds = parseStringArray(formData, "selected_delivery_note_ids");
   const lineDeliveryNoteIds = Array.from(new Set(normalized.lines.map((line) => line.source_document_id).filter(Boolean))) as string[];
   const deliveryNoteIds = selectedDeliveryNoteIds.length > 0 ? selectedDeliveryNoteIds : lineDeliveryNoteIds;
+  const requestedSourceType = text(formData, "source_type") ?? "manual";
+  const sourceOrderId = text(formData, "source_order_id");
+  if ((requestedSourceType === "order" || sourceOrderId) && deliveryNoteIds.length === 0) {
+    return {
+      workspace,
+      error: "Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.",
+    };
+  }
   const deliveryValidation = await validateDeliveryNotesNotInvoiced(
     workspace.organization.id,
     deliveryNoteIds,
@@ -163,8 +171,16 @@ async function buildInvoicePayload(formData: FormData) {
     ? "grouped_delivery_notes"
     : deliveryNoteIds.length === 1
       ? "delivery_note"
-      : text(formData, "source_type") ?? "manual";
+      : requestedSourceType;
   const singleDeliveryId = deliveryNoteIds.length === 1 ? deliveryNoteIds[0] : null;
+  const sourceDeliveryId = singleDeliveryId ?? text(formData, "source_delivery_id");
+  const billingLock = await validateInvoiceSourceBillingLock(
+    workspace.organization.id,
+    sourceOrderId,
+    deliveryNoteIds.length > 0 ? deliveryNoteIds : sourceDeliveryId ? [sourceDeliveryId] : [],
+    text(formData, "id"),
+  );
+  if (billingLock.error) return { workspace, error: billingLock.error };
 
   return {
     workspace,
@@ -176,8 +192,8 @@ async function buildInvoicePayload(formData: FormData) {
       customer_id: customerId,
       source_type: sourceType,
       source_document_id: singleDeliveryId ?? text(formData, "source_document_id"),
-      source_order_id: text(formData, "source_order_id"),
-      source_delivery_id: singleDeliveryId ?? text(formData, "source_delivery_id"),
+      source_order_id: sourceOrderId,
+      source_delivery_id: sourceDeliveryId,
       invoice_date: text(formData, "invoice_date") ?? new Date().toISOString().split("T")[0],
       due_date: text(formData, "due_date"),
       payment_terms_days: Math.trunc(numberValue(formData.get("payment_terms_days"))),
@@ -315,5 +331,16 @@ export async function archiveCustomerInvoice(prev: InvoiceActionResult, formData
   redirect("/facturation/factures");
 }
 
-export const createInvoiceFromOrder = createCustomerInvoice;
+export async function createInvoiceFromOrder(
+  _prev: InvoiceActionResult,
+  _formData: FormData,
+): Promise<InvoiceActionResult> {
+  void _prev;
+  void _formData;
+  return {
+    success: false,
+    error: "Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.",
+  };
+}
+
 export const createInvoiceFromDeliveryNote = createCustomerInvoice;

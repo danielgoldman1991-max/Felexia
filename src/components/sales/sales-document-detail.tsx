@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Archive, CheckCircle2, Pencil, Printer, Receipt, Send, Truck, XCircle } from "lucide-react";
+import { AlertTriangle, Archive, CheckCircle2, Pencil, Printer, Receipt, Send, Truck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -29,6 +29,7 @@ import type { SalesActionResult, SalesDocumentLineRecord, SalesDocumentRecord } 
 import { hasDiscount, SALES_DOCUMENT_LABELS } from "@/lib/sales-types";
 import type { CustomerCreditNoteRecord } from "@/lib/credit-note-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
+import type { OrderBillingGuard } from "@/lib/invoice-types";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -107,11 +108,13 @@ export function SalesDocumentDetail({
   lines,
   returnCreditNote,
   documentFlow,
+  billingGuard,
 }: {
   document: SalesDocumentRecord;
   lines: SalesDocumentLineRecord[];
   returnCreditNote?: CustomerCreditNoteRecord | null;
   documentFlow?: DocumentFlowStep[];
+  billingGuard?: OrderBillingGuard | null;
 }) {
   const isQuote = document.document_type === "quote";
   const isOrder = document.document_type === "order";
@@ -121,6 +124,11 @@ export function SalesDocumentDetail({
   const discountPresent = !isLogisticsDocument && hasDiscount(lines);
   const title = `${SALES_DOCUMENT_LABELS[document.document_type]} ${document.document_number}`;
   const recipientLabel = recipientTypeLabel(document);
+  const directInvoice = billingGuard?.directInvoice ?? null;
+  const deliveryInvoices = billingGuard?.deliveryInvoices ?? [];
+  const firstDeliveryInvoice = deliveryInvoices[0] ?? null;
+  const hasBillingConflict = Boolean(directInvoice && deliveryInvoices.length > 0) || deliveryInvoices.length > 1;
+  const deliveryBillingBlocked = isDelivery && Boolean(directInvoice || firstDeliveryInvoice);
 
   return (
     <div className="space-y-6">
@@ -191,11 +199,6 @@ export function SalesDocumentDetail({
                 <Button variant="secondary"><Truck className="h-4 w-4" /> Creer une livraison</Button>
               </Link>
             ) : null}
-            {isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) ? (
-              <Link href={`/facturation/factures/new?sourceType=order&sourceId=${document.id}`}>
-                <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer facture</Button>
-              </Link>
-            ) : null}
             {isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
@@ -207,7 +210,7 @@ export function SalesDocumentDetail({
                 <Button variant="secondary"><Truck className="h-4 w-4" /> Creer un retour</Button>
               </Link>
             ) : null}
-            {isDelivery && ["validated", "delivered"].includes(document.status) ? (
+            {isDelivery && document.status === "validated" && !deliveryBillingBlocked ? (
               <Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}>
                 <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer facture</Button>
               </Link>
@@ -244,6 +247,60 @@ export function SalesDocumentDetail({
       />
 
       <DocumentFlowMap steps={documentFlow ?? []} />
+
+      {billingGuard?.isBlocked ? (
+        <Card className={hasBillingConflict ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}>
+          <CardContent className="flex flex-col gap-3 text-sm sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex gap-3">
+              <AlertTriangle className={`mt-0.5 h-5 w-5 shrink-0 ${hasBillingConflict ? "text-red-600" : "text-amber-600"}`} />
+              <div>
+                <p className={`font-semibold ${hasBillingConflict ? "text-red-900" : "text-amber-900"}`}>
+                  {hasBillingConflict
+                    ? "Attention : plusieurs factures sont liées à cette commande."
+                    : directInvoice
+                      ? "Facture directe historique"
+                      : "Facturation via BL terminée"}
+                </p>
+                <p className={hasBillingConflict ? "text-red-700" : "text-amber-700"}>
+                  {hasBillingConflict
+                    ? "Cette commande possède plusieurs factures liées. Vérification requise avant toute nouvelle action."
+                    : directInvoice
+                      ? `Cette commande possède une facture directe historique ${directInvoice.invoice_number}.`
+                      : firstDeliveryInvoice
+                        ? `Cette commande a déjà été facturée via BL par ${firstDeliveryInvoice.invoice_number}.`
+                        : billingGuard.reason}
+                </p>
+                {isOrder && directInvoice ? (
+                  <p className="mt-1 text-amber-700">Pour éviter une double facturation, les BL liés à cette commande ne seront pas facturables. Utilisez un avoir ou une correction comptable si cette facture est erronée.</p>
+                ) : null}
+                {isDelivery && directInvoice ? (
+                  <p className="mt-1 text-amber-700">Ce BL est rattaché à une commande déjà facturée directement. Il ne peut pas être facturé.</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {directInvoice ? (
+                <Link href={`/facturation/factures/${directInvoice.id}`}>
+                  <Button type="button" variant="secondary">Voir {directInvoice.invoice_number}</Button>
+                </Link>
+              ) : null}
+              {deliveryInvoices.map((invoice) => (
+                <Link key={invoice.id} href={`/facturation/factures/${invoice.id}`}>
+                  <Button type="button" variant="secondary">Voir {invoice.invoice_number}</Button>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) ? (
+        <Card className="border-blue-100 bg-blue-50">
+          <CardContent className="text-sm text-blue-800">
+            Pour fiabiliser la facturation, une commande doit d’abord être livrée par bon de livraison validé. La facture sera créée ensuite à partir des BL validés.
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">

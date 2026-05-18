@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ModulePage } from "@/components/erp/module-page";
 import { SalesDocumentDetail } from "@/components/sales/sales-document-detail";
 import { getSalesDocumentDetail, getSalesDocumentFlow } from "@/lib/sales";
+import { getOrderBillingGuard } from "@/lib/invoices";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,11 @@ export default async function SalesOrderDetailPage({ params }: { params: Promise
     notFound();
   }
 
+  const billingGuard = await getOrderBillingGuard(document.organization_id, document.id);
+
   return (
     <ModulePage>
-      <SalesDocumentDetail document={document} lines={lines} documentFlow={documentFlow} />
+      <SalesDocumentDetail document={document} lines={lines} documentFlow={documentFlow} billingGuard={billingGuard} />
     </ModulePage>
   );
 }

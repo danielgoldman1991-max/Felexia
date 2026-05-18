@@ -1,10 +1,10 @@
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { CustomerInvoiceForm } from "@/components/invoices/customer-invoice-form";
+import { Card, CardContent } from "@/components/ui/card";
 import { createCustomerInvoice } from "@/lib/invoice-actions";
 import {
   getDeliveryNotesInvoicePreparation,
-  getOrderInvoicePreparation,
   listBillableDeliveryNotesByCustomer,
   listInvoiceCustomers,
   listInvoiceProducts,
@@ -43,14 +43,25 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
   const initialCustomerId = params.customerId ?? "";
   const initialDeliveryNoteId = params.deliveryNoteId ?? (sourceType === "delivery_note" ? sourceId : "");
 
+  if (sourceType === "order") {
+    return (
+      <ModulePage>
+        <PageHeader title="Nouvelle facture" description="Facturation depuis bon de livraison validé uniquement." />
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="text-sm text-amber-800">
+            Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.
+          </CardContent>
+        </Card>
+      </ModulePage>
+    );
+  }
+
   const [customers, products, units, taxRates, sourcePreparation] = await Promise.all([
     listInvoiceCustomers(),
     listInvoiceProducts(),
     listInvoiceUnits(),
     listInvoiceTaxRates(),
-    sourceType === "order" && sourceId
-      ? getOrderInvoicePreparation(sourceId)
-      : initialCustomerId && initialDeliveryNoteId
+    initialCustomerId && initialDeliveryNoteId
         ? getDeliveryNotesInvoicePreparation(initialCustomerId, [initialDeliveryNoteId])
         : Promise.resolve(null),
   ]);
@@ -76,7 +87,7 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
         initialSelectedDeliveryNoteIds={initialDeliveryNoteId ? [initialDeliveryNoteId] : []}
         sourceType={sourceType}
         sourceDocumentId={orderSourceDocument?.id ?? initialDeliveryNoteId}
-        sourceOrderId={sourceType === "order" ? sourceId : orderSourceDocument?.related_order_id ?? ""}
+        sourceOrderId={orderSourceDocument?.related_order_id ?? ""}
         sourceDeliveryId={initialDeliveryNoteId}
       />
     </ModulePage>

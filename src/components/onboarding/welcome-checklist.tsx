@@ -5,17 +5,19 @@ import {
   CheckCircle2,
   Download,
   FileText,
-  ImageIcon,
+  Landmark,
+  Package,
   Users,
 } from "lucide-react";
 import type { OnboardingChecklist, OnboardingChecklistStepKey } from "@/lib/onboarding";
 
 const STEP_ICONS: Record<OnboardingChecklistStepKey, typeof Building2> = {
   company: Building2,
-  client: Users,
-  invoice: FileText,
+  prospect: Users,
+  article: Package,
+  treasury: Landmark,
+  quote: FileText,
   pdf: Download,
-  logo: ImageIcon,
 };
 
 export function WelcomeChecklist({ checklist }: { checklist: OnboardingChecklist }) {

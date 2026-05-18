@@ -197,6 +197,27 @@ export type InvoiceActionResult = {
   data?: unknown;
 };
 
+export type OrderBillingGuardInvoice = {
+  id: string;
+  invoice_number: string;
+  status: string;
+  total_ttc: number;
+};
+
+export type OrderBillingGuardDeliveryInvoice = OrderBillingGuardInvoice & {
+  delivery_id: string | null;
+  delivery_number: string | null;
+};
+
+export type OrderBillingGuard = {
+  orderId: string;
+  isBlocked: boolean;
+  reason: string | null;
+  directInvoice: OrderBillingGuardInvoice | null;
+  deliveryInvoices: OrderBillingGuardDeliveryInvoice[];
+  billableMode: "direct" | "delivery" | "none";
+};
+
 export const INVOICE_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
   validated: "Validee",

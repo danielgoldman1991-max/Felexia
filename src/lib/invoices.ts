@@ -12,6 +12,9 @@ import type {
   InvoiceLineFormValue,
   InvoiceListFilters,
   InvoiceProductOption,
+  OrderBillingGuard,
+  OrderBillingGuardDeliveryInvoice,
+  OrderBillingGuardInvoice,
 } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
@@ -389,30 +392,8 @@ async function enrichInvoiceSources(organizationId: string, invoice: CustomerInv
 }
 
 export async function listBillableOrders(): Promise<BillableOrderOption[]> {
-  const organizationId = await activeOrganizationId();
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("sales_documents")
-    .select("id, document_number, document_date, status, total_ttc, customer:customer_id(name)")
-    .eq("organization_id", organizationId)
-    .eq("document_type", "order")
-    .in("status", ["confirmed", "partially_delivered", "delivered"])
-    .is("archived_at", null)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((row) => {
-    const customer = objectValue((row as Record<string, unknown>).customer);
-    return {
-      id: row.id as string,
-      document_number: row.document_number as string,
-      customer_name: customer?.name as string | null,
-      document_date: row.document_date as string,
-      status: row.status as string,
-      total_ttc: Number(row.total_ttc ?? 0),
-    };
-  });
+  await activeOrganizationId();
+  return [];
 }
 
 export async function listBillableDeliveryNotes(): Promise<BillableDeliveryOption[]> {
@@ -423,20 +404,30 @@ export async function listBillableDeliveryNotes(): Promise<BillableDeliveryOptio
     .select("id, document_number, document_date, status, related_order_id, customer:customer_id(name)")
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
-    .in("status", ["validated", "delivered"])
+    .eq("status", "validated")
     .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(50);
 
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as Record<string, unknown>[];
+  const ids = rows.map((row) => row.id as string);
   const orderIds = Array.from(new Set(rows.map((row) => row.related_order_id).filter(Boolean))) as string[];
   const { data: orders } = orderIds.length
     ? await supabase.from("sales_documents").select("id, document_number").eq("organization_id", organizationId).in("id", orderIds)
     : { data: [] };
   const orderById = new Map((orders ?? []).map((row) => [row.id as string, row.document_number as string]));
+  const stats = await deliveryLineStats(organizationId, ids);
+  const guards = await Promise.all(
+    orderIds.map((orderId) => getOrderBillingGuard(organizationId, orderId)),
+  );
+  const guardByOrderId = new Map(guards.map((guard) => [guard.orderId, guard]));
 
-  return rows.map((row) => {
+  return rows.filter((row) => {
+    const orderId = row.related_order_id as string | null;
+    const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
+    return stat.lines_count > 0 && stat.total_quantity > 0 && (!orderId || !guardByOrderId.get(orderId)?.isBlocked);
+  }).map((row) => {
     const customer = objectValue(row.customer);
     return {
       id: row.id as string,
@@ -485,6 +476,262 @@ function mapSalesSourceDocument(row: Record<string, unknown>) {
     related_delivery_id: row.related_delivery_id as string | null,
     document_date: row.document_date as string,
   };
+}
+
+function mapGuardInvoice(row: Record<string, unknown>): OrderBillingGuardInvoice {
+  return {
+    id: row.id as string,
+    invoice_number: row.invoice_number as string,
+    status: row.status as string,
+    total_ttc: Number(row.total_ttc ?? 0),
+  };
+}
+
+function uniqueById<T extends { id: string }>(rows: T[]) {
+  return [...new Map(rows.map((row) => [row.id, row])).values()];
+}
+
+async function getOrderDeliveryRows(organizationId: string, orderId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sales_documents")
+    .select("id, document_number")
+    .eq("organization_id", organizationId)
+    .eq("document_type", "delivery_note")
+    .or(`related_order_id.eq.${orderId},source_document_id.eq.${orderId}`)
+    .is("archived_at", null);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Array<{ id: string; document_number: string }>;
+}
+
+async function getOrderLineIds(organizationId: string, orderId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("sales_document_lines")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("document_id", orderId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => row.id as string);
+}
+
+export async function getOrderBillingGuard(
+  organizationId: string,
+  orderId: string,
+  options: { excludeInvoiceId?: string | null } = {},
+): Promise<OrderBillingGuard> {
+  const supabase = await createClient();
+  const excludeInvoiceId = options.excludeInvoiceId ?? null;
+  const [orderLineIds, deliveryRows] = await Promise.all([
+    getOrderLineIds(organizationId, orderId),
+    getOrderDeliveryRows(organizationId, orderId),
+  ]);
+  const deliveryIds = deliveryRows.map((delivery) => delivery.id);
+  const deliveryNumberById = new Map(deliveryRows.map((delivery) => [delivery.id, delivery.document_number]));
+
+  const directInvoiceIds = new Set<string>();
+  const directInvoices: OrderBillingGuardInvoice[] = [];
+
+  const { data: directByHeader, error: directHeaderError } = await supabase
+    .from("customer_invoices")
+    .select("id, invoice_number, status, total_ttc")
+    .eq("organization_id", organizationId)
+    .neq("status", "cancelled")
+    .is("archived_at", null)
+    .or(`source_order_id.eq.${orderId},source_document_id.eq.${orderId}`);
+  if (directHeaderError) throw new Error(directHeaderError.message);
+
+  for (const row of (directByHeader ?? []) as Record<string, unknown>[]) {
+    const invoice = mapGuardInvoice(row);
+    if (invoice.id !== excludeInvoiceId && !directInvoiceIds.has(invoice.id)) {
+      directInvoiceIds.add(invoice.id);
+      directInvoices.push(invoice);
+    }
+  }
+
+  const { data: directLineRows, error: directLineError } = orderLineIds.length > 0
+    ? await supabase
+        .from("customer_invoice_lines")
+        .select("invoice_id")
+        .eq("organization_id", organizationId)
+        .or(`source_document_id.eq.${orderId},source_line_id.in.(${orderLineIds.join(",")})`)
+    : await supabase
+        .from("customer_invoice_lines")
+        .select("invoice_id")
+        .eq("organization_id", organizationId)
+        .eq("source_document_id", orderId);
+  if (directLineError) throw new Error(directLineError.message);
+
+  const lineInvoiceIds = Array.from(new Set((directLineRows ?? []).map((line) => line.invoice_id).filter(Boolean))) as string[];
+  const missingDirectInvoiceIds = lineInvoiceIds.filter((id) => id !== excludeInvoiceId && !directInvoiceIds.has(id));
+  if (missingDirectInvoiceIds.length > 0) {
+    const { data: lineInvoices, error } = await supabase
+      .from("customer_invoices")
+      .select("id, invoice_number, status, total_ttc")
+      .eq("organization_id", organizationId)
+      .in("id", missingDirectInvoiceIds)
+      .neq("status", "cancelled")
+      .is("archived_at", null);
+    if (error) throw new Error(error.message);
+    for (const row of (lineInvoices ?? []) as Record<string, unknown>[]) {
+      const invoice = mapGuardInvoice(row);
+      if (!directInvoiceIds.has(invoice.id)) {
+        directInvoiceIds.add(invoice.id);
+        directInvoices.push(invoice);
+      }
+    }
+  }
+
+  const deliveryInvoices: OrderBillingGuardDeliveryInvoice[] = [];
+  const deliveryInvoiceIds = new Set<string>();
+
+  if (deliveryIds.length > 0) {
+    const [{ data: bySourceDelivery, error: sourceDeliveryError }, { data: bySourceDocument, error: sourceDocumentError }, { data: lineRows, error: lineError }] = await Promise.all([
+      supabase
+        .from("customer_invoices")
+        .select("id, invoice_number, status, total_ttc, source_delivery_id, source_document_id")
+        .eq("organization_id", organizationId)
+        .in("source_delivery_id", deliveryIds)
+        .neq("status", "cancelled")
+        .is("archived_at", null),
+      supabase
+        .from("customer_invoices")
+        .select("id, invoice_number, status, total_ttc, source_delivery_id, source_document_id")
+        .eq("organization_id", organizationId)
+        .in("source_document_id", deliveryIds)
+        .neq("status", "cancelled")
+        .is("archived_at", null),
+      supabase
+        .from("customer_invoice_lines")
+        .select("invoice_id, source_document_id")
+        .eq("organization_id", organizationId)
+        .in("source_document_id", deliveryIds),
+    ]);
+    if (sourceDeliveryError) throw new Error(sourceDeliveryError.message);
+    if (sourceDocumentError) throw new Error(sourceDocumentError.message);
+    if (lineError) throw new Error(lineError.message);
+
+    for (const row of [...(bySourceDelivery ?? []), ...(bySourceDocument ?? [])] as Record<string, unknown>[]) {
+      const invoice = mapGuardInvoice(row);
+      if (invoice.id === excludeInvoiceId || deliveryInvoiceIds.has(invoice.id)) continue;
+      const deliveryId = (row.source_delivery_id as string | null) ?? (row.source_document_id as string | null);
+      deliveryInvoiceIds.add(invoice.id);
+      deliveryInvoices.push({
+        ...invoice,
+        delivery_id: deliveryId,
+        delivery_number: deliveryId ? deliveryNumberById.get(deliveryId) ?? null : null,
+      });
+    }
+
+    const invoiceIdToDeliveryId = new Map(
+      ((lineRows ?? []) as Record<string, unknown>[])
+        .filter((line) => line.invoice_id && line.source_document_id)
+        .map((line) => [line.invoice_id as string, line.source_document_id as string]),
+    );
+    const missingInvoiceIds = [...invoiceIdToDeliveryId.keys()].filter((id) => id !== excludeInvoiceId && !deliveryInvoiceIds.has(id));
+
+    if (missingInvoiceIds.length > 0) {
+      const { data: invoices, error } = await supabase
+        .from("customer_invoices")
+        .select("id, invoice_number, status, total_ttc")
+        .eq("organization_id", organizationId)
+        .in("id", missingInvoiceIds)
+        .neq("status", "cancelled")
+        .is("archived_at", null);
+      if (error) throw new Error(error.message);
+
+      for (const row of (invoices ?? []) as Record<string, unknown>[]) {
+        const invoice = mapGuardInvoice(row);
+        const deliveryId = invoiceIdToDeliveryId.get(invoice.id) ?? null;
+        deliveryInvoiceIds.add(invoice.id);
+        deliveryInvoices.push({
+          ...invoice,
+          delivery_id: deliveryId,
+          delivery_number: deliveryId ? deliveryNumberById.get(deliveryId) ?? null : null,
+        });
+      }
+    }
+  }
+
+  const uniqueDirectInvoices = uniqueById(directInvoices);
+  const uniqueDeliveryInvoices = uniqueById(deliveryInvoices);
+  const directInvoice = uniqueDirectInvoices[0] ?? null;
+  const hasDirectInvoice = Boolean(directInvoice);
+  const hasDeliveryInvoice = uniqueDeliveryInvoices.length > 0;
+  const isBlocked = hasDirectInvoice || hasDeliveryInvoice;
+  const reason = hasDirectInvoice && hasDeliveryInvoice
+    ? "Attention : cette commande possède plusieurs factures liées. Vérification requise."
+    : hasDirectInvoice
+      ? `Cette commande possède déjà une facture directe ${directInvoice?.invoice_number}.`
+      : hasDeliveryInvoice
+        ? `Cette commande a déjà été facturée via bon de livraison par ${uniqueDeliveryInvoices[0].invoice_number}.`
+        : null;
+
+  return {
+    orderId,
+    isBlocked,
+    reason,
+    directInvoice,
+    deliveryInvoices: uniqueDeliveryInvoices,
+    billableMode: isBlocked ? "none" : "delivery",
+  };
+}
+
+export async function validateInvoiceSourceBillingLock(
+  organizationId: string,
+  sourceOrderId: string | null,
+  deliveryNoteIds: string[],
+  excludeInvoiceId?: string | null,
+) {
+  const supabase = await createClient();
+  const uniqueDeliveryNoteIds = Array.from(new Set(deliveryNoteIds.filter(Boolean)));
+  const orderIds = new Set<string>();
+  if (sourceOrderId) orderIds.add(sourceOrderId);
+
+  if (uniqueDeliveryNoteIds.length > 0) {
+    const { data, error } = await supabase
+      .from("sales_documents")
+    .select("id, document_number, related_order_id, status")
+      .eq("organization_id", organizationId)
+      .in("id", uniqueDeliveryNoteIds)
+      .eq("document_type", "delivery_note")
+      .is("archived_at", null);
+    if (error) return { error: error.message };
+    if ((data ?? []).length !== uniqueDeliveryNoteIds.length) {
+      return { error: "La facture client doit être créée uniquement depuis des bons de livraison validés." };
+    }
+    for (const delivery of data ?? []) {
+      if (delivery.status !== "validated") {
+        return { error: "Seuls les bons de livraison validés peuvent être facturés." };
+      }
+      const orderId = delivery.related_order_id as string | null;
+      if (orderId) orderIds.add(orderId);
+    }
+  }
+
+  for (const orderId of orderIds) {
+    const guard = await getOrderBillingGuard(organizationId, orderId, { excludeInvoiceId });
+    if (!guard.isBlocked) continue;
+
+    if (uniqueDeliveryNoteIds.length > 0 && guard.directInvoice) {
+      return {
+        error: `Cette commande a déjà été facturée directement par la facture ${guard.directInvoice.invoice_number}. Vous ne pouvez pas refacturer son bon de livraison.`,
+      };
+    }
+    if (sourceOrderId && guard.deliveryInvoices.length > 0) {
+      return {
+        error: `Cette commande a déjà été facturée via un bon de livraison par la facture ${guard.deliveryInvoices[0].invoice_number}. Vous ne pouvez pas créer une facture directe depuis cette commande.`,
+      };
+    }
+    if (guard.directInvoice) {
+      return { error: `Cette commande possède déjà une facture ${guard.directInvoice.invoice_number}.` };
+    }
+    if (guard.deliveryInvoices.length > 0) {
+      return { error: `Cette commande possède déjà une facture ${guard.deliveryInvoices[0].invoice_number}.` };
+    }
+  }
+
+  return {};
 }
 
 async function deliveryInvoiceUsage(organizationId: string, deliveryIds: string[]) {
@@ -549,7 +796,7 @@ export async function listBillableDeliveryNotesByCustomer(customerId: string): P
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
     .eq("customer_id", customerId)
-    .in("status", ["validated", "delivered"])
+    .eq("status", "validated")
     .is("archived_at", null)
     .order("document_date", { ascending: false })
     .order("created_at", { ascending: false });
@@ -567,8 +814,16 @@ export async function listBillableDeliveryNotesByCustomer(customerId: string): P
     deliveryInvoiceUsage(organizationId, ids),
   ]);
   const orderById = new Map((orders ?? []).map((row) => [row.id as string, row.document_number as string]));
+  const guards = await Promise.all(
+    orderIds.map((orderId) => getOrderBillingGuard(organizationId, orderId)),
+  );
+  const guardByOrderId = new Map(guards.map((guard) => [guard.orderId, guard]));
 
-  return rows.map((row) => {
+  return rows.filter((row) => {
+    const orderId = row.related_order_id as string | null;
+    const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
+    return stat.lines_count > 0 && stat.total_quantity > 0 && (!orderId || !guardByOrderId.get(orderId)?.isBlocked);
+  }).map((row) => {
     const customer = objectValue(row.customer);
     const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
     return {
@@ -634,7 +889,7 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
     .eq("customer_id", customerId)
-    .in("status", ["validated", "delivered"])
+    .eq("status", "validated")
     .in("id", uniqueIds)
     .is("archived_at", null);
   if (documentError) throw new Error(documentError.message);
@@ -648,6 +903,17 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
     throw new Error(`Le bon de livraison ${blocked?.document_number ?? ""} est deja rattache a une facture.`);
   }
 
+  const orderIds = Array.from(new Set(foundDocuments.map((document) => document.related_order_id).filter(Boolean))) as string[];
+  for (const orderId of orderIds) {
+    const guard = await getOrderBillingGuard(organizationId, orderId);
+    if (guard.directInvoice) {
+      throw new Error(`Cette commande a déjà été facturée directement par la facture ${guard.directInvoice.invoice_number}. Vous ne pouvez pas refacturer son bon de livraison.`);
+    }
+    if (guard.deliveryInvoices.length > 0) {
+      throw new Error(`Cette commande possède déjà une facture ${guard.deliveryInvoices[0].invoice_number}.`);
+    }
+  }
+
   const { data: lines, error: lineError } = await supabase
     .from("sales_document_lines")
     .select(SALES_LINE_FOR_INVOICE_SELECT)
@@ -655,10 +921,15 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
     .in("document_id", uniqueIds)
     .order("line_order");
   if (lineError) throw new Error(lineError.message);
+  const lineRows = (lines ?? []) as Record<string, unknown>[];
+  const totalQuantity = lineRows.reduce((sum, line) => sum + Number(line.quantity ?? 0), 0);
+  if (lineRows.length === 0 || totalQuantity <= 0) {
+    throw new Error("Un bon de livraison doit contenir au moins une quantité livrée pour être facturé.");
+  }
 
   const documentById = new Map(foundDocuments.map((document) => [document.id as string, document]));
   const preparedLines = await Promise.all(
-    ((lines ?? []) as Record<string, unknown>[]).map(async (line) => {
+    lineRows.map(async (line) => {
       const documentId = line.document_id as string;
       const document = documentById.get(documentId);
       const prepared = await sourceLineToInvoiceLine(organizationId, line, documentId);
@@ -692,11 +963,24 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
 }
 
 export async function getOrderInvoicePreparation(orderId: string) {
-  return documentToInvoicePreparation(orderId, "order");
+  void orderId;
+  throw new Error("Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.");
 }
 
 export async function getDeliveryInvoicePreparation(deliveryId: string) {
-  return documentToInvoicePreparation(deliveryId, "delivery_note");
+  const preparation = await documentToInvoicePreparation(deliveryId, "delivery_note");
+  const orderId = preparation?.document.related_order_id;
+  if (orderId) {
+    const organizationId = await activeOrganizationId();
+    const guard = await getOrderBillingGuard(organizationId, orderId);
+    if (guard.directInvoice) {
+      throw new Error(`Cette commande a déjà été facturée directement par la facture ${guard.directInvoice.invoice_number}. Vous ne pouvez pas refacturer son bon de livraison.`);
+    }
+    if (guard.deliveryInvoices.length > 0) {
+      throw new Error(`Cette commande possède déjà une facture ${guard.deliveryInvoices[0].invoice_number}.`);
+    }
+  }
+  return preparation;
 }
 
 export async function getInvoiceCounters(): Promise<InvoiceCounters> {

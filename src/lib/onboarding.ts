@@ -2,10 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 
 export type OnboardingChecklistStepKey =
   | "company"
-  | "client"
-  | "invoice"
-  | "pdf"
-  | "logo";
+  | "prospect"
+  | "article"
+  | "treasury"
+  | "quote"
+  | "pdf";
 
 export type OnboardingChecklistStep = {
   key: OnboardingChecklistStepKey;
@@ -49,7 +50,7 @@ export async function getOnboardingChecklist(
       .maybeSingle(),
   ]);
 
-  const companyCompleted = [
+  const companyInfoCompleted = [
     organization?.name ?? companySettings?.legal_name,
     organization?.address ?? companySettings?.address,
     organization?.city ?? companySettings?.city,
@@ -57,9 +58,12 @@ export async function getOnboardingChecklist(
     organization?.email ?? companySettings?.email,
   ].every(hasText);
   const logoCompleted = hasText(organization?.logo_url) || hasText(companySettings?.logo_url);
+  const companyCompleted = companyInfoCompleted && logoCompleted;
 
   const [
-    { count: customerCount },
+    { count: prospectCount },
+    { count: productCount },
+    { count: treasuryAccountCount },
     { count: quoteCount },
     { count: printableQuoteCount },
     { data: latestQuote },
@@ -68,8 +72,19 @@ export async function getOnboardingChecklist(
       .from("third_parties")
       .select("id", { count: "exact", head: true })
       .eq("organization_id", organizationId)
-      .contains("types", ["customer"])
+      .contains("types", ["prospect"])
       .neq("status", "archived"),
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organizationId)
+      .is("archived_at", null),
+    supabase
+      .from("treasury_accounts")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", organizationId)
+      .eq("status", "active")
+      .is("archived_at", null),
     supabase
       .from("sales_documents")
       .select("id", { count: "exact", head: true })
@@ -93,7 +108,9 @@ export async function getOnboardingChecklist(
       .maybeSingle(),
   ]);
 
-  const hasClient = (customerCount ?? 0) > 0;
+  const hasProspect = (prospectCount ?? 0) > 0;
+  const hasArticle = (productCount ?? 0) > 0;
+  const hasTreasuryAccount = (treasuryAccountCount ?? 0) > 0;
   const hasQuote = (quoteCount ?? 0) > 0;
   const hasPrintableQuote = (printableQuoteCount ?? 0) > 0;
   const pdfHref = latestQuote?.id
@@ -104,19 +121,33 @@ export async function getOnboardingChecklist(
     {
       key: "company",
       title: "Configurer mon entreprise",
-      description: "Adresse, coordonnées, informations légales",
+      description: "Adresse, coordonnées, informations légales, logo",
       href: "/parametres/entreprise",
       completed: companyCompleted,
     },
     {
-      key: "client",
-      title: "Ajouter mon premier client",
-      description: "Nom, ICE, coordonnées",
-      href: "/tiers/new?type=customer",
-      completed: hasClient,
+      key: "prospect",
+      title: "Ajouter mon premier prospect",
+      description: "Nom, coordonnées, besoin identifié",
+      href: "/tiers/new?type=prospect",
+      completed: hasProspect,
     },
     {
-      key: "invoice",
+      key: "article",
+      title: "Ajouter mon premier article",
+      description: "Produit, service, prix et TVA",
+      href: "/articles/new?type=product",
+      completed: hasArticle,
+    },
+    {
+      key: "treasury",
+      title: "Ajouter mes comptes & caisses",
+      description: "Banques, caisses et moyens de paiement",
+      href: "/tresorerie/comptes",
+      completed: hasTreasuryAccount,
+    },
+    {
+      key: "quote",
       title: "Créer mon premier devis",
       description: "Préparer une première proposition commerciale",
       href: "/vente/devis/new",
@@ -128,13 +159,6 @@ export async function getOnboardingChecklist(
       description: "Valider et télécharger",
       href: pdfHref,
       completed: hasPrintableQuote,
-    },
-    {
-      key: "logo",
-      title: "Personnaliser mon logo",
-      description: "Apparaît sur vos documents",
-      href: "/parametres/entreprise#logo",
-      completed: logoCompleted,
     },
   ];
 
