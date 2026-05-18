@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_PLAN_CODE, getEnabledModulesForPlan, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
 
 export type ActiveWorkspace = {
   userId: string;
@@ -16,6 +17,7 @@ export type ActiveWorkspace = {
   role: string | null;
   subscription: {
     status: string;
+    planCode: PlanCode;
     planSlug: string;
   } | null;
   enabledModules: string[];
@@ -93,37 +95,28 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
     return null;
   }
 
-  let subscription: { status: string; planSlug: string } | null = null;
+  let subscription: { status: string; planCode: PlanCode; planSlug: string } | null = null;
   try {
     const { data: sub } = await supabase
       .from("organization_subscriptions")
-      .select("status, plan:subscription_plans(slug)")
+      .select("status, plan_code, plan:subscription_plans(code, slug)")
       .eq("organization_id", organization.id)
       .limit(1)
       .maybeSingle();
     if (sub) {
+      const plan = sub.plan as unknown as { code?: string | null; slug?: string | null } | null;
+      const planCode = normalizePlanCode(sub.plan_code ?? plan?.code ?? plan?.slug);
       subscription = {
         status: sub.status,
-        planSlug: (sub.plan as unknown as { slug: string } | null)?.slug ?? "starter",
+        planCode,
+        planSlug: planCode,
       };
     }
   } catch {
     // Table doesn't exist yet (migration not applied)
   }
 
-  let enabledModules: string[] = [];
-  try {
-    const { data: modules } = await supabase
-      .from("organization_modules")
-      .select("module_key")
-      .eq("organization_id", organization.id)
-      .eq("enabled", true);
-    if (modules) {
-      enabledModules = modules.map((m) => m.module_key as string);
-    }
-  } catch {
-    // Table doesn't exist yet (migration not applied)
-  }
+  const enabledModules = getEnabledModulesForPlan(subscription?.planCode ?? DEFAULT_PLAN_CODE);
 
   return {
     userId: user.id,

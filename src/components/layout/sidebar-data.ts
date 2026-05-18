@@ -164,8 +164,7 @@ export const sections: SidebarSection[] = [
     moduleKey: "documents",
     items: [
       { label: "Tous les documents", href: "/documents", icon: FileText },
-      { label: "Audit log", href: "/outils/audit-log", icon: ClipboardList },
-      { label: "Import/Export", href: "/outils/import-export", icon: ArrowLeftRight },
+      { label: "Import / Export", href: "/documents/import-export", icon: ArrowLeftRight },
     ],
   },
   { key: "settings", label: "Paramètres", href: "/parametres", icon: Settings },

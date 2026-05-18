@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createStripeCustomer, createCheckoutSession, createModuleCheckoutSession } from "@/lib/stripe";
+import { createPlanCheckoutSession, createStripeCustomer, getStripePriceIdForPlan } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
+import { normalizePlanCode } from "@/lib/subscriptions/plans";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,9 +17,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { moduleKeys, billingInterval } = body;
-
+    const { billingInterval } = body;
+    const planCode = normalizePlanCode(body.planCode);
     const interval = billingInterval === "yearly" ? "yearly" : "monthly";
+    const priceId = getStripePriceIdForPlan(planCode, interval);
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Stripe price ID manquant pour le plan ${planCode} (${interval}).` },
+        { status: 400 },
+      );
+    }
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -63,28 +72,16 @@ export async function POST(req: NextRequest) {
         orgId,
       );
       customerId = customer.id;
+      await supabase
+        .from("organizations")
+        .update({ stripe_customer_id: customerId })
+        .eq("id", orgId);
     }
 
-    // Backward-compatible: if priceId and planSlug provided, use old flow
-    const { priceId, planSlug } = body;
-    if (priceId && planSlug) {
-      const session = await createCheckoutSession(
-        customerId,
-        priceId,
-        orgId,
-        interval,
-      );
-      return NextResponse.json({ url: session.url }, { status: 200 });
-    }
-
-    // Module-based checkout
-    if (!moduleKeys || !Array.isArray(moduleKeys) || moduleKeys.length === 0) {
-      return NextResponse.json({ error: "moduleKeys requis" }, { status: 400 });
-    }
-
-    const session = await createModuleCheckoutSession(
+    const session = await createPlanCheckoutSession(
       customerId,
-      moduleKeys,
+      planCode,
+      priceId,
       orgId,
       interval,
     );

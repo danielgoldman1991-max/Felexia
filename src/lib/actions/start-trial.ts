@@ -2,56 +2,28 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_PLAN_CODE, DEFAULT_TRIAL_DAYS, getEnabledModulesForPlan, getPlanDefinition, normalizePlanCode } from "@/lib/subscriptions/plans";
 
 export async function startTrialAction(prev: { error: string | null } | null, formData: FormData) {
   const organizationId = formData.get("organizationId") as string;
-  const selectedModulesRaw = formData.get("selectedModules") as string;
-  const billingInterval = formData.get("billingInterval") as "monthly" | "yearly";
+  const billingInterval = formData.get("billingInterval") === "yearly" ? "yearly" : "monthly";
+  const planCode = normalizePlanCode(String(formData.get("planCode") ?? DEFAULT_PLAN_CODE));
 
   if (!organizationId) {
     return { error: "Organization ID requis" };
   }
 
-  if (!selectedModulesRaw) {
-    return { error: "Sélectionnez au moins un module" };
-  }
-
-  const selectedModules: string[] = JSON.parse(selectedModulesRaw);
   const supabase = await createClient();
 
-  const { data: catalog } = await supabase
-    .from("modules_catalog")
-    .select("*")
-    .eq("is_active", true);
-
-  if (!catalog) {
-    return { error: "Erreur de chargement du catalogue" };
-  }
-
-  const monthlyAmount = catalog
-    .filter((m) => selectedModules.includes(m.module_key))
-    .reduce((sum, m) => sum + Number(m.monthly_price), 0);
-
-  const yearlyAmount = catalog
-    .filter((m) => selectedModules.includes(m.module_key))
-    .reduce((sum, m) => sum + Number(m.yearly_price), 0);
-
   const trialStart = new Date().toISOString();
-  const trialEnd = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
+  const trialEnd = new Date(Date.now() + DEFAULT_TRIAL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const definition = getPlanDefinition(planCode);
 
-  const moduleRows = selectedModules.map((key) => ({
-    organization_id: organizationId,
-    module_key: key,
-    enabled: true,
-  }));
-
-  const { error: modulesError } = await supabase
-    .from("organization_modules")
-    .upsert(moduleRows, { onConflict: "organization_id, module_key" });
-
-  if (modulesError) {
-    return { error: `Erreur activation modules: ${modulesError.message}` };
-  }
+  const { data: plan } = await supabase
+    .from("subscription_plans")
+    .select("id")
+    .eq("code", planCode)
+    .maybeSingle();
 
   // Check if a subscription already exists
   const { data: existingSub } = await supabase
@@ -62,13 +34,20 @@ export async function startTrialAction(prev: { error: string | null } | null, fo
 
   const subscriptionPayload = {
     organization_id: organizationId,
+    plan_id: plan?.id ?? null,
+    plan_code: planCode,
     status: "trialing" as const,
     trial_start: trialStart,
     trial_end: trialEnd,
+    trial_ends_at: trialEnd,
+    billing_cycle: billingInterval === "yearly" ? "yearly" : "monthly",
     billing_interval: billingInterval,
-    monthly_amount: monthlyAmount,
-    yearly_amount: yearlyAmount,
-    selected_modules: JSON.parse(JSON.stringify(selectedModules)),
+    current_period_start: trialStart,
+    current_period_end: trialEnd,
+    cancel_at_period_end: false,
+    monthly_amount: definition.monthlyPrice,
+    yearly_amount: definition.yearlyPrice,
+    selected_modules: JSON.parse(JSON.stringify(getEnabledModulesForPlan(planCode))),
   };
 
   if (existingSub) {
@@ -90,5 +69,5 @@ export async function startTrialAction(prev: { error: string | null } | null, fo
     }
   }
 
-  redirect("/onboarding/paiement");
+  redirect("/bienvenue");
 }

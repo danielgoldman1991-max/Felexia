@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 import { getEnv, hasStripeEnv } from "@/lib/env";
+import { getPlanDefinition, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
+import { getStripePriceId } from "@/lib/subscriptions/stripe-prices";
 
 let stripeInstance: Stripe | null = null;
 
@@ -52,9 +54,14 @@ export async function createCheckoutSession(
   return session;
 }
 
-export async function createModuleCheckoutSession(
+export function getStripePriceIdForPlan(planCode: string, billingCycle: "monthly" | "yearly"): string | null {
+  return getStripePriceId(normalizePlanCode(planCode), billingCycle);
+}
+
+export async function createPlanCheckoutSession(
   customerId: string,
-  moduleKeys: string[],
+  planCode: PlanCode,
+  priceId: string,
   organizationId: string,
   billingInterval: "monthly" | "yearly",
   successUrl?: string,
@@ -62,50 +69,32 @@ export async function createModuleCheckoutSession(
 ): Promise<Stripe.Checkout.Session> {
   const stripe = getStripe();
   const env = getEnv();
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
-
-  const { data: modules } = await supabase
-    .from("modules_catalog")
-    .select("module_key, stripe_monthly_price_id, stripe_yearly_price_id")
-    .in("module_key", moduleKeys)
-    .eq("is_active", true);
-
-  if (!modules || modules.length === 0) {
-    throw new Error("Aucun module trouvé");
-  }
-
-  const priceField = billingInterval === "yearly" ? "stripe_yearly_price_id" : "stripe_monthly_price_id";
-
-  const lineItems = modules
-    .filter((m) => m[priceField as keyof typeof m])
-    .map((m) => ({
-      price: m[priceField as keyof typeof m] as string,
-      quantity: 1,
-    }));
-
-  if (lineItems.length === 0) {
-    throw new Error("Aucun module avec Stripe price ID configuré");
-  }
+  const plan = getPlanDefinition(planCode);
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    line_items: lineItems,
+    line_items: [{ price: priceId, quantity: 1 }],
     metadata: {
       organization_id: organizationId,
-      module_keys: JSON.stringify(moduleKeys),
+      plan_code: plan.code,
+      billing_cycle: billingInterval,
     },
     subscription_data: {
       metadata: {
         organization_id: organizationId,
-        module_keys: JSON.stringify(moduleKeys),
+        plan_code: plan.code,
+        billing_cycle: billingInterval,
       },
     },
     success_url: successUrl || `${env.appUrl}/parametres/abonnement?success=true&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`,
   });
   return session;
+}
+
+export async function createModuleCheckoutSession(): Promise<Stripe.Checkout.Session> {
+  throw new Error("La facturation par module est désactivée. Choisissez un pack Essentiel, Business ou Premium.");
 }
 
 export async function createPortalSession(
@@ -116,7 +105,7 @@ export async function createPortalSession(
   const env = getEnv();
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: returnUrl || `${env.appUrl}/parametres/facturation`,
+    return_url: returnUrl || `${env.appUrl}/parametres/abonnement`,
   });
   return session;
 }

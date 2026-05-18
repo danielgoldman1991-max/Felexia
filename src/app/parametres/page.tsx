@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/erp/page-header";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getPlanDefinition } from "@/lib/subscriptions/plans";
 import {
   Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight,
 } from "lucide-react";
@@ -25,10 +26,7 @@ export default async function ParametresPage() {
       .maybeSingle(),
   ]);
 
-  const planName = workspace.subscription?.planSlug === "starter" ? "Starter"
-    : workspace.subscription?.planSlug === "essentiel" ? "Essentiel"
-    : workspace.subscription?.planSlug === "pro" ? "Pro"
-    : "Starter";
+  const planName = getPlanDefinition(workspace.subscription?.planCode ?? workspace.subscription?.planSlug).name;
 
   const statusBadge = workspace.subscription?.status === "active"
     ? { label: "Actif", tone: "success" as const }

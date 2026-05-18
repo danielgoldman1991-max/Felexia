@@ -51,6 +51,12 @@ const SALES_LINE_FOR_INVOICE_SELECT = `
   created_at, updated_at
 `;
 
+const BILLABLE_DELIVERY_STATUSES = ["validated", "delivered"];
+
+function isBillableDeliveryStatus(status: unknown) {
+  return typeof status === "string" && BILLABLE_DELIVERY_STATUSES.includes(status);
+}
+
 function objectValue(value: unknown) {
   if (!value || Array.isArray(value) || typeof value !== "object") return null;
   return value as Record<string, unknown>;
@@ -404,7 +410,7 @@ export async function listBillableDeliveryNotes(): Promise<BillableDeliveryOptio
     .select("id, document_number, document_date, status, related_order_id, customer:customer_id(name)")
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
-    .eq("status", "validated")
+    .in("status", BILLABLE_DELIVERY_STATUSES)
     .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -417,16 +423,21 @@ export async function listBillableDeliveryNotes(): Promise<BillableDeliveryOptio
     ? await supabase.from("sales_documents").select("id, document_number").eq("organization_id", organizationId).in("id", orderIds)
     : { data: [] };
   const orderById = new Map((orders ?? []).map((row) => [row.id as string, row.document_number as string]));
-  const stats = await deliveryLineStats(organizationId, ids);
+  const [stats, invoicedIds] = await Promise.all([
+    deliveryLineStats(organizationId, ids),
+    deliveryInvoiceUsage(organizationId, ids),
+  ]);
   const guards = await Promise.all(
     orderIds.map((orderId) => getOrderBillingGuard(organizationId, orderId)),
   );
   const guardByOrderId = new Map(guards.map((guard) => [guard.orderId, guard]));
 
   return rows.filter((row) => {
+    const deliveryId = row.id as string;
     const orderId = row.related_order_id as string | null;
-    const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
-    return stat.lines_count > 0 && stat.total_quantity > 0 && (!orderId || !guardByOrderId.get(orderId)?.isBlocked);
+    const stat = stats.get(deliveryId) ?? { lines_count: 0, total_quantity: 0 };
+    const guard = orderId ? guardByOrderId.get(orderId) : null;
+    return stat.lines_count > 0 && stat.total_quantity > 0 && !invoicedIds.has(deliveryId) && !guard?.directInvoice;
   }).map((row) => {
     const customer = objectValue(row.customer);
     return {
@@ -472,6 +483,7 @@ function mapSalesSourceDocument(row: Record<string, unknown>) {
     id: row.id as string,
     document_number: row.document_number as string,
     customer_id: row.customer_id as string,
+    status: row.status as string,
     related_order_id: row.related_order_id as string | null,
     related_delivery_id: row.related_delivery_id as string | null,
     document_date: row.document_date as string,
@@ -691,7 +703,7 @@ export async function validateInvoiceSourceBillingLock(
   if (uniqueDeliveryNoteIds.length > 0) {
     const { data, error } = await supabase
       .from("sales_documents")
-    .select("id, document_number, related_order_id, status")
+      .select("id, document_number, related_order_id, status")
       .eq("organization_id", organizationId)
       .in("id", uniqueDeliveryNoteIds)
       .eq("document_type", "delivery_note")
@@ -701,11 +713,19 @@ export async function validateInvoiceSourceBillingLock(
       return { error: "La facture client doit être créée uniquement depuis des bons de livraison validés." };
     }
     for (const delivery of data ?? []) {
-      if (delivery.status !== "validated") {
-        return { error: "Seuls les bons de livraison validés peuvent être facturés." };
+      if (!isBillableDeliveryStatus(delivery.status)) {
+        return { error: "Seuls les bons de livraison validés ou livrés peuvent être facturés." };
       }
       const orderId = delivery.related_order_id as string | null;
       if (orderId) orderIds.add(orderId);
+    }
+
+    const usedDeliveryIds = await deliveryInvoiceUsage(organizationId, uniqueDeliveryNoteIds);
+    if (usedDeliveryIds.size > 0) {
+      const blocked = data?.find((delivery) => usedDeliveryIds.has(delivery.id as string));
+      return {
+        error: `Le bon de livraison ${blocked?.document_number ?? ""} est déjà rattaché à une facture client.`,
+      };
     }
   }
 
@@ -737,15 +757,45 @@ export async function validateInvoiceSourceBillingLock(
 async function deliveryInvoiceUsage(organizationId: string, deliveryIds: string[]) {
   if (deliveryIds.length === 0) return new Set<string>();
   const supabase = await createClient();
-  const { data: invoiceLines, error: lineError } = await supabase
-    .from("customer_invoice_lines")
-    .select("invoice_id, source_document_id")
-    .eq("organization_id", organizationId)
-    .in("source_document_id", deliveryIds);
+  const [
+    { data: bySourceDelivery, error: sourceDeliveryError },
+    { data: bySourceDocument, error: sourceDocumentError },
+    { data: invoiceLines, error: lineError },
+  ] = await Promise.all([
+    supabase
+      .from("customer_invoices")
+      .select("source_delivery_id")
+      .eq("organization_id", organizationId)
+      .in("source_delivery_id", deliveryIds)
+      .neq("status", "cancelled")
+      .is("archived_at", null),
+    supabase
+      .from("customer_invoices")
+      .select("source_document_id")
+      .eq("organization_id", organizationId)
+      .in("source_document_id", deliveryIds)
+      .neq("status", "cancelled")
+      .is("archived_at", null),
+    supabase
+      .from("customer_invoice_lines")
+      .select("invoice_id, source_document_id")
+      .eq("organization_id", organizationId)
+      .in("source_document_id", deliveryIds),
+  ]);
+  if (sourceDeliveryError) throw new Error(sourceDeliveryError.message);
+  if (sourceDocumentError) throw new Error(sourceDocumentError.message);
   if (lineError) throw new Error(lineError.message);
 
+  const usedDeliveryIds = new Set<string>();
+  for (const row of bySourceDelivery ?? []) {
+    if (row.source_delivery_id) usedDeliveryIds.add(row.source_delivery_id as string);
+  }
+  for (const row of bySourceDocument ?? []) {
+    if (row.source_document_id) usedDeliveryIds.add(row.source_document_id as string);
+  }
+
   const invoiceIds = Array.from(new Set((invoiceLines ?? []).map((line) => line.invoice_id).filter(Boolean))) as string[];
-  if (invoiceIds.length === 0) return new Set<string>();
+  if (invoiceIds.length === 0) return usedDeliveryIds;
 
   const { data: invoices, error: invoiceError } = await supabase
     .from("customer_invoices")
@@ -757,11 +807,13 @@ async function deliveryInvoiceUsage(organizationId: string, deliveryIds: string[
   if (invoiceError) throw new Error(invoiceError.message);
 
   const activeInvoiceIds = new Set((invoices ?? []).map((invoice) => invoice.id as string));
-  return new Set(
-    (invoiceLines ?? [])
-      .filter((line) => activeInvoiceIds.has(line.invoice_id as string))
-      .map((line) => line.source_document_id as string),
-  );
+  for (const line of invoiceLines ?? []) {
+    if (activeInvoiceIds.has(line.invoice_id as string) && line.source_document_id) {
+      usedDeliveryIds.add(line.source_document_id as string);
+    }
+  }
+
+  return usedDeliveryIds;
 }
 
 async function deliveryLineStats(organizationId: string, deliveryIds: string[]) {
@@ -796,7 +848,7 @@ export async function listBillableDeliveryNotesByCustomer(customerId: string): P
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
     .eq("customer_id", customerId)
-    .eq("status", "validated")
+    .in("status", BILLABLE_DELIVERY_STATUSES)
     .is("archived_at", null)
     .order("document_date", { ascending: false })
     .order("created_at", { ascending: false });
@@ -820,9 +872,11 @@ export async function listBillableDeliveryNotesByCustomer(customerId: string): P
   const guardByOrderId = new Map(guards.map((guard) => [guard.orderId, guard]));
 
   return rows.filter((row) => {
+    const deliveryId = row.id as string;
     const orderId = row.related_order_id as string | null;
-    const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
-    return stat.lines_count > 0 && stat.total_quantity > 0 && (!orderId || !guardByOrderId.get(orderId)?.isBlocked);
+    const stat = stats.get(deliveryId) ?? { lines_count: 0, total_quantity: 0 };
+    const guard = orderId ? guardByOrderId.get(orderId) : null;
+    return stat.lines_count > 0 && stat.total_quantity > 0 && !invoicedIds.has(deliveryId) && !guard?.directInvoice;
   }).map((row) => {
     const customer = objectValue(row.customer);
     const stat = stats.get(row.id as string) ?? { lines_count: 0, total_quantity: 0 };
@@ -889,13 +943,15 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
     .eq("organization_id", organizationId)
     .eq("document_type", "delivery_note")
     .eq("customer_id", customerId)
-    .eq("status", "validated")
+    .in("status", BILLABLE_DELIVERY_STATUSES)
     .in("id", uniqueIds)
     .is("archived_at", null);
   if (documentError) throw new Error(documentError.message);
 
   const foundDocuments = (documents ?? []) as Record<string, unknown>[];
   if (foundDocuments.length !== uniqueIds.length) throw new Error("Certains bons de livraison ne sont pas facturables pour ce client.");
+  const nonBillableDocument = foundDocuments.find((document) => !isBillableDeliveryStatus(document.status));
+  if (nonBillableDocument) throw new Error("Seuls les bons de livraison validés ou livrés peuvent être facturés.");
 
   const usedDeliveryIds = await deliveryInvoiceUsage(organizationId, uniqueIds);
   if (usedDeliveryIds.size > 0) {
@@ -908,9 +964,6 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
     const guard = await getOrderBillingGuard(organizationId, orderId);
     if (guard.directInvoice) {
       throw new Error(`Cette commande a déjà été facturée directement par la facture ${guard.directInvoice.invoice_number}. Vous ne pouvez pas refacturer son bon de livraison.`);
-    }
-    if (guard.deliveryInvoices.length > 0) {
-      throw new Error(`Cette commande possède déjà une facture ${guard.deliveryInvoices[0].invoice_number}.`);
     }
   }
 
@@ -969,15 +1022,19 @@ export async function getOrderInvoicePreparation(orderId: string) {
 
 export async function getDeliveryInvoicePreparation(deliveryId: string) {
   const preparation = await documentToInvoicePreparation(deliveryId, "delivery_note");
+  if (preparation && !isBillableDeliveryStatus((preparation.document as { status?: unknown }).status)) {
+    throw new Error("Seuls les bons de livraison validés ou livrés peuvent être facturés.");
+  }
   const orderId = preparation?.document.related_order_id;
+  const organizationId = await activeOrganizationId();
+  const usedDeliveryIds = await deliveryInvoiceUsage(organizationId, deliveryId ? [deliveryId] : []);
+  if (usedDeliveryIds.has(deliveryId)) {
+    throw new Error("Ce bon de livraison est déjà rattaché à une facture client.");
+  }
   if (orderId) {
-    const organizationId = await activeOrganizationId();
     const guard = await getOrderBillingGuard(organizationId, orderId);
     if (guard.directInvoice) {
       throw new Error(`Cette commande a déjà été facturée directement par la facture ${guard.directInvoice.invoice_number}. Vous ne pouvez pas refacturer son bon de livraison.`);
-    }
-    if (guard.deliveryInvoices.length > 0) {
-      throw new Error(`Cette commande possède déjà une facture ${guard.deliveryInvoices[0].invoice_number}.`);
     }
   }
   return preparation;

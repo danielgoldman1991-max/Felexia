@@ -9,7 +9,7 @@ export default async function DashboardLayout({
 }) {
   const status = await getUserOnboardingStatus();
 
-  if (status.nextPath !== "/dashboard") {
+  if (status.nextPath !== "/dashboard" && status.nextPath !== "/bienvenue") {
     redirect(status.nextPath);
   }
 

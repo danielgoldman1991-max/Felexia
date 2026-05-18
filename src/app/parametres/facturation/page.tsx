@@ -17,7 +17,7 @@ export default async function BillingPage() {
       .single(),
     supabase
       .from("organization_subscriptions")
-      .select("*, plan:subscription_plans(name, slug, features)")
+      .select("*, plan:subscription_plans(name, code, slug, features)")
       .eq("organization_id", workspace.organization.id)
       .limit(1)
       .maybeSingle(),
@@ -35,7 +35,7 @@ export default async function BillingPage() {
     trial_end: string | null;
     canceled_at: string | null;
     stripe_subscription_id: string | null;
-    plan: { name: string; slug: string; features: string[] } | null;
+    plan: { name: string; code?: string | null; slug?: string | null; features: string[] } | null;
   } | null;
 
   return (
@@ -46,7 +46,7 @@ export default async function BillingPage() {
         subscription={subscription ? {
           id: subscription.id,
           planName: subscription.plan?.name ?? "Inconnu",
-          planSlug: subscription.plan?.slug ?? "",
+          planSlug: subscription.plan?.code ?? subscription.plan?.slug ?? "",
           status: subscription.status,
           billingInterval: subscription.billing_interval,
           currentPeriodStart: subscription.current_period_start,

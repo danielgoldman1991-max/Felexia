@@ -7,6 +7,7 @@ import { initializeOrganizationDefaults } from "@/lib/org-defaults";
 import { ensureAccountingBaseSetup } from "@/lib/accounting";
 import { formatMoroccanPhone, isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
+import { ensureDefaultBusinessTrial } from "@/lib/subscriptions/plan-access";
 
 export type CreateEntrepriseState = {
   error: string | null;
@@ -140,6 +141,12 @@ export async function createEntrepriseAction(
     console.error("createEntreprise: accounting defaults error", accountingErr);
   }
 
+  try {
+    await ensureDefaultBusinessTrial(orgId);
+  } catch (subscriptionErr) {
+    console.error("createEntreprise: subscription default error", subscriptionErr);
+  }
+
   if (hasServiceRoleKey()) {
     try {
       await initializeOrganizationDefaults(orgId);
@@ -150,5 +157,5 @@ export async function createEntrepriseAction(
     console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
-  redirect("/onboarding/modules");
+  redirect("/bienvenue");
 }

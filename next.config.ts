@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     cpus: 1,
     workerThreads: true,
     serverActions: {
-      bodySizeLimit: "5mb",
+      bodySizeLimit: "20mb",
     },
   },
   images: {

@@ -6,7 +6,15 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import type { ActiveWorkspace } from "@/lib/auth";
 
-export function AppShellClient({ children, workspace }: { children: ReactNode; workspace: ActiveWorkspace }) {
+export function AppShellClient({
+  children,
+  workspace,
+  showWelcomeGuide,
+}: {
+  children: ReactNode;
+  workspace: ActiveWorkspace;
+  showWelcomeGuide: boolean;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -15,6 +23,7 @@ export function AppShellClient({ children, workspace }: { children: ReactNode; w
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
         workspace={workspace}
+        showWelcomeGuide={showWelcomeGuide}
       />
 
       <div className="min-h-screen transition-[padding] duration-300 lg:pl-[300px]">

@@ -44,22 +44,15 @@ export function PlanSelection({
     setLoading(plan.id);
     setError(null);
 
-    const canUseStripe = stripeConfigured &&
-      ((billingInterval === "yearly" && plan.stripe_price_yearly_id) ||
-       (billingInterval === "monthly" && plan.stripe_price_monthly_id));
+    const canUseStripe = stripeConfigured;
 
     if (canUseStripe) {
-      const priceId = billingInterval === "yearly"
-        ? plan.stripe_price_yearly_id!
-        : plan.stripe_price_monthly_id!;
-
       try {
         const res = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            priceId,
-            planSlug: plan.slug,
+            planCode: plan.slug,
             billingInterval,
           }),
         });

@@ -34,19 +34,22 @@ export function Sidebar({
   mobileOpen,
   onCloseMobile,
   workspace,
+  showWelcomeGuide = true,
 }: {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   workspace?: ActiveWorkspace | null;
+  showWelcomeGuide?: boolean;
 }) {
   const pathname = usePathname();
   const visibleSections = useMemo(
     () =>
       sections.filter((section) => {
+        if (section.key === "welcome") return showWelcomeGuide;
         if (!section.moduleKey) return true;
         return workspace?.enabledModules?.includes(section.moduleKey) ?? false;
       }),
-    [workspace?.enabledModules],
+    [showWelcomeGuide, workspace?.enabledModules],
   );
 
   const initiallyOpen = useMemo(

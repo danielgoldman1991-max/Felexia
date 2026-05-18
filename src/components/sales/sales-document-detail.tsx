@@ -126,9 +126,15 @@ export function SalesDocumentDetail({
   const recipientLabel = recipientTypeLabel(document);
   const directInvoice = billingGuard?.directInvoice ?? null;
   const deliveryInvoices = billingGuard?.deliveryInvoices ?? [];
-  const firstDeliveryInvoice = deliveryInvoices[0] ?? null;
+  const currentDeliveryInvoice = isDelivery
+    ? deliveryInvoices.find((invoice) => invoice.delivery_id === document.id) ?? null
+    : null;
+  const firstDeliveryInvoice = currentDeliveryInvoice ?? deliveryInvoices[0] ?? null;
   const hasBillingConflict = Boolean(directInvoice && deliveryInvoices.length > 0) || deliveryInvoices.length > 1;
-  const deliveryBillingBlocked = isDelivery && Boolean(directInvoice || firstDeliveryInvoice);
+  const deliveryBillingBlocked = isDelivery && Boolean(directInvoice || currentDeliveryInvoice);
+  const showBillingWarning = Boolean(
+    billingGuard?.isBlocked && (!isDelivery || directInvoice || currentDeliveryInvoice || hasBillingConflict),
+  );
 
   return (
     <div className="space-y-6">
@@ -210,9 +216,9 @@ export function SalesDocumentDetail({
                 <Button variant="secondary"><Truck className="h-4 w-4" /> Creer un retour</Button>
               </Link>
             ) : null}
-            {isDelivery && document.status === "validated" && !deliveryBillingBlocked ? (
+            {isDelivery && ["validated", "delivered"].includes(document.status) && !deliveryBillingBlocked ? (
               <Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}>
-                <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer facture</Button>
+                <Button variant="secondary"><Receipt className="h-4 w-4" /> Facturer</Button>
               </Link>
             ) : null}
             {isReturn && document.status === "draft" ? (
@@ -248,7 +254,7 @@ export function SalesDocumentDetail({
 
       <DocumentFlowMap steps={documentFlow ?? []} />
 
-      {billingGuard?.isBlocked ? (
+      {showBillingWarning ? (
         <Card className={hasBillingConflict ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}>
           <CardContent className="flex flex-col gap-3 text-sm sm:flex-row sm:items-start sm:justify-between">
             <div className="flex gap-3">
@@ -268,7 +274,7 @@ export function SalesDocumentDetail({
                       ? `Cette commande possède une facture directe historique ${directInvoice.invoice_number}.`
                       : firstDeliveryInvoice
                         ? `Cette commande a déjà été facturée via BL par ${firstDeliveryInvoice.invoice_number}.`
-                        : billingGuard.reason}
+                        : billingGuard?.reason}
                 </p>
                 {isOrder && directInvoice ? (
                   <p className="mt-1 text-amber-700">Pour éviter une double facturation, les BL liés à cette commande ne seront pas facturables. Utilisez un avoir ou une correction comptable si cette facture est erronée.</p>

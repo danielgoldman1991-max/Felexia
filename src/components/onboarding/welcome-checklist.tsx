@@ -82,7 +82,7 @@ export function WelcomeChecklist({ checklist }: { checklist: OnboardingChecklist
           </p>
           <div className="flex gap-3">
             <Link
-              href="/dashboard"
+              href="/dashboard?skipWelcome=1"
               className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
               Accéder au tableau de bord
