@@ -23,8 +23,9 @@ export async function POST(req: NextRequest) {
     const priceId = getStripePriceIdForPlan(planCode, interval);
 
     if (!priceId) {
+      const missingVar = `STRIPE_PRICE_${planCode.toUpperCase()}_${interval.toUpperCase()}`;
       return NextResponse.json(
-        { error: `Stripe price ID manquant pour le plan ${planCode} (${interval}).` },
+        { error: `Variable d'environnement manquante : ${missingVar}. Ajoutez-la dans Vercel > Settings > Environment Variables.` },
         { status: 400 },
       );
     }

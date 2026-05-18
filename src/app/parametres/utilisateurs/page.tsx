@@ -63,6 +63,7 @@ export default async function UsersSettingsPage() {
         roles={roles}
         isOwner={isOwner}
         organizationId={workspace.organization.id}
+        currentUserId={workspace.userId}
         limit={limit}
       />
     </div>
