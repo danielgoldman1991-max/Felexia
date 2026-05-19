@@ -1,3 +1,5 @@
+import { BUSINESS_MODULE_KEYS } from "@/lib/business-modules";
+
 export type PlanCode = "essentiel" | "business" | "premium";
 
 export type PlanFeatureKey =
@@ -166,7 +168,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
       "Stockage limite",
       "Sans comptabilite avancee",
     ],
-    moduleKeys: ["quotes", "invoicing", "documents", "crm"],
+    moduleKeys: ["quotes", "invoicing", "documents", "crm", "stock"],
     sortOrder: 1,
   },
   {
@@ -202,7 +204,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
       "Stockage moyen",
       "Support standard",
     ],
-    moduleKeys: ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting"],
+    moduleKeys: [...BUSINESS_MODULE_KEYS],
     sortOrder: 2,
   },
   {
@@ -262,4 +264,3 @@ export function getPlanDefinition(planCode: string | null | undefined): Subscrip
 export function getEnabledModulesForPlan(planCode: string | null | undefined): string[] {
   return getPlanDefinition(planCode).moduleKeys;
 }
-

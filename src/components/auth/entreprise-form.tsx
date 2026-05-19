@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Building2, MapPin, Phone, Mail, MapPinned, Upload } from "lucide-react";
 import { createEntrepriseAction, type CreateEntrepriseState } from "@/lib/actions/create-entreprise";
 import { Button } from "@/components/ui/button";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { formatMoroccanPhone, MOROCCAN_CITIES } from "@/lib/morocco-format";
 
 const initialState: CreateEntrepriseState = { error: null };
@@ -30,14 +31,23 @@ export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel
   const [logoError, setLogoError] = useState<string | null>(null);
   const [raisonSociale, setRaisonSociale] = useState("");
   const [telephone, setTelephone] = useState("+212 ");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const showLoadingOverlay = isSubmitting || pending;
 
   useEffect(() => {
     return () => {
       if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      const timeoutId = window.setTimeout(() => setIsSubmitting(false), 0);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [state.error, state.fieldErrors]);
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -77,17 +87,24 @@ export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel
     if (file && !ALLOWED_LOGO_TYPES.includes(file.type)) {
       event.preventDefault();
       setLogoError("Format non autorisé. Utilisez PNG, JPG ou WEBP.");
+      setIsSubmitting(false);
       return;
     }
     if (file && file.size > MAX_LOGO_SIZE) {
       event.preventDefault();
       setLogoError("Le logo ne doit pas dépasser 5 Mo.");
+      setIsSubmitting(false);
+      return;
     }
+    setIsSubmitting(true);
   }
 
   return (
-    <form action={formAction} onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
+    <>
+      <LoadingOverlay open={showLoadingOverlay} />
+      <form action={formAction} onSubmit={handleSubmit} className="space-y-6" aria-busy={showLoadingOverlay}>
+        <fieldset disabled={showLoadingOverlay} className="space-y-6 disabled:opacity-75">
+          <div className="space-y-4">
         <Field icon={Building2} error={state.fieldErrors?.raisonSociale}>
           <input
             name="raisonSociale"
@@ -147,9 +164,9 @@ export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel
           />
         </Field>
         <input type="hidden" name="devise" value="MAD" />
-      </div>
+          </div>
 
-      <div>
+          <div>
         <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Logo de l&apos;entreprise</h2>
         <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 transition hover:border-slate-300">
           <input
@@ -191,17 +208,19 @@ export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel
             <p className="mt-2 text-center text-xs text-red-500">{logoError ?? state.fieldErrors?.logo}</p>
           )}
         </div>
-      </div>
+          </div>
 
-      {state.error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
-          {state.error}
-        </p>
-      )}
+          {state.error && (
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+              {state.error || "La création de l’entreprise a échoué. Veuillez réessayer."}
+            </p>
+          )}
 
-      <Button type="submit" disabled={pending || Boolean(logoError)} className="h-12 w-full rounded-xl text-base font-semibold">
-        {pending ? "Création en cours..." : (buttonLabel ?? "Créer mon entreprise et choisir mes modules")}
-      </Button>
-    </form>
+          <Button type="submit" disabled={showLoadingOverlay || Boolean(logoError)} className="h-12 w-full rounded-xl text-base font-semibold">
+            {showLoadingOverlay ? "Création en cours..." : (buttonLabel ?? "Créer mon entreprise")}
+          </Button>
+        </fieldset>
+      </form>
+    </>
   );
 }

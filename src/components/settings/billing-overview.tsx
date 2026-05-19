@@ -82,7 +82,7 @@ export function BillingOverview({
               <p className="mt-1 text-sm text-[var(--muted)]">
                 Vous navez pas encore souscrit a une formule. Choisissez un plan pour commencer.
               </p>
-              <Button className="mt-4" onClick={() => router.push("/onboarding/formule")}>
+              <Button className="mt-4" onClick={() => router.push("/parametres/abonnement")}>
                 Voir les formules
               </Button>
             </div>

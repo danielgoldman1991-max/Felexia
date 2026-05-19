@@ -6,7 +6,13 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
 
-export type CompanyState = { error: string | null; success: boolean; fieldErrors?: Record<string, string> };
+export type CompanyState = {
+  error: string | null;
+  success: boolean;
+  message?: string;
+  logo_url?: string | null;
+  fieldErrors?: Record<string, string>;
+};
 
 function canManageCompanySettings(roleName: string | null): boolean {
   if (!roleName) return false;
@@ -72,7 +78,10 @@ export async function updateCompanyAction(
       .from("company_settings")
       .upsert(upsertData, { onConflict: "organization_id" });
 
-    if (error) return { error: error.message, success: false };
+    if (error) {
+      console.error("updateCompanyAction error:", error.message);
+      return { error: error.message, success: false };
+    }
 
     await logAudit(
       workspace.organization.id,
@@ -84,8 +93,17 @@ export async function updateCompanyAction(
 
     revalidatePath("/parametres/entreprise");
     revalidatePath("/parametres/entreprise/**");
-    return { error: null, success: true };
+    return {
+      error: null,
+      success: true,
+      message: "Informations enregistrées avec succès.",
+      logo_url: logoUrl,
+    };
   } catch (err) {
-    return { error: (err as Error).message, success: false };
+    console.error("updateCompanyAction error:", err);
+    return {
+      error: err instanceof Error ? err.message : "Erreur inconnue lors de l’enregistrement.",
+      success: false,
+    };
   }
 }

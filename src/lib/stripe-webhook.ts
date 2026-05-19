@@ -257,6 +257,18 @@ async function upsertSubscriptionFromStripe({
   }, {
     onConflict: "organization_id",
   });
+
+  if (stripeStatus === "active" || stripeStatus === "trialing") {
+    await supabase
+      .from("organizations")
+      .update({
+        onboarding_step: "getting_started",
+        onboarding_completed: false,
+        onboarding_completed_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", organizationId);
+  }
 }
 
 export function registerPriceMapping(_priceId: string, _planSlug: string): void {

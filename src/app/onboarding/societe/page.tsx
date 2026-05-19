@@ -18,7 +18,7 @@ export default async function CompanySetupPage() {
     .maybeSingle();
 
   if (membership) {
-    redirect("/onboarding/formule");
+    redirect("/dashboard");
   }
 
   return (

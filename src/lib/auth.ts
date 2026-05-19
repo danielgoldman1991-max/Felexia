@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_PLAN_CODE, getEnabledModulesForPlan, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
+import { getEnabledModulesForPlan, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
 
 export type ActiveWorkspace = {
   userId: string;
@@ -19,6 +19,9 @@ export type ActiveWorkspace = {
     status: string;
     planCode: PlanCode;
     planSlug: string;
+    trialStartedAt: string | null;
+    trialEndsAt: string | null;
+    currentPeriodEnd: string | null;
   } | null;
   enabledModules: string[];
 };
@@ -95,11 +98,11 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
     return null;
   }
 
-  let subscription: { status: string; planCode: PlanCode; planSlug: string } | null = null;
+  let subscription: { status: string; planCode: PlanCode; planSlug: string; trialStartedAt: string | null; trialEndsAt: string | null; currentPeriodEnd: string | null } | null = null;
   try {
     const { data: sub } = await supabase
       .from("organization_subscriptions")
-      .select("status, plan_code, plan:subscription_plans(code, slug)")
+      .select("status, plan_code, trial_started_at, trial_start, trial_ends_at, trial_end, current_period_end, plan:subscription_plans(code, slug)")
       .eq("organization_id", organization.id)
       .limit(1)
       .maybeSingle();
@@ -110,13 +113,31 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
         status: sub.status,
         planCode,
         planSlug: planCode,
+        trialStartedAt: sub.trial_started_at ?? sub.trial_start ?? null,
+        trialEndsAt: sub.trial_ends_at ?? sub.trial_end ?? null,
+        currentPeriodEnd: sub.current_period_end ?? null,
       };
     }
   } catch {
     // Table doesn't exist yet (migration not applied)
   }
 
-  const enabledModules = getEnabledModulesForPlan(subscription?.planCode ?? DEFAULT_PLAN_CODE);
+  let storedModules: string[] = [];
+  try {
+    const { data: moduleRows } = await supabase
+      .from("organization_modules")
+      .select("module_key")
+      .eq("organization_id", organization.id)
+      .eq("enabled", true);
+    storedModules = moduleRows?.map((row) => row.module_key as string) ?? [];
+  } catch {
+    storedModules = [];
+  }
+
+  const enabledModules = Array.from(new Set([
+    ...(subscription ? getEnabledModulesForPlan(subscription.planCode) : []),
+    ...storedModules,
+  ]));
 
   return {
     userId: user.id,

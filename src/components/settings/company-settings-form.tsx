@@ -11,11 +11,37 @@ const initialState: CompanyState = { error: null, success: false };
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
+export type CompanySettingsFormValues = {
+  id: string;
+  organization_id: string;
+  name: string;
+  legal_name: string;
+  commercial_name: string;
+  ice: string;
+  rc: string;
+  if_number: string;
+  cnss: string;
+  patente: string;
+  tax_identifier: string;
+  activity: string;
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+  email: string;
+  website: string;
+  currency: string;
+  footer_text: string;
+  logo_url: string;
+  logo_path: string;
+  updated_at: string | null;
+};
+
 export function CompanySettingsForm({
   settings,
   canEdit,
 }: {
-  settings: Record<string, unknown> | null;
+  settings: CompanySettingsFormValues;
   canEdit: boolean;
 }) {
   const [state, formAction, pending] = useActionState(updateCompanyAction, initialState);
@@ -23,7 +49,7 @@ export function CompanySettingsForm({
   const [logoError, setLogoError] = useState<string | null>(null);
   const logoPreviewRef = useRef<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
-  const s = settings ?? {};
+  const s = settings;
 
   useEffect(() => {
     return () => {
@@ -84,7 +110,7 @@ export function CompanySettingsForm({
     }
   }
 
-  const currentLogo = s.logo_url as string | null | undefined;
+  const currentLogo = s.logo_url;
 
   if (!canEdit) {
     return (
@@ -155,35 +181,35 @@ export function CompanySettingsForm({
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Raison sociale</label>
-            <Input name="legal_name" defaultValue={String(s.legal_name ?? "")} />
+            <Input name="legal_name" defaultValue={s.legal_name} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Nom commercial</label>
-            <Input name="commercial_name" defaultValue={String(s.commercial_name ?? "")} />
+            <Input name="commercial_name" defaultValue={s.commercial_name} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">ICE</label>
-            <Input name="ice" defaultValue={String(s.ice ?? "")} />
+            <Input name="ice" defaultValue={s.ice} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">RC</label>
-            <Input name="rc" defaultValue={String(s.rc ?? "")} />
+            <Input name="rc" defaultValue={s.rc} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">IF</label>
-            <Input name="if_number" defaultValue={String(s.if_number ?? "")} />
+            <Input name="if_number" defaultValue={s.if_number} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">CNSS</label>
-            <Input name="cnss" defaultValue={String(s.cnss ?? "")} />
+            <Input name="cnss" defaultValue={s.cnss} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Patente</label>
-            <Input name="patente" defaultValue={String(s.patente ?? "")} />
+            <Input name="patente" defaultValue={s.patente} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Activité</label>
-            <Input name="activity" defaultValue={String(s.activity ?? "")} />
+            <Input name="activity" defaultValue={s.activity} />
           </div>
         </CardContent>
       </Card>
@@ -195,31 +221,31 @@ export function CompanySettingsForm({
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Adresse</label>
-            <Input name="address" defaultValue={String(s.address ?? "")} />
+            <Input name="address" defaultValue={s.address} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Ville</label>
-            <Input name="city" defaultValue={String(s.city ?? "")} />
+            <Input name="city" defaultValue={s.city} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Pays</label>
-            <Input name="country" defaultValue={String(s.country ?? "Maroc")} />
+            <Input name="country" defaultValue={s.country} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Téléphone</label>
-            <Input name="phone" defaultValue={String(s.phone ?? "")} />
+            <Input name="phone" defaultValue={s.phone} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Email</label>
-            <Input name="email" type="email" defaultValue={String(s.email ?? "")} />
+            <Input name="email" type="email" defaultValue={s.email} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Site web</label>
-            <Input name="website" defaultValue={String(s.website ?? "")} />
+            <Input name="website" defaultValue={s.website} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Devise</label>
-            <Input name="currency" defaultValue={String(s.currency ?? "MAD")} />
+            <Input name="currency" defaultValue={s.currency} />
           </div>
         </CardContent>
       </Card>
@@ -231,7 +257,7 @@ export function CompanySettingsForm({
         <CardContent>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Texte de pied de page</label>
-            <Input name="footer_text" defaultValue={String(s.footer_text ?? "")} placeholder="Merci pour votre confiance" />
+            <Input name="footer_text" defaultValue={s.footer_text} placeholder="Merci pour votre confiance" />
             <p className="mt-1 text-xs text-[var(--muted)]">Ce texte apparaîtra sur vos factures et devis.</p>
           </div>
         </CardContent>
@@ -239,7 +265,7 @@ export function CompanySettingsForm({
 
       {state.success && (
         <p className="mt-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
-          Les paramètres de l&apos;entreprise ont été enregistrés.
+          {state.message ?? "Les paramètres de l'entreprise ont été enregistrés."}
         </p>
       )}
       {state.error && (

@@ -2,8 +2,10 @@ import type { ReactNode } from "react";
 import { AppShellClient } from "@/components/layout/app-shell-client";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
+import { getUserOnboardingStatus } from "@/lib/saas";
 
 export async function AppShell({ children }: { children: ReactNode }) {
+  await getUserOnboardingStatus();
   const workspace = await requireActiveWorkspace();
   let showWelcomeGuide = true;
 

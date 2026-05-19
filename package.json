@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ensure:accounting-defaults": "node --experimental-strip-types scripts/ensure-accounting-defaults-all-organizations.ts"
+    "ensure:accounting-defaults": "node --experimental-strip-types scripts/ensure-accounting-defaults-all-organizations.ts",
+    "fix:onboarding-business-trial": "npx tsx scripts/fix-onboarding-business-trial.ts",
+    "fix:business-trial-modules": "npx tsx scripts/fix-business-trial-and-modules.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

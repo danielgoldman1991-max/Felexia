@@ -4,7 +4,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
-import { DEFAULT_PLAN_CODE, DEFAULT_TRIAL_DAYS, getEnabledModulesForPlan, getPlanDefinition } from "@/lib/subscriptions/plans";
+import {
+  startBusinessTrialAndEnableModules,
+} from "@/lib/subscriptions/plan-access";
 
 export type RegisterCompanyState = {
   error: string | null;
@@ -111,6 +113,9 @@ export async function registerCompanyAction(
       address: adresse || null,
       activity: secteur || null,
       currency: "MAD",
+      onboarding_step: "completed",
+      onboarding_completed: true,
+      onboarding_completed_at: new Date().toISOString(),
     })
     .select("id")
     .single();
@@ -161,6 +166,15 @@ export async function registerCompanyAction(
     taille: taille || null,
     currency: "MAD",
   }, { onConflict: "organization_id" });
+
+  try {
+    await startBusinessTrialAndEnableModules(orgId, userId, svc);
+  } catch (trialErr) {
+    console.error("registerCompany: trial activation error", trialErr);
+    return {
+      error: "Votre entreprise a été créée, mais l’activation de l’essai gratuit Business ou des modules a échoué. Veuillez contacter le support ou réessayer.",
+    };
+  }
 
   // ── 8. Upload logo ──────────────────────────────────────────────────────────
   let logoUrl: string | null = null;
@@ -214,34 +228,6 @@ export async function registerCompanyAction(
   // ── 9. Initialize organization defaults ─────────────────────────────────────
   await initializeOrganizationDefaults(orgId);
 
-  // ── 10. Start Business trial by default ─────────────────────────────────────
-  const trialStart = new Date();
-  const trialEnd = new Date(trialStart.getTime() + DEFAULT_TRIAL_DAYS * 24 * 60 * 60 * 1000);
-  const plan = getPlanDefinition(DEFAULT_PLAN_CODE);
-  const { data: businessPlan } = await svc
-    .from("subscription_plans")
-    .select("id")
-    .eq("code", DEFAULT_PLAN_CODE)
-    .maybeSingle();
-
-  await svc.from("organization_subscriptions").upsert({
-    organization_id: orgId,
-    plan_id: businessPlan?.id ?? null,
-    plan_code: DEFAULT_PLAN_CODE,
-    status: "trialing",
-    billing_cycle: "monthly",
-    billing_interval: "monthly",
-    trial_start: trialStart.toISOString(),
-    trial_end: trialEnd.toISOString(),
-    trial_ends_at: trialEnd.toISOString(),
-    current_period_start: trialStart.toISOString(),
-    current_period_end: trialEnd.toISOString(),
-    cancel_at_period_end: false,
-    selected_modules: JSON.parse(JSON.stringify(getEnabledModulesForPlan(DEFAULT_PLAN_CODE))),
-    monthly_amount: plan.monthlyPrice,
-    yearly_amount: plan.yearlyPrice,
-  }, { onConflict: "organization_id" });
-
-  // ── 11. Redirect to welcome guide ───────────────────────────────────────────
-  redirect("/bienvenue");
+  // ── 10. Redirect to welcome guide with trial confirmation ──────────────────
+  redirect("/bienvenue?trial=business");
 }

@@ -8,18 +8,28 @@ import { SalesDonut } from "@/components/dashboard/sales-donut";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { TopClients } from "@/components/dashboard/top-clients";
 import { MobileAppBanner } from "@/components/dashboard/mobile-app-banner";
+import { TrialStartedBanner } from "@/components/dashboard/trial-started-banner";
 import { getDashboardData } from "@/lib/dashboard-data";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ trial_started?: string | string[] }>;
+}) {
   const workspace = await requireActiveWorkspace();
+  const params = await searchParams;
   const firstName = workspace.profile?.full_name?.split(" ")[0] || "Youssef";
   const [data, checklist] = await Promise.all([
     getDashboardData(),
     getOnboardingChecklist(workspace.organization.id),
   ]);
   const showOnboardingCard = !isOnboardingChecklistComplete(checklist);
+  const trialStartedParam = Array.isArray(params?.trial_started)
+    ? params?.trial_started[0]
+    : params?.trial_started;
+  const showTrialBanner = trialStartedParam === "1" || workspace.subscription?.status === "trialing";
 
   const kpiCards = [
     {
@@ -101,6 +111,8 @@ export default async function DashboardPage() {
             Ce mois
           </button>
         </div>
+
+        {showTrialBanner ? <TrialStartedBanner forceOpen={trialStartedParam === "1"} /> : null}
 
         {showOnboardingCard ? (
           <Link

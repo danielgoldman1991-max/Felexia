@@ -9,6 +9,7 @@ import {
   Package,
   Users,
 } from "lucide-react";
+import { CompleteOnboardingButton } from "@/components/onboarding/complete-onboarding-button";
 import type { OnboardingChecklist, OnboardingChecklistStepKey } from "@/lib/onboarding";
 
 const STEP_ICONS: Record<OnboardingChecklistStepKey, typeof Building2> = {
@@ -81,12 +82,7 @@ export function WelcomeChecklist({ checklist }: { checklist: OnboardingChecklist
             Vous pouvez revenir à cette page depuis le guide de démarrage.
           </p>
           <div className="flex gap-3">
-            <Link
-              href="/dashboard?skipWelcome=1"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Accéder au tableau de bord
-            </Link>
+            <CompleteOnboardingButton />
             <Link
               href="/parametres/entreprise"
               className="inline-flex h-11 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-500"

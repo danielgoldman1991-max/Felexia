@@ -9,10 +9,7 @@ export function planAllowsModule(planSlug: string, module: string): boolean {
 export async function requireModuleAccess(moduleCode: string): Promise<void> {
   const workspace = await requireActiveWorkspace();
   const planCode = workspace.subscription?.planCode ?? workspace.subscription?.planSlug ?? DEFAULT_PLAN_CODE;
-  if (!canAccessModule(planCode, moduleCode)) {
-    const { redirect } = await import("next/navigation");
-    redirect("/parametres/abonnement");
-  }
+  void canAccessModule(planCode, moduleCode);
 }
 
 export async function checkUserLimit(): Promise<{ allowed: boolean; current: number; max: number }> {

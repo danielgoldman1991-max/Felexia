@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Check, CreditCard, Database, FileText, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,8 +44,10 @@ export function SubscriptionManage({
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [loadingTrial, setLoadingTrial] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const hasSubscription = Boolean(currentSubscription);
   const currentPlan = getPlanDefinition(currentSubscription?.plan_code);
   const currentPlanCode = currentPlan.code;
   const currentBillingCycle: BillingInterval = (
@@ -112,6 +115,23 @@ export function SubscriptionManage({
     }
   }
 
+  async function startTrial() {
+    if (loadingTrial) return;
+    setLoadingTrial(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/subscriptions/start-trial", { method: "POST" });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || "Impossible d'activer l'essai gratuit pour le moment. Veuillez réessayer.");
+      }
+      window.location.assign(payload?.redirectTo ?? "/dashboard?trial_started=1");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Impossible d'activer l'essai gratuit pour le moment. Veuillez réessayer.");
+      setLoadingTrial(false);
+    }
+  }
+
   function formatLimit(value: number | null): string {
     return value === null ? "Illimite" : new Intl.NumberFormat("fr-FR").format(value);
   }
@@ -133,42 +153,67 @@ export function SubscriptionManage({
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-blue-600" />
-                <h2 className="text-lg font-semibold">Plan actuel</h2>
-              </div>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Les modules Felexia sont maintenant inclus selon votre pack.
-              </p>
+      {!hasSubscription ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-blue-600" />
+              <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai gratuit ni choisi d&apos;abonnement.</h2>
             </div>
-            <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{statusBadge[status]?.label ?? status}</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-5">
-          <Metric label="Pack" value={currentPlan.name} icon={<ShieldCheck className="h-4 w-4" />} />
-          <Metric label="Cycle" value={currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
-          <Metric label="Utilisateurs" value={`${memberCount}/${currentPlan.limits.users}`} icon={<Users className="h-4 w-4" />} />
-          <Metric
-            label="Documents / mois"
-            value={`${documentsThisMonth ?? 0}/${formatLimit(currentPlan.limits.commercialDocumentsPerMonth)}`}
-            icon={<FileText className="h-4 w-4" />}
-          />
-          <Metric
-            label="Stockage"
-            value={`${storageUsedMb ?? 0} Mo/${currentPlan.limits.storageMb} Mo`}
-            icon={<Database className="h-4 w-4" />}
-          />
-          {periodEnd && (
-            <p className="md:col-span-5 text-sm text-[var(--muted)]">
-              Fin de période : <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Business sans carte bancaire ou choisir directement un pack.
             </p>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button onClick={startTrial} disabled={loadingTrial}>
+              {loadingTrial ? "Activation en cours..." : "Démarrer l'essai gratuit Business"}
+            </Button>
+            <Link
+              href="/parametres/abonnement"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-medium text-[var(--secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[#c8d0e1] hover:bg-[var(--surface-soft)]"
+            >
+              Choisir un pack
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-blue-600" />
+                  <h2 className="text-lg font-semibold">Plan actuel</h2>
+                </div>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  Les modules Felexia sont maintenant inclus selon votre pack.
+                </p>
+              </div>
+              <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{statusBadge[status]?.label ?? status}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-5">
+            <Metric label="Pack" value={currentPlan.name} icon={<ShieldCheck className="h-4 w-4" />} />
+            <Metric label="Cycle" value={currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
+            <Metric label="Utilisateurs" value={`${memberCount}/${currentPlan.limits.users}`} icon={<Users className="h-4 w-4" />} />
+            <Metric
+              label="Documents / mois"
+              value={`${documentsThisMonth ?? 0}/${formatLimit(currentPlan.limits.commercialDocumentsPerMonth)}`}
+              icon={<FileText className="h-4 w-4" />}
+            />
+            <Metric
+              label="Stockage"
+              value={`${storageUsedMb ?? 0} Mo/${currentPlan.limits.storageMb} Mo`}
+              icon={<Database className="h-4 w-4" />}
+            />
+            {periodEnd && (
+              <p className="md:col-span-5 text-sm text-[var(--muted)]">
+                Fin de période : <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {error ? (
         <div className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
@@ -217,7 +262,7 @@ export function SubscriptionManage({
 
       <div className="grid gap-4 lg:grid-cols-3">
         {SUBSCRIPTION_PLANS.map((plan) => {
-          const isCurrentPlan = plan.code === currentPlanCode && billingInterval === currentBillingCycle;
+          const isCurrentPlan = hasSubscription && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
           const savings = yearlySavings.find((s) => s.code === plan.code);
 
           return (

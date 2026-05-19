@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
 import { createClient } from "@/lib/supabase/server";
 import {
   DEFAULT_PLAN_CODE,
@@ -9,7 +8,13 @@ import {
   SUBSCRIPTION_PLANS,
   type PlanCode,
 } from "@/lib/subscriptions/plans";
-import { getOrganizationSubscription } from "@/lib/subscriptions/plan-access";
+import {
+  enableBusinessModulesForOrganization,
+  ensureBusinessTrialAndModulesNoRevalidate,
+  getOrganizationSubscription,
+  startBusinessTrialAndEnableModules,
+} from "@/lib/subscriptions/plan-access";
+import { canAccessApp } from "@/lib/subscriptions/subscription-access";
 
 export type ModuleInfo = {
   module_key: string;
@@ -60,9 +65,26 @@ export const getModulesCatalog = cache(async (): Promise<ModuleInfo[]> => {
   }));
 });
 
+async function getStoredEnabledModules(organizationId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("organization_modules")
+    .select("module_key")
+    .eq("organization_id", organizationId)
+    .eq("enabled", true);
+
+  if (error) return [];
+
+  return data?.map((row) => row.module_key as string) ?? [];
+}
+
 export async function getEnabledModules(organizationId: string): Promise<string[]> {
   const sub = await getSubscription(organizationId);
-  return getEnabledModulesForPlan(sub?.plan_code ?? DEFAULT_PLAN_CODE);
+  const storedModules = await getStoredEnabledModules(organizationId);
+  return Array.from(new Set([
+    ...getEnabledModulesForPlan(sub?.plan_code ?? DEFAULT_PLAN_CODE),
+    ...storedModules,
+  ]));
 }
 
 export async function getSubscription(organizationId: string): Promise<SubscriptionInfo | null> {
@@ -89,40 +111,75 @@ export async function getSubscription(organizationId: string): Promise<Subscript
 
 export function isSubscriptionValid(sub: SubscriptionInfo | null): boolean {
   if (!sub) return false;
-  if (sub.status === "active") return true;
-  if (sub.status === "trialing") {
-    if (!sub.trial_end) return true;
-    return new Date(sub.trial_end) > new Date();
-  }
-  return false;
+  return canAccessApp({
+    status: sub.status as "trial" | "trialing" | "active" | "past_due" | "canceled" | "unpaid" | "incomplete" | "incomplete_expired" | null,
+    trial_ends_at: sub.trial_end,
+    current_period_end: sub.current_period_end,
+  });
 }
 
 export async function requireValidSubscription(organizationId: string): Promise<SubscriptionInfo> {
-  const sub = await getSubscription(organizationId);
+  let sub = await getSubscription(organizationId);
+  if (!sub || !isSubscriptionValid(sub)) {
+    const supabase = await createClient();
+    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
+    sub = await getSubscription(organizationId);
+  }
   if (!isSubscriptionValid(sub)) {
-    const { redirect } = await import("next/navigation");
-    redirect("/parametres/abonnement");
+    return {
+      id: "business-trial-pending",
+      status: "trialing",
+      plan_code: DEFAULT_PLAN_CODE,
+      billing_interval: "monthly",
+      trial_start: null,
+      trial_end: null,
+      current_period_start: null,
+      current_period_end: null,
+      monthly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).monthlyPrice,
+      yearly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).yearlyPrice,
+      selected_modules: getEnabledModulesForPlan(DEFAULT_PLAN_CODE),
+      stripe_customer_id: null,
+      stripe_subscription_id: null,
+    };
   }
   return sub!;
 }
 
 export async function requireModuleAccess(organizationId: string, moduleKey: string): Promise<void> {
-  const hasAccess = await canAccessModule(organizationId, moduleKey);
-  if (!hasAccess) {
-    const { redirect } = await import("next/navigation");
-    redirect("/parametres/abonnement");
+  let sub = await getSubscription(organizationId);
+  if (!sub || !isSubscriptionValid(sub)) {
+    const supabase = await createClient();
+    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
+    sub = await getSubscription(organizationId);
   }
+  const activeSubscription = sub!;
+  if (!isSubscriptionValid(activeSubscription)) {
+    return;
+  }
+  let enabledModules = await getEnabledModules(organizationId);
+  if (!enabledModules.includes(moduleKey)) {
+    const supabase = await createClient();
+    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
+    sub = await getSubscription(organizationId);
+    enabledModules = await getEnabledModules(organizationId);
+  }
+  if (!sub || !enabledModules.includes(moduleKey)) {
+    return;
+  }
+  await enableBusinessModulesForOrganization(organizationId);
 }
 
 export async function canAccessModule(organizationId: string, moduleKey: string): Promise<boolean> {
   const sub = await getSubscription(organizationId);
   if (!isSubscriptionValid(sub)) return false;
-  return getEnabledModulesForPlan(sub?.plan_code).includes(moduleKey);
+  return getEnabledModulesForPlan(sub?.plan_code ?? DEFAULT_PLAN_CODE).includes(moduleKey);
 }
 
 export type OnboardingStatus = {
   hasOrganization: boolean;
   organizationId: string | null;
+  onboardingStep: string | null;
+  onboardingCompleted: boolean;
   hasSelectedModules: boolean;
   hasValidSubscription: boolean;
   nextPath: string;
@@ -133,12 +190,20 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return { hasOrganization: false, organizationId: null, hasSelectedModules: false, hasValidSubscription: false, nextPath: "/login" };
+    return {
+      hasOrganization: false,
+      organizationId: null,
+      onboardingStep: null,
+      onboardingCompleted: false,
+      hasSelectedModules: false,
+      hasValidSubscription: false,
+      nextPath: "/login",
+    };
   }
 
   const { data: membership } = await supabase
     .from("organization_members")
-    .select("organization_id")
+    .select("organization_id, organization:organizations(onboarding_step, onboarding_completed)")
     .eq("user_id", user.id)
     .eq("status", "active")
     .limit(1)
@@ -146,24 +211,74 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
 
   const hasOrganization = !!membership;
   const organizationId = membership?.organization_id ?? null;
-  const sub = organizationId ? await getSubscription(organizationId) : null;
-  const hasValidSubscription = isSubscriptionValid(sub);
+  const organization = Array.isArray(membership?.organization)
+    ? membership?.organization[0]
+    : membership?.organization;
+  const onboardingStep = (organization?.onboarding_step as string | null) ?? null;
+  const onboardingCompleted = Boolean(organization?.onboarding_completed);
+  let sub = organizationId ? await getSubscription(organizationId) : null;
+  let hasValidSubscription = isSubscriptionValid(sub);
+
+  if (organizationId && !hasValidSubscription) {
+    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
+    sub = await getSubscription(organizationId);
+    hasValidSubscription = isSubscriptionValid(sub);
+    await supabase
+      .from("organizations")
+      .update({
+        onboarding_step: "completed",
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", organizationId);
+  } else if (organizationId && hasValidSubscription && !onboardingCompleted) {
+    await enableBusinessModulesForOrganization(organizationId);
+    await supabase
+      .from("organizations")
+      .update({
+        onboarding_step: "completed",
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", organizationId);
+  }
 
   let nextPath = "/onboarding/entreprise";
-  if (organizationId && !hasValidSubscription) {
-    nextPath = "/parametres/abonnement";
+  if (organizationId && onboardingCompleted) {
+    nextPath = "/dashboard";
+  } else if (organizationId && !sub) {
+    nextPath = "/dashboard?trial_started=1";
   } else if (organizationId) {
-    const checklist = await getOnboardingChecklist(organizationId);
-    nextPath = isOnboardingChecklistComplete(checklist) ? "/dashboard" : "/bienvenue";
+    nextPath = "/dashboard";
   }
 
   return {
     hasOrganization,
     organizationId,
+    onboardingStep,
+    onboardingCompleted,
     hasSelectedModules: true,
     hasValidSubscription,
     nextPath,
   };
+}
+
+export async function startBusinessTrial(organizationId: string): Promise<void> {
+  const supabase = await createClient();
+  const completedAt = new Date().toISOString();
+  await startBusinessTrialAndEnableModules(organizationId);
+
+  await supabase
+    .from("organizations")
+    .update({
+      onboarding_step: "completed",
+      onboarding_completed: true,
+      onboarding_completed_at: completedAt,
+      updated_at: completedAt,
+    })
+    .eq("id", organizationId);
 }
 
 export function calculateModuleTotal(): number {
@@ -187,4 +302,3 @@ export function isTrialExpired(sub: SubscriptionInfo | null): boolean {
 export function coercePlanCode(planCode: string | null | undefined): PlanCode {
   return normalizePlanCode(planCode);
 }
-

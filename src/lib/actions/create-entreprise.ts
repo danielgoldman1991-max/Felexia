@@ -7,7 +7,9 @@ import { initializeOrganizationDefaults } from "@/lib/org-defaults";
 import { ensureAccountingBaseSetup } from "@/lib/accounting";
 import { formatMoroccanPhone, isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
-import { ensureDefaultBusinessTrial } from "@/lib/subscriptions/plan-access";
+import {
+  startBusinessTrialAndEnableModules,
+} from "@/lib/subscriptions/plan-access";
 
 export type CreateEntrepriseState = {
   error: string | null;
@@ -135,16 +137,29 @@ export async function createEntrepriseAction(
     return { error: `Finalisation entreprise impossible : ${finalizeError.message}` };
   }
 
+  await supabase
+    .from("organizations")
+    .update({
+      onboarding_step: "completed",
+      onboarding_completed: true,
+      onboarding_completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", orgId);
+
+  try {
+    await startBusinessTrialAndEnableModules(orgId, user.id);
+  } catch (trialErr) {
+    console.error("createEntreprise: trial activation error", trialErr);
+    return {
+      error: "Votre entreprise a été créée, mais l’activation de l’essai gratuit Business ou des modules a échoué. Veuillez contacter le support ou réessayer.",
+    };
+  }
+
   try {
     await ensureAccountingBaseSetup(orgId);
   } catch (accountingErr) {
     console.error("createEntreprise: accounting defaults error", accountingErr);
-  }
-
-  try {
-    await ensureDefaultBusinessTrial(orgId);
-  } catch (subscriptionErr) {
-    console.error("createEntreprise: subscription default error", subscriptionErr);
   }
 
   if (hasServiceRoleKey()) {
@@ -157,5 +172,5 @@ export async function createEntrepriseAction(
     console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
-  redirect("/bienvenue");
+  redirect("/bienvenue?trial=business");
 }

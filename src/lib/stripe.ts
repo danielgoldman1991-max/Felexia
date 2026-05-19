@@ -49,7 +49,7 @@ export async function createCheckoutSession(
       metadata: { organization_id: organizationId },
     },
     success_url: successUrl || `${env.appUrl}/onboarding/paiement?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: cancelUrl || `${env.appUrl}/onboarding/formule?canceled=true`,
+    cancel_url: cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`,
   });
   return session;
 }
