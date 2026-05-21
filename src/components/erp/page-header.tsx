@@ -10,12 +10,13 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex items-start justify-between gap-4 border-b border-[var(--border)] pb-5">
+    <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-white/10 pb-5 md:flex-row">
       <div>
-        <h1 className="text-2xl font-semibold tracking-normal text-[var(--foreground)]">{title}</h1>
+        <p className="section-title mb-2">Felexia command</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">{title}</h1>
         {description ? <p className="mt-1.5 text-sm leading-6 text-[var(--muted)]">{description}</p> : null}
       </div>
-      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
   );
 }

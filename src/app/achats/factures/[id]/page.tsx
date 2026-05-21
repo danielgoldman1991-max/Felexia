@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SupplierInvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ invoice, lines }, documentFlow] = await Promise.all([
+  const [{ invoice, lines, payments, paymentSummary }, documentFlow] = await Promise.all([
     getSupplierInvoiceDetail(id),
     getSupplierInvoiceDocumentFlow(id),
   ]);
@@ -21,7 +21,14 @@ export default async function SupplierInvoiceDetailPage({ params }: { params: Pr
 
   return (
     <ModulePage>
-      <SupplierInvoiceDetail invoice={invoice} lines={lines} accountingEntry={accountingEntry} documentFlow={documentFlow} />
+      <SupplierInvoiceDetail
+        invoice={invoice}
+        lines={lines}
+        payments={payments}
+        paymentSummary={paymentSummary}
+        accountingEntry={accountingEntry}
+        documentFlow={documentFlow}
+      />
     </ModulePage>
   );
 }

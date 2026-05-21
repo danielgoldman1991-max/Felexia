@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { ModulePage } from "@/components/erp/module-page";
 import { SupplierInvoiceForm } from "@/components/purchases/supplier-invoice-form";
-import { listPurchaseSuppliers, listPurchaseProducts, listBillableSupplierReceipts, getSupplierInvoiceByReceiptId } from "@/lib/purchases";
+import { listPurchaseSuppliers, listPurchaseProducts, listBillableSupplierReceipts, getSupplierInvoiceByReceiptId, getSupplierInvoicePreparationFromReceipt } from "@/lib/purchases";
 import type { SupplierInvoiceLineFormValue } from "@/lib/purchase-types";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +21,11 @@ export default async function NewSupplierInvoicePage({ searchParams }: { searchP
   let prefillLines: SupplierInvoiceLineFormValue[] = [];
 
   if (receiptId) {
-    const receipt = billableReceipts.find((r) => r.id === receiptId && !r.already_invoiced);
-    if (receipt) {
-      prefillSupplierId = receipt.supplier_id;
+    const preparation = await getSupplierInvoicePreparationFromReceipt(receiptId);
+    if (preparation && preparation.lines.length > 0) {
+      prefillSupplierId = preparation.receipt.supplier_id;
       prefillSourceReceiptId = receiptId;
-      prefillLines = receipt.lines.map((l) => ({
+      prefillLines = preparation.lines.map((l) => ({
         id: l.id,
         mode: "product" as const,
         product_id: l.product_id ?? "",
@@ -38,12 +38,13 @@ export default async function NewSupplierInvoicePage({ searchParams }: { searchP
         discount_rate: l.discount_rate,
         tax_rate_id: l.tax_rate_id ?? "",
         tax_rate: l.tax_rate,
-        subtotal_ht: l.quantity * l.unit_price_ht,
-        discount_amount: 0,
-        tax_amount: 0,
-        total_ttc: l.quantity * l.unit_price_ht,
-        source_line_id: l.id,
+        subtotal_ht: l.subtotal_ht,
+        discount_amount: l.discount_amount,
+        tax_amount: l.tax_amount,
+        total_ttc: l.total_ttc,
+        source_line_id: l.source_line_id,
         source_document_id: receiptId,
+        warning: l.warning,
       }));
     }
   }

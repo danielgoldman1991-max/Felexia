@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
 
 const navItems = [
+  { label: "Mon profil", href: "/parametres/profil", key: "profil" },
   { label: "Entreprise", href: "/parametres/entreprise", key: "entreprise" },
   { label: "Utilisateurs", href: "/parametres/utilisateurs", key: "utilisateurs" },
   { label: "Rôles & habilitations", href: "/parametres/roles", key: "roles" },

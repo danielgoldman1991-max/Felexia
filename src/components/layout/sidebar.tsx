@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Building2,
   ChevronDown,
+  KeyRound,
   LogOut,
   Settings,
-  Plus,
+  User,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { cn, initials } from "@/lib/utils";
-import { quickActions, sections } from "@/components/layout/sidebar-data";
+import { sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
 import { logoutAction } from "@/lib/auth-actions";
 
@@ -23,11 +25,11 @@ function pathMatches(pathname: string, href: string) {
 
 function Badge({ value, tone = "info" }: { value: string; tone?: "danger" | "warning" | "info" }) {
   const styles = {
-    danger: "bg-rose-500 text-white",
-    warning: "bg-amber-400 text-slate-950",
-    info: "bg-blue-500 text-white",
+    danger: "bg-red-400/15 text-red-200 ring-1 ring-red-300/20",
+    warning: "bg-amber-300/15 text-amber-200 ring-1 ring-amber-300/20",
+    info: "bg-cyan-300/15 text-cyan-200 ring-1 ring-cyan-300/20",
   };
-  return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", styles[tone])}>{value}</span>;
+  return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", styles[tone])}>{value}</span>;
 }
 
 export function Sidebar({
@@ -64,6 +66,19 @@ export function Sidebar({
     [pathname, visibleSections],
   );
   const [open, setOpen] = useState<string[]>(initiallyOpen);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+        setAccountOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
 
   function toggle(key: string) {
     setOpen((current) =>
@@ -75,6 +90,8 @@ export function Sidebar({
 
   const displayName = workspace?.profile?.full_name ?? workspace?.email ?? "Sophie Laurent";
   const role = workspace?.role ?? "Administratrice";
+  const organizationName = workspace?.organization.name || "Organisation";
+  const userEmail = workspace?.profile?.email ?? workspace?.email ?? "";
 
   return (
     <>
@@ -89,8 +106,8 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[300px] flex-col border-r border-white/10",
-          "bg-[#06111f] text-white shadow-2xl transition-transform duration-300 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[288px] flex-col border-r border-white/10",
+          "bg-[#080A0F]/92 text-white shadow-2xl backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -103,19 +120,19 @@ export function Sidebar({
             </defs>
             <rect width="100%" height="100%" fill="url(#sidebar-grid)" />
           </svg>
-          <div className="absolute -left-20 -top-40 h-[500px] w-[500px] rounded-full bg-blue-500/8 blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 h-[300px] w-[300px] rounded-full bg-cyan-500/5 blur-3xl" />
+          <div className="absolute -left-24 -top-44 h-[420px] w-[420px] rounded-full bg-cyan-400/10 blur-3xl" />
+          <div className="absolute -bottom-20 -right-24 h-[320px] w-[320px] rounded-full bg-[#D6B56D]/10 blur-3xl" />
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center justify-between px-5 pt-6 pb-5">
             <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={onCloseMobile}>
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-400 shadow-lg shadow-blue-500/25 ring-1 ring-white/10">
+              <div className="luxury-border flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] shadow-[0_18px_50px_rgba(214,181,109,0.16)] ring-1 ring-white/10">
                 <Logo size={36} />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-bold tracking-tight text-white">Felexia</h1>
-                <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/40">Gestion PME</p>
+                <h1 className="text-xl font-semibold tracking-tight text-white">Felexia</h1>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#D6B56D]/70">Obsidian ERP</p>
               </div>
             </Link>
             <button
@@ -128,24 +145,25 @@ export function Sidebar({
             </button>
           </div>
 
-          <div className="space-y-2 border-b border-white/10 px-4 pb-5">
-            {quickActions.map((item) => {
-              const Icon = item.icon ?? Plus;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onCloseMobile}
-                  className="group flex items-center gap-3 rounded-2xl bg-gradient-to-r from-slate-800/90 via-slate-800/80 to-slate-700/80 px-4 py-3 text-sm font-semibold text-white shadow-sm ring-1 ring-white/10 transition-all hover:scale-[1.02] hover:from-slate-700/90 hover:via-slate-700/80 hover:to-slate-600/80 hover:shadow-md"
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
+          <div className="px-4 pb-4">
+            <Link
+              href="/parametres/entreprise"
+              onClick={onCloseMobile}
+              title="Paramètres de l’entreprise"
+              className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-3 transition hover:bg-white/[0.07]"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.055] text-[#D6B56D] ring-1 ring-white/10">
+                <Building2 className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">Organisation</span>
+                <span className="block truncate text-sm font-semibold text-white group-hover:text-[#D6B56D]">{organizationName}</span>
+              </span>
+              <Settings className="h-4 w-4 shrink-0 text-white/28 transition group-hover:text-white/70" />
+            </Link>
           </div>
 
-          <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-thumb-white/10">
+          <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-white/10 px-3 py-4 scrollbar-thin scrollbar-thumb-white/10">
             {visibleSections.map((section) => {
               const Icon = section.icon;
               const active =
@@ -163,12 +181,12 @@ export function Sidebar({
                       className={cn(
                         "group relative flex min-h-11 flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all",
                         active
-                          ? "bg-white/10 text-white shadow-lg backdrop-blur-xl"
-                          : "text-white/60 hover:bg-white/5 hover:text-white/90",
+                          ? "bg-white/[0.09] text-white shadow-lg ring-1 ring-white/10 backdrop-blur-xl"
+                          : "text-white/58 hover:bg-white/[0.055] hover:text-white/90",
                       )}
                     >
                       {active ? (
-                        <span className="absolute left-0 top-2.5 h-6 w-1 rounded-r-full bg-gradient-to-b from-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
+                        <span className="absolute left-0 top-2.5 h-6 w-1 rounded-r-full bg-gradient-to-b from-[#D6B56D] to-cyan-300 shadow-[0_0_12px_rgba(214,181,109,0.42)]" />
                       ) : null}
                       <Icon className="h-4 w-4 shrink-0" />
                       <span className="min-w-0 flex-1 truncate">{section.label}</span>
@@ -200,8 +218,8 @@ export function Sidebar({
                             className={cn(
                               "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-all",
                               itemActive
-                                ? "bg-white/8 text-cyan-300"
-                                : "text-white/45 hover:bg-white/5 hover:text-white/70",
+                                ? "bg-white/[0.07] text-cyan-200"
+                                : "text-white/45 hover:bg-white/[0.045] hover:text-white/75",
                             )}
                           >
                             {ItemIcon ? <ItemIcon className="h-3.5 w-3.5 shrink-0" /> : null}
@@ -217,32 +235,77 @@ export function Sidebar({
             })}
           </nav>
 
-          <div className="relative z-10 border-t border-white/10 px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-sm font-bold text-white shadow-lg">
-                {initials(displayName) || "SL"}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-white">{displayName}</p>
-                <p className="truncate text-xs text-white/45">{role}</p>
-              </div>
-              <Link
-                href="/parametres"
-                onClick={onCloseMobile}
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-white/40 transition-all hover:bg-white/10 hover:text-white"
-                aria-label="Paramètres"
+          <div ref={accountRef} className="relative z-10 border-t border-white/10 px-4 py-4">
+            {accountOpen ? (
+              <div
+                role="menu"
+                className="absolute bottom-[84px] left-4 right-4 overflow-hidden rounded-2xl border border-white/10 bg-[#0B0E14]/98 p-2 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
               >
-                <Settings className="h-4 w-4" />
-              </Link>
-              <form action={logoutAction}>
-                <button
-                  type="submit"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-white/40 transition-all hover:bg-white/10 hover:text-rose-400"
-                  aria-label="Déconnexion"
+                <div className="border-b border-white/10 px-3 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D6B56D] to-cyan-300 text-sm font-semibold text-[#06070A]">
+                      {initials(displayName) || "SL"}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold text-white">{displayName}</span>
+                      <span className="block truncate text-xs text-white/45">{userEmail}</span>
+                    </span>
+                  </div>
+                </div>
+                <Link
+                  href="/parametres/profil"
+                  onClick={() => {
+                    setAccountOpen(false);
+                    onCloseMobile();
+                  }}
+                  role="menuitem"
+                  className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.06] hover:text-white"
                 >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </form>
+                  <User className="h-4 w-4 text-cyan-200" />
+                  Mon profil
+                </Link>
+                <Link
+                  href="/parametres/securite"
+                  onClick={() => {
+                    setAccountOpen(false);
+                    onCloseMobile();
+                  }}
+                  role="menuitem"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+                >
+                  <KeyRound className="h-4 w-4 text-[#D6B56D]" />
+                  Modifier mon mot de passe
+                </Link>
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-200/80 transition hover:bg-red-400/10 hover:text-red-100"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Se déconnecter
+                  </button>
+                </form>
+              </div>
+            ) : null}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={accountOpen}
+                onClick={() => setAccountOpen((value) => !value)}
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-2 text-left transition hover:bg-white/[0.07]"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D6B56D] to-cyan-300 text-sm font-semibold text-[#06070A] shadow-lg">
+                  {initials(displayName) || "SL"}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-white">{displayName}</span>
+                  <span className="block truncate text-xs text-white/45">{role}</span>
+                </span>
+                <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/35 transition-transform", accountOpen && "rotate-180")} />
+              </button>
             </div>
           </div>
         </div>

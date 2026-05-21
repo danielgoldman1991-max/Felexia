@@ -5,6 +5,7 @@ import { Key, LogOut, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 
 export function SecuritySettings({
   userEmail,
@@ -22,23 +23,26 @@ export function SecuritySettings({
     setPasswordError(null);
     setPasswordSuccess(false);
 
-    const current = String(formData.get("current_password") ?? "");
     const newPwd = String(formData.get("new_password") ?? "");
+    const confirmPwd = String(formData.get("confirm_password") ?? "");
 
-    if (newPwd.length < 6) {
-      setPasswordError("Le mot de passe doit faire au moins 6 caractères.");
+    if (newPwd.length < 8) {
+      setPasswordError("Le mot de passe doit faire au moins 8 caractères.");
+      return;
+    }
+
+    if (newPwd !== confirmPwd) {
+      setPasswordError("La confirmation du mot de passe ne correspond pas.");
       return;
     }
 
     try {
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: newPwd });
+      if (error) throw error;
       setPasswordSuccess(true);
+      const form = document.getElementById("change-password-form") as HTMLFormElement | null;
+      form?.reset();
     } catch (err) {
       setPasswordError((err as Error).message);
     }
@@ -66,9 +70,9 @@ export function SecuritySettings({
           </div>
         </CardHeader>
         <CardContent>
-          <form action={handlePasswordChange} className="space-y-4 max-w-md">
-            <Input name="current_password" type="password" placeholder="Mot de passe actuel" required />
-            <Input name="new_password" type="password" placeholder="Nouveau mot de passe (min. 6 caractères)" required />
+          <form id="change-password-form" action={handlePasswordChange} className="space-y-4 max-w-md">
+            <Input name="new_password" type="password" placeholder="Nouveau mot de passe (min. 8 caractères)" autoComplete="new-password" required />
+            <Input name="confirm_password" type="password" placeholder="Confirmer le nouveau mot de passe" autoComplete="new-password" required />
             {passwordError && (
               <p className="text-sm text-red-600">{passwordError}</p>
             )}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierPayment } from "@/lib/purchase-actions";
 import type { TreasuryAccountRecord } from "@/lib/treasury-types";
-import type { SupplierInvoiceRecord } from "@/lib/purchase-types";
+import type { SupplierInvoicePaymentSummary, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { formatDate } from "@/lib/format";
 
 export function SupplierPaymentForm({
@@ -17,18 +18,22 @@ export function SupplierPaymentForm({
   openInvoices,
   preselectedSupplierId,
   preselectedInvoiceId,
+  preselectedPaymentSummary,
   treasuryAccounts = [],
 }: {
   suppliers: { id: string; name: string; ice: string | null }[];
   openInvoices: SupplierInvoiceRecord[];
   preselectedSupplierId?: string;
   preselectedInvoiceId?: string;
+  preselectedPaymentSummary?: SupplierInvoicePaymentSummary | null;
   treasuryAccounts?: TreasuryAccountRecord[];
 }) {
   const initialSupplierId = preselectedSupplierId ?? "";
   const preselectedInvoice = preselectedInvoiceId ? openInvoices.find((invoice) => invoice.id === preselectedInvoiceId) : undefined;
+  const preselectedMaxAmount = preselectedPaymentSummary?.maxPaymentAmount ?? preselectedInvoice?.remaining_amount ?? 0;
+  const isPreselectedInvoiceBlocked = Boolean(preselectedInvoiceId && preselectedPaymentSummary?.canRegisterPayment === false);
   const [supplierId, setSupplierId] = useState(initialSupplierId);
-  const [amount, setAmount] = useState(preselectedInvoice?.remaining_amount ?? 0);
+  const [amount, setAmount] = useState(preselectedMaxAmount);
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [valueDate, setValueDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -40,7 +45,7 @@ export function SupplierPaymentForm({
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
   const filteredInvoices = useMemo(() => openInvoices.filter((inv) => inv.supplier_id === supplierId), [openInvoices, supplierId]);
-  const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice ? { [preselectedInvoice.id]: preselectedInvoice.remaining_amount } : {});
+  const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice && preselectedMaxAmount > 0 ? { [preselectedInvoice.id]: preselectedMaxAmount } : {});
 
   const [state, formAction, pending] = useActionState(createSupplierPayment, { success: true });
 
@@ -56,10 +61,17 @@ export function SupplierPaymentForm({
   }, [setAllocations]);
 
   const updateAllocAmount = useCallback((invId: string, value: number) => {
-    setAllocations((prev) => ({ ...prev, [invId]: Math.max(0, value) }));
-  }, [setAllocations]);
+    const invoice = openInvoices.find((inv) => inv.id === invId);
+    const max = Math.max(Number(invoice?.remaining_amount ?? value) || 0, 0);
+    setAllocations((prev) => ({ ...prev, [invId]: Math.min(Math.max(0, value), max) }));
+  }, [openInvoices, setAllocations]);
 
   const totalAllocated = Object.values(allocations).reduce((s, v) => s + v, 0);
+  const allocationTooHigh = Object.entries(allocations).some(([invoiceId, value]) => {
+    const invoice = openInvoices.find((inv) => inv.id === invoiceId);
+    return invoice ? value > Number(invoice.remaining_amount ?? 0) + 0.01 : false;
+  });
+  const amountExceedsAllocated = totalAllocated > 0 && amount > totalAllocated + 0.01;
 
   function handleSupplierChange(nextSupplierId: string) {
     setSupplierId(nextSupplierId);
@@ -80,6 +92,7 @@ export function SupplierPaymentForm({
     if (transferReference) formData.set("transfer_reference", transferReference);
     if (dueDate) formData.set("due_date", dueDate);
     if (notes) formData.set("notes", notes);
+    if (preselectedInvoiceId) formData.set("supplier_invoice_id", preselectedInvoiceId);
     const allocs = Object.entries(allocations)
       .filter(([, amt]) => amt > 0)
       .map(([invoiceId, amt]) => ({ invoice_id: invoiceId, amount: amt }));
@@ -92,6 +105,26 @@ export function SupplierPaymentForm({
       <PageHeader title="Nouveau paiement fournisseur" description="Creer un paiement fournisseur" />
 
       <form action={handleSubmit}>
+        {preselectedInvoice && preselectedPaymentSummary ? (
+          <Card className="mb-6">
+            <CardHeader><h2 className="font-semibold">Solde de la facture sélectionnée</h2></CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-4">
+              <div><p className="text-xs font-medium uppercase text-[var(--muted)]">Total facture</p><p className="mt-1 font-semibold"><MoneyDisplay value={preselectedPaymentSummary.invoiceTotalTtc} /></p></div>
+              <div><p className="text-xs font-medium uppercase text-[var(--muted)]">Déjà payé</p><p className="mt-1 font-semibold"><MoneyDisplay value={preselectedPaymentSummary.paidAmount} /></p></div>
+              <div><p className="text-xs font-medium uppercase text-[var(--muted)]">Reste à payer</p><p className="mt-1 font-semibold"><MoneyDisplay value={preselectedPaymentSummary.remainingAmount} /></p></div>
+              <div><p className="text-xs font-medium uppercase text-[var(--muted)]">Maximum autorisé</p><p className="mt-1 font-semibold"><MoneyDisplay value={preselectedPaymentSummary.maxPaymentAmount ?? 0} /></p></div>
+              {isPreselectedInvoiceBlocked ? (
+                <div className="md:col-span-4 rounded-[var(--radius-md)] border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  Cette facture est déjà totalement payée. Aucun paiement supplémentaire n’est autorisé.
+                  <div className="mt-3">
+                    <Link href={`/achats/factures/${preselectedInvoice.id}`}><Button type="button" variant="secondary">Retour à la facture</Button></Link>
+                  </div>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        ) : null}
+
         <Card>
           <CardHeader><h2 className="font-semibold">Paiement</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -101,7 +134,8 @@ export function SupplierPaymentForm({
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Montant</label>
-              <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input type="number" step="0.01" max={totalAllocated > 0 ? totalAllocated : undefined} value={amount} disabled={isPreselectedInvoiceBlocked} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              {amountExceedsAllocated ? <p className="mt-1 text-xs text-red-600">Le montant dépasse le reste à payer.</p> : null}
             </div>
             <DateField label="Date paiement" value={paymentDate} onChange={setPaymentDate} />
             <DateField label="Date valeur" value={valueDate} onChange={setValueDate} placeholder="jj/mm/aaaa" />
@@ -173,11 +207,11 @@ export function SupplierPaymentForm({
                       <td className="py-2 pr-2 text-right"><MoneyDisplay value={inv.total_ttc} /></td>
                       <td className="py-2 pr-2 text-right"><MoneyDisplay value={inv.remaining_amount} /></td>
                       <td className="py-2 pr-2">
-                        <input type="checkbox" checked={!!allocations[inv.id]} onChange={() => toggleInvoice(inv.id, inv.remaining_amount)} />
+                        <input type="checkbox" checked={allocations[inv.id] !== undefined && allocations[inv.id] > 0} disabled={Number(inv.remaining_amount ?? 0) <= 0 || isPreselectedInvoiceBlocked} onChange={() => toggleInvoice(inv.id, inv.remaining_amount)} />
                       </td>
                       <td className="py-2 text-right">
                         {allocations[inv.id] !== undefined ? (
-                          <input type="number" step="0.01" value={allocations[inv.id]} onChange={(e) => updateAllocAmount(inv.id, parseFloat(e.target.value) || 0)} className="w-24 rounded border border-input bg-background px-2 py-1 text-xs text-right" />
+                          <input type="number" step="0.01" max={inv.remaining_amount} value={allocations[inv.id]} disabled={isPreselectedInvoiceBlocked} onChange={(e) => updateAllocAmount(inv.id, parseFloat(e.target.value) || 0)} className="w-24 rounded border border-input bg-background px-2 py-1 text-xs text-right" />
                         ) : null}
                       </td>
                     </tr>
@@ -187,6 +221,7 @@ export function SupplierPaymentForm({
               {totalAllocated > 0 ? (
                 <p className="mt-2 text-sm text-[var(--muted)]">Total affecte : <MoneyDisplay value={totalAllocated} /></p>
               ) : null}
+              {allocationTooHigh ? <p className="mt-2 text-sm text-red-600">Une affectation dépasse le reste à payer de sa facture.</p> : null}
             </CardContent>
           </Card>
         ) : null}
@@ -194,7 +229,7 @@ export function SupplierPaymentForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || !supplierId || !treasuryAccountId || amount <= 0}>
+          <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || amountExceedsAllocated || !supplierId || !treasuryAccountId || amount <= 0}>
             Creer paiement fournisseur
           </Button>
         </div>

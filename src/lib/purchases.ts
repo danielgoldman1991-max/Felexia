@@ -8,6 +8,10 @@ import type {
   PurchaseProductOption,
   SupplierInvoiceRecord,
   SupplierInvoiceLineRecord,
+  SupplierInvoicePaymentAttachment,
+  SupplierInvoicePaymentSummary,
+  SupplierInvoiceReceiptPreparation,
+  SupplierInvoiceReceiptPreparationLine,
   SupplierPaymentRecord,
   SupplierPaymentAllocationRecord,
   ReceivableSupplierOrder,
@@ -80,6 +84,142 @@ function mapPurchaseDocument(raw: Record<string, unknown>): PurchaseDocumentReco
 function mapSupplierInvoice(raw: Record<string, unknown>): SupplierInvoiceRecord {
   const supplier = extractSupplier(raw);
   return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_phone: supplier.phone, supplier_email: supplier.email } as unknown as SupplierInvoiceRecord;
+}
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, unknown>;
+}
+
+function relationValue(value: unknown): Record<string, unknown> | null {
+  if (Array.isArray(value)) return objectValue(value[0]);
+  return objectValue(value);
+}
+
+function toAmount(value: unknown) {
+  return Math.round((Number(value ?? 0) || 0) * 100) / 100;
+}
+
+function isCountedSupplierPaymentStatus(status: string | null | undefined) {
+  return ["confirmed", "partially_allocated", "allocated", "validated", "paid", "completed", "posted", "reconciled"].includes(String(status ?? "").toLowerCase());
+}
+
+export function isSupplierPaymentConfirmedStatus(status: string | null | undefined) {
+  if (!status) return true;
+  return isCountedSupplierPaymentStatus(status);
+}
+
+type SupplierInvoicePaymentsQuery = {
+  organizationId: string;
+  supplierInvoiceId: string;
+  invoiceNumber?: string | null;
+  supplierId?: string | null;
+  invoiceDate?: string | null;
+  totalTtc?: number | null;
+  paidAmount?: number | null;
+};
+
+type PaymentEnrichment = {
+  treasuryTransactionId: string | null;
+  accountingEntryId: string | null;
+  accountingEntryNumber: string | null;
+  accountingEntryStatus: string | null;
+};
+
+function emptyEnrichment(): PaymentEnrichment {
+  return {
+    treasuryTransactionId: null,
+    accountingEntryId: null,
+    accountingEntryNumber: null,
+    accountingEntryStatus: null,
+  };
+}
+
+function normalizeText(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function scorePossibleSupplierPayment(payment: Record<string, unknown>, args: SupplierInvoicePaymentsQuery) {
+  let score = 0;
+  const invoiceNumber = normalizeText(args.invoiceNumber).toLowerCase();
+  const reference = `${payment.reference ?? ""} ${payment.notes ?? ""} ${payment.payment_number ?? ""}`.toLowerCase();
+  const amount = toAmount(payment.amount);
+  const targetPaid = toAmount(args.paidAmount);
+  const targetTotal = toAmount(args.totalTtc);
+
+  if (invoiceNumber && reference.includes(invoiceNumber)) score += 70;
+  if (targetPaid > 0 && Math.abs(amount - targetPaid) <= 0.01) score += 35;
+  else if (targetTotal > 0 && Math.abs(amount - targetTotal) <= 0.01) score += 30;
+  else if (targetPaid > 0 && Math.abs(amount - targetPaid) <= Math.max(targetPaid * 0.05, 20)) score += 18;
+  else if (targetTotal > 0 && Math.abs(amount - targetTotal) <= Math.max(targetTotal * 0.05, 20)) score += 15;
+
+  const invoiceTime = args.invoiceDate ? new Date(args.invoiceDate).getTime() : NaN;
+  const paymentTime = payment.payment_date ? new Date(String(payment.payment_date)).getTime() : NaN;
+  if (Number.isFinite(invoiceTime) && Number.isFinite(paymentTime)) {
+    const daysAfterInvoice = (paymentTime - invoiceTime) / 86400000;
+    if (daysAfterInvoice >= 0 && daysAfterInvoice <= 90) score += 15;
+    else if (daysAfterInvoice >= -15 && daysAfterInvoice < 0) score += 5;
+  }
+
+  return score;
+}
+
+function paymentAttachmentKey(payment: SupplierInvoicePaymentAttachment) {
+  return `${payment.source}:${payment.id}:${payment.allocation_id}`;
+}
+
+function computeSupplierInvoicePaymentSummary(
+  invoice: SupplierInvoiceRecord,
+  payments: SupplierInvoicePaymentAttachment[],
+): SupplierInvoicePaymentSummary {
+  const invoiceTotalTtc = toAmount(invoice.total_ttc);
+  const paidAmount = toAmount(payments.filter((payment) => payment.counted_in_paid_total).reduce((sum, payment) => sum + payment.amount, 0));
+  const remainingAmount = Math.max(toAmount(invoiceTotalTtc - paidAmount), 0);
+  const overpaidAmount = Math.max(toAmount(paidAmount - invoiceTotalTtc), 0);
+  const tolerance = 0.01;
+  const paymentStatus =
+    paidAmount <= tolerance
+      ? "unpaid"
+      : paidAmount < invoiceTotalTtc - tolerance
+        ? "partial"
+        : paidAmount > invoiceTotalTtc + tolerance
+          ? "overpaid"
+          : "paid";
+  const paymentStatusComputed = paymentStatus === "partial" ? "partially_paid" : paymentStatus;
+  const normalizedStored =
+    invoice.payment_status === "unpaid"
+      ? "unpaid"
+      : invoice.payment_status === "partial"
+        ? "partial"
+        : "paid";
+  const storedPaidAmount = toAmount(invoice.paid_amount);
+  const storedRemainingAmount = toAmount(invoice.remaining_amount);
+  const hasPaymentInconsistency =
+    ((invoice.payment_status === "paid" || invoice.payment_status === "partial") && paidAmount <= tolerance) ||
+    (storedPaidAmount > tolerance && paidAmount <= tolerance) ||
+    Math.abs(storedPaidAmount - paidAmount) > tolerance ||
+    Math.abs(storedRemainingAmount - remainingAmount) > tolerance ||
+    normalizedStored !== (paymentStatus === "overpaid" ? "paid" : paymentStatus);
+
+  return {
+    invoiceId: invoice.id,
+    invoiceTotalTtc,
+    totalTtc: invoiceTotalTtc,
+    confirmedPaidAmount: paidAmount,
+    paidAmount,
+    remainingAmount,
+    overpaidAmount,
+    paymentStatus,
+    computedPaymentStatus: paymentStatusComputed,
+    paymentStatusComputed,
+    storedPaidAmount,
+    storedRemainingAmount,
+    hasPaymentInconsistency,
+    canRegisterPayment: paymentStatus !== "paid" && paymentStatus !== "overpaid",
+    maxPaymentAmount: remainingAmount,
+    storedPaymentStatus: invoice.payment_status,
+    isInconsistentWithStoredStatus: hasPaymentInconsistency,
+  };
 }
 
 export async function getPurchaseCounters(): Promise<PurchaseCounters> {
@@ -173,6 +313,120 @@ export async function getPurchaseDocumentDetail(id: string): Promise<{ document:
   ]);
   if (docRes.error) return { document: null, lines: [] };
   return { document: mapPurchaseDocument(docRes.data as Record<string, unknown>), lines: (linesRes.data ?? []) as PurchaseDocumentLineRecord[] };
+}
+
+export async function getPurchaseReceiptArchiveEligibility(receiptId: string) {
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
+
+  const { data: receipt } = await supabase
+    .from("purchase_documents")
+    .select("id, status, stock_updated_at")
+    .eq("id", receiptId)
+    .eq("organization_id", orgId)
+    .eq("document_type", "supplier_receipt")
+    .maybeSingle();
+
+  if (!receipt) {
+    return {
+      canArchive: false,
+      reasons: ["Réception introuvable"],
+      isValidated: false,
+      isInvoiced: false,
+      hasStockImpact: false,
+    };
+  }
+
+  const [{ data: directInvoices }, { data: lineInvoices }, { data: receiptLines }, { data: stockMoves }] = await Promise.all([
+    supabase
+      .from("supplier_invoices")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("source_receipt_id", receiptId)
+      .not("status", "eq", "cancelled")
+      .limit(1),
+    supabase
+      .from("supplier_invoice_lines")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("source_document_id", receiptId)
+      .limit(1),
+    supabase
+      .from("purchase_document_lines")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("document_id", receiptId),
+    supabase
+      .from("stock_moves")
+      .select("id")
+      .eq("organization_id", orgId)
+      .eq("source_document_id", receiptId)
+      .limit(1),
+  ]);
+
+  const receiptLineIds = (receiptLines ?? []).map((line: { id: string }) => line.id);
+  let hasLineInvoiceBySourceLine = false;
+  if (receiptLineIds.length > 0) {
+    const { data } = await supabase
+      .from("supplier_invoice_lines")
+      .select("id")
+      .eq("organization_id", orgId)
+      .in("source_line_id", receiptLineIds)
+      .limit(1);
+    hasLineInvoiceBySourceLine = (data ?? []).length > 0;
+  }
+
+  const guardedStatuses = ["validated", "received", "delivered", "invoiced", "partially_invoiced"];
+  const isValidated = guardedStatuses.includes(String(receipt.status));
+  const isInvoiced = (directInvoices ?? []).length > 0 || (lineInvoices ?? []).length > 0 || hasLineInvoiceBySourceLine;
+  const hasStockImpact = Boolean(receipt.stock_updated_at) || (stockMoves ?? []).length > 0;
+  const reasons = [
+    isValidated ? "Réception validée" : null,
+    isInvoiced ? "Réception déjà facturée" : null,
+    hasStockImpact ? "Stock déjà impacté" : null,
+  ].filter((reason): reason is string => Boolean(reason));
+
+  return {
+    canArchive: reasons.length === 0,
+    reasons,
+    isValidated,
+    isInvoiced,
+    hasStockImpact,
+  };
+}
+
+export async function getStockMovesForReceipt(receiptId: string): Promise<{ id: string; product_name: string | null; quantity: number; direction: string; move_type: string; warehouse_name: string | null; movement_date: string | null }[]> {
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
+
+  const { data, error } = await supabase
+    .from("stock_moves")
+    .select("id, quantity, direction, move_type, movement_date, warehouse_id, product:product_id(name), warehouse:warehouse_id(name)")
+    .eq("organization_id", orgId)
+    .eq("source_document_id", receiptId)
+    .order("movement_date", { ascending: false });
+
+  if (error) {
+    console.error("getStockMovesForReceipt error:", error.message);
+    return [];
+  }
+
+  const rows = (data ?? []) as Record<string, unknown>[];
+  return rows.map((row) => {
+    const product = relationValue(row.product);
+    const warehouse = relationValue(row.warehouse);
+    return {
+      id: String(row.id),
+      product_name: (product?.name as string) ?? null,
+      quantity: Number(row.quantity ?? 0),
+      direction: String(row.direction ?? "in"),
+      move_type: String(row.move_type ?? "purchase_receipt"),
+      warehouse_name: (warehouse?.name as string) ?? null,
+      movement_date: (row.movement_date as string) ?? null,
+    };
+  });
 }
 
 type PurchaseFlowRow = {
@@ -375,6 +629,131 @@ export async function listBillableSupplierReceipts(supplierId?: string): Promise
   return receipts;
 }
 
+function calculateInvoicePrepLine(line: { quantity: number; unitPriceHt: number; discountRate: number; taxRate: number }) {
+  const baseHt = line.quantity * line.unitPriceHt;
+  const discountAmount = toAmount(baseHt * (line.discountRate / 100));
+  const subtotalHt = toAmount(baseHt - discountAmount);
+  const taxAmount = toAmount(subtotalHt * (line.taxRate / 100));
+  const totalTtc = toAmount(subtotalHt + taxAmount);
+  return { subtotalHt, discountAmount, taxAmount, totalTtc };
+}
+
+export async function getSupplierInvoicePreparationFromReceipt(receiptId: string): Promise<SupplierInvoiceReceiptPreparation | null> {
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
+
+  const { data: receiptRaw } = await supabase
+    .from("purchase_documents")
+    .select(PURCHASE_DOCUMENT_SELECT)
+    .eq("organization_id", orgId)
+    .eq("id", receiptId)
+    .eq("document_type", "supplier_receipt")
+    .is("archived_at", null)
+    .maybeSingle();
+  if (!receiptRaw) return null;
+
+  const receipt = mapPurchaseDocument(receiptRaw as Record<string, unknown>);
+  const { data: receiptLinesRaw } = await supabase
+    .from("purchase_document_lines")
+    .select(PURCHASE_DOCUMENT_LINE_SELECT)
+    .eq("organization_id", orgId)
+    .eq("document_id", receiptId)
+    .order("line_order");
+  const receiptLines = (receiptLinesRaw ?? []) as Record<string, unknown>[];
+  const sourceOrderLineIds = receiptLines.map((line) => normalizeText(line.source_line_id)).filter(Boolean);
+  const productIds = receiptLines.map((line) => normalizeText(line.product_id)).filter(Boolean);
+
+  const [orderLinesRes, productsRes, defaultTaxRes, existingInvoiceLinesRes, sourceOrderRes] = await Promise.all([
+    sourceOrderLineIds.length ? supabase.from("purchase_document_lines").select(PURCHASE_DOCUMENT_LINE_SELECT).eq("organization_id", orgId).in("id", sourceOrderLineIds) : Promise.resolve({ data: [] }),
+    productIds.length ? supabase.from("products").select("id, name, description, unit_id, purchase_price_ht, tax_rate_id, unit:unit_id(name, symbol), tax_rate:tax_rate_id(name, rate)").eq("organization_id", orgId).in("id", productIds) : Promise.resolve({ data: [] }),
+    supabase.from("tax_rates").select("id, name, rate").eq("organization_id", orgId).eq("rate", 20).is("archived_at", null).limit(1).maybeSingle(),
+    supabase.from("supplier_invoice_lines").select("source_line_id, quantity").eq("organization_id", orgId).eq("source_document_id", receiptId),
+    receipt.related_order_id ? supabase.from("purchase_documents").select(PURCHASE_DOCUMENT_SELECT).eq("organization_id", orgId).eq("id", receipt.related_order_id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+
+  const orderLinesById = new Map(((orderLinesRes.data ?? []) as Record<string, unknown>[]).map((line) => [String(line.id), line]));
+  const productsById = new Map(((productsRes.data ?? []) as Record<string, unknown>[]).map((product) => [String(product.id), product]));
+  const alreadyInvoicedByReceiptLine = new Map<string, number>();
+  for (const line of (existingInvoiceLinesRes.data ?? []) as Record<string, unknown>[]) {
+    const sourceLineId = normalizeText(line.source_line_id);
+    if (!sourceLineId) continue;
+    alreadyInvoicedByReceiptLine.set(sourceLineId, (alreadyInvoicedByReceiptLine.get(sourceLineId) ?? 0) + toAmount(line.quantity));
+  }
+
+  const warnings: string[] = [];
+  const preparedLines: SupplierInvoiceReceiptPreparationLine[] = [];
+
+  for (const receiptLine of receiptLines) {
+    const sourceOrderLineId = normalizeText(receiptLine.source_line_id) || null;
+    const orderLine = sourceOrderLineId ? orderLinesById.get(sourceOrderLineId) : null;
+    const productId = normalizeText(receiptLine.product_id || orderLine?.product_id) || "";
+    const product = productId ? productsById.get(productId) : null;
+    const productUnit = relationValue(product?.unit);
+    const productTax = relationValue(product?.tax_rate);
+    const alreadyInvoiced = alreadyInvoicedByReceiptLine.get(String(receiptLine.id)) ?? 0;
+    const quantity = Math.max(toAmount(receiptLine.quantity) - alreadyInvoiced, 0);
+    if (quantity <= 0) continue;
+
+    const unitId = normalizeText(receiptLine.unit_id) || normalizeText(orderLine?.unit_id) || normalizeText(product?.unit_id) || "";
+    const unitName = normalizeText(receiptLine.unit_name) || normalizeText(orderLine?.unit_name) || normalizeText(productUnit?.symbol) || normalizeText(productUnit?.name) || "UN";
+    const unitPriceHt = toAmount(receiptLine.unit_price_ht) || toAmount(orderLine?.unit_price_ht) || toAmount(product?.purchase_price_ht);
+    const discountRate = toAmount(receiptLine.discount_rate) || toAmount(orderLine?.discount_rate);
+    const taxRateId = normalizeText(receiptLine.tax_rate_id) || normalizeText(orderLine?.tax_rate_id) || normalizeText(product?.tax_rate_id) || normalizeText(defaultTaxRes.data?.id) || "";
+    const taxRate = toAmount(receiptLine.tax_rate) || toAmount(orderLine?.tax_rate) || toAmount(productTax?.rate) || toAmount(defaultTaxRes.data?.rate);
+    const totals = calculateInvoicePrepLine({ quantity, unitPriceHt, discountRate, taxRate });
+    const lineWarnings: string[] = [];
+    if (!unitId && !unitName) lineWarnings.push("Unité manquante");
+    if (unitPriceHt <= 0) lineWarnings.push("Prix HT manquant : à compléter avant validation.");
+    if (!taxRateId && taxRate <= 0) lineWarnings.push("TVA manquante : à compléter avant validation.");
+    if (lineWarnings.length > 0) warnings.push(`${normalizeText(receiptLine.product_name) || normalizeText(receiptLine.description) || "Ligne"} : ${lineWarnings.join(", ")}`);
+
+    preparedLines.push({
+      id: String(receiptLine.id),
+      mode: productId ? "product" : "free",
+      sourceReceiptLineId: String(receiptLine.id),
+      sourceReceiptId: receiptId,
+      sourceOrderLineId,
+      product_id: productId,
+      product_name: normalizeText(receiptLine.product_name) || normalizeText(orderLine?.product_name) || normalizeText(product?.name),
+      description: normalizeText(receiptLine.description) || normalizeText(orderLine?.description) || normalizeText(product?.description) || normalizeText(product?.name),
+      quantity,
+      unit_id: unitId,
+      unit_name: unitName,
+      unitLabel: unitName,
+      unit_price_ht: unitPriceHt,
+      discount_rate: discountRate,
+      tax_rate_id: taxRateId,
+      tax_rate: taxRate,
+      taxLabel: taxRate ? `${taxRate}%` : null,
+      subtotal_ht: totals.subtotalHt,
+      discount_amount: totals.discountAmount,
+      tax_amount: totals.taxAmount,
+      total_ttc: totals.totalTtc,
+      totalHt: totals.subtotalHt,
+      totalTax: totals.taxAmount,
+      totalTtc: totals.totalTtc,
+      source_line_id: String(receiptLine.id),
+      source_document_id: receiptId,
+      warning: lineWarnings.join(" ") || null,
+    });
+  }
+
+  return {
+    receipt,
+    supplier: receipt.supplier_id ? { id: receipt.supplier_id, name: receipt.supplier_name ?? null, ice: receipt.supplier_ice ?? null } : null,
+    sourcePurchaseOrder: sourceOrderRes.data ? mapPurchaseDocument(sourceOrderRes.data as Record<string, unknown>) : null,
+    lines: preparedLines,
+    totals: {
+      subtotalHt: toAmount(preparedLines.reduce((sum, line) => sum + line.subtotal_ht, 0)),
+      discountTotal: toAmount(preparedLines.reduce((sum, line) => sum + line.discount_amount, 0)),
+      taxTotal: toAmount(preparedLines.reduce((sum, line) => sum + line.tax_amount, 0)),
+      totalTtc: toAmount(preparedLines.reduce((sum, line) => sum + line.total_ttc, 0)),
+    },
+    warnings,
+  };
+}
+
 export async function listSupplierInvoices(filters?: { status?: string; supplierId?: string }) {
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
@@ -390,7 +769,401 @@ export async function listSupplierInvoices(filters?: { status?: string; supplier
   return { rows: (data ?? []).map((r: Record<string, unknown>) => mapSupplierInvoice(r)) };
 }
 
-export async function getSupplierInvoiceDetail(id: string): Promise<{ invoice: SupplierInvoiceRecord | null; lines: SupplierInvoiceLineRecord[] }> {
+async function getSupplierPaymentEnrichments(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string,
+  paymentIds: string[],
+) {
+  if (paymentIds.length === 0) return new Map<string, PaymentEnrichment>();
+
+  const [txRes, entryRes] = await Promise.all([
+    supabase
+      .from("treasury_transactions")
+      .select("id, supplier_payment_id")
+      .eq("organization_id", organizationId)
+      .in("supplier_payment_id", paymentIds)
+      .is("archived_at", null),
+    supabase
+      .from("accounting_entries")
+      .select("id, entry_number, status, source_document_id")
+      .eq("organization_id", organizationId)
+      .eq("source_document_type", "supplier_payment")
+      .in("source_document_id", paymentIds)
+      .neq("status", "cancelled"),
+  ]);
+
+  const enrichments = new Map<string, PaymentEnrichment>();
+  for (const paymentId of paymentIds) enrichments.set(paymentId, emptyEnrichment());
+
+  for (const tx of (txRes.data ?? []) as Record<string, unknown>[]) {
+    const paymentId = normalizeText(tx.supplier_payment_id);
+    if (!paymentId) continue;
+    enrichments.set(paymentId, {
+      ...(enrichments.get(paymentId) ?? emptyEnrichment()),
+      treasuryTransactionId: normalizeText(tx.id) || null,
+    });
+  }
+
+  for (const entry of (entryRes.data ?? []) as Record<string, unknown>[]) {
+    const paymentId = normalizeText(entry.source_document_id);
+    if (!paymentId) continue;
+    enrichments.set(paymentId, {
+      ...(enrichments.get(paymentId) ?? emptyEnrichment()),
+      accountingEntryId: normalizeText(entry.id) || null,
+      accountingEntryNumber: normalizeText(entry.entry_number) || null,
+      accountingEntryStatus: normalizeText(entry.status) || null,
+    });
+  }
+
+  return enrichments;
+}
+
+function supplierPaymentToAttachment({
+  payment,
+  allocation,
+  enrichment,
+  amount,
+  source,
+  matchStatus,
+  matchScore = null,
+}: {
+  payment: Record<string, unknown>;
+  allocation?: Record<string, unknown> | null;
+  enrichment?: PaymentEnrichment;
+  amount?: number | null;
+  source: SupplierInvoicePaymentAttachment["source"];
+  matchStatus: SupplierInvoicePaymentAttachment["matchStatus"];
+  matchScore?: number | null;
+}): SupplierInvoicePaymentAttachment | null {
+  if (!payment.id || payment.archived_at) return null;
+  const account = relationValue(payment.treasury_account);
+  const status = normalizeText(payment.status) || "confirmed";
+  const paymentId = String(payment.id);
+  const data = enrichment ?? emptyEnrichment();
+  return {
+    id: paymentId,
+    allocation_id: normalizeText(allocation?.id) || paymentId,
+    payment_number: normalizeText(payment.payment_number) || normalizeText(payment.number) || "-",
+    payment_date: normalizeText(payment.payment_date) || normalizeText(allocation?.allocation_date) || null,
+    amount: toAmount(amount ?? allocation?.amount ?? payment.amount),
+    payment_method: normalizeText(payment.payment_method) || null,
+    status,
+    treasury_account_id: normalizeText(payment.treasury_account_id) || null,
+    treasury_account_name: normalizeText(account?.name) || null,
+    treasury_account_type: normalizeText(account?.account_type) || null,
+    reference: normalizeText(payment.reference) || normalizeText(payment.transfer_reference) || normalizeText(payment.check_number) || null,
+    notes: normalizeText(allocation?.notes) || normalizeText(payment.notes) || null,
+    treasury_transaction_id: data.treasuryTransactionId,
+    accounting_entry_id: data.accountingEntryId,
+    accounting_entry_number: data.accountingEntryNumber,
+    accounting_entry_status: data.accountingEntryStatus,
+    created_at: normalizeText(payment.created_at) || normalizeText(allocation?.created_at) || null,
+    counted_in_paid_total: matchStatus === "confirmed" && isCountedSupplierPaymentStatus(status),
+    source,
+    matchStatus,
+    matchScore,
+  };
+}
+
+export async function getSupplierInvoicePayments({
+  organizationId,
+  supplierInvoiceId,
+  invoiceNumber,
+  supplierId,
+  invoiceDate,
+  totalTtc,
+  paidAmount,
+}: SupplierInvoicePaymentsQuery): Promise<SupplierInvoicePaymentAttachment[]> {
+  const supabase = await createClient();
+  const attachments = new Map<string, SupplierInvoicePaymentAttachment>();
+
+  const allocationsRes = await supabase
+    .from("supplier_payment_allocations")
+    .select(`
+      id, payment_id, invoice_id, amount, allocation_date, notes, created_at, cancelled_at,
+      payment:payment_id (
+        id, payment_number, payment_date, payment_method, status, treasury_account_id,
+        reference, transfer_reference, check_number, notes, amount, created_at, archived_at,
+        treasury_account:treasury_account_id (id, name, account_type)
+      )
+    `)
+    .eq("invoice_id", supplierInvoiceId)
+    .eq("organization_id", organizationId)
+    .is("cancelled_at", null)
+    .order("allocation_date", { ascending: false });
+
+  const allocationRows = (allocationsRes.data ?? []) as Record<string, unknown>[];
+  const allocationPaymentIds = allocationRows
+    .map((allocation) => normalizeText(relationValue(allocation.payment)?.id))
+    .filter(Boolean);
+  const allocationEnrichments = await getSupplierPaymentEnrichments(supabase, organizationId, allocationPaymentIds);
+
+  for (const allocation of allocationRows) {
+    const payment = relationValue(allocation.payment);
+    if (!payment) continue;
+    const paymentId = normalizeText(payment.id);
+    const attachment = supplierPaymentToAttachment({
+      payment,
+      allocation,
+      enrichment: allocationEnrichments.get(paymentId),
+      source: "supplier_payment_allocations",
+      matchStatus: "confirmed",
+    });
+    if (attachment) attachments.set(paymentAttachmentKey(attachment), attachment);
+  }
+
+  const directTreasuryRes = await supabase
+    .from("treasury_transactions")
+    .select(`
+      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date,
+      amount, reference, description, label, reconciliation_status, created_at, archived_at,
+      account:treasury_account_id (id, name, account_type)
+    `)
+    .eq("organization_id", organizationId)
+    .eq("supplier_invoice_id", supplierInvoiceId)
+    .is("archived_at", null)
+    .order("transaction_date", { ascending: false });
+
+  for (const tx of (directTreasuryRes.data ?? []) as Record<string, unknown>[]) {
+    if (tx.supplier_payment_id) continue;
+    const account = relationValue(tx.account);
+    const attachment: SupplierInvoicePaymentAttachment = {
+      id: String(tx.id),
+      allocation_id: String(tx.id),
+      payment_number: normalizeText(tx.reference) || normalizeText(tx.label) || "Mouvement tresorerie",
+      payment_date: normalizeText(tx.transaction_date) || null,
+      amount: toAmount(tx.amount),
+      payment_method: null,
+      status: normalizeText(tx.reconciliation_status) || "confirmed",
+      treasury_account_id: normalizeText(tx.treasury_account_id) || null,
+      treasury_account_name: normalizeText(account?.name) || null,
+      treasury_account_type: normalizeText(account?.account_type) || null,
+      reference: normalizeText(tx.reference) || null,
+      notes: normalizeText(tx.description) || normalizeText(tx.label) || null,
+      treasury_transaction_id: String(tx.id),
+      accounting_entry_id: null,
+      accounting_entry_number: null,
+      accounting_entry_status: null,
+      created_at: normalizeText(tx.created_at) || null,
+      counted_in_paid_total: true,
+      source: "treasury_transactions",
+      matchStatus: "confirmed",
+      matchScore: null,
+    };
+    attachments.set(paymentAttachmentKey(attachment), attachment);
+  }
+
+  if (supplierId) {
+    const supplierPaymentsRes = await supabase
+      .from("supplier_payments")
+      .select(`
+        id, payment_number, supplier_id, payment_date, payment_method, status,
+        treasury_account_id, reference, transfer_reference, check_number,
+        notes, amount, allocated_amount, available_amount, created_at, archived_at,
+        treasury_account:treasury_account_id (id, name, account_type)
+      `)
+      .eq("organization_id", organizationId)
+      .eq("supplier_id", supplierId)
+      .is("archived_at", null)
+      .order("payment_date", { ascending: false })
+      .limit(100);
+
+    const existingPaymentIds = new Set(
+      Array.from(attachments.values())
+        .filter((payment) => payment.source !== "treasury_transactions")
+        .map((payment) => payment.id),
+    );
+    const possiblePayments = ((supplierPaymentsRes.data ?? []) as Record<string, unknown>[])
+      .filter((payment) => !existingPaymentIds.has(String(payment.id)))
+      .map((payment) => ({ payment, score: scorePossibleSupplierPayment(payment, { organizationId, supplierInvoiceId, invoiceNumber, supplierId, invoiceDate, totalTtc, paidAmount }) }))
+      .filter(({ payment, score }) => score >= 30 && !["draft", "cancelled", "canceled", "rejected", "archived", "void"].includes(normalizeText(payment.status).toLowerCase()))
+      .slice(0, 8);
+
+    const possibleIds = possiblePayments.map(({ payment }) => String(payment.id));
+    const possibleEnrichments = await getSupplierPaymentEnrichments(supabase, organizationId, possibleIds);
+    for (const { payment, score } of possiblePayments) {
+      const attachment = supplierPaymentToAttachment({
+        payment,
+        enrichment: possibleEnrichments.get(String(payment.id)),
+        source: "possible_match",
+        matchStatus: "possible_match",
+        matchScore: score,
+      });
+      if (attachment) attachments.set(paymentAttachmentKey(attachment), attachment);
+    }
+  }
+
+  if (invoiceNumber) {
+    const cleanInvoiceNumber = invoiceNumber.replace(/[(),]/g, " ").trim();
+    if (cleanInvoiceNumber) {
+      const txByReferenceRes = await supabase
+        .from("treasury_transactions")
+        .select(`
+          id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date,
+          amount, reference, description, label, reconciliation_status, third_party_id, created_at, archived_at,
+          account:treasury_account_id (id, name, account_type)
+        `)
+        .eq("organization_id", organizationId)
+        .is("archived_at", null)
+        .or(`reference.ilike.%${cleanInvoiceNumber}%,description.ilike.%${cleanInvoiceNumber}%,label.ilike.%${cleanInvoiceNumber}%`)
+        .limit(20);
+
+      for (const tx of (txByReferenceRes.data ?? []) as Record<string, unknown>[]) {
+        if (tx.supplier_invoice_id === supplierInvoiceId || tx.supplier_payment_id) continue;
+        if (supplierId && tx.third_party_id && tx.third_party_id !== supplierId) continue;
+        const account = relationValue(tx.account);
+        const attachment: SupplierInvoicePaymentAttachment = {
+          id: String(tx.id),
+          allocation_id: String(tx.id),
+          payment_number: normalizeText(tx.reference) || normalizeText(tx.label) || "Mouvement tresorerie",
+          payment_date: normalizeText(tx.transaction_date) || null,
+          amount: toAmount(tx.amount),
+          payment_method: null,
+          status: normalizeText(tx.reconciliation_status) || "confirmed",
+          treasury_account_id: normalizeText(tx.treasury_account_id) || null,
+          treasury_account_name: normalizeText(account?.name) || null,
+          treasury_account_type: normalizeText(account?.account_type) || null,
+          reference: normalizeText(tx.reference) || null,
+          notes: normalizeText(tx.description) || normalizeText(tx.label) || null,
+          treasury_transaction_id: String(tx.id),
+          accounting_entry_id: null,
+          accounting_entry_number: null,
+          accounting_entry_status: null,
+          created_at: normalizeText(tx.created_at) || null,
+          counted_in_paid_total: false,
+          source: "possible_match",
+          matchStatus: "possible_match",
+          matchScore: 70,
+        };
+        attachments.set(paymentAttachmentKey(attachment), attachment);
+      }
+    }
+  }
+
+  return Array.from(attachments.values()).sort((a, b) => {
+    if (a.matchStatus !== b.matchStatus) return a.matchStatus === "confirmed" ? -1 : 1;
+    return String(b.payment_date ?? b.created_at ?? "").localeCompare(String(a.payment_date ?? a.created_at ?? ""));
+  });
+}
+
+export async function getSupplierInvoiceAttachedPayments({
+  organizationId,
+  supplierInvoiceId,
+}: {
+  organizationId: string;
+  supplierInvoiceId: string;
+}): Promise<SupplierInvoicePaymentAttachment[]> {
+  const supabase = await createClient();
+  const allocationsRes = await supabase
+    .from("supplier_payment_allocations")
+    .select(`
+      id, payment_id, invoice_id, amount, allocation_date, notes, created_at, cancelled_at,
+      payment:payment_id (
+        id, payment_number, payment_date, payment_method, status, treasury_account_id,
+        reference, transfer_reference, check_number, notes, amount, created_at, archived_at,
+        treasury_account:treasury_account_id (id, name, account_type)
+      )
+    `)
+    .eq("invoice_id", supplierInvoiceId)
+    .eq("organization_id", organizationId)
+    .is("cancelled_at", null)
+    .order("allocation_date", { ascending: false });
+
+  const allocationRows = (allocationsRes.data ?? []) as Record<string, unknown>[];
+  const paymentIds = allocationRows
+    .map((allocation) => normalizeText(relationValue(allocation.payment)?.id))
+    .filter(Boolean);
+  const enrichments = await getSupplierPaymentEnrichments(supabase, organizationId, paymentIds);
+  const payments = allocationRows
+    .map((allocation) => {
+      const payment = relationValue(allocation.payment);
+      if (!payment) return null;
+      return supplierPaymentToAttachment({
+        payment,
+        allocation,
+        enrichment: enrichments.get(normalizeText(payment.id)),
+        source: "supplier_payment_allocations",
+        matchStatus: "confirmed",
+      });
+    })
+    .filter((payment): payment is SupplierInvoicePaymentAttachment => Boolean(payment));
+
+  const directTreasuryRes = await supabase
+    .from("treasury_transactions")
+    .select(`
+      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date,
+      amount, reference, description, label, reconciliation_status, created_at, archived_at,
+      account:treasury_account_id (id, name, account_type)
+    `)
+    .eq("organization_id", organizationId)
+    .eq("supplier_invoice_id", supplierInvoiceId)
+    .is("archived_at", null)
+    .order("transaction_date", { ascending: false });
+
+  const paymentIdsFromAllocations = new Set(paymentIds);
+  for (const tx of (directTreasuryRes.data ?? []) as Record<string, unknown>[]) {
+    if (tx.supplier_payment_id && paymentIdsFromAllocations.has(String(tx.supplier_payment_id))) continue;
+    const account = relationValue(tx.account);
+    const status = normalizeText(tx.reconciliation_status) || "confirmed";
+    payments.push({
+      id: String(tx.id),
+      allocation_id: String(tx.id),
+      payment_number: normalizeText(tx.reference) || normalizeText(tx.label) || "Mouvement tresorerie",
+      payment_date: normalizeText(tx.transaction_date) || null,
+      amount: toAmount(tx.amount),
+      payment_method: null,
+      status,
+      treasury_account_id: normalizeText(tx.treasury_account_id) || null,
+      treasury_account_name: normalizeText(account?.name) || null,
+      treasury_account_type: normalizeText(account?.account_type) || null,
+      reference: normalizeText(tx.reference) || null,
+      notes: normalizeText(tx.description) || normalizeText(tx.label) || null,
+      treasury_transaction_id: String(tx.id),
+      accounting_entry_id: null,
+      accounting_entry_number: null,
+      accounting_entry_status: null,
+      created_at: normalizeText(tx.created_at) || null,
+      counted_in_paid_total: isSupplierPaymentConfirmedStatus(status),
+      source: "treasury_transactions",
+      matchStatus: "confirmed",
+      matchScore: null,
+    });
+  }
+
+  return payments
+    .filter((payment) => payment.matchStatus === "confirmed")
+    .sort((a, b) => String(b.payment_date ?? b.created_at ?? "").localeCompare(String(a.payment_date ?? a.created_at ?? "")));
+}
+
+export async function getSupplierInvoicePaymentSummary({
+  organizationId,
+  supplierInvoiceId,
+}: {
+  organizationId: string;
+  supplierInvoiceId: string;
+}) {
+  const supabase = await createClient();
+  const { data: invoice } = await supabase
+    .from("supplier_invoices")
+    .select(SUPPLIER_INVOICE_SELECT)
+    .eq("id", supplierInvoiceId)
+    .eq("organization_id", organizationId)
+    .single();
+  if (!invoice) return null;
+  const mappedInvoice = mapSupplierInvoice(invoice as Record<string, unknown>);
+  const payments = await getSupplierInvoiceAttachedPayments({ organizationId, supplierInvoiceId });
+  return {
+    ...computeSupplierInvoicePaymentSummary(mappedInvoice, payments),
+    payments,
+  };
+}
+
+export async function getSupplierInvoiceDetail(id: string): Promise<{
+  invoice: SupplierInvoiceRecord | null;
+  lines: SupplierInvoiceLineRecord[];
+  payments: SupplierInvoicePaymentAttachment[];
+  paymentSummary: SupplierInvoicePaymentSummary | null;
+}> {
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
   const orgId = workspace.organization.id;
@@ -398,16 +1171,28 @@ export async function getSupplierInvoiceDetail(id: string): Promise<{ invoice: S
     supabase.from("supplier_invoices").select(SUPPLIER_INVOICE_SELECT).eq("id", id).eq("organization_id", orgId).single(),
     supabase.from("supplier_invoice_lines").select(SUPPLIER_INVOICE_LINE_SELECT).eq("invoice_id", id).eq("organization_id", orgId).order("line_order"),
   ]);
-  if (invRes.error) return { invoice: null, lines: [] };
-  return { invoice: mapSupplierInvoice(invRes.data as Record<string, unknown>), lines: (linesRes.data ?? []) as SupplierInvoiceLineRecord[] };
+  if (invRes.error) return { invoice: null, lines: [], payments: [], paymentSummary: null };
+
+  const invoice = mapSupplierInvoice(invRes.data as Record<string, unknown>);
+  const payments = await getSupplierInvoiceAttachedPayments({
+    organizationId: orgId,
+    supplierInvoiceId: id,
+  });
+
+  return {
+    invoice,
+    lines: (linesRes.data ?? []) as SupplierInvoiceLineRecord[],
+    payments,
+    paymentSummary: computeSupplierInvoicePaymentSummary(invoice, payments),
+  };
 }
 
-function supplierInvoiceStep(invoice: SupplierInvoiceRecord): DocumentFlowStep {
+function supplierInvoiceStep(invoice: SupplierInvoiceRecord, displayStatus?: string): DocumentFlowStep {
   return {
     label: "Facture fournisseur",
     number: invoice.invoice_number,
     href: `/achats/factures/${invoice.id}`,
-    status: invoice.status,
+    status: displayStatus ?? invoice.status,
     isCurrent: true,
     type: "supplier_invoice",
   };
@@ -425,13 +1210,14 @@ function groupedReceiptStep(receipts: Array<{ id: string; document_number: strin
 }
 
 export async function getSupplierInvoiceDocumentFlow(invoiceId: string): Promise<DocumentFlowStep[]> {
-  const { invoice, lines } = await getSupplierInvoiceDetail(invoiceId);
+  const { invoice, lines, paymentSummary } = await getSupplierInvoiceDetail(invoiceId);
   if (!invoice) return [];
+  const displayStatus = paymentSummary?.hasPaymentInconsistency && ["paid", "partially_paid"].includes(invoice.status) ? "validated" : invoice.status;
 
   const receiptIds = Array.from(new Set([invoice.source_receipt_id, ...lines.map((line) => line.source_document_id)].filter(Boolean))) as string[];
   if (receiptIds.length === 1) {
     const sourceFlow = await getPurchaseDocumentFlow(receiptIds[0]);
-    return [...sourceFlow.map((step) => ({ ...step, isCurrent: false })), supplierInvoiceStep(invoice)];
+    return [...sourceFlow.map((step) => ({ ...step, isCurrent: false })), supplierInvoiceStep(invoice, displayStatus)];
   }
 
   if (receiptIds.length > 1) {
@@ -451,11 +1237,11 @@ export async function getSupplierInvoiceDocumentFlow(invoiceId: string): Promise
     return [
       ...orderFlow.map((step) => ({ ...step, isCurrent: false })).filter((step) => step.type !== "supplier_receipt"),
       groupedReceiptStep(receipts),
-      supplierInvoiceStep(invoice),
+      supplierInvoiceStep(invoice, displayStatus),
     ];
   }
 
-  return [supplierInvoiceStep(invoice)];
+  return [supplierInvoiceStep(invoice, displayStatus)];
 }
 
 export async function listSupplierPayments(filters?: { status?: string; supplierId?: string }) {

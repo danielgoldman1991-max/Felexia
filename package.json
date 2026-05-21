@@ -9,7 +9,11 @@
     "lint": "eslint",
     "ensure:accounting-defaults": "node --experimental-strip-types scripts/ensure-accounting-defaults-all-organizations.ts",
     "fix:onboarding-business-trial": "npx tsx scripts/fix-onboarding-business-trial.ts",
-    "fix:business-trial-modules": "npx tsx scripts/fix-business-trial-and-modules.ts"
+    "fix:business-trial-modules": "npx tsx scripts/fix-business-trial-and-modules.ts",
+    "fix:supplier-payment-links": "npx tsx scripts/fix-supplier-payment-links.ts",
+    "fix:supplier-payments": "npx tsx scripts/fix-supplier-invoice-payment-integrity.ts",
+    "fix:supplier-invoice-lines": "npx tsx scripts/fix-supplier-invoice-lines-from-receipts.ts",
+    "seed:demo": "npx tsx scripts/seed-demo-societe-demo.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",

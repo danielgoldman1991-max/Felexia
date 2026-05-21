@@ -2,6 +2,7 @@ import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
 import type { OrganizationIdentity } from "@/lib/company-identity";
 import { PrintOrganizationLogo } from "@/components/shared/print-organization-logo";
+import { MoneyDisplay } from "@/components/erp/money-display";
 
 export function SupplierReceiptPrintView({
   document,
@@ -59,9 +60,14 @@ export function SupplierReceiptPrintView({
             <tr className="bg-[#ede7ff] text-[#2d2490]">
               <th className="border border-slate-200 px-3 py-2">#</th>
               <th className="border border-slate-200 px-3 py-2">Article</th>
-              <th className="border border-slate-200 px-3 py-2">Designation</th>
+              <th className="border border-slate-200 px-3 py-2">Description</th>
               <th className="border border-slate-200 px-3 py-2">Unite</th>
-              <th className="border border-slate-200 px-3 py-2 text-right">Quantite recue</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">Qte</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">Prix HT</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">Remise %</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">Total HT</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">TVA %</th>
+              <th className="border border-slate-200 px-3 py-2 text-right">Total TTC</th>
             </tr>
           </thead>
           <tbody>
@@ -72,10 +78,32 @@ export function SupplierReceiptPrintView({
                 <td className="border border-slate-200 px-3 py-3">{line.description}</td>
                 <td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td>
                 <td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatNumber(line.quantity)}</td>
+                <td className="border border-slate-200 px-3 py-3 text-right">{line.unit_price_ht?.toFixed(2) ?? "-"}</td>
+                <td className="border border-slate-200 px-3 py-3 text-right">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td>
+                <td className="border border-slate-200 px-3 py-3 text-right">{line.subtotal_ht?.toFixed(2) ?? "-"}</td>
+                <td className="border border-slate-200 px-3 py-3 text-right">{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</td>
+                <td className="border border-slate-200 px-3 py-3 text-right">{line.total_ttc?.toFixed(2) ?? "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section className="mt-8 flex justify-end">
+        <div className="w-64 space-y-2 text-sm">
+          <div className="flex justify-between border-b border-slate-100 py-1">
+            <span className="text-slate-600">Total HT</span>
+            <span className="font-medium">{document.subtotal_ht?.toFixed(2) ?? "-"} MAD</span>
+          </div>
+          <div className="flex justify-between border-b border-slate-100 py-1">
+            <span className="text-slate-600">Total TVA</span>
+            <span className="font-medium">{document.tax_total?.toFixed(2) ?? "-"} MAD</span>
+          </div>
+          <div className="flex justify-between border-t-2 border-[#2d2490] pt-2 text-base font-bold text-[#2d2490]">
+            <span>Total TTC</span>
+            <span>{document.total_ttc?.toFixed(2) ?? "-"} MAD</span>
+          </div>
+        </div>
       </section>
 
       <section className="mt-12">

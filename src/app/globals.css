@@ -1,39 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #020617;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --surface: #ffffff;
-  --surface-soft: #f8fafc;
-  --surface-raised: #ffffff;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --primary-soft: #dbeafe;
-  --secondary: #0f172a;
-  --secondary-deep: #020617;
-  --accent: #38bdf8;
-  --accent-soft: #e0f2fe;
-  --success: #22c55e;
-  --success-soft: #dcfce7;
-  --warning: #f59e0b;
-  --warning-soft: #fef3c7;
-  --danger: #f43f5e;
-  --danger-soft: #ffe4e6;
-  --ring: #2563eb;
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 6%);
-  --shadow-md: 0 18px 45px rgb(15 23 42 / 10%);
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
+  color-scheme: dark;
+
+  --background: #06070a;
+  --foreground: #f8fafc;
+
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-soft: rgba(255, 255, 255, 0.055);
+  --surface-raised: rgba(17, 21, 29, 0.92);
+  --surface-1: #0d1117;
+  --surface-2: #11151d;
+  --surface-3: #151a24;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --muted: #a0a7b5;
+  --muted-2: #6b7280;
+
+  --primary: #d6b56d;
+  --primary-foreground: #090b10;
+  --primary-soft: rgba(214, 181, 109, 0.14);
+  --secondary: #38bdf8;
+  --secondary-deep: #0f172a;
+  --accent: #22d3ee;
+  --accent-soft: rgba(34, 211, 238, 0.12);
+
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.13);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, 0.14);
+
+  --ring: #38bdf8;
+  --shadow-sm: 0 12px 36px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --shadow-gold: 0 18px 52px rgba(214, 181, 109, 0.18);
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-sans: var(--font-geist-sans), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 }
 
 * {
@@ -48,14 +66,149 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
+  background:
+    radial-gradient(circle at 10% -8%, rgba(56, 189, 248, 0.14), transparent 34%),
+    radial-gradient(circle at 88% 4%, rgba(214, 181, 109, 0.12), transparent 30%),
+    radial-gradient(circle at 82% 92%, rgba(167, 139, 250, 0.08), transparent 28%),
+    linear-gradient(135deg, #06070a 0%, #090b10 48%, #0d1117 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 82%);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+::selection {
+  background: rgba(214, 181, 109, 0.32);
+  color: #fff;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.glass-panel,
+.premium-card {
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(22px);
+}
+
+.luxury-border {
+  position: relative;
+}
+
+.luxury-border::before {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(214, 181, 109, 0.45), rgba(56, 189, 248, 0.22), rgba(255, 255, 255, 0.05));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.subtle-grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.page-shell {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kpi-value {
+  font-size: clamp(1.4rem, 1.1rem + 1vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+/* Obsidian compatibility layer for existing Tailwind utility-heavy screens. */
+.bg-white {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.bg-slate-50,
+.bg-slate-100,
+.bg-blue-50,
+.bg-amber-50,
+.bg-green-50,
+.bg-rose-50 {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+}
+
+.border-slate-100,
+.border-slate-200,
+.border-blue-100,
+.border-amber-200,
+.border-green-200,
+.border-rose-200 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.text-slate-950,
+.text-slate-900,
+.text-slate-800,
+.text-gray-900 {
+  color: var(--foreground) !important;
+}
+
+.text-slate-700,
+.text-slate-600,
+.text-gray-700 {
+  color: rgba(248, 250, 252, 0.82) !important;
+}
+
+.text-slate-500,
+.text-slate-400,
+.text-gray-500 {
+  color: var(--muted) !important;
+}
+
+.shadow-sm,
+.shadow-md,
+.shadow-xl {
+  box-shadow: var(--shadow-sm) !important;
 }
 
 @page {
@@ -67,6 +220,7 @@ a {
   html,
   body {
     background: white !important;
+    color: black !important;
   }
 
   .no-print {

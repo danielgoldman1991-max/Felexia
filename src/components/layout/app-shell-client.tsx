@@ -18,7 +18,7 @@ export function AppShellClient({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
+    <div className="min-h-screen text-[var(--foreground)]">
       <Sidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
@@ -26,9 +26,11 @@ export function AppShellClient({
         showWelcomeGuide={showWelcomeGuide}
       />
 
-      <div className="min-h-screen transition-[padding] duration-300 lg:pl-[300px]">
-        <Topbar workspace={workspace} onOpenMenu={() => setMobileOpen(true)} />
-        <main className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+      <div className="min-h-screen transition-[padding] duration-300 lg:pl-[288px]">
+        <Topbar onOpenMenu={() => setMobileOpen(true)} />
+        <main className="mx-auto w-full max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="page-shell">{children}</div>
+        </main>
       </div>
     </div>
   );

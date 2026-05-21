@@ -22,7 +22,6 @@ import {
   Calculator,
   Search,
   BarChart3,
-  Plus,
   RotateCcw,
   Target,
   Sparkles,
@@ -44,13 +43,6 @@ export type SidebarSection = {
   items?: SidebarItem[];
   moduleKey?: string; // if set, section is hidden when module is disabled
 };
-
-export const quickActions: SidebarItem[] = [
-  { label: "Nouveau devis", href: "/vente/devis/new", icon: Plus },
-  { label: "Nouvelle commande", href: "/achats/commandes/new", icon: Plus },
-  { label: "Nouvelle facture", href: "/facturation/factures/new", icon: Plus },
-  { label: "Paiement reçu", href: "/facturation/paiements/new", icon: Plus },
-];
 
 export const sections: SidebarSection[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },

@@ -155,6 +155,19 @@ export type SupplierInvoiceLineRecord = {
   updated_at: string;
 };
 
+export function isSupplierInvoiceFromReceipt(
+  invoice: Pick<SupplierInvoiceRecord, "source_receipt_id" | "source_type"> & Record<string, unknown>,
+  lines: Array<Pick<SupplierInvoiceLineRecord, "source_document_id" | "source_line_id">> = [],
+) {
+  return Boolean(
+    invoice.source_receipt_id ||
+    invoice.receipt_id ||
+    invoice.source_document_id ||
+    invoice.source_type === "supplier_receipt" ||
+    lines.some((line) => line.source_document_id || line.source_line_id),
+  );
+}
+
 export type SupplierInvoiceLineFormValue = {
   id: string;
   mode: "free" | "product";
@@ -174,6 +187,32 @@ export type SupplierInvoiceLineFormValue = {
   total_ttc: number;
   source_line_id?: string | null;
   source_document_id?: string | null;
+  warning?: string | null;
+};
+
+export type SupplierInvoiceReceiptPreparationLine = SupplierInvoiceLineFormValue & {
+  sourceReceiptLineId: string;
+  sourceReceiptId: string;
+  sourceOrderLineId: string | null;
+  unitLabel: string | null;
+  taxLabel: string | null;
+  totalHt: number;
+  totalTax: number;
+  totalTtc: number;
+};
+
+export type SupplierInvoiceReceiptPreparation = {
+  receipt: PurchaseDocumentRecord;
+  supplier: { id: string; name: string | null; ice?: string | null } | null;
+  sourcePurchaseOrder: PurchaseDocumentRecord | null;
+  lines: SupplierInvoiceReceiptPreparationLine[];
+  totals: {
+    subtotalHt: number;
+    discountTotal: number;
+    taxTotal: number;
+    totalTtc: number;
+  };
+  warnings: string[];
 };
 
 export type SupplierInvoiceFormValues = {
@@ -231,6 +270,52 @@ export type SupplierPaymentAllocationRecord = {
   invoice_total_ttc?: number | null;
 };
 
+export type SupplierInvoicePaymentAttachment = {
+  id: string;
+  allocation_id: string;
+  payment_number: string;
+  payment_date: string | null;
+  amount: number;
+  payment_method: string | null;
+  status: string;
+  treasury_account_id: string | null;
+  treasury_account_name: string | null;
+  treasury_account_type: string | null;
+  reference: string | null;
+  notes: string | null;
+  treasury_transaction_id: string | null;
+  accounting_entry_id: string | null;
+  accounting_entry_number: string | null;
+  accounting_entry_status: string | null;
+  created_at: string | null;
+  counted_in_paid_total: boolean;
+  source: "supplier_payments" | "payments" | "payment_allocations" | "supplier_payment_allocations" | "treasury_transactions" | "possible_match";
+  matchStatus: "confirmed" | "possible_match";
+  matchScore?: number | null;
+};
+
+export type SupplierInvoicePaymentComputedStatus = "unpaid" | "partially_paid" | "paid" | "overpaid";
+
+export type SupplierInvoicePaymentSummary = {
+  invoiceId?: string;
+  invoiceTotalTtc: number;
+  totalTtc?: number;
+  confirmedPaidAmount?: number;
+  paidAmount: number;
+  remainingAmount: number;
+  overpaidAmount: number;
+  paymentStatus: "unpaid" | "partial" | "paid" | "overpaid";
+  computedPaymentStatus?: SupplierInvoicePaymentComputedStatus;
+  paymentStatusComputed?: SupplierInvoicePaymentComputedStatus;
+  storedPaidAmount?: number;
+  storedRemainingAmount?: number;
+  hasPaymentInconsistency?: boolean;
+  canRegisterPayment?: boolean;
+  maxPaymentAmount?: number;
+  storedPaymentStatus: SupplierPaymentStatus;
+  isInconsistentWithStoredStatus: boolean;
+};
+
 export type PurchaseActionResult = {
   success: boolean;
   error?: string;
@@ -275,6 +360,24 @@ export type ReceivableSupplierOrder = PurchaseDocumentRecord & {
 export type BillableSupplierReceipt = PurchaseDocumentRecord & {
   lines: PurchaseDocumentLineRecord[];
   already_invoiced: boolean;
+};
+
+export type PurchaseReceiptArchiveEligibility = {
+  canArchive: boolean;
+  reasons: string[];
+  isValidated: boolean;
+  isInvoiced: boolean;
+  hasStockImpact: boolean;
+};
+
+export type StockMoveForReceipt = {
+  id: string;
+  product_name: string | null;
+  quantity: number;
+  direction: string;
+  move_type: string;
+  warehouse_name: string | null;
+  movement_date: string | null;
 };
 
 export const PURCHASE_DOCUMENT_LABELS: Record<PurchaseDocumentType, string> = {

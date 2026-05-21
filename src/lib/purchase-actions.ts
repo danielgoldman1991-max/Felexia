@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { createTreasuryTransactionFromPayment } from "@/lib/treasury-actions";
-import type { PurchaseActionResult } from "@/lib/purchase-types";
-import { getSupplierOrderLineProgress } from "@/lib/purchases";
+import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/purchase-types";
+import { getPurchaseReceiptArchiveEligibility, getSupplierInvoicePaymentSummary, getSupplierInvoicePreparationFromReceipt, getSupplierOrderLineProgress } from "@/lib/purchases";
 
 function text(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -60,6 +60,10 @@ function calculatePurchaseLine(line: Record<string, unknown>): Record<string, un
     tax_amount: taxAmount,
     total_ttc: totalTtc,
   };
+}
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
 }
 
 function validateUnits(lines: Record<string, unknown>[]): string | null {
@@ -284,6 +288,15 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
   const notes = text(formData, "notes");
   const internalNotes = text(formData, "internal_notes");
   const warehouseId = text(formData, "warehouse_id") ?? await getDefaultStockLocationId(orgId);
+  const sourceLineIds = lines.map((line) => (line.source_line_id as string) || null).filter(Boolean) as string[];
+  const { data: sourceLines } = sourceLineIds.length
+    ? await supabase
+        .from("purchase_document_lines")
+        .select("id, product_id, product_name, description, unit_id, unit_name, unit_price_ht, discount_rate, tax_rate_id, tax_rate")
+        .eq("organization_id", orgId)
+        .in("id", sourceLineIds)
+    : { data: [] };
+  const sourceLineById = new Map((sourceLines ?? []).map((line: Record<string, unknown>) => [String(line.id), line]));
 
   const { data: doc, error: docError } = await supabase
     .from("purchase_documents")
@@ -294,36 +307,56 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
   if (!doc) return { success: false, error: "Erreur creation reception." };
 
   try {
-    const calculated = lines.map((line, index) => {
-      const quantity = numberValue(line.quantity);
-      const sourceLineId = (line.source_line_id as string) || null;
-      const orderedQty = numberValue(line.ordered_quantity ?? quantity);
-      const receivedQty = numberValue(line.received_quantity ?? 0);
-      const remainingQty = orderedQty - receivedQty - quantity;
-      return {
-        organization_id: orgId,
-        document_id: doc.id,
-        source_line_id: sourceLineId,
-        line_order: index + 1,
-        product_id: (line.product_id as string) || null,
-        product_name: (line.product_name as string) || null,
-        description: (line.description as string) || "",
-        quantity,
-        unit_id: (line.unit_id as string) || null,
-        unit_name: (line.unit_name as string) || null,
-        unit_price_ht: 0,
-        discount_rate: 0,
-        tax_rate_id: null,
-        tax_rate: 0,
-        subtotal_ht: 0,
-        discount_amount: 0,
-        tax_amount: 0,
-        total_ttc: 0,
-        ordered_quantity: orderedQty,
-        received_quantity: quantity,
-        remaining_quantity: Math.max(remainingQty, 0),
-      };
-    });
+    const calculated = lines
+      .map((line, index) => {
+        const quantity = numberValue(line.quantity);
+        const sourceLineId = (line.source_line_id as string) || null;
+        const sourceLine = sourceLineId ? sourceLineById.get(sourceLineId) : null;
+        const orderedQty = numberValue(line.ordered_quantity ?? quantity);
+        const receivedQty = numberValue(line.received_quantity ?? 0);
+        const remainingQty = orderedQty - receivedQty - quantity;
+        const unitPriceHt = numberValue(line.unit_price_ht ?? sourceLine?.unit_price_ht);
+        const discountRate = numberValue(line.discount_rate ?? sourceLine?.discount_rate);
+        const taxRate = numberValue(line.tax_rate ?? sourceLine?.tax_rate);
+        const baseHt = quantity * unitPriceHt;
+        const discountAmount = roundMoney(baseHt * (discountRate / 100));
+        const subtotalHt = roundMoney(baseHt - discountAmount);
+        const taxAmount = roundMoney(subtotalHt * (taxRate / 100));
+        const totalTtc = roundMoney(subtotalHt + taxAmount);
+        return {
+          organization_id: orgId,
+          document_id: doc.id,
+          source_line_id: sourceLineId,
+          line_order: index + 1,
+          product_id: (line.product_id as string) || (sourceLine?.product_id as string) || null,
+          product_name: (line.product_name as string) || (sourceLine?.product_name as string) || null,
+          description: (line.description as string) || (sourceLine?.description as string) || "",
+          quantity,
+          unit_id: (line.unit_id as string) || (sourceLine?.unit_id as string) || null,
+          unit_name: (line.unit_name as string) || (sourceLine?.unit_name as string) || null,
+          unit_price_ht: unitPriceHt,
+          discount_rate: discountRate,
+          tax_rate_id: (line.tax_rate_id as string) || (sourceLine?.tax_rate_id as string) || null,
+          tax_rate: taxRate,
+          subtotal_ht: subtotalHt,
+          discount_amount: discountAmount,
+          tax_amount: taxAmount,
+          total_ttc: totalTtc,
+          ordered_quantity: orderedQty,
+          received_quantity: quantity,
+          remaining_quantity: Math.max(remainingQty, 0),
+        };
+      })
+      .filter((line) => Number.isFinite(line.quantity) && line.quantity > 0);
+
+    if (calculated.length === 0) {
+      await supabase.from("purchase_documents").delete().eq("id", doc.id);
+      return { success: false, error: "Aucune quantite a receptionner. Saisissez au moins une quantite superieure a zero." };
+    }
+
+    // Re-assign line_order after filtering
+    calculated.forEach((line, idx) => { line.line_order = idx + 1; });
+
     const { error: linesError } = await supabase.from("purchase_document_lines").insert(calculated);
     if (linesError) throw new Error(linesError.message);
   } catch (e) {
@@ -509,7 +542,31 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
     if (existingByReceipt) return { success: false, error: "Cette reception a deja ete facturee." };
   }
 
-  const lines = parseJsonLines(formData, "lines");
+  let lines = parseJsonLines(formData, "lines");
+  if (sourceReceiptId) {
+    const preparation = await getSupplierInvoicePreparationFromReceipt(sourceReceiptId);
+    if (!preparation) return { success: false, error: "Réception fournisseur introuvable." };
+    if (preparation.receipt.status !== "validated") return { success: false, error: "Seule une réception validée peut être facturée." };
+    if (preparation.receipt.supplier_id !== supplierId) return { success: false, error: "Le fournisseur ne correspond pas à la réception source." };
+    if (preparation.lines.length === 0) return { success: false, error: "Cette réception est déjà totalement facturée ou ne contient aucune ligne facturable." };
+    const submittedBySourceLine = new Map(lines.map((line) => [String(line.source_line_id ?? line.id ?? ""), line]));
+    lines = preparation.lines.map((preparedLine) => {
+      const submitted = submittedBySourceLine.get(String(preparedLine.source_line_id)) ?? {};
+      return {
+        ...preparedLine,
+        description: (submitted.description as string) || preparedLine.description,
+        quantity: numberValue(submitted.quantity ?? preparedLine.quantity) || preparedLine.quantity,
+        unit_id: (submitted.unit_id as string) || preparedLine.unit_id || null,
+        unit_name: (submitted.unit_name as string) || preparedLine.unit_name || null,
+        unit_price_ht: numberValue(submitted.unit_price_ht ?? preparedLine.unit_price_ht),
+        discount_rate: numberValue(submitted.discount_rate ?? preparedLine.discount_rate),
+        tax_rate_id: (submitted.tax_rate_id as string) || preparedLine.tax_rate_id || null,
+        tax_rate: numberValue(submitted.tax_rate ?? preparedLine.tax_rate),
+        source_line_id: preparedLine.source_line_id,
+        source_document_id: sourceReceiptId,
+      };
+    });
+  }
   if (lines.length === 0) return { success: false, error: "Ajoutez au moins une ligne." };
 
   const unitError = validateUnits(lines);
@@ -681,11 +738,20 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
 
   const { data: lines, error: linesError } = await supabase
     .from("supplier_invoice_lines")
-    .select("subtotal_ht, discount_amount, tax_amount, total_ttc")
+    .select("quantity, unit_id, unit_name, unit_price_ht, tax_rate_id, tax_rate, subtotal_ht, discount_amount, tax_amount, total_ttc")
     .eq("invoice_id", id)
     .eq("organization_id", orgId);
   if (linesError) return { success: false, error: linesError.message };
   if (!lines || lines.length === 0) return { success: false, error: "Impossible de valider une facture sans ligne." };
+  const hasIncompleteLine = lines.some((line) =>
+    Number(line.quantity ?? 0) <= 0 ||
+    (!line.unit_id && !line.unit_name) ||
+    Number(line.unit_price_ht ?? 0) <= 0 ||
+    (!line.tax_rate_id && line.tax_rate === null) ||
+    !Number.isFinite(Number(line.subtotal_ht)) ||
+    !Number.isFinite(Number(line.total_ttc))
+  );
+  if (hasIncompleteLine) return { success: false, error: "Certaines lignes de facture sont incomplètes : unité, prix HT ou TVA manquant." };
 
   const subtotalHt = lines.reduce((sum, line) => sum + Number(line.subtotal_ht ?? 0), 0);
   const discountTotal = lines.reduce((sum, line) => sum + Number(line.discount_amount ?? 0), 0);
@@ -722,6 +788,52 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
   return { success: true };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getSupplierInvoiceDangerousActionBlockReason(supabase: any, orgId: string, invoiceId: string) {
+  const { data: invoice, error: invoiceError } = await supabase
+    .from("supplier_invoices")
+    .select("id, status, payment_status, paid_amount, source_type, source_receipt_id")
+    .eq("id", invoiceId)
+    .eq("organization_id", orgId)
+    .maybeSingle();
+
+  if (invoiceError) return invoiceError.message;
+  if (!invoice) return "Facture introuvable.";
+  if (invoice.status === "cancelled") return "Deja annulee.";
+
+  const { data: lines } = await supabase
+    .from("supplier_invoice_lines")
+    .select("source_document_id, source_line_id")
+    .eq("invoice_id", invoiceId)
+    .eq("organization_id", orgId);
+
+  if (isSupplierInvoiceFromReceipt(invoice, lines ?? [])) {
+    return "Cette facture fournisseur est issue d’une réception. Elle ne peut pas être annulée directement.";
+  }
+
+  const summary = await getSupplierInvoicePaymentSummary({ organizationId: orgId, supplierInvoiceId: invoiceId });
+  if (summary && Number(summary.paidAmount ?? 0) > 0.01) {
+    return "Cette facture fournisseur est comptabilisée ou payée. Utilisez un avoir fournisseur ou une écriture de correction selon le cas.";
+  }
+
+  const { data: accountingEntries, error: accountingError } = await supabase
+    .from("accounting_entries")
+    .select("id")
+    .eq("organization_id", orgId)
+    .eq("source_document_type", "supplier_invoice")
+    .eq("source_document_id", invoiceId)
+    .not("status", "in", "(cancelled,canceled,void,archived)")
+    .is("archived_at", null)
+    .limit(1);
+
+  if (accountingError) return accountingError.message;
+  if ((accountingEntries ?? []).length > 0) {
+    return "Cette facture fournisseur est comptabilisée ou payée. Utilisez un avoir fournisseur ou une écriture de correction selon le cas.";
+  }
+
+  return null;
+}
+
 export async function cancelSupplierInvoice(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
@@ -729,18 +841,114 @@ export async function cancelSupplierInvoice(prev: PurchaseActionResult, formData
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
-  const { data: inv } = await supabase.from("supplier_invoices").select("status").eq("id", id).eq("organization_id", workspace.organization.id).single();
-  if (!inv) return { success: false, error: "Facture introuvable." };
-  if (inv.status === "cancelled") return { success: false, error: "Deja annulee." };
+  const blockReason = await getSupplierInvoiceDangerousActionBlockReason(supabase, workspace.organization.id, id);
+  if (blockReason) return { success: false, error: blockReason };
 
   await supabase.from("supplier_invoices").update({ status: "cancelled" }).eq("id", id);
   revalidatePath("/achats/factures");
   return { success: true };
 }
 
+export async function archiveSupplierInvoice(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
+  void prev;
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "ID manquant." };
+
+  const blockReason = await getSupplierInvoiceDangerousActionBlockReason(supabase, workspace.organization.id, id);
+  if (blockReason) {
+    if (blockReason.includes("annulée")) {
+      return { success: false, error: "Cette facture fournisseur est issue d’une réception. Elle ne peut pas être archivée directement." };
+    }
+    return { success: false, error: blockReason };
+  }
+
+  const { error } = await supabase
+    .from("supplier_invoices")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("organization_id", workspace.organization.id);
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/achats/factures");
+  revalidatePath(`/achats/factures/${id}`);
+  return { success: true };
+}
+
+export async function recalculateSupplierInvoicePaymentStatusAction(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
+  void prev;
+  const supabase = await createClient();
+  const workspace = await requireActiveWorkspace();
+  const orgId = workspace.organization.id;
+  const invoiceId = text(formData, "id") ?? text(formData, "supplier_invoice_id");
+  if (!invoiceId) return { success: false, error: "ID facture fournisseur manquant." };
+
+  await recalcSupplierInvoicePaymentStatus(supabase as never, invoiceId, orgId);
+
+  revalidatePath("/achats/factures");
+  revalidatePath(`/achats/factures/${invoiceId}`);
+  revalidatePath("/achats/paiements");
+  return { success: true };
+}
+
 // ============================================================================
 // Supplier Payments
 // ============================================================================
+async function validateSupplierInvoiceAllocations({
+  supabase,
+  orgId,
+  supplierId,
+  allocations,
+  paymentAmount,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any;
+  orgId: string;
+  supplierId: string;
+  allocations: Record<string, unknown>[];
+  paymentAmount?: number;
+}): Promise<{ success: true; totalAllocated: number } | { success: false; error: string }> {
+  const totalsByInvoice = new Map<string, number>();
+  for (const allocation of allocations) {
+    const invoiceId = allocation.invoice_id as string;
+    const amount = numberValue(allocation.amount);
+    if (!invoiceId || amount <= 0) continue;
+    totalsByInvoice.set(invoiceId, (totalsByInvoice.get(invoiceId) ?? 0) + amount);
+  }
+
+  const totalAllocated = Array.from(totalsByInvoice.values()).reduce((sum, amount) => sum + amount, 0);
+  if (paymentAmount !== undefined && totalAllocated > 0 && paymentAmount > totalAllocated + 0.01) {
+    return { success: false, error: "Le montant du paiement dépasse le reste à payer de la facture." };
+  }
+  if (paymentAmount !== undefined && totalAllocated > paymentAmount + 0.01) {
+    return { success: false, error: "Le montant total des affectations dépasse le montant du paiement." };
+  }
+
+  for (const [invoiceId, allocatedAmount] of totalsByInvoice.entries()) {
+    const { data: invoice } = await supabase
+      .from("supplier_invoices")
+      .select("id, supplier_id, invoice_number, supplier_invoice_number")
+      .eq("id", invoiceId)
+      .eq("organization_id", orgId)
+      .single();
+
+    if (!invoice) return { success: false, error: "Facture fournisseur introuvable." };
+    if (invoice.supplier_id !== supplierId) return { success: false, error: "La facture sélectionnée ne correspond pas au fournisseur du paiement." };
+
+    const summary = await getSupplierInvoicePaymentSummary({ organizationId: orgId, supplierInvoiceId: invoiceId });
+    if (!summary) return { success: false, error: "Impossible de vérifier le solde de la facture fournisseur." };
+    if (!summary.canRegisterPayment) {
+      return { success: false, error: "Cette facture fournisseur est déjà totalement payée. Aucun paiement supplémentaire n’est autorisé." };
+    }
+    if (allocatedAmount > (summary.maxPaymentAmount ?? 0) + 0.01) {
+      return { success: false, error: "Le montant du paiement dépasse le reste à payer de la facture." };
+    }
+  }
+
+  return { success: true, totalAllocated };
+}
+
 export async function createSupplierPayment(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
@@ -765,6 +973,14 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const treasuryAccountId = text(formData, "treasury_account_id");
   if (!treasuryAccountId) return { success: false, error: "Selectionnez un compte de decaissement." };
 
+  const invoiceContextId = text(formData, "supplier_invoice_id") ?? text(formData, "invoice_id");
+  const allocations = parseJsonLines(formData, "allocations");
+  if (invoiceContextId && !allocations.some((allocation) => allocation.invoice_id === invoiceContextId)) {
+    allocations.push({ invoice_id: invoiceContextId, amount });
+  }
+  const allocationValidation = await validateSupplierInvoiceAllocations({ supabase, orgId, supplierId, allocations, paymentAmount: amount });
+  if (!allocationValidation.success) return allocationValidation;
+
   const { data: payment, error: payError } = await supabase
     .from("supplier_payments")
     .insert({ organization_id: orgId, payment_number: "", supplier_id: supplierId, treasury_account_id: treasuryAccountId, amount, payment_date: paymentDate, value_date: valueDate, payment_method: paymentMethod, reference: reference, bank_name: bankName, check_number: checkNumber, transfer_reference: transferReference, due_date: dueDate, notes, status: "confirmed", allocated_amount: 0, available_amount: amount })
@@ -773,7 +989,6 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   if (payError) return { success: false, error: payError.message };
   if (!payment) return { success: false, error: "Erreur creation paiement." };
 
-  const allocations = parseJsonLines(formData, "allocations");
   let totalAllocated = 0;
   for (const alloc of allocations) {
     const invoiceId = alloc.invoice_id as string;
@@ -822,6 +1037,9 @@ export async function allocateSupplierPaymentToInvoices(prev: PurchaseActionResu
   if (payment.available_amount <= 0) return { success: false, error: "Aucun montant disponible a affecter." };
 
   const allocations = parseJsonLines(formData, "allocations");
+  const allocationValidation = await validateSupplierInvoiceAllocations({ supabase, orgId, supplierId: payment.supplier_id, allocations });
+  if (!allocationValidation.success) return allocationValidation;
+
   let totalAllocated = 0;
   for (const alloc of allocations) {
     const invoiceId = alloc.invoice_id as string;
@@ -869,18 +1087,17 @@ export async function cancelSupplierPayment(prev: PurchaseActionResult, formData
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function recalcSupplierInvoicePaymentStatus(supabase: any, invoiceId: string, orgId: string) {
-  const { data: invoice } = await supabase.from("supplier_invoices").select("total_ttc").eq("id", invoiceId).eq("organization_id", orgId).single();
+  const { data: invoice } = await supabase.from("supplier_invoices").select("status").eq("id", invoiceId).eq("organization_id", orgId).single();
   if (!invoice) return;
-  const { data: allocations } = await supabase.from("supplier_payment_allocations").select("amount").eq("invoice_id", invoiceId).is("cancelled_at", null);
-  const paidAmount = (allocations ?? []).reduce((s: number, a: { amount: number }) => s + Number(a.amount), 0);
-  const remainingAmount = Math.max(Number(invoice.total_ttc) - paidAmount, 0);
-  let paymentStatus: string;
-  if (paidAmount === 0) paymentStatus = "unpaid";
-  else if (remainingAmount <= 0) paymentStatus = "paid";
-  else paymentStatus = "partial";
+  const summary = await getSupplierInvoicePaymentSummary({ organizationId: orgId, supplierInvoiceId: invoiceId });
+  if (!summary) return;
+  const paidAmount = summary.paidAmount;
+  const remainingAmount = summary.remainingAmount;
+  const paymentStatus = summary.paymentStatus === "partial" ? "partial" : summary.paymentStatus === "overpaid" ? "paid" : summary.paymentStatus;
   let status = invoice.status;
   if (paymentStatus === "paid") status = "paid";
   else if (paymentStatus === "partial" && ["validated", "paid"].includes(invoice.status)) status = "partially_paid";
+  else if (paymentStatus === "unpaid" && ["paid", "partially_paid"].includes(invoice.status)) status = "validated";
   await supabase.from("supplier_invoices").update({ paid_amount: paidAmount, remaining_amount: remainingAmount, payment_status: paymentStatus, status }).eq("id", invoiceId);
 }
 
@@ -895,9 +1112,25 @@ export async function archivePurchaseDocument(prev: PurchaseActionResult, formDa
   const docType = text(formData, "document_type");
   if (!id) return { success: false, error: "ID manquant." };
 
+  const { data: doc, error: docError } = await supabase
+    .from("purchase_documents")
+    .select("id, document_type")
+    .eq("id", id)
+    .eq("organization_id", workspace.organization.id)
+    .maybeSingle();
+  if (docError) return { success: false, error: docError.message };
+  if (!doc) return { success: false, error: "Document introuvable." };
+
+  if (doc.document_type === "supplier_receipt") {
+    const eligibility = await getPurchaseReceiptArchiveEligibility(id);
+    if (!eligibility.canArchive) {
+      return { success: false, error: "Cette réception fournisseur ne peut pas être archivée, car elle est validée, facturée ou liée au stock." };
+    }
+  }
+
   const { error } = await supabase.from("purchase_documents").update({ archived_at: new Date().toISOString() }).eq("id", id).eq("organization_id", workspace.organization.id);
   if (error) return { success: false, error: error.message };
-  if (docType === "supplier_order") revalidatePath("/achats/commandes");
+  if ((docType ?? doc.document_type) === "supplier_order") revalidatePath("/achats/commandes");
   else revalidatePath("/achats/receptions");
   return { success: true };
 }

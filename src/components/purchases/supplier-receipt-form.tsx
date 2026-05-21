@@ -34,17 +34,25 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
     if (warehouseId) formData.set("warehouse_id", warehouseId);
     if (notes) formData.set("notes", notes);
 
-    const lines = order.lines.map((l) => ({
-      source_line_id: l.id,
-      product_id: l.product_id,
-      product_name: l.product_name,
-      description: l.description,
-      quantity: quantities[l.id] ?? 0,
-      unit_id: l.unit_id,
-      unit_name: l.unit_name,
-      ordered_quantity: l.ordered_quantity ?? l.quantity,
-      received_quantity: l.received_quantity ?? 0,
-    }));
+    const lines = order.lines
+      .map((l) => ({
+        source_line_id: l.id,
+        product_id: l.product_id,
+        product_name: l.product_name,
+        description: l.description,
+        quantity: quantities[l.id] ?? 0,
+        unit_id: l.unit_id,
+        unit_name: l.unit_name,
+        ordered_quantity: l.ordered_quantity ?? l.quantity,
+        received_quantity: l.received_quantity ?? 0,
+      }))
+      .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0);
+
+    if (lines.length === 0) {
+      alert("Aucune quantite a receptionner. Saisissez au moins une quantite superieure a zero.");
+      return;
+    }
+
     formData.set("lines", JSON.stringify(lines));
     formAction(formData);
   }

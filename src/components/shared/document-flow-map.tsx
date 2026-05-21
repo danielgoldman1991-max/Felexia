@@ -54,16 +54,16 @@ function StepPill({ step }: { step: DocumentFlowStep }) {
       className={[
         "inline-flex min-w-[132px] items-center gap-2 rounded-xl border px-3 py-2 text-left transition",
         step.isCurrent
-          ? "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm"
-          : "border-slate-200 bg-white text-slate-700",
-        step.href && !step.isCurrent ? "hover:border-slate-300 hover:bg-slate-50" : "",
+          ? "border-[#D6B56D]/30 bg-[#D6B56D]/12 text-[#D6B56D] shadow-sm"
+          : "border-white/10 bg-white/[0.04] text-[var(--foreground)]/80",
+        step.href && !step.isCurrent ? "hover:border-white/18 hover:bg-white/[0.07]" : "",
       ].join(" ")}
     >
       {renderIcon(step.type)}
       <span className="min-w-0">
-        <span className="block text-[11px] font-medium uppercase tracking-wide text-slate-500">{step.label}</span>
+        <span className="block text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--muted)]">{step.label}</span>
         <span className="block truncate text-sm font-semibold">{step.number}</span>
-        {step.status ? <span className="block truncate text-[11px] text-slate-500">{step.status}</span> : null}
+        {step.status ? <span className="block truncate text-[11px] text-[var(--muted)]">{step.status}</span> : null}
       </span>
     </span>
   );
@@ -80,16 +80,16 @@ export function DocumentFlowMap({ title = "Flux documentaire", steps }: Document
   if (visibleSteps.length === 0) return null;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
+    <section className="premium-card rounded-[var(--radius-lg)] p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
-        <span className="text-xs text-slate-500">Traçabilité</span>
+        <h2 className="text-sm font-semibold text-white">{title}</h2>
+        <span className="text-xs text-[var(--muted)]">Traçabilité</span>
       </div>
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {visibleSteps.map((step, index) => (
           <div key={`${step.type ?? "document"}-${step.href ?? step.number}-${index}`} className="flex shrink-0 items-center gap-2">
             <StepPill step={step} />
-            {index < visibleSteps.length - 1 ? <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" /> : null}
+            {index < visibleSteps.length - 1 ? <ArrowRight className="h-4 w-4 shrink-0 text-[#D6B56D]/50" /> : null}
           </div>
         ))}
       </div>

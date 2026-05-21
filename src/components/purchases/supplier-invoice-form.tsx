@@ -3,6 +3,7 @@
 import { useActionState, useState, useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -52,7 +53,12 @@ export function SupplierInvoiceForm({
   const importReceiptLines = useCallback((receipt: BillableSupplierReceipt) => {
     setLines((prev) => [
       ...prev,
-      ...receipt.lines.map((l) => ({
+      ...receipt.lines.map((l) => {
+        const baseHt = l.quantity * l.unit_price_ht;
+        const discountAmount = baseHt * ((l.discount_rate ?? 0) / 100);
+        const subtotalHt = baseHt - discountAmount;
+        const taxAmount = subtotalHt * ((l.tax_rate ?? 0) / 100);
+        return ({
         id: crypto.randomUUID(),
         mode: "product" as const,
         product_id: l.product_id ?? "",
@@ -65,13 +71,14 @@ export function SupplierInvoiceForm({
         discount_rate: l.discount_rate,
         tax_rate_id: l.tax_rate_id ?? "",
         tax_rate: l.tax_rate,
-        subtotal_ht: l.quantity * l.unit_price_ht,
-        discount_amount: 0,
-        tax_amount: 0,
-        total_ttc: l.quantity * l.unit_price_ht,
+        subtotal_ht: subtotalHt,
+        discount_amount: discountAmount,
+        tax_amount: taxAmount,
+        total_ttc: subtotalHt + taxAmount,
         source_line_id: l.id,
         source_document_id: receipt.id,
-      })),
+      });
+      }),
     ]);
     setSourceReceiptId(receipt.id);
     setShowReceiptsModal(false);
@@ -182,11 +189,11 @@ export function SupplierInvoiceForm({
                       <Td>{line.product_name || "Ligne libre"}</Td>
                       <Td><input value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-32 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td><input type="number" step="1" value={line.quantity} onChange={(e) => updateLine(i, "quantity", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input type="number" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.unit_name ? <Badge tone="warning">À compléter</Badge> : null}</Td>
+                      <Td><input type="number" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-1 text-xs" />{line.unit_price_ht <= 0 ? <Badge tone="warning">À compléter</Badge> : null}</Td>
                       <Td><input type="number" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td className="text-xs">{(line.subtotal_ht ?? 0).toFixed(2)}</Td>
-                      <Td><input type="number" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input type="number" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.tax_rate_id && line.tax_rate <= 0 ? <Badge tone="warning">À compléter</Badge> : null}</Td>
                       <Td className="text-xs">{(line.total_ttc ?? 0).toFixed(2)}</Td>
                       <Td><button type="button" onClick={() => removeLine(i)} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></button></Td>
                     </tr>
