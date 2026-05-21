@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 const trialBenefits = [
   "Accès au pack Business",
-  "14 jours d'essai gratuit",
+  "3 mois d'essai Business spécial lancement",
   "Aucune carte bancaire requise",
   "Sans engagement",
   "Possibilité de choisir un abonnement plus tard",
@@ -49,11 +49,11 @@ export function SubscriptionChoiceActions() {
       } | null;
 
       if (!response.ok) {
-        throw new Error(payload?.error ?? `Erreur activation essai gratuit : ${response.status}`);
+        throw new Error(payload?.error ?? `Erreur activation essai Business : ${response.status}`);
       }
 
       if (!payload?.success) {
-        throw new Error("L'essai gratuit n'a pas pu être activé.");
+        throw new Error("L'essai Business n'a pas pu être activé.");
       }
 
       router.replace(payload.redirectTo ?? "/dashboard?trial_started=1");
@@ -62,7 +62,7 @@ export function SubscriptionChoiceActions() {
       console.error("Start trial error:", err);
       const message = err instanceof Error
         ? err.message
-        : "Impossible d'activer l'essai gratuit pour le moment.";
+        : "Impossible d'activer l'essai Business pour le moment.";
       setError(message);
       alert(message);
     } finally {
@@ -77,9 +77,9 @@ export function SubscriptionChoiceActions() {
           <div className="absolute right-5 top-5">
             <Badge tone="info">Recommandé</Badge>
           </div>
-          <h2 className="pr-28 text-xl font-semibold text-slate-950">Démarrer l&apos;essai gratuit Business</h2>
+          <h2 className="pr-28 text-xl font-semibold text-slate-950">Démarrer l&apos;essai Business spécial lancement</h2>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Essayez Felexia avec les fonctionnalités du pack Business pendant 14 jours, sans carte bancaire et sans engagement.
+            Essayez Felexia avec les fonctionnalités du pack Business pendant 3 mois, sans carte bancaire et sans engagement.
           </p>
           <ul className="mt-5 space-y-2">
             {trialBenefits.map((benefit) => (
@@ -101,7 +101,7 @@ export function SubscriptionChoiceActions() {
                 Activation en cours...
               </>
             ) : (
-              "Démarrer mon essai gratuit"
+              "Démarrer mon essai Business"
             )}
           </Button>
         </article>

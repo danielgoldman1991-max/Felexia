@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     question: "Y a-t-il une periode d'essai ?",
-    answer: "Oui, les nouvelles entreprises demarrent avec un essai Business de 14 jours.",
+    answer: "Oui, les nouvelles entreprises demarrent avec un essai Business special lancement de 3 mois.",
   },
   {
     question: "Les donnees sont-elles conservees ?",
@@ -129,4 +129,3 @@ export default function PricingPage() {
     </main>
   );
 }
-

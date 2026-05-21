@@ -106,7 +106,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
 
       {!hasStripe && (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800">
-          Le paiement Stripe n&apos;est pas encore configuré. Vous pouvez démarrer l&apos;essai gratuit ou configurer Stripe.
+          Le paiement Stripe n&apos;est pas encore configuré. Vous pouvez démarrer l&apos;essai Business spécial lancement ou configurer Stripe.
         </p>
       )}
 

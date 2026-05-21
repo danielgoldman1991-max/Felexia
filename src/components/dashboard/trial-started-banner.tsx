@@ -19,7 +19,7 @@ export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean 
         type="button"
         onClick={hideBanner}
         className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-        aria-label="Masquer le message d'essai gratuit"
+        aria-label="Masquer le message d'essai Business"
       >
         <X className="h-4 w-4" />
       </button>
@@ -35,10 +35,10 @@ export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean 
               Pack Business activé
             </div>
             <h2 className="mt-3 text-xl font-semibold text-slate-950">
-              Votre période d’essai Business a démarré.
+              Votre essai Business spécial lancement a démarré.
             </h2>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez de 14 jours d’essai gratuit du pack Business, sans carte bancaire et sans engagement.
+              Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez de 3 mois d’essai Business spécial lancement, sans carte bancaire et sans engagement.
             </p>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
               Vous pouvez commencer à gérer vos clients, devis, factures, documents et paiements. Vous pourrez choisir votre abonnement plus tard depuis Paramètres &gt; Abonnement.

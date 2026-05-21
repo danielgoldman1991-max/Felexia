@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getPlanDefinition, SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
+import { BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
 
 type BillingInterval = "monthly" | "yearly";
 
@@ -30,6 +31,7 @@ export function SubscriptionManage({
   documentsThisMonth,
   storageUsedMb,
   hasStripe,
+  nowIso,
 }: {
   currentSubscription: CurrentSubscription | null;
   plans?: Record<string, unknown>[];
@@ -38,6 +40,7 @@ export function SubscriptionManage({
   documentsThisMonth?: number;
   storageUsedMb?: number;
   hasStripe: boolean;
+  nowIso?: string;
   enabledModules?: string[];
   catalog?: unknown[];
 }) {
@@ -58,10 +61,16 @@ export function SubscriptionManage({
 
   const status = currentSubscription?.status ?? "trialing";
   const periodEnd = currentSubscription?.current_period_end ?? currentSubscription?.trial_ends_at ?? currentSubscription?.trial_end ?? null;
+  const isTrial = status === "trialing" || status === "trial";
+  const referenceTime = nowIso ? new Date(nowIso).getTime() : null;
+  const daysRemaining = periodEnd && referenceTime !== null
+    ? Math.max(0, Math.ceil((new Date(periodEnd).getTime() - referenceTime) / (1000 * 60 * 60 * 24)))
+    : null;
 
   const statusBadge: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" | "info" }> = {
     active: { label: "Actif", tone: "success" },
-    trialing: { label: "Essai gratuit", tone: "info" },
+    trialing: { label: "Essai spécial lancement", tone: "info" },
+    trial: { label: "Essai spécial lancement", tone: "info" },
     past_due: { label: "Paiement en retard", tone: "danger" },
     canceled: { label: "Résilié", tone: "neutral" },
     unpaid: { label: "Impayé", tone: "danger" },
@@ -123,11 +132,11 @@ export function SubscriptionManage({
       const response = await fetch("/api/subscriptions/start-trial", { method: "POST" });
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.success) {
-        throw new Error(payload?.error || "Impossible d'activer l'essai gratuit pour le moment. Veuillez réessayer.");
+        throw new Error(payload?.error || "Impossible d'activer l'essai Business spécial lancement pour le moment. Veuillez réessayer.");
       }
       window.location.assign(payload?.redirectTo ?? "/dashboard?trial_started=1");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Impossible d'activer l'essai gratuit pour le moment. Veuillez réessayer.");
+      setError(err instanceof Error ? err.message : "Impossible d'activer l'essai Business spécial lancement pour le moment. Veuillez réessayer.");
       setLoadingTrial(false);
     }
   }
@@ -158,15 +167,15 @@ export function SubscriptionManage({
           <CardHeader>
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-blue-600" />
-              <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai gratuit ni choisi d&apos;abonnement.</h2>
+              <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé l&apos;essai Business spécial lancement ni choisi d&apos;abonnement.</h2>
             </div>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Business sans carte bancaire ou choisir directement un pack.
+              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Business spécial lancement de 3 mois sans carte bancaire ou choisir directement un pack.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button onClick={startTrial} disabled={loadingTrial}>
-              {loadingTrial ? "Activation en cours..." : "Démarrer l'essai gratuit Business"}
+              {loadingTrial ? "Activation en cours..." : "Démarrer l'essai Business spécial lancement"}
             </Button>
             <Link
               href="/parametres/abonnement"
@@ -192,9 +201,10 @@ export function SubscriptionManage({
               <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{statusBadge[status]?.label ?? status}</Badge>
             </div>
           </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-5">
+          <CardContent className="grid gap-3 md:grid-cols-6">
             <Metric label="Pack" value={currentPlan.name} icon={<ShieldCheck className="h-4 w-4" />} />
             <Metric label="Cycle" value={currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
+            {isTrial ? <Metric label="Durée" value="3 mois" icon={<CreditCard className="h-4 w-4" />} /> : null}
             <Metric label="Utilisateurs" value={`${memberCount}/${currentPlan.limits.users}`} icon={<Users className="h-4 w-4" />} />
             <Metric
               label="Documents / mois"
@@ -207,8 +217,23 @@ export function SubscriptionManage({
               icon={<Database className="h-4 w-4" />}
             />
             {periodEnd && (
-              <p className="md:col-span-5 text-sm text-[var(--muted)]">
-                Fin de période : <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
+              <p className="md:col-span-6 text-sm text-[var(--muted)]">
+                {isTrial ? (
+                  <>
+                    {BUSINESS_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
+                    <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
+                    {daysRemaining !== null ? (
+                      <>
+                        {" "}· Jours restants :{" "}
+                        <span className="font-medium text-[var(--foreground)]">{daysRemaining}</span>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    Fin de période : <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
+                  </>
+                )}
               </p>
             )}
           </CardContent>

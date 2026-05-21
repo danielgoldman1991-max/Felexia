@@ -30,10 +30,10 @@ export function PricingClient({ modules }: { modules: ModuleInfo[] }) {
             selectedKeys={selectedKeys}
             billingInterval={billingInterval}
             onBillingChange={setBillingInterval}
-            onConfirmLabel="Commencer l'essai gratuit"
+            onConfirmLabel="Commencer l'essai Business"
           />
           <p className="mt-3 text-center text-xs text-white/30">
-            Essai gratuit de 15 jours. Sans engagement. Sans carte bancaire.
+            Essai Business spécial lancement de 3 mois. Sans engagement. Sans carte bancaire.
           </p>
           <div className="mt-4 text-center">
             <Link

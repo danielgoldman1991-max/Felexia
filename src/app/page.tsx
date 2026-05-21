@@ -34,7 +34,7 @@ export default function LandingPage() {
             href="/onboarding"
             className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 shadow-lg shadow-blue-600/25"
           >
-            Essai gratuit
+            Essai Business 3 mois
           </Link>
         </nav>
       </header>
@@ -53,14 +53,14 @@ export default function LandingPage() {
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-white/50 leading-relaxed">
           Felexia réunit achats, ventes, facturation, stock, trésorerie, CRM et comptabilité
-          dans une plateforme simple et puissante. Essayez gratuitement pendant 15 jours.
+          dans une plateforme simple et puissante. Profitez de l&apos;essai Business spécial lancement pendant 3 mois.
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">
           <Link
             href="/onboarding"
             className="rounded-2xl bg-blue-600 px-8 py-4 text-base font-bold text-white transition-all hover:bg-blue-500 hover:scale-105 shadow-xl shadow-blue-600/30"
           >
-            Commencer l&apos;essai gratuit
+            Commencer l&apos;essai Business
           </Link>
           <Link
             href="/pricing"

@@ -78,7 +78,7 @@ export async function POST() {
         success: true,
         alreadyActive: true,
         redirectTo: "/bienvenue?trial=business",
-        message: "Votre essai Business est activé. Les modules Business sont disponibles.",
+        message: "Votre essai Business spécial lancement est actif pendant 3 mois. Les modules Business sont disponibles.",
       });
     }
 
@@ -113,7 +113,7 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       redirectTo: "/bienvenue?trial=business",
-      message: "Votre essai Business est activé. Les modules Business sont disponibles.",
+      message: "Votre essai Business spécial lancement est actif pendant 3 mois. Les modules Business sont disponibles.",
     });
   } catch (error) {
     console.error("Start trial fatal error:", error);
@@ -121,7 +121,7 @@ export async function POST() {
       {
         error: error instanceof Error
           ? error.message
-          : "Erreur inconnue lors de l'activation de l'essai gratuit.",
+          : "Erreur inconnue lors de l'activation de l'essai Business.",
       },
       { status: 500 },
     );

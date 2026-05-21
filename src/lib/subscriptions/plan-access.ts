@@ -5,7 +5,6 @@ import { BUSINESS_MODULE_KEYS } from "@/lib/business-modules";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   DEFAULT_PLAN_CODE,
-  DEFAULT_TRIAL_DAYS,
   getEnabledModulesForPlan,
   getPlanDefinition,
   normalizePlanCode,
@@ -14,6 +13,7 @@ import {
   type PlanLimits,
 } from "@/lib/subscriptions/plans";
 import { isSubscriptionUsable } from "@/lib/subscriptions/subscription-access";
+import { getBusinessTrialEndDate } from "@/lib/subscriptions/trial-config";
 
 export type OrganizationSubscription = {
   id: string;
@@ -136,7 +136,7 @@ export async function createDefaultBusinessTrial(
   organizationId: string,
 ): Promise<void> {
   const trialStart = new Date();
-  const trialEnd = new Date(trialStart.getTime() + DEFAULT_TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  const trialEnd = getBusinessTrialEndDate(trialStart);
 
   const { data: existingSubscription, error: existingError } = await supabase
     .from("organization_subscriptions")

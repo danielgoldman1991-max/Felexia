@@ -246,7 +246,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
 ];
 
 export const DEFAULT_PLAN_CODE: PlanCode = "business";
-export const DEFAULT_TRIAL_DAYS = 14;
 
 export function normalizePlanCode(planCode: string | null | undefined): PlanCode {
   if (planCode === "essentiel" || planCode === "business" || planCode === "premium") {

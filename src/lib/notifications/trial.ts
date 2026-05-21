@@ -32,8 +32,8 @@ export function buildTrialNotification(
     if (daysLeft <= 0) {
       return {
         type: "trial_expired",
-        title: "Essai gratuit terminé",
-        message: "Votre essai gratuit est terminé. Activez votre abonnement pour continuer à utiliser Felexia.",
+        title: "Essai Business terminé",
+        message: "Votre essai Business spécial lancement est terminé. Activez votre abonnement pour continuer à utiliser Felexia.",
         action_label: "Activer mon abonnement",
         action_url: "/parametres/abonnement",
         severity: "error",
@@ -43,8 +43,8 @@ export function buildTrialNotification(
     if (daysLeft <= 3) {
       return {
         type: "trial_ending_soon",
-        title: "Essai gratuit - Attention",
-        message: `Attention : votre essai gratuit se termine dans ${daysLeft} jour${daysLeft > 1 ? "s" : ""}. Finalisez votre paiement en ligne pour éviter la suspension de votre accès.`,
+        title: "Essai Business - Attention",
+        message: `Attention : votre essai Business spécial lancement se termine dans ${daysLeft} jour${daysLeft > 1 ? "s" : ""}. Finalisez votre paiement en ligne pour éviter la suspension de votre accès.`,
         action_label: "Payer maintenant",
         action_url: "/parametres/abonnement",
         severity: "urgent",
@@ -54,8 +54,8 @@ export function buildTrialNotification(
     if (daysLeft <= 7) {
       return {
         type: "trial_ending",
-        title: "Essai gratuit",
-        message: `Votre essai gratuit se termine dans ${daysLeft} jours. Activez votre abonnement pour continuer à utiliser Felexia sans interruption.`,
+        title: "Essai Business",
+        message: `Votre essai Business spécial lancement se termine dans ${daysLeft} jours. Activez votre abonnement pour continuer à utiliser Felexia sans interruption.`,
         action_label: "Payer maintenant",
         action_url: "/parametres/abonnement",
         severity: "warning",
@@ -64,8 +64,8 @@ export function buildTrialNotification(
     }
     return {
       type: "trial_active",
-      title: "Essai gratuit",
-      message: `Votre essai gratuit Felexia est actif. Il vous reste ${daysLeft} jours avant la fin de votre période d'essai.`,
+      title: "Essai Business spécial lancement",
+      message: `Votre essai Business spécial lancement Felexia est actif. Il vous reste ${daysLeft} jours avant la fin de votre période d'essai.`,
       action_label: "Voir mon abonnement",
       action_url: "/parametres/abonnement",
       severity: "info",

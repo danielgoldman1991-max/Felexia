@@ -172,7 +172,7 @@ export async function registerCompanyAction(
   } catch (trialErr) {
     console.error("registerCompany: trial activation error", trialErr);
     return {
-      error: "Votre entreprise a été créée, mais l’activation de l’essai gratuit Business ou des modules a échoué. Veuillez contacter le support ou réessayer.",
+      error: "Votre entreprise a été créée, mais l’activation de l’essai Business spécial lancement ou des modules a échoué. Veuillez contacter le support ou réessayer.",
     };
   }
 

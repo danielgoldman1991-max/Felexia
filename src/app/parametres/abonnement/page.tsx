@@ -51,6 +51,7 @@ export default async function AbonnementPage() {
         documentsThisMonth={documentsThisMonth}
         storageUsedMb={storageUsedMb}
         hasStripe={hasStripeEnv()}
+        nowIso={new Date().toISOString()}
       />
     </div>
   );

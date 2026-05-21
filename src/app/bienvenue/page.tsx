@@ -42,7 +42,7 @@ export default async function WelcomePage({
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-950">Votre entreprise est prête</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Votre période d&apos;essai Business de 14 jours est activée. Les modules Business sont déjà disponibles pour vous permettre de tester Felexia sans blocage.
+                  Votre essai Business spécial lancement de 3 mois est activé. Tous les modules Business sont disponibles pour démarrer Felexia sans blocage.
                 </p>
                 {trialEndsAt && (
                   <p className="mt-2 text-xs font-medium text-slate-500">

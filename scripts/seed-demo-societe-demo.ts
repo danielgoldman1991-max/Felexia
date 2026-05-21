@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 0. ENV + CLIENT
@@ -457,7 +458,7 @@ async function ensureBusinessTrialAndModules() {
   const { data: plan } = await supabase.from("subscription_plans").select("id").eq("code", "business").maybeSingle();
 
   const now = new Date();
-  const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const trialEnd = getBusinessTrialEndDate(now);
 
   const { data: existingSub } = await supabase.from("organization_subscriptions").select("id").eq("organization_id", DEMO_ORG_ID).maybeSingle();
 

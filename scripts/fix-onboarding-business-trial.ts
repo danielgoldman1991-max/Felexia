@@ -12,6 +12,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -113,7 +114,7 @@ async function main() {
     }
 
     const trialStart = new Date();
-    const trialEnd = new Date(trialStart.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const trialEnd = getBusinessTrialEndDate(trialStart);
 
     for (const org of noSubOrgs) {
       const { error: insertErr } = await svc
@@ -153,7 +154,7 @@ async function main() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", org.id);
-        console.log(`  ✅ ${org.name} (${org.id}) → Business trial activated (14 days)`);
+        console.log(`  ✅ ${org.name} (${org.id}) → Business launch trial activated (3 months)`);
       }
     }
   } else {

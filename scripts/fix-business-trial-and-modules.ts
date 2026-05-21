@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { BUSINESS_MODULE_KEYS } from "../src/lib/business-modules";
+import { getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 const BUSINESS_MODULES = [...BUSINESS_MODULE_KEYS];
 
@@ -57,7 +58,7 @@ async function activateTrialIfNeeded(organizationId: string) {
     .maybeSingle();
 
   const now = new Date();
-  const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const trialEnd = getBusinessTrialEndDate(now);
   const payload = {
     organization_id: organizationId,
     plan_id: plan?.id ?? null,

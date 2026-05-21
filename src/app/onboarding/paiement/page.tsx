@@ -45,7 +45,7 @@ export default async function TrialConfirmationPage() {
               <Logo size={40} />
             </span>
           </div>
-          <h1 className="text-2xl font-semibold">Essai gratuit démarré !</h1>
+          <h1 className="text-2xl font-semibold">Essai Business spécial lancement démarré !</h1>
         </CardHeader>
         <CardContent>
           <div className="mb-6 flex justify-center">
@@ -56,7 +56,7 @@ export default async function TrialConfirmationPage() {
             </div>
           </div>
           <p className="text-sm text-[var(--muted)]">
-            Votre essai gratuit est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd || "15 jours"}</strong>.
+            Votre essai Business spécial lancement est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd || "3 mois"}</strong>.
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Profitez de toutes les fonctionnalités sélectionnées. Aucune carte bancaire requise.

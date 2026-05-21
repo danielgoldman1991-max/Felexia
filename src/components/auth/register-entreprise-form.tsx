@@ -288,7 +288,7 @@ export function RegisterEntrepriseForm() {
 
       {/* ── Submit ────────────────────────────────────────────────── */}
       <Button type="submit" disabled={pending} className="h-12 w-full rounded-xl text-base font-semibold">
-        {pending ? "Création en cours..." : "Démarrer mon essai gratuit"}
+        {pending ? "Création en cours..." : "Démarrer mon essai Business"}
       </Button>
 
       {/* ── Trust signals ─────────────────────────────────────────── */}
@@ -299,7 +299,7 @@ export function RegisterEntrepriseForm() {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          Essai gratuit 15 jours
+          Essai Business spécial lancement 3 mois
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

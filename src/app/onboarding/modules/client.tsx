@@ -48,11 +48,11 @@ export function OnboardingModulesClient({
           onBillingChange={setBillingInterval}
           onConfirm={handleConfirm}
           loading={isActionPending}
-          onConfirmLabel="Démarrer l'essai gratuit"
+          onConfirmLabel="Démarrer l'essai Business"
           variant="light"
         />
         <p className="mt-3 text-center text-xs text-slate-400">
-          Essai gratuit de 15 jours. Sans engagement.
+          Essai Business spécial lancement de 3 mois. Sans engagement.
         </p>
         {state?.error && (
           <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-800">
