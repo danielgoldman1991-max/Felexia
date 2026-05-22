@@ -1,7 +1,30 @@
+export function getSupabasePublicKey(): string {
+  return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ?? "";
+}
+
+export function requireSupabasePublicEnv() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supabaseAnonKey = getSupabasePublicKey();
+
+  if (!supabaseUrl) {
+    throw new Error("Missing environment variable: NEXT_PUBLIC_SUPABASE_URL");
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error(
+      "Missing environment variable: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    );
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
+}
+
 export function getEnv() {
   return {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+    supabaseAnonKey: getSupabasePublicKey(),
     supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",

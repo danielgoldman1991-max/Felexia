@@ -26,9 +26,11 @@ Ouvrez `http://localhost:3000/dashboard`.
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxxxxxxxxxx
+# Alternative legacy acceptee si la publishable key n'est pas encore disponible:
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Utilisez une publishable key Supabase moderne. Une cle anon legacy peut depanner, mais la publishable key est recommandee.
+Utilisez une publishable key Supabase moderne. Une cle anon legacy reste acceptee en fallback, mais la publishable key est recommandee.
 
 ## Migration Supabase
 
@@ -78,7 +80,7 @@ where organization_id = '11111111-1111-1111-1111-111111111111'
 
 ## Tester le login
 
-1. Renseignez `.env.local` avec `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+1. Renseignez `.env.local` avec `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ou `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 2. Creez un utilisateur dans Supabase Auth.
 3. Ajoutez son profil et son rattachement a `organization_members` comme indique plus haut.
 4. Lancez l'application:

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getEnv } from "@/lib/env";
 import { getEnabledModulesForPlan, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
 
 export type ActiveWorkspace = {
@@ -27,10 +28,8 @@ export type ActiveWorkspace = {
 };
 
 export function hasSupabaseConfig() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
+  const env = getEnv();
+  return Boolean(env.supabaseUrl && env.supabaseAnonKey);
 }
 
 export async function getCurrentUser() {

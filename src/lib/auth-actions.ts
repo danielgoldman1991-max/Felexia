@@ -16,7 +16,7 @@ export async function loginAction(
   if (!hasSupabaseConfig()) {
     return {
       error:
-        "Configuration Supabase manquante. Verifiez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.",
+        "Configuration Supabase manquante. Verifiez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ou NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     };
   }
 
