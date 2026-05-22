@@ -165,7 +165,7 @@ export async function createEntrepriseAction(
     currency: devise,
   };
 
-  await supabase
+  const { error: orgUpdateError } = await supabase
     .from("organizations")
     .update({
       ...legalPayload,
@@ -175,6 +175,10 @@ export async function createEntrepriseAction(
       updated_at: new Date().toISOString(),
     })
     .eq("id", orgId);
+
+  if (orgUpdateError) {
+    console.error("createEntreprise: org update error", orgUpdateError.message);
+  }
 
   const { error: companySettingsError } = await supabase
     .from("company_settings")
@@ -189,8 +193,15 @@ export async function createEntrepriseAction(
     );
 
   if (companySettingsError) {
-    console.error("createEntreprise: company settings upsert error", companySettingsError.message);
-    return { error: "Impossible d’enregistrer les informations légales de l’entreprise. Veuillez appliquer les migrations Supabase puis réessayer." };
+    console.error("createEntreprise: company settings upsert error", companySettingsError.message, companySettingsError.details);
+    const msg = companySettingsError.message.toLowerCase();
+    if (msg.includes("column") || msg.includes("relation") || msg.includes("does not exist")) {
+      return { error: "La table company_settings est incomplète. Veuillez appliquer les migrations Supabase (supabase db push) puis réessayer." };
+    }
+    if (msg.includes("permission") || msg.includes("policy") || msg.includes("violat")) {
+      return { error: "Permission refusée. Veuillez vous reconnecter puis réessayer." };
+    }
+    return { error: `Erreur lors de l'enregistrement : ${companySettingsError.message}` };
   }
 
   try {
