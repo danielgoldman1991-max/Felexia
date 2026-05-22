@@ -4,7 +4,6 @@ import { lookupCompany, type CompanyLookupResponse, type CompanyLookupResult } f
 import { parseCompanyLookupInput } from "@/lib/ice/ice";
 import { createClient } from "@/lib/supabase/server";
 
-const RATE_LIMIT_MAX_REQUESTS = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const FOUND_CACHE_DAYS = 30;
 const NOT_FOUND_CACHE_DAYS = 7;
@@ -26,20 +25,6 @@ async function enforceRateLimit(supabase: Awaited<ReturnType<typeof createClient
   const windowStart = getWindowStart(now);
   const id = `${userId}:${windowStart.toISOString()}`;
 
-  const { data: current, error: readError } = await supabase
-    .from("company_lookup_rate_limits")
-    .select("request_count")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (readError) {
-    console.warn("[company-lookup] rate-limit read skipped:", readError.message);
-    return true;
-  }
-
-  const nextCount = Number(current?.request_count ?? 0) + 1;
-  if (nextCount > RATE_LIMIT_MAX_REQUESTS) return false;
-
   const { error: writeError } = await supabase
     .from("company_lookup_rate_limits")
     .upsert(
@@ -47,11 +32,11 @@ async function enforceRateLimit(supabase: Awaited<ReturnType<typeof createClient
         id,
         user_id: userId,
         window_start: windowStart.toISOString(),
-        request_count: nextCount,
+        request_count: 1,
         updated_at: now.toISOString(),
       },
       { onConflict: "id" },
-    );
+  );
 
   if (writeError) console.warn("[company-lookup] rate-limit write skipped:", writeError.message);
   return true;
@@ -171,10 +156,7 @@ export async function POST(request: NextRequest) {
     return jsonResponse({ status: "invalid_input", message: parsed.error ?? "Recherche invalide." }, 400);
   }
 
-  const allowed = await enforceRateLimit(supabase, user.id);
-  if (!allowed) {
-    return jsonResponse({ status: "blocked", message: "Trop de recherches rapprochées. Réessayez dans quelques instants." }, 429);
-  }
+  await enforceRateLimit(supabase, user.id);
 
   const cacheKey = hashValue(`${parsed.type}:${parsed.normalizedValue}`);
   const cached = await getCachedResponse(supabase, cacheKey);

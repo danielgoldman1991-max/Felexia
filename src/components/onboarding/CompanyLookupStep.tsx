@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  ArrowUpRight,
   Building2,
   Check,
   Loader2,
-  MapPin,
   Search,
-  ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
 import type { CompanyOnboardingPrefill } from "@/lib/company-lookup/types";
 import type { CompanyLookupResponse, CompanyLookupResult } from "@/lib/ice/company-lookup-provider";
-import { buildMarocFactureIceSearchUrl, parseCompanyLookupInput } from "@/lib/ice/ice";
+import { parseCompanyLookupInput } from "@/lib/ice/ice";
 import { Button } from "@/components/ui/button";
 
 type LookupPayload = {
@@ -254,10 +251,8 @@ export function CompanyLookupStep({
   }
 
   const canSearch = query.trim().length > 0 && !isLoading;
-  const externalUrl = buildMarocFactureIceSearchUrl(manualPayload?.query ?? query);
   const foundPayload =
     response?.status === "found" && response.result ? payloadFromResult(response.result) : null;
-  const showFallback = response?.status === "unavailable" || response?.status === "blocked";
 
   return (
     <div className="space-y-6">
@@ -358,43 +353,6 @@ export function CompanyLookupStep({
         />
       ) : null}
 
-      {/* Fallback / unavailable / blocked state */}
-      {showFallback ? (
-        <section className="premium-card rounded-[24px] border border-[#D6B56D]/20 p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#D6B56D]/12 text-[#D6B56D] ring-1 ring-[#D6B56D]/20">
-                <ShieldCheck className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-base font-semibold text-white">
-                  Recherche automatique indisponible
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-                  {response.message}
-                </p>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-[#E7D7AA]">
-                  Cela ne signifie pas que l&apos;entreprise n&apos;existe pas.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" onClick={() => onManual(manualPayload ?? undefined)}>
-                Continuer manuellement avec cette recherche
-              </Button>
-              <a
-                href={externalUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.045] px-4 text-sm font-medium text-white transition hover:bg-white/[0.08]"
-              >
-                Ouvrir la recherche externe
-                <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }
