@@ -17,8 +17,10 @@ export type CompanySettingsFormValues = {
   name: string;
   legal_name: string;
   commercial_name: string;
+  forme_juridique: string;
   ice: string;
   rc: string;
+  ville_rc: string;
   if_number: string;
   cnss: string;
   patente: string;
@@ -188,12 +190,20 @@ export function CompanySettingsForm({
             <Input name="commercial_name" defaultValue={s.commercial_name} />
           </div>
           <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Forme juridique</label>
+            <Input name="forme_juridique" defaultValue={s.forme_juridique} placeholder="SARL, SA, personne physique..." />
+          </div>
+          <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">ICE</label>
             <Input name="ice" defaultValue={s.ice} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">RC</label>
             <Input name="rc" defaultValue={s.rc} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Ville RC</label>
+            <Input name="ville_rc" defaultValue={s.ville_rc} />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">IF</label>

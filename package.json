@@ -14,16 +14,20 @@
     "fix:supplier-payment-links": "npx tsx scripts/fix-supplier-payment-links.ts",
     "fix:supplier-payments": "npx tsx scripts/fix-supplier-invoice-payment-integrity.ts",
     "fix:supplier-invoice-lines": "npx tsx scripts/fix-supplier-invoice-lines-from-receipts.ts",
+    "fix:hr-integrity": "npx tsx scripts/fix-hr-integrity.ts",
     "seed:demo": "npx tsx scripts/seed-demo-societe-demo.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.3",
+    "cheerio": "^1.2.0",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "stripe": "^22.1.1"
+    "sonner": "^2.0.7",
+    "stripe": "^22.1.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

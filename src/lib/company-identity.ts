@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getOrganizationLegalDisplay } from "@/lib/organizations/legal-display";
 
 export interface OrganizationIdentity {
   name: string;
@@ -41,27 +42,27 @@ export async function getOrganizationDocumentIdentity(
     return trimmed.length > 0 ? trimmed : null;
   };
 
-  const logoUrl = nonEmpty(organization?.logo_url) ?? nonEmpty(companySettings?.logo_url);
-
-  const name =
-    companySettings?.legal_name ??
-    companySettings?.commercial_name ??
-    organization?.name ??
-    "";
+  const merged = {
+    ...(organization ?? {}),
+    ...(companySettings ?? {}),
+    name: companySettings?.legal_name ?? companySettings?.commercial_name ?? organization?.name,
+    logo_url: nonEmpty(organization?.logo_url) ?? nonEmpty(companySettings?.logo_url),
+  };
+  const legalDisplay = getOrganizationLegalDisplay(merged);
 
   return {
-    name,
-    logoUrl,
-    ice: companySettings?.ice ?? organization?.ice ?? null,
-    rc: companySettings?.rc ?? organization?.rc ?? null,
-    ifNumber: companySettings?.if_number ?? organization?.if_number ?? null,
+    name: legalDisplay.companyName,
+    logoUrl: legalDisplay.logoUrl,
+    ice: legalDisplay.ice,
+    rc: legalDisplay.rc,
+    ifNumber: legalDisplay.fiscalId,
     patente: companySettings?.patente ?? null,
-    cnss: companySettings?.cnss ?? null,
-    address: companySettings?.address ?? organization?.address ?? null,
-    city: companySettings?.city ?? organization?.city ?? null,
+    cnss: legalDisplay.cnss,
+    address: legalDisplay.address,
+    city: legalDisplay.city,
     country: companySettings?.country ?? organization?.country ?? "Maroc",
-    phone: companySettings?.phone ?? organization?.phone ?? null,
-    email: companySettings?.email ?? organization?.email ?? null,
+    phone: legalDisplay.phone,
+    email: legalDisplay.email,
     website: companySettings?.website ?? null,
     footerText: companySettings?.footer_text ?? null,
     currency: companySettings?.currency ?? organization?.currency ?? "MAD",

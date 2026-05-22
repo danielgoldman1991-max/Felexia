@@ -240,7 +240,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
       "Stockage eleve",
       "Support prioritaire",
     ],
-    moduleKeys: ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting", "reports"],
+    moduleKeys: [...BUSINESS_MODULE_KEYS, "reports"],
     sortOrder: 3,
   },
 ];

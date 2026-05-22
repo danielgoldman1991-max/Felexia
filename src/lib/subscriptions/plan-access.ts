@@ -224,12 +224,31 @@ export async function upsertBusinessModulesForOrganization(
   organizationId: string,
 ): Promise<void> {
   const now = new Date().toISOString();
-  const moduleRows = BUSINESS_MODULE_KEYS.map((moduleKey) => ({
-    organization_id: organizationId,
-    module_key: moduleKey,
-    enabled: true,
-    created_at: now,
-  }));
+
+  // Only upsert module keys that actually exist in modules_catalog to avoid FK violations
+  const { data: catalogRows } = await supabase
+    .from("modules_catalog")
+    .select("module_key")
+    .in("module_key", BUSINESS_MODULE_KEYS);
+
+  const validKeys = new Set((catalogRows ?? []).map((r: Record<string, unknown>) => String(r.module_key)));
+  const missingKeys = BUSINESS_MODULE_KEYS.filter((k) => !validKeys.has(k));
+
+  if (missingKeys.length > 0) {
+    console.warn(
+      `[plan-access] Module keys missing from modules_catalog, skipping: ${missingKeys.join(", ")}. ` +
+      `Run migrations to add them.`
+    );
+  }
+
+  const moduleRows = BUSINESS_MODULE_KEYS
+    .filter((k) => validKeys.has(k))
+    .map((moduleKey) => ({
+      organization_id: organizationId,
+      module_key: moduleKey,
+      enabled: true,
+      created_at: now,
+    }));
 
   if (moduleRows.length === 0) return;
 

@@ -50,6 +50,7 @@ const MODULE_LABELS: Record<string, { name: string; description: string }> = {
   stock: { name: "Stock", description: "Produits, mouvements, emplacements et alertes." },
   treasury: { name: "Tresorerie", description: "Comptes bancaires, caisses, mouvements et rapprochements." },
   accounting: { name: "Comptabilite", description: "Journaux, TVA, plan comptable et preparation comptable." },
+  rh: { name: "Ressources humaines", description: "Employes, contrats, conges, paie et documents RH." },
   reports: { name: "Reporting", description: "Tableaux de bord avances et analyses." },
 };
 

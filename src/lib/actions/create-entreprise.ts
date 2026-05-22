@@ -5,8 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { hasServiceRoleKey } from "@/lib/env";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
 import { ensureAccountingBaseSetup } from "@/lib/accounting";
-import { formatMoroccanPhone, isValidMoroccanPhone } from "@/lib/morocco-format";
+import { isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
+import { ensureHrReferenceData } from "@/lib/hr/reference-data";
+import { validateCompanyConfirmationInput } from "@/lib/ice/ice";
 import {
   startBusinessTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
@@ -28,38 +30,45 @@ export async function createEntrepriseAction(
     return { error: "Votre session a expiré. Veuillez vous reconnecter avant de créer l’entreprise." };
   }
 
-  const raisonSociale = String(formData.get("raisonSociale") ?? "").trim().toLocaleUpperCase("fr-FR");
-  const ville = String(formData.get("ville") ?? "").trim();
-  const telephone = formatMoroccanPhone(String(formData.get("telephone") ?? "").trim());
-  const emailEnt = String(formData.get("emailEnt") ?? "").trim().toLowerCase();
-  const adresse = String(formData.get("adresse") ?? "").trim();
+  const confirmation = validateCompanyConfirmationInput({
+    raisonSociale: String(formData.get("raisonSociale") ?? ""),
+    formeJuridique: String(formData.get("formeJuridique") ?? ""),
+    ice: String(formData.get("ice") ?? ""),
+    identifiantFiscal: String(formData.get("identifiantFiscal") ?? ""),
+    rc: String(formData.get("rc") ?? ""),
+    villeRc: String(formData.get("villeRc") ?? ""),
+    cnss: String(formData.get("cnss") ?? ""),
+    adresse: String(formData.get("adresse") ?? ""),
+    ville: String(formData.get("ville") ?? ""),
+    telephone: String(formData.get("telephone") ?? ""),
+    emailEnt: String(formData.get("emailEnt") ?? ""),
+    website: String(formData.get("website") ?? ""),
+    activite: String(formData.get("activite") ?? ""),
+    secteur: String(formData.get("secteur") ?? ""),
+  });
+
+  const {
+    raisonSociale,
+    formeJuridique,
+    ice,
+    identifiantFiscal,
+    rc,
+    villeRc,
+    cnss,
+    adresse,
+    ville,
+    telephone,
+    emailEnt,
+    website,
+    activite,
+  } = confirmation.normalized;
   const devise = "MAD";
   const logoFile = formData.get("logo") as File | null;
 
-  const fieldErrors: Record<string, string> = {};
+  const fieldErrors: Record<string, string> = { ...confirmation.errors };
 
-  if (raisonSociale.length < 2) {
-    fieldErrors.raisonSociale = "La raison sociale est obligatoire.";
-  }
-
-  if (adresse.length < 5) {
-    fieldErrors.adresse = "L’adresse complète est obligatoire.";
-  }
-
-  if (!ville) {
-    fieldErrors.ville = "La ville est obligatoire.";
-  }
-
-  if (!String(formData.get("telephone") ?? "").trim()) {
-    fieldErrors.telephone = "Le numéro de téléphone est obligatoire.";
-  } else if (!isValidMoroccanPhone(telephone)) {
+  if (telephone && !isValidMoroccanPhone(telephone)) {
     fieldErrors.telephone = "Le numéro de téléphone doit respecter le format +212 524 10 10 10.";
-  }
-
-  if (!emailEnt) {
-    fieldErrors.emailEnt = "L’adresse mail est obligatoire.";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEnt)) {
-    fieldErrors.emailEnt = "L’adresse mail est invalide.";
   }
 
   if (logoFile && logoFile.size > 0 && logoFile.size > 5 * 1024 * 1024) {
@@ -137,9 +146,29 @@ export async function createEntrepriseAction(
     return { error: `Finalisation entreprise impossible : ${finalizeError.message}` };
   }
 
+  const legalPayload = {
+    legal_name: raisonSociale,
+    commercial_name: raisonSociale,
+    ice: ice || null,
+    rc: rc || null,
+    if_number: identifiantFiscal || null,
+    tax_identifier: identifiantFiscal || null,
+    cnss: cnss || null,
+    forme_juridique: formeJuridique || null,
+    ville_rc: villeRc || null,
+    address: adresse,
+    city: ville,
+    phone: telephone,
+    email: emailEnt,
+    website: website || null,
+    activity: activite || null,
+    currency: devise,
+  };
+
   await supabase
     .from("organizations")
     .update({
+      ...legalPayload,
       onboarding_step: "completed",
       onboarding_completed: true,
       onboarding_completed_at: new Date().toISOString(),
@@ -147,8 +176,26 @@ export async function createEntrepriseAction(
     })
     .eq("id", orgId);
 
+  const { error: companySettingsError } = await supabase
+    .from("company_settings")
+    .upsert(
+      {
+        organization_id: orgId,
+        ...legalPayload,
+        logo_url: logoUrl,
+        logo_path: logoPath,
+      },
+      { onConflict: "organization_id" },
+    );
+
+  if (companySettingsError) {
+    console.error("createEntreprise: company settings upsert error", companySettingsError.message);
+    return { error: "Impossible d’enregistrer les informations légales de l’entreprise. Veuillez appliquer les migrations Supabase puis réessayer." };
+  }
+
   try {
     await startBusinessTrialAndEnableModules(orgId, user.id);
+    await ensureHrReferenceData(supabase, orgId);
   } catch (trialErr) {
     console.error("createEntreprise: trial activation error", trialErr);
     return {
@@ -172,5 +219,5 @@ export async function createEntrepriseAction(
     console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
-  redirect("/bienvenue?trial=business");
+  redirect("/dashboard?trial_started=1&company_created=1");
 }

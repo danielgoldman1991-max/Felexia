@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
+import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import {
   startBusinessTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
@@ -169,6 +170,7 @@ export async function registerCompanyAction(
 
   try {
     await startBusinessTrialAndEnableModules(orgId, userId, svc);
+    await ensureHrReferenceData(svc, orgId);
   } catch (trialErr) {
     console.error("registerCompany: trial activation error", trialErr);
     return {

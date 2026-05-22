@@ -7,6 +7,7 @@ export const BUSINESS_MODULE_KEYS = [
   "stock",
   "treasury",
   "accounting",
+  "rh",
 ] as const;
 
 export type BusinessModuleKey = (typeof BUSINESS_MODULE_KEYS)[number];

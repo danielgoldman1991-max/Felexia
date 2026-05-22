@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { BUSINESS_MODULE_KEYS } from "../src/lib/business-modules";
+import { ensureHrReferenceData } from "../src/lib/hr/reference-data";
 import { getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -52,6 +54,7 @@ const DEMO_CONFIG_RAW: Record<SeedScale, Record<string, number>> = {
     bankStatementsCount: 3, bankStatementLinesCount: 60,
     accountingEntriesCount: 50, accountingEntryLinesCount: 150,
     documentsCount: 30, vatMonthlyExportsCount: 3, vatQuarterlyExportsCount: 1,
+    hrEmployeesCount: 12, hrPayrollPeriodsCount: 6,
   },
   medium: {
     clientsCount: 60, prospectsCount: 20, suppliersCount: 30, partnersCount: 10,
@@ -64,6 +67,7 @@ const DEMO_CONFIG_RAW: Record<SeedScale, Record<string, number>> = {
     bankStatementsCount: 12, bankStatementLinesCount: 300,
     accountingEntriesCount: 500, accountingEntryLinesCount: 1500,
     documentsCount: 150, vatMonthlyExportsCount: 12, vatQuarterlyExportsCount: 4,
+    hrEmployeesCount: 40, hrPayrollPeriodsCount: 12,
   },
   large: {
     clientsCount: 150, prospectsCount: 50, suppliersCount: 60, partnersCount: 40,
@@ -76,6 +80,7 @@ const DEMO_CONFIG_RAW: Record<SeedScale, Record<string, number>> = {
     bankStatementsCount: 24, bankStatementLinesCount: 600,
     accountingEntriesCount: 1000, accountingEntryLinesCount: 3000,
     documentsCount: 300, vatMonthlyExportsCount: 24, vatQuarterlyExportsCount: 8,
+    hrEmployeesCount: 120, hrPayrollPeriodsCount: 12,
   },
 };
 
@@ -285,6 +290,9 @@ async function resetDemoOrg() {
 
   const tables = [
     "tax_export_batches", "documents", "accounting_entry_lines", "accounting_entries",
+    "hr_disciplinary_actions", "hr_evaluations", "hr_documents", "hr_expense_reports", "hr_loans", "hr_advances",
+    "hr_salary_items", "hr_payslips", "hr_payroll_periods", "hr_absences", "hr_attendance", "hr_leave_requests",
+    "hr_leave_types", "hr_contracts", "hr_employees", "hr_positions", "hr_departments", "hr_settings",
     "treasury_transactions", "bank_reconciliations", "bank_statement_lines", "bank_statement_imports",
     "customer_payment_allocations", "customer_payments", "supplier_payment_allocations", "supplier_payments",
     "customer_credit_note_lines", "customer_credit_notes", "customer_invoice_lines", "customer_invoices",
@@ -480,7 +488,7 @@ async function ensureBusinessTrialAndModules() {
     cancel_at_period_end: false,
     monthly_amount: 690,
     yearly_amount: 6900,
-    selected_modules: ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting"],
+    selected_modules: ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting", "rh"],
     updated_at: now.toISOString(),
   };
 
@@ -493,7 +501,20 @@ async function ensureBusinessTrialAndModules() {
   }
 
   // Modules
-  const moduleKeys = ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting"];
+  await supabase.from("modules_catalog").upsert(
+    {
+      module_key: "rh",
+      name: "Ressources Humaines",
+      description: "Gestion des employes, contrats, conges et paie",
+      monthly_price: 49,
+      yearly_price: 490,
+      is_active: true,
+      sort_order: 17,
+    },
+    { onConflict: "module_key" },
+  );
+
+  const moduleKeys = [...BUSINESS_MODULE_KEYS];
   const moduleRows = moduleKeys.map((mk) => ({
     organization_id: DEMO_ORG_ID,
     module_key: mk,
@@ -2258,6 +2279,205 @@ async function seedDocuments() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 25B. HR MODULE
+// ═══════════════════════════════════════════════════════════════════════════════
+async function seedHrModule() {
+  console.log("\n[14/16] Ressources humaines");
+
+  const hrTables = [
+    "hr_disciplinary_actions", "hr_evaluations", "hr_documents", "hr_expense_reports", "hr_loans", "hr_advances",
+    "hr_payslips", "hr_payroll_periods", "hr_absences", "hr_attendance", "hr_leave_requests",
+    "hr_contracts", "hr_employees",
+  ];
+  for (const table of hrTables) {
+    await supabase.from(table).delete().eq("organization_id", DEMO_ORG_ID);
+  }
+
+  await ensureHrReferenceData(supabase, DEMO_ORG_ID);
+
+  const [{ data: departments }, { data: positions }, { data: leaveTypes }] = await Promise.all([
+    supabase.from("hr_departments").select("id,name").eq("organization_id", DEMO_ORG_ID),
+    supabase.from("hr_positions").select("id,title").eq("organization_id", DEMO_ORG_ID),
+    supabase.from("hr_leave_types").select("id,code").eq("organization_id", DEMO_ORG_ID),
+  ]);
+
+  const firstNames = ["Yassine", "Salma", "Amine", "Nadia", "Mehdi", "Imane", "Omar", "Hajar", "Karim", "Ghita", "Sara", "Anas"];
+  const lastNames = ["Bennani", "El Amrani", "Alaoui", "Tazi", "Mansouri", "Berrada", "Fassi", "Lahlou", "Idrissi", "Cherkaoui"];
+  const employeeRows: Record<string, unknown>[] = [];
+
+  for (let i = 1; i <= CFG.hrEmployeesCount; i++) {
+    const department = randChoice(departments ?? []);
+    const position = randChoice(positions ?? []);
+    const missingCnss = i % 17 === 0;
+    const missingRib = i % 19 === 0;
+    employeeRows.push({
+      organization_id: DEMO_ORG_ID,
+      employee_number: `EMP-${String(i).padStart(4, "0")}`,
+      first_name: randChoice(firstNames),
+      last_name: randChoice(lastNames),
+      email: `employe${i}@societe-demo.ma`,
+      phone: `06${randInt(10000000, 99999999)}`,
+      city: randChoice(["Casablanca", "Rabat", "Tanger", "Marrakech", "Fès"]),
+      cin: `BK${randInt(100000, 999999)}`,
+      department_id: department?.id ?? null,
+      position_id: position?.id ?? null,
+      hire_date: new Date(Date.UTC(2023 + (i % 3), i % 12, (i % 25) + 1)).toISOString().slice(0, 10),
+      employment_status: i % 13 === 0 ? "trial_period" : i % 29 === 0 ? "on_leave" : "active",
+      cnss_number: missingCnss ? null : `${randInt(100000000, 999999999)}`,
+      amo_number: missingCnss ? null : `${randInt(100000000, 999999999)}`,
+      bank_name: missingRib ? null : randChoice(["Attijariwafa Bank", "Bank of Africa", "Banque Populaire", "CIH Bank"]),
+      rib: missingRib ? null : `${randInt(100000000, 999999999)}${randInt(100000000, 999999999)}`,
+      base_salary: randInt(4500, 28000),
+      salary_type: "monthly",
+      payment_method: missingRib ? "cash" : "bank_transfer",
+      created_by: DEMO_USER_ID,
+    });
+  }
+  await batchInsert("hr_employees", employeeRows);
+
+  const { data: employees } = await supabase.from("hr_employees").select("id, employee_number, base_salary").eq("organization_id", DEMO_ORG_ID);
+  const contractRows = (employees ?? []).map((employee, index) => ({
+    organization_id: DEMO_ORG_ID,
+    employee_id: employee.id,
+    contract_number: `CTR-${String(index + 1).padStart(4, "0")}`,
+    contract_type: index % 9 === 0 ? "CDD" : index % 11 === 0 ? "ANAPEC" : "CDI",
+    start_date: new Date(Date.UTC(2024, index % 12, 1)).toISOString().slice(0, 10),
+    end_date: index % 9 === 0 ? new Date(Date.UTC(2026, (index % 12) + 1, 15)).toISOString().slice(0, 10) : null,
+    trial_period_end: index % 13 === 0 ? new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) : null,
+    status: "active",
+    weekly_hours: 44,
+    base_salary: employee.base_salary,
+    benefits: { transport: index % 2 === 0 },
+    clauses: "Modèle préparatoire à valider juridiquement.",
+  }));
+  await batchInsert("hr_contracts", contractRows);
+
+  const leaveRows: Record<string, unknown>[] = [];
+  const absenceRows: Record<string, unknown>[] = [];
+  const attendanceRows: Record<string, unknown>[] = [];
+  const advances: Record<string, unknown>[] = [];
+  const loans: Record<string, unknown>[] = [];
+  const expenses: Record<string, unknown>[] = [];
+  const documents: Record<string, unknown>[] = [];
+  const evaluations: Record<string, unknown>[] = [];
+  const discipline: Record<string, unknown>[] = [];
+  const leaveType = leaveTypes?.[0];
+
+  for (const [index, employee] of (employees ?? []).entries()) {
+    if (leaveType && index < Math.min(CFG.hrEmployeesCount * 2.5, 100)) {
+      leaveRows.push({
+        organization_id: DEMO_ORG_ID,
+        employee_id: employee.id,
+        leave_type_id: leaveType.id,
+        start_date: new Date(Date.UTC(2026, index % 12, 5)).toISOString().slice(0, 10),
+        end_date: new Date(Date.UTC(2026, index % 12, 7)).toISOString().slice(0, 10),
+        days_count: 3,
+        reason: "Congé annuel",
+        status: index % 5 === 0 ? "pending" : "approved",
+      });
+    }
+    if (index < Math.min(CFG.hrEmployeesCount * 2, 80)) {
+      absenceRows.push({
+        organization_id: DEMO_ORG_ID,
+        employee_id: employee.id,
+        absence_date: new Date(Date.UTC(2026, index % 12, 10)).toISOString().slice(0, 10),
+        absence_type: index % 4 === 0 ? "Absence non justifiée" : "Maladie",
+        justified: index % 4 !== 0,
+        status: "validated",
+      });
+    }
+    for (let d = 1; d <= Math.min(8, SCALE === "large" ? 12 : 8); d++) {
+      attendanceRows.push({
+        organization_id: DEMO_ORG_ID,
+        employee_id: employee.id,
+        attendance_date: new Date(Date.UTC(2026, 4, d)).toISOString().slice(0, 10),
+        worked_hours: 8,
+        overtime_hours: d % 7 === 0 ? 1.5 : 0,
+        late_minutes: d % 9 === 0 ? 15 : 0,
+        status: d % 11 === 0 ? "late" : "present",
+      });
+    }
+    if (index < (SCALE === "large" ? 25 : 10)) {
+      loans.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, loan_number: `PRET-${String(index + 1).padStart(4, "0")}`, amount: 12000, monthly_deduction: 1000, start_month: 1, start_year: 2026, remaining_amount: 8000, status: "active" });
+    }
+    if (index < (SCALE === "large" ? 60 : 25)) {
+      advances.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, advance_number: `AV-${String(index + 1).padStart(4, "0")}`, request_date: "2026-05-10", amount: randInt(500, 3000), status: index % 3 === 0 ? "paid" : "approved", paid_at: index % 3 === 0 ? "2026-05-12" : null });
+    }
+    if (index < (SCALE === "large" ? 120 : 60)) {
+      expenses.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, expense_number: `NF-${String(index + 1).padStart(4, "0")}`, expense_date: "2026-05-15", category: randChoice(["Déplacement", "Repas", "Téléphone", "Fournitures"]), amount_ht: 500, tax_amount: 100, amount_ttc: 600, status: index % 4 === 0 ? "submitted" : "approved" });
+    }
+    documents.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, document_type: index % 2 === 0 ? "CIN" : "Contrat", title: `Document RH ${employee.employee_number}`, status: "active", created_by: DEMO_USER_ID });
+    if (index < (SCALE === "large" ? 60 : 20)) {
+      evaluations.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, evaluation_date: "2026-04-30", period_label: "S1 2026", score: randInt(60, 95), strengths: "Bonne implication", improvements: "Objectifs à formaliser", goals: "Plan de progression trimestriel", status: "draft" });
+    }
+    if (index < (SCALE === "large" ? 16 : 8)) {
+      discipline.push({ organization_id: DEMO_ORG_ID, employee_id: employee.id, action_date: "2026-03-12", action_type: "observation", reason: "Retard répété", decision: "Suivi interne", status: "draft" });
+    }
+  }
+
+  await batchInsert("hr_leave_requests", leaveRows);
+  await batchInsert("hr_absences", absenceRows);
+  await batchInsert("hr_attendance", attendanceRows);
+  await batchInsert("hr_advances", advances);
+  await batchInsert("hr_loans", loans);
+  await batchInsert("hr_expense_reports", expenses);
+  await batchInsert("hr_documents", documents.slice(0, SCALE === "large" ? 240 : 120));
+  await batchInsert("hr_evaluations", evaluations);
+  await batchInsert("hr_disciplinary_actions", discipline);
+
+  const periods: Record<string, unknown>[] = [];
+  const payslips: Record<string, unknown>[] = [];
+  for (let month = 1; month <= CFG.hrPayrollPeriodsCount; month++) {
+    const periodId = crypto.randomUUID();
+    let totalGross = 0;
+    let totalNet = 0;
+    for (const employee of employees ?? []) {
+      const gross = Number(employee.base_salary ?? 0);
+      const net = Math.round(gross * 0.78 * 100) / 100;
+      totalGross += gross;
+      totalNet += net;
+      payslips.push({
+        id: crypto.randomUUID(),
+        organization_id: DEMO_ORG_ID,
+        payroll_period_id: periodId,
+        employee_id: employee.id,
+        payslip_number: `BUL-2026-${String(month).padStart(2, "0")}-${employee.employee_number}`,
+        base_salary: gross,
+        gross_salary: gross,
+        taxable_gross: gross,
+        net_salary: net,
+        net_to_pay: net,
+        employer_cost: Math.round(gross * 1.18 * 100) / 100,
+        earnings: [{ code: "BASE", label: "Salaire de base", amount: gross }],
+        deductions: [{ code: "PREP", label: "Retenues préparatoires", amount: Math.round((gross - net) * 100) / 100 }],
+        employer_contributions: [],
+        calculation_details: { schemaStatus: "preparatory", officialConformityClaim: false },
+        status: month < CFG.hrPayrollPeriodsCount ? "validated" : "draft",
+      });
+    }
+    periods.push({
+      id: periodId,
+      organization_id: DEMO_ORG_ID,
+      period_number: `PAIE-2026-${String(month).padStart(2, "0")}`,
+      month,
+      year: 2026,
+      period_start: `2026-${String(month).padStart(2, "0")}-01`,
+      period_end: new Date(Date.UTC(2026, month, 0)).toISOString().slice(0, 10),
+      status: month < CFG.hrPayrollPeriodsCount ? "validated" : "draft",
+      total_gross: totalGross,
+      total_net: totalNet,
+      total_employer_cost: Math.round(totalGross * 1.18 * 100) / 100,
+      employees_count: employees?.length ?? 0,
+      created_by: DEMO_USER_ID,
+    });
+  }
+  await batchInsert("hr_payroll_periods", periods);
+  await batchInsert("hr_payslips", payslips);
+
+  console.log(`  ✅ RH: ${employeeRows.length} employés, ${contractRows.length} contrats, ${payslips.length} bulletins`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 26. INVITATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 async function seedInvitations() {
@@ -2376,6 +2596,7 @@ async function main() {
   await seedAccountingEntries();
   await seedVatExports();
   await seedDocuments();
+  await seedHrModule();
   await seedInvitations();
   await printSummary();
 
