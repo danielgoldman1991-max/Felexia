@@ -1,13 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  experimental: {
-    cpus: 1,
-    workerThreads: true,
-    serverActions: {
-      bodySizeLimit: "20mb",
-    },
-  },
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  outputFileTracingRoot: process.cwd(),
   images: {
     remotePatterns: [
       {
