@@ -6,7 +6,6 @@ const PLAN_REQUIRED_FOR_MODULE: Record<string, PlanKey> = {
   purchases: PLAN_KEYS.BUSINESS,
   stock: PLAN_KEYS.BUSINESS,
   treasury: PLAN_KEYS.BUSINESS,
-  accounting: PLAN_KEYS.BUSINESS,
   rh: PLAN_KEYS.PREMIUM,
 };
 

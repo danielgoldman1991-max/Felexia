@@ -31,18 +31,10 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // Public landing page: `/` is always accessible, for logged-in AND anonymous
+  // visitors. Never redirect `/` to /login or /dashboard.
   if (pathname === "/") {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/dashboard";
-        return NextResponse.redirect(url);
-      }
-    } catch {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-    return NextResponse.redirect(new URL("/login", request.url));
+    return supabaseResponse;
   }
 
   try {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
 
@@ -22,10 +22,10 @@ export default async function LoginPage({
     <main className="flex min-h-screen bg-white">
       <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/2">
         <div className="w-full max-w-xl">
-          <div className="mb-8">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white">
-              <Logo size={28} />
-            </span>
+          <div className="mb-10">
+            <Link href="/" aria-label="FelexiaERP - accueil" className="inline-block">
+              <BrandLogo variant="horizontal" size="lg" priority />
+            </Link>
           </div>
 
           {isRegisterMode ? (
@@ -34,7 +34,7 @@ export default async function LoginPage({
                 Créez votre compte administrateur
               </h1>
               <p className="mt-3 text-base text-slate-500">
-                Votre email servira de login pour accéder à Felexia.
+                Votre email servira de login pour accéder à FelexiaERP.
               </p>
             </>
           ) : (
@@ -43,7 +43,7 @@ export default async function LoginPage({
                 Connexion
               </h1>
               <p className="mt-3 text-base text-slate-500">
-                Accédez à votre espace Felexia.
+                Accédez à votre espace FelexiaERP.
               </p>
             </>
           )}
@@ -86,13 +86,13 @@ export default async function LoginPage({
         </div>
       </div>
 
-      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:bg-slate-50 lg:px-12">
+        <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center lg:bg-slate-50 lg:px-12">
         <div className="max-w-md text-center">
-          <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-            <Logo size={48} />
+          <div className="mb-8 flex justify-center">
+            <BrandLogo variant="horizontal" size="xl" />
           </div>
           <blockquote className="text-lg font-medium text-slate-700">
-            &ldquo;Felexia a transformé notre gestion d&apos;entreprise. Factures, devis, comptabilité — tout est centralisé.&rdquo;
+            &ldquo;FelexiaERP a transformé notre gestion d&apos;entreprise. Factures, devis, comptabilité — tout est centralisé.&rdquo;
           </blockquote>
           <div className="mt-6 flex items-center justify-center gap-3">
             <div className="h-10 w-10 rounded-full bg-slate-300" />

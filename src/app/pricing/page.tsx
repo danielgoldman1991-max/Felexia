@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Check, HelpCircle } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Badge } from "@/components/ui/badge";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Tarifs - Felexia",
-  description: "Trois packs simples pour gerer les ventes, achats, documents, paiements et la pre-comptabilite de votre PME.",
+  description: "Trois packs simples pour gerer les ventes, achats, documents, paiements et la comptabilite de votre PME.",
 };
 
 const faqs = [
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     question: "Felexia est-il adapte aux PME marocaines ?",
-    answer: "Oui. Les packs integrent les usages de gestion commerciale, TVA, documents et pre-comptabilite au Maroc.",
+    answer: "Oui. Les packs integrent les usages de gestion commerciale, TVA, documents et comptabilite au Maroc.",
   },
   {
     question: "Peut-on ajouter des utilisateurs ?",
@@ -38,8 +38,9 @@ export default function PricingPage() {
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Link href="/" className="flex items-center gap-3">
-          <Logo size={36} />
-          <span className="text-xl font-bold">Felexia</span>
+          <span className="inline-block rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+            <BrandLogo variant="horizontal" size="md" />
+          </span>
         </Link>
         <nav className="flex items-center gap-3">
           <Link

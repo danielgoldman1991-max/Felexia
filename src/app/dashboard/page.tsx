@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, AlertTriangle, ArrowRight, Banknote, Building2, CheckCircle2, FileClock, Receipt, Sparkles, TrendingUp } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ModulePage } from "@/components/erp/module-page";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { DashboardChart } from "@/components/dashboard/dashboard-chart";
@@ -104,7 +104,7 @@ export default async function DashboardPage({
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
             <div>
               <div className="flex items-center gap-3">
-                <Logo size={22} withText className="text-[var(--accent)]" />
+                <BrandLogo variant="horizontal" size="sm" />
                 <span className="rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">Cockpit Business</span>
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">Bonjour {firstName}</h1>

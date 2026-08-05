@@ -94,10 +94,11 @@ CREATE POLICY vat_declarations_insert ON public.vat_declarations
   FOR INSERT WITH CHECK (
     EXISTS (
       SELECT 1 FROM public.organization_members m
+      JOIN public.roles r ON r.id = m.role_id
       WHERE m.organization_id = vat_declarations.organization_id
         AND m.user_id = auth.uid()
         AND COALESCE(m.status, 'active') = 'active'
-        AND m.role IN ('owner', 'admin', 'accountant')
+        AND LOWER(COALESCE(r.name, '')) IN ('owner', 'admin', 'administrateur', 'accountant', 'comptable')
     )
   );
 
@@ -107,10 +108,11 @@ CREATE POLICY vat_declarations_update ON public.vat_declarations
   FOR UPDATE USING (
     EXISTS (
       SELECT 1 FROM public.organization_members m
+      JOIN public.roles r ON r.id = m.role_id
       WHERE m.organization_id = vat_declarations.organization_id
         AND m.user_id = auth.uid()
         AND COALESCE(m.status, 'active') = 'active'
-        AND m.role IN ('owner', 'admin', 'accountant')
+        AND LOWER(COALESCE(r.name, '')) IN ('owner', 'admin', 'administrateur', 'accountant', 'comptable')
     )
   );
 

@@ -69,10 +69,9 @@ export const GLOBAL_SEARCH_REGISTRY: GlobalSearchResult[] = [
   { id: "new-treasury-account", title: "Nouveau compte bancaire / caisse", subtitle: "Creer un compte tresorerie", href: "/tresorerie/comptes/new", category: "Tresorerie", type: "create", keywords: ["creer banque", "creer caisse"] },
   { id: "treasury-moves", title: "Mouvements tresorerie", subtitle: "Entrees et sorties", href: "/tresorerie/mouvements", category: "Tresorerie", type: "route", keywords: ["mouvement tresorerie"] },
   { id: "new-treasury-move", title: "Nouveau mouvement tresorerie", subtitle: "Saisir une entree/sortie", href: "/tresorerie/mouvements/new", category: "Tresorerie", type: "create", keywords: ["creer mouvement"] },
-  { id: "bank-statements", title: "Releves bancaires", subtitle: "Imports bancaires", href: "/tresorerie/releves", category: "Tresorerie", type: "route", keywords: ["releve bancaire"] },
-  { id: "import-bank-statement", title: "Import releve bancaire", subtitle: "Importer un CSV bancaire", href: "/tresorerie/releves/import", category: "Tresorerie", type: "create", keywords: ["import bancaire"] },
   { id: "bank-reconciliation", title: "Rapprochement bancaire", subtitle: "Rapprocher banque et mouvements", href: "/tresorerie/rapprochement", category: "Tresorerie", type: "route", keywords: ["rapprochement", "banque"] },
   { id: "treasury-forecast", title: "Previsions tresorerie", subtitle: "Anticiper les flux", href: "/tresorerie/previsions", category: "Tresorerie", type: "route", keywords: ["prevision"] },
+  { id: "new-treasury-forecast", title: "Nouvelle prevision de tresorerie", subtitle: "Saisir un flux prevu", href: "/tresorerie/previsions/nouveau", category: "Tresorerie", type: "create", keywords: ["prevision", "flux prevu"] },
 ];
 
 export const FREQUENT_SEARCH_RESULTS = GLOBAL_SEARCH_REGISTRY.filter((item) =>

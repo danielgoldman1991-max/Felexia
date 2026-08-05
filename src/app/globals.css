@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Felexia Theme — Professional ERP
    Light mode by default; Dark mode via the `.dark` class on <html>
@@ -366,4 +372,98 @@ textarea {
   .no-print {
     display: none !important;
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Public landing page: deliberately always light, regardless of app theme.
+   Overrides the adaptive compatibility layer (higher specificity, same !important).
+   ───────────────────────────────────────────────────────────────────────────── */
+.landing .bg-white {
+  background-color: #ffffff !important;
+}
+
+.landing .bg-slate-50 {
+  background-color: #f8fafc !important;
+}
+
+.landing .bg-slate-100 {
+  background-color: #f1f5f9 !important;
+}
+
+.landing .bg-slate-200 {
+  background-color: #e2e8f0 !important;
+}
+
+.landing .bg-blue-50 {
+  background-color: #eff6ff !important;
+}
+
+.landing .bg-sky-50 {
+  background-color: #f0f9ff !important;
+}
+
+.landing .bg-amber-50 {
+  background-color: #fffbeb !important;
+}
+
+.landing .bg-emerald-50 {
+  background-color: #ecfdf5 !important;
+}
+
+.landing .bg-rose-50 {
+  background-color: #fff1f2 !important;
+}
+
+.landing .bg-violet-50 {
+  background-color: #f5f3ff !important;
+}
+
+.landing .bg-indigo-50 {
+  background-color: #eef2ff !important;
+}
+
+.landing .border-slate-100 {
+  border-color: #f1f5f9 !important;
+}
+
+.landing .border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
+
+.landing .border-slate-300 {
+  border-color: #cbd5e1 !important;
+}
+
+.landing .text-slate-950,
+.landing .text-slate-900,
+.landing .text-slate-800 {
+  color: #0f172a !important;
+}
+
+.landing .text-slate-700 {
+  color: #334155 !important;
+}
+
+.landing .text-slate-600 {
+  color: #475569 !important;
+}
+
+.landing .text-slate-500 {
+  color: #64748b !important;
+}
+
+.landing .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.landing .shadow-sm {
+  box-shadow: var(--tw-shadow-colored, var(--tw-shadow)) !important;
+}
+
+.landing .shadow-md {
+  box-shadow: var(--tw-shadow-colored, var(--tw-shadow)) !important;
+}
+
+.landing .shadow-xl {
+  box-shadow: var(--tw-shadow-colored, var(--tw-shadow)) !important;
 }

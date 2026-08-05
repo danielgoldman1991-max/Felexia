@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { APP_BRAND } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const geistSans = Geist({
@@ -15,11 +15,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_BRAND.name} | ${APP_BRAND.tagline}`,
-  description: "Mini-ERP SaaS pour PME marocaines",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+  description:
+    "Gérez ventes, achats, stock, trésorerie, comptabilité et documents avec FelexiaERP.",
   icons: {
-    icon: APP_BRAND.favicon,
-    apple: APP_BRAND.favicon,
+    icon: [
+      { url: BRAND.favicon },
+      { url: BRAND.icon32, sizes: "32x32", type: "image/png" },
+      { url: BRAND.icon48, sizes: "48x48", type: "image/png" },
+    ],
+    shortcut: BRAND.favicon,
+    apple: BRAND.appleTouchIcon,
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_MA",
+    title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+    description:
+      "Gérez ventes, achats, stock, trésorerie, comptabilité et documents avec FelexiaERP.",
+    images: [{ url: BRAND.logoHorizontal, width: 1783, height: 592, alt: BRAND.name }],
   },
 };
 

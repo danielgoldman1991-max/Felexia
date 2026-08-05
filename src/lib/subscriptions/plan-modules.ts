@@ -4,8 +4,7 @@ import { DEFAULT_PLAN_KEY, type PlanKey } from "@/lib/subscriptions/plans-config
 // Module keys are the ones stored in modules_catalog / organization_modules
 // (same convention as the sidebar `moduleKey` props and the module guard layouts).
 // Essentiel = crm/tiers, vente (quotes), facturation (invoicing), articles (products),
-// achats (purchases), stock, tresorerie (treasury), documents.
-// Business adds comptabilite (accounting, TVA incluse).
+// achats (purchases), stock, tresorerie (treasury), comptabilite (accounting), documents.
 // Premium adds RH.
 export const ESSENTIEL_MODULE_KEYS = [
   "dashboard",
@@ -17,14 +16,12 @@ export const ESSENTIEL_MODULE_KEYS = [
   "purchases",
   "stock",
   "treasury",
+  "accounting",
   "users",
   "settings",
 ] as const;
 
-export const BUSINESS_MODULE_KEYS = [
-  ...ESSENTIEL_MODULE_KEYS,
-  "accounting",
-] as const;
+export const BUSINESS_MODULE_KEYS = [...ESSENTIEL_MODULE_KEYS] as const;
 
 export const PREMIUM_MODULE_KEYS = [
   ...BUSINESS_MODULE_KEYS,

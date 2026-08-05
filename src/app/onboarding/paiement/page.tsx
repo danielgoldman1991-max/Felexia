@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -43,8 +43,8 @@ export default async function TrialConfirmationPage() {
       <Card className="w-full max-w-md text-center shadow-[var(--shadow-md)]">
         <CardHeader>
           <div className="mb-3 flex justify-center">
-            <span className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-white">
-              <Logo size={40} />
+            <span className="inline-block rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+              <BrandLogo variant="horizontal" size="md" />
             </span>
           </div>
           <h1 className="text-2xl font-semibold">Essai {planLabel} démarré !</h1>

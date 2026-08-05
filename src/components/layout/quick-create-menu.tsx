@@ -13,6 +13,7 @@ import {
   Receipt,
   RotateCcw,
   ShoppingCart,
+  Sparkles,
   Truck,
   Users,
   WalletCards,
@@ -69,7 +70,7 @@ const groups = [
     items: [
       { label: "Nouveau compte bancaire / caisse", href: "/tresorerie/comptes/new", icon: Landmark },
       { label: "Nouveau mouvement tresorerie", href: "/tresorerie/mouvements/new", icon: Banknote },
-      { label: "Importer releve bancaire", href: "/tresorerie/releves/import", icon: FilePlus2 },
+      { label: "Nouvelle prevision de tresorerie", href: "/tresorerie/previsions/nouveau", icon: Sparkles },
     ],
   },
 ];

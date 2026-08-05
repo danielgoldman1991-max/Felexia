@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { WelcomeChecklist } from "@/components/onboarding/welcome-checklist";
 import { Button } from "@/components/ui/button";
 import { requireActiveWorkspace } from "@/lib/auth";
@@ -25,13 +25,10 @@ export default async function WelcomePage({
     <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
-            <Logo size={30} />
+          <span className="inline-block rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+            <BrandLogo variant="horizontal" size="md" />
           </span>
-          <div>
-            <p className="font-semibold text-slate-950">Felexia</p>
-            <p className="text-xs text-slate-500">Configuration guidée</p>
-          </div>
+          <p className="text-xs text-slate-500">Configuration guidée</p>
         </div>
 
         {showTrialBanner && (

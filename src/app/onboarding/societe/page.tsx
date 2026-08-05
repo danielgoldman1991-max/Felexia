@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CompanySetupForm } from "@/components/auth/company-setup-form";
 import { requireUser } from "@/lib/auth";
@@ -26,8 +26,8 @@ export default async function CompanySetupPage() {
       <Card className="w-full max-w-lg shadow-[var(--shadow-md)]">
         <CardHeader>
           <div className="mb-3 flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-white">
-              <Logo size={36} />
+            <span className="inline-block rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+              <BrandLogo variant="horizontal" size="md" />
             </span>
             <p className="text-sm font-semibold text-[var(--secondary)]">Configurez votre entreprise</p>
           </div>

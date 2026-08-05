@@ -12,7 +12,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { cn, initials } from "@/lib/utils";
 import { sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
@@ -47,6 +47,7 @@ export function Sidebar({
   const visibleSections = useMemo(
     () =>
       sections.filter((section) => {
+        if (section.hidden) return false;
         if (section.key === "welcome") return showWelcomeGuide;
         if (!section.moduleKey) return true;
         return workspace?.enabledModules?.includes(section.moduleKey) ?? false;
@@ -113,13 +114,9 @@ export function Sidebar({
       >
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center justify-between px-5 pt-6 pb-5">
-            <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={onCloseMobile}>
-              <div className="luxury-border flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--card)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]">
-                <Logo size={32} />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-lg font-semibold tracking-tight text-[var(--sidebar-foreground)]">Felexia</h1>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--accent)]">Mini-ERP</p>
+            <Link href="/dashboard" className="flex min-w-0 items-center gap-3" onClick={onCloseMobile}>
+              <div className="rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+                <BrandLogo variant="horizontal" size="sm" priority />
               </div>
             </Link>
             <button
@@ -194,7 +191,7 @@ export function Sidebar({
                   </div>
                   {expanded && section.items ? (
                     <div className="ml-2 mt-0.5 space-y-0.5 border-l border-[var(--sidebar-border)] pl-3">
-                      {section.items.map((item) => {
+                      {section.items.filter((item) => !item.hidden).map((item) => {
                         const ItemIcon = item.icon;
                         const itemActive = pathMatches(pathname, item.href);
                         return (

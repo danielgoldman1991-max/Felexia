@@ -1,6 +1,4 @@
-import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { APP_BRAND } from "@/lib/brand";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export type LogoProps = {
   size?: number;
@@ -9,19 +7,11 @@ export type LogoProps = {
 };
 
 export function Logo({ size = 32, withText = false, className }: LogoProps) {
-  const src = withText ? APP_BRAND.logo : APP_BRAND.icon;
-  const alt = withText ? APP_BRAND.logoAlt : APP_BRAND.name;
-
-  return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <Image
-        src={src}
-        alt={alt}
-        width={size}
-        height={size}
-        className="shrink-0 object-contain"
-        unoptimized
-      />
-    </div>
+  return withText ? (
+    <BrandLogo variant="horizontal" height={size} className={className} />
+  ) : (
+    <BrandLogo variant="mark" height={size} className={className} />
   );
 }
+
+export { BrandLogo };

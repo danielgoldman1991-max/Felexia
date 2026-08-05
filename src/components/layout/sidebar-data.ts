@@ -37,6 +37,7 @@ export type SidebarItem = {
   icon?: ComponentType<{ className?: string }>;
   badge?: string;
   badgeTone?: "danger" | "warning" | "info";
+  hidden?: boolean; // if set, item is defined but not rendered in the sidebar
 };
 
 export type SidebarSection = {
@@ -46,6 +47,7 @@ export type SidebarSection = {
   icon: ComponentType<{ className?: string }>;
   items?: SidebarItem[];
   moduleKey?: string; // if set, section is hidden when module is disabled
+  hidden?: boolean; // if set, section is defined but not rendered in the sidebar
 };
 
 export const sections: SidebarSection[] = [
@@ -73,6 +75,8 @@ export const sections: SidebarSection[] = [
     icon: BadgeDollarSign,
     moduleKey: "quotes",
     items: [
+      { label: "Clients", href: "/tiers/clients", icon: Users },
+      { label: "Prospects", href: "/tiers/prospects", icon: Target },
       { label: "Devis", href: "/vente/devis", icon: FileText },
       { label: "Commandes", href: "/vente/commandes", icon: ClipboardList },
       { label: "Bons de livraison", href: "/vente/livraisons", icon: Truck },
@@ -132,7 +136,7 @@ export const sections: SidebarSection[] = [
       { label: "Consultation", href: "/tresorerie/consultation", icon: Search },
       { label: "Comptes & caisses", href: "/tresorerie/comptes", icon: Landmark },
       { label: "Mouvements", href: "/tresorerie/mouvements", icon: ArrowLeftRight },
-      { label: "Relevés bancaires", href: "/tresorerie/releves", icon: FileText },
+      { label: "Relevés bancaires", href: "/tresorerie/releves", icon: FileText, hidden: true },
       { label: "Rapprochement", href: "/tresorerie/rapprochement", icon: BarChart3 },
       { label: "Prévisions", href: "/tresorerie/previsions", icon: Sparkles },
     ],
@@ -143,6 +147,7 @@ export const sections: SidebarSection[] = [
     href: "/tiers",
     icon: Users,
     moduleKey: "crm",
+    hidden: true,
     items: [
       { label: "Clients", href: "/tiers/clients", icon: Building2 },
       { label: "Prospects", href: "/tiers/prospects", icon: Target },

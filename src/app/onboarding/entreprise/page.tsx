@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
-import { Logo } from "@/components/brand/Logo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CompanyOnboardingFlow } from "@/components/onboarding/CompanyOnboardingFlow";
 import { getUserOnboardingStatus } from "@/lib/saas";
 import { createClient } from "@/lib/supabase/server";
@@ -41,12 +41,11 @@ export default async function EntreprisePage() {
         <div className="mx-auto w-full max-w-5xl">
           <div className="mb-8 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-                <Logo size={34} />
+              <span className="inline-block rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
+                <BrandLogo variant="horizontal" size="md" />
               </span>
-              <div>
-                <p className="text-sm font-semibold text-[var(--foreground)]">Felexia</p>
-                <p className="text-xs text-[var(--muted)]">Configuration de votre entreprise</p>
+              <div className="hidden sm:block">
+                <p className="text-sm font-semibold text-[var(--foreground)]">Configuration de votre entreprise</p>
               </div>
             </div>
             <span className="hidden rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)] sm:inline-flex">
