@@ -2,7 +2,7 @@
  * Company Search Facade
  *
  * High-level API for searching Moroccan companies by ICE or name.
- * Orchestrates: cache → Welipro → MarocFacture fallback.
+ * Orchestrates: cache → synta-iq.
  */
 
 import { createHash } from "node:crypto";
@@ -71,7 +71,6 @@ export async function getCachedCompanySearch(
   // Validate the cached result has meaningful data before serving it.
   // Stale cache entries from old providers may have null fields.
   if (!result || !result.raisonSociale) {
-    console.log("[company-search] skipping cache: stale entry without raisonSociale");
     return null;
   }
   
@@ -136,7 +135,7 @@ export type CompanySearchOutput = CompanyLookupResponse & {
 
 /**
  * Search for a company by ICE or name.
- * Flow: cache → Welipro → MarocFacture fallback.
+ * Flow: cache → synta-iq.
  */
 export async function searchCompany(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -160,11 +159,9 @@ export async function searchCompany(
   const cacheKey = hashQuery(`${parsed.type}:${parsed.normalizedValue}`);
   const cached = await getCachedCompanySearch(supabase, cacheKey);
   if (cached) {
-    console.log("[company-search] cache hit for", parsed.normalizedValue);
     return { ...cached, cached: true };
   }
 
-  console.log("[company-search] cache miss, querying providers for", parsed.normalizedValue);
   const response = await lookupCompany(parsed.normalizedValue);
 
   await saveCompanySearchCache(supabase, cacheKey, parsed.normalizedValue, parsed.type, response);

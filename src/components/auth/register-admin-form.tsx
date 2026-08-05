@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ cl
 }
 
 export function RegisterAdminForm() {
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -89,7 +91,7 @@ export function RegisterAdminForm() {
       if (signInError || !signInData.session) {
         setError("Compte créé. Veuillez confirmer votre email puis vous connecter pour créer votre entreprise.");
         setPending(false);
-        window.location.assign("/login?next=/onboarding/entreprise");
+        router.push("/login?next=/onboarding/entreprise");
         return;
       }
 
@@ -123,7 +125,7 @@ export function RegisterAdminForm() {
       return;
     }
 
-    window.location.assign("/onboarding/entreprise");
+    router.push("/onboarding/entreprise");
   }
 
   return (

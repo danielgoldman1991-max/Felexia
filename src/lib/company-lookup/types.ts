@@ -8,12 +8,12 @@ export type CompanyLookupResult = {
   villeRc?: string | null;
   identifiantFiscal?: string | null;
   cnss?: string | null;
-  source: "marocfacture" | "synta-iq" | "manual" | "cache";
+  source: "synta-iq" | "manual" | "cache";
   confidence?: number;
 };
 
 export type CompanyOnboardingPrefill = {
-  source?: "marocfacture" | "synta-iq" | "manual" | "cache";
+  source?: "synta-iq" | "manual" | "cache";
   raisonSociale?: string | null;
   ice?: string | null;
   identifiantFiscal?: string | null;

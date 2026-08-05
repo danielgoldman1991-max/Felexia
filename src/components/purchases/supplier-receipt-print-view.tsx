@@ -2,7 +2,6 @@ import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
 import type { OrganizationIdentity } from "@/lib/company-identity";
 import { PrintOrganizationLogo } from "@/components/shared/print-organization-logo";
-import { MoneyDisplay } from "@/components/erp/money-display";
 
 export function SupplierReceiptPrintView({
   document,

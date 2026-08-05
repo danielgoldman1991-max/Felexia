@@ -1,7 +1,7 @@
 import { lookupCompanyOnSyntaIq } from "@/lib/ice/providers/syntaiq";
 
 export type CompanyLookupResult = {
-  source: "synta-iq" | "marocfacture" | "manual" | "cache";
+  source: "synta-iq" | "manual" | "cache";
   query: string;
   found: boolean;
   raisonSociale?: string | null;

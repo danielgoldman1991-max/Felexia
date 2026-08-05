@@ -7,7 +7,6 @@ export const runtime = "nodejs";
 
 export async function POST() {
   try {
-    console.log("START_TRIAL_API_CALLED");
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
@@ -67,13 +66,6 @@ export async function POST() {
           updated_at: new Date().toISOString(),
         })
         .eq("id", organizationId);
-      console.log("START_TRIAL_SUCCESS", {
-        organizationId,
-        subscriptionCreatedOrUpdated: false,
-        nextOnboardingStep: "completed",
-        modulesEnabled: true,
-        redirectTo: "/bienvenue?trial=business",
-      });
       return NextResponse.json({
         success: true,
         alreadyActive: true,

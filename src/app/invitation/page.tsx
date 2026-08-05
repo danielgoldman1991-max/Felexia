@@ -4,6 +4,16 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { AcceptInviteForm } from "@/components/auth/accept-invite-form";
 
+type InvitationByToken = {
+  id: string;
+  organization_id: string;
+  organization_name: string | null;
+  email: string;
+  role_id: string | null;
+  status: string;
+  expires_at: string;
+};
+
 export default async function InvitationPage({
   searchParams,
 }: {
@@ -18,12 +28,12 @@ export default async function InvitationPage({
 
   const supabase = await createClient();
 
-  const { data: invitation } = await supabase
-    .from("invitations")
-    .select("*, organization:organizations(name)")
-    .eq("token", token)
-    .eq("status", "pending")
-    .single();
+  const { data: invitation } = (await supabase
+    .rpc("get_invitation_by_token", { p_token: token })
+    .maybeSingle()) as {
+    data: InvitationByToken | null;
+    error: { message: string } | null;
+  };
 
   if (!invitation) {
     return (
@@ -40,8 +50,8 @@ export default async function InvitationPage({
     );
   }
 
-  const orgName = typeof invitation.organization === "object" && invitation.organization
-    ? (invitation.organization as { name: string }).name
+  const orgName = typeof invitation.organization_name === "string" && invitation.organization_name
+    ? invitation.organization_name
     : "l'organisation";
 
   return (

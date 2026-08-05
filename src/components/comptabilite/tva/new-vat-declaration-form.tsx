@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { ArrowLeft, Calculator } from "lucide-react";
+import { Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createVatDeclarationAction } from "@/lib/tax/vat-declaration-actions";
-import type { VatDeclarationActionResult } from "@/lib/tax/vat-declaration-types";
 
 function getDefaultPeriod() {
   const now = new Date();

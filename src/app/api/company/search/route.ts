@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { searchCompany } from "@/lib/company-search";
 import { createClient } from "@/lib/supabase/server";
+import { isRateLimited } from "@/lib/rate-limit";
 
 /* ─── Validation ─── */
 
@@ -37,8 +38,6 @@ function jsonResponse(body: object, status = 200) {
 /* ─── Route ─── */
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-
   /* 1. Auth */
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -49,7 +48,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  /* 2. Body validation */
+  /* 2. Rate limit (1 request / 30s per user) */
+  const limit = isRateLimited(user.id, 1, 30_000);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      {
+        status: "unavailable",
+        message: "Trop de recherches. Réessayez dans quelques instants.",
+      },
+      { status: 429 },
+    );
+  }
+
+  /* 3. Body validation */
   let body: unknown;
   try {
     body = await request.json();
@@ -64,13 +75,10 @@ export async function POST(request: NextRequest) {
   }
 
   const { query } = parsed.data;
-  console.log("[api/company/search] query:", query, "user:", user.id);
 
-  /* 3. Search */
+  /* 4. Search */
   try {
     const response = await searchCompany(supabase, { query });
-    const duration = Date.now() - startTime;
-    console.log("[api/company/search] result:", response.status, "duration:", duration, "ms");
     return jsonResponse(response, response.status === "invalid_input" ? 400 : 200);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Archive, CheckCircle2, Pencil } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
-import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { Button } from "@/components/ui/button";

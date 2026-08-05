@@ -66,8 +66,6 @@ export async function lookupCompanyOnSyntaIq(
     return { status: "invalid_input", message: "Recherche vide." };
   }
 
-  console.log("[company-lookup] calling synta-iq... query:", normalizedQuery);
-
   try {
     const url = `${API_BASE}?q=${encodeURIComponent(normalizedQuery)}`;
     const response = await fetchWithTimeout(url);

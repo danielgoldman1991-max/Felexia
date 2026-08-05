@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 
+type InvitationByToken = {
+  id: string;
+  organization_id: string;
+  organization_name: string | null;
+  email: string;
+  role_id: string | null;
+  status: string;
+  expires_at: string;
+};
+
 export async function POST(req: NextRequest) {
   try {
     const { token, password } = await req.json();
@@ -12,19 +22,18 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
-    const { data: invitation } = await supabase
-      .from("invitations")
-      .select("*, organization:organizations(name)")
-      .eq("token", token)
-       .eq("status", "pending")
-      .single();
+    const { data: invitation } = (await supabase
+      .rpc("get_invitation_by_token", { p_token: token })
+      .maybeSingle()) as {
+      data: InvitationByToken | null;
+      error: { message: string } | null;
+    };
 
     if (!invitation) {
       return NextResponse.json({ error: "Invitation invalide ou expiree" }, { status: 404 });
     }
 
-    if (new Date(invitation.expires_at) < new Date()) {
-      await supabase.from("invitations").update({ status: "expired" }).eq("id", invitation.id);
+    if (invitation.status !== "pending" || new Date(invitation.expires_at) < new Date()) {
       return NextResponse.json({ error: "Invitation expiree" }, { status: 410 });
     }
 
@@ -45,20 +54,17 @@ export async function POST(req: NextRequest) {
       full_name: invitation.email.split("@")[0],
     }, { onConflict: "id" });
 
-    const { data: role } = await supabase
-      .from("roles")
-      .select("id")
-      .eq("id", invitation.role_id)
-      .maybeSingle();
-
     await serviceClient.from("organization_members").insert({
       organization_id: invitation.organization_id,
       user_id: user.id,
-      role_id: role?.id || null,
+      role_id: invitation.role_id || null,
       status: "active",
     });
 
-    await supabase.from("invitations").update({ status: "accepted" }).eq("id", invitation.id);
+    const { error: acceptError } = await supabase.rpc("accept_invitation", { p_token: token });
+    if (acceptError) {
+      return NextResponse.json({ error: acceptError.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

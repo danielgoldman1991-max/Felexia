@@ -32,7 +32,6 @@ export function SubscriptionChoiceActions() {
     if (isStartingTrial) return;
 
     try {
-      console.log("START_TRIAL_CLICKED");
       setIsStartingTrial(true);
       setError(null);
 

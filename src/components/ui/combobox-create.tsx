@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export type ComboboxOption = {
@@ -34,6 +34,8 @@ export function ComboboxCreate({
 }: ComboboxCreateProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const comboboxId = useId();
+  const listboxId = `${comboboxId}-listbox`;
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -101,6 +103,7 @@ export function ComboboxCreate({
           type="text"
           role="combobox"
           aria-expanded={open}
+          aria-controls={listboxId}
           aria-autocomplete="list"
           disabled={disabled}
           value={inputValue}
@@ -124,6 +127,7 @@ export function ComboboxCreate({
 
       {open && !disabled ? (
         <div
+          id={listboxId}
           role="listbox"
           className="absolute z-[100] mt-2 max-h-80 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
