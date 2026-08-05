@@ -13,7 +13,7 @@ export function HrEmployeesPage({ employees }: { employees: HrEmployee[] }) {
         title="Employés"
         description="Fiches salariés, contrats, paie, congés, documents RH et alertes administratives."
         actions={
-          <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-gradient-to-r from-[#D6B56D] to-[#B8924F] px-4 text-sm font-medium text-[#08090d]">
+          <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Link>
@@ -43,8 +43,8 @@ export function HrEmployeesPage({ employees }: { employees: HrEmployee[] }) {
                 <Td>{employee.department?.name ?? "À affecter"}</Td>
                 <Td>{employee.position?.title ?? "À affecter"}</Td>
                 <Td>
-                  <p className={employee.cnss_number ? "" : "text-amber-200"}>{employee.cnss_number ? "CNSS OK" : "CNSS manquante"}</p>
-                  <p className={employee.rib ? "text-xs text-[var(--muted)]" : "text-xs text-amber-200"}>{employee.rib ? "RIB renseigné" : "RIB manquant"}</p>
+                  <p className={employee.cnss_number ? "" : "text-[var(--warning)]"}>{employee.cnss_number ? "CNSS OK" : "CNSS manquante"}</p>
+                  <p className={employee.rib ? "text-xs text-[var(--muted)]" : "text-xs text-[var(--warning)]"}>{employee.rib ? "RIB renseigné" : "RIB manquant"}</p>
                 </Td>
                 <Td><MoneyDisplay value={employee.base_salary} /></Td>
                 <Td><StatusBadge status={employee.employment_status} /></Td>

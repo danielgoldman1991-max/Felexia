@@ -224,7 +224,7 @@ export function RegisterAdminForm() {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          3 mois d&apos;essai Business spécial lancement
+          Essai Essentiel inclus
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />

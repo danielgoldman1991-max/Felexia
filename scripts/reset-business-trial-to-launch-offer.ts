@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { BUSINESS_TRIAL_LABEL, getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
+import {
+  BUSINESS_TRIAL_LABEL,
+  DEFAULT_TRIAL_LABEL,
+  getBusinessTrialEndDate,
+  getDefaultTrialEndDate,
+} from "../src/lib/subscriptions/trial-config";
 
 function loadLocalEnv() {
   const envPath = resolve(process.cwd(), ".env.local");
@@ -25,6 +30,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const applyReset = process.env.APPLY_RESET === "true";
 const orgId = process.env.ORG_ID?.trim();
 const orgName = process.env.ORG_NAME?.trim();
+const resetPlan = (process.env.RESET_PLAN as "essentiel" | "business") ?? "essentiel";
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error("Variables manquantes : NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY.");
@@ -56,11 +62,11 @@ async function resolveOrganizationIdsByName(name: string): Promise<string[]> {
   return (data ?? []).map((organization) => organization.id as string);
 }
 
-async function countPaidBusinessSubscriptions(organizationIds: string[] | null): Promise<number> {
+async function countPaidSubscriptions(organizationIds: string[] | null): Promise<number> {
   let query = supabase
     .from("organization_subscriptions")
     .select("id", { count: "exact", head: true })
-    .eq("plan_code", "business")
+    .eq("plan_code", resetPlan)
     .eq("status", "active");
 
   if (organizationIds?.length) {
@@ -76,7 +82,7 @@ async function getCandidateTrials(organizationIds: string[] | null): Promise<Bus
   let query = supabase
     .from("organization_subscriptions")
     .select("id, organization_id, plan_code, status, trial_start, trial_end, current_period_start, current_period_end")
-    .eq("plan_code", "business")
+    .eq("plan_code", resetPlan)
     .in("status", ["trialing", "trial"])
     .order("updated_at", { ascending: false });
 
@@ -103,16 +109,19 @@ async function main() {
   }
 
   const candidates = await getCandidateTrials(organizationIds);
-  const paidIgnored = await countPaidBusinessSubscriptions(organizationIds);
+  const paidIgnored = await countPaidSubscriptions(organizationIds);
   const now = new Date();
-  const trialEnd = getBusinessTrialEndDate(now);
+  const trialEnd =
+    resetPlan === "business" ? getBusinessTrialEndDate(now) : getDefaultTrialEndDate(now);
+  const offerLabel = resetPlan === "business" ? BUSINESS_TRIAL_LABEL : DEFAULT_TRIAL_LABEL;
 
-  console.log(`Offre : ${BUSINESS_TRIAL_LABEL}`);
+  console.log(`Offre : ${offerLabel}`);
+  console.log(`Plan ciblé : ${resetPlan}`);
   console.log(`Mode : ${applyReset ? "APPLY_RESET=true, mise à jour activée" : "dry-run, aucune donnée modifiée"}`);
   if (orgId) console.log(`Filtre ORG_ID : ${orgId}`);
   if (orgName) console.log(`Filtre ORG_NAME : ${orgName}`);
-  console.log(`Essais Business trialing/trial détectés : ${candidates.length}`);
-  console.log(`Abonnements Business payants actifs ignorés : ${paidIgnored}`);
+  console.log(`Essais ${resetPlan} trialing/trial détectés : ${candidates.length}`);
+  console.log(`Abonnements ${resetPlan} payants actifs ignorés : ${paidIgnored}`);
   console.log(`Nouvelle période : ${now.toISOString()} -> ${trialEnd.toISOString()}`);
 
   if (!applyReset) {
@@ -140,7 +149,7 @@ async function main() {
         updated_at: now.toISOString(),
       })
       .eq("id", subscription.id)
-      .eq("plan_code", "business")
+      .eq("plan_code", resetPlan)
       .in("status", ["trialing", "trial"]);
 
     if (error) {

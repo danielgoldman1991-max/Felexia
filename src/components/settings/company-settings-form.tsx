@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { updateCompanyAction, type CompanyState } from "@/lib/actions/company";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,6 +11,20 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 const initialState: CompanyState = { error: null, success: false };
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const LOGO_MIME_TO_EXT: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+};
+
+function createUniqueLogoPath(organizationId: string, ext: string) {
+  const timestamp = Date.now();
+  const uniqueId =
+    globalThis.crypto?.randomUUID?.() ??
+    Math.random().toString(36).slice(2);
+
+  return `organizations/${organizationId}/logo-${timestamp}-${uniqueId}.${ext}`;
+}
 
 export type CompanySettingsFormValues = {
   id: string;
@@ -49,8 +64,11 @@ export function CompanySettingsForm({
   const [state, formAction, pending] = useActionState(updateCompanyAction, initialState);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const logoPreviewRef = useRef<string | null>(null);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const logoPathRef = useRef<string | null>(null);
+  const logoUrlRef = useRef<string | null>(null);
   const s = settings;
 
   useEffect(() => {
@@ -92,24 +110,65 @@ export function CompanySettingsForm({
     }
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.delete("logo");
     const file = logoInputRef.current?.files?.[0];
 
-    if (!file) {
+    if (file) {
+      if (file.size > MAX_LOGO_SIZE) {
+        setLogoError("Le logo ne doit pas dépasser 5 Mo.");
+        return;
+      }
+
+      const ext = LOGO_MIME_TO_EXT[file.type];
+      if (!ext) {
+        setLogoError("Format non autorisé. Utilisez PNG, JPG ou WEBP.");
+        return;
+      }
+
+      setUploading(true);
       setLogoError(null);
-      return;
+      try {
+        const supabase = createClient();
+        const logoPath = createUniqueLogoPath(s.organization_id, ext);
+        const { error: uploadError } = await supabase.storage
+          .from("organization-logos")
+          .upload(logoPath, file, {
+            contentType: file.type,
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          setLogoError(uploadError.message);
+          setUploading(false);
+          return;
+        }
+
+        const { data: publicUrl } = supabase.storage
+          .from("organization-logos")
+          .getPublicUrl(logoPath);
+
+        logoPathRef.current = logoPath;
+        logoUrlRef.current = publicUrl.publicUrl;
+        if (logoInputRef.current) {
+          logoInputRef.current.value = "";
+        }
+      } catch (err) {
+        setLogoError(err instanceof Error ? err.message : "Erreur lors de l'upload du logo.");
+        setUploading(false);
+        return;
+      }
     }
 
-    if (file.size > MAX_LOGO_SIZE) {
-      event.preventDefault();
-      setLogoError("Le logo ne doit pas dépasser 5 Mo.");
-      return;
+    if (logoPathRef.current && logoUrlRef.current) {
+      formData.set("logo_path", logoPathRef.current);
+      formData.set("logo_url", logoUrlRef.current);
     }
 
-    if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
-      event.preventDefault();
-      setLogoError("Format non autorisé. Utilisez PNG, JPG ou WEBP.");
-    }
+    formAction(formData);
   }
 
   const currentLogo = s.logo_url;
@@ -156,7 +215,7 @@ export function CompanySettingsForm({
                 <label htmlFor="company-logo" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
                   Changer le logo
                 </label>
-                <p className="text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo. Utilisez de préférence un logo inférieur à 1 Mo.</p>
+                <p className="text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo.</p>
               </div>
             ) : (
               <label htmlFor="company-logo" className="flex cursor-pointer flex-col items-center gap-3">
@@ -165,7 +224,7 @@ export function CompanySettingsForm({
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium text-slate-700">Ajouter un logo</p>
-                  <p className="mt-1 text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo. Idéalement moins de 1 Mo.</p>
+                  <p className="mt-1 text-xs text-slate-400">PNG, JPG ou WEBP • Max 5 Mo.</p>
                 </div>
               </label>
             )}
@@ -285,8 +344,8 @@ export function CompanySettingsForm({
       )}
 
       <div className="mt-6 flex justify-end">
-        <Button type="submit" disabled={pending || Boolean(logoError)}>
-          {pending ? "Enregistrement..." : "Enregistrer les modifications"}
+        <Button type="submit" disabled={pending || uploading || Boolean(logoError)}>
+          {uploading ? "Upload du logo..." : pending ? "Enregistrement..." : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

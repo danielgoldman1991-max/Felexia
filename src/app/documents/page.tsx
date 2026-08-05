@@ -85,7 +85,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Do
             </Link>
             <Link
               href="/documents/import-export"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-white shadow-[var(--shadow-sm)] transition-all hover:bg-[#6840dc]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition-all hover:brightness-110"
             >
               <UploadCloud className="h-4 w-4" />
               Importer un document
@@ -169,7 +169,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Do
             action={
               <Link
                 href="/documents/import-export"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-white shadow-[var(--shadow-sm)] transition-all hover:bg-[#6840dc]"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition-all hover:brightness-110"
               >
                 <UploadCloud className="h-4 w-4" />
                 Importer un document

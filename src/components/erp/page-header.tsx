@@ -10,7 +10,7 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-white/10 pb-5 md:flex-row">
+    <div className="mb-6 flex flex-col items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-5 md:flex-row">
       <div>
         <p className="section-title mb-2">Felexia command</p>
         <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">{title}</h1>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getPlanDefinition, SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
-import { BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
+import { DEFAULT_TRIAL_DURATION_LABEL, DEFAULT_TRIAL_MARKETING_MESSAGE, BUSINESS_TRIAL_DURATION_LABEL, BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
 
 type BillingInterval = "monthly" | "yearly";
 
@@ -69,8 +69,8 @@ export function SubscriptionManage({
 
   const statusBadge: Record<string, { label: string; tone: "success" | "warning" | "danger" | "neutral" | "info" }> = {
     active: { label: "Actif", tone: "success" },
-    trialing: { label: "Essai spécial lancement", tone: "info" },
-    trial: { label: "Essai spécial lancement", tone: "info" },
+    trialing: { label: "Essai actif", tone: "info" },
+    trial: { label: "Essai actif", tone: "info" },
     past_due: { label: "Paiement en retard", tone: "danger" },
     canceled: { label: "Résilié", tone: "neutral" },
     unpaid: { label: "Impayé", tone: "danger" },
@@ -132,11 +132,11 @@ export function SubscriptionManage({
       const response = await fetch("/api/subscriptions/start-trial", { method: "POST" });
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.success) {
-        throw new Error(payload?.error || "Impossible d'activer l'essai Business spécial lancement pour le moment. Veuillez réessayer.");
+        throw new Error(payload?.error || "Impossible d'activer l'essai Essentiel pour le moment. Veuillez réessayer.");
       }
       window.location.assign(payload?.redirectTo ?? "/dashboard?trial_started=1");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Impossible d'activer l'essai Business spécial lancement pour le moment. Veuillez réessayer.");
+      setError(err instanceof Error ? err.message : "Impossible d'activer l'essai Essentiel pour le moment. Veuillez réessayer.");
       setLoadingTrial(false);
     }
   }
@@ -167,15 +167,15 @@ export function SubscriptionManage({
           <CardHeader>
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-blue-600" />
-              <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé l&apos;essai Business spécial lancement ni choisi d&apos;abonnement.</h2>
+              <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai ni choisi d&apos;abonnement.</h2>
             </div>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Business spécial lancement de 3 mois sans carte bancaire ou choisir directement un pack.
+              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Essentiel sans carte bancaire ou choisir directement un pack.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button onClick={startTrial} disabled={loadingTrial}>
-              {loadingTrial ? "Activation en cours..." : "Démarrer l'essai Business spécial lancement"}
+              {loadingTrial ? "Activation en cours..." : "Démarrer l'essai Essentiel"}
             </Button>
             <Link
               href="/parametres/abonnement"
@@ -204,7 +204,13 @@ export function SubscriptionManage({
           <CardContent className="grid gap-3 md:grid-cols-6">
             <Metric label="Pack" value={currentPlan.name} icon={<ShieldCheck className="h-4 w-4" />} />
             <Metric label="Cycle" value={currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
-            {isTrial ? <Metric label="Durée" value="3 mois" icon={<CreditCard className="h-4 w-4" />} /> : null}
+            {isTrial ? (
+              <Metric
+                label="Durée"
+                value={currentPlanCode === "business" ? BUSINESS_TRIAL_DURATION_LABEL : DEFAULT_TRIAL_DURATION_LABEL}
+                icon={<CreditCard className="h-4 w-4" />}
+              />
+            ) : null}
             <Metric label="Utilisateurs" value={`${memberCount}/${currentPlan.limits.users}`} icon={<Users className="h-4 w-4" />} />
             <Metric
               label="Documents / mois"
@@ -220,7 +226,7 @@ export function SubscriptionManage({
               <p className="md:col-span-6 text-sm text-[var(--muted)]">
                 {isTrial ? (
                   <>
-                    {BUSINESS_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
+                    {currentPlanCode === "business" ? BUSINESS_TRIAL_MARKETING_MESSAGE : DEFAULT_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
                     <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
                     {daysRemaining !== null ? (
                       <>

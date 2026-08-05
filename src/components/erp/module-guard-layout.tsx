@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { requireModuleAccess } from "@/lib/saas";
+import { canAccessModule } from "@/lib/subscriptions/plan-access";
+import { DEFAULT_PLAN_KEY, type PlanKey } from "@/lib/subscriptions/plans-config";
+import { ModuleUpgradePage } from "@/components/erp/module-upgrade-page";
 
 export async function ModuleGuardLayout({
   children,
@@ -10,6 +12,11 @@ export async function ModuleGuardLayout({
   moduleKey: string;
 }) {
   const workspace = await requireActiveWorkspace();
-  await requireModuleAccess(workspace.organization.id, moduleKey);
+  const planCode: PlanKey = (workspace.subscription?.planCode as PlanKey | undefined) ?? DEFAULT_PLAN_KEY;
+
+  if (!canAccessModule(planCode, moduleKey)) {
+    return <ModuleUpgradePage moduleKey={moduleKey} currentPlanCode={planCode} />;
+  }
+
   return <>{children}</>;
 }

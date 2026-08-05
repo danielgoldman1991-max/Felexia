@@ -20,12 +20,12 @@ export function KpiCard({ title, value, change, caption, tone, icon: Icon }: Kpi
           <p className="section-title">{title}</p>
           <p className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">{value}</p>
         </div>
-        <div className={cn("flex h-11 w-11 items-center justify-center rounded-2xl ring-1", positive ? "bg-emerald-300/10 text-emerald-200 ring-emerald-300/20" : "bg-red-300/10 text-red-200 ring-red-300/20")}>
+        <div className={cn("flex h-11 w-11 items-center justify-center rounded-2xl ring-1", positive ? "bg-[var(--success-soft)] text-[var(--success)] ring-[var(--border)]" : "bg-[var(--danger-soft)] text-[var(--danger)] ring-[var(--border)]")}>
           <Icon className="h-5 w-5" />
         </div>
       </div>
       <div className="mt-5 flex items-center gap-2 text-sm">
-        <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold", positive ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-200" : "border-red-300/20 bg-red-300/10 text-red-200")}>
+        <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold", positive ? "border-[var(--border)] bg-[var(--success-soft)] text-[var(--success)]" : "border-[var(--border)] bg-[var(--danger-soft)] text-[var(--danger)]")}>
           <ArrowUpRight className="h-3.5 w-3.5" />
           {change}
         </span>

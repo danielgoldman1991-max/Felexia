@@ -50,5 +50,5 @@ export async function createCompanyAction(
 
   await initializeOrganizationDefaults(orgId);
 
-  redirect("/bienvenue?trial=business");
+  redirect("/bienvenue?trial=essentiel");
 }

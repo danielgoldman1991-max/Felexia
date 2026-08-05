@@ -25,7 +25,7 @@ export function PrintOrganizationLogo({
         alt={alt}
         fill
         className="object-contain p-1"
-        priority
+        loading="eager"
         sizes="80px"
       />
     </div>

@@ -3,9 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Sparkles, X } from "lucide-react";
+import { PLAN_LABELS } from "@/lib/subscriptions/plans-config";
 
-export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean }) {
+export function TrialStartedBanner({
+  forceOpen = false,
+  planCode = "essentiel",
+}: {
+  forceOpen?: boolean;
+  planCode?: string;
+}) {
   const [isHidden, setIsHidden] = useState(false);
+  const planLabel = PLAN_LABELS[planCode as keyof typeof PLAN_LABELS] ?? PLAN_LABELS.essentiel;
 
   function hideBanner() {
     setIsHidden(true);
@@ -19,7 +27,7 @@ export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean 
         type="button"
         onClick={hideBanner}
         className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-        aria-label="Masquer le message d'essai Business"
+        aria-label="Masquer le message d'essai"
       >
         <X className="h-4 w-4" />
       </button>
@@ -32,13 +40,13 @@ export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean 
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
               <Sparkles className="h-3.5 w-3.5" />
-              Pack Business activé
+              Pack {planLabel} activé
             </div>
             <h2 className="mt-3 text-xl font-semibold text-slate-950">
-              Votre essai Business spécial lancement a démarré.
+              Votre essai {planLabel} a démarré.
             </h2>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez de 3 mois d’essai Business spécial lancement, sans carte bancaire et sans engagement.
+              Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez d&apos;un essai {planLabel}, sans carte bancaire et sans engagement.
             </p>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
               Vous pouvez commencer à gérer vos clients, devis, factures, documents et paiements. Vous pourrez choisir votre abonnement plus tard depuis Paramètres &gt; Abonnement.
@@ -49,7 +57,7 @@ export function TrialStartedBanner({ forceOpen = false }: { forceOpen?: boolean 
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:pt-9">
           <Link
             href="/clients"
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:brightness-110"
           >
             Commencer maintenant
           </Link>

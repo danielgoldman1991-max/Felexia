@@ -27,7 +27,7 @@ export function HrEmployeeDetail({ detail }: { detail: Detail }) {
         title={getString(employee, "full_name")}
         description={`Matricule ${getString(employee, "employee_number")} · ${getNestedString(employee, "position", "title", "Poste à affecter")} · ${getNestedString(employee, "department", "name", "Département à affecter")}`}
         actions={
-          <Link href={`/rh/employes/${getString(employee, "id")}/edit`} className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-white/10 bg-white/[0.055] px-4 text-sm font-medium">
+          <Link href={`/rh/employes/${getString(employee, "id")}/edit`} className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]">
             <Pencil className="mr-2 h-4 w-4" />
             Modifier
           </Link>
@@ -72,7 +72,7 @@ function MiniTable({ title, rows, columns, moneyColumn }: { title: string; rows:
     <div className="premium-card p-5">
       <h2 className="mb-4 text-lg font-semibold">{title}</h2>
       {rows.length === 0 ? (
-        <p className="rounded-xl border border-white/10 bg-white/[0.035] p-4 text-sm text-[var(--muted)]">Aucune donnée enregistrée.</p>
+        <p className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--muted)]">Aucune donnée enregistrée.</p>
       ) : (
         <Table>
           <thead>

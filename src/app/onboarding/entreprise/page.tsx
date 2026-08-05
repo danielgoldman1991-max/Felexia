@@ -31,9 +31,9 @@ export default async function EntreprisePage() {
         position="top-center"
         toastOptions={{
           style: {
-            background: "#0D1117",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#fff",
+            background: "var(--popover)",
+            border: "1px solid var(--border)",
+            color: "var(--popover-foreground)",
           },
         }}
       />
@@ -41,16 +41,16 @@ export default async function EntreprisePage() {
         <div className="mx-auto w-full max-w-5xl">
           <div className="mb-8 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white">
+              <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
                 <Logo size={34} />
               </span>
               <div>
-                <p className="text-sm font-semibold text-white">Felexia</p>
+                <p className="text-sm font-semibold text-[var(--foreground)]">Felexia</p>
                 <p className="text-xs text-[var(--muted)]">Configuration de votre entreprise</p>
               </div>
             </div>
-            <span className="hidden rounded-full border border-[#D6B56D]/20 bg-[#D6B56D]/10 px-3 py-1 text-xs font-medium text-[#D6B56D] sm:inline-flex">
-              Business spécial lancement
+            <span className="hidden rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)] sm:inline-flex">
+              Essai Essentiel inclus
             </span>
           </div>
 

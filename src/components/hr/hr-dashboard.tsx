@@ -15,7 +15,7 @@ export function HrDashboard({ data }: { data: HrDashboardData }) {
         title="Cockpit RH"
         description="Pilotez les employés, contrats, congés, paie préparatoire, CNSS/AMO et alertes RH dans un espace sombre premium."
         actions={
-          <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-gradient-to-r from-[#D6B56D] to-[#B8924F] px-4 text-sm font-medium text-[#08090d]">
+          <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Link>
@@ -71,7 +71,7 @@ export function HrDashboard({ data }: { data: HrDashboardData }) {
             <h2 className="mb-4 text-lg font-semibold">Ce qui mérite attention</h2>
             <div className="space-y-3">
               {data.alerts.map((alert) => (
-                <div key={alert.title} className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                <div key={alert.title} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] p-3">
                   <p className="font-medium">{alert.title}</p>
                   <p className="mt-1 text-sm text-[var(--muted)]">{alert.description}</p>
                 </div>
@@ -82,7 +82,7 @@ export function HrDashboard({ data }: { data: HrDashboardData }) {
             <h2 className="mb-4 text-lg font-semibold">Répartition départements</h2>
             <div className="space-y-2">
               {data.departments.slice(0, 8).map((department) => (
-                <div key={department.name} className="flex items-center justify-between rounded-xl bg-white/[0.035] px-3 py-2 text-sm">
+                <div key={department.name} className="flex items-center justify-between rounded-xl bg-[var(--surface-soft)] px-3 py-2 text-sm">
                   <span>{department.name}</span>
                   <span className="font-semibold text-[var(--accent-gold)]">{department.employees}</span>
                 </div>

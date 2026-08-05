@@ -4,6 +4,7 @@ import { Logo } from "@/components/brand/Logo";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { PLAN_LABELS } from "@/lib/subscriptions/plans-config";
 
 export default async function TrialConfirmationPage() {
   const user = await requireUser();
@@ -23,11 +24,12 @@ export default async function TrialConfirmationPage() {
 
   const { data: sub } = await supabase
     .from("organization_subscriptions")
-    .select("status, trial_end")
+    .select("status, trial_end, plan_code")
     .eq("organization_id", membership.organization_id)
     .limit(1)
     .maybeSingle();
 
+  const planLabel = PLAN_LABELS[sub?.plan_code as keyof typeof PLAN_LABELS] ?? "Essentiel";
   const trialEnd = sub?.trial_end
     ? new Date(sub.trial_end).toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -45,7 +47,7 @@ export default async function TrialConfirmationPage() {
               <Logo size={40} />
             </span>
           </div>
-          <h1 className="text-2xl font-semibold">Essai Business spécial lancement démarré !</h1>
+          <h1 className="text-2xl font-semibold">Essai {planLabel} démarré !</h1>
         </CardHeader>
         <CardContent>
           <div className="mb-6 flex justify-center">
@@ -56,7 +58,7 @@ export default async function TrialConfirmationPage() {
             </div>
           </div>
           <p className="text-sm text-[var(--muted)]">
-            Votre essai Business spécial lancement est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd || "3 mois"}</strong>.
+            Votre essai {planLabel} est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd || "1 mois"}</strong>.
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Profitez de toutes les fonctionnalités sélectionnées. Aucune carte bancaire requise.

@@ -22,15 +22,15 @@ export function DashboardChart({ data }: { data: ChartPoint[] }) {
   const area = `${path} L ${width} ${height} L 0 ${height} Z`;
 
   return (
-    <section className="premium-card rounded-[var(--radius-lg)] p-5">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--foreground)]">Evolution du chiffre d&apos;affaires</h2>
           <p className="text-sm text-[var(--muted)]">Tendance mensuelle des ventes facturees.</p>
         </div>
-        <button type="button" className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-[var(--muted)] hover:bg-white/[0.08]">Par jour</button>
+        <button type="button" className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface-soft)]">Par jour</button>
       </div>
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-3">
+      <div className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/40 p-3">
         <svg viewBox={`0 0 ${width} ${height}`} className="h-72 w-full">
           <defs>
             <linearGradient id="revenueArea" x1="0" x2="0" y1="0" y2="1">
@@ -39,13 +39,13 @@ export function DashboardChart({ data }: { data: ChartPoint[] }) {
             </linearGradient>
           </defs>
           {[0, 1, 2, 3].map((line) => (
-            <line key={line} x1="0" x2={width} y1={(height / 4) * line + 20} y2={(height / 4) * line + 20} stroke="rgba(255,255,255,0.08)" strokeDasharray="4 6" />
+            <line key={line} x1="0" x2={width} y1={(height / 4) * line + 20} y2={(height / 4) * line + 20} stroke="var(--border)" strokeDasharray="4 6" />
           ))}
           <path d={area} fill="url(#revenueArea)" />
           <path d={path} fill="none" stroke="#38BDF8" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
           {points.map((point) => (
             <g key={point.label}>
-              <circle cx={point.x} cy={point.y} r="5" fill="#06070A" stroke="#D6B56D" strokeWidth="3" />
+              <circle cx={point.x} cy={point.y} r="5" fill="var(--card)" stroke="#38BDF8" strokeWidth="3" />
               <text x={point.x} y={height - 6} textAnchor="middle" className="fill-[var(--muted)] text-[12px]">{point.label}</text>
             </g>
           ))}

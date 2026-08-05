@@ -1,13 +1,1 @@
-export const BUSINESS_MODULE_KEYS = [
-  "quotes",
-  "invoicing",
-  "documents",
-  "crm",
-  "purchases",
-  "stock",
-  "treasury",
-  "accounting",
-  "rh",
-] as const;
-
-export type BusinessModuleKey = (typeof BUSINESS_MODULE_KEYS)[number];
+export { BUSINESS_MODULE_KEYS } from "@/lib/subscriptions/plan-modules";

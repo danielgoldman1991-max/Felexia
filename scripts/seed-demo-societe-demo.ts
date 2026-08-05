@@ -2,9 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { BUSINESS_MODULE_KEYS } from "../src/lib/business-modules";
+import { getModulesForPlan } from "../src/lib/subscriptions/plan-modules";
+import { getPlanDefinition } from "../src/lib/subscriptions/plans";
 import { ensureHrReferenceData } from "../src/lib/hr/reference-data";
-import { getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
+import { getBusinessTrialEndDate, getDefaultTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 0. ENV + CLIENT
@@ -87,11 +88,14 @@ const DEMO_CONFIG_RAW: Record<SeedScale, Record<string, number>> = {
 const SCALE: SeedScale = (process.env.DEMO_SEED_SCALE as SeedScale) ?? "medium";
 const CFG = DEMO_CONFIG_RAW[SCALE] ?? DEMO_CONFIG_RAW.medium;
 
+const DEMO_PLAN: "essentiel" | "business" | "premium" =
+  (process.env.DEMO_PLAN as "essentiel" | "business" | "premium") ?? "business";
+
 const DEMO_USER_EMAIL = "demo@felexia.pro";
 const DEMO_USER_PASSWORD = "test@123";
 const DEMO_USER_NAME = "Aziz Demo";
-const ORG_NAME = "SOCIETE DEMO";
-const ORG_SLUG = "societe-demo";
+const ORG_NAME = DEMO_PLAN === "essentiel" ? "SOCIETE DEMO ESSENTIEL" : "SOCIETE DEMO";
+const ORG_SLUG = DEMO_PLAN === "essentiel" ? "societe-demo-essentiel" : "societe-demo";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 2. DETERMINISTIC RANDOM GENERATORS (seeded for idempotency)
@@ -458,22 +462,23 @@ async function ensureRolesAndMembership() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 11. BUSINESS TRIAL & MODULES
+// 11. TRIAL & MODULES (plan-aware via DEMO_PLAN)
 // ═══════════════════════════════════════════════════════════════════════════════
 async function ensureBusinessTrialAndModules() {
-  console.log("\n  Essai Business et modules");
+  console.log(`\n  Essai ${DEMO_PLAN} et modules`);
 
-  const { data: plan } = await supabase.from("subscription_plans").select("id").eq("code", "business").maybeSingle();
+  const { data: plan } = await supabase.from("subscription_plans").select("id").eq("code", DEMO_PLAN).maybeSingle();
+  const definition = getPlanDefinition(DEMO_PLAN);
 
   const now = new Date();
-  const trialEnd = getBusinessTrialEndDate(now);
+  const trialEnd = DEMO_PLAN === "business" ? getBusinessTrialEndDate(now) : getDefaultTrialEndDate(now);
 
   const { data: existingSub } = await supabase.from("organization_subscriptions").select("id").eq("organization_id", DEMO_ORG_ID).maybeSingle();
 
   const payload = {
     organization_id: DEMO_ORG_ID,
     plan_id: plan?.id ?? null,
-    plan_code: "business",
+    plan_code: DEMO_PLAN,
     status: "trialing",
     billing_cycle: "monthly",
     billing_interval: "monthly",
@@ -486,9 +491,9 @@ async function ensureBusinessTrialAndModules() {
     current_period_start: now.toISOString(),
     current_period_end: trialEnd.toISOString(),
     cancel_at_period_end: false,
-    monthly_amount: 690,
-    yearly_amount: 6900,
-    selected_modules: ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting", "rh"],
+    monthly_amount: definition.monthlyPrice,
+    yearly_amount: definition.yearlyPrice,
+    selected_modules: getModulesForPlan(DEMO_PLAN),
     updated_at: now.toISOString(),
   };
 
@@ -497,7 +502,7 @@ async function ensureBusinessTrialAndModules() {
     console.log("  ℹ Abonnement mis à jour");
   } else {
     await supabase.from("organization_subscriptions").insert({ ...payload, created_at: now.toISOString() });
-    console.log("  ✅ Essai Business créé");
+    console.log(`  ✅ Essai ${DEMO_PLAN} créé`);
   }
 
   // Modules
@@ -514,7 +519,7 @@ async function ensureBusinessTrialAndModules() {
     { onConflict: "module_key" },
   );
 
-  const moduleKeys = [...BUSINESS_MODULE_KEYS];
+  const moduleKeys = getModulesForPlan(DEMO_PLAN);
   const moduleRows = moduleKeys.map((mk) => ({
     organization_id: DEMO_ORG_ID,
     module_key: mk,
@@ -523,7 +528,7 @@ async function ensureBusinessTrialAndModules() {
   }));
 
   await supabase.from("organization_modules").upsert(moduleRows, { onConflict: "organization_id,module_key" });
-  console.log("  ✅ Modules Business activés");
+  console.log(`  ✅ Modules ${DEMO_PLAN} activés`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2555,6 +2560,7 @@ async function printSummary() {
   console.log("══════════════════════════════════════════════════════════════════");
   console.log(`
   Organisation  : ${ORG_NAME}
+  Plan          : ${DEMO_PLAN}
   Login         : ${DEMO_USER_EMAIL}
   Mot de passe  : ${DEMO_USER_PASSWORD}
   Échelle       : ${SCALE}
@@ -2571,6 +2577,7 @@ async function main() {
   console.log("\n══════════════════════════════════════════════════════════════════");
   console.log("  SEED DEMO — SOCIETE DEMO");
   console.log(`  Échelle : ${SCALE.toUpperCase()}`);
+  console.log(`  Plan    : ${DEMO_PLAN.toUpperCase()}`);
   console.log("══════════════════════════════════════════════════════════════════");
 
   if (process.env.RESET_DEMO_ORG === "true") {
@@ -2596,7 +2603,9 @@ async function main() {
   await seedAccountingEntries();
   await seedVatExports();
   await seedDocuments();
-  await seedHrModule();
+  if (DEMO_PLAN !== "essentiel") {
+    await seedHrModule();
+  }
   await seedInvitations();
   await printSummary();
 

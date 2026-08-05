@@ -42,7 +42,7 @@ export default async function ProfilPage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="section-title">Compte utilisateur</p>
-            <h2 className="mt-2 truncate text-2xl font-semibold tracking-tight text-white">{displayName}</h2>
+            <h2 className="mt-2 truncate text-2xl font-semibold tracking-tight text-[var(--foreground)]">{displayName}</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">{email}</p>
           </div>
           <Badge tone="info">{workspace.role ?? "Membre"}</Badge>
@@ -53,13 +53,13 @@ export default async function ProfilPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <User className="h-5 w-5 text-cyan-200" />
+              <User className="h-5 w-5 text-[var(--primary)]" />
               <h2 className="font-semibold">Identité</h2>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p className="text-[var(--muted)]">Nom complet</p>
-            <p className="font-medium text-white">{displayName}</p>
+            <p className="font-medium text-[var(--foreground)]">{displayName}</p>
           </CardContent>
         </Card>
 
@@ -72,20 +72,20 @@ export default async function ProfilPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p className="text-[var(--muted)]">Adresse de connexion</p>
-            <p className="break-all font-medium text-white">{email || "Non disponible"}</p>
+            <p className="break-all font-medium text-[var(--foreground)]">{email || "Non disponible"}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-emerald-200" />
+              <ShieldCheck className="h-5 w-5 text-[var(--success)]" />
               <h2 className="font-semibold">Accès</h2>
             </div>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p className="text-[var(--muted)]">Organisation</p>
-            <p className="font-medium text-white">{workspace.organization.name}</p>
+            <p className="font-medium text-[var(--foreground)]">{workspace.organization.name}</p>
             <p className="pt-2 text-xs text-[var(--muted)]">Profil créé le {formatDate(profile?.created_at ?? null)}</p>
           </CardContent>
         </Card>

@@ -50,17 +50,75 @@ export async function updateCompanyAction(
     }
 
     const logoFile = formData.get("logo") as File | null;
-    let logoUrl: string | null = null;
-    let logoPath: string | null = null;
+    const submittedLogoPath = formData.get("logo_path");
+    const submittedLogoUrl = formData.get("logo_url");
+    const logoPath =
+      typeof submittedLogoPath === "string" && submittedLogoPath.trim()
+        ? submittedLogoPath.trim()
+        : null;
+    const logoUrl =
+      typeof submittedLogoUrl === "string" && submittedLogoUrl.trim()
+        ? submittedLogoUrl.trim()
+        : null;
 
-    if (logoFile && logoFile.size > 0) {
+    let logoUrlValue: string | null = null;
+    let logoPathValue: string | null = null;
+
+    if (logoPath && logoUrl) {
+      const orgId = workspace.organization.id;
+      const expectedPrefix = `organizations/${orgId}/`;
+      const ext = logoPath.split(".").pop()?.toLowerCase();
+
+      if (!logoPath.startsWith(expectedPrefix)) {
+        return { error: "Chemin de logo invalide.", success: false };
+      }
+      if (!ext || !["png", "jpg", "webp"].includes(ext)) {
+        return { error: "Chemin de logo invalide.", success: false };
+      }
+
+      const { data: currentOrganization } = await supabase
+        .from("organizations")
+        .select("logo_path")
+        .eq("id", orgId)
+        .maybeSingle();
+
+      const previousLogoPath =
+        typeof currentOrganization?.logo_path === "string"
+          ? currentOrganization.logo_path
+          : null;
+
+      const { error: persistError } = await supabase.rpc("set_organization_logo", {
+        p_organization_id: orgId,
+        p_logo_url: logoUrl,
+        p_logo_path: logoPath,
+      });
+      if (persistError) {
+        return { error: persistError.message, success: false };
+      }
+
+      if (
+        previousLogoPath &&
+        previousLogoPath !== logoPath &&
+        previousLogoPath.startsWith(expectedPrefix)
+      ) {
+        const { error: removeError } = await supabase.storage
+          .from("organization-logos")
+          .remove([previousLogoPath]);
+        if (removeError) {
+          console.warn("Logo precedent non supprime:", removeError.message);
+        }
+      }
+
+      logoUrlValue = logoUrl;
+      logoPathValue = logoPath;
+    } else if (logoFile && logoFile.size > 0) {
       const orgId = workspace.organization.id;
       const uploadResult = await uploadOrganizationLogoForOrganization(orgId, logoFile);
       if (!uploadResult.success) {
         return { error: uploadResult.error ?? "Erreur upload logo.", success: false };
       }
-      logoUrl = uploadResult.logo_url ?? null;
-      logoPath = uploadResult.logo_path ?? null;
+      logoUrlValue = uploadResult.logo_url ?? null;
+      logoPathValue = uploadResult.logo_path ?? null;
     }
 
     const upsertData: Record<string, unknown> = {
@@ -69,9 +127,9 @@ export async function updateCompanyAction(
     };
 
     // Ne mettre à jour le logo que si un nouveau fichier a été uploadé
-    if (logoUrl !== null && logoPath !== null) {
-      upsertData.logo_url = logoUrl;
-      upsertData.logo_path = logoPath;
+    if (logoUrlValue !== null && logoPathValue !== null) {
+      upsertData.logo_url = logoUrlValue;
+      upsertData.logo_path = logoPathValue;
     }
 
     const { error } = await supabase
@@ -97,7 +155,7 @@ export async function updateCompanyAction(
       error: null,
       success: true,
       message: "Informations enregistrées avec succès.",
-      logo_url: logoUrl,
+      logo_url: logoUrlValue,
     };
   } catch (err) {
     console.error("updateCompanyAction error:", err);

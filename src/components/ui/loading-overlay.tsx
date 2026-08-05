@@ -15,14 +15,14 @@ type LoadingOverlayProps = {
 const defaultSteps = [
   "Création de votre organisation",
   "Configuration de votre espace",
-  "Activation de votre essai Business spécial lancement",
+  "Activation de votre essai Essentiel",
   "Finalisation...",
 ];
 
 export function LoadingOverlay({
   open,
   title = "Création de votre entreprise en cours",
-  description = "Merci de patienter quelques instants. Nous préparons votre espace Felexia et activons votre essai Business spécial lancement de 3 mois.",
+  description = "Merci de patienter quelques instants. Nous préparons votre espace Felexia et activons votre essai Essentiel.",
   note = "Cela peut prendre quelques secondes. Ne fermez pas cette page.",
   steps = defaultSteps,
   className,

@@ -7,10 +7,9 @@ import { initializeOrganizationDefaults } from "@/lib/org-defaults";
 import { ensureAccountingBaseSetup } from "@/lib/accounting";
 import { isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
-import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import { validateCompanyConfirmationInput } from "@/lib/ice/ice";
 import {
-  startBusinessTrialAndEnableModules,
+  startDefaultTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
 
 export type CreateEntrepriseState = {
@@ -205,12 +204,11 @@ export async function createEntrepriseAction(
   }
 
   try {
-    await startBusinessTrialAndEnableModules(orgId, user.id);
-    await ensureHrReferenceData(supabase, orgId);
+    await startDefaultTrialAndEnableModules(orgId, user.id);
   } catch (trialErr) {
     console.error("createEntreprise: trial activation error", trialErr);
     return {
-      error: "Votre entreprise a été créée, mais l’activation de l’essai Business spécial lancement ou des modules a échoué. Veuillez contacter le support ou réessayer.",
+      error: "Votre entreprise a été créée, mais l’activation de l’essai Essentiel ou des modules a échoué. Veuillez contacter le support ou réessayer.",
     };
   }
 

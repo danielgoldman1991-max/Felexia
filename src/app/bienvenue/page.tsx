@@ -5,6 +5,7 @@ import { WelcomeChecklist } from "@/components/onboarding/welcome-checklist";
 import { Button } from "@/components/ui/button";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getOnboardingChecklist } from "@/lib/onboarding";
+import { PLAN_LABELS } from "@/lib/subscriptions/plans-config";
 
 export default async function WelcomePage({
   searchParams,
@@ -14,9 +15,9 @@ export default async function WelcomePage({
   const workspace = await requireActiveWorkspace();
   const checklist = await getOnboardingChecklist(workspace.organization.id);
   const params = await searchParams;
-  const showTrialBanner = Array.isArray(params?.trial)
-    ? params.trial[0] === "business"
-    : params?.trial === "business";
+  const trialParam = Array.isArray(params?.trial) ? params.trial[0] : params?.trial;
+  const showTrialBanner = Boolean(trialParam && (trialParam === "business" || trialParam === "essentiel"));
+  const planLabel = PLAN_LABELS[workspace.subscription?.planCode ?? "essentiel"] ?? "Essentiel";
 
   const trialEndsAt = workspace.subscription?.trialEndsAt;
 
@@ -42,7 +43,7 @@ export default async function WelcomePage({
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-950">Votre entreprise est prête</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Votre essai Business spécial lancement de 3 mois est activé. Tous les modules Business sont disponibles pour démarrer Felexia sans blocage.
+                  Votre essai {planLabel} est activé. Les modules {planLabel} sont disponibles pour démarrer Felexia sans blocage.
                 </p>
                 {trialEndsAt && (
                   <p className="mt-2 text-xs font-medium text-slate-500">

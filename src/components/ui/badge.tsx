@@ -8,11 +8,11 @@ type BadgeProps = {
 };
 
 const tones = {
-  neutral: "border-white/10 bg-white/[0.055] text-[var(--muted)]",
-  info: "border-cyan-300/20 bg-cyan-300/10 text-cyan-200",
-  success: "border-emerald-300/20 bg-emerald-300/10 text-emerald-200",
-  warning: "border-amber-300/20 bg-amber-300/12 text-amber-200",
-  danger: "border-red-300/20 bg-red-300/12 text-red-200",
+  neutral: "border-[var(--border)] bg-[var(--surface-soft)] text-[var(--muted)]",
+  info: "border-[color-mix(in_srgb,var(--info)_26%,transparent)] bg-[var(--info-soft)] text-[var(--info)]",
+  success: "border-[color-mix(in_srgb,var(--success)_26%,transparent)] bg-[var(--success-soft)] text-[var(--success)]",
+  warning: "border-[color-mix(in_srgb,var(--warning)_30%,transparent)] bg-[var(--warning-soft)] text-[var(--warning)]",
+  danger: "border-[color-mix(in_srgb,var(--danger)_26%,transparent)] bg-[var(--danger-soft)] text-[var(--danger)]",
 };
 
 export function Badge({ children, tone = "neutral", className }: BadgeProps) {

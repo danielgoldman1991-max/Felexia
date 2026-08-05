@@ -1,19 +1,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { BUSINESS_MODULE_KEYS } from "@/lib/business-modules";
+import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  DEFAULT_PLAN_CODE,
-  getEnabledModulesForPlan,
-  getPlanDefinition,
-  normalizePlanCode,
-  type PlanCode,
-  type PlanFeatureKey,
-  type PlanLimits,
-} from "@/lib/subscriptions/plans";
+import { DEFAULT_PLAN_CODE, getEnabledModulesForPlan, getPlanDefinition, normalizePlanCode, type PlanCode, type PlanFeatureKey, type PlanLimits } from "@/lib/subscriptions/plans";
+import { PLAN_KEYS, type PlanKey } from "@/lib/subscriptions/plans-config";
 import { isSubscriptionUsable } from "@/lib/subscriptions/subscription-access";
-import { getBusinessTrialEndDate } from "@/lib/subscriptions/trial-config";
+import { getBusinessTrialEndDate, getDefaultTrialEndDate } from "@/lib/subscriptions/trial-config";
 
 export type OrganizationSubscription = {
   id: string;
@@ -41,8 +34,29 @@ export function canAccessFeature(planCode: string | null | undefined, featureKey
   return getPlanFeatures(planCode).includes(featureKey);
 }
 
+const MODULE_KEY_ALIASES: Record<string, string> = {
+  tiers: "crm",
+  vente: "quotes",
+  facturation: "invoicing",
+  "facturation_paiements": "invoicing",
+  articles: "products",
+  achats: "purchases",
+  tresorerie: "treasury",
+  treasury: "treasury",
+  inventory: "stock",
+  comptabilite: "accounting",
+  utilisateurs: "users",
+  parametres: "settings",
+  "guide_demarrage": "dashboard",
+};
+
+export function normalizeModuleKey(moduleKey: string): string {
+  const alias = MODULE_KEY_ALIASES[moduleKey];
+  return alias ?? moduleKey;
+}
+
 export function canAccessModule(planCode: string | null | undefined, moduleKey: string): boolean {
-  return getEnabledModulesForPlan(planCode).includes(moduleKey);
+  return getEnabledModulesForPlan(planCode).includes(normalizeModuleKey(moduleKey));
 }
 
 export async function getOrganizationSubscription(organizationId: string): Promise<OrganizationSubscription | null> {
@@ -90,17 +104,104 @@ export async function getOrganizationSubscription(organizationId: string): Promi
   };
 }
 
-export async function ensureDefaultBusinessTrial(organizationId: string): Promise<void> {
-  await activateBusinessTrialForOrganization(organizationId);
+async function upsertTrialForPlan(
+  supabase: SupabaseClient,
+  organizationId: string,
+  planKey: PlanKey,
+): Promise<void> {
+  const trialStart = new Date();
+  const trialEnd = planKey === PLAN_KEYS.BUSINESS
+    ? getBusinessTrialEndDate(trialStart)
+    : getDefaultTrialEndDate(trialStart);
+
+  const { data: existingSubscription, error: existingError } = await supabase
+    .from("organization_subscriptions")
+    .select("id, status, plan_code, trial_ends_at, trial_end, current_period_end")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existingError) {
+    throw new Error(`Impossible de vérifier l'abonnement existant : ${existingError.message}`);
+  }
+
+  if (existingSubscription?.id) {
+    return;
+  }
+
+  const { data: plan, error: planError } = await supabase
+    .from("subscription_plans")
+    .select("id")
+    .eq("code", planKey)
+    .maybeSingle();
+
+  if (planError) {
+    throw new Error(`Impossible de lire le plan ${planKey} : ${planError.message}`);
+  }
+
+  const payload = {
+    organization_id: organizationId,
+    plan_id: (plan as { id?: string } | null)?.id ?? null,
+    plan_code: planKey,
+    status: "trialing",
+    billing_cycle: "monthly",
+    billing_interval: "monthly",
+    trial_started_at: trialStart.toISOString(),
+    trial_start: trialStart.toISOString(),
+    trial_end: trialEnd.toISOString(),
+    trial_ends_at: trialEnd.toISOString(),
+    trial_consent_accepted: true,
+    trial_consent_accepted_at: trialStart.toISOString(),
+    current_period_start: trialStart.toISOString(),
+    current_period_end: trialEnd.toISOString(),
+    cancel_at_period_end: false,
+    monthly_amount: getPlanDefinition(planKey).monthlyPrice,
+    yearly_amount: getPlanDefinition(planKey).yearlyPrice,
+    created_at: trialStart.toISOString(),
+  };
+
+  const { error } = await supabase.from("organization_subscriptions").insert(payload);
+
+  if (error) {
+    throw new Error(`Impossible d'activer l'essai gratuit ${planKey} : ${error.message}`);
+  }
 }
 
-export async function activateBusinessTrialForOrganization(
+export async function ensureDefaultTrialAndModulesNoRevalidate(
+  supabase: SupabaseClient,
   organizationId: string,
-  _userId?: string | null,
+  userId?: string | null,
+): Promise<{ success: true }> {
+  void userId;
+  await upsertTrialForPlan(supabase, organizationId, PLAN_KEYS.ESSENTIEL);
+  await upsertModulesForPlan(supabase, organizationId, PLAN_KEYS.ESSENTIEL);
+
+  return { success: true };
+}
+
+export async function startDefaultTrialAndEnableModules(
+  organizationId: string,
+  userId?: string | null,
+  client?: SupabaseClient,
+): Promise<{ success: true }> {
+  const supabase = client ?? await createClient();
+  const result = await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, userId);
+
+  revalidatePath("/");
+  revalidatePath("/dashboard");
+  revalidatePath("/bienvenue");
+  revalidatePath("/parametres/abonnement");
+
+  return result;
+}
+
+export async function enableModulesForOrganization(
+  organizationId: string,
+  planKey: PlanKey,
 ): Promise<void> {
-  void _userId;
   const supabase = await createClient();
-  await createDefaultBusinessTrial(supabase, organizationId);
+  await upsertModulesForPlan(supabase, organizationId, planKey);
 }
 
 export async function startBusinessTrialAndEnableModules(
@@ -125,8 +226,8 @@ export async function ensureBusinessTrialAndModulesNoRevalidate(
   userId?: string | null,
 ): Promise<{ success: true }> {
   void userId;
-  await createDefaultBusinessTrial(supabase, organizationId);
-  await upsertBusinessModulesForOrganization(supabase, organizationId);
+  await upsertTrialForPlan(supabase, organizationId, PLAN_KEYS.BUSINESS);
+  await upsertModulesForPlan(supabase, organizationId, PLAN_KEYS.BUSINESS);
 
   return { success: true };
 }
@@ -135,130 +236,12 @@ export async function createDefaultBusinessTrial(
   supabase: SupabaseClient,
   organizationId: string,
 ): Promise<void> {
-  const trialStart = new Date();
-  const trialEnd = getBusinessTrialEndDate(trialStart);
-
-  const { data: existingSubscription, error: existingError } = await supabase
-    .from("organization_subscriptions")
-    .select("id, status, plan_code, trial_ends_at, trial_end, current_period_end")
-    .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (existingError) {
-    throw new Error(`Impossible de vérifier l'abonnement existant : ${existingError.message}`);
-  }
-
-  const existingStatus = String(existingSubscription?.status ?? "").toLowerCase();
-  const rawExistingPlanCode = existingSubscription?.plan_code ?? null;
-  const existingPlanCode = normalizePlanCode(rawExistingPlanCode);
-  const existingIsUsable = isSubscriptionUsable({
-    status: existingStatus,
-    trial_ends_at: existingSubscription?.trial_ends_at ?? existingSubscription?.trial_end ?? null,
-    current_period_end: existingSubscription?.current_period_end ?? null,
-  });
-
-  if (existingStatus === "active") {
-    return;
-  }
-
-  if (existingIsUsable && rawExistingPlanCode && existingPlanCode === DEFAULT_PLAN_CODE) {
-    return;
-  }
-
-  const { data: plan, error: planError } = await supabase
-    .from("subscription_plans")
-    .select("id")
-    .eq("code", DEFAULT_PLAN_CODE)
-    .maybeSingle();
-
-  if (planError) {
-    throw new Error(`Impossible de lire le plan Business : ${planError.message}`);
-  }
-
-  const payload = {
-    organization_id: organizationId,
-    plan_id: (plan as { id?: string } | null)?.id ?? null,
-    plan_code: DEFAULT_PLAN_CODE,
-    status: "trialing",
-    billing_cycle: "monthly",
-    billing_interval: "monthly",
-    trial_started_at: trialStart.toISOString(),
-    trial_start: trialStart.toISOString(),
-    trial_end: trialEnd.toISOString(),
-    trial_ends_at: trialEnd.toISOString(),
-    trial_consent_accepted: true,
-    trial_consent_accepted_at: trialStart.toISOString(),
-    current_period_start: trialStart.toISOString(),
-    current_period_end: trialEnd.toISOString(),
-    cancel_at_period_end: false,
-    monthly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).monthlyPrice,
-    yearly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).yearlyPrice,
-  };
-
-  const { error } = existingSubscription?.id
-    ? await supabase
-        .from("organization_subscriptions")
-        .update(payload)
-        .eq("id", existingSubscription.id)
-    : await supabase
-        .from("organization_subscriptions")
-        .insert({
-          ...payload,
-          created_at: trialStart.toISOString(),
-        });
-
-  if (error) {
-    throw new Error(`Impossible d'activer l'essai gratuit Business : ${error.message}`);
-  }
+  await upsertTrialForPlan(supabase, organizationId, PLAN_KEYS.BUSINESS);
 }
 
 export async function enableBusinessModulesForOrganization(organizationId: string): Promise<void> {
   const supabase = await createClient();
-  await upsertBusinessModulesForOrganization(supabase, organizationId);
-}
-
-export async function upsertBusinessModulesForOrganization(
-  supabase: SupabaseClient,
-  organizationId: string,
-): Promise<void> {
-  const now = new Date().toISOString();
-
-  // Only upsert module keys that actually exist in modules_catalog to avoid FK violations
-  const { data: catalogRows } = await supabase
-    .from("modules_catalog")
-    .select("module_key")
-    .in("module_key", BUSINESS_MODULE_KEYS);
-
-  const validKeys = new Set((catalogRows ?? []).map((r: Record<string, unknown>) => String(r.module_key)));
-  const missingKeys = BUSINESS_MODULE_KEYS.filter((k) => !validKeys.has(k));
-
-  if (missingKeys.length > 0) {
-    console.warn(
-      `[plan-access] Module keys missing from modules_catalog, skipping: ${missingKeys.join(", ")}. ` +
-      `Run migrations to add them.`
-    );
-  }
-
-  const moduleRows = BUSINESS_MODULE_KEYS
-    .filter((k) => validKeys.has(k))
-    .map((moduleKey) => ({
-      organization_id: organizationId,
-      module_key: moduleKey,
-      enabled: true,
-      created_at: now,
-    }));
-
-  if (moduleRows.length === 0) return;
-
-  const { error } = await supabase
-    .from("organization_modules")
-    .upsert(moduleRows, { onConflict: "organization_id,module_key" });
-
-  if (error) {
-    throw new Error(`Impossible d'activer les modules Business : ${error.message}`);
-  }
+  await upsertModulesForPlan(supabase, organizationId, PLAN_KEYS.BUSINESS);
 }
 
 export async function canCreateUser(organizationId?: string): Promise<{ allowed: boolean; current: number; max: number }> {

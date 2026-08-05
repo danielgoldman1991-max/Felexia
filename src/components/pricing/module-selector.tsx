@@ -259,7 +259,7 @@ export function PriceSummary({
           onClick={onConfirm}
           className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? "Chargement..." : onConfirmLabel || "Commencer l'essai Business"}
+          {loading ? "Chargement..." : onConfirmLabel || "Commencer l'essai Essentiel"}
         </button>
       )}
     </div>

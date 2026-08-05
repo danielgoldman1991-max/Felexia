@@ -1,4 +1,4 @@
-import { canAccessApp, type SubscriptionStatus } from "@/lib/subscriptions/subscription-access";
+import type { SubscriptionStatus } from "@/lib/subscriptions/subscription-access";
 
 export type OnboardingStep = "company" | "completed";
 
@@ -16,7 +16,6 @@ export function normalizeOnboardingStep(step: string | null | undefined): Onboar
 export function resolveOnboardingRedirect({
   pathname,
   hasOrganization,
-  subscription,
 }: {
   pathname: string;
   hasOrganization: boolean;
@@ -28,14 +27,7 @@ export function resolveOnboardingRedirect({
     return pathname.startsWith("/onboarding/entreprise") ? null : "/onboarding/entreprise";
   }
 
-  const hasAccess = canAccessApp(subscription ?? null);
-
-  if (!hasAccess) {
-    if (!pathname.startsWith("/parametres/abonnement")) {
-      return "/parametres/abonnement";
-    }
-    return null;
-  }
-
+  // Abonnement expiré/annulé : PAS de redirection globale vers /parametres/abonnement.
+  // L'accès est géré localement (module-upgrade-page, subscription-manage, bannières).
   return null;
 }

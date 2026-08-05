@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { canAccessApp } from "@/lib/subscriptions/subscription-access";
-import { startBusinessTrialAndEnableModules } from "@/lib/subscriptions/plan-access";
+import { startDefaultTrialAndEnableModules } from "@/lib/subscriptions/plan-access";
 
 export const runtime = "nodejs";
 
@@ -56,7 +56,7 @@ export async function POST() {
       trial_ends_at: existingSubscription.trial_ends_at ?? existingSubscription.trial_end ?? null,
       current_period_end: existingSubscription.current_period_end ?? null,
     })) {
-      await startBusinessTrialAndEnableModules(organizationId, user.id);
+      await startDefaultTrialAndEnableModules(organizationId, user.id);
       await supabase
         .from("organizations")
         .update({
@@ -69,12 +69,12 @@ export async function POST() {
       return NextResponse.json({
         success: true,
         alreadyActive: true,
-        redirectTo: "/bienvenue?trial=business",
-        message: "Votre essai Business spécial lancement est actif pendant 3 mois. Les modules Business sont disponibles.",
+        redirectTo: "/bienvenue?trial=essentiel",
+        message: "Votre essai Essentiel est actif. Les modules Essentiel sont disponibles.",
       });
     }
 
-    await startBusinessTrialAndEnableModules(organizationId, user.id);
+    await startDefaultTrialAndEnableModules(organizationId, user.id);
 
     const { error: organizationUpdateError } = await supabase
       .from("organizations")
@@ -99,13 +99,13 @@ export async function POST() {
       subscriptionCreatedOrUpdated: true,
       nextOnboardingStep: "completed",
       modulesEnabled: true,
-      redirectTo: "/bienvenue?trial=business",
+      redirectTo: "/bienvenue?trial=essentiel",
     });
 
     return NextResponse.json({
       success: true,
-      redirectTo: "/bienvenue?trial=business",
-      message: "Votre essai Business spécial lancement est actif pendant 3 mois. Les modules Business sont disponibles.",
+      redirectTo: "/bienvenue?trial=essentiel",
+      message: "Votre essai Essentiel est actif. Les modules Essentiel sont disponibles.",
     });
   } catch (error) {
     console.error("Start trial fatal error:", error);
@@ -113,7 +113,7 @@ export async function POST() {
       {
         error: error instanceof Error
           ? error.message
-          : "Erreur inconnue lors de l'activation de l'essai Business.",
+          : "Erreur inconnue lors de l'activation de l'essai Essentiel.",
       },
       { status: 500 },
     );

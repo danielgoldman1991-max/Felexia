@@ -12,12 +12,12 @@ type PremiumKpiCardProps = {
 };
 
 const toneStyles = {
-  gold: "from-[#D6B56D]/22 text-[#D6B56D] ring-[#D6B56D]/20",
-  cyan: "from-cyan-300/18 text-cyan-200 ring-cyan-300/20",
-  success: "from-emerald-300/16 text-emerald-200 ring-emerald-300/20",
-  warning: "from-amber-300/16 text-amber-200 ring-amber-300/20",
-  danger: "from-red-300/16 text-red-200 ring-red-300/20",
-  violet: "from-violet-300/16 text-violet-200 ring-violet-300/20",
+  gold: "bg-[var(--accent-soft)] text-[var(--accent)]",
+  cyan: "bg-[var(--info-soft)] text-[var(--info)]",
+  success: "bg-[var(--success-soft)] text-[var(--success)]",
+  warning: "bg-[var(--warning-soft)] text-[var(--warning)]",
+  danger: "bg-[var(--danger-soft)] text-[var(--danger)]",
+  violet: "bg-[var(--violet-soft)] text-[var(--violet)]",
 };
 
 export function PremiumKpiCard({
@@ -29,14 +29,14 @@ export function PremiumKpiCard({
   className,
 }: PremiumKpiCardProps) {
   return (
-    <section className={cn("premium-card luxury-border rounded-[var(--radius-lg)] p-5 transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.06]", className)}>
+    <section className={cn("rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]", className)}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="section-title">{label}</p>
           <div className="kpi-value mt-3">{value}</div>
         </div>
         {Icon ? (
-          <span className={cn("flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br to-white/[0.035] ring-1", toneStyles[tone])}>
+          <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-[var(--border)]", toneStyles[tone])}>
             <Icon className="h-5 w-5" />
           </span>
         ) : null}

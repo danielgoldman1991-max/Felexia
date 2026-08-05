@@ -45,7 +45,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
               onClick={() => setBillingCycle(cycle)}
               className={cn(
                 "rounded-lg px-4 py-2 text-sm font-semibold transition",
-                billingCycle === cycle ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-50",
+                billingCycle === cycle ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted)] hover:bg-[var(--surface-soft)]",
               )}
             >
               {cycle === "monthly" ? "Mensuel" : "Annuel"}
@@ -106,7 +106,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
 
       {!hasStripe && (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800">
-          Le paiement Stripe n&apos;est pas encore configuré. Vous pouvez démarrer l&apos;essai Business spécial lancement ou configurer Stripe.
+          Le paiement Stripe n&apos;est pas encore configuré. Vous pouvez démarrer l&apos;essai Essentiel ou configurer Stripe.
         </p>
       )}
 

@@ -1,22 +1,22 @@
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { ensureBusinessTrialAndModulesNoRevalidate } from "@/lib/subscriptions/plan-access";
-import { canAccessApp, type SubscriptionStatus } from "@/lib/subscriptions/subscription-access";
+import { ensureDefaultTrialAndModulesNoRevalidate } from "@/lib/subscriptions/plan-access";
+import { getEnabledModulesForPlan } from "@/lib/subscriptions/plans";
+import { DEFAULT_PLAN_KEY, type PlanKey } from "@/lib/subscriptions/plans-config";
 
-const businessModules = ["quotes", "invoicing", "documents", "crm", "purchases", "stock", "treasury", "accounting"];
-
-function withBusinessTrial(workspace: Awaited<ReturnType<typeof requireActiveWorkspace>>) {
+function withDefaultTrial(workspace: Awaited<ReturnType<typeof requireActiveWorkspace>>) {
+  const planKey: PlanKey = DEFAULT_PLAN_KEY;
   return {
     ...workspace,
     subscription: {
       status: "trialing",
-      planCode: "business" as const,
-      planSlug: "business",
+      planCode: planKey,
+      planSlug: planKey,
       trialStartedAt: new Date().toISOString(),
       trialEndsAt: null,
       currentPeriodEnd: null,
     },
-    enabledModules: businessModules,
+    enabledModules: getEnabledModulesForPlan(planKey),
   };
 }
 
@@ -25,18 +25,8 @@ export async function requireActiveSubscription() {
 
   if (!workspace.subscription) {
     const supabase = await createClient();
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, workspace.organization.id, workspace.userId);
-    return withBusinessTrial(workspace);
-  }
-
-  if (!canAccessApp({
-    status: (workspace.subscription.status as SubscriptionStatus) ?? null,
-    trial_ends_at: workspace.subscription.trialEndsAt,
-    current_period_end: workspace.subscription.currentPeriodEnd,
-  })) {
-    const supabase = await createClient();
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, workspace.organization.id, workspace.userId);
-    return withBusinessTrial(workspace);
+    await ensureDefaultTrialAndModulesNoRevalidate(supabase, workspace.organization.id, workspace.userId);
+    return withDefaultTrial(workspace);
   }
 
   return workspace;

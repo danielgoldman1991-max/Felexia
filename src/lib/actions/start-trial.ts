@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { startBusinessTrial } from "@/lib/saas";
+import { startDefaultTrial } from "@/lib/saas";
 
 export async function startTrialAction(_prev: { error: string | null } | null, formData: FormData) {
   void _prev;
@@ -11,7 +11,7 @@ export async function startTrialAction(_prev: { error: string | null } | null, f
     return { error: "Organization ID requis" };
   }
 
-  await startBusinessTrial(organizationId);
+  await startDefaultTrial(organizationId);
 
   redirect("/dashboard?trial_started=1");
 }

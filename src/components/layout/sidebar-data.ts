@@ -80,6 +80,20 @@ export const sections: SidebarSection[] = [
     ],
   },
   {
+    key: "articles",
+    label: "Articles",
+    href: "/articles/produits",
+    icon: Package,
+    moduleKey: "products",
+    items: [
+      { label: "Produits", href: "/articles/produits", icon: Package },
+      { label: "Services", href: "/articles/services", icon: ClipboardList },
+      { label: "Catégories", href: "/articles/categories", icon: BookOpen },
+      { label: "Unités", href: "/articles/unites", icon: Calculator },
+      { label: "Taux TVA", href: "/articles/tva", icon: FileText },
+    ],
+  },
+  {
     key: "facturation",
     label: "Facturation & Paiements",
     href: "/facturation",
@@ -102,7 +116,6 @@ export const sections: SidebarSection[] = [
     items: [
       { label: "Vue globale", href: "/stock", icon: Gauge },
       { label: "Emplacements", href: "/stock/emplacements", icon: Building2 },
-      { label: "Produits", href: "/articles/produits", icon: Package },
       { label: "Mouvements", href: "/stock/mouvements", icon: ArrowLeftRight },
       { label: "Ajustements", href: "/stock/ajustements/new", icon: Calculator },
       { label: "Alertes stock", href: "/stock", icon: ShieldAlert, badge: "3", badgeTone: "warning" },

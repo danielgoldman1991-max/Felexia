@@ -4,9 +4,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
-import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import {
-  startBusinessTrialAndEnableModules,
+  startDefaultTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
 
 export type RegisterCompanyState = {
@@ -169,12 +168,11 @@ export async function registerCompanyAction(
   }, { onConflict: "organization_id" });
 
   try {
-    await startBusinessTrialAndEnableModules(orgId, userId, svc);
-    await ensureHrReferenceData(svc, orgId);
+    await startDefaultTrialAndEnableModules(orgId, userId, svc);
   } catch (trialErr) {
     console.error("registerCompany: trial activation error", trialErr);
     return {
-      error: "Votre entreprise a été créée, mais l’activation de l’essai Business spécial lancement ou des modules a échoué. Veuillez contacter le support ou réessayer.",
+      error: "Votre entreprise a été créée, mais l’activation de l’essai Essentiel ou des modules a échoué. Veuillez contacter le support ou réessayer.",
     };
   }
 
@@ -231,5 +229,5 @@ export async function registerCompanyAction(
   await initializeOrganizationDefaults(orgId);
 
   // ── 10. Redirect to welcome guide with trial confirmation ──────────────────
-  redirect("/bienvenue?trial=business");
+  redirect("/bienvenue?trial=essentiel");
 }

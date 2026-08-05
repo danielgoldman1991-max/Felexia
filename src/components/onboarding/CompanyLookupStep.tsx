@@ -56,14 +56,14 @@ function payloadFromResult(result: CompanyLookupResult): LookupPayload {
 /* ─── Skeleton loader ─── */
 function SearchSkeleton() {
   return (
-    <section className="premium-card rounded-[24px] border border-white/5 p-5 animate-pulse">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)] animate-pulse">
       <div className="flex items-start gap-4">
-        <div className="h-11 w-11 shrink-0 rounded-2xl bg-white/10" />
+        <div className="h-11 w-11 shrink-0 rounded-2xl bg-[var(--surface-soft)]" />
         <div className="w-full space-y-2">
-          <div className="h-4 w-1/3 rounded bg-white/10" />
-          <div className="h-3 w-2/3 rounded bg-white/10" />
-          <div className="h-3 w-1/2 rounded bg-white/10" />
-          <div className="h-3 w-1/4 rounded bg-white/10" />
+          <div className="h-4 w-1/3 rounded bg-[var(--surface-soft)]" />
+          <div className="h-3 w-2/3 rounded bg-[var(--surface-soft)]" />
+          <div className="h-3 w-1/2 rounded bg-[var(--surface-soft)]" />
+          <div className="h-3 w-1/4 rounded bg-[var(--surface-soft)]" />
         </div>
       </div>
     </section>
@@ -95,21 +95,21 @@ function ResultModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 w-full max-w-lg transition-all duration-200">
-        <section className="premium-card rounded-[28px] border border-cyan-300/20 p-6 md:p-8">
+        <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-6 shadow-[var(--shadow-lg)] md:p-8">
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-[var(--muted)] transition hover:bg-white/20 hover:text-white"
+            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--surface-soft)] text-[var(--muted)] transition hover:text-[var(--foreground)]"
           >
             <X className="h-4 w-4" />
           </button>
 
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-300/10 text-cyan-200 ring-1 ring-cyan-300/20">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--info-soft)] text-[var(--info)] ring-1 ring-[var(--border)]">
               <Building2 className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-white">Entreprise trouvée</h2>
+              <h2 className="text-lg font-semibold text-[var(--popover-foreground)]">Entreprise trouvée</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 Vérifiez les informations ci-dessous avant de continuer.
               </p>
@@ -117,14 +117,14 @@ function ResultModal({
           </div>
 
           {result.raisonSociale && (
-            <p className="mt-6 text-xl font-semibold text-white">{result.raisonSociale}</p>
+            <p className="mt-6 text-xl font-semibold text-[var(--popover-foreground)]">{result.raisonSociale}</p>
           )}
 
           <div className="mt-4 grid gap-2">
             {fields.map((f) => (
-              <div key={f.label} className="flex justify-between rounded-2xl bg-white/[0.035] px-4 py-3">
+              <div key={f.label} className="flex justify-between rounded-2xl bg-[var(--surface-soft)]/60 px-4 py-3">
                 <span className="text-sm text-[var(--muted)]">{f.label}</span>
-                <span className="text-sm font-medium text-white">{f.value}</span>
+                <span className="text-sm font-medium text-[var(--popover-foreground)]">{f.value}</span>
               </div>
             ))}
           </div>
@@ -147,15 +147,15 @@ function ResultModal({
 /* ─── Not found state ─── */
 function NotFoundState({ query, onManual, onRetry }: { query: string; onManual: () => void; onRetry: () => void }) {
   return (
-    <section className="premium-card rounded-[24px] p-5">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
       <div className="flex items-start gap-4">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[var(--muted)] ring-1 ring-white/10">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--surface-soft)] text-[var(--muted)] ring-1 ring-[var(--border)]">
           <Building2 className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="text-base font-semibold text-white">Entreprise introuvable</h2>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">Entreprise introuvable</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Aucun résultat confirmé pour <span className="font-mono text-white">{query}</span>.
+            Aucun résultat confirmé pour <span className="font-mono text-[var(--foreground)]">{query}</span>.
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Vous pouvez réessayer avec un autre identifiant ou continuer manuellement.
@@ -257,13 +257,13 @@ export function CompanyLookupStep({
   return (
     <div className="space-y-6">
       {/* Search input card */}
-      <section className="premium-card luxury-border rounded-[28px] p-6 md:p-8">
+      <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-6 shadow-[var(--shadow-sm)] md:p-8">
         <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#D6B56D]/12 text-[#D6B56D] ring-1 ring-[#D6B56D]/25">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]">
             <Sparkles className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">
               Retrouvez votre entreprise
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
@@ -278,7 +278,7 @@ export function CompanyLookupStep({
               ICE ou raison sociale
             </label>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-200/70" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
               <input
                 value={query}
                 onChange={(event) => {
@@ -294,17 +294,17 @@ export function CompanyLookupStep({
                   }
                 }}
                 placeholder="ICE ou raison sociale"
-                className="h-12 w-full rounded-2xl border border-white/10 bg-white/[0.045] pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-[var(--muted-2)] focus:border-cyan-300/50 focus:ring-4 focus:ring-cyan-300/10"
+                className="h-12 w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] pl-11 pr-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-2)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_15%,transparent)]"
               />
             </div>
             <button
               type="button"
               onClick={handleManual}
-              className="mt-3 text-sm font-medium text-cyan-100/85 transition hover:text-cyan-100"
+              className="mt-3 text-sm font-medium text-[var(--primary)] transition hover:underline"
             >
               Créer manuellement
             </button>
-            {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
+            {error ? <p className="mt-3 text-sm text-[var(--danger)]">{error}</p> : null}
           </div>
 
           <Button

@@ -9,11 +9,11 @@ import {
   type PlanCode,
 } from "@/lib/subscriptions/plans";
 import {
-  enableBusinessModulesForOrganization,
-  ensureBusinessTrialAndModulesNoRevalidate,
+  ensureDefaultTrialAndModulesNoRevalidate,
   getOrganizationSubscription,
-  startBusinessTrialAndEnableModules,
+  startDefaultTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
+import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
 import { canAccessApp } from "@/lib/subscriptions/subscription-access";
 
 export type ModuleInfo = {
@@ -123,12 +123,12 @@ export async function requireValidSubscription(organizationId: string): Promise<
   let sub = await getSubscription(organizationId);
   if (!sub || !isSubscriptionValid(sub)) {
     const supabase = await createClient();
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
+    await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId);
     sub = await getSubscription(organizationId);
   }
   if (!isSubscriptionValid(sub)) {
     return {
-      id: "business-trial-pending",
+      id: "default-trial-pending",
       status: "trialing",
       plan_code: DEFAULT_PLAN_CODE,
       billing_interval: "monthly",
@@ -144,30 +144,6 @@ export async function requireValidSubscription(organizationId: string): Promise<
     };
   }
   return sub!;
-}
-
-export async function requireModuleAccess(organizationId: string, moduleKey: string): Promise<void> {
-  let sub = await getSubscription(organizationId);
-  if (!sub || !isSubscriptionValid(sub)) {
-    const supabase = await createClient();
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
-    sub = await getSubscription(organizationId);
-  }
-  const activeSubscription = sub!;
-  if (!isSubscriptionValid(activeSubscription)) {
-    return;
-  }
-  let enabledModules = await getEnabledModules(organizationId);
-  if (!enabledModules.includes(moduleKey)) {
-    const supabase = await createClient();
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId);
-    sub = await getSubscription(organizationId);
-    enabledModules = await getEnabledModules(organizationId);
-  }
-  if (!sub || !enabledModules.includes(moduleKey)) {
-    return;
-  }
-  await enableBusinessModulesForOrganization(organizationId);
 }
 
 export async function canAccessModule(organizationId: string, moduleKey: string): Promise<boolean> {
@@ -221,7 +197,7 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   let hasValidSubscription = isSubscriptionValid(sub);
 
   if (organizationId && !hasValidSubscription) {
-    await ensureBusinessTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
+    await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
     sub = await getSubscription(organizationId);
     hasValidSubscription = isSubscriptionValid(sub);
     await supabase
@@ -234,7 +210,7 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
       })
       .eq("id", organizationId);
   } else if (organizationId && hasValidSubscription && !onboardingCompleted) {
-    await enableBusinessModulesForOrganization(organizationId);
+    await upsertModulesForPlan(supabase, organizationId, sub!.plan_code);
     await supabase
       .from("organizations")
       .update({
@@ -266,10 +242,10 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   };
 }
 
-export async function startBusinessTrial(organizationId: string): Promise<void> {
+export async function startDefaultTrial(organizationId: string): Promise<void> {
   const supabase = await createClient();
   const completedAt = new Date().toISOString();
-  await startBusinessTrialAndEnableModules(organizationId);
+  await startDefaultTrialAndEnableModules(organizationId);
 
   await supabase
     .from("organizations")

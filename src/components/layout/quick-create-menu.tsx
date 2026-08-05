@@ -91,22 +91,22 @@ export function QuickCreateMenu() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#D6B56D] to-[#B8924F] text-[#06070A] shadow-[0_18px_44px_rgba(214,181,109,0.24)] transition hover:scale-105 hover:brightness-110"
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition hover:brightness-110"
         aria-label="Creation rapide"
       >
         <Plus className="h-5 w-5" />
       </button>
       {open ? (
-        <div className="absolute right-0 top-14 z-[100] w-[min(92vw,640px)] rounded-[28px] border border-white/10 bg-[#0B0E14]/95 p-4 shadow-[0_32px_100px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+        <div className="absolute right-0 top-14 z-[100] w-[min(92vw,640px)] rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)]">
           <div className="mb-2 px-2">
             <p className="section-title">Command center</p>
-            <p className="mt-1 text-base font-semibold text-white">Création rapide</p>
+            <p className="mt-1 text-base font-semibold text-[var(--popover-foreground)]">Création rapide</p>
             <p className="text-xs text-[var(--muted)]">Créez les documents importants sans changer de module.</p>
           </div>
           <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2">
             {groups.map((group) => (
-              <div key={group.title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-2">
-                <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-[0.15em] text-[#D6B56D]/75">{group.title}</p>
+              <div key={group.title} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/50 p-2">
+                <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">{group.title}</p>
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
@@ -115,9 +115,9 @@ export function QuickCreateMenu() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-medium text-[var(--muted)] transition hover:bg-white/[0.06] hover:text-white"
+                        className="flex items-center gap-3 rounded-xl px-2 py-2 text-sm font-medium text-[var(--muted)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]"
                       >
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.055] text-cyan-200">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--info-soft)] text-[var(--info)]">
                           <Icon className="h-4 w-4" />
                         </span>
                         <span>{item.label}</span>

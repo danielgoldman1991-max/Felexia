@@ -41,7 +41,7 @@ function Field({
         {label}{required ? " *" : ""}
       </label>
       <div className="relative">
-        {Icon ? <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-200/65" /> : null}
+        {Icon ? <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" /> : null}
         <input
           name={name}
           type={type}
@@ -49,10 +49,10 @@ function Field({
           onChange={(event) => setValue(onChange ? onChange(event.target.value) : event.target.value)}
           placeholder={placeholder}
           required={required}
-          className={`h-12 w-full rounded-2xl border border-white/10 bg-white/[0.045] ${Icon ? "pl-11" : "pl-4"} pr-4 text-sm text-white outline-none transition placeholder:text-[var(--muted-2)] focus:border-cyan-300/50 focus:ring-4 focus:ring-cyan-300/10`}
+          className={`h-12 w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] ${Icon ? "pl-11" : "pl-4"} pr-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-2)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_15%,transparent)]`}
         />
       </div>
-      {error ? <p className="mt-2 text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="mt-2 text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
   );
 }
@@ -140,7 +140,7 @@ export function CompanyConfirmationForm({
         <fieldset disabled={showLoadingOverlay} className="space-y-6 disabled:opacity-75">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">Confirmez les informations de votre entreprise</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-3xl">Confirmez les informations de votre entreprise</h1>
               <p className="mt-2 text-sm text-[var(--muted)]">Vérifiez les informations avant de créer votre espace Felexia.</p>
             </div>
             <Button type="button" variant="secondary" onClick={onBack}>
@@ -149,8 +149,8 @@ export function CompanyConfirmationForm({
             </Button>
           </div>
 
-          <section className="premium-card rounded-[24px] p-5">
-            <h2 className="mb-4 text-sm font-semibold text-white">Informations principales</h2>
+          <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Informations principales</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Raison sociale" name="raisonSociale" defaultValue={prefill?.raisonSociale ?? ""} error={state.fieldErrors?.raisonSociale} icon={Building2} required onChange={normalizeCompanyName} />
               <Field label="Forme juridique" name="formeJuridique" defaultValue={prefill?.formeJuridique ?? ""} placeholder="SARL, SA, personne physique..." />
@@ -162,8 +162,8 @@ export function CompanyConfirmationForm({
             </div>
           </section>
 
-          <section className="premium-card rounded-[24px] p-5">
-            <h2 className="mb-4 text-sm font-semibold text-white">Coordonnées</h2>
+          <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Coordonnées</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <Field label="Adresse complète" name="adresse" defaultValue={prefill?.adresse ?? ""} error={state.fieldErrors?.adresse} icon={MapPin} required />
@@ -175,44 +175,44 @@ export function CompanyConfirmationForm({
             </div>
           </section>
 
-          <section className="premium-card rounded-[24px] p-5">
-            <h2 className="mb-4 text-sm font-semibold text-white">Activité et identité visuelle</h2>
+          <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Activité et identité visuelle</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Activité principale" name="activite" defaultValue={prefill?.activite ?? ""} />
               <Field label="Secteur d’activité" name="secteur" defaultValue="" />
               <div className="md:col-span-2">
                 <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">Logo</label>
-                <div className="rounded-2xl border border-dashed border-white/12 bg-white/[0.035] p-6 transition hover:border-white/20">
+                <div className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface-soft)]/50 p-6 transition hover:border-[var(--primary)]">
                   <input ref={logoInputRef} id="company-logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleLogoChange} />
                   {logoPreview ? (
                     <div className="flex flex-col items-center gap-4">
-                      <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white">
+                      <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={logoPreview} alt="Aperçu logo" className="h-full w-full object-contain p-2" />
                       </div>
-                      <label htmlFor="company-logo" className="cursor-pointer text-sm font-medium text-cyan-100 transition hover:text-cyan-200">Changer le logo</label>
+                      <label htmlFor="company-logo" className="cursor-pointer text-sm font-medium text-[var(--primary)] transition hover:underline">Changer le logo</label>
                     </div>
                   ) : (
                     <label htmlFor="company-logo" className="flex cursor-pointer flex-col items-center gap-3 text-center">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D6B56D]/12 text-[#D6B56D] ring-1 ring-[#D6B56D]/20">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]">
                         <Upload className="h-5 w-5" />
                       </span>
-                      <span className="text-sm font-medium text-white">Ajouter un logo</span>
+                      <span className="text-sm font-medium text-[var(--foreground)]">Ajouter un logo</span>
                       <span className="text-xs text-[var(--muted)]">PNG, JPG ou WEBP - Max 5 Mo</span>
                     </label>
                   )}
-                  {(logoError || state.fieldErrors?.logo) ? <p className="mt-3 text-center text-xs text-red-300">{logoError ?? state.fieldErrors?.logo}</p> : null}
+                  {(logoError || state.fieldErrors?.logo) ? <p className="mt-3 text-center text-xs text-[var(--danger)]">{logoError ?? state.fieldErrors?.logo}</p> : null}
                 </div>
               </div>
             </div>
           </section>
 
-          <p className="rounded-2xl border border-[#D6B56D]/20 bg-[#D6B56D]/8 px-4 py-3 text-xs leading-5 text-[#E7D7AA]">
+          <p className="rounded-2xl border border-[color-mix(in_srgb,var(--accent)_22%,transparent)] bg-[var(--accent-soft)] px-4 py-3 text-xs leading-5 text-[var(--accent)]">
             Les données proposées sont indicatives. Veuillez vérifier les informations auprès des sources officielles avant validation.
           </p>
 
           {state.error ? (
-            <p className="rounded-2xl border border-red-300/20 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+            <p className="rounded-2xl border border-[color-mix(in_srgb,var(--danger)_22%,transparent)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
               {state.error}
             </p>
           ) : null}

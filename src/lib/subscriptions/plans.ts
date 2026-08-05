@@ -1,6 +1,7 @@
-import { BUSINESS_MODULE_KEYS } from "@/lib/business-modules";
+import { ESSENTIEL_MODULE_KEYS, BUSINESS_MODULE_KEYS, PREMIUM_MODULE_KEYS, getModulesForPlan } from "@/lib/subscriptions/plan-modules";
+import { DEFAULT_PLAN_KEY, PLAN_KEYS, type PlanKey } from "@/lib/subscriptions/plans-config";
 
-export type PlanCode = "essentiel" | "business" | "premium";
+export type PlanCode = PlanKey;
 
 export type PlanFeatureKey =
   | "dashboard"
@@ -78,11 +79,21 @@ export type SubscriptionPlanDefinition = {
 const ESSENTIEL_FEATURES: PlanFeatureKey[] = [
   "dashboard",
   "clients",
+  "leads",
+  "pipeline",
   "products",
   "quotes",
   "orders",
+  "delivery_notes",
+  "credit_notes",
   "invoices",
   "payments",
+  "customer_reminders",
+  "suppliers",
+  "purchases",
+  "receipt_notes",
+  "supplier_invoices",
+  "stock",
   "documents",
   "import_export",
   "company_settings",
@@ -91,17 +102,7 @@ const ESSENTIEL_FEATURES: PlanFeatureKey[] = [
 
 const BUSINESS_FEATURES: PlanFeatureKey[] = [
   ...ESSENTIEL_FEATURES,
-  "leads",
-  "pipeline",
   "advanced_orders",
-  "delivery_notes",
-  "credit_notes",
-  "customer_reminders",
-  "suppliers",
-  "purchases",
-  "receipt_notes",
-  "supplier_invoices",
-  "stock",
   "documents_advanced",
   "export_csv_excel",
   "accounting_basic",
@@ -138,7 +139,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
   {
     code: "essentiel",
     name: "Essentiel",
-    description: "Pour demarrer avec une gestion commerciale simple et propre.",
+    description: "Pour demarrer avec une gestion commerciale complete : ventes, achats, stock et tresorerie.",
     monthlyPrice: 290,
     yearlyPrice: 2900,
     currency: "MAD",
@@ -151,24 +152,25 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
     },
     features: ESSENTIEL_FEATURES,
     featureHighlights: [
-      "Tableau de bord simple",
-      "Clients",
-      "Produits / Services",
-      "Devis, commandes et factures",
-      "Paiements",
-      "Documents",
-      "Import / Export simple",
-      "Parametres entreprise",
-      "Gestion de base des utilisateurs",
+      "Tableau de bord",
+      "CRM / Tiers (clients, prospects, fournisseurs)",
+      "Articles (produits et services)",
+      "Ventes : devis, commandes, bons de livraison, retours",
+      "Facturation : factures, avoirs, paiements et relances",
+      "Achats : commandes, receptions et factures fournisseurs",
+      "Stock : entrees, ajustements et emplacements",
+      "Tresorerie : comptes, caisses, mouvements et relevés",
+      "Documents, import / export",
+      "Parametres et utilisateurs",
     ],
     limitHighlights: [
       "1 organisation",
       "3 utilisateurs maximum",
       "500 documents commerciaux / mois",
       "Stockage limite",
-      "Sans comptabilite avancee",
+      "Sans comptabilite ni TVA avancee",
     ],
-    moduleKeys: ["quotes", "invoicing", "documents", "crm", "stock"],
+    moduleKeys: [...ESSENTIEL_MODULE_KEYS],
     sortOrder: 1,
   },
   {
@@ -188,15 +190,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
     features: BUSINESS_FEATURES,
     featureHighlights: [
       "Tout Essentiel",
-      "Prospects / Leads",
-      "Pipeline commercial",
-      "Bons de livraison et avoirs",
-      "Fournisseurs et achats simples",
-      "Stock simple",
       "Documents avances",
       "Export CSV / Excel",
       "Preparation comptable et TVA",
       "Roles, permissions et historique",
+      "Reporting et analyses",
+      "Support standard",
     ],
     limitHighlights: [
       "10 utilisateurs maximum",
@@ -240,26 +239,26 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
       "Stockage eleve",
       "Support prioritaire",
     ],
-    moduleKeys: [...BUSINESS_MODULE_KEYS, "reports"],
+    moduleKeys: [...PREMIUM_MODULE_KEYS],
     sortOrder: 3,
   },
 ];
 
-export const DEFAULT_PLAN_CODE: PlanCode = "business";
+export const DEFAULT_PLAN_CODE: PlanCode = DEFAULT_PLAN_KEY;
 
 export function normalizePlanCode(planCode: string | null | undefined): PlanCode {
-  if (planCode === "essentiel" || planCode === "business" || planCode === "premium") {
+  if (planCode === PLAN_KEYS.ESSENTIEL || planCode === PLAN_KEYS.BUSINESS || planCode === PLAN_KEYS.PREMIUM) {
     return planCode;
   }
-  if (planCode === "pro") return "premium";
+  if (planCode === "pro") return PLAN_KEYS.PREMIUM;
   return DEFAULT_PLAN_CODE;
 }
 
 export function getPlanDefinition(planCode: string | null | undefined): SubscriptionPlanDefinition {
   const normalized = normalizePlanCode(planCode);
-  return SUBSCRIPTION_PLANS.find((plan) => plan.code === normalized) ?? SUBSCRIPTION_PLANS[1];
+  return SUBSCRIPTION_PLANS.find((plan) => plan.code === normalized) ?? SUBSCRIPTION_PLANS.find((plan) => plan.code === DEFAULT_PLAN_CODE)!;
 }
 
 export function getEnabledModulesForPlan(planCode: string | null | undefined): string[] {
-  return getPlanDefinition(planCode).moduleKeys;
+  return getModulesForPlan(normalizePlanCode(planCode));
 }

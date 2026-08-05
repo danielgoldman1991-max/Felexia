@@ -30,15 +30,15 @@ export function PricingClient({ modules }: { modules: ModuleInfo[] }) {
             selectedKeys={selectedKeys}
             billingInterval={billingInterval}
             onBillingChange={setBillingInterval}
-            onConfirmLabel="Commencer l'essai Business"
+            onConfirmLabel="Commencer l'essai Essentiel"
           />
-          <p className="mt-3 text-center text-xs text-white/30">
-            Essai Business spécial lancement de 3 mois. Sans engagement. Sans carte bancaire.
+          <p className="mt-3 text-center text-xs text-[var(--muted)]">
+            Essai Essentiel inclus. Sans engagement. Sans carte bancaire.
           </p>
           <div className="mt-4 text-center">
             <Link
               href="/onboarding"
-              className="text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2"
+              className="text-sm font-medium text-[var(--primary)] hover:underline underline-offset-2"
             >
               Créer un compte →
             </Link>

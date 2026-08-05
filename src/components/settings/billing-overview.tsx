@@ -36,8 +36,8 @@ export function BillingOverview({
     past_due: { label: "Paiement en retard", color: "text-red-600 bg-red-50" },
     canceled: { label: "Resilie", color: "text-slate-600 bg-slate-100" },
     unpaid: { label: "Impaye", color: "text-red-600 bg-red-50" },
-    trialing: { label: "Essai spécial lancement", color: "text-blue-600 bg-blue-50" },
-    trial: { label: "Essai spécial lancement", color: "text-blue-600 bg-blue-50" },
+    trialing: { label: "Essai actif", color: "text-blue-600 bg-blue-50" },
+    trial: { label: "Essai actif", color: "text-blue-600 bg-blue-50" },
     incomplete: { label: "En attente", color: "text-amber-600 bg-amber-50" },
   };
 

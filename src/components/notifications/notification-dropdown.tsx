@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 import type { TrialNotification } from "@/lib/notifications/trial";
 
 const severityConfig: Record<string, { icon: typeof Info; classes: string; dot: string }> = {
-  info:    { icon: Info,          classes: "bg-cyan-300/10 text-cyan-200 border-cyan-300/20", dot: "bg-cyan-300" },
-  warning: { icon: AlertTriangle, classes: "bg-amber-300/10 text-amber-200 border-amber-300/20", dot: "bg-amber-300" },
-  urgent:  { icon: AlertCircle,   classes: "bg-orange-300/10 text-orange-200 border-orange-300/20", dot: "bg-orange-300" },
-  error:   { icon: XCircle,       classes: "bg-red-300/10 text-red-200 border-red-300/20", dot: "bg-red-300" },
-  success: { icon: CheckCheck,    classes: "bg-emerald-300/10 text-emerald-200 border-emerald-300/20", dot: "bg-emerald-300" },
+  info:    { icon: Info,          classes: "bg-[var(--info-soft)] text-[var(--info)]", dot: "bg-[var(--info)]" },
+  warning: { icon: AlertTriangle, classes: "bg-[var(--warning-soft)] text-[var(--warning)]", dot: "bg-[var(--warning)]" },
+  urgent:  { icon: AlertCircle,   classes: "bg-[var(--warning-soft)] text-[var(--warning)]", dot: "bg-[var(--warning)]" },
+  error:   { icon: XCircle,       classes: "bg-[var(--danger-soft)] text-[var(--danger)]", dot: "bg-[var(--danger)]" },
+  success: { icon: CheckCheck,    classes: "bg-[var(--success-soft)] text-[var(--success)]", dot: "bg-[var(--success)]" },
 };
 
 export function NotificationDropdown() {
@@ -75,15 +75,15 @@ export function NotificationDropdown() {
       <button
         type="button"
         onClick={() => handleOpenChange(!open)}
-        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.045] text-[var(--muted)] shadow-sm transition hover:bg-white/[0.08] hover:text-white"
+        className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
             className={cn(
-              "absolute right-2 top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ring-2 ring-[#06070A]",
-              hasUrgent ? "bg-rose-500" : "bg-slate-500",
+              "absolute right-2 top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white ring-2 ring-[var(--card)]",
+              hasUrgent ? "bg-[var(--danger)]" : "bg-[var(--muted)]",
             )}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -92,14 +92,14 @@ export function NotificationDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[420px] overflow-hidden rounded-[24px] border border-white/10 bg-[#0B0E14]/95 shadow-[0_32px_100px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-            <h3 className="text-sm font-semibold text-white">Notifications</h3>
+        <div className="absolute right-0 top-full mt-2 w-[420px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]">
+          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+            <h3 className="text-sm font-semibold text-[var(--popover-foreground)]">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={markAllAsRead}
-                className="text-xs font-medium text-cyan-200 transition hover:text-white"
+                className="text-xs font-medium text-[var(--primary)] transition hover:text-[var(--primary)] hover:underline"
               >
                 Tout marquer comme lu
               </button>
@@ -117,7 +117,7 @@ export function NotificationDropdown() {
                 <p className="mt-3 text-sm text-[var(--muted)]">Aucune notification pour le moment.</p>
               </div>
             ) : (
-              <div className="divide-y divide-white/10">
+              <div className="divide-y divide-[var(--border-subtle)]">
                 {notifications.map((n) => {
                   const sev = severityConfig[n.severity] || severityConfig.info;
                   const SevIcon = sev.icon;
@@ -125,8 +125,8 @@ export function NotificationDropdown() {
                     <div
                       key={n.id}
                       className={cn(
-                        "group relative px-5 py-4 transition hover:bg-white/[0.045]",
-                        !n.is_read && "bg-cyan-300/5",
+                        "group relative px-5 py-4 transition hover:bg-[var(--surface-soft)]",
+                        !n.is_read && "bg-[var(--info-soft)]/60",
                       )}
                     >
                       <div className="flex items-start gap-3">
@@ -135,7 +135,7 @@ export function NotificationDropdown() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <p className={cn("text-sm font-semibold", !n.is_read ? "text-white" : "text-[var(--muted)]")}>
+                            <p className={cn("text-sm font-semibold", !n.is_read ? "text-[var(--foreground)]" : "text-[var(--muted)]")}>
                               {n.title}
                             </p>
                             <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", sev.dot)} />
@@ -148,7 +148,7 @@ export function NotificationDropdown() {
                                 onClick={() => {
                                   if (!n.is_read) markAsRead(n.id);
                                 }}
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-200 transition hover:text-white"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--primary)] transition hover:underline"
                               >
                                 {n.action_label || "Voir"}
                                 <ExternalLink className="h-3 w-3" />
@@ -166,7 +166,7 @@ export function NotificationDropdown() {
                           <button
                             type="button"
                             onClick={() => markAsRead(n.id)}
-                            className="shrink-0 rounded-full p-1 text-[var(--muted)] opacity-0 transition hover:text-white group-hover:opacity-100"
+                            className="shrink-0 rounded-full p-1 text-[var(--muted)] opacity-0 transition hover:text-[var(--foreground)] group-hover:opacity-100"
                             aria-label="Marquer comme lu"
                           >
                             <CheckCheck className="h-4 w-4" />

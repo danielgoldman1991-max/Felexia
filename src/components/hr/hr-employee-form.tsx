@@ -94,7 +94,7 @@ function Field({
         step={step}
         required={required}
         defaultValue={defaultValue ?? ""}
-        className="h-11 w-full rounded-[var(--radius-md)] border border-white/10 bg-white/[0.045] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent-cyan)]"
+        className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_15%,transparent)]"
       />
     </label>
   );
@@ -117,7 +117,7 @@ function SelectField({
       <select
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="h-11 w-full rounded-[var(--radius-md)] border border-white/10 bg-[#0D1117] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent-cyan)]"
+        className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_15%,transparent)]"
       >
         <option value="">Non renseigné</option>
         {options.map((option) => (

@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEnabledModulesForPlan, getPlanDefinition, normalizePlanCode } from "@/lib/subscriptions/plans";
+import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
+import type { PlanKey } from "@/lib/subscriptions/plans-config";
 
 export type ActivatePlanState = {
   error: string | null;
@@ -53,6 +55,8 @@ export async function activatePlanAction(
   if (error) {
     return { error: error.message };
   }
+
+  await upsertModulesForPlan(supabase, organizationId, planCode as PlanKey);
 
   redirect("/dashboard");
 }

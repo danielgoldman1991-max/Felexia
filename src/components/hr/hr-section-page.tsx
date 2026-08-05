@@ -29,7 +29,7 @@ export function HrSectionPage({
         title={title}
         description={description}
         actions={newHref ? (
-          <Link href={newHref} className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-gradient-to-r from-[#D6B56D] to-[#B8924F] px-4 text-sm font-medium text-[#08090d]">
+          <Link href={newHref} className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <Plus className="mr-2 h-4 w-4" />
             Nouveau
           </Link>
@@ -38,7 +38,7 @@ export function HrSectionPage({
       {notice ? <HrPreparatoryNotice /> : null}
       <div className="premium-card p-5">
         {rows.length === 0 ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-8 text-center">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] p-8 text-center">
             <p className="text-lg font-medium">Aucune donnée RH pour le moment.</p>
             <p className="mt-2 text-sm text-[var(--muted)]">Le module est prêt à recevoir vos informations.</p>
           </div>

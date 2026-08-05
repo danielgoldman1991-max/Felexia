@@ -1,8 +1,8 @@
-// Enable RH module for existing Business/Premium organizations
+// Enable Business + RH modules for existing Business/Premium organizations
 // Usage: npx tsx scripts/enable-rh-module-for-business-orgs.ts
 
 import { createClient } from "@supabase/supabase-js";
-import { BUSINESS_MODULE_KEYS } from "../src/lib/business-modules";
+import { PREMIUM_MODULE_KEYS } from "../src/lib/subscriptions/plan-modules";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -55,7 +55,7 @@ async function main() {
 
     const existingKeys = new Set((existingModules ?? []).map((m) => m.module_key as string));
 
-    const missingKeys = BUSINESS_MODULE_KEYS.filter((k) => !existingKeys.has(k));
+    const missingKeys = PREMIUM_MODULE_KEYS.filter((k) => !existingKeys.has(k));
 
     if (missingKeys.length === 0) {
       skippedCount++;

@@ -54,9 +54,9 @@ function StepPill({ step }: { step: DocumentFlowStep }) {
       className={[
         "inline-flex min-w-[132px] items-center gap-2 rounded-xl border px-3 py-2 text-left transition",
         step.isCurrent
-          ? "border-[#D6B56D]/30 bg-[#D6B56D]/12 text-[#D6B56D] shadow-sm"
-          : "border-white/10 bg-white/[0.04] text-[var(--foreground)]/80",
-        step.href && !step.isCurrent ? "hover:border-white/18 hover:bg-white/[0.07]" : "",
+          ? "border-[color-mix(in_srgb,var(--accent)_35%,transparent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-sm)]"
+          : "border-[var(--border)] bg-[var(--card)] text-[var(--foreground)]/80",
+        step.href && !step.isCurrent ? "hover:border-[var(--border-strong)] hover:bg-[var(--surface-soft)]" : "",
       ].join(" ")}
     >
       {renderIcon(step.type)}
@@ -80,16 +80,16 @@ export function DocumentFlowMap({ title = "Flux documentaire", steps }: Document
   if (visibleSteps.length === 0) return null;
 
   return (
-    <section className="premium-card rounded-[var(--radius-lg)] p-4">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-4 shadow-[var(--shadow-sm)]">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
+        <h2 className="text-sm font-semibold text-[var(--foreground)]">{title}</h2>
         <span className="text-xs text-[var(--muted)]">Traçabilité</span>
       </div>
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {visibleSteps.map((step, index) => (
           <div key={`${step.type ?? "document"}-${step.href ?? step.number}-${index}`} className="flex shrink-0 items-center gap-2">
             <StepPill step={step} />
-            {index < visibleSteps.length - 1 ? <ArrowRight className="h-4 w-4 shrink-0 text-[#D6B56D]/50" /> : null}
+            {index < visibleSteps.length - 1 ? <ArrowRight className="h-4 w-4 shrink-0 text-[var(--accent)]/60" /> : null}
           </div>
         ))}
       </div>

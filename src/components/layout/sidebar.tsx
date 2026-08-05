@@ -25,9 +25,9 @@ function pathMatches(pathname: string, href: string) {
 
 function Badge({ value, tone = "info" }: { value: string; tone?: "danger" | "warning" | "info" }) {
   const styles = {
-    danger: "bg-red-400/15 text-red-200 ring-1 ring-red-300/20",
-    warning: "bg-amber-300/15 text-amber-200 ring-1 ring-amber-300/20",
-    info: "bg-cyan-300/15 text-cyan-200 ring-1 ring-cyan-300/20",
+    danger: "bg-[var(--danger-soft)] text-[var(--danger)]",
+    warning: "bg-[var(--warning-soft)] text-[var(--warning)]",
+    info: "bg-[var(--info-soft)] text-[var(--info)]",
   };
   return <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", styles[tone])}>{value}</span>;
 }
@@ -106,38 +106,25 @@ export function Sidebar({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[288px] flex-col border-r border-white/10",
-          "bg-[#080A0F]/92 text-white shadow-2xl backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[288px] flex-col border-r border-[var(--sidebar-border)]",
+          "bg-[var(--sidebar)] text-[var(--sidebar-foreground)] shadow-[var(--shadow-lg)] transition-transform duration-300 lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <svg className="h-full w-full opacity-[0.04]">
-            <defs>
-              <pattern id="sidebar-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-                <path d="M 32 0 L 0 0 0 32" fill="none" stroke="white" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#sidebar-grid)" />
-          </svg>
-          <div className="absolute -left-24 -top-44 h-[420px] w-[420px] rounded-full bg-cyan-400/10 blur-3xl" />
-          <div className="absolute -bottom-20 -right-24 h-[320px] w-[320px] rounded-full bg-[#D6B56D]/10 blur-3xl" />
-        </div>
-
         <div className="relative z-10 flex flex-col h-full">
           <div className="flex items-center justify-between px-5 pt-6 pb-5">
             <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={onCloseMobile}>
-              <div className="luxury-border flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] shadow-[0_18px_50px_rgba(214,181,109,0.16)] ring-1 ring-white/10">
-                <Logo size={36} />
+              <div className="luxury-border flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--card)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]">
+                <Logo size={32} />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl font-semibold tracking-tight text-white">Felexia</h1>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#D6B56D]/70">Obsidian ERP</p>
+                <h1 className="text-lg font-semibold tracking-tight text-[var(--sidebar-foreground)]">Felexia</h1>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--accent)]">Mini-ERP</p>
               </div>
             </Link>
             <button
               type="button"
-              className="rounded-xl p-2 text-white/50 hover:bg-white/10 hover:text-white lg:hidden"
+              className="rounded-xl p-2 text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)] lg:hidden"
               onClick={onCloseMobile}
               aria-label="Fermer le menu"
             >
@@ -150,20 +137,20 @@ export function Sidebar({
               href="/parametres/entreprise"
               onClick={onCloseMobile}
               title="Paramètres de l’entreprise"
-              className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-3 transition hover:bg-white/[0.07]"
+              className="group flex items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] px-3 py-3 transition hover:border-[var(--border-strong)]"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.055] text-[#D6B56D] ring-1 ring-white/10">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] ring-1 ring-[var(--border)]">
                 <Building2 className="h-4 w-4" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">Organisation</span>
-                <span className="block truncate text-sm font-semibold text-white group-hover:text-[#D6B56D]">{organizationName}</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Organisation</span>
+                <span className="block truncate text-sm font-semibold text-[var(--sidebar-foreground)] group-hover:text-[var(--primary)]">{organizationName}</span>
               </span>
-              <Settings className="h-4 w-4 shrink-0 text-white/28 transition group-hover:text-white/70" />
+              <Settings className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition group-hover:text-[var(--sidebar-foreground)]" />
             </Link>
           </div>
 
-          <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-white/10 px-3 py-4 scrollbar-thin scrollbar-thumb-white/10">
+          <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">
             {visibleSections.map((section) => {
               const Icon = section.icon;
               const active =
@@ -181,24 +168,24 @@ export function Sidebar({
                       className={cn(
                         "group relative flex min-h-11 flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all",
                         active
-                          ? "bg-white/[0.09] text-white shadow-lg ring-1 ring-white/10 backdrop-blur-xl"
-                          : "text-white/58 hover:bg-white/[0.055] hover:text-white/90",
+                          ? "bg-[var(--sidebar-accent)] text-[var(--sidebar-accent-foreground)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]"
+                          : "text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]",
                       )}
                     >
                       {active ? (
-                        <span className="absolute left-0 top-2.5 h-6 w-1 rounded-r-full bg-gradient-to-b from-[#D6B56D] to-cyan-300 shadow-[0_0_12px_rgba(214,181,109,0.42)]" />
+                        <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-[var(--primary)]" />
                       ) : null}
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-[var(--primary)]" : "")} />
                       <span className="min-w-0 flex-1 truncate">{section.label}</span>
                       {section.key === "facturation" ? (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500/20 px-1.5 text-[10px] font-bold text-rose-300">12</span>
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--danger-soft)] px-1.5 text-[10px] font-bold text-[var(--danger)]">12</span>
                       ) : null}
                     </Link>
                     {hasItems ? (
                       <button
                         type="button"
                         onClick={() => toggle(section.key)}
-                        className="flex h-10 w-9 items-center justify-center rounded-xl text-white/40 hover:bg-white/5 hover:text-white/80"
+                        className="flex h-10 w-9 items-center justify-center rounded-xl text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]"
                         aria-label={`Ouvrir ${section.label}`}
                       >
                         <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", expanded && "rotate-180")} />
@@ -206,7 +193,7 @@ export function Sidebar({
                     ) : null}
                   </div>
                   {expanded && section.items ? (
-                    <div className="ml-2 mt-0.5 space-y-0.5 border-l border-white/8 pl-3">
+                    <div className="ml-2 mt-0.5 space-y-0.5 border-l border-[var(--sidebar-border)] pl-3">
                       {section.items.map((item) => {
                         const ItemIcon = item.icon;
                         const itemActive = pathMatches(pathname, item.href);
@@ -218,8 +205,8 @@ export function Sidebar({
                             className={cn(
                               "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-all",
                               itemActive
-                                ? "bg-white/[0.07] text-cyan-200"
-                                : "text-white/45 hover:bg-white/[0.045] hover:text-white/75",
+                                ? "bg-[var(--surface-soft)] text-[var(--primary)]"
+                                : "text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]",
                             )}
                           >
                             {ItemIcon ? <ItemIcon className="h-3.5 w-3.5 shrink-0" /> : null}
@@ -235,20 +222,20 @@ export function Sidebar({
             })}
           </nav>
 
-          <div ref={accountRef} className="relative z-10 border-t border-white/10 px-4 py-4">
+          <div ref={accountRef} className="relative z-10 border-t border-[var(--sidebar-border)] px-4 py-4">
             {accountOpen ? (
               <div
                 role="menu"
-                className="absolute bottom-[84px] left-4 right-4 overflow-hidden rounded-2xl border border-white/10 bg-[#0B0E14]/98 p-2 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
+                className="absolute bottom-[84px] left-4 right-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)]"
               >
-                <div className="border-b border-white/10 px-3 py-3">
+                <div className="border-b border-[var(--border-subtle)] px-3 py-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D6B56D] to-cyan-300 text-sm font-semibold text-[#06070A]">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)]">
                       {initials(displayName) || "SL"}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-white">{displayName}</span>
-                      <span className="block truncate text-xs text-white/45">{userEmail}</span>
+                      <span className="block truncate text-sm font-semibold text-[var(--popover-foreground)]">{displayName}</span>
+                      <span className="block truncate text-xs text-[var(--muted)]">{userEmail}</span>
                     </span>
                   </div>
                 </div>
@@ -259,9 +246,9 @@ export function Sidebar({
                     onCloseMobile();
                   }}
                   role="menuitem"
-                  className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+                  className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]"
                 >
-                  <User className="h-4 w-4 text-cyan-200" />
+                  <User className="h-4 w-4 text-[var(--primary)]" />
                   Mon profil
                 </Link>
                 <Link
@@ -271,16 +258,16 @@ export function Sidebar({
                     onCloseMobile();
                   }}
                   role="menuitem"
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.06] hover:text-white"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]"
                 >
-                  <KeyRound className="h-4 w-4 text-[#D6B56D]" />
+                  <KeyRound className="h-4 w-4 text-[var(--accent)]" />
                   Modifier mon mot de passe
                 </Link>
                 <form action={logoutAction}>
                   <button
                     type="submit"
                     role="menuitem"
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-200/80 transition hover:bg-red-400/10 hover:text-red-100"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                   >
                     <LogOut className="h-4 w-4" />
                     Se déconnecter
@@ -295,16 +282,16 @@ export function Sidebar({
                 aria-haspopup="menu"
                 aria-expanded={accountOpen}
                 onClick={() => setAccountOpen((value) => !value)}
-                className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-2 text-left transition hover:bg-white/[0.07]"
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] p-2 text-left transition hover:border-[var(--border-strong)]"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#D6B56D] to-cyan-300 text-sm font-semibold text-[#06070A] shadow-lg">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-[var(--shadow-sm)]">
                   {initials(displayName) || "SL"}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-white">{displayName}</span>
-                  <span className="block truncate text-xs text-white/45">{role}</span>
+                  <span className="block truncate text-sm font-semibold text-[var(--sidebar-foreground)]">{displayName}</span>
+                  <span className="block truncate text-xs text-[var(--sidebar-muted)]">{role}</span>
                 </span>
-                <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/35 transition-transform", accountOpen && "rotate-180")} />
+                <ChevronDown className={cn("h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition-transform", accountOpen && "rotate-180")} />
               </button>
             </div>
           </div>
