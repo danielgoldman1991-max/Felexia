@@ -7,7 +7,17 @@ import type { CompanyOnboardingPrefill } from "@/lib/company-lookup/types";
 
 type Step = "lookup" | "confirmation";
 
-export function CompanyOnboardingFlow({ initialEmail }: { initialEmail: string }) {
+export function CompanyOnboardingFlow({
+  initialEmail,
+  initialFirstName,
+  initialLastName,
+  initialAvatarUrl,
+}: {
+  initialEmail: string;
+  initialFirstName?: string;
+  initialLastName?: string;
+  initialAvatarUrl?: string | null;
+}) {
   const [step, setStep] = useState<Step>("lookup");
   const [prefill, setPrefill] = useState<CompanyOnboardingPrefill | null>(null);
 
@@ -25,6 +35,9 @@ export function CompanyOnboardingFlow({ initialEmail }: { initialEmail: string }
   ) : (
     <CompanyConfirmationForm
       initialEmail={initialEmail}
+      initialFirstName={initialFirstName}
+      initialLastName={initialLastName}
+      initialAvatarUrl={initialAvatarUrl}
       prefill={prefill}
       onBack={() => setStep("lookup")}
     />

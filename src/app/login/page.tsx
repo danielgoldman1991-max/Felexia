@@ -2,21 +2,41 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 // RULE: This page must NEVER auto-redirect on load.
 // Redirects happen ONLY after user actions (loginAction or registerAdminForm).
 // Even if a user is already logged in, /login must remain accessible.
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  google_auth_failed:
+    "La connexion avec Google n'a pas pu aboutir. Réessayez ou utilisez votre email.",
+  oauth_callback_failed:
+    "La connexion avec Google n'a pas pu aboutir. Réessayez ou utilisez votre email.",
+  missing_oauth_code:
+    "La connexion avec Google a été interrompue. Réessayez ou utilisez votre email.",
+  access_denied:
+    "Accès refusé par Google. Vous avez peut-être annulé la connexion.",
+  account_conflict:
+    "Un compte existe déjà avec cet email. Connectez-vous avec votre email et mot de passe, ou contactez le support.",
+};
+
+function friendlyAuthError(errorCode: string | undefined): string | null {
+  if (!errorCode) return null;
+  return AUTH_ERROR_MESSAGES[errorCode] ?? AUTH_ERROR_MESSAGES.google_auth_failed!;
+}
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; next?: string }>;
+  searchParams: Promise<{ mode?: string; next?: string; error?: string }>;
 }) {
-  const { mode, next } = await searchParams;
+  const { mode, next, error: errorCode } = await searchParams;
   const isRegisterMode = mode === "register";
   const isLoginMode = !isRegisterMode;
   const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : "";
   const nextQuery = safeNext ? `&next=${encodeURIComponent(safeNext)}` : "";
+  const authError = friendlyAuthError(errorCode);
 
   return (
     <main className="flex min-h-screen bg-white">
@@ -72,6 +92,17 @@ export default async function LoginPage({
           </div>
 
           <div className="mt-8">
+            {authError ? (
+              <p
+                role="alert"
+                className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"
+              >
+                {authError}
+              </p>
+            ) : null}
+
+            <GoogleAuthButton mode={isRegisterMode ? "register" : "login"} next={safeNext} />
+
             {isRegisterMode ? <RegisterAdminForm /> : <LoginForm nextPath={safeNext} />}
           </div>
 

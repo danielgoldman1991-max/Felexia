@@ -25,6 +25,12 @@ export default async function EntreprisePage() {
     redirect(status.nextPath);
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("first_name,last_name,avatar_url")
+    .eq("id", user.id)
+    .maybeSingle();
+
   return (
     <>
       <Toaster
@@ -53,7 +59,12 @@ export default async function EntreprisePage() {
             </span>
           </div>
 
-          <CompanyOnboardingFlow initialEmail={user.email ?? ""} />
+          <CompanyOnboardingFlow
+            initialEmail={user.email ?? ""}
+            initialFirstName={profile?.first_name ?? undefined}
+            initialLastName={profile?.last_name ?? undefined}
+            initialAvatarUrl={profile?.avatar_url ?? null}
+          />
         </div>
       </main>
     </>

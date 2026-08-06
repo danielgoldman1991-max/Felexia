@@ -89,14 +89,47 @@ export async function createEntrepriseAction(
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-  const adminName = user.user_metadata?.full_name as string | undefined;
+  const adminFirstName = String(formData.get("adminFirstName") ?? "").trim();
+  const adminLastName = String(formData.get("adminLastName") ?? "").trim();
+  const adminName =
+    [adminFirstName, adminLastName].filter(Boolean).join(" ") ||
+    (user.user_metadata?.full_name as string | undefined) ||
+    null;
+
+  if (adminFirstName || adminLastName) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        first_name: adminFirstName || null,
+        last_name: adminLastName || null,
+        full_name: adminName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (profileError) {
+      console.error("createEntreprise: profile update error", profileError.message);
+    }
+
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          full_name: adminName,
+          first_name: adminFirstName,
+          last_name: adminLastName,
+        },
+      });
+    } catch (metaErr) {
+      console.error("createEntreprise: updateUser metadata error", metaErr);
+    }
+  }
 
   const { data: orgId, error: rpcError } = await supabase.rpc(
     "create_organization_with_owner",
     {
       p_name: raisonSociale,
       p_slug: slug,
-      p_admin_name: adminName ?? null,
+      p_admin_name: adminName,
     },
   );
 

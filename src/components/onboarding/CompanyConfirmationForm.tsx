@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Building2, FileText, Globe2, Mail, MapPin, Phone, Upload } from "lucide-react";
+import { ArrowLeft, Building2, FileText, Globe2, Mail, MapPin, Phone, Upload, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { createEntrepriseAction, type CreateEntrepriseState } from "@/lib/actions/create-entreprise";
@@ -59,10 +59,16 @@ function Field({
 
 export function CompanyConfirmationForm({
   initialEmail,
+  initialFirstName,
+  initialLastName,
+  initialAvatarUrl,
   prefill,
   onBack,
 }: {
   initialEmail: string;
+  initialFirstName?: string;
+  initialLastName?: string;
+  initialAvatarUrl?: string | null;
   prefill?: CompanyOnboardingPrefill | null;
   onBack: () => void;
 }) {
@@ -172,6 +178,27 @@ export function CompanyConfirmationForm({
               <Field label="Téléphone" name="telephone" defaultValue="+212 " error={state.fieldErrors?.telephone} icon={Phone} required onChange={normalizeMoroccanPhone} />
               <Field label="Email administrateur" name="emailEnt" type="email" defaultValue={initialEmail} error={state.fieldErrors?.emailEnt} icon={Mail} required />
               <Field label="Site web" name="website" defaultValue="" icon={Globe2} placeholder="https://..." />
+            </div>
+          </section>
+
+          <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Administrateur</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {initialAvatarUrl ? (
+                <div className="flex items-center gap-3 md:col-span-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={initialAvatarUrl}
+                    alt=""
+                    className="h-12 w-12 shrink-0 rounded-full border border-[var(--border)] object-cover"
+                  />
+                  <p className="text-xs text-[var(--muted)]">
+                    Votre photo de profil Google sera utilisée pour votre compte.
+                  </p>
+                </div>
+              ) : null}
+              <Field label="Prénom" name="adminFirstName" defaultValue={initialFirstName ?? ""} icon={User} required />
+              <Field label="Nom" name="adminLastName" defaultValue={initialLastName ?? ""} icon={User} required />
             </div>
           </section>
 
