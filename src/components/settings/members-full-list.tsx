@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getRoleLabel, ADMIN_ROLES } from "@/lib/auth/roles";
+import { getAppUrl } from "@/lib/app-url";
 
 type Member = {
   id: string;
@@ -85,7 +86,8 @@ export function MembersFullList({
     return matchesSearch && matchesRole;
   });
 
-  const inviteLink = (token: string) => `${window.location.origin}/invitation?token=${token}`;
+  const inviteLink = (token: string) =>
+    `${getAppUrl(window.location.origin)}/invitation?token=${token}`;
 
   async function handleInvite() {
     if (!inviteEmail.trim()) { setInviteError("Email requis."); return; }

@@ -3,6 +3,7 @@
 import { FileText, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
+import { getAppUrl } from "@/lib/app-url";
 import type { PurchaseDocumentRecord } from "@/lib/purchase-types";
 
 function normalizePhone(phone: string | null | undefined): string | null {
@@ -18,7 +19,7 @@ function normalizePhone(phone: string | null | undefined): string | null {
 }
 
 function getOrigin(): string {
-  if (typeof window !== "undefined") return window.location.origin;
+  if (typeof window !== "undefined") return getAppUrl(window.location.origin);
   return "";
 }
 
