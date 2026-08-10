@@ -139,8 +139,7 @@ export async function ensureProfileFromAuthUser(
           avatar_url: avatarUrl,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id);
+        }, { onConflict: "id" });
       if (insertError) {
         return { ok: false, reason: "error", message: insertError.message };
       }

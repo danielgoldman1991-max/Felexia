@@ -32,35 +32,58 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    // Diagnostic : message brut uniquement côté serveur (jamais exposé au client).
-    console.error("[auth/callback] exchangeCodeForSession failed:", {
-      message: error?.message,
-      code: error?.code,
-      status: error?.status,
-      next,
+    // Logs structurés, sans données sensibles (jamais de token/code/cookies).
+    console.error("[AUTH CALLBACK]", {
+      step: "exchange",
+      errorCode: error?.code,
+      errorMessage: error?.message,
     });
     return redirectToLogin(requestUrl, "google_auth_failed");
   }
 
   const user = data.user;
 
-  const profileResult = await ensureProfileFromAuthUser(supabase, user);
+  try {
+    // 1. Synchronisation du profil public (idempotente, fill-only-empty).
+    const profileResult = await ensureProfileFromAuthUser(supabase, user);
 
-  if (!profileResult.ok) {
-    if (profileResult.reason === "conflict") {
-      // Conflit d'identité : on ne fusionne jamais manuellement.
-      // On déconnecte l'utilisateur et on affiche un message propre.
-      await supabase.auth.signOut().catch(() => {});
-      return redirectToLogin(requestUrl, "account_conflict");
+    if (!profileResult.ok) {
+      console.error("[AUTH CALLBACK]", {
+        step: "profile",
+        userId: user.id,
+        reason: profileResult.reason,
+        errorMessage: profileResult.message ?? undefined,
+      });
+      if (profileResult.reason === "conflict") {
+        // Conflit d'identité : on ne fusionne jamais manuellement.
+        // On déconnecte l'utilisateur et on affiche un message propre.
+        await supabase.auth.signOut().catch(() => {});
+        return redirectToLogin(requestUrl, "account_conflict");
+      }
+      return redirectToLogin(requestUrl, "google_auth_failed");
     }
-    return redirectToLogin(requestUrl, "google_auth_failed");
+
+    // 2. Destination : onboarding entreprise si aucune organisation,
+    // sinon dashboard / next interne (jamais /dashboard en dur).
+    const destination = await resolveAuthenticatedUserRedirect({
+      supabase,
+      userId: user.id,
+      requestedNext: next,
+    });
+
+    console.info("[AUTH CALLBACK]", {
+      step: "destination",
+      userId: user.id,
+      destination,
+    });
+
+    return NextResponse.redirect(new URL(destination, requestUrl.origin));
+  } catch (caught) {
+    console.error("[AUTH CALLBACK] post-auth failed", {
+      step: "error",
+      userId: user.id,
+      errorMessage: caught instanceof Error ? caught.message : "unknown",
+    });
+    return redirectToLogin(requestUrl, "oauth_profile_initialization_failed");
   }
-
-  const destination = await resolveAuthenticatedUserRedirect({
-    supabase,
-    userId: user.id,
-    requestedNext: next,
-  });
-
-  return NextResponse.redirect(new URL(destination, requestUrl.origin));
 }

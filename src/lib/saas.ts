@@ -162,6 +162,27 @@ export type OnboardingStatus = {
   nextPath: string;
 };
 
+async function markOrganizationOnboardingCompleted(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("organizations")
+    .update({
+      onboarding_step: "completed",
+      onboarding_completed: true,
+      onboarding_completed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", organizationId);
+  if (error) {
+    console.error("[onboarding-status] mark completed failed", {
+      organizationId,
+      message: error.message,
+    });
+  }
+}
+
 export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   const supabase = await createClient();
 
@@ -196,30 +217,33 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   let sub = organizationId ? await getSubscription(organizationId) : null;
   let hasValidSubscription = isSubscriptionValid(sub);
 
+  // Bootstrap Essentiel : ces écritures ne doivent JAMAIS lever d'erreur en
+  // lecture (layout /dashboard, AppShell) — un échec DB est simplement loggé
+  // et l'utilisateur reste sur un état safe (onboarding ou dashboard).
   if (organizationId && !hasValidSubscription) {
-    await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
-    sub = await getSubscription(organizationId);
-    hasValidSubscription = isSubscriptionValid(sub);
-    await supabase
-      .from("organizations")
-      .update({
-        onboarding_step: "completed",
-        onboarding_completed: true,
-        onboarding_completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", organizationId);
+    try {
+      await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
+      sub = await getSubscription(organizationId);
+      hasValidSubscription = isSubscriptionValid(sub);
+      if (hasValidSubscription) {
+        await markOrganizationOnboardingCompleted(supabase, organizationId);
+      }
+    } catch (e) {
+      console.error("[onboarding-status] trial bootstrap failed", {
+        organizationId,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
   } else if (organizationId && hasValidSubscription && !onboardingCompleted) {
-    await upsertModulesForPlan(supabase, organizationId, sub!.plan_code);
-    await supabase
-      .from("organizations")
-      .update({
-        onboarding_step: "completed",
-        onboarding_completed: true,
-        onboarding_completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", organizationId);
+    try {
+      await upsertModulesForPlan(supabase, organizationId, sub!.plan_code);
+      await markOrganizationOnboardingCompleted(supabase, organizationId);
+    } catch (e) {
+      console.error("[onboarding-status] module bootstrap failed", {
+        organizationId,
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
   }
 
   let nextPath = "/onboarding/entreprise";
