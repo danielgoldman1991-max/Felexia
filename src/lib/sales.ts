@@ -37,6 +37,7 @@ const SALES_LINE_SELECT = `
   description, quantity, unit_id, unit_name, unit_price_ht, discount_rate,
   tax_rate_id, tax_rate, subtotal_ht, tax_amount, total_ttc,
   ordered_quantity, delivered_quantity, returned_quantity, remaining_quantity, stock_move_id,
+  tax_rate:tax_rate_id (name),
   created_at, updated_at
 `;
 
@@ -169,6 +170,7 @@ function mapSalesLine(raw: unknown): SalesDocumentLineRecord {
     discount_rate: Number(row.discount_rate ?? 0),
     tax_rate_id: (row.tax_rate_id as string) ?? null,
     tax_rate: Number(row.tax_rate ?? 0),
+    tax_rate_name: extractName(row.tax_rate),
     subtotal_ht: Number(row.subtotal_ht ?? 0),
     tax_amount: Number(row.tax_amount ?? 0),
     total_ttc: Number(row.total_ttc ?? 0),

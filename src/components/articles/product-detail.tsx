@@ -43,17 +43,11 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Link href={`/articles/${product.id}/edit`}>
-              <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/articles/${product.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
             {!isService ? (
               <>
-                <Link href={`/stock/mouvements?productId=${product.id}`}>
-                  <Button variant="secondary"><History className="h-4 w-4" /> Mouvements stock</Button>
-                </Link>
-                <Link href={`/stock/entrees/new?productId=${product.id}`}>
-                  <Button variant="secondary"><Plus className="h-4 w-4" /> Entree stock</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/stock/mouvements?productId=${product.id}`}><History className="h-4 w-4" /> Mouvements stock</Link></Button>
+                <Button variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}><Plus className="h-4 w-4" /> Entree stock</Link></Button>
               </>
             ) : null}
             {product.status !== "archived" ? (

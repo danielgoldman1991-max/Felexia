@@ -46,7 +46,7 @@ export function PaymentAllocationForm({ payment, invoices }: { payment: Customer
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
-        <Link href={`/facturation/paiements/${payment.id}`}><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}`}>Annuler</Link></Button>
         <Button disabled={pending || total <= 0 || total > payment.available_amount}>Affecter le paiement</Button>
       </div>
     </form>

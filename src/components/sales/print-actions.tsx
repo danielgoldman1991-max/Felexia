@@ -13,9 +13,7 @@ export function PrintActions({
 }) {
   return (
     <div className="no-print mx-auto mb-4 flex max-w-[210mm] items-center justify-end gap-3 px-4 pt-4 print:hidden">
-      <Link href={backHref}>
-        <Button type="button" variant="secondary">{backLabel}</Button>
-      </Link>
+      <Button type="button" variant="secondary" asChild><Link href={backHref}>{backLabel}</Link></Button>
       <Button type="button" onClick={() => window.print()}>
         <Printer className="h-4 w-4" />
         Imprimer

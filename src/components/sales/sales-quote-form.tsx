@@ -223,9 +223,7 @@ export function SalesQuoteForm({
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={document ? `/vente/devis/${document.id}` : "/vente/devis"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={document ? `/vente/devis/${document.id}` : "/vente/devis"}>Annuler</Link></Button>
         <Button disabled={pending}>
           {mode === "create" ? "Creer devis" : "Enregistrer"}
         </Button>

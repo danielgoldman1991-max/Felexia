@@ -30,9 +30,9 @@ export function CustomerPaymentsTable({ rows }: { rows: CustomerPaymentRecord[] 
             <Td>{payment.reference ?? payment.transfer_reference ?? payment.check_number ?? "-"}</Td>
             <Td>
               <div className="flex gap-1">
-                <Link href={`/facturation/paiements/${payment.id}`}><Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Voir"><Eye className="h-4 w-4" /></Button></Link>
-                {payment.available_amount > 0 && payment.status !== "cancelled" ? <Link href={`/facturation/paiements/${payment.id}/affecter`}><Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Affecter"><Link2 className="h-4 w-4" /></Button></Link> : null}
-                {payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Link href={`/facturation/paiements/${payment.id}/edit`}><Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Modifier"><Pencil className="h-4 w-4" /></Button></Link> : null}
+                <Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Voir" asChild><Link href={`/facturation/paiements/${payment.id}`}><Eye className="h-4 w-4" /></Link></Button>
+                {payment.available_amount > 0 && payment.status !== "cancelled" ? <Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Affecter" asChild><Link href={`/facturation/paiements/${payment.id}/affecter`}><Link2 className="h-4 w-4" /></Link></Button> : null}
+                {payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" className="h-9 w-9 px-0" variant="ghost" title="Modifier" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button> : null}
               </div>
             </Td>
           </tr>

@@ -92,15 +92,13 @@ export function ThirdPartyAttachments({
                 <Td>
                   <div className="flex items-center gap-1">
                     {attachment.signed_url ? (
-                      <Link href={attachment.signed_url} target="_blank" title="Ouvrir">
-                        <Button
+                      <Button
                           type="button"
                           variant="ghost"
                           className="h-9 w-9 border border-slate-200 px-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        >
+                         asChild><Link href={attachment.signed_url} target="_blank" title="Ouvrir">
                           <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                        </Link></Button>
                     ) : null}
                     <form action={archiveAction}>
                       <input type="hidden" name="id" value={attachment.id} />

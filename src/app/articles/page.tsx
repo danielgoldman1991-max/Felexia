@@ -13,7 +13,7 @@ export default async function ArticlesPage() {
       <PageHeader
         title="Articles et services"
         description="Catalogue commercial avec TVA, unites et suivi de stock."
-        actions={<Link href="/articles/new"><Button>Nouvel article</Button></Link>}
+        actions={<Button asChild><Link href="/articles/new">Nouvel article</Link></Button>}
       />
       <ProductRecordTable rows={rows} />
     </ModulePage>

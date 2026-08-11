@@ -180,12 +180,15 @@ export async function listProductStockMovements(
   const documentIds = Array.from(new Set(rows.map((row) => row.source_document_id).filter(Boolean))) as string[];
   const userIds = Array.from(new Set(rows.map((row) => row.created_by).filter(Boolean))) as string[];
 
-  const [warehousesResult, documentsResult, profilesResult] = await Promise.all([
+  const [warehousesResult, salesDocumentsResult, purchaseDocumentsResult, profilesResult] = await Promise.all([
     warehouseIds.length
       ? supabase.from("warehouses").select("id, name").eq("organization_id", workspace.organization.id).in("id", warehouseIds)
       : Promise.resolve({ data: [], error: null }),
     documentIds.length
       ? supabase.from("sales_documents").select("id, document_number, document_type").eq("organization_id", workspace.organization.id).in("id", documentIds)
+      : Promise.resolve({ data: [], error: null }),
+    documentIds.length
+      ? supabase.from("purchase_documents").select("id, document_number, document_type").eq("organization_id", workspace.organization.id).in("id", documentIds)
       : Promise.resolve({ data: [], error: null }),
     userIds.length
       ? supabase.from("profiles").select("id, full_name, email").in("id", userIds)
@@ -193,11 +196,15 @@ export async function listProductStockMovements(
   ]);
 
   if (warehousesResult.error) throw new Error(warehousesResult.error.message);
-  if (documentsResult.error) throw new Error(documentsResult.error.message);
+  if (salesDocumentsResult.error) throw new Error(salesDocumentsResult.error.message);
+  if (purchaseDocumentsResult.error) throw new Error(purchaseDocumentsResult.error.message);
   if (profilesResult.error) throw new Error(profilesResult.error.message);
 
   const warehousesById = new Map((warehousesResult.data ?? []).map((row) => [row.id as string, row.name as string]));
-  const documentsById = new Map((documentsResult.data ?? []).map((row) => [row.id as string, row]));
+  const documentsById = new Map(
+    [...(salesDocumentsResult.data ?? []), ...(purchaseDocumentsResult.data ?? [])]
+      .map((row) => [row.id as string, row]),
+  );
   const profilesById = new Map((profilesResult.data ?? []).map((row) => [row.id as string, row]));
   let balance = 0;
 

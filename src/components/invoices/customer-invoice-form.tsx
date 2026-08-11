@@ -308,7 +308,7 @@ export function CustomerInvoiceForm({
       ) : null}
 
       <div className="flex justify-end gap-3">
-        <Link href={cancelHref}><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href={cancelHref}>Annuler</Link></Button>
         <Button disabled={pending}>{submitLabel}</Button>
       </div>
 

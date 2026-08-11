@@ -183,7 +183,6 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
           </Field>
           <Field label="TVA">
             <Select name="tax_rate_id" value={taxRateId} onChange={(e) => setTaxRateId(e.target.value)}>
-              <option value="">Sélectionner</option>
               {taxRates.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
@@ -219,9 +218,21 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
               <input name="track_stock" type="checkbox" defaultChecked={product?.track_stock ?? false} />
               Suivre le stock
             </label>
-            <Field label="Stock actuel">
-              <Input name="current_stock" type="number" min="0" step="1" defaultValue={product?.current_stock ?? 0} />
-            </Field>
+            {mode === "create" ? (
+              <Field label="Stock initial">
+                <Input name="current_stock" type="number" min="0" step="1" defaultValue={0} />
+              </Field>
+            ) : (
+              <div className="space-y-1.5 text-sm">
+                <span className="font-medium text-[var(--muted)]">Stock actuel</span>
+                <div className="flex h-10 items-center justify-between rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-3">
+                  <span className="tabular-nums">{product?.current_stock ?? 0}</span>
+                  <Link className="text-xs font-semibold text-[var(--primary)] hover:underline" href={`/stock/ajustements/new?productId=${product?.id ?? ""}`}>
+                    Ajuster
+                  </Link>
+                </div>
+              </div>
+            )}
             <Field label="Stock minimum">
               <Input name="min_stock" type="number" min="0" step="1" defaultValue={product?.min_stock ?? 0} />
             </Field>
@@ -268,9 +279,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={product ? `/articles/${product.id}` : "/articles"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={product ? `/articles/${product.id}` : "/articles"}>Annuler</Link></Button>
         <Button disabled={pending}>
           {mode === "create" ? (type === "product" ? "Creer produit" : "Creer service") : "Enregistrer"}
         </Button>

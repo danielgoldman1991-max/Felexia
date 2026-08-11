@@ -18,12 +18,10 @@ export default async function SalesDeliveriesPage() {
         title="Bons de livraison"
         description="Bons de livraison generes depuis les commandes clients."
         actions={(
-          <Link href="/vente/livraisons/new">
-            <Button type="button">
+          <Button type="button" asChild><Link href="/vente/livraisons/new">
               <Plus className="h-4 w-4" />
               Nouveau bon de livraison
-            </Button>
-          </Link>
+            </Link></Button>
         )}
       />
       <Card>

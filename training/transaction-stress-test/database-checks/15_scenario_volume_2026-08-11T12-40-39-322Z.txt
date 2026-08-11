@@ -1,0 +1,26 @@
+# Scénario F — Charge et volume (850+ documents, latences, oracle)
+- Généré : 2026-08-11T12:40:39.322Z
+- Tenant : stress-flx-2026-001
+
+
+## F0. Numérotation parallèle — 30 sales_documents sans numéro (batch de 10)
+
+- [PARTIAL] F0-parallel-numbering — 21/30 réussis, 9 échecs de contrainte d'unicité (finding numérotation — SELECT max+1 non verrouillé, cf. D5)
+
+## F1. 200 commandes client × 2 lignes (numéros explicites, batch 10)
+
+- [FAIL] F1-orders — 200/200 commandes (2 lignes chacune), latence médiane/lot 290 ms, max 831 ms, échecs 0
+
+## F2. 200 factures client manuelles (100..299 MAD TTC)
+
+- [PASS] F2-customer-invoices — 200/200 factures, latence médiane/lot 102 ms, max 157 ms, échecs 0
+
+## F3. 100 factures fournisseur manuelles (50..149 MAD TTC)
+
+- [PASS] F3-supplier-invoices — 100/100 factures, latence médiane/lot 100 ms, max 122 ms, échecs 0
+
+## F4. 50 paiements client + 50 paiements fournisseur (RPC atomiques)
+
+- [PASS] F4-payments — 50 client + 50 fournisseur (échecs 0/0), latence client médiane 363 ms max 824 ms, trésorerie 56257.84 = oracle 56257.84
+
+## F5. 50 réceptions stock (1 u. chacune, RPC atomique)

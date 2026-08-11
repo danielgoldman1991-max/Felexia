@@ -13,7 +13,7 @@ export default async function ServicesPage() {
       <PageHeader
         title="Services"
         description="Services facturables sans suivi de stock."
-        actions={<Link href="/articles/new?type=service"><Button>Nouveau service</Button></Link>}
+        actions={<Button asChild><Link href="/articles/new?type=service">Nouveau service</Link></Button>}
       />
       <ProductRecordTable rows={rows} />
     </ModulePage>

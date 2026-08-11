@@ -16,7 +16,7 @@ export default async function PurchaseSuppliersPage() {
       <PageHeader
         title="Fournisseurs"
         description="Tiers fournisseurs actifs."
-        actions={<Link href="/tiers/new?type=supplier"><Button><Plus className="h-4 w-4" /> Nouveau fournisseur</Button></Link>}
+        actions={<Button asChild><Link href="/tiers/new?type=supplier"><Plus className="h-4 w-4" /> Nouveau fournisseur</Link></Button>}
       />
       <Card><CardContent><SuppliersTable rows={suppliers} /></CardContent></Card>
     </ModulePage>

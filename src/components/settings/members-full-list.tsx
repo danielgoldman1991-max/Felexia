@@ -92,7 +92,7 @@ export function MembersFullList({
   async function handleInvite() {
     if (!inviteEmail.trim()) { setInviteError("Email requis."); return; }
     if (!inviteEmail.includes("@")) { setInviteError("Format d'email invalide."); return; }
-    if (!limit.allowed) { setInviteError(`Limite atteinte (${limit.current}/${limit.max}). Passez à une formule supérieure.`); return; }
+    if (!limit.allowed) { setInviteError(`Limite atteinte (${limit.current}/${limit.max}). L'offre Essentiel inclut jusqu'à ${limit.max} utilisateurs.`); return; }
 
     setInviteError(null);
     setInviteSuccess(null);

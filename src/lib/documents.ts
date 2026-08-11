@@ -132,6 +132,9 @@ export function getDocumentOriginLabel(value: string | null | undefined) {
 }
 
 export function getDocumentStatusLabel(value: string | null | undefined) {
+  if (value === "active") return "Disponible";
+  if (value === "partial") return "Partiellement payé";
+  if (value === "canceled") return "Annulé";
   return labelFor(DOCUMENT_STATUSES, value);
 }
 
@@ -167,7 +170,10 @@ function matchesFilters(document: UnifiedDocumentRecord, filters: DocumentFilter
   }
   if (filters.documentType && document.document_type !== filters.documentType) return false;
   if (filters.sourceModule && document.source !== filters.sourceModule && document.source_label.toLowerCase() !== filters.sourceModule) return false;
-  if (filters.status && document.status !== filters.status) return false;
+  if (filters.status) {
+    const isAvailableAlias = filters.status === "available" && document.status === "active";
+    if (document.status !== filters.status && !isAvailableAlias) return false;
+  }
   if (filters.dateFrom && (!document.issue_date || document.issue_date < filters.dateFrom)) return false;
   if (filters.dateTo && (!document.issue_date || document.issue_date > filters.dateTo)) return false;
   return true;

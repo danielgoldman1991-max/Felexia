@@ -26,7 +26,7 @@ export default async function StockLocationDetailPage({ params }: { params: Prom
       <PageHeader
         title={location.name}
         description="Fiche emplacement de stock"
-        actions={<Link href={`/stock/emplacements/${location.id}/edit`}><Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button></Link>}
+        actions={<Button variant="secondary" asChild><Link href={`/stock/emplacements/${location.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>}
       />
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">

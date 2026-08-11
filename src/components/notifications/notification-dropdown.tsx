@@ -13,23 +13,25 @@ const severityConfig: Record<string, { icon: typeof Info; classes: string; dot: 
   success: { icon: CheckCheck,    classes: "bg-[var(--success-soft)] text-[var(--success)]", dot: "bg-[var(--success)]" },
 };
 
-export function NotificationDropdown() {
+export function NotificationDropdown({ align = "right" }: { align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<TrialNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetch("/api/notifications");
-      if (!res.ok) return;
+      if (!res.ok) throw new Error("Impossible de charger les notifications.");
       const data = await res.json();
       setNotifications(data.notifications ?? []);
       setUnreadCount((data.notifications ?? []).filter((n: TrialNotification) => !n.is_read).length);
     } catch {
-      // silent
+      setLoadError("Impossible de charger les notifications. Réessayez.");
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,7 @@ export function NotificationDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[420px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]">
+        <div className={cn("absolute top-full z-50 mt-2 w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]", align === "right" ? "right-0" : "left-0")}>
           <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
             <h3 className="text-sm font-semibold text-[var(--popover-foreground)]">Notifications</h3>
             {unreadCount > 0 && (
@@ -110,6 +112,12 @@ export function NotificationDropdown() {
             {loading ? (
               <div className="flex items-center justify-center py-10">
                 <Loader2 className="h-5 w-5 animate-spin text-[var(--muted)]" />
+              </div>
+            ) : loadError ? (
+              <div className="px-5 py-8 text-center">
+                <AlertCircle className="mx-auto h-8 w-8 text-[var(--danger)]" />
+                <p className="mt-3 text-sm text-[var(--danger)]">{loadError}</p>
+                <button type="button" onClick={() => void fetchNotifications()} className="mt-3 text-sm font-semibold text-[var(--primary)] hover:underline">Réessayer</button>
               </div>
             ) : notifications.length === 0 ? (
               <div className="py-10 text-center">

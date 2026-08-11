@@ -46,12 +46,7 @@ export function LandingHeader() {
           ))}
         </nav>
 
-        <div className="hidden shrink-0 items-center justify-end gap-2 xl:flex">
-          <Button asChild variant="landingSecondary" className="max-2xl:hidden h-11 px-4">
-            <a href="#contact">
-              <span className="relative z-10 !text-[#0F2548]">Demander une démo</span>
-            </a>
-          </Button>
+        <div className="hidden shrink-0 items-center justify-end gap-3 xl:flex">
           <Link href="/login" className={ghostButton}>
             Connexion
           </Link>
@@ -95,11 +90,6 @@ export function LandingHeader() {
               ))}
             </div>
             <div className="mt-4 flex flex-col gap-2.5 border-t border-slate-100 pt-4">
-              <Button asChild variant="landingSecondary" className="h-11 w-full px-5">
-                <a href="#contact" onClick={() => setOpen(false)}>
-                  <span className="relative z-10 !text-[#0F2548]">Demander une démo</span>
-                </a>
-              </Button>
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}

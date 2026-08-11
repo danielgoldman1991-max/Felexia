@@ -78,9 +78,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
         description={`${VAT_DECLARATION_FREQUENCY_LABELS[declaration.frequency]} — ${formatDate(declaration.period_start)} au ${formatDate(declaration.period_end)}`}
         actions={
           <>
-            <Link href="/comptabilite/tva/declarations">
-              <Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href="/comptabilite/tva/declarations"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
             {hasBlocking ? (
               <ActionForm
                 label="Corriger automatiquement"
@@ -104,9 +102,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
                 }}
               />
             ) : null}
-            <Link href={`/comptabilite/tva/exports?from=${declaration.period_start}&to=${declaration.period_end}&frequency=${declaration.frequency}&preflight=1`}>
-              <Button variant="secondary"><FileText className="h-4 w-4" /> Exporter</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/comptabilite/tva/exports?from=${declaration.period_start}&to=${declaration.period_end}&frequency=${declaration.frequency}&preflight=1`}><FileText className="h-4 w-4" /> Exporter</Link></Button>
             {canArchive ? (
               <ActionForm
                 label="Archiver"

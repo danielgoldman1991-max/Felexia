@@ -1,0 +1,10 @@
+Org: ATLAS DISTRIBUTION & SERVICES TEST SARL AU (867f29d4-a727-4667-ad5c-df136848c566)
+Intégrité tenant campagne : 0 anomalie
+[session owner] connexion OK, sales_documents visibles=0, orgs visibles=1
+[session sales] connexion OK, sales_documents visibles=0, orgs visibles=1
+[session auditor] connexion OK, sales_documents visibles=0, orgs visibles=1
+[session suspended] connexion OK, sales_documents visibles=0, orgs visibles=0
+[isolation] suspended voit accounting=0 tiers=0 (attendu 0/0)
+[isolation] viewer lit=1 (err=aucune), écriture interdite=OUI
+
+TOUTES LES VÉRIFICATIONS PASSENT

@@ -36,8 +36,8 @@ export function CustomerCreditNoteDetail({ creditNote, lines, applications, docu
         description={creditNote.customer_name ?? ""}
         actions={(
           <>
-            <Link href={`/facturation/avoirs/${creditNote.id}/print`} target="_blank"><Button type="button" variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button></Link>
-            {creditNote.available_amount > 0 ? <Link href={`/facturation/avoirs/${creditNote.id}/affecter`}><Button type="button" variant="secondary"><Link2 className="h-4 w-4" /> Affecter</Button></Link> : null}
+            <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/${creditNote.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
+            {creditNote.available_amount > 0 ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/${creditNote.id}/affecter`}><Link2 className="h-4 w-4" /> Affecter</Link></Button> : null}
             {creditNote.status === "draft" ? <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateCustomerCreditNote, creditNote.id)} /> : null}
             {creditNote.status !== "cancelled" ? <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelCustomerCreditNote, creditNote.id)} /> : null}
           </>

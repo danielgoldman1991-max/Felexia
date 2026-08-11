@@ -43,13 +43,9 @@ export function PurchaseDocumentsTable({ rows, type }: { rows: PurchaseDocumentR
             ) : null}
             <Td>
               <div className="flex flex-wrap gap-2">
-                <Link href={`/achats/${isReceipt ? "receptions" : "commandes"}/${row.id}`}>
-                  <Button type="button" variant="secondary">Consulter</Button>
-                </Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/achats/${isReceipt ? "receptions" : "commandes"}/${row.id}`}>Consulter</Link></Button>
                 {isReceipt && row.status === "validated" ? (
-                  <Link href={`/achats/factures/new?receiptId=${row.id}`}>
-                    <Button type="button" variant="secondary">Facturer</Button>
-                  </Link>
+                  <Button type="button" variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${row.id}`}>Facturer</Link></Button>
                 ) : null}
               </div>
             </Td>
@@ -88,11 +84,18 @@ export function SupplierInvoicesTable({ rows }: { rows: SupplierInvoiceRecord[] 
                 {isSupplierInvoiceFromReceipt(row) ? <Badge tone="neutral">Issue réception</Badge> : null}
               </div>
             </Td>
-            <Td>{row.remaining_amount > 0 ? `${row.remaining_amount.toFixed(2)} MAD` : "Payee"}</Td>
             <Td>
-              <Link href={`/achats/factures/${row.id}`}>
-                <Button type="button" variant="secondary">Consulter</Button>
-              </Link>
+              {row.remaining_amount > 0 ? (
+                <div className="flex flex-col gap-1">
+                  <MoneyDisplay value={row.remaining_amount} />
+                  <span className="text-xs text-[var(--muted)]">Reste à payer</span>
+                </div>
+              ) : (
+                <Badge tone="success">Payée</Badge>
+              )}
+            </Td>
+            <Td>
+              <Button type="button" variant="secondary" asChild><Link href={`/achats/factures/${row.id}`}>Consulter</Link></Button>
             </Td>
           </tr>
         ))}

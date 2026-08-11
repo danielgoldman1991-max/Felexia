@@ -21,8 +21,8 @@ export function SuppliersTable({ rows }: { rows: SupplierRow[] }) {
             <Td>{row.status}</Td>
             <Td>
               <div className="flex flex-wrap gap-2">
-                <Link href={`/tiers/${row.id}`}><Button type="button" variant="secondary">Voir fiche</Button></Link>
-                <Link href={`/tiers/${row.id}/edit`}><Button type="button" variant="ghost">Modifier</Button></Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/tiers/${row.id}`}>Voir fiche</Link></Button>
+                <Button type="button" variant="ghost" asChild><Link href={`/tiers/${row.id}/edit`}>Modifier</Link></Button>
               </div>
             </Td>
           </tr>

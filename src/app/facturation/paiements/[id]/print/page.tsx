@@ -1,12 +1,19 @@
 import { notFound } from "next/navigation";
 import { PrintActions } from "@/components/sales/print-actions";
-import { MoneyDisplay } from "@/components/erp/money-display";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintPartyCard } from "@/components/print/PrintPartyCard";
+import { PrintLineTable } from "@/components/print/PrintLineTable";
+import { PrintTotals } from "@/components/print/PrintTotals";
+import { PrintSignature } from "@/components/print/PrintSignature";
+import { PrintFooter } from "@/components/print/PrintFooter";
 import { getCustomerPaymentDetail } from "@/lib/payments";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import { getPaymentMethodLabel } from "@/lib/payment-terms";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { PrintCompanyBrand } from "@/components/shared/print-company-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -16,32 +23,67 @@ export default async function CustomerPaymentPrintPage({ params }: { params: Pro
   if (!payment) notFound();
   const workspace = await requireActiveWorkspace();
   const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+
+  const companyInfoLines = [
+    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
+    identity.ice ? `ICE : ${identity.ice}` : null,
+  ].filter(Boolean) as string[];
+
+  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+
+  const reference =
+    payment.reference ?? payment.transfer_reference ?? payment.check_number ?? null;
+
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
       <PrintActions backHref={`/facturation/paiements/${payment.id}`} backLabel="Retour paiement" />
-      <section className="mx-auto min-h-[297mm] max-w-[210mm] bg-white p-10 text-slate-900 shadow print:min-h-0 print:shadow-none">
-        <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-          <PrintCompanyBrand identity={identity} />
-          <div className="text-right text-sm"><p className="font-semibold">{payment.payment_number}</p><p>{formatDate(payment.payment_date)}</p></div>
-        </div>
-        <h1 className="mt-8 text-2xl font-bold">RECU DE PAIEMENT</h1>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <div><h2 className="font-semibold">Client</h2><p className="mt-2">{payment.customer_name}</p></div>
-          <div className="space-y-1 text-sm">
-            <p>Modalite : {getPaymentMethodLabel(payment.payment_method) ?? payment.payment_method}</p>
-            <p>Montant : <MoneyDisplay value={payment.amount} /></p>
-            <p>Affecte : <MoneyDisplay value={payment.allocated_amount} /></p>
-            <p>Disponible : <MoneyDisplay value={payment.available_amount} /></p>
-            <p>Reference : {payment.reference ?? payment.transfer_reference ?? payment.check_number ?? "-"}</p>
-          </div>
-        </div>
-        <h2 className="mt-10 font-semibold">Factures affectees</h2>
-        <table className="mt-3 w-full border-collapse text-sm">
-          <thead><tr className="bg-slate-100"><th className="p-2 text-left">Facture</th><th className="p-2 text-left">Date</th><th className="p-2 text-right">Montant</th></tr></thead>
-          <tbody>{allocations.map((allocation) => <tr key={allocation.id} className="border-b"><td className="p-2">{allocation.invoice_number}</td><td className="p-2">{formatDate(allocation.allocation_date)}</td><td className="p-2 text-right"><MoneyDisplay value={allocation.amount} /></td></tr>)}</tbody>
-        </table>
-        <div className="mt-16 flex justify-end"><div className="w-64 border-t border-slate-400 pt-3 text-center text-sm">Signature et cachet</div></div>
-      </section>
+      <PrintPage>
+        <PrintHeader>
+          <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
+          <PrintDocumentTitle title="REÇU DE PAIEMENT" documentNumber={payment.payment_number}>
+            <p><strong>Date :</strong> {formatDate(payment.payment_date)}</p>
+            <p><strong>Modalité :</strong> {getPaymentMethodLabel(payment.payment_method) ?? payment.payment_method}</p>
+            {reference ? <p><strong>Référence :</strong> {reference}</p> : null}
+          </PrintDocumentTitle>
+        </PrintHeader>
+
+        <PrintPartyCard title="Client" lines={[payment.customer_name].filter(Boolean) as string[]} />
+
+        {allocations.length > 0 ? (
+          <PrintLineTable
+            head={
+              <>
+                <th>#</th>
+                <th>Facture</th>
+                <th>Date</th>
+                <th className="right">Montant affecté</th>
+              </>
+            }
+          >
+            {allocations.map((allocation, index) => (
+              <tr key={allocation.id}>
+                <td>{index + 1}</td>
+                <td className="strong">{allocation.invoice_number}</td>
+                <td>{formatDate(allocation.allocation_date)}</td>
+                <td className="num strong">{formatMoney(allocation.amount)}</td>
+              </tr>
+            ))}
+          </PrintLineTable>
+        ) : null}
+
+        <PrintTotals
+          rows={[
+            { label: "Montant affecté", value: formatMoney(payment.allocated_amount) },
+            { label: "Disponible", value: formatMoney(payment.available_amount) },
+          ]}
+          grandTotalLabel="Montant"
+          grandTotalValue={formatMoney(payment.amount)}
+        />
+
+        <PrintSignature label="Signature et cachet" />
+
+        <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
+      </PrintPage>
     </main>
   );
 }

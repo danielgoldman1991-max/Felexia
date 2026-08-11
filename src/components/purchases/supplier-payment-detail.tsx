@@ -69,9 +69,7 @@ export function SupplierPaymentDetail({
         actions={
           <>
             {canAllocate ? (
-              <Link href={`/achats/paiements/${payment.id}/affecter`}>
-                <Button variant="secondary"><ArrowLeftRight className="h-4 w-4" /> Affecter</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/paiements/${payment.id}/affecter`}><ArrowLeftRight className="h-4 w-4" /> Affecter</Link></Button>
             ) : null}
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierPayment, payment.id)} />
@@ -130,9 +128,7 @@ export function SupplierPaymentDetail({
                 <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
                 <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
-                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
-              </Link>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
             </div>
           ) : payment.status === "draft" || payment.status === "cancelled" ? (
             <p className="text-sm text-[var(--muted)]">Confirmez d&apos;abord le paiement fournisseur avant de le comptabiliser.</p>

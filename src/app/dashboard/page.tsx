@@ -99,13 +99,13 @@ export default async function DashboardPage({
 
   return (
     <ModulePage>
-      <div className="space-y-8">
+      <div className="min-w-0 space-y-8">
         <div className="premium-card luxury-border overflow-hidden rounded-[32px] p-6 md:p-8">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
                 <BrandLogo variant="horizontal" size="sm" />
-                <span className="rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">Cockpit Business</span>
+                <span className="rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">Pilotage</span>
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">Bonjour {firstName}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] md:text-base">
@@ -131,11 +131,11 @@ export default async function DashboardPage({
             href="/bienvenue"
             className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] flex flex-col gap-4 p-5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-soft)]/60 hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between"
           >
-            <div className="flex items-start gap-4">
+            <div className="flex min-w-0 items-start gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]">
                 <CheckCircle2 className="h-5 w-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="font-semibold text-[var(--foreground)]">Complétez la configuration de votre entreprise</p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   {checklist.completedCount}/{checklist.totalCount} étapes complétées. Continuez le guide pour finaliser votre espace.
@@ -145,7 +145,7 @@ export default async function DashboardPage({
                 </div>
               </div>
             </div>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
+            <span className="inline-flex min-w-0 flex-wrap items-center gap-2 text-sm font-semibold text-[var(--primary)]">
               Continuer la configuration
               <ArrowRight className="h-4 w-4" />
             </span>

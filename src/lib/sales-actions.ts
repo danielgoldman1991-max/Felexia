@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { calculateSalesLine, calculateSalesTotals, isIndivisibleUnit } from "@/lib/sales-calculations";
+import { resolveDefaultTaxRate } from "@/lib/tax-reference";
 import type { SalesActionResult, SalesDocumentType, SalesLineFormValue } from "@/lib/sales-types";
+import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -90,6 +92,30 @@ function normalizeLines(rawLines: Record<string, unknown>[]): { lines: SalesLine
   }
 
   return { lines };
+}
+
+/**
+ * Garantit qu'aucune ligne n'est enregistrée sans taux de TVA : toute ligne
+ * sans tax_rate_id reçoit le taux par défaut du référentiel (20 %), puis les
+ * montants TVA/TTC sont recalculés côté serveur. Les lignes exonérées doivent
+ * référencer VAT_EXEMPT (un identifiant), jamais un tax_rate_id vide.
+ */
+async function resolveLineTaxRates(lines: SalesLineFormValue[]): Promise<SalesLineFormValue[]> {
+  const missing = lines.filter((line) => !line.tax_rate_id);
+  if (missing.length === 0) return lines;
+
+  const defaultTax = await resolveDefaultTaxRate();
+  if (!defaultTax) return lines;
+
+  return lines.map((line) =>
+    line.tax_rate_id
+      ? line
+      : calculateSalesLine({
+          ...line,
+          tax_rate_id: defaultTax.id,
+          tax_rate: defaultTax.rate,
+        }),
+  );
 }
 
 async function validateIndivisibleLineQuantities(organizationId: string, lines: SalesLineFormValue[]) {
@@ -244,36 +270,6 @@ async function getValidatedDeliveredQuantityBySourceLine(
   return { quantities };
 }
 
-async function updateOrderDeliveryStatus(organizationId: string, orderId: string) {
-  const supabase = await createClient();
-  const { data: orderLines, error } = await supabase
-    .from("sales_document_lines")
-    .select("id, quantity")
-    .eq("organization_id", organizationId)
-    .eq("document_id", orderId);
-
-  if (error || !orderLines) return;
-
-  const sourceLineIds = orderLines.map((line) => line.id as string);
-  const deliveredResult = await getValidatedDeliveredQuantityBySourceLine(organizationId, sourceLineIds, "delivery_note");
-  if ("error" in deliveredResult) return;
-
-  const quantities = deliveredResult.quantities ?? {};
-  const totalOrdered = orderLines.reduce((sum, line) => sum + Number(line.quantity ?? 0), 0);
-  const totalDelivered = orderLines.reduce((sum, line) => sum + Math.min(Number(line.quantity ?? 0), quantities[line.id as string] ?? 0), 0);
-  const nextStatus = totalDelivered <= 0
-    ? "confirmed"
-    : totalDelivered >= totalOrdered
-      ? "delivered"
-      : "partially_delivered";
-
-  await supabase
-    .from("sales_documents")
-    .update({ status: nextStatus })
-    .eq("organization_id", organizationId)
-    .eq("id", orderId);
-}
-
 async function convertProspectToCustomerAfterOrderConfirmation(
   organizationId: string,
   userId: string,
@@ -380,7 +376,6 @@ async function applyStockMovesForDocument(
   documentId: string,
   moveType: "delivery_out" | "customer_return_in",
   direction: "out" | "in",
-  userId: string,
 ) {
   const supabase = await createClient();
   const { data: lines, error: lineError } = await supabase
@@ -399,14 +394,13 @@ async function applyStockMovesForDocument(
 
   const { data: products, error: productError } = await supabase
     .from("products")
-    .select("id, type, sku, name, track_stock, current_stock")
+    .select("id, type, track_stock")
     .eq("organization_id", organizationId)
     .in("id", productIds);
 
   if (productError) return { error: productError.message };
   const productsById = new Map((products ?? []).map((product) => [product.id as string, product]));
-  const stockMoves = [];
-  const stockableLines = [];
+  const stockMoves: AtomicStockMovement[] = [];
 
   for (const line of lines ?? []) {
     const productId = line.product_id as string | null;
@@ -416,45 +410,28 @@ async function applyStockMovesForDocument(
     if (!product || product.type === "service" || !product.track_stock) continue;
 
     const quantity = Number(line.quantity ?? 0);
-    const currentStock = Number(product.current_stock ?? 0);
-    if (direction === "out" && currentStock < quantity) {
-      const label = String(product.name ?? product.sku ?? productId);
-      return { error: `Stock insuffisant pour l'article ${label}.` };
-    }
-
-    stockableLines.push({ line, productId, quantity, currentStock });
-  }
-
-  for (const item of stockableLines) {
-    const nextStock = direction === "out" ? item.currentStock - item.quantity : item.currentStock + item.quantity;
-
-    const { error: stockError } = await supabase
-      .from("products")
-      .update({ current_stock: nextStock })
-      .eq("organization_id", organizationId)
-      .eq("id", item.productId);
-
-    if (stockError) return { error: stockError.message };
-
+    if (!Number.isFinite(quantity) || quantity <= 0) return { error: "Quantite de stock invalide." };
     stockMoves.push({
-      organization_id: organizationId,
       warehouse_id: warehouseResult.warehouseId,
-      product_id: item.productId,
+      product_id: productId,
       source_document_id: documentId,
-      source_line_id: item.line.id,
+      source_line_id: line.id,
       move_type: moveType,
       direction,
-      quantity: item.quantity,
+      quantity,
       movement_date: new Date().toISOString(),
       notes: direction === "out" ? "Validation bon de livraison" : "Validation retour client",
-      created_by: userId,
     });
   }
 
-  if (stockMoves.length > 0) {
-    const { error: moveError } = await supabase.from("stock_moves").insert(stockMoves);
-    if (moveError) return { error: moveError.message };
-  }
+  const movementResult = await recordStockMovementsAtomic({
+    organizationId,
+    operationKey: documentId,
+    movements: stockMoves,
+    finalizeDocumentType: moveType === "delivery_out" ? "delivery_note" : "return_note",
+    documentId,
+  });
+  if (movementResult.error) return { error: movementResult.error };
 
   return {};
 }
@@ -470,7 +447,7 @@ export async function createSalesQuote(
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
-  const lines = normalized.lines;
+  const lines = await resolveLineTaxRates(normalized.lines);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
 
@@ -528,7 +505,7 @@ export async function updateSalesQuote(
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
-  const lines = normalized.lines;
+  const lines = await resolveLineTaxRates(normalized.lines);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
 
@@ -595,7 +572,7 @@ export async function createSalesOrder(
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
-  const lines = normalized.lines;
+  const lines = await resolveLineTaxRates(normalized.lines);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
 
@@ -653,7 +630,7 @@ export async function updateSalesOrder(
 
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
-  const lines = normalized.lines;
+  const lines = await resolveLineTaxRates(normalized.lines);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
 
@@ -840,13 +817,20 @@ export async function convertQuoteToOrder(prev: SalesActionResult, formData: For
   if (orderError || !order) return { success: false, error: orderError?.message ?? "Impossible de creer la commande." };
 
   const { error: lineError } = await copyLinesToDocument(quote.id, order.id, workspace.organization.id);
-  if (lineError) return { success: false, error: lineError.message };
+  if (lineError) {
+    await supabase.from("sales_documents").delete().eq("organization_id", workspace.organization.id).eq("id", order.id);
+    return { success: false, error: lineError.message };
+  }
 
-  await supabase
+  const { error: quoteUpdateError } = await supabase
     .from("sales_documents")
-    .update({ status: "converted" })
+    .update({ status: "converted", related_order_id: order.id })
     .eq("organization_id", workspace.organization.id)
     .eq("id", quote.id);
+  if (quoteUpdateError) {
+    await supabase.from("sales_documents").delete().eq("organization_id", workspace.organization.id).eq("id", order.id);
+    return { success: false, error: quoteUpdateError.message };
+  }
 
   revalidatePath("/vente/devis");
   revalidatePath("/vente/commandes");
@@ -1076,21 +1060,10 @@ export async function validateDeliveryNote(prev: SalesActionResult, formData: Fo
     id,
     "delivery_out",
     "out",
-    workspace.userId,
   );
   if (stockResult.error) return { success: false, error: stockResult.error };
 
-  const now = new Date().toISOString();
-  const { error: updateError } = await supabase
-    .from("sales_documents")
-    .update({ status: "validated", validated_at: now, stock_updated_at: now })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id)
-    .is("stock_updated_at", null);
-
-  if (updateError) return { success: false, error: updateError.message };
   if (delivery.related_order_id) {
-    await updateOrderDeliveryStatus(workspace.organization.id, delivery.related_order_id);
     revalidatePath(`/vente/commandes/${delivery.related_order_id}`);
   }
 
@@ -1285,19 +1258,9 @@ export async function validateReturnNote(prev: SalesActionResult, formData: Form
     id,
     "customer_return_in",
     "in",
-    workspace.userId,
   );
   if (stockResult.error) return { success: false, error: stockResult.error };
 
-  const now = new Date().toISOString();
-  const { error: updateError } = await supabase
-    .from("sales_documents")
-    .update({ status: "validated", returned_at: now, stock_updated_at: now })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id)
-    .is("stock_updated_at", null);
-
-  if (updateError) return { success: false, error: updateError.message };
   revalidatePath(`/vente/retours/${id}`);
   revalidatePath("/vente/retours");
   return { success: true };

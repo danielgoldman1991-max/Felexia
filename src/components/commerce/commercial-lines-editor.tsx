@@ -14,7 +14,7 @@ import {
 import type { CommerceLineFormValue, ProductForSelect } from "@/lib/commerce-types";
 
 type UnitForSelect = { id: string; name: string; symbol: string };
-type TaxRateForSelect = { id: string; name: string; rate: number };
+type TaxRateForSelect = { id: string; name: string; rate: number; is_default?: boolean };
 
 type Props = {
   lines: CommerceLineFormValue[];
@@ -104,7 +104,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
   }
 
   function handleAddLine() {
-    const preparedLine = calculateLine(draftLine);
+    let preparedLine = calculateLine(draftLine);
 
     if (preparedLine.mode === "product" && !preparedLine.product_id) {
       setError("Selectionnez un article ou service.");
@@ -124,6 +124,14 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
     if (Number(preparedLine.unit_price_ht) < 0) {
       setError("Le prix ne peut pas etre negatif.");
       return;
+    }
+
+    if (!preparedLine.tax_rate_id && taxRates.length > 0) {
+      const fallback =
+        taxRates.find((tax) => tax.is_default) ??
+        taxRates.find((tax) => Number(tax.rate) === 20) ??
+        taxRates[0];
+      if (fallback) preparedLine = calculateLine({ ...preparedLine, tax_rate_id: fallback.id, tax_rate: Number(fallback.rate) });
     }
 
     const lineToAdd: CommerceLineFormValue = {
@@ -248,7 +256,6 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">TVA</span>
             <Select value={draftLine.tax_rate_id} onChange={(event) => handleTaxChange(event.target.value)}>
-              <option value="">--</option>
               {taxRates.map((taxRate) => (
                 <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>
               ))}

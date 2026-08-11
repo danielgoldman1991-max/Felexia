@@ -1,7 +1,8 @@
 "use client";
 
-import { CalendarDays, CircleHelp, Menu } from "lucide-react";
+import { CalendarDays, Menu } from "lucide-react";
 import { GlobalSearch } from "@/components/layout/global-search";
+import { HelpDropdown } from "@/components/layout/help-dropdown";
 import { QuickCreateMenu } from "@/components/layout/quick-create-menu";
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -24,9 +25,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           <NotificationDropdown />
         </div>
         <ThemeToggle />
-        <button type="button" className="hidden h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)] sm:flex" aria-label="Aide">
-          <CircleHelp className="h-5 w-5" />
-        </button>
+        <div className="hidden sm:flex"><HelpDropdown /></div>
       </div>
     </header>
   );

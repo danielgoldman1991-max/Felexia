@@ -23,9 +23,7 @@ export function SalesDashboard({ counters }: { counters: SalesCounters }) {
         title="Vente"
         description="Flux commercial simplifie : devis, commandes clients et bons de livraison."
         actions={
-          <Link href="/vente/devis/new">
-            <Button>Nouveau devis</Button>
-          </Link>
+          <Button asChild><Link href="/vente/devis/new">Nouveau devis</Link></Button>
         }
       />
 

@@ -865,6 +865,58 @@ function supplierPaymentToAttachment({
   };
 }
 
+const SUPPLIER_PAYMENT_ATTACHMENT_SELECT = `
+  id, payment_number, payment_date, payment_method, status, treasury_account_id,
+  reference, transfer_reference, check_number, notes, amount, created_at, archived_at,
+  treasury_account:treasury_account_id (id, name, account_type)
+`;
+
+async function getSupplierAllocationRows(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string,
+  supplierInvoiceId: string,
+) {
+  const allocationsRes = await supabase
+    .from("supplier_payment_allocations")
+    .select("id, payment_id, invoice_id, amount, allocation_date, notes, created_at, cancelled_at")
+    .eq("invoice_id", supplierInvoiceId)
+    .eq("organization_id", organizationId)
+    .is("cancelled_at", null)
+    .order("allocation_date", { ascending: false });
+
+  if (allocationsRes.error) {
+    console.error("[purchases] supplier allocations load failed", {
+      code: allocationsRes.error.code,
+    });
+    throw new Error("Impossible de charger les affectations de paiement fournisseur.");
+  }
+
+  const allocationRows = (allocationsRes.data ?? []) as Record<string, unknown>[];
+  const paymentIds = [...new Set(allocationRows.map((allocation) => normalizeText(allocation.payment_id)).filter(Boolean))];
+  if (paymentIds.length === 0) return allocationRows;
+
+  const paymentsRes = await supabase
+    .from("supplier_payments")
+    .select(SUPPLIER_PAYMENT_ATTACHMENT_SELECT)
+    .eq("organization_id", organizationId)
+    .in("id", paymentIds);
+
+  if (paymentsRes.error) {
+    console.error("[purchases] allocated supplier payments load failed", {
+      code: paymentsRes.error.code,
+    });
+    throw new Error("Impossible de charger les paiements fournisseur affectés.");
+  }
+
+  const paymentsById = new Map(
+    ((paymentsRes.data ?? []) as Record<string, unknown>[]).map((payment) => [normalizeText(payment.id), payment]),
+  );
+  return allocationRows.map((allocation) => ({
+    ...allocation,
+    payment: paymentsById.get(normalizeText(allocation.payment_id)) ?? null,
+  }));
+}
+
 export async function getSupplierInvoicePayments({
   organizationId,
   supplierInvoiceId,
@@ -877,22 +929,7 @@ export async function getSupplierInvoicePayments({
   const supabase = await createClient();
   const attachments = new Map<string, SupplierInvoicePaymentAttachment>();
 
-  const allocationsRes = await supabase
-    .from("supplier_payment_allocations")
-    .select(`
-      id, payment_id, invoice_id, amount, allocation_date, notes, created_at, cancelled_at,
-      payment:payment_id (
-        id, payment_number, payment_date, payment_method, status, treasury_account_id,
-        reference, transfer_reference, check_number, notes, amount, created_at, archived_at,
-        treasury_account:treasury_account_id (id, name, account_type)
-      )
-    `)
-    .eq("invoice_id", supplierInvoiceId)
-    .eq("organization_id", organizationId)
-    .is("cancelled_at", null)
-    .order("allocation_date", { ascending: false });
-
-  const allocationRows = (allocationsRes.data ?? []) as Record<string, unknown>[];
+  const allocationRows = await getSupplierAllocationRows(supabase, organizationId, supplierInvoiceId);
   const allocationPaymentIds = allocationRows
     .map((allocation) => normalizeText(relationValue(allocation.payment)?.id))
     .filter(Boolean);
@@ -915,7 +952,7 @@ export async function getSupplierInvoicePayments({
   const directTreasuryRes = await supabase
     .from("treasury_transactions")
     .select(`
-      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date,
+      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date, direction,
       amount, reference, description, label, reconciliation_status, created_at, archived_at,
       account:treasury_account_id (id, name, account_type)
     `)
@@ -932,7 +969,7 @@ export async function getSupplierInvoicePayments({
       allocation_id: String(tx.id),
       payment_number: normalizeText(tx.reference) || normalizeText(tx.label) || "Mouvement tresorerie",
       payment_date: normalizeText(tx.transaction_date) || null,
-      amount: toAmount(tx.amount),
+      amount: normalizeText(tx.direction) === "in" ? -Math.abs(toAmount(tx.amount)) : Math.abs(toAmount(tx.amount)),
       payment_method: null,
       status: normalizeText(tx.reconciliation_status) || "confirmed",
       treasury_account_id: normalizeText(tx.treasury_account_id) || null,
@@ -1054,22 +1091,7 @@ export async function getSupplierInvoiceAttachedPayments({
   supplierInvoiceId: string;
 }): Promise<SupplierInvoicePaymentAttachment[]> {
   const supabase = await createClient();
-  const allocationsRes = await supabase
-    .from("supplier_payment_allocations")
-    .select(`
-      id, payment_id, invoice_id, amount, allocation_date, notes, created_at, cancelled_at,
-      payment:payment_id (
-        id, payment_number, payment_date, payment_method, status, treasury_account_id,
-        reference, transfer_reference, check_number, notes, amount, created_at, archived_at,
-        treasury_account:treasury_account_id (id, name, account_type)
-      )
-    `)
-    .eq("invoice_id", supplierInvoiceId)
-    .eq("organization_id", organizationId)
-    .is("cancelled_at", null)
-    .order("allocation_date", { ascending: false });
-
-  const allocationRows = (allocationsRes.data ?? []) as Record<string, unknown>[];
+  const allocationRows = await getSupplierAllocationRows(supabase, organizationId, supplierInvoiceId);
   const paymentIds = allocationRows
     .map((allocation) => normalizeText(relationValue(allocation.payment)?.id))
     .filter(Boolean);
@@ -1091,7 +1113,7 @@ export async function getSupplierInvoiceAttachedPayments({
   const directTreasuryRes = await supabase
     .from("treasury_transactions")
     .select(`
-      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date,
+      id, treasury_account_id, supplier_payment_id, supplier_invoice_id, transaction_date, direction,
       amount, reference, description, label, reconciliation_status, created_at, archived_at,
       account:treasury_account_id (id, name, account_type)
     `)
@@ -1110,7 +1132,7 @@ export async function getSupplierInvoiceAttachedPayments({
       allocation_id: String(tx.id),
       payment_number: normalizeText(tx.reference) || normalizeText(tx.label) || "Mouvement tresorerie",
       payment_date: normalizeText(tx.transaction_date) || null,
-      amount: toAmount(tx.amount),
+      amount: normalizeText(tx.direction) === "in" ? -Math.abs(toAmount(tx.amount)) : Math.abs(toAmount(tx.amount)),
       payment_method: null,
       status,
       treasury_account_id: normalizeText(tx.treasury_account_id) || null,
@@ -1123,7 +1145,7 @@ export async function getSupplierInvoiceAttachedPayments({
       accounting_entry_number: null,
       accounting_entry_status: null,
       created_at: normalizeText(tx.created_at) || null,
-      counted_in_paid_total: isSupplierPaymentConfirmedStatus(status),
+      counted_in_paid_total: true,
       source: "treasury_transactions",
       matchStatus: "confirmed",
       matchScore: null,

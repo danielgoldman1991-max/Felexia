@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Check, LoaderCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
+import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
 
 export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
@@ -54,22 +54,14 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {SUBSCRIPTION_PLANS.map((plan) => {
+      <div className="grid gap-4 lg:grid-cols-1">
+        {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
           const price = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
           return (
             <article
               key={plan.code}
-              className={cn(
-                "relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5",
-                plan.isRecommended && "border-blue-300 ring-1 ring-blue-200",
-              )}
+              className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5"
             >
-              {plan.isRecommended && (
-                <div className="absolute right-5 top-5">
-                  <Badge tone="info">Recommandé</Badge>
-                </div>
-              )}
               <h2 className="text-xl font-semibold text-slate-950">{plan.name}</h2>
               <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{plan.description}</p>
               <p className="mt-5 text-3xl font-bold text-slate-950">
@@ -86,7 +78,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
               </ul>
               <Button
                 className="mt-6 w-full"
-                variant={plan.isRecommended ? "primary" : "secondary"}
+                variant="primary"
                 disabled={!hasStripe || loadingPlan !== null}
                 onClick={() => choosePlan(plan.code)}
               >
@@ -96,7 +88,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
                     Redirection...
                   </>
                 ) : (
-                  `Choisir ${plan.name}`
+                  `Souscrire à ${plan.name}`
                 )}
               </Button>
             </article>

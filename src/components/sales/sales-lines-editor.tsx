@@ -327,7 +327,6 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">TVA</span>
             <Select value={draftLine.tax_rate_id} onChange={(event) => handleTaxRateChange(event.target.value)}>
-              <option value="">--</option>
               {taxRates.map((taxRate) => (
                 <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>
               ))}
@@ -376,7 +375,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
                 <Td><MoneyDisplay value={line.unit_price_ht} /></Td>
                 <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td>
                 <Td><MoneyDisplay value={line.subtotal_ht} /></Td>
-                <Td>{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</Td>
+                <Td>{line.tax_rate_id ? `${line.tax_rate}%` : "-"}</Td>
                 <Td><MoneyDisplay value={line.total_ttc} /></Td>
                 <Td>
                   <Button type="button" variant="ghost" onClick={() => onChange(lines.filter((item) => item.id !== line.id))}>

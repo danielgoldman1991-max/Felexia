@@ -124,9 +124,7 @@ export function ThirdPartyDetail({
                 ) : null}
               </form>
             ) : null}
-            <Link href={`/tiers/${thirdParty.id}/edit`}>
-              <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/tiers/${thirdParty.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
             <form action={archiveAction}>
               <input type="hidden" name="id" value={thirdParty.id} />
               <Button variant="danger"><Archive className="h-4 w-4" /> Archiver</Button>

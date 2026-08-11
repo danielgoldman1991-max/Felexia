@@ -24,7 +24,7 @@ export default async function SupplierReceiptsPage() {
       <PageHeader
         title="Réceptions fournisseurs"
         description="Suivez les bons de réception, l'impact stock et la facturation associée."
-        actions={<Link href="/achats/receptions/new"><Button><Truck className="h-4 w-4" /> Nouvelle réception</Button></Link>}
+        actions={<Button asChild><Link href="/achats/receptions/new"><Truck className="h-4 w-4" /> Nouvelle réception</Link></Button>}
       />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

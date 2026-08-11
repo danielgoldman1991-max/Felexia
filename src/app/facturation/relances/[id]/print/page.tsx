@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
 import { PrintActions } from "@/components/sales/print-actions";
-import { MoneyDisplay } from "@/components/erp/money-display";
-import { Table, Td, Th } from "@/components/ui/table";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintPartyCard } from "@/components/print/PrintPartyCard";
+import { PrintLineTable } from "@/components/print/PrintLineTable";
+import { PrintTotals } from "@/components/print/PrintTotals";
+import { PrintTerms } from "@/components/print/PrintTerms";
+import { PrintFooter } from "@/components/print/PrintFooter";
 import { getCustomerReminderDetail } from "@/lib/reminders";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
-import { formatDate } from "@/lib/format";
-import { PrintCompanyBrand } from "@/components/shared/print-company-brand";
+import { formatDate, formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -14,32 +20,62 @@ export default async function CustomerReminderPrintPage({ params }: { params: Pr
   const { reminder, invoices } = await getCustomerReminderDetail(id);
   if (!reminder) notFound();
   const identity = await getOrganizationDocumentIdentity(reminder.organization_id);
+
+  const companyInfoLines = [
+    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
+    identity.ice ? `ICE : ${identity.ice}` : null,
+  ].filter(Boolean) as string[];
+
+  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+
   return (
-    <main className="mx-auto max-w-4xl bg-white p-8 print:p-0">
+    <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
       <PrintActions backHref={`/facturation/relances/${reminder.id}`} backLabel="Retour relance" />
-      <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-        <PrintCompanyBrand identity={identity} />
-        <div className="text-right">
-          <h1 className="text-2xl font-bold">RELANCE CLIENT</h1>
-          <p className="mt-2">{reminder.reminder_number}</p>
-          <p>{formatDate(reminder.reminder_date)}</p>
-          <p>Niveau {reminder.reminder_level}</p>
-        </div>
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div><p className="text-sm text-[var(--muted)]">Client</p><p className="font-semibold">{reminder.customer_name}</p></div>
-      </div>
-      <div className="mt-6">
-        <p className="font-semibold">{reminder.subject}</p>
-        <p className="mt-2 whitespace-pre-line text-sm leading-6">{reminder.message}</p>
-      </div>
-      <div className="mt-6">
-        <Table>
-          <thead><tr><Th>Facture</Th><Th>Echeance</Th><Th>Retard</Th><Th>Reste a payer</Th></tr></thead>
-          <tbody>{invoices.map((invoice) => <tr key={invoice.id}><Td>{invoice.invoice_number}</Td><Td>{invoice.due_date ? formatDate(invoice.due_date) : "-"}</Td><Td>{invoice.days_overdue ?? 0} j</Td><Td><MoneyDisplay value={invoice.remaining_amount} /></Td></tr>)}</tbody>
-        </Table>
-      </div>
-      <div className="mt-8 text-right text-lg font-semibold">Total en retard : <MoneyDisplay value={reminder.total_overdue_amount} /></div>
+      <PrintPage>
+        <PrintHeader>
+          <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
+          <PrintDocumentTitle title="RELANCE CLIENT" documentNumber={reminder.reminder_number}>
+            <p><strong>Date :</strong> {formatDate(reminder.reminder_date)}</p>
+            <p><strong>Niveau :</strong> {reminder.reminder_level}</p>
+          </PrintDocumentTitle>
+        </PrintHeader>
+
+        <PrintPartyCard title="Client" lines={[reminder.customer_name].filter(Boolean) as string[]} />
+
+        {reminder.subject ? <PrintTerms title={reminder.subject}>{reminder.message}</PrintTerms> : null}
+
+        {invoices.length > 0 ? (
+          <PrintLineTable
+            head={
+              <>
+                <th>#</th>
+                <th>Facture</th>
+                <th>Échéance</th>
+                <th className="right">Retard</th>
+                <th className="right">Reste à payer</th>
+              </>
+            }
+          >
+            {invoices.map((invoice, index) => (
+              <tr key={invoice.id}>
+                <td>{index + 1}</td>
+                <td className="strong">{invoice.invoice_number}</td>
+                <td>{invoice.due_date ? formatDate(invoice.due_date) : "-"}</td>
+                <td className="num">{invoice.days_overdue ?? 0} j</td>
+                <td className="num strong">{formatMoney(invoice.remaining_amount)}</td>
+              </tr>
+            ))}
+          </PrintLineTable>
+        ) : null}
+
+        <PrintTotals
+          rows={[]}
+          grandTotalLabel="Total en retard"
+          grandTotalValue={formatMoney(reminder.total_overdue_amount)}
+        />
+
+        <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
+      </PrintPage>
     </main>
   );
 }

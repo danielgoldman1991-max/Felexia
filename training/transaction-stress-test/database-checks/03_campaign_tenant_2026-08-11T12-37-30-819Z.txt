@@ -1,0 +1,41 @@
+Seed tenant de campagne 2026-08-11T12:37:30.819Z
+org=ATLAS DISTRIBUTION & SERVICES TEST SARL AU slug=stress-flx-2026-001
+
+org_id=407ec381-d9d4-4858-8d7f-2424347ff5fd
+password=Stress-FLX-2026#Test
+user owner=stress-flx-2026-001-owner@stress-flx-2026-001.felexia-test.local (Youssef Alami, rôle owner, status active)
+user admin=stress-flx-2026-001-admin@stress-flx-2026-001.felexia-test.local (Salma Benali, rôle admin, status active)
+user accountant=stress-flx-2026-001-accountant@stress-flx-2026-001.felexia-test.local (Karim Idrissi, rôle accountant, status active)
+user acct-clients=stress-flx-2026-001-acct-clients@stress-flx-2026-001.felexia-test.local (Nadia Cherkaoui, rôle accountant, status active)
+user acct-suppliers=stress-flx-2026-001-acct-suppliers@stress-flx-2026-001.felexia-test.local (Mehdi Tazi, rôle accountant, status active)
+user sales=stress-flx-2026-001-sales@stress-flx-2026-001.felexia-test.local (Amina El Fassi, rôle sales, status active)
+user purchase=stress-flx-2026-001-purchase@stress-flx-2026-001.felexia-test.local (Omar Berrada, rôle manager, status active)
+user warehouse-marrakech=stress-flx-2026-001-warehouse-marrakech@stress-flx-2026-001.felexia-test.local (Hamza Ouazzani, rôle stock_user, status active)
+user warehouse-casablanca=stress-flx-2026-001-warehouse-casablanca@stress-flx-2026-001.felexia-test.local (Imane Bennis, rôle stock_user, status active)
+user treasurer=stress-flx-2026-001-treasurer@stress-flx-2026-001.felexia-test.local (Rachid El Amrani, rôle manager, status active)
+user cashier=stress-flx-2026-001-cashier@stress-flx-2026-001.felexia-test.local (Fatima Zahra, rôle manager, status active)
+user auditor=stress-flx-2026-001-auditor@stress-flx-2026-001.felexia-test.local (Sara Lahlou, rôle viewer, status active)
+user limited=stress-flx-2026-001-limited@stress-flx-2026-001.felexia-test.local (Adil Mernissi, rôle viewer, status active)
+user suspended=stress-flx-2026-001-suspended@stress-flx-2026-001.felexia-test.local (Mounir Kabiri, rôle viewer, status disabled)
+role owner=d45be570-4fa5-4d39-806f-4c7bf229a271
+role admin=3af7658d-aeca-4ffe-b9bf-6da86e5f9d0f
+role accountant=87878623-81b4-4b3c-9b6a-ae17860f70ff
+role sales=1c7efe50-c24a-4cea-8950-f07401e49a24
+role manager=1149a482-56d6-4c01-a076-48b0aac00eeb
+role stock_user=b4387d54-3e34-4252-a29c-4e261e88397d
+role viewer=245fadc4-3965-47dc-a296-a7b0e390d387
+compte bank-marrakech=bf3929a9-a3fe-4117-b96d-b96b4b0cc35f
+compte bank-casablanca=3605c74e-117e-4df2-97ae-59865ebb959d
+compte cash-marrakech=d9f1d207-37c0-46fe-83ae-85ae397c03e3
+compte cash-casablanca=5daa0b62-1d46-43fb-9b29-5267fdb4ec57
+entrepot WH-MAR=a784f4b4-945f-4839-bd4a-c56a94aeccdf
+entrepot WH-CAS=4fa9d26e-cfec-4a8f-a85b-d81ffdbe475d
+tiers customer-1=06abacfa-dbae-419d-be98-5cd69b9392b4
+tiers customer-2=a3773d5b-a88c-498f-a4c8-425f4f96d6d0
+tiers supplier-1=d45afc8c-73c4-47b9-9706-78fc1795e653
+tiers supplier-2=f634c6d2-67e0-4d15-9017-05912df7566c
+produit p1=f2761933-5810-484f-a4ba-210692033476
+produit p2=7926e626-8fe3-4634-a959-9e6a04beec25
+produit p3=bc3f8db3-af95-423d-8207-7c82e32daf15
+produit s1=6747df81-b3c4-4a56-8606-6be0dd9e9619
+taxe_vat20=4b34f5a2-b265-4e1c-aa22-b71969f05668

@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TREASURY_ACCOUNT_TYPE_LABELS, type TreasuryAccountRecord, type TreasuryActionResult } from "@/lib/treasury-types";
@@ -66,8 +67,8 @@ export function TreasuryAccountForm({ account, action }: Props) {
             <Input name="account_number" defaultValue={account?.account_number ?? ""} />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Solde initial</span>
-            <Input name="opening_balance" type="number" step="0.01" min="0" defaultValue={account?.opening_balance ?? 0} />
+            <span className="font-medium">Solde initial{account ? " (non modifiable)" : ""}</span>
+            <MoneyInput name="opening_balance" min={0} defaultValue={account?.opening_balance ?? 0} disabled={Boolean(account)} />
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Date solde initial</span>
@@ -93,7 +94,7 @@ export function TreasuryAccountForm({ account, action }: Props) {
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
-        <Link href="/tresorerie/comptes"><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href="/tresorerie/comptes">Annuler</Link></Button>
         <Button disabled={pending}>{account ? "Enregistrer" : "Creer compte"}</Button>
       </div>
     </form>

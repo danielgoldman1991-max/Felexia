@@ -123,9 +123,7 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={delivery ? `/livraisons/${delivery.id}` : "/livraisons"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={delivery ? `/livraisons/${delivery.id}` : "/livraisons"}>Annuler</Link></Button>
         <Button disabled={pending}>
           {mode === "create" ? "Creer bon de livraison" : "Enregistrer"}
         </Button>

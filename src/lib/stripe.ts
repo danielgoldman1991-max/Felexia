@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { getEnv, hasStripeEnv } from "@/lib/env";
 import { getPlanDefinition, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
 import { getStripePriceId } from "@/lib/subscriptions/stripe-prices";
+import { isPlanPubliclyAvailable, PLAN_NOT_AVAILABLE_MESSAGE } from "@/lib/subscriptions/commercial-offers";
 
 let stripeInstance: Stripe | null = null;
 
@@ -67,6 +68,14 @@ export async function createPlanCheckoutSession(
   successUrl?: string,
   cancelUrl?: string,
 ): Promise<Stripe.Checkout.Session> {
+  // Protection commerciale serveur : Business / Premium ne sont plus
+  // commercialisés. Personne ne doit pouvoir lancer un checkout pour ces
+  // plans, même en modifiant le payload. (Les abonnements existants restent
+  // gérés par Stripe via le portail et le webhook.)
+  if (!isPlanPubliclyAvailable(planCode)) {
+    throw new Error(PLAN_NOT_AVAILABLE_MESSAGE);
+  }
+
   const stripe = getStripe();
   const env = getEnv();
   const plan = getPlanDefinition(planCode);
@@ -94,7 +103,7 @@ export async function createPlanCheckoutSession(
 }
 
 export async function createModuleCheckoutSession(): Promise<Stripe.Checkout.Session> {
-  throw new Error("La facturation par module est désactivée. Choisissez un pack Essentiel, Business ou Premium.");
+  throw new Error("La facturation par module est désactivée. Les modules sont inclus dans l'offre Essentiel.");
 }
 
 export async function createPortalSession(

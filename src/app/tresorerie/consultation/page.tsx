@@ -56,9 +56,7 @@ export default async function TreasuryConsultationPage({ searchParams }: { searc
     <ModulePage>
       <PageHeader title="Consultation tresorerie" description="Vue complete, filtrable et tracable des flux avant/apres comptabilisation." actions={
         <div className="flex items-center gap-2">
-          <Link href={csvUrl || "#"}>
-            <Button variant="secondary" disabled={!csvUrl}><Download className="h-4 w-4" /> Exporter</Button>
-          </Link>
+          <Button variant="secondary" disabled={!csvUrl} asChild><Link href={csvUrl || "#"}><Download className="h-4 w-4" /> Exporter</Link></Button>
         </div>
       } />
       <TreasuryConsultationFilters accounts={accounts} />
@@ -71,14 +69,10 @@ export default async function TreasuryConsultationPage({ searchParams }: { searc
           </p>
           <div className="flex items-center gap-2">
             {result.page > 1 ? (
-              <Link href={href(result.page - 1, sp)}>
-                <Button variant="secondary"><ChevronLeft className="h-4 w-4" /> Precedente</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={href(result.page - 1, sp)}><ChevronLeft className="h-4 w-4" /> Precedente</Link></Button>
             ) : null}
             {result.page < result.totalPages ? (
-              <Link href={href(result.page + 1, sp)}>
-                <Button variant="secondary">Suivante <ChevronRight className="h-4 w-4" /></Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={href(result.page + 1, sp)}>Suivante <ChevronRight className="h-4 w-4" /></Link></Button>
             ) : null}
           </div>
         </div>

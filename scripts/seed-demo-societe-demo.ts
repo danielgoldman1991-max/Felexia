@@ -6,6 +6,7 @@ import { getModulesForPlan } from "../src/lib/subscriptions/plan-modules";
 import { getPlanDefinition } from "../src/lib/subscriptions/plans";
 import { ensureHrReferenceData } from "../src/lib/hr/reference-data";
 import { getBusinessTrialEndDate, getDefaultTrialEndDate } from "../src/lib/subscriptions/trial-config";
+import { resolveSeedLineParents } from "./lib/seed-line-parents";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 0. ENV + CLIENT
@@ -91,11 +92,15 @@ const CFG = DEMO_CONFIG_RAW[SCALE] ?? DEMO_CONFIG_RAW.medium;
 const DEMO_PLAN: "essentiel" | "business" | "premium" =
   (process.env.DEMO_PLAN as "essentiel" | "business" | "premium") ?? "business";
 
-const DEMO_USER_EMAIL = "demo@felexia.pro";
-const DEMO_USER_PASSWORD = "test@123";
-const DEMO_USER_NAME = "Aziz Demo";
-const ORG_NAME = DEMO_PLAN === "essentiel" ? "SOCIETE DEMO ESSENTIEL" : "SOCIETE DEMO";
-const ORG_SLUG = DEMO_PLAN === "essentiel" ? "societe-demo-essentiel" : "societe-demo";
+const DEMO_USER_EMAIL = process.env.FELEXIA_DEMO_USER_EMAIL ?? "demo@felexia.pro";
+const DEMO_USER_PASSWORD = process.env.FELEXIA_DEMO_USER_PASSWORD ?? "test@123";
+const DEMO_USER_NAME = process.env.FELEXIA_DEMO_USER_NAME ?? "Aziz Demo";
+const ORG_NAME =
+  process.env.FELEXIA_DEMO_ORG_NAME ??
+  (DEMO_PLAN === "essentiel" ? "SOCIETE DEMO ESSENTIEL" : "SOCIETE DEMO");
+const ORG_SLUG =
+  process.env.FELEXIA_DEMO_ORG_SLUG ??
+  (DEMO_PLAN === "essentiel" ? "societe-demo-essentiel" : "societe-demo");
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 2. DETERMINISTIC RANDOM GENERATORS (seeded for idempotency)
@@ -269,7 +274,7 @@ async function batchInsert(table: string, rows: Record<string, unknown>[], chunk
     const chunk = rows.slice(i, i + chunkSize);
     const { error } = await supabase.from(table).insert(chunk);
     if (error) {
-      console.error(`  ❌ batchInsert ${table} chunk ${i / chunkSize + 1}: ${error.message}`);
+      throw new Error(`batchInsert ${table} chunk ${i / chunkSize + 1}: ${error.message}`);
     }
   }
 }
@@ -996,47 +1001,52 @@ async function ensureStock() {
     return;
   }
 
-  // Stock levels for products with track_stock
+  // Le stock courant, les niveaux par emplacement et le journal doivent toujours
+  // raconter la même histoire. Le seed crée d'abord un mouvement initial par
+  // produit, puis uniquement des paires d'ajustements neutres.
   const { data: trackableProducts } = await supabase.from("products").select("id, current_stock").eq("organization_id", DEMO_ORG_ID).eq("track_stock", true).eq("type", "product");
 
-  const stockLevels: Record<string, unknown>[] = [];
-  for (const p of trackableProducts ?? []) {
-    stockLevels.push({
-      organization_id: DEMO_ORG_ID,
-      warehouse_id: warehouseId,
-      product_id: p.id,
-      quantity: p.current_stock ?? randInt(0, 100),
-    });
-  }
-  if (stockLevels.length > 0) {
-    await batchInsert("stock_levels", stockLevels);
-  }
-  console.log(`  ✅ ${stockLevels.length} niveaux de stock créés`);
-
-  // Stock moves
-  const moveTypes = ["initial_stock", "purchase_receipt_in", "delivery_out", "customer_return_in", "adjustment_in", "adjustment_out", "manual_stock_in", "manual_stock_out"];
   const moves: Record<string, unknown>[] = [];
+  for (const p of trackableProducts ?? []) {
+    const initialQuantity = Number(p.current_stock ?? 0);
+    if (initialQuantity > 0) {
+      moves.push({
+        organization_id: DEMO_ORG_ID,
+        product_id: p.id,
+        warehouse_id: warehouseId,
+        move_type: "initial_stock",
+        direction: "in",
+        quantity: initialQuantity,
+        movement_date: new Date(2026, 0, 1).toISOString(),
+        notes: "Stock initial de démonstration",
+        created_at: new Date(2026, 0, 1).toISOString(),
+      });
+    }
+  }
+  console.log(`  ✅ ${(trackableProducts ?? []).length} produits à stock initialisés par mouvement`);
 
-  for (let i = 0; i < CFG.stockMovesCount; i++) {
-    const moveType = randChoice(moveTypes);
-    const direction = moveType === "delivery_out" || moveType === "adjustment_out" || moveType === "manual_stock_out" ? "out" : "in";
-    const pId = randChoice(Object.values(PRODUCT_MAP));
-    const whId = randChoice(Object.values(WAREHOUSE_MAP));
+  const targetMoveCount = Math.max(CFG.stockMovesCount, moves.length);
+  for (let i = moves.length; i + 1 < targetMoveCount; i += 2) {
+    const product = randChoice(trackableProducts ?? []);
+    if (!product) break;
+    const quantity = randInt(1, 10);
     const month = randInt(0, 11);
     const day = randInt(1, 28);
     const date = new Date(2026, month, day);
 
-    moves.push({
-      organization_id: DEMO_ORG_ID,
-      product_id: pId,
-      warehouse_id: whId,
-      move_type: moveType,
-      direction,
-      quantity: randInt(1, 50),
-      movement_date: date.toISOString(),
-      notes: `Mouvement ${i + 1}`,
-      created_at: date.toISOString(),
-    });
+    for (const direction of ["in", "out"] as const) {
+      moves.push({
+        organization_id: DEMO_ORG_ID,
+        product_id: product.id,
+        warehouse_id: warehouseId,
+        move_type: direction === "in" ? "adjustment_in" : "adjustment_out",
+        direction,
+        quantity,
+        movement_date: date.toISOString(),
+        notes: `Ajustement neutre de démonstration ${i + 1}`,
+        created_at: date.toISOString(),
+      });
+    }
   }
 
   await batchInsert("stock_moves", moves);
@@ -1093,6 +1103,7 @@ async function seedSalesDocuments() {
         quoteLines.push({
           organization_id: DEMO_ORG_ID,
           document_id: "QUOTE_PLACEHOLDER", // Will be replaced
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1134,12 +1145,7 @@ async function seedSalesDocuments() {
   for (const q of insertedQuotes ?? []) quoteIdMap[q.document_number] = q.id;
 
   // Update quote lines with real IDs
-  for (const line of quoteLines) {
-    const docNum = quotes[quoteLines.indexOf(line) % quotes.length]?.document_number as string | undefined;
-    if (docNum && quoteIdMap[docNum]) {
-      line.document_id = quoteIdMap[docNum];
-    }
-  }
+  resolveSeedLineParents(quoteLines, quoteIdMap, "document_id");
   await batchInsert("sales_document_lines", quoteLines);
   console.log(`  ✅ ${quotes.length} devis créés`);
 
@@ -1174,6 +1180,7 @@ async function seedSalesDocuments() {
         orderLines.push({
           organization_id: DEMO_ORG_ID,
           document_id: "ORDER_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1213,10 +1220,7 @@ async function seedSalesDocuments() {
   const orderIdMap: Record<string, string> = {};
   for (const o of insertedOrders ?? []) orderIdMap[o.document_number] = o.id;
 
-  for (const line of orderLines) {
-    const docNum = orders[orderLines.indexOf(line) % orders.length]?.document_number as string | undefined;
-    if (docNum && orderIdMap[docNum]) line.document_id = orderIdMap[docNum];
-  }
+  resolveSeedLineParents(orderLines, orderIdMap, "document_id");
   await batchInsert("sales_document_lines", orderLines);
   console.log(`  ✅ ${orders.length} commandes clients créées`);
 
@@ -1250,6 +1254,7 @@ async function seedSalesDocuments() {
         deliveryLines.push({
           organization_id: DEMO_ORG_ID,
           document_id: "DELIVERY_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1288,10 +1293,7 @@ async function seedSalesDocuments() {
   const deliveryIdMap: Record<string, string> = {};
   for (const d of insertedDeliveries ?? []) deliveryIdMap[d.document_number] = d.id;
 
-  for (const line of deliveryLines) {
-    const docNum = deliveries[deliveryLines.indexOf(line) % deliveries.length]?.document_number as string | undefined;
-    if (docNum && deliveryIdMap[docNum]) line.document_id = deliveryIdMap[docNum];
-  }
+  resolveSeedLineParents(deliveryLines, deliveryIdMap, "document_id");
   await batchInsert("sales_document_lines", deliveryLines);
   console.log(`  ✅ ${deliveries.length} bons de livraison créés`);
 
@@ -1329,6 +1331,7 @@ async function seedSalesDocuments() {
         invoiceLines.push({
           organization_id: DEMO_ORG_ID,
           invoice_id: "INVOICE_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1377,10 +1380,7 @@ async function seedSalesDocuments() {
   const invoiceIdMap: Record<string, string> = {};
   for (const inv of insertedInvoices ?? []) invoiceIdMap[inv.invoice_number] = inv.id;
 
-  for (const line of invoiceLines) {
-    const docNum = invoices[invoiceLines.indexOf(line) % invoices.length]?.invoice_number as string | undefined;
-    if (docNum && invoiceIdMap[docNum]) line.invoice_id = invoiceIdMap[docNum];
-  }
+  resolveSeedLineParents(invoiceLines, invoiceIdMap, "invoice_id");
   await batchInsert("customer_invoice_lines", invoiceLines);
   console.log(`  ✅ ${invoices.length} factures clients créées`);
 
@@ -1410,6 +1410,7 @@ async function seedSalesDocuments() {
       creditNoteLines.push({
         organization_id: DEMO_ORG_ID,
         credit_note_id: "CN_PLACEHOLDER",
+        __parent_reference: docNum,
         line_order: l + 1,
         product_id: pId,
         product_name: `Produit ${l + 1}`,
@@ -1450,10 +1451,7 @@ async function seedSalesDocuments() {
   const cnIdMap: Record<string, string> = {};
   for (const cn of insertedCNs ?? []) cnIdMap[cn.credit_note_number] = cn.id;
 
-  for (const line of creditNoteLines) {
-    const docNum = creditNotes[creditNoteLines.indexOf(line) % creditNotes.length]?.credit_note_number as string | undefined;
-    if (docNum && cnIdMap[docNum]) line.credit_note_id = cnIdMap[docNum];
-  }
+  resolveSeedLineParents(creditNoteLines, cnIdMap, "credit_note_id");
   await batchInsert("customer_credit_note_lines", creditNoteLines);
   console.log(`  ✅ ${creditNotes.length} avoirs clients créés`);
 }
@@ -1504,6 +1502,7 @@ async function seedPurchaseDocuments() {
         orderLines.push({
           organization_id: DEMO_ORG_ID,
           document_id: "PO_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1542,15 +1541,74 @@ async function seedPurchaseDocuments() {
     }
   }
 
-  const { data: insertedOrders } = await supabase.from("purchase_documents").insert(orders).select("id, document_number");
+  const { data: insertedOrders, error: insertedOrdersError } = await supabase.from("purchase_documents").insert(orders).select("id, document_number");
+  if (insertedOrdersError) throw new Error(`commandes fournisseurs : ${insertedOrdersError.message}`);
   const orderIdMap: Record<string, string> = {};
   for (const o of insertedOrders ?? []) orderIdMap[o.document_number] = o.id;
 
-  for (const line of orderLines) {
-    const docNum = orders[orderLines.indexOf(line) % orders.length]?.document_number as string | undefined;
-    if (docNum && orderIdMap[docNum]) line.document_id = orderIdMap[docNum];
-  }
+  resolveSeedLineParents(orderLines, orderIdMap, "document_id");
   await batchInsert("purchase_document_lines", orderLines);
+
+  const e2eDate = new Date("2026-06-11T10:00:00.000Z");
+  const e2eSupplierId = supplierIds[0];
+  const e2eProductId = productIds[0];
+  const e2eWarehouseId = Object.values(WAREHOUSE_MAP)[0];
+  if (!e2eWarehouseId) throw new Error("Aucun emplacement disponible pour le scenario achat E2E.");
+  const e2eQuantity = 6;
+  const e2eUnitPrice = 375;
+  const e2eSubtotal = e2eQuantity * e2eUnitPrice;
+  const e2eTax = Math.round(e2eSubtotal * 0.2 * 100) / 100;
+  const e2eTotal = e2eSubtotal + e2eTax;
+  const { data: e2eOrder, error: e2eOrderError } = await supabase
+    .from("purchase_documents")
+    .insert({
+      organization_id: DEMO_ORG_ID,
+      document_type: "supplier_order",
+      document_number: "CF-E2E-00001",
+      supplier_id: e2eSupplierId,
+      document_date: formatDate(e2eDate),
+      status: "received",
+      subtotal_ht: e2eSubtotal,
+      discount_total: 0,
+      tax_total: e2eTax,
+      total_ttc: e2eTotal,
+      currency: "MAD",
+      notes: "Scenario E2E achat : commande recue et facture payee",
+      created_at: e2eDate.toISOString(),
+    })
+    .select("id")
+    .single();
+  if (e2eOrderError || !e2eOrder) {
+    throw new Error(`commande achat E2E : ${e2eOrderError?.message ?? "creation impossible"}`);
+  }
+  const { data: e2eOrderLine, error: e2eOrderLineError } = await supabase
+    .from("purchase_document_lines")
+    .insert({
+      organization_id: DEMO_ORG_ID,
+      document_id: e2eOrder.id,
+      line_order: 1,
+      product_id: e2eProductId,
+      product_name: "Produit scenario E2E",
+      description: "Ligne commande du scenario achat complet",
+      quantity: e2eQuantity,
+      unit_id: unitId,
+      unit_price_ht: e2eUnitPrice,
+      tax_rate_id: taxRateId20,
+      tax_rate: 20,
+      subtotal_ht: e2eSubtotal,
+      discount_amount: 0,
+      tax_amount: e2eTax,
+      total_ttc: e2eTotal,
+      ordered_quantity: e2eQuantity,
+      received_quantity: e2eQuantity,
+      remaining_quantity: 0,
+      created_at: e2eDate.toISOString(),
+    })
+    .select("id")
+    .single();
+  if (e2eOrderLineError || !e2eOrderLine) {
+    throw new Error(`ligne commande achat E2E : ${e2eOrderLineError?.message ?? "creation impossible"}`);
+  }
   console.log(`  ✅ ${orders.length} commandes fournisseurs créées`);
 
   // Supplier receipts
@@ -1558,8 +1616,6 @@ async function seedPurchaseDocuments() {
   const receiptLines: Record<string, unknown>[] = [];
   const receiptStatuses = ["draft", "validated"];
   const receiptStatusCounts = [Math.floor(CFG.purchaseReceiptsCount * 0.15), Math.floor(CFG.purchaseReceiptsCount * 0.85)];
-  const orderIdsForReceipts = (insertedOrders ?? []).map((o) => o.id);
-
   let receiptIdx = 0;
   for (let s = 0; s < receiptStatuses.length; s++) {
     for (let i = 0; i < receiptStatusCounts[s]; i++) {
@@ -1571,7 +1627,9 @@ async function seedPurchaseDocuments() {
       const lineCount = randInt(1, 4);
       let subtotal = 0;
       let taxTotal = 0;
-      const linkedOrderId = orderIdsForReceipts.length > 0 && Math.random() < 0.3 ? randChoice(orderIdsForReceipts) : null;
+      // Bulk records stay standalone. End-to-end linked fixtures are created by
+      // the dedicated E2E scenario, never by randomly associating documents.
+      const linkedOrderId = null;
       const whId = randChoice(Object.values(WAREHOUSE_MAP));
 
       for (let l = 0; l < lineCount; l++) {
@@ -1586,6 +1644,7 @@ async function seedPurchaseDocuments() {
         receiptLines.push({
           organization_id: DEMO_ORG_ID,
           document_id: "REC_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1627,37 +1686,134 @@ async function seedPurchaseDocuments() {
     }
   }
 
-  const { data: insertedReceipts } = await supabase.from("purchase_documents").insert(receipts).select("id, document_number");
+  const { data: insertedReceipts, error: insertedReceiptsError } = await supabase.from("purchase_documents").insert(receipts).select("id, document_number");
+  if (insertedReceiptsError) throw new Error(`receptions fournisseurs : ${insertedReceiptsError.message}`);
   const receiptIdMap: Record<string, string> = {};
   for (const r of insertedReceipts ?? []) receiptIdMap[r.document_number] = r.id;
 
-  for (const line of receiptLines) {
-    const docNum = receipts[receiptLines.indexOf(line) % receipts.length]?.document_number as string | undefined;
-    if (docNum && receiptIdMap[docNum]) line.document_id = receiptIdMap[docNum];
-  }
-  await batchInsert("purchase_document_lines", receiptLines);
+  resolveSeedLineParents(receiptLines, receiptIdMap, "document_id");
+  const { data: insertedReceiptLines, error: receiptLinesError } = await supabase
+    .from("purchase_document_lines")
+    .insert(receiptLines)
+    .select("id, document_id, product_id, quantity, created_at");
+  if (receiptLinesError) throw new Error(`lignes de réception : ${receiptLinesError.message}`);
 
   // Create stock moves for validated receipts
-  const validatedReceipts = (insertedReceipts ?? []).filter((_, idx) => receipts[idx]?.status === "validated");
+  const receiptMetadata = new Map(
+    receipts.map((receipt) => [String(receipt.document_number), receipt]),
+  );
+  const validatedReceipts = (insertedReceipts ?? []).filter(
+    (receipt) => receiptMetadata.get(receipt.document_number)?.status === "validated",
+  );
   const stockMovesForReceipts: Record<string, unknown>[] = [];
   for (const rec of validatedReceipts) {
-    const recLines = receiptLines.filter((l) => l.document_id === rec.id);
+    const recLines = (insertedReceiptLines ?? []).filter((line) => line.document_id === rec.id);
+    const warehouseId = receiptMetadata.get(rec.document_number)?.warehouse_id;
     for (const line of recLines) {
       stockMovesForReceipts.push({
         organization_id: DEMO_ORG_ID,
         product_id: line.product_id,
-        warehouse_id: line.warehouse_id ?? randChoice(Object.values(WAREHOUSE_MAP)),
+        warehouse_id: warehouseId,
         quantity: line.quantity,
         direction: "in",
-        move_type: "purchase_receipt",
+        move_type: "purchase_receipt_in",
         source_document_id: rec.id,
+        source_line_id: line.id,
         movement_date: line.created_at,
         notes: `Stock move for receipt ${rec.document_number}`,
       });
     }
   }
+  const { data: e2eReceipt, error: e2eReceiptError } = await supabase
+    .from("purchase_documents")
+    .insert({
+      organization_id: DEMO_ORG_ID,
+      document_type: "supplier_receipt",
+      document_number: "REC-E2E-00001",
+      supplier_id: e2eSupplierId,
+      source_document_id: e2eOrder.id,
+      related_order_id: e2eOrder.id,
+      document_date: formatDate(e2eDate),
+      status: "validated",
+      subtotal_ht: e2eSubtotal,
+      discount_total: 0,
+      tax_total: e2eTax,
+      total_ttc: e2eTotal,
+      currency: "MAD",
+      warehouse_id: e2eWarehouseId,
+      stock_updated_at: e2eDate.toISOString(),
+      validated_at: e2eDate.toISOString(),
+      notes: "Scenario E2E achat : reception exacte de la commande",
+      created_at: e2eDate.toISOString(),
+    })
+    .select("id")
+    .single();
+  if (e2eReceiptError || !e2eReceipt) {
+    throw new Error(`reception achat E2E : ${e2eReceiptError?.message ?? "creation impossible"}`);
+  }
+  const { data: e2eReceiptLine, error: e2eReceiptLineError } = await supabase
+    .from("purchase_document_lines")
+    .insert({
+      organization_id: DEMO_ORG_ID,
+      document_id: e2eReceipt.id,
+      source_line_id: e2eOrderLine.id,
+      line_order: 1,
+      product_id: e2eProductId,
+      product_name: "Produit scenario E2E",
+      description: "Ligne reception du scenario achat complet",
+      quantity: e2eQuantity,
+      unit_id: unitId,
+      unit_price_ht: e2eUnitPrice,
+      tax_rate_id: taxRateId20,
+      tax_rate: 20,
+      subtotal_ht: e2eSubtotal,
+      discount_amount: 0,
+      tax_amount: e2eTax,
+      total_ttc: e2eTotal,
+      received_quantity: e2eQuantity,
+      created_at: e2eDate.toISOString(),
+    })
+    .select("id")
+    .single();
+  if (e2eReceiptLineError || !e2eReceiptLine) {
+    throw new Error(`ligne reception achat E2E : ${e2eReceiptLineError?.message ?? "creation impossible"}`);
+  }
+  stockMovesForReceipts.push({
+    organization_id: DEMO_ORG_ID,
+    product_id: e2eProductId,
+    warehouse_id: e2eWarehouseId,
+    quantity: e2eQuantity,
+    direction: "in",
+    move_type: "purchase_receipt_in",
+    source_document_id: e2eReceipt.id,
+    source_line_id: e2eReceiptLine.id,
+    movement_date: e2eDate.toISOString(),
+    notes: "Scenario E2E achat : entree issue de la ligne de reception",
+  });
+
   if (stockMovesForReceipts.length > 0) {
     await batchInsert("stock_moves", stockMovesForReceipts);
+  }
+
+  const { data: currentLevels, error: currentLevelsError } = await supabase
+    .from("stock_levels")
+    .select("product_id, quantity")
+    .eq("organization_id", DEMO_ORG_ID);
+  if (currentLevelsError) throw new Error(currentLevelsError.message);
+  const stockByProduct = new Map<string, number>();
+  for (const level of currentLevels ?? []) {
+    stockByProduct.set(
+      level.product_id,
+      (stockByProduct.get(level.product_id) ?? 0) + Number(level.quantity ?? 0),
+    );
+  }
+  for (const [productId, currentStock] of stockByProduct) {
+    const { error } = await supabase
+      .from("products")
+      .update({ current_stock: currentStock })
+      .eq("organization_id", DEMO_ORG_ID)
+      .eq("id", productId);
+    if (error) throw new Error(error.message);
   }
 
   console.log(`  ✅ ${receipts.length} réceptions fournisseurs créées (${stockMovesForReceipts.length} mouvements de stock)`);
@@ -1694,6 +1850,7 @@ async function seedPurchaseDocuments() {
         invoiceLines.push({
           organization_id: DEMO_ORG_ID,
           invoice_id: "SI_PLACEHOLDER",
+          __parent_reference: docNum,
           line_order: l + 1,
           product_id: pId,
           product_name: `Produit ${l + 1}`,
@@ -1714,7 +1871,9 @@ async function seedPurchaseDocuments() {
       const totalTtc = Math.round((subtotal + taxTotal) * 100) / 100;
       const status = invoiceStatuses[s];
       const paidAmount = status === "paid" ? totalTtc : status === "partially_paid" ? Math.round(totalTtc * 0.5 * 100) / 100 : 0;
-      const linkedReceiptId = (insertedReceipts ?? []).length > 0 && Math.random() < 0.5 && status !== "cancelled" ? randChoice(insertedReceipts ?? []).id : null;
+      // A source receipt is authoritative: supplier, lines and totals must all
+      // be derived from it. Random links are therefore forbidden in bulk data.
+      const linkedReceiptId = null;
 
       invoices.push({
         organization_id: DEMO_ORG_ID,
@@ -1740,14 +1899,54 @@ async function seedPurchaseDocuments() {
     }
   }
 
-  const { data: insertedInvoices } = await supabase.from("supplier_invoices").insert(invoices).select("id, invoice_number");
+  invoices.push({
+    organization_id: DEMO_ORG_ID,
+    invoice_number: "FF-E2E-00001",
+    supplier_invoice_number: "FOURN-E2E-00001",
+    supplier_id: e2eSupplierId,
+    source_receipt_id: e2eReceipt.id,
+    invoice_date: formatDate(e2eDate),
+    due_date: formatDate(new Date("2026-07-11T10:00:00.000Z")),
+    status: "paid",
+    payment_status: "paid",
+    subtotal_ht: e2eSubtotal,
+    discount_total: 0,
+    tax_total: e2eTax,
+    total_ttc: e2eTotal,
+    paid_amount: e2eTotal,
+    remaining_amount: 0,
+    currency: "MAD",
+    notes: "Scenario E2E achat : facture issue de la reception et reglee",
+    created_at: e2eDate.toISOString(),
+  });
+  invoiceLines.push({
+    organization_id: DEMO_ORG_ID,
+    invoice_id: "SI_PLACEHOLDER",
+    __parent_reference: "FF-E2E-00001",
+    line_order: 1,
+    product_id: e2eProductId,
+    product_name: "Produit scenario E2E",
+    description: "Ligne facture du scenario achat complet",
+    source_document_id: e2eReceipt.id,
+    source_line_id: e2eReceiptLine.id,
+    quantity: e2eQuantity,
+    unit_id: unitId,
+    unit_price_ht: e2eUnitPrice,
+    tax_rate_id: taxRateId20,
+    tax_rate: 20,
+    subtotal_ht: e2eSubtotal,
+    discount_amount: 0,
+    tax_amount: e2eTax,
+    total_ttc: e2eTotal,
+    created_at: e2eDate.toISOString(),
+  });
+
+  const { data: insertedInvoices, error: insertedInvoicesError } = await supabase.from("supplier_invoices").insert(invoices).select("id, invoice_number");
+  if (insertedInvoicesError) throw new Error(`factures fournisseurs : ${insertedInvoicesError.message}`);
   const invoiceIdMap: Record<string, string> = {};
   for (const inv of insertedInvoices ?? []) invoiceIdMap[inv.invoice_number] = inv.id;
 
-  for (const line of invoiceLines) {
-    const docNum = invoices[invoiceLines.indexOf(line) % invoices.length]?.invoice_number as string | undefined;
-    if (docNum && invoiceIdMap[docNum]) line.invoice_id = invoiceIdMap[docNum];
-  }
+  resolveSeedLineParents(invoiceLines, invoiceIdMap, "invoice_id");
   await batchInsert("supplier_invoice_lines", invoiceLines);
   console.log(`  ✅ ${invoices.length} factures fournisseurs créées`);
 
@@ -1839,7 +2038,7 @@ async function seedPayments() {
       available_amount: amount,
       currency: "MAD",
       payment_method: paymentMethod,
-      payment_type: randChoice(["customer_payment", "advance_payment", "deposit"]),
+      payment_type: randChoice(["advance_payment", "deposit"]),
       reference: `REF-${i + 1}`,
       status: "confirmed",
       treasury_account_id: randChoice(treasuryIds),
@@ -1868,7 +2067,7 @@ async function seedPayments() {
       available_amount: amount,
       currency: "MAD",
       payment_method: randChoice(["bank_transfer", "check"]),
-      payment_type: "supplier_payment",
+      payment_type: randChoice(["advance_payment", "deposit"]),
       reference: `REF-FOURN-${i + 1}`,
       status: "confirmed",
       treasury_account_id: randChoice(treasuryIds),
@@ -1877,6 +2076,83 @@ async function seedPayments() {
   }
   await batchInsert("supplier_payments", supplierPayments);
   console.log(`  ✅ ${supplierPayments.length} paiements fournisseurs créés`);
+
+  const { data: paidCustomerInvoices, error: paidCustomerInvoicesError } = await supabase
+    .from("customer_invoices")
+    .select("id, invoice_number, customer_id, invoice_date, paid_amount")
+    .eq("organization_id", DEMO_ORG_ID)
+    .gt("paid_amount", 0)
+    .is("archived_at", null);
+  if (paidCustomerInvoicesError) throw new Error(paidCustomerInvoicesError.message);
+
+  const linkedCustomerPayments = (paidCustomerInvoices ?? []).map((invoice, index) => ({
+    organization_id: DEMO_ORG_ID,
+    third_party_id: invoice.customer_id,
+    customer_id: invoice.customer_id,
+    payment_number: `REG-LINK-${String(index + 1).padStart(5, "0")}`,
+    payment_date: invoice.invoice_date,
+    amount: Math.round(Number(invoice.paid_amount ?? 0) * 100) / 100,
+    allocated_amount: Math.round(Number(invoice.paid_amount ?? 0) * 100) / 100,
+    available_amount: 0,
+    currency: "MAD",
+    payment_method: index % 2 === 0 ? "bank_transfer" : "check",
+    payment_type: "customer_payment",
+    reference: invoice.invoice_number,
+    status: "allocated",
+    treasury_account_id: randChoice(treasuryIds),
+    created_at: new Date(String(invoice.invoice_date)).toISOString(),
+  }));
+
+  if (linkedCustomerPayments.length > 0) {
+    const { data: insertedLinkedPayments, error } = await supabase
+      .from("customer_payments")
+      .insert(linkedCustomerPayments)
+      .select("id, reference, amount, customer_id, payment_date, treasury_account_id");
+    if (error) throw new Error(`paiements clients liés : ${error.message}`);
+
+    const invoicesByReference = new Map(
+      (paidCustomerInvoices ?? []).map((invoice) => [invoice.invoice_number, invoice]),
+    );
+    const allocations = (insertedLinkedPayments ?? []).map((payment) => {
+      const invoice = invoicesByReference.get(String(payment.reference ?? ""));
+      if (!invoice) throw new Error("Facture client introuvable pour un paiement de seed.");
+      return {
+        organization_id: DEMO_ORG_ID,
+        payment_id: payment.id,
+        invoice_id: invoice.id,
+        third_party_id: invoice.customer_id,
+        customer_id: invoice.customer_id,
+        allocation_date: payment.payment_date,
+        amount: payment.amount,
+        notes: "Affectation de démonstration générée pour facture client réglée",
+        created_at: new Date(String(payment.payment_date)).toISOString(),
+      };
+    });
+    await batchInsert("customer_payment_allocations", allocations);
+
+    const linkedTransactions = (insertedLinkedPayments ?? []).map((payment) => {
+      const invoice = invoicesByReference.get(String(payment.reference ?? ""));
+      if (!invoice) throw new Error("Facture client introuvable pour une transaction de seed.");
+      return {
+        organization_id: DEMO_ORG_ID,
+        treasury_account_id: payment.treasury_account_id,
+        transaction_type: "customer_payment",
+        direction: "in",
+        amount: payment.amount,
+        currency: "MAD",
+        transaction_date: payment.payment_date,
+        label: `Encaissement facture client ${payment.reference}`,
+        reference: payment.reference,
+        third_party_id: payment.customer_id,
+        customer_payment_id: payment.id,
+        customer_invoice_id: invoice.id,
+        reconciliation_status: "unreconciled",
+        created_at: new Date(String(payment.payment_date)).toISOString(),
+      };
+    });
+    await batchInsert("treasury_transactions", linkedTransactions);
+    console.log(`  ✅ ${allocations.length} affectations de paiements clients liées aux factures réglées`);
+  }
 
   const { data: paidSupplierInvoices } = await supabase
     .from("supplier_invoices")
@@ -1912,7 +2188,7 @@ async function seedPayments() {
       .select("id, payment_number, reference, amount, supplier_id, payment_date, treasury_account_id");
 
     if (linkedPaymentError) {
-      console.error(`  ❌ paiements fournisseurs liés: ${linkedPaymentError.message}`);
+      throw new Error(`paiements fournisseurs liés : ${linkedPaymentError.message}`);
     } else {
       const invoiceByReference = new Map((paidSupplierInvoices ?? []).map((invoice) => [String(invoice.supplier_invoice_number ?? invoice.invoice_number ?? ""), invoice]));
       const allocations = (insertedLinkedPayments ?? []).map((payment) => {
@@ -1971,14 +2247,9 @@ async function seedTreasury() {
   // Treasury transactions
   const transactions: Record<string, unknown>[] = [];
   const types: Array<{ type: string; direction: string; label: string }> = [
-    { type: "customer_payment", direction: "in", label: "Encaissement client" },
-    { type: "supplier_payment", direction: "out", label: "Paiement fournisseur" },
     { type: "manual_in", direction: "in", label: "Virement interne reçu" },
     { type: "manual_out", direction: "out", label: "Virement interne émis" },
     { type: "bank_fee", direction: "out", label: "Frais bancaires" },
-    { type: "transfer_in", direction: "in", label: "Transfert caisse" },
-    { type: "transfer_out", direction: "out", label: "Transfert banque" },
-    { type: "opening_balance", direction: "in", label: "Solde d'ouverture" },
     { type: "adjustment", direction: "in", label: "Ajustement positif" },
     { type: "other", direction: "out", label: "Dépense diverse" },
   ];
@@ -2006,6 +2277,38 @@ async function seedTreasury() {
     });
   }
   await batchInsert("treasury_transactions", transactions);
+
+  const { data: accountRows, error: accountRowsError } = await supabase
+    .from("treasury_accounts")
+    .select("id, opening_balance")
+    .eq("organization_id", DEMO_ORG_ID)
+    .is("archived_at", null);
+  if (accountRowsError) throw new Error(accountRowsError.message);
+  const { data: transactionRows, error: transactionRowsError } = await supabase
+    .from("treasury_transactions")
+    .select("treasury_account_id, direction, amount")
+    .eq("organization_id", DEMO_ORG_ID)
+    .is("archived_at", null);
+  if (transactionRowsError) throw new Error(transactionRowsError.message);
+  for (const account of accountRows ?? []) {
+    const movementTotal = (transactionRows ?? [])
+      .filter((transaction) => transaction.treasury_account_id === account.id)
+      .reduce(
+        (sum, transaction) =>
+          sum +
+          (transaction.direction === "out" ? -1 : 1) * Number(transaction.amount ?? 0),
+        0,
+      );
+    const { error } = await supabase
+      .from("treasury_accounts")
+      .update({
+        current_balance:
+          Math.round((Number(account.opening_balance ?? 0) + movementTotal) * 100) / 100,
+      })
+      .eq("organization_id", DEMO_ORG_ID)
+      .eq("id", account.id);
+    if (error) throw new Error(error.message);
+  }
   console.log(`  ✅ ${transactions.length} transactions trésorerie créées`);
 
   // Bank statement imports (12 months)

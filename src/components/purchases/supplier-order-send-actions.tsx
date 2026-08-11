@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Mail, MessageCircle } from "lucide-react";
+import { Mail, MessageCircle, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 import { getAppUrl } from "@/lib/app-url";
@@ -72,26 +72,20 @@ export function SupplierOrderSendActions({ document }: { document: Pick<Purchase
   return (
     <div className="flex flex-wrap items-center gap-2">
       {hasEmail ? (
-        <a href={`mailto:${document.supplier_email}?subject=${subject}&body=${body}`} target="_blank" rel="noopener noreferrer">
-          <Button type="button" variant="secondary"><Mail className="h-4 w-4" /> Envoyer par email</Button>
-        </a>
+        <Button type="button" variant="secondary" asChild><a href={`mailto:${document.supplier_email}?subject=${subject}&body=${body}`} target="_blank" rel="noopener noreferrer"><Mail className="h-4 w-4" /> Envoyer par email</a></Button>
       ) : (
         <span title="Aucune adresse email fournisseur renseignee.">
           <Button type="button" variant="secondary" disabled><Mail className="h-4 w-4" /> Envoyer par email</Button>
         </span>
       )}
       {hasPhone ? (
-        <a href={`https://wa.me/${phone}?text=${waText}`} target="_blank" rel="noopener noreferrer">
-          <Button type="button" variant="secondary"><MessageCircle className="h-4 w-4" /> Envoyer par WhatsApp</Button>
-        </a>
+        <Button type="button" variant="secondary" asChild><a href={`https://wa.me/${phone}?text=${waText}`} target="_blank" rel="noopener noreferrer"><MessageCircle className="h-4 w-4" /> Envoyer par WhatsApp</a></Button>
       ) : (
         <span title="Aucun numero telephone fournisseur renseigne.">
           <Button type="button" variant="secondary" disabled><MessageCircle className="h-4 w-4" /> Envoyer par WhatsApp</Button>
         </span>
       )}
-      <a href={`/achats/commandes/${document.id}/print`} target="_blank" rel="noopener noreferrer">
-        <Button type="button" variant="secondary"><FileText className="h-4 w-4" /> Telecharger PDF</Button>
-      </a>
+      <Button type="button" variant="secondary" asChild><a href={`/achats/commandes/${document.id}/print`} target="_blank" rel="noopener noreferrer"><Printer className="h-4 w-4" /> Imprimer / Enregistrer en PDF</a></Button>
     </div>
   );
 }

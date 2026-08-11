@@ -78,11 +78,12 @@ export async function getDashboardData(): Promise<DashboardData> {
   // ── 4. Trésorerie disponible ──
   const { data: treasuryData } = await supabase
     .from("treasury_accounts")
-    .select("balance")
+    .select("current_balance")
     .eq("organization_id", orgId)
-    .eq("status", "active");
+    .eq("status", "active")
+    .is("archived_at", null);
 
-  const availableCash = (treasuryData ?? []).reduce((sum, row) => sum + (Number(row.balance) || 0), 0);
+  const availableCash = (treasuryData ?? []).reduce((sum, row) => sum + (Number(row.current_balance) || 0), 0);
 
   // ── 5. Devis en attente (quotes draft/sent) ──
   const { data: quotesData } = await supabase
@@ -136,7 +137,13 @@ export async function getDashboardData(): Promise<DashboardData> {
       .select("product_id, quantity")
       .in("product_id", productIds);
 
-    const stockMap = new Map((stockData ?? []).map((s) => [s.product_id, Number(s.quantity) || 0]));
+    const stockMap = new Map<string, number>();
+    for (const stock of stockData ?? []) {
+      stockMap.set(
+        stock.product_id,
+        (stockMap.get(stock.product_id) ?? 0) + (Number(stock.quantity) || 0),
+      );
+    }
     lowStockCount = lowStockData.filter((p) => {
       const qty = stockMap.get(p.id) ?? 0;
       return qty <= Number(p.stock_alert_threshold);
@@ -255,12 +262,35 @@ export async function getDashboardData(): Promise<DashboardData> {
   recentActivities.splice(8);
 
   // ── 12. Top 5 clients ──
-  const { data: topClientData } = await supabase
+  const { data: topClientData, error: topClientError } = await supabase
     .from("customer_invoices")
-    .select("customer_id, customer_name, total_ttc")
+    .select("customer_id, total_ttc")
     .eq("organization_id", orgId)
     .gte("invoice_date", yearStart)
     .not("status", "in", "(draft,cancelled)");
+
+  if (topClientError) {
+    console.error("[dashboard] top clients invoice load failed", {
+      code: topClientError.code,
+    });
+  }
+
+  const topClientIds = [...new Set((topClientData ?? []).map((row) => row.customer_id).filter(Boolean))];
+  const { data: topClientNames, error: topClientNamesError } = topClientIds.length > 0
+    ? await supabase
+        .from("third_parties")
+        .select("id, name")
+        .eq("organization_id", orgId)
+        .in("id", topClientIds)
+    : { data: [], error: null };
+
+  if (topClientNamesError) {
+    console.error("[dashboard] top clients names load failed", {
+      code: topClientNamesError.code,
+    });
+  }
+
+  const topClientNameById = new Map((topClientNames ?? []).map((row) => [row.id, row.name]));
 
   const clientMap = new Map<string, { name: string; amount: number }>();
   for (const row of topClientData ?? []) {
@@ -269,7 +299,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     if (existing) {
       existing.amount += Number(row.total_ttc) || 0;
     } else {
-      clientMap.set(key, { name: row.customer_name ?? "Client inconnu", amount: Number(row.total_ttc) || 0 });
+      clientMap.set(key, { name: topClientNameById.get(key) ?? "Client inconnu", amount: Number(row.total_ttc) || 0 });
     }
   }
 

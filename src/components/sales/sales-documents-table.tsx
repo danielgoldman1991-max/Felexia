@@ -63,13 +63,9 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
             <Td>{row.source_document_number ?? "-"}</Td>
             <Td>
               <div className="flex flex-wrap gap-2">
-                <Link href={`${pathByType[type]}/${row.id}`}>
-                  <Button type="button" variant="secondary">Consulter</Button>
-                </Link>
+                <Button type="button" variant="secondary" asChild><Link href={`${pathByType[type]}/${row.id}`}>Consulter</Link></Button>
                 {isOrderTable && row.status === "draft" ? (
-                  <Link href={`${pathByType[type]}/${row.id}/edit`}>
-                    <Button type="button" variant="ghost">Modifier</Button>
-                  </Link>
+                  <Button type="button" variant="ghost" asChild><Link href={`${pathByType[type]}/${row.id}/edit`}>Modifier</Link></Button>
                 ) : null}
               </div>
             </Td>

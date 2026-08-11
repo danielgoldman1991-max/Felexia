@@ -586,7 +586,10 @@ export function buildCustomerInvoiceLines(
   const grouped: Record<string, { ht: number; label: string }> = {};
   for (const line of lines) {
     const accountId = line.product_id ? accountIds.sales_product : accountIds.sales_service;
-    const ht = round2(line.subtotal_ht - (line.discount_amount ?? 0));
+    // Customer invoice subtotals are already net of the line discount.
+    // Subtracting discount_amount here a second time understates both revenue
+    // and the customer receivable.
+    const ht = round2(line.subtotal_ht);
     if (grouped[accountId]) {
       grouped[accountId].ht += ht;
     } else {
@@ -878,6 +881,67 @@ export async function listRecentEntryLinesForAccount(accountId: string, limit = 
   });
 }
 
+export type AccountingReportLine = {
+  id: string;
+  line_number: number;
+  account_id: string;
+  account_code: string;
+  account_label: string;
+  debit: number;
+  credit: number;
+  label: string | null;
+  entry_id: string;
+  entry_number: string;
+  entry_date: string;
+  entry_label: string;
+  entry_reference: string | null;
+  journal_code: string;
+  journal_name: string;
+};
+
+export async function getAccountingReportLines(filters: { dateFrom?: string; dateTo?: string } = {}): Promise<AccountingReportLine[]> {
+  const workspace = await requireActiveWorkspace();
+  const organizationId = workspace.organization.id;
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("accounting_entry_lines")
+    .select("id, line_number, account_id, account_code, account_label, debit, credit, label, entry:accounting_entries!inner(id, entry_number, entry_date, reference, label, status, journal:accounting_journals(code, name))")
+    .eq("organization_id", organizationId)
+    .eq("entry.status", "posted")
+    .limit(10000);
+
+  if (filters.dateFrom) query = query.gte("entry.entry_date", filters.dateFrom);
+  if (filters.dateTo) query = query.lte("entry.entry_date", filters.dateTo);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => {
+    const entryValue = (row as Record<string, unknown>).entry;
+    const entry = (Array.isArray(entryValue) ? entryValue[0] : entryValue) as Record<string, unknown> | undefined;
+    const journalValue = entry?.journal;
+    const journal = (Array.isArray(journalValue) ? journalValue[0] : journalValue) as Record<string, unknown> | undefined;
+    return {
+      id: String(row.id),
+      line_number: Number(row.line_number ?? 0),
+      account_id: String(row.account_id ?? ""),
+      account_code: String(row.account_code ?? ""),
+      account_label: String(row.account_label ?? ""),
+      debit: Number(row.debit ?? 0),
+      credit: Number(row.credit ?? 0),
+      label: row.label ? String(row.label) : null,
+      entry_id: String(entry?.id ?? ""),
+      entry_number: String(entry?.entry_number ?? ""),
+      entry_date: String(entry?.entry_date ?? ""),
+      entry_label: String(entry?.label ?? ""),
+      entry_reference: entry?.reference ? String(entry.reference) : null,
+      journal_code: String(journal?.code ?? ""),
+      journal_name: String(journal?.name ?? ""),
+    };
+  }).sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.entry_number.localeCompare(b.entry_number) || a.line_number - b.line_number);
+}
+
 export async function isAccountUsedInEntries(accountId: string): Promise<boolean> {
   const workspace = await requireActiveWorkspace();
   const orgId = workspace.organization.id;
@@ -993,23 +1057,35 @@ export async function getVatPreparationSummary(): Promise<VatPreparationSummary>
   const orgId = workspace.organization.id;
   const supabase = await createClient();
 
-  const { data: accounts } = await supabase
+  const { data: accounts, error: accountsError } = await supabase
     .from("accounting_accounts")
     .select("id, code")
     .eq("organization_id", orgId)
-    .in("code", ["4455", "3455"]);
-  const accountMap = new Map((accounts ?? []).map((a) => [a.code as string, a.id as string]));
-  const collectedId = accountMap.get("4455");
-  const deductibleId = accountMap.get("3455");
+    .or("code.like.4455%,code.like.3455%");
+  if (accountsError) throw new Error(accountsError.message);
+  const collectedIds = (accounts ?? []).filter((account) => String(account.code).startsWith("4455")).map((account) => account.id as string);
+  const deductibleIds = (accounts ?? []).filter((account) => String(account.code).startsWith("3455")).map((account) => account.id as string);
 
-  if (!collectedId || !deductibleId) {
+  if (collectedIds.length === 0 || deductibleIds.length === 0) {
     return { collectedVat: null, deductibleVat: null, estimatedVatBalance: null, nextPeriod: getNextPeriod() };
   }
 
   const [collectedResult, deductibleResult] = await Promise.all([
-    supabase.from("accounting_entry_lines").select("debit, credit").eq("organization_id", orgId).eq("account_id", collectedId),
-    supabase.from("accounting_entry_lines").select("debit, credit").eq("organization_id", orgId).eq("account_id", deductibleId),
+    supabase
+      .from("accounting_entry_lines")
+      .select("debit, credit, entry:accounting_entries!inner(status)")
+      .eq("organization_id", orgId)
+      .in("account_id", collectedIds)
+      .eq("entry.status", "posted"),
+    supabase
+      .from("accounting_entry_lines")
+      .select("debit, credit, entry:accounting_entries!inner(status)")
+      .eq("organization_id", orgId)
+      .in("account_id", deductibleIds)
+      .eq("entry.status", "posted"),
   ]);
+  if (collectedResult.error) throw new Error(collectedResult.error.message);
+  if (deductibleResult.error) throw new Error(deductibleResult.error.message);
 
   const collectedLines = collectedResult.data ?? [];
   const deductibleLines = deductibleResult.data ?? [];

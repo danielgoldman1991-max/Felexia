@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { getDefaultStockLocationId } from "@/lib/stock-locations";
+import { recordStockMovementsAtomic } from "@/lib/stock/record-stock-movements";
+import { resolveDefaultTaxRateId } from "@/lib/tax-reference";
 import type { ProductType } from "@/lib/product-types";
 
 export type ProductActionResult = {
@@ -54,28 +57,7 @@ async function resolveCategoryId(type: ProductType, organizationId: string): Pro
 }
 
 async function resolveTaxRateId(): Promise<string | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("tax_rates")
-    .select("id")
-    .is("organization_id", null)
-    .eq("status", "active")
-    .eq("is_system", true)
-    .eq("code", "VAT_20")
-    .maybeSingle();
-
-  if (data) return data.id;
-
-  const { data: first } = await supabase
-    .from("tax_rates")
-    .select("id")
-    .is("organization_id", null)
-    .eq("status", "active")
-    .eq("is_system", true)
-    .limit(1)
-    .maybeSingle();
-
-  return first?.id ?? null;
+  return resolveDefaultTaxRateId();
 }
 
 function numberValue(formData: FormData, key: string) {
@@ -88,6 +70,41 @@ function numberValue(formData: FormData, key: string) {
 function numberOrZero(formData: FormData, key: string) {
   const value = numberValue(formData, key);
   return value === null || Number.isNaN(value) ? 0 : value;
+}
+
+async function recordStockDelta({
+  organizationId,
+  productId,
+  operationKey,
+  quantity,
+  direction,
+  moveType,
+  notes,
+}: {
+  organizationId: string;
+  productId: string;
+  operationKey: string;
+  quantity: number;
+  direction: "in" | "out";
+  moveType: "initial_stock" | "adjustment_in" | "adjustment_out";
+  notes: string;
+}) {
+  if (quantity <= 0) return null;
+  const warehouseId = await getDefaultStockLocationId(organizationId);
+  const result = await recordStockMovementsAtomic({
+    organizationId,
+    operationKey,
+    movements: [{
+      warehouse_id: warehouseId,
+      product_id: productId,
+      move_type: moveType,
+      direction,
+      quantity,
+      movement_date: new Date().toISOString(),
+      notes,
+    }],
+  });
+  return result.error;
 }
 
 // =============================================
@@ -152,7 +169,7 @@ export async function createProduct(
     : rawCategoryId;
 
   const supabase = await createClient();
-  const { error } = await supabase.from("products").insert({
+  const { data: created, error } = await supabase.from("products").insert({
     organization_id: workspace.organization.id,
     type,
     sku: text(formData, "sku"),
@@ -169,7 +186,7 @@ export async function createProduct(
     margin_rate: Math.round(marginRate * 100) / 100,
     track_stock: trackStock,
     min_stock: minStock,
-    current_stock: currentStock,
+    current_stock: 0,
     stock_alert_enabled: formData.get("stock_alert_enabled") === "on",
     default_discount_rate: defaultDiscountRate,
     is_sellable: formData.get("is_sellable") !== "off",
@@ -177,9 +194,27 @@ export async function createProduct(
     status: text(formData, "status") ?? "active",
     notes: text(formData, "notes"),
     created_by: workspace.userId,
-  });
+  }).select("id").single();
 
-  if (error) return { success: false, error: error.message };
+  if (error || !created) return { success: false, error: error?.message ?? "Impossible de creer l'article." };
+
+  if (trackStock && currentStock > 0) {
+    try {
+      const movementError = await recordStockDelta({
+        organizationId: workspace.organization.id,
+        productId: created.id,
+        operationKey: created.id,
+        quantity: currentStock,
+        direction: "in",
+        moveType: "initial_stock",
+        notes: "Stock initial à la création de l'article",
+      });
+      if (movementError) throw new Error(movementError);
+    } catch (movementError) {
+      await supabase.from("products").delete().eq("organization_id", workspace.organization.id).eq("id", created.id);
+      return { success: false, error: movementError instanceof Error ? movementError.message : "Impossible d'historiser le stock initial." };
+    }
+  }
 
   revalidatePath("/articles");
   redirect("/articles");
@@ -204,7 +239,6 @@ export async function updateProduct(
 
   const trackStock = type === "service" ? false : formData.get("track_stock") === "on";
   const minStock = type === "service" ? 0 : numberOrZero(formData, "min_stock");
-  const currentStock = type === "service" ? 0 : numberOrZero(formData, "current_stock");
   const purchasePriceHt = numberOrZero(formData, "purchase_price_ht");
   const salePriceHt = numberOrZero(formData, "sale_price_ht");
   const defaultDiscountRate = numberOrZero(formData, "default_discount_rate");
@@ -242,6 +276,18 @@ export async function updateProduct(
     : rawCategoryId;
 
   const supabase = await createClient();
+  const { data: existingProduct, error: existingProductError } = await supabase
+    .from("products")
+    .select("current_stock")
+    .eq("organization_id", workspace.organization.id)
+    .eq("id", id)
+    .maybeSingle();
+  if (existingProductError || !existingProduct) {
+    return { success: false, error: existingProductError?.message ?? "Article introuvable." };
+  }
+  if (type === "service" && Math.abs(Number(existingProduct.current_stock ?? 0)) > 0.0005) {
+    return { success: false, error: "Ramenez le stock a zero avant de convertir ce produit en service." };
+  }
   const { error } = await supabase
     .from("products")
     .update({
@@ -260,7 +306,6 @@ export async function updateProduct(
       margin_rate: Math.round(marginRate * 100) / 100,
       track_stock: trackStock,
       min_stock: minStock,
-      current_stock: currentStock,
       stock_alert_enabled: formData.get("stock_alert_enabled") === "on",
       default_discount_rate: defaultDiscountRate,
       is_sellable: formData.get("is_sellable") !== "off",

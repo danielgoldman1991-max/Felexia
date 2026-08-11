@@ -57,9 +57,7 @@ function CategoryRow({ category }: { category: ProductCategory }) {
       <Td className="text-xs text-[var(--muted)]">{formatDate(category.created_at)}</Td>
       <Td>
         <div className="flex items-center gap-2">
-          <Link href={`/articles/categories/${category.id}/edit`}>
-            <Button variant="ghost"><Pencil className="h-3.5 w-3.5" /></Button>
-          </Link>
+          <Button variant="ghost" asChild><Link href={`/articles/categories/${category.id}/edit`}><Pencil className="h-3.5 w-3.5" /></Link></Button>
           <form action={archiveAction}>
             <input type="hidden" name="id" value={category.id} />
             <Button variant="ghost"><Archive className="h-3.5 w-3.5 text-[var(--danger)]" /></Button>

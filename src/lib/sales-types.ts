@@ -69,6 +69,8 @@ export type SalesDocumentLineRecord = {
   discount_rate: number;
   tax_rate_id: string | null;
   tax_rate: number;
+  /** Libellé du taux au moment du snapshot (ex. "Exonéré", "20 %"). */
+  tax_rate_name: string | null;
   subtotal_ht: number;
   tax_amount: number;
   total_ttc: number;

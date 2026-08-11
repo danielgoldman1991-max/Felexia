@@ -2,7 +2,7 @@ export const DEFAULT_TRIAL_MONTHS = 1;
 export const DEFAULT_TRIAL_LABEL = "Essai Essentiel";
 export const DEFAULT_TRIAL_DURATION_LABEL = "1 mois";
 export const DEFAULT_TRIAL_MARKETING_MESSAGE =
-  "Votre essai Essentiel est actif pendant 1 mois. Passez à Business ou Premium à tout moment.";
+  "Votre essai Essentiel est actif pendant 1 mois.";
 
 export function getDefaultTrialEndDate(startDate = new Date()): Date {
   const trialEnd = new Date(startDate);

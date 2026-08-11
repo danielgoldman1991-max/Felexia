@@ -50,15 +50,11 @@ export default async function ChartOfAccountsPage({ searchParams }: { searchPara
         description="Structure des comptes comptables de l'organisation."
         actions={
           <div className="flex items-center gap-2">
-            <Link href={exportHref}>
-              <Button variant="secondary"><Download className="h-4 w-4" /> Exporter</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={exportHref}><Download className="h-4 w-4" /> Exporter</Link></Button>
             <form action="/comptabilite/plan-comptable/init" method="POST">
               <Button variant="secondary" type="submit"><Database className="h-4 w-4" /> Initialiser</Button>
             </form>
-            <Link href="/comptabilite/plan-comptable/new">
-              <Button variant="primary"><Plus className="h-4 w-4" /> Nouveau compte</Button>
-            </Link>
+            <Button variant="primary" asChild><Link href="/comptabilite/plan-comptable/new"><Plus className="h-4 w-4" /> Nouveau compte</Link></Button>
           </div>
         }
       />

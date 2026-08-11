@@ -13,7 +13,7 @@ export default async function ProductsPage() {
       <PageHeader
         title="Produits"
         description="Articles stockes avec suivi de stock."
-        actions={<Link href="/articles/new?type=product"><Button>Nouveau produit</Button></Link>}
+        actions={<Button asChild><Link href="/articles/new?type=product">Nouveau produit</Link></Button>}
       />
       <ProductRecordTable rows={rows} />
     </ModulePage>

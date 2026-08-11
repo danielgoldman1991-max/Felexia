@@ -192,10 +192,10 @@ export function PaginationBar({ page, totalPages, total }: { page: number; total
       <p className="text-sm text-[var(--muted)]">Page {page} sur {totalPages} ({total} resultats)</p>
       <div className="flex items-center gap-2">
         {page > 1 ? (
-          <Link href={href(page - 1)}><Button variant="secondary"><ChevronLeft className="h-4 w-4" /> Precedente</Button></Link>
+          <Button variant="secondary" asChild><Link href={href(page - 1)}><ChevronLeft className="h-4 w-4" /> Precedente</Link></Button>
         ) : null}
         {page < totalPages ? (
-          <Link href={href(page + 1)}><Button variant="secondary">Suivante <ChevronRight className="h-4 w-4" /></Button></Link>
+          <Button variant="secondary" asChild><Link href={href(page + 1)}>Suivante <ChevronRight className="h-4 w-4" /></Link></Button>
         ) : null}
       </div>
     </div>

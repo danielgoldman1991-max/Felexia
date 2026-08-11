@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
+import { recordStockMovementsAtomic } from "@/lib/stock/record-stock-movements";
 import type { StockActionResult, StockMoveDirection, StockMoveType } from "@/lib/stock-types";
 
 function text(formData: FormData, key: string) {
@@ -30,7 +31,7 @@ async function createStockMovement(formData: FormData, moveType: StockMoveType, 
 
   const { data: product, error: productError } = await supabase
     .from("products")
-    .select("id, type, name, current_stock, unit_id, unit:unit_id(symbol, name)")
+    .select("id, type, name, unit_id, unit:unit_id(symbol, name)")
     .eq("organization_id", workspace.organization.id)
     .eq("id", productId)
     .maybeSingle();
@@ -61,43 +62,22 @@ async function createStockMovement(formData: FormData, moveType: StockMoveType, 
     .maybeSingle();
   if (!warehouse) return { success: false, error: "Selectionnez un emplacement de stock actif." };
 
-  const currentStock = Number(product.current_stock ?? 0);
-  if (direction === "out") {
-    const { data: level } = await supabase
-      .from("stock_levels")
-      .select("quantity")
-      .eq("organization_id", workspace.organization.id)
-      .eq("warehouse_id", warehouseId)
-      .eq("product_id", productId)
-      .maybeSingle();
-    const locationStock = Number(level?.quantity ?? 0);
-    if (locationStock < quantity) {
-      return { success: false, error: `Stock insuffisant dans l'emplacement ${warehouse.name}.` };
-    }
-  }
-
-  const nextStock = direction === "in" ? currentStock + quantity : currentStock - quantity;
-  const { error: stockError } = await supabase
-    .from("products")
-    .update({ current_stock: nextStock })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", productId);
-
-  if (stockError) return { success: false, error: stockError.message };
-
-  const { error: moveError } = await supabase.from("stock_moves").insert({
-    organization_id: workspace.organization.id,
-    warehouse_id: warehouseId,
-    product_id: productId,
-    move_type: moveType,
-    direction,
-    quantity,
-    movement_date: movementDate,
-    notes,
-    created_by: workspace.userId,
+  const operationKey = text(formData, "idempotency_key");
+  if (!operationKey) return { success: false, error: "Cle de securite du mouvement manquante." };
+  const movementResult = await recordStockMovementsAtomic({
+    organizationId: workspace.organization.id,
+    operationKey,
+    movements: [{
+      warehouse_id: warehouseId,
+      product_id: productId,
+      move_type: moveType,
+      direction,
+      quantity,
+      movement_date: movementDate,
+      notes,
+    }],
   });
-
-  if (moveError) return { success: false, error: moveError.message };
+  if (movementResult.error) return { success: false, error: movementResult.error };
 
   redirect(`/stock/mouvements?productId=${productId}`);
 }

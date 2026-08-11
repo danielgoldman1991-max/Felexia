@@ -56,21 +56,15 @@ export function SupplierOrderDetail({ document, lines, documentFlow }: { documen
         actions={
           <>
             {canEdit ? (
-              <Link href={`/achats/commandes/${document.id}/edit`}>
-                <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/commandes/${document.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
             ) : null}
             {canConfirm ? (
               <ActionForm label="Confirmer" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmSupplierOrder, document.id)} />
             ) : null}
             {canCreateReceipt ? (
-              <Link href={`/achats/receptions/new?orderId=${document.id}`}>
-                <Button variant="secondary"><Truck className="h-4 w-4" /> Creer reception</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/receptions/new?orderId=${document.id}`}><Truck className="h-4 w-4" /> Creer reception</Link></Button>
             ) : null}
-            <Link href={`/achats/commandes/${document.id}/print`} target="_blank">
-              <Button variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/achats/commandes/${document.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             <SupplierOrderSendActions document={document} />
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierOrder, document.id)} />

@@ -134,9 +134,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
       ) : null}
 
       <div className="flex justify-end gap-3">
-        <Link href={`/vente/livraisons/${delivery.id}`}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={`/vente/livraisons/${delivery.id}`}>Annuler</Link></Button>
         <Button disabled={pending || payload.length === 0}>Creer le bon de retour</Button>
       </div>
     </form>

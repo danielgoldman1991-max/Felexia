@@ -16,7 +16,7 @@ export default async function TreasuryTransactionDetailPage({ params }: { params
   const tx = await getTreasuryTransactionDetail(id);
   return (
     <ModulePage>
-      <PageHeader title={tx?.label ?? "Mouvement introuvable"} actions={<Link href="/tresorerie/mouvements"><Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button></Link>} />
+      <PageHeader title={tx?.label ?? "Mouvement introuvable"} actions={<Button variant="secondary" asChild><Link href="/tresorerie/mouvements"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>} />
       {tx ? (
         <Card>
           <CardHeader><h2 className="font-semibold">Detail mouvement</h2></CardHeader>

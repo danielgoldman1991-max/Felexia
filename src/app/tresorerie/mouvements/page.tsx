@@ -17,7 +17,7 @@ export default async function TreasuryTransactionsPage({ searchParams }: { searc
       <PageHeader
         title="Mouvements de tresorerie"
         description="Journal operationnel des entrees et sorties d argent."
-        actions={<Link href="/tresorerie/mouvements/new"><Button><Plus className="h-4 w-4" /> Nouveau mouvement</Button></Link>}
+        actions={<Button asChild><Link href="/tresorerie/mouvements/new"><Plus className="h-4 w-4" /> Nouveau mouvement</Link></Button>}
       />
       <Card><CardContent><TreasuryTransactionsTable rows={rows} /></CardContent></Card>
     </ModulePage>

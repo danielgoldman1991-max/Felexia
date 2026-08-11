@@ -164,9 +164,10 @@ function eachDay(from: string, to: string): string[] {
 }
 
 function scenarioProbability(probability: number, direction: "inflow" | "outflow", scenario: TreasuryForecastScenario): number {
-  if (scenario === "prudent") return direction === "inflow" ? probability * 0.7 : 1;
-  if (scenario === "optimistic") return direction === "inflow" ? 1 : probability;
-  return probability;
+  const normalized = Math.min(Math.max(probability, 0), 100) / 100;
+  if (scenario === "prudent") return direction === "inflow" ? normalized * 0.7 : 1;
+  if (scenario === "optimistic") return direction === "inflow" ? 1 : normalized;
+  return normalized;
 }
 
 export function computeWeightedAmount(

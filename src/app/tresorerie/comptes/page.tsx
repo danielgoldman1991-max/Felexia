@@ -17,7 +17,7 @@ export default async function TreasuryAccountsPage() {
       <PageHeader
         title="Comptes & caisses"
         description="Gerez les banques, caisses et passerelles qui portent les flux d argent."
-        actions={<Link href="/tresorerie/comptes/new"><Button><Plus className="h-4 w-4" /> Nouveau compte</Button></Link>}
+        actions={<Button asChild><Link href="/tresorerie/comptes/new"><Plus className="h-4 w-4" /> Nouveau compte</Link></Button>}
       />
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <StatCard title="Comptes" value={counters.total} />

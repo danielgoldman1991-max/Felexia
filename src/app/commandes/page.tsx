@@ -13,7 +13,7 @@ export default async function CommandesPage() {
       <PageHeader
         title="Commandes clients"
         description="Suivi des commandes confirmees, livraisons et facturation."
-        actions={<Link href="/commandes/new"><Button>Nouvelle commande</Button></Link>}
+        actions={<Button asChild><Link href="/commandes/new">Nouvelle commande</Link></Button>}
       />
       <OrdersTable rows={rows} />
     </ModulePage>

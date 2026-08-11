@@ -71,18 +71,14 @@ function PaginationBar({
       </p>
       <div className="flex items-center gap-2">
         {page > 1 ? (
-          <Link href={href(page - 1)}>
-            <Button variant="secondary">
+          <Button variant="secondary" asChild><Link href={href(page - 1)}>
               <ChevronLeft className="h-4 w-4" /> Precedente
-            </Button>
-          </Link>
+            </Link></Button>
         ) : null}
         {page < totalPages ? (
-          <Link href={href(page + 1)}>
-            <Button variant="secondary">
+          <Button variant="secondary" asChild><Link href={href(page + 1)}>
               Suivante <ChevronRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link></Button>
         ) : null}
       </div>
     </div>
@@ -133,12 +129,12 @@ export async function ThirdPartyListPage({
         <PageHeader
           title={meta.title}
           description={meta.description}
-          actions={<Link href={meta.buttonHref}><Button>{meta.buttonLabel}</Button></Link>}
+          actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
         />
         <EmptyState
           title="Module Tiers pret, migration requise"
           description={`Appliquez la migration 002_third_parties_complete.sql. Detail: ${errorMessage}`}
-          action={<Link href={meta.buttonHref}><Button>{meta.buttonLabel}</Button></Link>}
+          action={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
         />
       </ModulePage>
     );
@@ -149,7 +145,7 @@ export async function ThirdPartyListPage({
       <PageHeader
         title={meta.title}
         description={meta.description}
-        actions={<Link href={meta.buttonHref}><Button>{meta.buttonLabel}</Button></Link>}
+        actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
       />
       {showCounters ? (
         <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
@@ -172,7 +168,7 @@ export async function ThirdPartyListPage({
         <EmptyState
           title="Aucun tiers trouve"
           description="Ajustez les filtres ou creez un nouveau tiers pour alimenter la base."
-          action={<Link href={meta.buttonHref}><Button>{meta.buttonLabel}</Button></Link>}
+          action={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
         />
       )}    
     </ModulePage>

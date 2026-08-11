@@ -11,11 +11,11 @@ const trialBenefits = [
   "Accès immédiat au pack Essentiel",
   "Essai Essentiel sans carte bancaire",
   "Sans engagement",
-  "Possibilité de choisir un abonnement plus tard",
+  "Gestion de l'abonnement depuis Paramètres > Abonnement",
 ];
 
 const subscriptionBenefits = [
-  "Choix entre Essentiel, Business et Premium",
+  "Une seule offre : Essentiel",
   "Paiement mensuel ou annuel",
   "Activation immédiate après paiement",
   "Facturation sécurisée par Stripe",
@@ -121,7 +121,7 @@ export function SubscriptionChoiceActions() {
             href="/parametres/abonnement"
             className="mt-6 inline-flex h-10 w-full items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-medium text-[var(--secondary)] shadow-[var(--shadow-sm)] transition hover:border-[#c8d0e1] hover:bg-[var(--surface-soft)]"
           >
-            Voir les abonnements
+            Voir mon abonnement
           </Link>
         </article>
       </div>

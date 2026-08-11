@@ -59,24 +59,20 @@ export function ThirdPartyTable({ rows }: { rows: ThirdPartyRecord[] }) {
               <Td>{formatDate(row.created_at)}</Td>
               <Td>
                 <div className="flex items-center gap-1">
-                  <Link href={`/tiers/${row.id}`} title="Consulter">
-                    <Button
+                  <Button
                       variant="ghost"
                       className="h-9 w-9 border border-slate-200 px-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       aria-label={`Consulter ${row.name}`}
-                    >
+                     asChild><Link href={`/tiers/${row.id}`} title="Consulter">
                       <Eye className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href={`/tiers/${row.id}/edit`} title="Modifier">
-                    <Button
+                    </Link></Button>
+                  <Button
                       variant="ghost"
                       className="h-9 w-9 border border-slate-200 px-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       aria-label={`Modifier ${row.name}`}
-                    >
+                     asChild><Link href={`/tiers/${row.id}/edit`} title="Modifier">
                       <Pencil className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                    </Link></Button>
                   <form action={archiveAction}>
                     <input type="hidden" name="id" value={row.id} />
                     <Button

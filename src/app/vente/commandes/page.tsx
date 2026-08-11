@@ -18,9 +18,7 @@ export default async function SalesOrdersPage() {
         title="Commandes clients"
         description="Commandes directes et commandes creees depuis les devis."
         actions={
-          <Link href="/vente/commandes/new">
-            <Button type="button"><Plus className="h-4 w-4" /> Nouvelle commande</Button>
-          </Link>
+          <Button type="button" asChild><Link href="/vente/commandes/new"><Plus className="h-4 w-4" /> Nouvelle commande</Link></Button>
         }
       />
       <Card>

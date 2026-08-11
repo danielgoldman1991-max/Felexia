@@ -258,9 +258,7 @@ export function EntryForm({ action, journals, accounts, initialValues }: Props) 
       ) : null}
 
       <div className="flex justify-end gap-3">
-        <Link href="/comptabilite/ecritures">
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href="/comptabilite/ecritures">Annuler</Link></Button>
         <Button disabled={pending}>{pending ? "Enregistrement..." : "Creer l'ecriture"}</Button>
       </div>
     </form>

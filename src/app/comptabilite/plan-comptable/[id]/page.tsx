@@ -46,12 +46,8 @@ export default async function ChartOfAccountDetailPage({ params }: { params: Pro
         description="Detail du compte comptable."
         actions={
           <div className="flex items-center gap-2">
-            <Link href="/comptabilite/plan-comptable">
-              <Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button>
-            </Link>
-            <Link href={`/comptabilite/plan-comptable/${account.id}/edit`}>
-              <Button variant="primary"><Pencil className="h-4 w-4" /> Modifier</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href="/comptabilite/plan-comptable"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
+            <Button variant="primary" asChild><Link href={`/comptabilite/plan-comptable/${account.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
           </div>
         }
       />

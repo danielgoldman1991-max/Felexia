@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -31,6 +31,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
   const [productId, setProductId] = useState(initialProductId ?? "");
   const [quantity, setQuantity] = useState("1");
   const [qtyError, setQtyError] = useState<string | null>(null);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const selectedProduct = products.find((product) => product.id === productId) ?? null;
   const isUnitU = selectedProduct?.unit_symbol?.trim().toUpperCase() === "U";
 
@@ -58,8 +59,14 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
     }
   }
 
+  function handleSubmit(formData: FormData) {
+    idempotencyKeyRef.current ??= globalThis.crypto.randomUUID();
+    formData.set("idempotency_key", idempotencyKeyRef.current);
+    formAction(formData);
+  }
+
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={handleSubmit} className="space-y-5">
       <input type="hidden" name="product_id" value={productId} />
       <Card>
         <CardHeader>
@@ -134,9 +141,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
       ) : null}
 
       <div className="flex justify-end gap-3">
-        <Link href={productId ? `/stock/mouvements?productId=${productId}` : "/stock/mouvements"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={productId ? `/stock/mouvements?productId=${productId}` : "/stock/mouvements"}>Annuler</Link></Button>
         <Button disabled={pending || !productId}>{mode === "entry" ? "Valider entree" : "Valider ajustement"}</Button>
       </div>
     </form>

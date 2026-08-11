@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, useCallback, useMemo } from "react";
+import { useActionState, useState, useCallback, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/erp/page-header";
 import { MoneyDisplay } from "@/components/erp/money-display";
+import { MoneyInput } from "@/components/ui/money-input";
 import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierPayment } from "@/lib/purchase-actions";
@@ -44,6 +45,7 @@ export function SupplierPaymentForm({
   const [transferReference, setTransferReference] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
+  const idempotencyKeyRef = useRef<string | null>(null);
   const filteredInvoices = useMemo(() => openInvoices.filter((inv) => inv.supplier_id === supplierId), [openInvoices, supplierId]);
   const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice && preselectedMaxAmount > 0 ? { [preselectedInvoice.id]: preselectedMaxAmount } : {});
 
@@ -71,7 +73,7 @@ export function SupplierPaymentForm({
     const invoice = openInvoices.find((inv) => inv.id === invoiceId);
     return invoice ? value > Number(invoice.remaining_amount ?? 0) + 0.01 : false;
   });
-  const amountExceedsAllocated = totalAllocated > 0 && amount > totalAllocated + 0.01;
+  const unallocatedAmount = Math.max(amount - totalAllocated, 0);
 
   function handleSupplierChange(nextSupplierId: string) {
     setSupplierId(nextSupplierId);
@@ -80,6 +82,8 @@ export function SupplierPaymentForm({
   }
 
   function handleSubmit(formData: FormData) {
+    idempotencyKeyRef.current ??= globalThis.crypto.randomUUID();
+    formData.set("idempotency_key", idempotencyKeyRef.current);
     formData.set("supplier_id", supplierId);
     formData.set("amount", String(amount));
     formData.set("payment_date", paymentDate);
@@ -117,7 +121,7 @@ export function SupplierPaymentForm({
                 <div className="md:col-span-4 rounded-[var(--radius-md)] border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                   Cette facture est déjà totalement payée. Aucun paiement supplémentaire n’est autorisé.
                   <div className="mt-3">
-                    <Link href={`/achats/factures/${preselectedInvoice.id}`}><Button type="button" variant="secondary">Retour à la facture</Button></Link>
+                    <Button type="button" variant="secondary" asChild><Link href={`/achats/factures/${preselectedInvoice.id}`}>Retour à la facture</Link></Button>
                   </div>
                 </div>
               ) : null}
@@ -134,8 +138,20 @@ export function SupplierPaymentForm({
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Montant</label>
-              <input type="number" step="0.01" max={totalAllocated > 0 ? totalAllocated : undefined} value={amount} disabled={isPreselectedInvoiceBlocked} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              {amountExceedsAllocated ? <p className="mt-1 text-xs text-red-600">Le montant dépasse le reste à payer.</p> : null}
+              <MoneyInput
+                name="amount"
+                min={0.01}
+                value={amount}
+                disabled={isPreselectedInvoiceBlocked}
+                onValueChange={(value) => setAmount(value ?? 0)}
+                className="mt-1"
+                required
+              />
+              {totalAllocated > 0 && unallocatedAmount > 0.01 ? (
+                <p className="mt-1 text-xs text-[var(--muted)]">
+                  <MoneyDisplay value={unallocatedAmount} /> restera disponible comme crédit fournisseur non affecté.
+                </p>
+              ) : null}
             </div>
             <DateField label="Date paiement" value={paymentDate} onChange={setPaymentDate} />
             <DateField label="Date valeur" value={valueDate} onChange={setValueDate} placeholder="jj/mm/aaaa" />
@@ -211,7 +227,15 @@ export function SupplierPaymentForm({
                       </td>
                       <td className="py-2 text-right">
                         {allocations[inv.id] !== undefined ? (
-                          <input type="number" step="0.01" max={inv.remaining_amount} value={allocations[inv.id]} disabled={isPreselectedInvoiceBlocked} onChange={(e) => updateAllocAmount(inv.id, parseFloat(e.target.value) || 0)} className="w-24 rounded border border-input bg-background px-2 py-1 text-xs text-right" />
+                          <MoneyInput
+                            name={`allocation_${inv.id}`}
+                            min={0.01}
+                            max={Number(inv.remaining_amount ?? 0)}
+                            value={allocations[inv.id]}
+                            disabled={isPreselectedInvoiceBlocked}
+                            onValueChange={(value) => updateAllocAmount(inv.id, value ?? 0)}
+                            className="h-9 w-32 text-right text-xs"
+                          />
                         ) : null}
                       </td>
                     </tr>
@@ -229,7 +253,7 @@ export function SupplierPaymentForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || amountExceedsAllocated || !supplierId || !treasuryAccountId || amount <= 0}>
+          <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
             Creer paiement fournisseur
           </Button>
         </div>

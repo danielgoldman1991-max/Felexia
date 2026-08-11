@@ -62,9 +62,7 @@ export function SalesQuoteDetail({ quote, lines }: { quote: SalesQuoteRecord; li
           <>
             {isDraft ? (
               <>
-                <Link href={`/devis/${quote.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/devis/${quote.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <form action={sendAction}>
                   <input type="hidden" name="id" value={quote.id} />
                   <Button><Send className="h-4 w-4" /> Envoyer</Button>
@@ -79,9 +77,7 @@ export function SalesQuoteDetail({ quote, lines }: { quote: SalesQuoteRecord; li
             ) : null}
             {isSent ? (
               <>
-                <Link href={`/devis/${quote.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/devis/${quote.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <form action={acceptAction}>
                   <input type="hidden" name="id" value={quote.id} />
                   <Button><CheckCircle2 className="h-4 w-4" /> Accepter</Button>
@@ -102,9 +98,7 @@ export function SalesQuoteDetail({ quote, lines }: { quote: SalesQuoteRecord; li
               </form>
             ) : null}
             {isAccepted ? (
-              <Link href={`/devis/${quote.id}/edit`}>
-                <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/devis/${quote.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
             ) : null}
           </>
         }

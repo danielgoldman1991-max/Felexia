@@ -118,12 +118,12 @@ export default async function TreasuryForecastPage({
         description="Anticipez vos encaissements, decaissements et soldes previsionnels a partir des factures ouvertes, echeances fournisseurs et comptes de tresorerie."
         actions={
           <>
-            <Link href={exportHref}><Button variant="secondary"><Download className="h-4 w-4" /> Exporter CSV</Button></Link>
+            <Button variant="secondary" asChild><Link href={exportHref}><Download className="h-4 w-4" /> Exporter CSV</Link></Button>
             <TreasuryPrintButton />
             <form action="">
               <Button type="submit" variant="secondary"><RefreshCw className="h-4 w-4" /> Actualiser</Button>
             </form>
-            <Link href="/tresorerie/previsions/nouveau"><Button><Plus className="h-4 w-4" /> Nouvelle prevision manuelle</Button></Link>
+            <Button asChild><Link href="/tresorerie/previsions/nouveau"><Plus className="h-4 w-4" /> Nouvelle prevision manuelle</Link></Button>
           </>
         }
       />
@@ -208,9 +208,9 @@ export default async function TreasuryForecastPage({
             description="Creez des factures, ajoutez des echeances fournisseur ou saisissez une prevision manuelle pour commencer a piloter votre tresorerie."
             action={
               <div className="flex flex-wrap justify-center gap-2">
-                <Link href="/tresorerie/previsions/nouveau"><Button><Plus className="h-4 w-4" /> Ajouter une prevision manuelle</Button></Link>
-                <Link href="/facturation/factures/new"><Button variant="secondary">Creer une facture client</Button></Link>
-                <Link href="/achats/factures/new"><Button variant="secondary">Creer une facture fournisseur</Button></Link>
+                <Button asChild><Link href="/tresorerie/previsions/nouveau"><Plus className="h-4 w-4" /> Ajouter une prevision manuelle</Link></Button>
+                <Button variant="secondary" asChild><Link href="/facturation/factures/new">Creer une facture client</Link></Button>
+                <Button variant="secondary" asChild><Link href="/achats/factures/new">Creer une facture fournisseur</Link></Button>
               </div>
             }
           />
@@ -344,7 +344,7 @@ export default async function TreasuryForecastPage({
                   <h2 className="font-semibold">Previsions manuelles</h2>
                   <p className="text-sm text-[var(--muted)]">Flux saisis a la main pour affiner vos previsions (loyers, salaires, apports...).</p>
                 </div>
-                <Link href="/tresorerie/previsions/nouveau"><Button variant="secondary" className="h-8"><Plus className="h-4 w-4" /> Ajouter</Button></Link>
+                <Button variant="secondary" className="h-8" asChild><Link href="/tresorerie/previsions/nouveau"><Plus className="h-4 w-4" /> Ajouter</Link></Button>
               </div>
             </CardHeader>
             <CardContent>

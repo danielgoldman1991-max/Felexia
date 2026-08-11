@@ -13,7 +13,7 @@ export default async function DevisPage() {
       <PageHeader
         title="Devis"
         description="Cycle de vente avant commande et facturation."
-        actions={<Link href="/devis/new"><Button>Nouveau devis</Button></Link>}
+        actions={<Button asChild><Link href="/devis/new">Nouveau devis</Link></Button>}
       />
       <QuotesTable rows={rows} />
     </ModulePage>

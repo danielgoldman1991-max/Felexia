@@ -15,7 +15,7 @@ export default async function CustomerPaymentsPage() {
       <PageHeader
         title="Paiements clients"
         description="Reglements, avances et soldes disponibles a affecter."
-        actions={<Link href="/facturation/paiements/new"><Button>Nouveau paiement</Button></Link>}
+        actions={<Button asChild><Link href="/facturation/paiements/new">Nouveau paiement</Link></Button>}
       />
       <Card><CardContent><CustomerPaymentsTable rows={rows} /></CardContent></Card>
     </ModulePage>

@@ -48,15 +48,11 @@ export default async function WelcomePage({
                   </p>
                 )}
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <Link href="/dashboard?skipWelcome=1">
-                    <Button>
+                  <Button asChild><Link href="/dashboard?skipWelcome=1">
                       Accéder au tableau de bord
                       <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/parametres/abonnement">
-                    <Button variant="secondary">Voir mon abonnement</Button>
-                  </Link>
+                    </Link></Button>
+                  <Button variant="secondary" asChild><Link href="/parametres/abonnement">Voir mon abonnement</Link></Button>
                 </div>
               </div>
             </div>

@@ -1,0 +1,37 @@
+# Scénario C — Métamorphique (arrondis, remises, idempotence, garde-fous)
+- Généré : 2026-08-11T12:31:48.363Z
+- Tenant : stress-flx-2026-001
+
+
+## C1. Facture manuelle multi-lignes (remise 10 % + TVA 0 %) — totaux oracle
+
+- [PASS] C1-totaux — FAC-2608-00002 oracle 1028.93 HT / 145.99 TVA / 1174.92 TTC, réel 1028.93 / 145.99 / 1174.92
+
+## C2. Arrondi centime (3 × 33.33 @100 TVA 20 %) — ligne oracle
+
+- [PASS] C2-arrondi — oracle 99.99 / 20.00 / 119.99 — 99.99+19.998 arrondi ligne → 119.99
+
+## C3. Surpaiement rejeté (allocation 2000 > reste 1174.92)
+
+- [PASS] C3-overpay-rejected — rejeté : La facture client serait sur-réglée.
+- [PASS] C3-tresorerie-inchangee — attendu 50600.00, réel 50600.00
+
+## C4. Paiements partiels + rejeu idempotent
+
+- [PASS] C4-partial-500 — reste 674.92 (partial), pay=[{"payment_id":"5b4d2ac1-6436-4b63-8049-106c41dabd5e","payment_number":"REG-2608-00002","replayed":false}]
+- [PASS] C4-replay-idempotent — replay=[{"payment_id":"5b4d2ac1-6436-4b63-8049-106c41dabd5e","payment_number":"REG-2608-00002","replayed":true}] trésorerie avant 51100.00 après 51100.00
+- [PASS] C4-paid-rest — reste 0 (paid) payé=1174.92
+- [PASS] C4-tresorerie-oracle — attendu 51774.92, réel 51774.92
+
+## C5. Rejeu idempotent stock (même operation_key que la réception +6)
+
+- [PASS] C5-stock-replay — replay=[{"movement_id":"cef54ec1-3444-49df-8444-65f0235fd0e7","source_line_id":"76e581cd-ba2b-44d0-a445-3eca7439f1c5","replayed":true}] stock avant 7 après 7 (niveau 7)
+
+## C6. Stock négatif refusé (delivery_out 999 u. sur stock 7)
+
+- [PASS] C6-negative-stock — rejeté : Stock insuffisant dans cet emplacement.
+
+## C7. Annulation de facture (montants conservés)
+
+- [PASS] C7-cancel-invoice — FAC-2608-00003 statut=cancelled, reste 500 (unpaid), aucun paiement
+- [PASS] C-final-tresorerie-oracle — attendu 51774.92, réel 51774.92

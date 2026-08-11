@@ -1,0 +1,65 @@
+﻿scenario;check;statut;détail
+Scénario A — Achats (commande → réceptions → facture → paiements);A1-po;PASS;commande bf037417-01d7-4e8b-a6a4-3ea948bb8445, ligne oracle 1000.00 HT / 200.00 TVA / 1200.00 TTC
+Scénario A — Achats (commande → réceptions → facture → paiements);A1-po-validate;PASS;commande confirmée
+Scénario A — Achats (commande → réceptions → facture → paiements);A2-receipt-6;PASS;réception +6 stockée
+Scénario A — Achats (commande → réceptions → facture → paiements);A2-receipt-4;PASS;réception +4 stockée
+Scénario A — Achats (commande → réceptions → facture → paiements);A4-supplier-invoice;PASS;FF-2608-00001 totaux 1000.00 HT / 200.00 TVA / 1200.00 TTC
+Scénario A — Achats (commande → réceptions → facture → paiements);A5-spay-400;PASS;pay1=[{"payment_id":"40483ef7-bf48-4325-8d49-a1050f9a2b65","payment_number":"RFO-2608-00001","replayed":false}]
+Scénario A — Achats (commande → réceptions → facture → paiements);A5-spay-800;PASS;pay2=[{"payment_id":"45820b9f-713e-4f02-9137-48b976fbbb54","payment_number":"RFO-2608-00002","replayed":false}]
+Scénario A — Achats (commande → réceptions → facture → paiements);A6-dette-zero;PASS;oracle reste=0.00, réel {"paid_amount":1200,"remaining_amount":0,"payment_status":"paid","total_ttc":1200}
+Scénario A — Achats (commande → réceptions → facture → paiements);A6-tresorerie;PASS;attendu 48800.00 = opening + Σmvt, réel 48800.00
+Scénario A — Achats (commande → réceptions → facture → paiements);A6-stock;PASS;current=10 cumul emplacements=10 (attendu 10)
+Scénario A — Achats (commande → réceptions → facture → paiements);A6-allocations;PASS;[{"payment_number":"RFO-2608-00001","amount":400,"allocated_amount":400,"available_amount":0,"status":"allocated"},{"payment_number":"RFO-2608-00002","amount":800,"allocated_amount":800,"available_amount":0,"status":"allocated"}]
+Scénario B — Ventes (commande → BL → facture → règlement);B1-order;PASS;commande 84546b47-9e51-4ab3-bdf7-fcaf174ad88d, ligne oracle 1500.00 HT / 300.00 TVA / 1800.00 TTC
+Scénario B — Ventes (commande → BL → facture → règlement);B2-bl-stock;PASS;BL 8e736c69-d567-462c-894f-28c2546c881d finalisé, commande delivered, mouvements=[{"movement_id":"55560561-1532-4da5-b516-6de5fbb3a1e5","source_line_id":"ba7e4081-7362-4fd1-93eb-e009cfa66abf","replayed":false}]
+Scénario B — Ventes (commande → BL → facture → règlement);B3-invoice;PASS;FAC-2608-00001 totaux 1500.00 HT / 300.00 TVA / 1800.00 TTC
+Scénario B — Ventes (commande → BL → facture → règlement);B4-cpay-1800;PASS;pay=[{"payment_id":"3305eaf0-51c2-4fb7-8563-6b2c24a7fa28","payment_number":"REG-2608-00001","replayed":false}]
+Scénario B — Ventes (commande → BL → facture → règlement);B5-dette-zero;PASS;oracle reste=0.00, réel {"paid_amount":1800,"remaining_amount":0,"payment_status":"paid","total_ttc":1800}
+Scénario B — Ventes (commande → BL → facture → règlement);B5-tresorerie;PASS;attendu 50600.00 = opening + Σmvt (50000-400-800+1800), réel 50600.00
+Scénario B — Ventes (commande → BL → facture → règlement);B5-stock;PASS;oracle Σin-Σout=7, current=7 cumul emplacements=7 (attendu 7 = 10-3)
+Scénario B — Ventes (commande → BL → facture → règlement);B5-allocations;PASS;[{"payment_number":"REG-2608-00001","amount":1800,"allocated_amount":1800,"available_amount":0,"status":"allocated"}]
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C1-totaux;PASS;FAC-2608-00002 oracle 1028.93 HT / 145.99 TVA / 1174.92 TTC, réel 1028.93 / 145.99 / 1174.92
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C2-arrondi;PASS;oracle 99.99 / 20.00 / 119.99 — 99.99+19.998 arrondi ligne → 119.99
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C3-overpay-rejected;PASS;rejeté : La facture client serait sur-réglée.
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C3-tresorerie-inchangee;PASS;attendu 50600.00, réel 50600.00
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C4-partial-500;PASS;reste 674.92 (partial), pay=[{"payment_id":"a122e679-b23a-44b9-9197-92e231513992","payment_number":"REG-2608-00002","replayed":false}]
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C4-replay-idempotent;PASS;replay=[{"payment_id":"a122e679-b23a-44b9-9197-92e231513992","payment_number":"REG-2608-00002","replayed":true}] trésorerie avant 51100.00 après 51100.00
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C4-paid-rest;PASS;reste 0 (paid) payé=1174.92
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C4-tresorerie-oracle;PASS;attendu 51774.92, réel 51774.92
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C5-stock-replay;PASS;replay=[{"movement_id":"1fb66b6b-e854-49e0-a4ef-25b92c4e37a2","source_line_id":"025ebece-51aa-4ba6-b48c-96caffabe8d9","replayed":true}] stock avant 7 après 7 (niveau 7)
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C6-negative-stock;PASS;rejeté : Stock insuffisant dans cet emplacement.
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C7-cancel-invoice;PASS;FAC-2608-00003 statut=cancelled, reste 500 (unpaid), aucun paiement
+Scénario C — Métamorphique (lignes, arrondis, idempotence, refus);C-final-tresorerie-oracle;PASS;attendu 51774.92, réel 51774.92
+Scénario D — Concurrence (idempotence, stock, numérotation);D1-same-key;PASS;r1=[{"payment_id":"548a0a26-1417-45d8-9f99-9f6de3fcdb51","payment_number":"REG-2608-00004","replayed":false}] r2=[{"payment_id":"548a0a26-1417-45d8-9f99-9f6de3fcdb51","payment_number":"REG-2608-00004","replayed":true}] — 1 paiement en base, facture 0 (paid), trésorerie 52949.84
+Scénario D — Concurrence (idempotence, stock, numérotation);D2-different-keys;PASS;acceptés=1/2 (attendus 1) — q1=[{"payment_id":"ee74a2ba-5bbe-48ce-a807-d716977475a4","payment_number":"REG-2608-00005","replayed":false}] q2=La facture client serait sur-réglée. — reste 300 (partial), allocations=1
+Scénario D — Concurrence (idempotence, stock, numérotation);D3-stock-replay;PASS;s1=[{"movement_id":"22b42f1b-fd13-403b-895b-f3dbd8585e3a","source_line_id":"9c40d851-fbe9-42a1-876a-f552e6b6efe4","replayed":false}] s2=[{"movement_id":"22b42f1b-fd13-403b-895b-f3dbd8585e3a","source_line_id":"9c40d851-fbe9-42a1-876a-f552e6b6efe4","replayed":true}] — stock 10 (attendu 10 = 7+3), niveaux 10, oracle 10
+Scénario D — Concurrence (idempotence, stock, numérotation);D4-parallel-receipts;PASS;f1=[{"movement_id":"224cc62c-e003-4361-9da1-a989d7decd6d","source_line_id":"ee3d0943-2fd3-4f22-972d-d17296c13e2e","replayed":false}] f2=[{"movement_id":"1f5a3aff-1672-4c03-9951-2d0cef67610a","source_line_id":"bcf7954a-0490-4326-8b23-f47a9b6d3687","replayed":false}] — stock 15 (attendu 15 = 10+2+3), niveaux 15
+Scénario D — Concurrence (idempotence, stock, numérotation);D5-parallel-deliveries;PASS;acceptées=1/2 (attendue 1) — g1=Stock insuffisant dans cet emplacement. g2=[{"movement_id":"374fd74b-1965-4a12-b951-bd9433be1a85","source_line_id":"847b25cd-5223-4df9-97e5-8ec91b3977ef","replayed":false}] — stock final 7 (attendu 7 = 15-8), jamais négatif
+Scénario D — Concurrence (idempotence, stock, numérotation);D-final-tresorerie-oracle;PASS;attendu 53649.84, réel 53649.84
+Scénario E — Permissions (rôles, RLS, isolation);E1-sales-doc;PASS;insertion facture OK (RLS membre actif)
+Scénario E — Permissions (rôles, RLS, isolation);E1-sales-pay-blocked;PASS;refusé : Compte de trÃ©sorerie introuvable ou inactif.
+Scénario E — Permissions (rôles, RLS, isolation);E1-sales-stock-blocked;PASS;refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+Scénario E — Permissions (rôles, RLS, isolation);E2-stock-role-refused;PASS;refusé : Vous ne pouvez pas modifier le stock de cette organisation. (rôle stock_user hors liste stock.%)
+Scénario E — Permissions (rôles, RLS, isolation);E2-stock-pay-blocked;PASS;refusé : Compte de trÃ©sorerie introuvable ou inactif.
+Scénario E — Permissions (rôles, RLS, isolation);E3-accountant-pay-ok;PASS;paiement [{"payment_id":"36264e31-e40a-45a8-a5b1-32ef2085ed56","payment_number":"REG-2608-00006","replayed":false}], facture 0 (paid)
+Scénario E — Permissions (rôles, RLS, isolation);E3-accountant-stock-blocked;PASS;refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+Scénario E — Permissions (rôles, RLS, isolation);E4-manager-pay-ok;PASS;paiement [{"payment_id":"359533e1-4107-434b-ba0c-1e24dceda1b4","payment_number":"REG-2608-00007","replayed":false}]
+Scénario E — Permissions (rôles, RLS, isolation);E4-manager-stock-ok;PASS;réception +1 → stock 8 (attendu 8), mouvement [{"movement_id":"956bfbac-78c6-4bf3-a6c4-54939d18060c","source_line_id":"7c63b393-3e3f-4c42-b974-0a7a24ab8059","replayed":false}]
+Scénario E — Permissions (rôles, RLS, isolation);E5-viewer-read;PASS;lecture OK (5 documents visibles)
+Scénario E — Permissions (rôles, RLS, isolation);E5-viewer-write-rls;PASS;accepté — contrat RLS = membre actif (constat)
+Scénario E — Permissions (rôles, RLS, isolation);E5-viewer-pay-blocked;PASS;refusé : Compte de trÃ©sorerie introuvable ou inactif.
+Scénario E — Permissions (rôles, RLS, isolation);E5-viewer-stock-blocked;PASS;refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+Scénario E — Permissions (rôles, RLS, isolation);E6-suspended-isolated;PASS;documents visibles 0, comptes visibles 0 (attendu 0)
+Scénario E — Permissions (rôles, RLS, isolation);E7-outsider-isolated;PASS;documents visibles 0 (attendu 0)
+Scénario E — Permissions (rôles, RLS, isolation);E7-outsider-pay-blocked;PASS;refusé : Client introuvable dans cette organisation.
+Scénario E — Permissions (rôles, RLS, isolation);E8-tresorerie-oracle;PASS;attendu 53849.84 (50000-400-800+1800+1174.92+700+1174.92+100+100), réel 53849.84
+Scénario E — Permissions (rôles, RLS, isolation);E8-stock-oracle;PASS;stock 8 = oracle 8 (attendu 8 = 15-8+1 via manager)
+Scénario F — Charge/volume (850+ documents, latences);F0-parallel-numbering;PARTIAL;16/30 réussis, 14 échecs de contrainte d'unicité (finding numérotation — SELECT max+1 non verrouillé, cf. D5)
+Scénario F — Charge/volume (850+ documents, latences);F1-orders;PASS;200/200 commandes (2 lignes chacune), latence médiane/lot 300 ms, max 604 ms, échecs 0
+Scénario F — Charge/volume (850+ documents, latences);F2-customer-invoices;PASS;200/200 factures, latence médiane/lot 203 ms, max 223 ms, échecs 0
+Scénario F — Charge/volume (850+ documents, latences);F3-supplier-invoices;PASS;100/100 factures, latence médiane/lot 203 ms, max 219 ms, échecs 0
+Scénario F — Charge/volume (850+ documents, latences);F4-payments;PASS;50 client + 50 fournisseur (échecs 0/0), latence client médiane 400 ms max 551 ms, flux net attendu 2500.00 (50+/50-), trésorerie 56349.84 = oracle 56349.84
+Scénario F — Charge/volume (850+ documents, latences);F5-receipts;PASS;50/50 réceptions (échecs 0), latence médiane/lot 439 ms max 733 ms, stock 58 = niveaux 58 = oracle 58 (attendu 58)
+Scénario F — Charge/volume (850+ documents, latences);F6-tresorerie-oracle;PASS;attendu 56349.84 = trésorerie après E (53849.84) + flux net F4 (2500.00), réel 56349.84
+Scénario F — Charge/volume (850+ documents, latences);F6-numero-uniques;PASS;doublons sales_documents=0 customer_invoices=0 supplier_invoices=0 (attendu 0 partout)
+Scénario F — Charge/volume (850+ documents, latences);F6-volume-synthèse;PASS;mouvements de stock 58, paiements client 57, fournisseur 52, documents 850+, latence médiane globale ≈ 292 ms / lot de 10

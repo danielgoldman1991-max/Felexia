@@ -1,0 +1,30 @@
+# Scénario A — Achat de référence (10 u. @100 HT TVA 20 %)
+- Généré : 2026-08-11T12:14:30.821Z
+- Tenant : stress-flx-2026-001
+
+
+## A1. Commande fournisseur 10 u. @100 HT
+
+- [FAIL] A1-po — null value in column "description" of relation "purchase_document_lines" violates not-null constraint
+- [FAIL] A1-po-validate — new row for relation "purchase_documents" violates check constraint "purchase_documents_status_check"
+
+## A2-A3. Réceptions 6 puis 4 (WH Marrakech) + stock atomique
+
+- [FAIL] A2-receipt-6 — null value in column "description" of relation "purchase_document_lines" violates not-null constraint
+- [FAIL] A2-receipt-4 — null value in column "description" of relation "purchase_document_lines" violates not-null constraint
+
+## A4. Facture fournisseur 10 u. (depuis réceptions 6+4)
+
+- [FAIL] A4-supplier-invoice — FF-2608-00001 totaux 1000.00 HT / 200.00 TVA / 1200.00 TTC
+
+## A5. Paiements fournisseur 400 puis 800 (RPC atomique)
+
+- [FAIL] A5-spay-400 — invalid input syntax for type uuid: "STRESS-spay1-msomhi8e"
+- [FAIL] A5-spay-800 — invalid input syntax for type uuid: "STRESS-spay2-msomhi8e"
+
+## A6. Vérifications oracle (invariants §17)
+
+- [FAIL] A6-dette-zero — oracle reste=0.00, réel {"paid_amount":0,"remaining_amount":1200,"payment_status":"unpaid","total_ttc":1200}
+- [PASS] A6-tresorerie — attendu 50000.00 = opening + Σmvt, réel 50000.00
+- [FAIL] A6-stock — current=0 cumul emplacements=0 (attendu 10)
+- [PASS] A6-allocations — []

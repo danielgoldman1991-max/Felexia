@@ -20,7 +20,7 @@ export default async function SupplierPaymentsPage() {
       <PageHeader
         title="Paiements fournisseurs"
         description="Paiements effectues aux fournisseurs."
-        actions={<Link href="/achats/paiements/new"><Button><Plus className="h-4 w-4" /> Nouveau paiement</Button></Link>}
+        actions={<Button asChild><Link href="/achats/paiements/new"><Plus className="h-4 w-4" /> Nouveau paiement</Link></Button>}
       />
       <Card>
         <CardContent>
@@ -38,9 +38,7 @@ export default async function SupplierPaymentsPage() {
                     <Td><MoneyDisplay value={row.amount} /></Td>
                     <Td>{SUPPLIER_PAYMENT_STATUS_LABELS[row.status] ?? row.status}</Td>
                     <Td>
-                      <Link href={`/achats/paiements/${row.id}`}>
-                        <Button type="button" variant="secondary">Consulter</Button>
-                      </Link>
+                      <Button type="button" variant="secondary" asChild><Link href={`/achats/paiements/${row.id}`}>Consulter</Link></Button>
                     </Td>
                   </tr>
                 ))}

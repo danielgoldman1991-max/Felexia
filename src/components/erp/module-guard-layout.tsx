@@ -15,7 +15,7 @@ export async function ModuleGuardLayout({
   const planCode: PlanKey = (workspace.subscription?.planCode as PlanKey | undefined) ?? DEFAULT_PLAN_KEY;
 
   if (!canAccessModule(planCode, moduleKey)) {
-    return <ModuleUpgradePage moduleKey={moduleKey} currentPlanCode={planCode} />;
+    return <ModuleUpgradePage />;
   }
 
   return <>{children}</>;

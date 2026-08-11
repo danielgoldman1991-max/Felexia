@@ -48,9 +48,16 @@ export function GlobalSearch() {
   const [dynamicResults, setDynamicResults] = useState<GlobalSearchResult[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
 
   const staticResults = useMemo(() => searchStaticRegistry(query, query.trim() ? 12 : 6), [query]);
-  const results = query.trim().length >= 2 ? dynamicResults : staticResults;
+  const results = useMemo(() => {
+    if (query.trim().length < 2) return staticResults;
+    const byId = new Map<string, GlobalSearchResult>();
+    for (const result of [...dynamicResults, ...staticResults]) byId.set(result.id, result);
+    return [...byId.values()];
+  }, [dynamicResults, query, staticResults]);
   const flatResults = results.slice(0, 30);
   const groups = groupedResults(flatResults);
 
@@ -79,14 +86,26 @@ export function GlobalSearch() {
     if (query.trim().length < 2) {
       return;
     }
+    const requestId = ++requestIdRef.current;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => {
-      setLoading(true);
       fetch(`/api/global-search?q=${encodeURIComponent(query)}`, { signal: controller.signal })
-        .then((response) => response.json() as Promise<{ results?: GlobalSearchResult[] }>)
-        .then((payload) => setDynamicResults(payload.results ?? []))
-        .catch(() => setDynamicResults([]))
-        .finally(() => setLoading(false));
+        .then(async (response) => {
+          const payload = await response.json() as { results?: GlobalSearchResult[]; error?: string };
+          if (!response.ok || payload.error) throw new Error(payload.error || "Recherche indisponible.");
+          return payload;
+        })
+        .then((payload) => {
+          if (requestId === requestIdRef.current) setDynamicResults(payload.results ?? []);
+        })
+        .catch((error: unknown) => {
+          if (controller.signal.aborted || requestId !== requestIdRef.current) return;
+          setDynamicResults([]);
+          setSearchError(error instanceof Error ? error.message : "Recherche indisponible.");
+        })
+        .finally(() => {
+          if (requestId === requestIdRef.current) setLoading(false);
+        });
     }, 200);
     return () => {
       window.clearTimeout(timeout);
@@ -126,6 +145,8 @@ export function GlobalSearch() {
           const value = event.target.value;
           setQuery(value);
           setActiveIndex(0);
+          setSearchError(null);
+          setLoading(value.trim().length >= 2);
           if (value.trim().length < 2) setDynamicResults([]);
         }}
         onFocus={() => setOpen(true)}
@@ -138,6 +159,7 @@ export function GlobalSearch() {
       {open ? (
         <div className="absolute left-0 right-0 top-14 z-[100] max-h-[70vh] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)]">
           {loading ? <p className="px-3 py-2 text-sm text-[var(--muted)]">Recherche...</p> : null}
+          {searchError ? <p className="mx-2 mb-2 rounded-xl bg-[var(--danger-soft)] px-3 py-2 text-sm text-[var(--danger)]">{searchError} Réessayez dans un instant.</p> : null}
           {!loading && flatResults.length === 0 ? <p className="px-3 py-8 text-center text-sm text-[var(--muted)]">Aucun resultat trouve.</p> : null}
           {groups.map((group) => {
             const Icon = categoryIcons[group.category] ?? Building2;

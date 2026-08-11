@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const results = await globalSearch(query);
     return NextResponse.json({ results });
   } catch (error) {
-    return NextResponse.json({ results: [], error: error instanceof Error ? error.message : "Recherche indisponible." }, { status: 200 });
+    console.error("[global-search] request failed", error);
+    return NextResponse.json({ results: [], error: "La recherche est momentanément indisponible." }, { status: 503 });
   }
 }
