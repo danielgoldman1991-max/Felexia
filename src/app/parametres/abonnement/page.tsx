@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/erp/page-header";
 import { SubscriptionManage } from "@/components/settings/subscription-manage";
 import { hasStripeEnv } from "@/lib/env";
+import { getOrganizationSubscription } from "@/lib/subscriptions/plan-access";
 
 export default async function AbonnementPage() {
   const workspace = await requireActiveWorkspace();
@@ -10,13 +11,8 @@ export default async function AbonnementPage() {
 
   const monthStart = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)).toISOString();
 
-  const [subResult, memberResult, documentsResult, storageResult] = await Promise.all([
-    supabase
-      .from("organization_subscriptions")
-      .select("*, plan:subscription_plans(*)")
-      .eq("organization_id", workspace.organization.id)
-      .limit(1)
-      .maybeSingle(),
+  const [subscription, memberResult, documentsResult, storageResult] = await Promise.all([
+    getOrganizationSubscription(workspace.organization.id),
     supabase
       .from("organization_members")
       .select("*", { count: "exact", head: true })
@@ -34,7 +30,6 @@ export default async function AbonnementPage() {
       .is("archived_at", null),
   ]);
 
-  const subscription = subResult.data;
   const memberCount = memberResult.count ?? 0;
   const documentsThisMonth = documentsResult.count ?? 0;
   const storageUsedMb = Math.ceil(
@@ -45,7 +40,18 @@ export default async function AbonnementPage() {
     <div>
       <PageHeader title="Abonnement" description="Gérez votre pack Felexia, vos limites et votre facturation." />
       <SubscriptionManage
-        currentSubscription={subscription as Record<string, unknown> | null}
+        currentSubscription={subscription ? {
+          id: subscription.id,
+          plan_code: subscription.planCode,
+          status: subscription.status,
+          billing_cycle: subscription.billingCycle,
+          current_period_start: subscription.currentPeriodStart,
+          current_period_end: subscription.currentPeriodEnd,
+          trial_ends_at: subscription.trialEndsAt,
+          cancel_at_period_end: subscription.cancelAtPeriodEnd,
+          stripe_customer_id: subscription.stripeCustomerId,
+          stripe_subscription_id: subscription.stripeSubscriptionId,
+        } : null}
         organizationId={workspace.organization.id}
         memberCount={memberCount}
         documentsThisMonth={documentsThisMonth}

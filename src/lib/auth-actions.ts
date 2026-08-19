@@ -53,6 +53,11 @@ export async function loginAction(
   }
 
   if (signInError) {
+    console.error("[auth] password sign-in failed", {
+      code: signInError.code,
+      status: signInError.status,
+      message: signInError.message,
+    });
     return { error: "Email ou mot de passe incorrect." };
   }
 

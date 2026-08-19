@@ -46,9 +46,7 @@ export default async function AccountDetailPage({ params }: { params: Promise<{ 
         description="Detail du compte comptable."
         actions={
           <div className="flex items-center gap-2">
-            <Link href={`/comptabilite/plan-comptable/${account.id}/edit`}>
-              <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/comptabilite/plan-comptable/${account.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
           </div>
         }
       />

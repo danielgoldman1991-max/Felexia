@@ -15,9 +15,7 @@ export default function NewVatDeclarationPage() {
         title="Nouvelle déclaration TVA"
         description="Créez une déclaration TVA préparatoire à partir des factures, paiements et écritures de la période."
         actions={
-          <Link href="/comptabilite/tva/declarations">
-            <Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button>
-          </Link>
+          <Button variant="secondary" asChild><Link href="/comptabilite/tva/declarations"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
         }
       />
 

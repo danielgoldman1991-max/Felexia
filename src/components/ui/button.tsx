@@ -24,10 +24,10 @@ const variants = {
 type ButtonVariant = keyof typeof variants;
 
 const buttonBase =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50";
 
 const landingBase =
-  "relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+  "relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -46,10 +46,25 @@ export function Button({
   const classes = cn(isLanding ? landingBase : buttonBase, variants[variant], className);
 
   if (asChild && isValidElement(children)) {
-    const child = children as ReactElement<{ className?: string }>;
+    const child = children as ReactElement<{
+      className?: string;
+      onClick?: (event: { preventDefault(): void; stopPropagation(): void }) => void;
+      tabIndex?: number;
+      "aria-disabled"?: boolean;
+    }>;
+    const { disabled, ...childCompatibleProps } = props;
+    const childButtonOnClick = childCompatibleProps.onClick as unknown as typeof child.props.onClick;
     return cloneElement(child, {
-      ...props,
+      ...childCompatibleProps,
       className: cn(child.props.className, classes),
+      "aria-disabled": disabled || undefined,
+      tabIndex: disabled ? -1 : child.props.tabIndex,
+      onClick: disabled
+        ? (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        : childButtonOnClick ?? child.props.onClick,
     });
   }
 

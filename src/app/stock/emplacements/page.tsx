@@ -17,7 +17,7 @@ export default async function StockLocationsPage() {
       <PageHeader
         title="Emplacements de stock"
         description="Gerez vos entrepots, depots, magasins, sites et zones de stockage."
-        actions={<Link href="/stock/emplacements/new"><Button><Plus className="h-4 w-4" /> Nouvel emplacement</Button></Link>}
+        actions={<Button asChild><Link href="/stock/emplacements/new"><Plus className="h-4 w-4" /> Nouvel emplacement</Link></Button>}
       />
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <StatCard title="Emplacements" value={counters.total} />

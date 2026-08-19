@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test:regressions": "tsx scripts/verify-qa-regressions.ts",
+    "audit:data-integrity": "tsx scripts/audit-data-integrity.ts",
+    "repair:data-integrity": "tsx scripts/repair-data-integrity.ts",
+    "verify:demo-login": "tsx scripts/verify-demo-login.ts",
+    "check:production": "npx tsx scripts/check-production-config.ts",
     "ensure:accounting-defaults": "node --experimental-strip-types scripts/ensure-accounting-defaults-all-organizations.ts",
     "fix:onboarding-business-trial": "npx tsx scripts/fix-onboarding-business-trial.ts",
     "fix:business-trial-modules": "npx tsx scripts/fix-business-trial-and-modules.ts",
@@ -15,6 +21,8 @@
     "fix:supplier-payments": "npx tsx scripts/fix-supplier-invoice-payment-integrity.ts",
     "fix:supplier-invoice-lines": "npx tsx scripts/fix-supplier-invoice-lines-from-receipts.ts",
     "fix:hr-integrity": "npx tsx scripts/fix-hr-integrity.ts",
+    "audit:sales-vat": "npx tsx scripts/audit-sales-vat-integrity.ts",
+    "fix:sales-vat": "npx tsx scripts/fix-sales-vat-integrity.ts",
     "seed:demo": "npx tsx scripts/seed-demo-societe-demo.ts",
     "sync:essentiel-modules": "npx tsx scripts/sync-essentiel-modules.ts"
   },
@@ -38,6 +46,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.3.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.12",
     "typescript": "^5"
   }
 }

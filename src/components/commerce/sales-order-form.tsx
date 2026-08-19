@@ -124,9 +124,7 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={order ? `/commandes/${order.id}` : "/commandes"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={order ? `/commandes/${order.id}` : "/commandes"}>Annuler</Link></Button>
         <Button disabled={pending}>
           {mode === "create" ? "Creer commande" : "Enregistrer"}
         </Button>

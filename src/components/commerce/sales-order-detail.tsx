@@ -43,9 +43,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
           <>
             {isDraft ? (
               <>
-                <Link href={`/commandes/${order.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/commandes/${order.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <form action={confirmAction}>
                   <input type="hidden" name="id" value={order.id} />
                   <Button><CheckCircle2 className="h-4 w-4" /> Confirmer</Button>
@@ -59,9 +57,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
               </>
             ) : null}
             {canCreateDelivery ? (
-              <Link href={`/livraisons/new?order_id=${order.id}`}>
-                <Button><Truck className="h-4 w-4" /> Creer livraison</Button>
-              </Link>
+              <Button asChild><Link href={`/livraisons/new?order_id=${order.id}`}><Truck className="h-4 w-4" /> Creer livraison</Link></Button>
             ) : null}
           </>
         }

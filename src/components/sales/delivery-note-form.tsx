@@ -204,9 +204,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
       ) : null}
 
       <div className="flex justify-end gap-3">
-        <Link href={`/vente/commandes/${order.id}`}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={`/vente/commandes/${order.id}`}>Annuler</Link></Button>
         <Button disabled={pending || Boolean(validationError)}>Creer le BL</Button>
       </div>
     </form>

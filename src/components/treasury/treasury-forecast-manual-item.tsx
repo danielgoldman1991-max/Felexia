@@ -75,9 +75,7 @@ export function TreasuryForecastManualItem({
       <td className="p-3"><Badge tone={STATUS_TONES[item.status] ?? "neutral"}>{STATUS_LABELS[item.status] ?? item.status}</Badge></td>
       <td className="p-3">
         <div className="flex flex-wrap gap-1">
-          <Link href={`/tresorerie/previsions/${item.sourceId}/edit`}>
-            <Button type="button" variant="ghost" className="h-8 px-2" title="Modifier"><Pencil className="h-4 w-4" /></Button>
-          </Link>
+          <Button type="button" variant="ghost" className="h-8 px-2" title="Modifier" asChild><Link href={`/tresorerie/previsions/${item.sourceId}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
           {!isDone ? (
             <form action={setStatusAction}>
               <input type="hidden" name="id" value={item.sourceId ?? ""} />

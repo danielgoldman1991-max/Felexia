@@ -34,7 +34,7 @@ export function CustomerReminderDetail({ reminder, invoices }: { reminder: Custo
         description={reminder.customer_name ?? ""}
         actions={(
           <>
-            <Link href={`/facturation/relances/${reminder.id}/print`} target="_blank"><Button type="button" variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button></Link>
+            <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/${reminder.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             {reminder.status === "draft" ? <ActionForm label="Marquer envoyee" icon={<Send className="h-4 w-4" />} action={actionWithId(markReminderAsSent, reminder.id)} /> : null}
             {reminder.status !== "cancelled" ? <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelCustomerReminder, reminder.id)} /> : null}
           </>

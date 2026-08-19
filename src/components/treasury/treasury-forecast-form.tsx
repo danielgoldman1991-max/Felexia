@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { TreasuryAccountRecord, TreasuryActionResult } from "@/lib/treasury-types";
@@ -58,7 +59,7 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Montant (MAD) *</span>
-            <Input name="amount" type="number" step="0.01" min="0.01" defaultValue={item?.amount ?? ""} required />
+            <MoneyInput name="amount" min={0.01} defaultValue={item?.amount ?? ""} required />
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Probabilite (%)</span>
@@ -98,7 +99,7 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
-        <Link href="/tresorerie/previsions"><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href="/tresorerie/previsions">Annuler</Link></Button>
         <Button disabled={pending}>{item?.id ? "Enregistrer" : "Creer la prevision"}</Button>
       </div>
     </form>

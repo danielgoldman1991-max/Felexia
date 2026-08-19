@@ -5,7 +5,7 @@ const produitLinks = [
   { label: "Fonctionnalités", href: "#features" },
   { label: "Tarifs", href: "#pricing" },
   { label: "Ressources", href: "#resources" },
-  { label: "Demander une démo", href: "#contact" },
+  { label: "Contact", href: "#contact" },
   { label: "Commencer gratuitement", href: "/login?mode=register" },
 ];
 
@@ -19,7 +19,11 @@ const moduleLinks = [
   "TVA & Déclarations",
 ];
 
-const legalLinks = ["Mentions légales", "Confidentialité", "Conditions générales"];
+const legalLinks = [
+  { label: "Mentions légales", href: "/mentions-legales" },
+  { label: "Confidentialité", href: "/confidentialite" },
+  { label: "Conditions générales", href: "/conditions" },
+];
 
 export function LandingFooter() {
   return (
@@ -66,9 +70,14 @@ export function LandingFooter() {
           <div>
             <h3 className="text-sm font-bold text-slate-900">Légal</h3>
             <ul className="mt-4 space-y-2.5">
-              {legalLinks.map((label) => (
-                <li key={label} className="text-sm text-slate-500">
-                  {label}
+              {legalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-600 transition-colors hover:text-[#0B2A5B]"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,7 +92,7 @@ export function LandingFooter() {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-6 sm:flex-row">
           <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} FelexiaERP. Tous droits réservés.
+            &copy; {new Date().getFullYear()} Felexia Conseils. FelexiaERP — Tous droits réservés.
           </p>
           <p className="text-sm text-slate-500">Mini-ERP pour PME marocaines.</p>
         </div>

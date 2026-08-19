@@ -1,0 +1,12 @@
+# Scénario B — Vente de référence (3 u. @500 HT TVA 20 %)
+- Généré : 2026-08-11T12:27:04.084Z
+- Tenant : stress-flx-2026-001
+
+
+## B1. Commande client 3 u. @500 HT
+
+- [PASS] B1-order — commande d51e828a-4396-4e79-b5c8-46d9908c46a6, ligne oracle 1500.00 HT / 300.00 TVA / 1800.00 TTC
+
+## B2. Bon de livraison 3 u. (delivery_out, finalize delivery_note)
+
+- [BLOCKED] B2-bl — Could not find the 'warehouse_id' column of 'sales_documents' in the schema cache

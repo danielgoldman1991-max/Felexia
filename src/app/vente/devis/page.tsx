@@ -16,7 +16,7 @@ export default async function VenteDevisPage() {
       <PageHeader
         title="Devis"
         description="Propositions commerciales avant commande client."
-        actions={<Link href="/vente/devis/new"><Button>Nouveau devis</Button></Link>}
+        actions={<Button asChild><Link href="/vente/devis/new">Nouveau devis</Link></Button>}
       />
       <Card>
         <CardContent>

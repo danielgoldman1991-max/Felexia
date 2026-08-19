@@ -29,6 +29,13 @@ function isMissingTreasuryImportColumn(error: { message?: string } | null | unde
   return Boolean(error?.message?.includes("does not exist") || error?.message?.includes("schema cache"));
 }
 
+function financialIntegrityError(error: { code?: string; message?: string } | null | undefined) {
+  if (error?.code === "PGRST202" || error?.code === "42883" || error?.message?.includes("schema cache")) {
+    return "La mise a niveau de securite financiere doit etre appliquee avant cette operation.";
+  }
+  return error?.message ?? "L'operation financiere n'a pas pu etre confirmee.";
+}
+
 async function generateBankStatementImportCode(organizationId: string) {
   const supabase = await createClient();
   const now = new Date();
@@ -74,71 +81,6 @@ async function applyDefaultAccount(organizationId: string, id: string) {
   return set.error?.message ?? null;
 }
 
-async function updateAccountBalance(accountId: string, organizationId: string, direction: TreasuryTransactionDirection, amount: number) {
-  const supabase = await createClient();
-  const { data: account, error } = await supabase.from("treasury_accounts").select("current_balance").eq("organization_id", organizationId).eq("id", accountId).maybeSingle();
-  if (error || !account) return { error: "Compte de tresorerie introuvable." };
-  const current = Number(account.current_balance ?? 0);
-  const next = direction === "in" ? current + amount : current - amount;
-  const update = await supabase.from("treasury_accounts").update({ current_balance: next }).eq("organization_id", organizationId).eq("id", accountId);
-  return update.error ? { error: update.error.message } : {};
-}
-
-export async function createTreasuryTransactionFromPayment({
-  organizationId,
-  userId,
-  treasuryAccountId,
-  direction,
-  amount,
-  transactionDate,
-  valueDate,
-  label,
-  reference,
-  thirdPartyId,
-  customerPaymentId,
-  supplierPaymentId,
-}: {
-  organizationId: string;
-  userId: string;
-  treasuryAccountId: string | null;
-  direction: TreasuryTransactionDirection;
-  amount: number;
-  transactionDate: string;
-  valueDate?: string | null;
-  label: string;
-  reference?: string | null;
-  thirdPartyId: string;
-  customerPaymentId?: string | null;
-  supplierPaymentId?: string | null;
-}) {
-  if (!treasuryAccountId) return { error: "Selectionnez un compte de tresorerie." };
-  const supabase = await createClient();
-  const existingQuery = customerPaymentId
-    ? supabase.from("treasury_transactions").select("id").eq("organization_id", organizationId).eq("customer_payment_id", customerPaymentId).is("archived_at", null).limit(1).maybeSingle()
-    : supabase.from("treasury_transactions").select("id").eq("organization_id", organizationId).eq("supplier_payment_id", supplierPaymentId).is("archived_at", null).limit(1).maybeSingle();
-  const { data: existing, error: existingError } = await existingQuery;
-  if (existingError) return { error: existingError.message };
-  if (existing?.id) return {};
-  const insert = await supabase.from("treasury_transactions").insert({
-    organization_id: organizationId,
-    treasury_account_id: treasuryAccountId,
-    transaction_type: customerPaymentId ? "customer_payment" : "supplier_payment",
-    direction,
-    amount,
-    transaction_date: transactionDate,
-    value_date: valueDate,
-    label,
-    reference,
-    third_party_id: thirdPartyId,
-    customer_payment_id: customerPaymentId ?? null,
-    supplier_payment_id: supplierPaymentId ?? null,
-    reconciliation_status: "unreconciled",
-    created_by: userId,
-  });
-  if (insert.error) return { error: insert.error.message };
-  return updateAccountBalance(treasuryAccountId, organizationId, direction, amount);
-}
-
 export async function createTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
@@ -171,9 +113,6 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
   if (isDefault) {
     const defaultError = await applyDefaultAccount(workspace.organization.id, data.id);
     if (defaultError) return { success: false, error: defaultError };
-  }
-  if (opening > 0) {
-    await supabase.from("treasury_transactions").insert({ organization_id: workspace.organization.id, treasury_account_id: data.id, transaction_type: "opening_balance", direction: "in", amount: opening, transaction_date: text(formData, "opening_balance_date") ?? new Date().toISOString().slice(0, 10), label: "Solde initial", created_by: workspace.userId });
   }
   revalidatePath("/tresorerie/comptes");
   redirect(`/tresorerie/comptes/${data.id}`);
@@ -240,33 +179,59 @@ export async function createManualTreasuryTransaction(prev: TreasuryActionResult
   void prev;
   const workspace = await requireActiveWorkspace();
   const accountId = text(formData, "treasury_account_id");
+  const operationMode = text(formData, "operation_mode") ?? "movement";
   const amount = num(formData.get("amount"));
   const direction = (text(formData, "direction") ?? "in") as TreasuryTransactionDirection;
   const label = text(formData, "label");
   if (!accountId) return { success: false, error: "Selectionnez un compte." };
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a zero." };
   if (!label) return { success: false, error: "Le libelle est obligatoire." };
-  const type = (text(formData, "transaction_type") ?? (direction === "in" ? "manual_in" : "manual_out")) as TreasuryTransactionType;
   const supabase = await createClient();
-  const { data, error } = await supabase.from("treasury_transactions").insert({
-    organization_id: workspace.organization.id,
-    treasury_account_id: accountId,
-    transaction_type: type,
-    direction,
-    amount,
-    transaction_date: text(formData, "transaction_date") ?? new Date().toISOString().slice(0, 10),
-    value_date: text(formData, "value_date"),
-    label,
-    reference: text(formData, "reference"),
-    description: text(formData, "description"),
-    third_party_id: text(formData, "third_party_id"),
-    created_by: workspace.userId,
-  }).select("id").single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer le mouvement." };
-  const balance = await updateAccountBalance(accountId, workspace.organization.id, direction, amount);
-  if (balance.error) return { success: false, error: balance.error };
+
+  if (operationMode === "transfer") {
+    const destinationAccountId = text(formData, "destination_account_id");
+    if (!destinationAccountId) return { success: false, error: "Selectionnez le compte de destination." };
+    if (destinationAccountId === accountId) return { success: false, error: "Les comptes source et destination doivent etre differents." };
+    const { data: transfer, error: transferError } = await supabase.rpc("create_treasury_transfer", {
+      p_source_account_id: accountId,
+      p_destination_account_id: destinationAccountId,
+      p_amount: amount,
+      p_transaction_date: text(formData, "transaction_date") ?? new Date().toISOString().slice(0, 10),
+      p_value_date: text(formData, "value_date"),
+      p_label: label,
+      p_reference: text(formData, "reference"),
+      p_description: text(formData, "description"),
+      p_idempotency_key: text(formData, "idempotency_key"),
+    });
+    if (transferError) return { success: false, error: financialIntegrityError(transferError) };
+    const row = (transfer as Array<{ outgoing_transaction_id?: string }> | null)?.[0];
+    if (!row?.outgoing_transaction_id) return { success: false, error: "Le transfert n'a pas pu etre confirme." };
+    revalidatePath("/tresorerie/mouvements");
+    revalidatePath("/tresorerie/comptes");
+    redirect(`/tresorerie/mouvements/${row.outgoing_transaction_id}`);
+  }
+
+  const type = (text(formData, "transaction_type") ?? (direction === "in" ? "manual_in" : "manual_out")) as TreasuryTransactionType;
+  const { data, error } = await supabase.rpc("create_treasury_transaction_atomic", {
+    p_organization_id: workspace.organization.id,
+    p_treasury_account_id: accountId,
+    p_transaction_type: type,
+    p_direction: direction,
+    p_amount: amount,
+    p_transaction_date: text(formData, "transaction_date") ?? new Date().toISOString().slice(0, 10),
+    p_idempotency_key: text(formData, "idempotency_key"),
+    p_value_date: text(formData, "value_date"),
+    p_label: label,
+    p_reference: text(formData, "reference"),
+    p_description: text(formData, "description"),
+    p_third_party_id: text(formData, "third_party_id"),
+  });
+  if (error) return { success: false, error: financialIntegrityError(error) };
+  const row = (data as Array<{ transaction_id?: string }> | null)?.[0];
+  if (!row?.transaction_id) return { success: false, error: "Le mouvement n'a pas pu etre confirme." };
   revalidatePath("/tresorerie/mouvements");
-  redirect(`/tresorerie/mouvements/${data.id}`);
+  revalidatePath("/tresorerie/comptes");
+  redirect(`/tresorerie/mouvements/${row.transaction_id}`);
 }
 
 export async function archiveTreasuryTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
@@ -275,9 +240,13 @@ export async function archiveTreasuryTransaction(prev: TreasuryActionResult, for
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Mouvement introuvable." };
   const supabase = await createClient();
-  const { error } = await supabase.from("treasury_transactions").update({ archived_at: new Date().toISOString() }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  const { error } = await supabase.rpc("archive_treasury_transaction_atomic", {
+    p_organization_id: workspace.organization.id,
+    p_transaction_id: id,
+  });
+  if (error) return { success: false, error: financialIntegrityError(error) };
   revalidatePath("/tresorerie/mouvements");
+  revalidatePath("/tresorerie/comptes");
   return { success: true };
 }
 
@@ -493,17 +462,19 @@ export async function createTransactionFromStatementLine(prev: TreasuryActionRes
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };
   const supabase = await createClient();
-  const { data: line } = await supabase.from("bank_statement_lines").select("*").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
-  if (!line) return { success: false, error: "Ligne introuvable." };
-  const type = String(line.label ?? "").toLowerCase().includes("frais") ? "bank_fee" : line.direction === "in" ? "manual_in" : "manual_out";
-  const { data: tx, error } = await supabase.from("treasury_transactions").insert({ organization_id: workspace.organization.id, treasury_account_id: line.treasury_account_id, transaction_type: type, direction: line.direction, amount: line.amount, transaction_date: line.operation_date, value_date: line.value_date, label: line.label, reference: line.reference, reconciliation_status: "reconciled", reconciled_at: new Date().toISOString(), reconciled_by: workspace.userId, created_by: workspace.userId }).select("id").single();
-  if (error || !tx) return { success: false, error: error?.message ?? "Impossible de creer le mouvement." };
-  await supabase.from("bank_reconciliations").insert({ organization_id: workspace.organization.id, treasury_account_id: line.treasury_account_id, statement_line_id: id, transaction_id: tx.id, amount: line.amount, created_by: workspace.userId });
-  await supabase.from("bank_statement_lines").update({ reconciliation_status: "reconciled", matched_transaction_id: tx.id, matched_at: new Date().toISOString(), matched_by: workspace.userId }).eq("id", id);
-  await updateAccountBalance(line.treasury_account_id, workspace.organization.id, line.direction, Number(line.amount));
-  await recalculateBankStatementImportStatus(line.import_id, workspace.organization.id);
+  const { data, error } = await supabase.rpc("create_treasury_transaction_from_statement_line_atomic", {
+    p_organization_id: workspace.organization.id,
+    p_statement_line_id: id,
+  });
+  if (error) return { success: false, error: financialIntegrityError(error) };
+  const row = (data as Array<{ transaction_id?: string }> | null)?.[0];
+  if (!row?.transaction_id) return { success: false, error: "Le mouvement n'a pas pu etre confirme." };
+  const { data: line } = await supabase.from("bank_statement_lines").select("import_id").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
+  if (line?.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
   revalidatePath("/tresorerie/rapprochement");
   revalidatePath("/tresorerie/releves");
+  revalidatePath("/tresorerie/mouvements");
+  revalidatePath("/tresorerie/comptes");
   return { success: true };
 }
 

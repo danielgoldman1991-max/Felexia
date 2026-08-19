@@ -30,7 +30,7 @@ export default async function CustomerInvoicesPage({ searchParams }: { searchPar
       <PageHeader
         title="Factures clients"
         description="Liste des factures, statuts de validation et paiements."
-        actions={<Link href="/facturation/factures/new"><Button>Nouvelle facture</Button></Link>}
+        actions={<Button asChild><Link href="/facturation/factures/new">Nouvelle facture</Link></Button>}
       />
       <Card>
         <CardContent>

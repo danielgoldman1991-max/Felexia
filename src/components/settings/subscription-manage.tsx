@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { Check, CreditCard, Database, FileText, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getPlanDefinition, SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
+import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
 import { DEFAULT_TRIAL_DURATION_LABEL, DEFAULT_TRIAL_MARKETING_MESSAGE, BUSINESS_TRIAL_DURATION_LABEL, BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
 
 type BillingInterval = "monthly" | "yearly";
@@ -170,19 +170,13 @@ export function SubscriptionManage({
               <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai ni choisi d&apos;abonnement.</h2>
             </div>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Essentiel sans carte bancaire ou choisir directement un pack.
+              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Essentiel sans carte bancaire ou souscrire directement à l&apos;offre Essentiel.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button onClick={startTrial} disabled={loadingTrial}>
               {loadingTrial ? "Activation en cours..." : "Démarrer l'essai Essentiel"}
             </Button>
-            <Link
-              href="/parametres/abonnement"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-4 text-sm font-medium text-[var(--secondary)] shadow-[var(--shadow-sm)] transition-all hover:border-[#c8d0e1] hover:bg-[var(--surface-soft)]"
-            >
-              Choisir un pack
-            </Link>
           </CardContent>
         </Card>
       ) : (
@@ -251,7 +245,7 @@ export function SubscriptionManage({
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Changer de pack</h2>
+        <h2 className="text-lg font-semibold">Votre abonnement</h2>
         <div className="flex items-center gap-2">
           {currentSubscription?.stripe_customer_id ? (
             <Button variant="secondary" disabled={!hasStripe || loadingPortal} onClick={openBillingPortal}>
@@ -292,7 +286,7 @@ export function SubscriptionManage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {SUBSCRIPTION_PLANS.map((plan) => {
+        {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
           const isCurrentPlan = hasSubscription && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
           const savings = yearlySavings.find((s) => s.code === plan.code);
 

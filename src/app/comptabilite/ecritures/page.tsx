@@ -16,7 +16,7 @@ export default async function EntriesPage() {
       <PageHeader
         title="Ecritures comptables"
         description="Ecritures generees ou saisies manuellement."
-        actions={<Link href="/comptabilite/ecritures/nouveau"><Button>Nouvelle ecriture</Button></Link>}
+        actions={<Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle ecriture</Link></Button>}
       />
       <div className="space-y-6">
         <EntriesSummaryCards entries={entries.entries} />

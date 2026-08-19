@@ -14,11 +14,11 @@ type KpiCardProps = {
 export function KpiCard({ title, value, change, caption, tone, icon: Icon }: KpiCardProps) {
   const positive = tone === "success";
   return (
-    <section className="premium-card luxury-border rounded-[var(--radius-lg)] p-5 transition hover:-translate-y-0.5">
+    <section className="premium-card luxury-border min-w-0 rounded-[var(--radius-lg)] p-5 transition hover:-translate-y-0.5">
       <div className="flex items-start justify-between gap-4">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <p className="section-title">{title}</p>
-          <p className="text-2xl font-semibold tracking-tight text-[var(--foreground)]">{value}</p>
+          <p className="break-words text-2xl font-semibold tracking-tight text-[var(--foreground)]">{value}</p>
         </div>
         <div className={cn("flex h-11 w-11 items-center justify-center rounded-2xl ring-1", positive ? "bg-[var(--success-soft)] text-[var(--success)] ring-[var(--border)]" : "bg-[var(--danger-soft)] text-[var(--danger)] ring-[var(--border)]")}>
           <Icon className="h-5 w-5" />

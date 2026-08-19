@@ -60,9 +60,7 @@ export function CategoryForm({ mode, category, action }: Props) {
       ) : null}
 
       <div className="flex items-center justify-end gap-3">
-        <Link href="/articles/categories">
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href="/articles/categories">Annuler</Link></Button>
         <Button disabled={pending}>{mode === "create" ? "Creer categorie" : "Enregistrer"}</Button>
       </div>
     </form>

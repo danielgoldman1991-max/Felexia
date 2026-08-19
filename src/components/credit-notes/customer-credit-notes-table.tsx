@@ -23,7 +23,7 @@ export function CustomerCreditNotesTable({ rows }: { rows: CustomerCreditNoteRec
           <Td><MoneyDisplay value={row.total_ttc} /></Td>
           <Td><MoneyDisplay value={row.applied_amount} /></Td>
           <Td><MoneyDisplay value={row.available_amount} /></Td>
-          <Td><div className="flex gap-1"><Link href={`/facturation/avoirs/${row.id}`}><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir"><Eye className="h-4 w-4" /></Button></Link>{row.available_amount > 0 ? <Link href={`/facturation/avoirs/${row.id}/affecter`}><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Affecter"><Link2 className="h-4 w-4" /></Button></Link> : null}<Link href={`/facturation/avoirs/${row.id}/print`} target="_blank"><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Imprimer"><Printer className="h-4 w-4" /></Button></Link></div></Td>
+          <Td><div className="flex gap-1"><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/facturation/avoirs/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>{row.available_amount > 0 ? <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Affecter" asChild><Link href={`/facturation/avoirs/${row.id}/affecter`}><Link2 className="h-4 w-4" /></Link></Button> : null}<Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Imprimer" asChild><Link href={`/facturation/avoirs/${row.id}/print`} target="_blank"><Printer className="h-4 w-4" /></Link></Button></div></Td>
         </tr>
       ))}</tbody>
     </Table>

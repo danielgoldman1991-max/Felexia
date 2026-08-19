@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
-import { createTreasuryTransactionFromPayment } from "@/lib/treasury-actions";
+import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
 import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/purchase-types";
 import { getPurchaseReceiptArchiveEligibility, getSupplierInvoicePaymentSummary, getSupplierInvoicePreparationFromReceipt, getSupplierOrderLineProgress } from "@/lib/purchases";
 
@@ -120,13 +120,15 @@ async function insertPurchaseLines(
 }
 
 async function updatePurchaseTotals(supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never, documentId: string) {
-  const { data: lines } = await supabase.from("purchase_document_lines").select("subtotal_ht, discount_amount, tax_amount, total_ttc").eq("document_id", documentId);
+  const { data: lines, error: linesError } = await supabase.from("purchase_document_lines").select("subtotal_ht, discount_amount, tax_amount, total_ttc").eq("document_id", documentId);
+  if (linesError) throw new Error(linesError.message);
   if (!lines) return;
   const subtotalHt = lines.reduce((s, l) => s + Number(l.subtotal_ht), 0);
   const discountTotal = lines.reduce((s, l) => s + Number(l.discount_amount), 0);
   const taxTotal = lines.reduce((s, l) => s + Number(l.tax_amount), 0);
   const totalTtc = lines.reduce((s, l) => s + Number(l.total_ttc), 0);
-  await supabase.from("purchase_documents").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc }).eq("id", documentId);
+  const { error: updateError } = await supabase.from("purchase_documents").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc }).eq("id", documentId);
+  if (updateError) throw new Error(updateError.message);
 }
 
 // ============================================================================
@@ -359,6 +361,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
 
     const { error: linesError } = await supabase.from("purchase_document_lines").insert(calculated);
     if (linesError) throw new Error(linesError.message);
+    await updatePurchaseTotals(supabase, doc.id);
   } catch (e) {
     await supabase.from("purchase_documents").delete().eq("id", doc.id);
     return { success: false, error: e instanceof Error ? e.message : "Erreur insertion lignes." };
@@ -401,6 +404,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
   }
 
   const defaultWarehouse = doc.warehouse_id ?? await getDefaultStockLocationId(orgId);
+  const stockMovements: AtomicStockMovement[] = [];
 
   for (const line of lines) {
     if (!line.product_id) continue;
@@ -411,76 +415,37 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
     if (line.unit_name?.toLowerCase() === "u" && !Number.isInteger(quantity)) {
       return { success: false, error: `La quantite du produit ${line.product_id} doit etre un entier (unite U).` };
     }
-    const { data: product } = await supabase.from("products").select("type, track_stock, current_stock").eq("id", line.product_id).single();
+    const { data: product } = await supabase.from("products").select("type, track_stock").eq("organization_id", orgId).eq("id", line.product_id).single();
     if (product?.type === "product" && product.track_stock) {
-      const currentStock = Number(product.current_stock ?? 0);
-      const { error: stockError } = await supabase.from("products").update({ current_stock: currentStock + quantity }).eq("id", line.product_id);
-      if (stockError) return { success: false, error: `Erreur mise a jour stock: ${stockError.message}` };
-
-      const { error: moveError } = await supabase.from("stock_moves").insert({
-        organization_id: orgId,
+      stockMovements.push({
         warehouse_id: defaultWarehouse,
         product_id: line.product_id,
         source_document_id: id,
-        source_line_id: line.source_line_id ?? line.id,
+        source_line_id: line.id,
         move_type: "purchase_receipt_in",
         direction: "in",
         quantity,
         movement_date: new Date().toISOString(),
         notes: "Reception fournisseur",
-        created_by: workspace.userId,
       });
-      if (moveError) return { success: false, error: `Erreur creation mouvement stock: ${moveError.message}` };
     }
   }
 
-  const { error: validateError } = await supabase.from("purchase_documents").update({ status: "validated", validated_at: new Date().toISOString(), stock_updated_at: new Date().toISOString() }).eq("id", id);
-  if (validateError) return { success: false, error: validateError.message };
+  const movementResult = await recordStockMovementsAtomic({
+    organizationId: orgId,
+    operationKey: id,
+    movements: stockMovements,
+    finalizeDocumentType: "supplier_receipt",
+    documentId: id,
+  });
+  if (movementResult.error) return { success: false, error: movementResult.error };
 
   if (doc.related_order_id) {
-    await updateOrderStatusFromReceipts(supabase as never, doc.related_order_id);
+    revalidatePath(`/achats/commandes/${doc.related_order_id}`);
   }
 
   revalidatePath("/achats/receptions");
   return { success: true };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function updateOrderStatusFromReceipts(supabase: any, orderId: string) {
-  const { data: orderLines } = await supabase.from("purchase_document_lines").select("id, quantity").eq("document_id", orderId);
-  if (!orderLines || orderLines.length === 0) return;
-  const { data: receipts } = await supabase
-    .from("purchase_documents")
-    .select("id")
-    .eq("related_order_id", orderId)
-    .eq("document_type", "supplier_receipt")
-    .eq("status", "validated")
-    .is("archived_at", null);
-  const receiptIds = (receipts ?? []).map((r: { id: string }) => r.id);
-  const receivedMap = new Map<string, number>();
-  if (receiptIds.length > 0) {
-    const { data: receiptLines } = await supabase
-      .from("purchase_document_lines")
-      .select("source_line_id, quantity")
-      .in("document_id", receiptIds)
-      .not("source_line_id", "is", null);
-    (receiptLines ?? []).forEach((l: { source_line_id: string; quantity: number }) => {
-      const current = receivedMap.get(l.source_line_id) ?? 0;
-      receivedMap.set(l.source_line_id, current + Number(l.quantity));
-    });
-  }
-  let allReceived = true;
-  let someReceived = false;
-  for (const ol of orderLines) {
-    const received = receivedMap.get(ol.id) ?? 0;
-    if (received > 0) someReceived = true;
-    if (received < Number(ol.quantity)) allReceived = false;
-  }
-  let newStatus: string;
-  if (allReceived) newStatus = "received";
-  else if (someReceived) newStatus = "partially_received";
-  else newStatus = "confirmed";
-  await supabase.from("purchase_documents").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", orderId);
 }
 
 export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
@@ -918,9 +883,6 @@ async function validateSupplierInvoiceAllocations({
   }
 
   const totalAllocated = Array.from(totalsByInvoice.values()).reduce((sum, amount) => sum + amount, 0);
-  if (paymentAmount !== undefined && totalAllocated > 0 && paymentAmount > totalAllocated + 0.01) {
-    return { success: false, error: "Le montant du paiement dépasse le reste à payer de la facture." };
-  }
   if (paymentAmount !== undefined && totalAllocated > paymentAmount + 0.01) {
     return { success: false, error: "Le montant total des affectations dépasse le montant du paiement." };
   }
@@ -981,46 +943,48 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const allocationValidation = await validateSupplierInvoiceAllocations({ supabase, orgId, supplierId, allocations, paymentAmount: amount });
   if (!allocationValidation.success) return allocationValidation;
 
-  const { data: payment, error: payError } = await supabase
-    .from("supplier_payments")
-    .insert({ organization_id: orgId, payment_number: "", supplier_id: supplierId, treasury_account_id: treasuryAccountId, amount, payment_date: paymentDate, value_date: valueDate, payment_method: paymentMethod, reference: reference, bank_name: bankName, check_number: checkNumber, transfer_reference: transferReference, due_date: dueDate, notes, status: "confirmed", allocated_amount: 0, available_amount: amount })
-    .select("id, payment_number")
-    .single();
-  if (payError) return { success: false, error: payError.message };
-  if (!payment) return { success: false, error: "Erreur creation paiement." };
-
-  let totalAllocated = 0;
-  for (const alloc of allocations) {
-    const invoiceId = alloc.invoice_id as string;
-    const allocAmount = numberValue(alloc.amount);
-    if (!invoiceId || allocAmount <= 0) continue;
-    totalAllocated += allocAmount;
-    const { error: allocError } = await supabase.from("supplier_payment_allocations").insert({ organization_id: orgId, payment_id: payment.id, invoice_id: invoiceId, supplier_id: supplierId, amount: allocAmount, created_by: workspace.userId });
-    if (allocError) return { success: false, error: `Erreur affectation: ${allocError.message}` };
-    await recalcSupplierInvoicePaymentStatus(supabase as never, invoiceId, orgId);
-  }
-
-  if (totalAllocated > 0) {
-    await supabase.from("supplier_payments").update({ allocated_amount: totalAllocated, available_amount: amount - totalAllocated, status: totalAllocated >= amount ? "allocated" : "partially_allocated" }).eq("id", payment.id);
-  }
-
-  const treasuryResult = await createTreasuryTransactionFromPayment({
-    organizationId: orgId,
-    userId: workspace.userId,
-    treasuryAccountId,
-    direction: "out",
-    amount,
-    transactionDate: paymentDate,
-    valueDate,
-    label: `Paiement fournisseur ${payment.payment_number || ""}`.trim(),
-    reference: reference ?? transferReference,
-    thirdPartyId: supplierId,
-    supplierPaymentId: payment.id,
+  const idempotencyKey = text(formData, "idempotency_key") ?? globalThis.crypto.randomUUID();
+  const atomicResult = await supabase.rpc("create_supplier_payment_atomic", {
+    p_organization_id: orgId,
+    p_supplier_id: supplierId,
+    p_treasury_account_id: treasuryAccountId,
+    p_amount: amount,
+    p_payment_date: paymentDate,
+    p_idempotency_key: idempotencyKey,
+    p_allocations: allocations,
+    p_value_date: valueDate,
+    p_payment_method: paymentMethod,
+    p_reference: reference,
+    p_bank_name: bankName,
+    p_check_number: checkNumber,
+    p_transfer_reference: transferReference,
+    p_due_date: dueDate,
+    p_notes: notes,
+    p_created_by: workspace.userId,
   });
-  if (treasuryResult.error) return { success: false, error: treasuryResult.error };
 
-  revalidatePath("/achats/paiements");
-  redirect(`/achats/paiements/${payment.id}`);
+  if (!atomicResult.error) {
+    const atomicPayment = Array.isArray(atomicResult.data) ? atomicResult.data[0] : atomicResult.data;
+    const atomicPaymentId = atomicPayment && typeof atomicPayment === "object" && "payment_id" in atomicPayment
+      ? String(atomicPayment.payment_id)
+      : null;
+    if (!atomicPaymentId) {
+      return { success: false, error: "Le paiement transactionnel n'a pas retourné d'identifiant." };
+    }
+    revalidatePath("/achats/paiements");
+    revalidatePath("/achats/factures");
+    redirect(`/achats/paiements/${atomicPaymentId}`);
+  }
+
+  console.error("[purchases] atomic supplier payment unavailable", {
+    code: atomicResult.error.code,
+  });
+  return {
+    success: false,
+    error: ["PGRST202", "42883"].includes(atomicResult.error.code ?? "")
+      ? "La mise à niveau d'intégrité de la base doit être appliquée avant de créer un paiement fournisseur."
+      : "Le paiement a été refusé afin de préserver l'intégrité des données.",
+  };
 }
 
 export async function allocateSupplierPaymentToInvoices(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
@@ -1040,26 +1004,26 @@ export async function allocateSupplierPaymentToInvoices(prev: PurchaseActionResu
   const allocationValidation = await validateSupplierInvoiceAllocations({ supabase, orgId, supplierId: payment.supplier_id, allocations });
   if (!allocationValidation.success) return allocationValidation;
 
-  let totalAllocated = 0;
-  for (const alloc of allocations) {
-    const invoiceId = alloc.invoice_id as string;
-    const allocAmount = numberValue(alloc.amount);
-    if (!invoiceId || allocAmount <= 0) continue;
-    if (allocAmount > payment.available_amount - totalAllocated) return { success: false, error: "Le montant total des affectations depasse le montant disponible." };
-    totalAllocated += allocAmount;
-    const { error: allocError } = await supabase.from("supplier_payment_allocations").insert({ organization_id: orgId, payment_id: paymentId, invoice_id: invoiceId, supplier_id: payment.supplier_id, amount: allocAmount, created_by: workspace.userId });
-    if (allocError) return { success: false, error: `Erreur affectation: ${allocError.message}` };
-    await recalcSupplierInvoicePaymentStatus(supabase as never, invoiceId, orgId);
-  }
-
-  if (totalAllocated > 0) {
-    const newAllocated = payment.allocated_amount + totalAllocated;
-    const newAvailable = payment.amount - newAllocated;
-    const newStatus = newAllocated >= payment.amount ? "allocated" : "partially_allocated";
-    await supabase.from("supplier_payments").update({ allocated_amount: newAllocated, available_amount: Math.max(newAvailable, 0), status: newStatus }).eq("id", paymentId);
+  const allocationResult = await supabase.rpc("allocate_supplier_payment_atomic", {
+    p_organization_id: orgId,
+    p_payment_id: paymentId,
+    p_allocations: allocations,
+    p_created_by: workspace.userId,
+  });
+  if (allocationResult.error) {
+    console.error("[purchases] atomic supplier allocation failed", {
+      code: allocationResult.error.code,
+    });
+    return {
+      success: false,
+      error: ["PGRST202", "42883"].includes(allocationResult.error.code ?? "")
+        ? "La mise à niveau d'intégrité de la base doit être appliquée avant d'affecter ce paiement."
+        : "L'affectation a été refusée afin de préserver les soldes fournisseur.",
+    };
   }
 
   revalidatePath("/achats/paiements");
+  revalidatePath("/achats/factures");
   redirect(`/achats/paiements/${paymentId}`);
 }
 
@@ -1072,16 +1036,27 @@ export async function cancelSupplierPayment(prev: PurchaseActionResult, formData
 
   const { data: pay } = await supabase.from("supplier_payments").select("status, allocated_amount").eq("id", id).eq("organization_id", workspace.organization.id).single();
   if (!pay) return { success: false, error: "Paiement introuvable." };
-  if (pay.status === "cancelled") return { success: false, error: "Deja annule." };
+  if (pay.status === "cancelled") return { success: true };
 
-  const { data: allocations } = await supabase.from("supplier_payment_allocations").select("invoice_id, amount").eq("payment_id", id).is("cancelled_at", null);
-  for (const alloc of allocations ?? []) {
-    await supabase.from("supplier_payment_allocations").update({ cancelled_at: new Date().toISOString() }).eq("payment_id", id).eq("invoice_id", alloc.invoice_id);
-    await recalcSupplierInvoicePaymentStatus(supabase as never, alloc.invoice_id, workspace.organization.id);
+  const cancelResult = await supabase.rpc("cancel_supplier_payment_atomic", {
+    p_organization_id: workspace.organization.id,
+    p_payment_id: id,
+  });
+  if (cancelResult.error) {
+    console.error("[purchases] atomic supplier payment cancellation failed", {
+      code: cancelResult.error.code,
+    });
+    return {
+      success: false,
+      error: ["PGRST202", "42883"].includes(cancelResult.error.code ?? "")
+        ? "La mise à niveau d'intégrité de la base doit être appliquée avant d'annuler un paiement fournisseur."
+        : "L'annulation a été refusée afin de préserver la facture et la trésorerie.",
+    };
   }
 
-  await supabase.from("supplier_payments").update({ status: "cancelled", allocated_amount: 0, available_amount: 0 }).eq("id", id);
   revalidatePath("/achats/paiements");
+  revalidatePath("/achats/factures");
+  revalidatePath("/tresorerie");
   return { success: true };
 }
 

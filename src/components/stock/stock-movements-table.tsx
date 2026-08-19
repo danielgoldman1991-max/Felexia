@@ -11,6 +11,8 @@ function documentHref(documentType: string | null, id: string | null) {
   if (documentType === "return_note") return `/vente/retours/${id}`;
   if (documentType === "order") return `/vente/commandes/${id}`;
   if (documentType === "quote") return `/vente/devis/${id}`;
+  if (documentType === "supplier_receipt") return `/achats/receptions/${id}`;
+  if (documentType === "supplier_order") return `/achats/commandes/${id}`;
   return null;
 }
 

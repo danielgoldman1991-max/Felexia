@@ -44,7 +44,7 @@ const points = [
     icon: Rocket,
     title: "Évolutif avec vous",
     description:
-      "Activez les modules dont vous avez besoin, de l'Essentiel au Premium, sans changement de logiciel.",
+      "Toutes les fonctions essentielles incluses dans une seule offre, et de nouvelles fonctionnalités arrivent régulièrement.",
   },
 ];
 

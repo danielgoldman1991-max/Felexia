@@ -59,19 +59,19 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         description={invoice.customer_name ?? ""}
         actions={(
           <>
-            <Link href={`/facturation/factures/${invoice.id}/print`} target="_blank"><Button type="button" variant="secondary"><Printer className="h-4 w-4" /> Imprimer / PDF</Button></Link>
+            <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer / PDF</Link></Button>
             {!["draft", "cancelled", "paid"].includes(invoice.status) && invoice.remaining_amount > 0 ? (
-              <Link href={`/facturation/factures/${invoice.id}/paiement`}><Button type="button" variant="secondary"><WalletCards className="h-4 w-4" /> Enregistrer paiement</Button></Link>
+              <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/paiement`}><WalletCards className="h-4 w-4" /> Enregistrer paiement</Link></Button>
             ) : null}
             {["validated", "sent", "partially_paid", "paid"].includes(invoice.status) ? (
-              <Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><Button type="button" variant="secondary"><RotateCcw className="h-4 w-4" /> Creer avoir</Button></Link>
+              <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><RotateCcw className="h-4 w-4" /> Creer avoir</Link></Button>
             ) : null}
             {invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
-              <Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Button type="button" variant="secondary"><Bell className="h-4 w-4" /> Creer relance</Button></Link>
+              <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Bell className="h-4 w-4" /> Creer relance</Link></Button>
             ) : null}
             {invoice.status === "draft" ? (
               <>
-                <Link href={`/facturation/factures/${invoice.id}/edit`}><Button type="button" variant="secondary">Modifier</Button></Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/edit`}>Modifier</Link></Button>
                 <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateCustomerInvoice, invoice.id)} />
                 <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelCustomerInvoice, invoice.id)} />
               </>
@@ -143,9 +143,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
                 <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
                 <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
-                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
-              </Link>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
             </div>
           ) : invoice.status === "draft" || invoice.status === "cancelled" ? (
             <p className="text-sm text-[var(--muted)]">L&apos;ecriture comptable pourra etre generee apres validation de la facture.</p>

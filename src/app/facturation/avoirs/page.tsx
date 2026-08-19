@@ -15,7 +15,7 @@ export default async function CustomerCreditNotesPage() {
       <PageHeader
         title="Avoirs clients"
         description="Avoirs libres, corrections facture et credits disponibles."
-        actions={<Link href="/facturation/avoirs/new"><Button>Nouvel avoir</Button></Link>}
+        actions={<Button asChild><Link href="/facturation/avoirs/new">Nouvel avoir</Link></Button>}
       />
       <Card><CardContent><CustomerCreditNotesTable rows={rows} /></CardContent></Card>
     </ModulePage>

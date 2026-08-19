@@ -134,7 +134,6 @@ export function QuickArticleModal({ open, onClose, onCreated, categories, units,
             <div>
               <label className="mb-1 block text-xs font-medium text-[var(--muted)]">TVA</label>
               <Select value={taxRateId} onChange={(e) => setTaxRateId(e.target.value)}>
-                <option value="">--</option>
                 {taxRates.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}

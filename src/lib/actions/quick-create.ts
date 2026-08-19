@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { resolveDefaultTaxRate } from "@/lib/tax-reference";
 import type { ProductType } from "@/lib/product-types";
 
 export async function quickCreateCustomerCategory(name: string): Promise<{ id: string; name: string } | { error: string }> {
@@ -63,14 +64,7 @@ export async function quickCreateProduct(formData: FormData): Promise<{ success:
   const type = String(formData.get("type") ?? "product") as ProductType;
   let taxRateId = String(formData.get("tax_rate_id") ?? "").trim() || null;
   if (!taxRateId) {
-    const { data: defaultTax } = await supabase
-      .from("tax_rates")
-      .select("id")
-      .is("organization_id", null)
-      .eq("status", "active")
-      .eq("is_system", true)
-      .eq("code", "VAT_20")
-      .maybeSingle();
+    const defaultTax = await resolveDefaultTaxRate();
     taxRateId = defaultTax?.id ?? null;
   }
   let salePriceTtc = 0;

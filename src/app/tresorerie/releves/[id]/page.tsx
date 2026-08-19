@@ -17,7 +17,7 @@ export default async function BankStatementImportDetailPage({ params }: { params
       <PageHeader
         title={statementImport?.file_name ?? "Releve introuvable"}
         description="Lignes de releve importees pour rapprochement bancaire."
-        actions={<Link href="/tresorerie/releves"><Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button></Link>}
+        actions={<Button variant="secondary" asChild><Link href="/tresorerie/releves"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>}
       />
       <Card><CardContent><BankStatementLinesTable rows={lines} /></CardContent></Card>
     </ModulePage>

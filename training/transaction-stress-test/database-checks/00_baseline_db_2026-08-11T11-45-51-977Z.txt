@@ -1,0 +1,65 @@
+=== BASELINE DB — STRESS-FLX-2026-001 ===
+timestamp	2026-08-11T11:45:45.767Z
+env	https://ljpeidkggogwafyvqcrz.supabase.co
+
+--- COMPTES PAR TABLE ---
+organizations	90
+organization_members	92
+profiles	113
+third_parties	374
+products	297
+sales_documents	736
+customer_invoices	199
+customer_payments	168
+customer_credit_notes	35
+purchase_documents	264
+supplier_invoices	143
+supplier_payments	130
+stock_levels	646
+stock_moves	713
+warehouses	18
+treasury_accounts	21
+treasury_transactions	573
+accounting_entries	1078
+accounting_entry_lines	4269
+accounting_accounts	2595
+accounting_journals	440
+app_notifications	14
+documents	333
+vat_declarations	3
+subscription_plans	5
+organization_subscriptions	89
+organization_modules	1093
+modules_catalog	18
+roles	105
+permissions	4
+role_permissions	0
+company_settings	77
+tax_rates	53
+numbering_sequences	62
+audit_logs	117
+
+--- ABONNEMENTS PAR PLAN/STATUT ---
+business/trialing	80
+essentiel/trialing	8
+starter/active	1
+
+--- DOUBLONS DE NUMEROTATION (scanner global) ---
+FAC (customer_invoices)	total=199	duplicates=0
+REG (customer_payments)	total=168	duplicates=0
+AV (customer_credit_notes)	total=35	duplicates=0
+DEV/CMD/BL (sales_documents)	total=736	duplicates=0
+CF/REC (purchase_documents)	total=264	duplicates=0
+FF (supplier_invoices)	total=143	duplicates=0
+RFO (supplier_payments)	total=130	duplicates=0
+
+--- ECHANTILLONS TABLES COMPTABLES ---
+accounting_entries	PRESENTE, sample: {"id":"e0304fad-9b26-487f-aa6a-d506890b6d19","organization_id":"11111111-1111-1111-1111-111111111111","entry_number":"VE-2026-00001","journal_id":"43f9a25d-ca0c-4fbc-80ea-7b8c549414df","fiscal_year_id
+accounting_entry_lines	PRESENTE, sample: {"id":"b055c1e3-5c15-4e2c-91ee-590c0676527e","organization_id":"11111111-1111-1111-1111-111111111111","entry_id":"e0304fad-9b26-487f-aa6a-d506890b6d19","line_number":1,"account_id":"58df7964-75c8-403d
+accounting_accounts	PRESENTE, sample: {"id":"3b183cc1-6dac-4fb4-b54f-72e9f846f662","organization_id":"11111111-1111-1111-1111-111111111111","code":"1111","name":"Capital social","class_number":"1","type":"equity","parent_code":null,"is_mo
+accounting_journals	PRESENTE, sample: {"id":"43f9a25d-ca0c-4fbc-80ea-7b8c549414df","organization_id":"11111111-1111-1111-1111-111111111111","code":"VE","name":"Journal des ventes","type":"sales","description":"Factures clients et avoirs",
+
+--- ECHANTILLONS TABLES LEGACY ---
+sales_quotes	PRESENTE
+sales_invoices	PRESENTE
+view_dashboard_kpis	PRESENTE

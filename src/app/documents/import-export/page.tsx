@@ -1,4 +1,4 @@
-import { Archive, CheckCircle2, Clock3, Download, FileArchive, FileSpreadsheet, FileText, ImageIcon, UploadCloud, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, Download, FileSpreadsheet, FileText, ImageIcon, UploadCloud, XCircle } from "lucide-react";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { DocumentUploadForm } from "@/components/documents/document-upload-form";
@@ -19,9 +19,6 @@ const acceptedFormats = [
 ];
 
 const exportFormats = [
-  { value: "pdf", label: "PDF" },
-  { value: "zip", label: "ZIP" },
-  { value: "excel", label: "Excel" },
   { value: "csv", label: "CSV" },
 ];
 
@@ -133,21 +130,18 @@ export default function DocumentsImportExportPage() {
               </label>
               <label className="space-y-1.5 text-sm">
                 <span className="font-medium text-[var(--muted)]">Format d&apos;export</span>
-                <Select name="format" defaultValue="zip">
+                <Select name="format" defaultValue="csv">
                   {exportFormats.map((format) => <option key={format.value} value={format.value}>{format.label}</option>)}
                 </Select>
               </label>
 
-              <Card className="border-slate-200 bg-[var(--surface-soft)]">
-                <CardContent className="flex items-start gap-3 text-sm text-[var(--muted)]">
-                  <Archive className="mt-0.5 h-4 w-4 shrink-0" />
-                  L&apos;export sera branché ensuite sur le moteur documentaire et le stockage des fichiers générés.
-                </CardContent>
-              </Card>
+              <p className="rounded-[var(--radius-md)] bg-[var(--surface-soft)] p-3 text-sm text-[var(--muted)]">
+                Le fichier CSV est généré et téléchargé immédiatement avec les filtres choisis.
+              </p>
 
               <div className="flex justify-end">
                 <Button type="submit">
-                  <FileArchive className="h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Exporter
                 </Button>
               </div>

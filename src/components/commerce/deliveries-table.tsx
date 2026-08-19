@@ -40,13 +40,9 @@ export function DeliveriesTable({ rows }: { rows: DeliveryNoteRecord[] }) {
             <Td><StatusBadge status={row.status} /></Td>
             <Td>
               <div className="flex items-center gap-2">
-                <Link href={`/livraisons/${row.id}`}>
-                  <Button variant="ghost" >Consulter</Button>
-                </Link>
+                <Button variant="ghost"  asChild><Link href={`/livraisons/${row.id}`}>Consulter</Link></Button>
                 {["draft"].includes(row.status) ? (
-                  <Link href={`/livraisons/${row.id}/edit`}>
-                    <Button variant="ghost" ><Pencil className="h-3 w-3" /></Button>
-                  </Link>
+                  <Button variant="ghost"  asChild><Link href={`/livraisons/${row.id}/edit`}><Pencil className="h-3 w-3" /></Link></Button>
                 ) : null}
               </div>
             </Td>

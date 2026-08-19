@@ -13,7 +13,7 @@ export default async function VatPage() {
       <PageHeader
         title="TVA articles"
         description="Parametrage des taux de TVA applicables aux articles et services."
-        actions={<Link href="/articles/tva/new"><Button>Nouveau taux TVA</Button></Link>}
+        actions={<Button asChild><Link href="/articles/tva/new">Nouveau taux TVA</Link></Button>}
       />
       <TaxRatesTable rows={taxRates} />
     </ModulePage>

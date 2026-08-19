@@ -16,14 +16,14 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
   const { id } = await params;
   const { account, transactions } = await getTreasuryAccountDetail(id);
   if (!account) {
-    return <ModulePage><PageHeader title="Compte introuvable" actions={<Link href="/tresorerie/comptes"><Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button></Link>} /></ModulePage>;
+    return <ModulePage><PageHeader title="Compte introuvable" actions={<Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>} /></ModulePage>;
   }
   return (
     <ModulePage>
       <PageHeader
         title={account.name}
         description="Fiche compte de tresorerie et derniers mouvements."
-        actions={<><Link href="/tresorerie/comptes"><Button variant="secondary"><ArrowLeft className="h-4 w-4" /> Retour</Button></Link><Link href={`/tresorerie/comptes/${account.id}/edit`}><Button><Pencil className="h-4 w-4" /> Modifier</Button></Link></>}
+        actions={<><Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button><Button asChild><Link href={`/tresorerie/comptes/${account.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button></>}
       />
       <div className="grid gap-5 lg:grid-cols-[1fr_2fr]">
         <Card>

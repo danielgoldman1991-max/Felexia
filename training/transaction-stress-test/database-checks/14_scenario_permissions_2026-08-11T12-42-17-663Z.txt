@@ -1,0 +1,46 @@
+# Scénario E — Permissions et isolation multi-rôles (RLS + RPC)
+- Généré : 2026-08-11T12:42:17.663Z
+- Tenant : stress-flx-2026-001
+
+
+## E1. Rôle sales — documents vente OK, paiement/stock refusés
+
+- [PASS] E1-sales-doc — insertion facture OK (RLS membre actif)
+- [PASS] E1-sales-pay-blocked — refusé : Compte de trÃ©sorerie introuvable ou inactif.
+- [PASS] E1-sales-stock-blocked — refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+
+## E2. Rôle stock_user — RPC stock OK, paiement refusé
+
+- [PASS] E2-stock-role-refused — refusé : Vous ne pouvez pas modifier le stock de cette organisation. (rôle stock_user hors liste stock.%)
+- [PASS] E2-stock-pay-blocked — refusé : Compte de trÃ©sorerie introuvable ou inactif.
+
+## E3. Rôle accountant — paiement OK, RPC stock refusé
+
+- [PASS] E3-accountant-pay-ok — paiement [{"payment_id":"1488b209-8a1b-4ed2-b317-f5e0d41083a7","payment_number":"REG-2608-00006","replayed":false}], facture 0 (paid)
+- [PASS] E3-accountant-stock-blocked — refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+
+## E4. Rôle manager (cashier) — paiement + stock cumulés
+
+- [PASS] E4-manager-pay-ok — paiement [{"payment_id":"4845eba6-4e8c-4666-9898-c826a388300f","payment_number":"REG-2608-00007","replayed":false}]
+- [FAIL] E4-manager-stock-ok — réception +1 → stock 11 (attendu 8), mouvement [{"movement_id":"15e83357-0814-4eeb-a0bc-c4fa61959b2d","source_line_id":"5221afeb-e006-4a0e-825a-4886e4c27262","replayed":false}]
+
+## E5. Rôle viewer — lecture seule
+
+- [PASS] E5-viewer-read — lecture OK (3 documents visibles)
+- [PASS] E5-viewer-write-rls — accepté — contrat RLS = membre actif (constat)
+- [PASS] E5-viewer-pay-blocked — refusé : Compte de trÃ©sorerie introuvable ou inactif.
+- [PASS] E5-viewer-stock-blocked — refusé : Vous ne pouvez pas modifier le stock de cette organisation.
+
+## E6. Rôle suspended — isolation totale
+
+- [PASS] E6-suspended-isolated — documents visibles 0, comptes visibles 0 (attendu 0)
+
+## E7. Outsider sans membership — isolation totale
+
+- [PASS] E7-outsider-isolated — documents visibles 0 (attendu 0)
+- [PASS] E7-outsider-pay-blocked — refusé : Client introuvable dans cette organisation.
+
+## E8. Vérifications oracle finales
+
+- [PASS] E8-tresorerie-oracle — attendu 53849.84 (50000-400-800+1800+1174.92+700+1174.92+100+100), réel 53849.84
+- [FAIL] E8-stock-oracle — stock 11 = oracle 11 (attendu 8 = 15-8+1 via manager)

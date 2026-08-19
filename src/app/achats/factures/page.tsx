@@ -16,7 +16,7 @@ export default async function SupplierInvoicesPage() {
       <PageHeader
         title="Factures fournisseurs"
         description="Factures recues des fournisseurs."
-        actions={<Link href="/achats/factures/new"><Button><Plus className="h-4 w-4" /> Nouvelle facture</Button></Link>}
+        actions={<Button asChild><Link href="/achats/factures/new"><Plus className="h-4 w-4" /> Nouvelle facture</Link></Button>}
       />
       <Card><CardContent><SupplierInvoicesTable rows={rows} /></CardContent></Card>
     </ModulePage>

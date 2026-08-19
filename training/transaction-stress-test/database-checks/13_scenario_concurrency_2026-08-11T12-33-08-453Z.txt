@@ -1,0 +1,24 @@
+# Scénario D — Concurrence et idempotence sous charge parallèle
+- Généré : 2026-08-11T12:33:08.453Z
+- Tenant : stress-flx-2026-001
+
+
+## D1. Double paiement simultané — même clé d'idempotence (facture 1174.92)
+
+- [PASS] D1-same-key — r1=[{"payment_id":"0298559e-5697-402a-b51e-dfa811f72216","payment_number":"REG-2608-00004","replayed":false}] r2=[{"payment_id":"0298559e-5697-402a-b51e-dfa811f72216","payment_number":"REG-2608-00004","replayed":true}] — 1 paiement en base, facture 0 (paid), trésorerie 52949.84
+
+## D2. Paiements parallèles — clés différentes, même facture (1000, deux × 700)
+
+- [PASS] D2-different-keys — acceptés=1/2 (attendus 1) — q1=[{"payment_id":"1846cb41-3a0c-43cf-a0b7-8376dc550b92","payment_number":"REG-2608-00005","replayed":false}] q2=La facture client serait sur-réglée. — reste 300 (partial), allocations=1
+
+## D3. Rejeu stock concurrent — même operation_key (réception 3 u.)
+
+- [PASS] D3-stock-replay — s1=[{"movement_id":"8ab6f7ff-011e-442f-b110-977074d65d5a","source_line_id":"546ac03d-1ab4-4f04-b0bc-e86b8daea2aa","replayed":true}] s2=[{"movement_id":"8ab6f7ff-011e-442f-b110-977074d65d5a","source_line_id":"546ac03d-1ab4-4f04-b0bc-e86b8daea2aa","replayed":false}] — stock 10 (attendu 10 = 7+3), niveaux 10, oracle 10
+
+## D4. Réceptions parallèles — clés différentes (2 u. + 3 u.), aucun mouvement perdu
+
+- [PASS] D4-parallel-receipts — f1=[{"movement_id":"6ef42270-e9f0-4379-8f16-4ee4b7b11210","source_line_id":"36bd4725-d126-497d-a846-8392fab85d2a","replayed":false}] f2=[{"movement_id":"9fa73d0b-d169-46e4-aea8-07a7f08a057e","source_line_id":"cb531f93-a0cb-4332-afa8-fea6f2f1e126","replayed":false}] — stock 15 (attendu 15 = 10+2+3), niveaux 15
+
+## D5. Livraisons parallèles au-delà du stock (2 × 8 u. sur stock 15)
+
+- [BLOCKED] D5-setup — duplicate key value violates unique constraint "sales_documents_organization_id_document_number_key"

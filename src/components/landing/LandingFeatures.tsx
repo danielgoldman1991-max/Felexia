@@ -105,32 +105,31 @@ const FAMILIES: Family[] = [
     key: "tva",
     label: "TVA & Exports",
     icon: Percent,
-    level: "Business",
+    level: "Bientôt disponible",
     features: [
-      { title: "TVA avancée", description: "Gestion multi-taux et régimes spécifiques.", level: "Business" },
-      { title: "Déclaration TVA (préparatoire)", description: "Aide au calcul de la déclaration mensuelle.", level: "Business" },
-      { title: "Exports Excel et PDF", description: "Tous les listes exportables pour votre comptable.", level: "Business" },
-      { title: "Automatisations", description: "Rappels de paiement et tâches récurrentes.", level: "Business" },
+      { title: "TVA avancée", description: "Gestion multi-taux et régimes spécifiques.", level: "Bientôt disponible" },
+      { title: "Déclaration TVA (préparatoire)", description: "Aide au calcul de la déclaration mensuelle.", level: "Bientôt disponible" },
+      { title: "Exports Excel et PDF", description: "Tous les listes exportables pour votre comptable.", level: "Bientôt disponible" },
+      { title: "Automatisations", description: "Rappels de paiement et tâches récurrentes.", level: "Bientôt disponible" },
     ],
   },
   {
     key: "rh",
     label: "RH & Sécurité",
     icon: PiggyBank,
-    level: "Premium",
+    level: "Bientôt disponible",
     features: [
-      { title: "Gestion des utilisateurs", description: "Invitations et rôles par département.", level: "Premium" },
-      { title: "Permissions fines", description: "Accès aux modules selon le rôle.", level: "Premium" },
-      { title: "Support prioritaire", description: "Assistance dédiée et accompagnement.", level: "Premium" },
-      { title: "Toutes les fonctionnalités", description: "L'ensemble des modules et automatisations.", level: "Premium" },
+      { title: "Gestion des utilisateurs", description: "Invitations et rôles par département.", level: "Bientôt disponible" },
+      { title: "Permissions fines", description: "Accès aux modules selon le rôle.", level: "Bientôt disponible" },
+      { title: "Support prioritaire", description: "Assistance dédiée et accompagnement.", level: "Bientôt disponible" },
+      { title: "Toutes les fonctionnalités", description: "L'ensemble des modules et automatisations.", level: "Bientôt disponible" },
     ],
   },
 ];
 
 const levelStyles: Record<string, string> = {
   Essentiel: "border-slate-200 bg-slate-50 text-slate-600",
-  Business: "border-blue-200 bg-blue-50 text-[#1E66D0]",
-  Premium: "border-violet-200 bg-violet-50 text-violet-600",
+  "Bientôt disponible": "border-amber-200 bg-amber-50 text-amber-700",
 };
 
 export function LandingFeatures() {
@@ -148,8 +147,8 @@ export function LandingFeatures() {
             Tout ce qu&apos;il faut, rien de superflu
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-slate-600">
-            Huit familles de fonctionnalités pour couvrir le quotidien de votre entreprise, avec
-            des évolutions progressives selon votre plan.
+            Huit familles de fonctionnalités pour couvrir le quotidien de votre
+            entreprise, toutes incluses dans l&apos;offre Essentiel.
           </p>
         </div>
 

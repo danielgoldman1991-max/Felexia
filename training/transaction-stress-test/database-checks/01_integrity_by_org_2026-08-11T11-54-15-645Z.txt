@@ -1,0 +1,6 @@
+timestamp 2026-08-11T11:54:15.644Z
+TOTAL anomalies classifiées par org: 1567
+1550	SOCIETE DEMO	DOC_TOTAL_customer_invoices=167, DOC_TOTAL_supplier_invoices=128, DOC_TOTAL_sales_documents=626, DOC_TOTAL_purchase_documents=228, STOCK_MISMATCH_products_vs_levels=180, STOCK_MISMATCH_products_vs_moves=198, STOCK_WITHOUT_MOVEMENT=19, TREASURY_BALANCE_MISMATCH=4
+12	Felexia Demo	DOC_TOTAL_purchase_documents=1, STOCK_MISMATCH_products_vs_levels=6, STOCK_MISMATCH_products_vs_moves=5
+3	FELEXIA DEMO SARL	DOC_TOTAL_purchase_documents=1, STOCK_MISMATCH_products_vs_levels=1, STOCK_MISMATCH_products_vs_moves=1
+2	LALA HOME21	TREASURY_BALANCE_MISMATCH=2

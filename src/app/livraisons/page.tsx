@@ -13,7 +13,7 @@ export default async function LivraisonsPage() {
       <PageHeader
         title="Bons de livraison"
         description="Sorties de stock uniquement apres validation."
-        actions={<Link href="/livraisons/new"><Button>Nouveau bon de livraison</Button></Link>}
+        actions={<Button asChild><Link href="/livraisons/new">Nouveau bon de livraison</Link></Button>}
       />
       <DeliveriesTable rows={rows} />
     </ModulePage>

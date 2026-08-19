@@ -59,12 +59,19 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates 
   }
 
   function addLine() {
-    const prepared = calculateInvoiceLine(draft);
+    let prepared = calculateInvoiceLine(draft);
     if (prepared.mode === "product" && !prepared.product_id) return setError("Selectionnez un article ou service.");
     if (!prepared.description.trim()) return setError("Saisissez une description.");
     if (prepared.quantity <= 0) return setError("La quantite doit etre superieure a zero.");
     if (isIndivisibleUnit(prepared, units) && !Number.isInteger(prepared.quantity)) return setError("La quantite doit etre entiere pour l'unite U.");
     if (prepared.unit_price_ht < 0) return setError("Le prix ne peut pas etre negatif.");
+    if (!prepared.tax_rate_id && taxRates.length > 0) {
+      const fallback =
+        taxRates.find((tax) => tax.is_default) ??
+        taxRates.find((tax) => Number(tax.rate) === 20) ??
+        taxRates[0];
+      if (fallback) prepared = calculateInvoiceLine({ ...prepared, tax_rate_id: fallback.id, tax_rate: Number(fallback.rate) });
+    }
     onChange([...lines, { ...prepared, id: `temp-${Date.now()}-${Math.random().toString(36).slice(2)}` }]);
     setDraft(createEmptyInvoiceLine());
     setError(null);
@@ -133,7 +140,6 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates 
               const taxRate = taxRates.find((tax) => tax.id === event.target.value);
               update({ ...draft, tax_rate_id: event.target.value, tax_rate: Number(taxRate?.rate ?? 0) });
             }}>
-              <option value="">--</option>
               {taxRates.map((taxRate) => <option key={taxRate.id} value={taxRate.id}>{taxRate.name}</option>)}
             </Select>
           </label>

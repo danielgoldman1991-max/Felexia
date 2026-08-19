@@ -1,3 +1,5 @@
+import { getAppUrl } from "@/lib/app-url";
+
 export function getSupabasePublicKey(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
     ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -29,7 +31,7 @@ export function getEnv() {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
     stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "",
-    appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+    appUrl: getAppUrl(),
   };
 }
 

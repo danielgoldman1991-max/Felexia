@@ -23,9 +23,9 @@ export default async function StockPage() {
         description="Synthese des articles stockables et acces rapide aux mouvements."
         actions={(
           <>
-            <Link href="/stock/emplacements"><Button type="button" variant="secondary">Emplacements stock</Button></Link>
-            <Link href="/stock/mouvements"><Button type="button" variant="secondary">Mouvements par article</Button></Link>
-            <Link href="/stock/entrees/new"><Button type="button">Entree manuelle</Button></Link>
+            <Button type="button" variant="secondary" asChild><Link href="/stock/emplacements">Emplacements stock</Link></Button>
+            <Button type="button" variant="secondary" asChild><Link href="/stock/mouvements">Mouvements par article</Link></Button>
+            <Button type="button" asChild><Link href="/stock/entrees/new">Entree manuelle</Link></Button>
           </>
         )}
       />

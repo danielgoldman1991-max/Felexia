@@ -22,7 +22,7 @@ export function PurchaseDashboard({ counters }: { counters: PurchaseCounters }) 
       <PageHeader
         title="Achats"
         description="Gestion des achats et fournisseurs."
-        actions={<Link href="/achats/commandes/new"><Button>Nouvelle commande</Button></Link>}
+        actions={<Button asChild><Link href="/achats/commandes/new">Nouvelle commande</Link></Button>}
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Stat label="Commandes brouillon" value={counters.draftOrders} />

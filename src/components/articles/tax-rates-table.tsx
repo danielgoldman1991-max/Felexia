@@ -54,9 +54,7 @@ function TaxRateRow({ taxRate }: { taxRate: TaxRate }) {
       <Td className="text-xs text-[var(--muted)]">{formatDate(taxRate.created_at)}</Td>
       <Td>
         <div className="flex items-center gap-2">
-          <Link href={`/articles/tva/${taxRate.id}/edit`}>
-            <Button variant="ghost"><Pencil className="h-3.5 w-3.5" /></Button>
-          </Link>
+          <Button variant="ghost" asChild><Link href={`/articles/tva/${taxRate.id}/edit`}><Pencil className="h-3.5 w-3.5" /></Link></Button>
           {!taxRate.is_default ? (
             <form action={defaultAction}>
               <input type="hidden" name="id" value={taxRate.id} />

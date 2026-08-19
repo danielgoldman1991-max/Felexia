@@ -13,7 +13,7 @@ export default async function ProductCategoriesPage() {
       <PageHeader
         title="Categories articles"
         description="Classement des articles et services par famille."
-        actions={<Link href="/articles/categories/new"><Button>Nouvelle categorie</Button></Link>}
+        actions={<Button asChild><Link href="/articles/categories/new">Nouvelle categorie</Link></Button>}
       />
       <CategoriesTable rows={categories} />
     </ModulePage>

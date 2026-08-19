@@ -1,0 +1,30 @@
+# Scénario A — Achat de référence (10 u. @100 HT TVA 20 %)
+- Généré : 2026-08-11T12:18:51.664Z
+- Tenant : stress-flx-2026-001
+
+
+## A1. Commande fournisseur 10 u. @100 HT
+
+- [PASS] A1-po — commande ecc9b361-c1bf-4350-ac4d-50e3824ee689, ligne oracle 1000.00 HT / 200.00 TVA / 1200.00 TTC
+- [PASS] A1-po-validate — commande confirmée
+
+## A2-A3. Réceptions 6 puis 4 (WH Marrakech) + stock atomique
+
+- [FAIL] A2-receipt-6 — Le document de stock et sa cle d'idempotence doivent correspondre.
+- [FAIL] A2-receipt-4 — Le document de stock et sa cle d'idempotence doivent correspondre.
+
+## A4. Facture fournisseur 10 u. (depuis réceptions 6+4)
+
+- [FAIL] A4-supplier-invoice — FF-2608-00001 totaux 1000.00 HT / 200.00 TVA / 1200.00 TTC
+
+## A5. Paiements fournisseur 400 puis 800 (RPC atomique)
+
+- [PASS] A5-spay-400 — pay1=[{"payment_id":"144317bc-9a03-4add-9f97-45e763f57aae","payment_number":"RFO-2608-00001","replayed":false}]
+- [PASS] A5-spay-800 — pay2=[{"payment_id":"6046568c-a9b5-4863-b051-6be38f85aa98","payment_number":"RFO-2608-00002","replayed":false}]
+
+## A6. Vérifications oracle (invariants §17)
+
+- [PASS] A6-dette-zero — oracle reste=0.00, réel {"paid_amount":1200,"remaining_amount":0,"payment_status":"paid","total_ttc":1200}
+- [PASS] A6-tresorerie — attendu 48800.00 = opening + Σmvt, réel 48800.00
+- [FAIL] A6-stock — current=0 cumul emplacements=0 (attendu 10)
+- [PASS] A6-allocations — [{"payment_number":"RFO-2608-00001","amount":400,"allocated_amount":400,"available_amount":0,"status":"allocated"},{"payment_number":"RFO-2608-00002","amount":800,"allocated_amount":800,"available_amount":0,"status":"allocated"}]

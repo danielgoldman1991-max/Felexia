@@ -51,9 +51,7 @@ function UnitRow({ unit }: { unit: Unit }) {
       <Td className="text-xs text-[var(--muted)]">{formatDate(unit.created_at)}</Td>
       <Td>
         <div className="flex items-center gap-2">
-          <Link href={`/articles/unites/${unit.id}/edit`}>
-            <Button variant="ghost"><Pencil className="h-3.5 w-3.5" /></Button>
-          </Link>
+          <Button variant="ghost" asChild><Link href={`/articles/unites/${unit.id}/edit`}><Pencil className="h-3.5 w-3.5" /></Link></Button>
           <form action={archiveAction}>
             <input type="hidden" name="id" value={unit.id} />
             <Button variant="ghost"><Archive className="h-3.5 w-3.5 text-[var(--danger)]" /></Button>

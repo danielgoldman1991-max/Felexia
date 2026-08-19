@@ -1,0 +1,27 @@
+# Scénario B — Vente de référence (3 u. @500 HT TVA 20 %)
+- Généré : 2026-08-11T12:44:57.702Z
+- Tenant : stress-flx-2026-001
+
+
+## B1. Commande client 3 u. @500 HT
+
+- [PASS] B1-order — commande 3b703b69-8eff-47ae-b4dd-bcd92de645fc, ligne oracle 1500.00 HT / 300.00 TVA / 1800.00 TTC
+
+## B2. Bon de livraison 3 u. (delivery_out, finalize delivery_note)
+
+- [PASS] B2-bl-stock — BL 0e4c5d40-cc3a-4510-a301-4f9b36ad31a3 finalisé, commande delivered, mouvements=[{"movement_id":"8ce867a7-59f7-4cdb-9c14-cfa7e4d7c5da","source_line_id":"a1702fd7-2dcf-4deb-b780-fabe7097ff80","replayed":false}]
+
+## B3. Facture client 1800 TTC (depuis BL)
+
+- [PASS] B3-invoice — FAC-2608-00001 totaux 1500.00 HT / 300.00 TVA / 1800.00 TTC
+
+## B4. Paiement client 1800 (RPC atomique)
+
+- [PASS] B4-cpay-1800 — pay=[{"payment_id":"9df54de2-44f7-4fae-9452-aa8aa6910c64","payment_number":"REG-2608-00001","replayed":false}]
+
+## B5. Vérifications oracle (invariants §17)
+
+- [PASS] B5-dette-zero — oracle reste=0.00, réel {"paid_amount":1800,"remaining_amount":0,"payment_status":"paid","total_ttc":1800}
+- [PASS] B5-tresorerie — attendu 50600.00 = opening + Σmvt (50000-400-800+1800), réel 50600.00
+- [PASS] B5-stock — oracle Σin-Σout=7, current=7 cumul emplacements=7 (attendu 7 = 10-3)
+- [PASS] B5-allocations — [{"payment_number":"REG-2608-00001","amount":1800,"allocated_amount":1800,"available_amount":0,"status":"allocated"}]

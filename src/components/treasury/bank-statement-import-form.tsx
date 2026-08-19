@@ -38,7 +38,7 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
-        <Link href="/tresorerie/releves"><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href="/tresorerie/releves">Annuler</Link></Button>
         <Button disabled={pending}>Importer le releve</Button>
       </div>
     </form>

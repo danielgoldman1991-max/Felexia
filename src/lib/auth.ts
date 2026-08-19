@@ -153,6 +153,17 @@ export async function requireActiveWorkspace() {
   const workspace = await getActiveWorkspace();
 
   if (!workspace) {
+    // Distingue « pas de session » de « session sans organisation » :
+    // un utilisateur authentifié sans organisation (ex. nouveau compte
+    // Google) doit être envoyé vers l'onboarding, jamais vers /login.
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      redirect("/onboarding/entreprise");
+    }
     redirect("/login");
   }
 

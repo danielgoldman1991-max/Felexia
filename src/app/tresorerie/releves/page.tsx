@@ -18,9 +18,7 @@ export default async function BankStatementImportsPage() {
         title="Releves bancaires bientot disponibles"
         description="Ce sous-module est temporairement masque. Utilisez le rapprochement bancaire ou suivez vos mouvements depuis la tresorerie."
         action={
-          <Link href="/tresorerie">
-            <Button><ArrowLeft className="h-4 w-4" /> Retour a la tresorerie</Button>
-          </Link>
+          <Button asChild><Link href="/tresorerie"><ArrowLeft className="h-4 w-4" /> Retour a la tresorerie</Link></Button>
         }
       />
     </ModulePage>

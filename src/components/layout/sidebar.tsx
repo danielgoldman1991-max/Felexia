@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { HelpDropdown } from "@/components/layout/help-dropdown";
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 import { cn, initials } from "@/lib/utils";
 import { sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
@@ -145,6 +147,11 @@ export function Sidebar({
               </span>
               <Settings className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition group-hover:text-[var(--sidebar-foreground)]" />
             </Link>
+            <div className="mt-3 flex items-center gap-2 lg:hidden">
+              <NotificationDropdown align="left" />
+              <HelpDropdown align="left" />
+              <span className="text-xs text-[var(--sidebar-muted)]">Notifications et aide</span>
+            </div>
           </div>
 
           <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">

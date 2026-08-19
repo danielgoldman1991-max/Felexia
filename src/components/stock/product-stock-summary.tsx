@@ -34,12 +34,8 @@ export function ProductStockSummary({ summary }: { summary: StockMovementSummary
               </p>
             </div>
             <div className="flex gap-2">
-              <Link href={`/stock/entrees/new?productId=${product.id}`}>
-                <Button type="button" variant="secondary">Entree stock</Button>
-              </Link>
-              <Link href={`/stock/ajustements/new?productId=${product.id}`}>
-                <Button type="button" variant="secondary">Ajuster</Button>
-              </Link>
+              <Button type="button" variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}>Entree stock</Link></Button>
+              <Button type="button" variant="secondary" asChild><Link href={`/stock/ajustements/new?productId=${product.id}`}>Ajuster</Link></Button>
             </div>
           </div>
         </CardHeader>

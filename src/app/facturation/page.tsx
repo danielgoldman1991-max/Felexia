@@ -19,7 +19,7 @@ export default async function BillingDashboardPage() {
       <PageHeader
         title="Facturation"
         description="Suivi des factures clients, validations et encours."
-        actions={<Link href="/facturation/factures/new"><Button>Nouvelle facture</Button></Link>}
+        actions={<Button asChild><Link href="/facturation/factures/new">Nouvelle facture</Link></Button>}
       />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Brouillons" value={counters.draft} caption="Factures a valider" icon={<FileText className="h-5 w-5" />} />

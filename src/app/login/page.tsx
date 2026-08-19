@@ -19,6 +19,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "Accès refusé par Google. Vous avez peut-être annulé la connexion.",
   account_conflict:
     "Un compte existe déjà avec cet email. Connectez-vous avec votre email et mot de passe, ou contactez le support.",
+  oauth_profile_initialization_failed:
+    "Nous n'avons pas pu finaliser votre compte. Réessayez ou utilisez votre email.",
 };
 
 function friendlyAuthError(errorCode: string | undefined): string | null {

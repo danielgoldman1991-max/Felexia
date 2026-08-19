@@ -113,7 +113,7 @@ export function CustomerCreditNoteForm({
       </Card>
       <Card><CardContent className="grid gap-3 md:grid-cols-3"><div>Total HT : <strong><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div>TVA : <strong><MoneyDisplay value={totals.tax_total} /></strong></div><div>Total TTC : <strong><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3"><Link href="/facturation/avoirs"><Button type="button" variant="secondary">Annuler</Button></Link><Button disabled={pending || !customerId || lines.length === 0}>Creer avoir</Button></div>
+      <div className="flex justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href="/facturation/avoirs">Annuler</Link></Button><Button disabled={pending || !customerId || lines.length === 0}>Creer avoir</Button></div>
     </form>
   );
 }

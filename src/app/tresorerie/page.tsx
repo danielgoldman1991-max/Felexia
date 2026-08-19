@@ -18,7 +18,7 @@ export default async function TreasuryDashboardPage() {
       <PageHeader
         title="Tresorerie"
         description="Suivez les comptes bancaires, caisses, encaissements, decaissements et rapprochements."
-        actions={<Link href="/tresorerie/mouvements/new"><Button><Plus className="h-4 w-4" /> Nouveau mouvement</Button></Link>}
+        actions={<Button asChild><Link href="/tresorerie/mouvements/new"><Plus className="h-4 w-4" /> Nouveau mouvement</Link></Button>}
       />
       <div className="space-y-6">
         <TreasuryDashboardCards counters={dashboard} />

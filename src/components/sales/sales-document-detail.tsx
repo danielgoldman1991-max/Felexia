@@ -144,42 +144,32 @@ export function SalesDocumentDetail({
         actions={
           <>
             {isQuote ? (
-              <Link href={`/vente/devis/${document.id}/print`} target="_blank">
-                <Button type="button" variant="secondary">
+              <Button type="button" variant="secondary" asChild><Link href={`/vente/devis/${document.id}/print`} target="_blank">
                   <Printer className="h-4 w-4" />
                   Imprimer / PDF
-                </Button>
-              </Link>
+                </Link></Button>
             ) : null}
             {isOrder ? (
-              <Link href={`/vente/commandes/${document.id}/print`} target="_blank">
-                <Button type="button" variant="secondary">
+              <Button type="button" variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/print`} target="_blank">
                   <Printer className="h-4 w-4" />
                   Imprimer / PDF
-                </Button>
-              </Link>
+                </Link></Button>
             ) : null}
             {isDelivery ? (
-              <Link href={`/vente/livraisons/${document.id}/print`} target="_blank">
-                <Button type="button" variant="secondary">
+              <Button type="button" variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/print`} target="_blank">
                   <Printer className="h-4 w-4" />
                   Imprimer / PDF
-                </Button>
-              </Link>
+                </Link></Button>
             ) : null}
             {isReturn ? (
-              <Link href={`/vente/retours/${document.id}/print`} target="_blank">
-                <Button type="button" variant="secondary">
+              <Button type="button" variant="secondary" asChild><Link href={`/vente/retours/${document.id}/print`} target="_blank">
                   <Printer className="h-4 w-4" />
                   Imprimer / PDF
-                </Button>
-              </Link>
+                </Link></Button>
             ) : null}
             {isQuote && document.status === "draft" ? (
               <>
-                <Link href={`/vente/devis/${document.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/vente/devis/${document.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <ActionForm label="Marquer envoye" icon={<Send className="h-4 w-4" />} action={actionWithId(markQuoteAsSent, document.id)} />
               </>
             ) : null}
@@ -194,16 +184,12 @@ export function SalesDocumentDetail({
             ) : null}
             {isOrder && document.status === "draft" ? (
               <>
-                <Link href={`/vente/commandes/${document.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <ActionForm label="Confirmer commande" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmOrder, document.id)} />
               </>
             ) : null}
             {isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
-              <Link href={`/vente/commandes/${document.id}/livrer`}>
-                <Button variant="secondary"><Truck className="h-4 w-4" /> Creer une livraison</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/livrer`}><Truck className="h-4 w-4" /> Creer une livraison</Link></Button>
             ) : null}
             {isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
@@ -212,27 +198,19 @@ export function SalesDocumentDetail({
               <ActionForm label="Marquer livre" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
             ) : null}
             {isDelivery && ["validated", "delivered"].includes(document.status) ? (
-              <Link href={`/vente/livraisons/${document.id}/retour`}>
-                <Button variant="secondary"><Truck className="h-4 w-4" /> Creer un retour</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/retour`}><Truck className="h-4 w-4" /> Creer un retour</Link></Button>
             ) : null}
             {isDelivery && ["validated", "delivered"].includes(document.status) && !deliveryBillingBlocked ? (
-              <Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}>
-                <Button variant="secondary"><Receipt className="h-4 w-4" /> Facturer</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}><Receipt className="h-4 w-4" /> Facturer</Link></Button>
             ) : null}
             {isReturn && document.status === "draft" ? (
               <ActionForm label="Valider retour" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateReturnNote, document.id)} />
             ) : null}
             {isReturn && document.status === "validated" ? (
               returnCreditNote ? (
-                <Link href={`/facturation/avoirs/${returnCreditNote.id}`}>
-                  <Button variant="secondary"><Receipt className="h-4 w-4" /> Voir avoir</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/facturation/avoirs/${returnCreditNote.id}`}><Receipt className="h-4 w-4" /> Voir avoir</Link></Button>
               ) : (
-                <Link href={`/facturation/avoirs/new?returnId=${document.id}`}>
-                  <Button variant="secondary"><Receipt className="h-4 w-4" /> Creer avoir</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button>
               )
             ) : null}
             {document.status !== "cancelled" && document.status !== "converted" ? (
@@ -286,14 +264,10 @@ export function SalesDocumentDetail({
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
               {directInvoice ? (
-                <Link href={`/facturation/factures/${directInvoice.id}`}>
-                  <Button type="button" variant="secondary">Voir {directInvoice.invoice_number}</Button>
-                </Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${directInvoice.id}`}>Voir {directInvoice.invoice_number}</Link></Button>
               ) : null}
               {deliveryInvoices.map((invoice) => (
-                <Link key={invoice.id} href={`/facturation/factures/${invoice.id}`}>
-                  <Button type="button" variant="secondary">Voir {invoice.invoice_number}</Button>
-                </Link>
+                <Button key={invoice.id} type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}`}>Voir {invoice.invoice_number}</Link></Button>
               ))}
             </div>
           </CardContent>
@@ -487,16 +461,12 @@ export function SalesDocumentDetail({
                     Statut : {returnCreditNote.status} · Total : <MoneyDisplay value={returnCreditNote.total_ttc} /> · Disponible : <MoneyDisplay value={returnCreditNote.available_amount} />
                   </p>
                 </div>
-                <Link href={`/facturation/avoirs/${returnCreditNote.id}`}>
-                  <Button type="button" variant="secondary">Voir avoir</Button>
-                </Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/${returnCreditNote.id}`}>Voir avoir</Link></Button>
               </>
             ) : document.status === "validated" ? (
               <>
                 <p className="text-[var(--muted)]">Aucun avoir financier n&apos;est encore rattache a ce bon de retour.</p>
-                <Link href={`/facturation/avoirs/new?returnId=${document.id}`}>
-                  <Button type="button" variant="secondary"><Receipt className="h-4 w-4" /> Creer avoir</Button>
-                </Link>
+                <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button>
               </>
             ) : (
               <p className="text-[var(--muted)]">Validez d&apos;abord le bon de retour avant de creer un avoir.</p>

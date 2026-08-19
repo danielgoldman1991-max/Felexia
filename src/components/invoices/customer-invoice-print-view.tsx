@@ -4,7 +4,15 @@ import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from "@/lib/invo
 import type { CustomerInvoiceLineRecord, CustomerInvoiceRecord } from "@/lib/invoice-types";
 import { hasDiscount } from "@/lib/sales-types";
 import type { OrganizationIdentity } from "@/lib/company-identity";
-import { PrintOrganizationLogo } from "@/components/shared/print-organization-logo";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintPartyCard } from "@/components/print/PrintPartyCard";
+import { PrintLineTable } from "@/components/print/PrintLineTable";
+import { PrintTotals } from "@/components/print/PrintTotals";
+import { PrintTerms } from "@/components/print/PrintTerms";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 export function CustomerInvoicePrintView({
   invoice,
@@ -23,76 +31,87 @@ export function CustomerInvoicePrintView({
     invoice.customer_phone ? `Tel. : ${invoice.customer_phone}` : null,
     invoice.customer_email ? `Email : ${invoice.customer_email}` : null,
     invoice.customer_ice ? `ICE : ${invoice.customer_ice}` : null,
-  ].filter(Boolean);
+  ].filter(Boolean) as string[];
 
   const companyInfoLines = [
     identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
     identity.ice ? `ICE : ${identity.ice}` : null,
-    identity.rc && identity.ifNumber ? `RC : ${identity.rc} - IF : ${identity.ifNumber}` : identity.rc ? `RC : ${identity.rc}` : identity.ifNumber ? `IF : ${identity.ifNumber}` : null,
-  ].filter(Boolean);
+    identity.rc && identity.ifNumber
+      ? `RC : ${identity.rc} - IF : ${identity.ifNumber}`
+      : identity.rc
+        ? `RC : ${identity.rc}`
+        : identity.ifNumber
+          ? `IF : ${identity.ifNumber}`
+          : null,
+  ].filter(Boolean) as string[];
 
-  const companyContact = [
-    identity.email,
-    identity.phone,
-  ].filter(Boolean).join(" - ");
+  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
 
   return (
-    <main className="mx-auto min-h-[297mm] max-w-[210mm] bg-white px-12 py-10 text-slate-900 shadow-[0_18px_60px_rgb(15_23_42_/_12%)] print:min-h-0 print:max-w-none print:shadow-none">
-      <header className="flex items-start justify-between gap-8 border-b-2 border-[#2d2490] pb-8">
-        <div className="flex max-w-[55%] items-start gap-4">
-          <PrintOrganizationLogo identity={identity} />
-          <div>
-            <p className="text-xl font-bold text-[#2d2490]">{identity.name || "Mon Entreprise"}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {companyInfoLines.length
-                ? companyInfoLines.map((line, i) => (
-                    <span key={i}>{line}{i < companyInfoLines.length - 1 && <br />}</span>
-                  ))
-                : "-"}
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-4xl font-bold tracking-wide text-[#2d2490]">FACTURE</p>
-          <p className="mt-3 text-lg font-semibold text-slate-900">{invoice.invoice_number}</p>
-          <div className="mt-4 space-y-1 text-sm text-slate-600">
-            <p>Date : {formatDate(invoice.invoice_date)}</p>
-            <p>Echeance : {invoice.due_date ? formatDate(invoice.due_date) : "-"}</p>
-            <p>Conditions : {getPaymentTermLabel(invoice.payment_terms) || (invoice.payment_terms_days ? `${invoice.payment_terms_days} jours` : "-")}</p>
-            <p>Modalite : {getPaymentMethodLabel(invoice.payment_method) || "-"}</p>
-            <p>Statut : {INVOICE_STATUS_LABELS[invoice.status] ?? invoice.status}</p>
-            <p>Paiement : {INVOICE_PAYMENT_STATUS_LABELS[invoice.payment_status] ?? invoice.payment_status}</p>
-          </div>
-        </div>
-      </header>
+    <PrintPage>
+      <PrintHeader>
+        <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
+        <PrintDocumentTitle title="FACTURE" documentNumber={invoice.invoice_number}>
+          <p><strong>Date :</strong> {formatDate(invoice.invoice_date)}</p>
+          <p><strong>Échéance :</strong> {invoice.due_date ? formatDate(invoice.due_date) : "-"}</p>
+          <p><strong>Conditions :</strong> {getPaymentTermLabel(invoice.payment_terms) || (invoice.payment_terms_days ? `${invoice.payment_terms_days} jours` : "-")}</p>
+          <p><strong>Modalité :</strong> {getPaymentMethodLabel(invoice.payment_method) || "-"}</p>
+          <p><strong>Statut :</strong> {INVOICE_STATUS_LABELS[invoice.status] ?? invoice.status}</p>
+          <p><strong>Paiement :</strong> {INVOICE_PAYMENT_STATUS_LABELS[invoice.payment_status] ?? invoice.payment_status}</p>
+        </PrintDocumentTitle>
+      </PrintHeader>
 
-      <section className="mt-8 max-w-[95mm] rounded-lg border border-slate-200 p-5">
-        <h2 className="text-xs font-bold uppercase tracking-wide text-[#2d2490]">Client</h2>
-        <div className="mt-4 space-y-1.5 text-sm leading-6 text-slate-800">{clientLines.length ? clientLines.map((line) => <p key={line}>{line}</p>) : <p>-</p>}</div>
-      </section>
+      <PrintPartyCard title="Client" lines={clientLines} />
 
-      <section className="mt-8">
-        <table className="w-full border-collapse text-left text-xs">
-          <thead><tr className="bg-[#ede7ff] text-[#2d2490]"><th className="border border-slate-200 px-3 py-2">#</th><th className="border border-slate-200 px-3 py-2">Designation</th><th className="border border-slate-200 px-3 py-2 text-right">Quantite</th><th className="border border-slate-200 px-3 py-2">Unite</th><th className="border border-slate-200 px-3 py-2 text-right">Prix HT</th>{discountPresent ? <th className="border border-slate-200 px-3 py-2 text-right">Remise</th> : null}<th className="border border-slate-200 px-3 py-2 text-right">TVA</th><th className="border border-slate-200 px-3 py-2 text-right">Total HT</th><th className="border border-slate-200 px-3 py-2 text-right">Total TTC</th></tr></thead>
-          <tbody>{lines.map((line, index) => <tr key={line.id} className="align-top"><td className="border border-slate-200 px-3 py-3">{index + 1}</td><td className="border border-slate-200 px-3 py-3"><p className="font-medium text-slate-900">{line.description}</p>{line.product_name ? <p className="mt-1 text-[11px] text-slate-500">{line.product_name}</p> : null}</td><td className="border border-slate-200 px-3 py-3 text-right">{line.quantity}</td><td className="border border-slate-200 px-3 py-3">{line.unit_name ?? "-"}</td><td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.unit_price_ht)}</td>{discountPresent ? <td className="border border-slate-200 px-3 py-3 text-right">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td> : null}<td className="border border-slate-200 px-3 py-3 text-right">{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</td><td className="border border-slate-200 px-3 py-3 text-right">{formatMoney(line.subtotal_ht)}</td><td className="border border-slate-200 px-3 py-3 text-right font-semibold">{formatMoney(line.total_ttc)}</td></tr>)}</tbody>
-        </table>
-      </section>
+      <PrintLineTable
+        head={
+          <>
+            <th>#</th>
+            <th>Désignation</th>
+            <th className="right">Quantité</th>
+            <th>Unité</th>
+            <th className="right">Prix HT</th>
+            {discountPresent ? <th className="right">Remise</th> : null}
+            <th className="right">TVA</th>
+            <th className="right">Total HT</th>
+            <th className="right">Total TTC</th>
+          </>
+        }
+      >
+        {lines.map((line, index) => (
+          <tr key={line.id}>
+            <td>{index + 1}</td>
+            <td>
+              <p className="strong">{line.description}</p>
+              {line.product_name ? <p className="muted">{line.product_name}</p> : null}
+            </td>
+            <td className="num">{line.quantity}</td>
+            <td>{line.unit_name ?? "-"}</td>
+            <td className="num">{formatMoney(line.unit_price_ht)}</td>
+            {discountPresent ? <td className="num">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td> : null}
+            <td className="num">
+              {line.tax_rate_id ? `${line.tax_rate}%` : "-"}
+            </td>
+            <td className="num">{formatMoney(line.subtotal_ht)}</td>
+            <td className="num strong">{formatMoney(line.total_ttc)}</td>
+          </tr>
+        ))}
+      </PrintLineTable>
 
-      <section className="mt-8 flex justify-end">
-        <div className="w-80 rounded-lg border border-slate-200">
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm"><span>Total HT</span><span>{formatMoney(invoice.subtotal_ht)}</span></div>
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm"><span>Total TVA</span><span>{formatMoney(invoice.tax_total)}</span></div>
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm"><span>Montant paye</span><span>{formatMoney(invoice.paid_amount)}</span></div>
-          <div className="flex justify-between border-b border-slate-200 px-4 py-3 text-sm"><span>Reste a payer</span><span>{formatMoney(invoice.remaining_amount)}</span></div>
-          <div className="flex justify-between rounded-b-lg bg-[#2d2490] px-4 py-4 text-base font-bold text-white"><span>Total TTC</span><span>{formatMoney(invoice.total_ttc)}</span></div>
-        </div>
-      </section>
+      <PrintTotals
+        rows={[
+          { label: "Total HT", value: formatMoney(invoice.subtotal_ht) },
+          { label: "Total TVA", value: formatMoney(invoice.tax_total) },
+          { label: "Montant payé", value: formatMoney(invoice.paid_amount) },
+          { label: "Reste à payer", value: formatMoney(invoice.remaining_amount) },
+        ]}
+        grandTotalLabel="Total TTC"
+        grandTotalValue={formatMoney(invoice.total_ttc)}
+      />
 
-      {invoice.notes ? <section className="mt-8 rounded-lg border border-slate-200 p-5"><h2 className="text-xs font-bold uppercase tracking-wide text-[#2d2490]">Notes</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{invoice.notes}</p></section> : null}
-      <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">
-        <p className="font-semibold text-slate-700">{identity.footerText || "Merci pour votre confiance."}</p>
-        {companyContact && <p>{identity.name} - {companyContact}</p>}
-      </footer>
-    </main>
+      {invoice.notes ? <PrintTerms title="Notes">{invoice.notes}</PrintTerms> : null}
+
+      <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
+    </PrintPage>
   );
 }

@@ -43,8 +43,8 @@ export function TreasuryAccountsTable({ rows }: { rows: TreasuryAccountRecord[] 
             <Td>{row.is_default ? <Badge tone="info">Par defaut</Badge> : "-"}</Td>
             <Td>
               <div className="flex items-center gap-1">
-                <Link href={`/tresorerie/comptes/${row.id}`}><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir"><Eye className="h-4 w-4" /></Button></Link>
-                <Link href={`/tresorerie/comptes/${row.id}/edit`}><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier"><Pencil className="h-4 w-4" /></Button></Link>
+                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/tresorerie/comptes/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
+                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/tresorerie/comptes/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
                 {!row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultTreasuryAccount} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
                 <InlineAction label="Archiver" id={row.id} action={archiveTreasuryAccount} icon={<Archive className="h-4 w-4" />} variant="danger" />
               </div>

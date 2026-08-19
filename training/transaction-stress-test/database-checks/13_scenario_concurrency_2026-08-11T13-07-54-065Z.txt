@@ -1,0 +1,25 @@
+# Scénario D — Concurrence et idempotence sous charge parallèle
+- Généré : 2026-08-11T13:07:54.065Z
+- Tenant : stress-flx-2026-001
+
+
+## D1. Double paiement simultané — même clé d'idempotence (facture 1174.92)
+
+- [PASS] D1-same-key — r1=[{"payment_id":"a04fb2f4-1385-4704-84f1-470f173e80d7","payment_number":"REG-2608-00004","replayed":false}] r2=[{"payment_id":"a04fb2f4-1385-4704-84f1-470f173e80d7","payment_number":"REG-2608-00004","replayed":true}] — 1 paiement en base, facture 0 (paid), trésorerie 52949.84
+
+## D2. Paiements parallèles — clés différentes, même facture (1000, deux × 700)
+
+- [PASS] D2-different-keys — acceptés=1/2 (attendus 1) — q1=[{"payment_id":"24127bf1-799f-461d-9e8f-8a027a61c47a","payment_number":"REG-2608-00005","replayed":false}] q2=La facture client serait sur-réglée. — reste 300 (partial), allocations=1
+
+## D3. Rejeu stock concurrent — même operation_key (réception 3 u.)
+
+- [PASS] D3-stock-replay — s1=[{"movement_id":"5bff4225-e2ec-4867-b82f-037bcb9d5411","source_line_id":"d73037af-1720-4d1f-a72b-e7fd00af0d47","replayed":true}] s2=[{"movement_id":"5bff4225-e2ec-4867-b82f-037bcb9d5411","source_line_id":"d73037af-1720-4d1f-a72b-e7fd00af0d47","replayed":false}] — stock 10 (attendu 10 = 7+3), niveaux 10, oracle 10
+
+## D4. Réceptions parallèles — clés différentes (2 u. + 3 u.), aucun mouvement perdu
+
+- [PASS] D4-parallel-receipts — f1=[{"movement_id":"fa886620-00db-4b27-ac0f-fce2480161fb","source_line_id":"014864c1-c685-4e80-8aea-d3fdb50a04ee","replayed":false}] f2=[{"movement_id":"b26fdc48-1fef-4217-a5f8-5e951235987d","source_line_id":"4e191bf0-77b7-44f1-9a90-ed02568d37e6","replayed":false}] — stock 15 (attendu 15 = 10+2+3), niveaux 15
+
+## D5. Livraisons parallèles au-delà du stock (2 × 8 u. sur stock 15)
+
+- [PASS] D5-parallel-deliveries — acceptées=1/2 (attendue 1) — g1=Stock insuffisant dans cet emplacement. g2=[{"movement_id":"4c832f24-dce7-4b4f-ba5d-fa0dca004b8b","source_line_id":"45cc7f52-6715-4b2c-8435-eaa2f883829a","replayed":false}] — stock final 7 (attendu 7 = 15-8), jamais négatif
+- [PASS] D-final-tresorerie-oracle — attendu 53649.84, réel 53649.84

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, Download, Eye, FileText, FolderOpen, Pencil, Search, Trash2, UploadCloud } from "lucide-react";
+import { Archive, Download, Eye, FileText, FolderOpen, Pencil, Printer, Search, Trash2, UploadCloud } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
@@ -35,10 +35,10 @@ function safeDate(value: string | null) {
 }
 
 function statusTone(status: string): "neutral" | "info" | "success" | "warning" | "danger" {
-  if (status === "available") return "success";
-  if (status === "validated") return "info";
-  if (status === "draft") return "warning";
-  if (status === "deleted") return "danger";
+  if (["active", "available", "accepted", "confirmed", "validated", "converted", "received", "delivered", "paid"].includes(status)) return "success";
+  if (["sent", "partially_received", "partially_delivered", "partially_paid", "partial"].includes(status)) return "info";
+  if (["draft", "overdue", "unpaid"].includes(status)) return "warning";
+  if (["deleted", "cancelled", "canceled", "rejected"].includes(status)) return "danger";
   return "neutral";
 }
 
@@ -216,12 +216,12 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Do
                       ) : (
                         <button type="button" className="rounded-md p-2 text-[var(--muted)] opacity-50" aria-label="Voir" disabled><Eye className="h-4 w-4" /></button>
                       )}
-                      {document.source === "upload" && document.print_url ? (
-                        <Link href={document.print_url} className="rounded-md p-2 text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--secondary)]" aria-label="Télécharger">
-                          <Download className="h-4 w-4" />
+                      {document.print_url ? (
+                        <Link href={document.print_url} target="_blank" className="rounded-md p-2 text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--secondary)]" aria-label={document.source === "upload" ? "Télécharger" : "Imprimer ou enregistrer en PDF"} title={document.source === "upload" ? "Télécharger" : "Imprimer / Enregistrer en PDF"}>
+                          {document.source === "upload" ? <Download className="h-4 w-4" /> : <Printer className="h-4 w-4" />}
                         </Link>
                       ) : (
-                        <button type="button" className="rounded-md p-2 text-[var(--muted)] opacity-50" aria-label="Télécharger" disabled><Download className="h-4 w-4" /></button>
+                        <button type="button" className="rounded-md p-2 text-[var(--muted)] opacity-50" aria-label="Document indisponible" title="Document indisponible" disabled><Download className="h-4 w-4" /></button>
                       )}
                       {document.source === "upload" ? (
                         <>

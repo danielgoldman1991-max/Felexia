@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { sanitizeInternalPath } from "@/lib/auth/sanitize-internal-path";
+import { getAppUrl } from "@/lib/app-url";
 
 export type GoogleAuthMode = "login" | "register";
 
@@ -24,7 +25,7 @@ export async function signInWithGoogle(options?: SignInWithGoogleOptions) {
   const supabase = createClient();
 
   const next = sanitizeInternalPath(options?.next ?? "/dashboard");
-  const callbackUrl = new URL("/auth/callback", window.location.origin);
+  const callbackUrl = new URL("/auth/callback", getAppUrl(window.location.origin));
 
   callbackUrl.searchParams.set("next", next);
 

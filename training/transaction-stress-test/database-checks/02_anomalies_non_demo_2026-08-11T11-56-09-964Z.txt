@@ -1,0 +1,38 @@
+
+=== LALA HOME21 (ef756964-2329-4b76-872c-c9afcb6ffc95) ===
+Compte Caisse centrale: opening=5000.00 in=5000.00 out=0.00 (1 mvts) attendu=10000.00 actuel=5000.00 écart=5000.00
+  → 1 mouvements pour ce compte, exemples: ? in 5000.00 (opening_balance)
+Compte Banque Populaire: opening=1500.00 in=9300.00 out=27000.00 (3 mvts) attendu=-16200.00 actuel=-17700.00 écart=1500.00
+  → 3 mouvements pour ce compte, exemples: ? in 1500.00 (opening_balance) | 84698 in 7800.00 (customer_payment) | 5757 out 27000.00 (supplier_payment)
+Écriture BQ-2026-00001 status=posted source=customer_payment:c5596691-2e8a-4220-bc1e-2905e6ee0673 debit-lignes=7800.00 debit-stocké=7800.00 écart=0.00
+Écriture VE-2026-00001 status=posted source=customer_invoice:7673016b-95ef-4487-82e5-39a540d317ad debit-lignes=7800.00 debit-stocké=7800.00 écart=0.00
+Écriture AC-2026-00001 status=posted source=supplier_invoice:d3f931bf-4e2a-4be0-93c0-7f78b54d6055 debit-lignes=27000.00 debit-stocké=27000.00 écart=0.00
+Écriture BQ-2026-00002 status=posted source=supplier_payment:dd6a45d9-cfde-48cb-a200-a5171a4abba2 debit-lignes=27000.00 debit-stocké=27000.00 écart=0.00
+
+=== Felexia Demo (11111111-1111-1111-1111-111111111111) ===
+Écriture VE-2026-00001 status=posted source=customer_invoice:fce5129b-5a80-41d1-9bc8-9e4470ec548a debit-lignes=10080.00 debit-stocké=10080.00 écart=0.00
+Écriture VE-2026-00002 status=cancelled source=customer_invoice:b9982965-3a0b-4c92-85bf-0e3fd4495a9d debit-lignes=1632.00 debit-stocké=1632.00 écart=0.00
+Écriture VE-2026-00003 status=cancelled source=customer_invoice:38d065ad-ae79-4ebf-97cc-1bfc6c092193 debit-lignes=3600.00 debit-stocké=3600.00 écart=0.00
+Écriture VE-2026-00004 status=posted source=customer_invoice:38d065ad-ae79-4ebf-97cc-1bfc6c092193 debit-lignes=3600.00 debit-stocké=3600.00 écart=0.00
+Écriture VE-2026-00005 status=posted source=customer_invoice:61fdb6b9-80ed-4e52-9036-cb3b3ac11196 debit-lignes=34680.00 debit-stocké=34680.00 écart=0.00
+Écriture AC-2026-00001 status=posted source=supplier_invoice:899d4210-cf83-45d3-8f38-8bf959dbaa79 debit-lignes=18000.00 debit-stocké=18000.00 écart=0.00
+Écriture BQ-2026-00001 status=posted source=supplier_payment:8839fb1b-ea15-4358-b17a-1f9980d2bfa4 debit-lignes=18000.00 debit-stocké=18000.00 écart=0.00
+Écriture VE-2026-00006 status=posted source=customer_invoice:be6b5b73-8bd2-4455-b3a5-3fdf8e0cbdad debit-lignes=1200.00 debit-stocké=1200.00 écart=0.00
+Écriture BQ-2026-00002 status=posted source=customer_payment:72e95f7f-e9e5-43aa-859a-4f4d402900a6 debit-lignes=1200.00 debit-stocké=1200.00 écart=0.00
+Écriture CA-2026-00001 status=posted source=supplier_payment:a50b7f94-1549-4ec0-9061-ba5d8981d2db debit-lignes=1800.00 debit-stocké=1800.00 écart=0.00
+Écriture VE-2026-00007 status=posted source=customer_invoice:8923259d-2bd3-4ad1-9152-e34eb470e50e debit-lignes=2664.00 debit-stocké=2664.00 écart=0.00
+Écriture CA-2026-00002 status=posted source=customer_payment:20b9e46b-575f-421f-bf6f-f65a999666e4 debit-lignes=2664.00 debit-stocké=2664.00 écart=0.00
+Stock PC-LEN-14 PC portable Lenovo 14 pouces: current=0 cumul emplacements=9 (écart -9.000)
+Stock TON-HP-85A Toner HP 85A compatible: current=83 cumul emplacements=164 (écart -81.000)
+Stock null GOODYEARS 205/65R16: current=2 cumul emplacements=6 (écart -4.000)
+Stock null Machine à Laver FAGOR: current=11 cumul emplacements=18 (écart -7.000)
+Stock null Clavier LOGITEC: current=151 cumul emplacements=167 (écart -16.000)
+Stock null DELL Laptop: current=45 cumul emplacements=80 (écart -35.000)
+
+=== FELEXIA DEMO SARL (1f13bb9d-48ba-4d77-aa13-f522c371e08c) ===
+Écriture VE-2026-00001 status=posted source=customer_invoice:61b2de5f-ed6d-4daa-9470-22b92a44f4fa debit-lignes=1036.00 debit-stocké=1036.00 écart=0.00
+Écriture AC-2026-00001 status=posted source=supplier_invoice:d4a80aee-018f-40eb-b7cf-5665c83c096f debit-lignes=600.00 debit-stocké=600.00 écart=0.00
+Écriture BQ-2026-00001 status=posted source=customer_payment:33f45d27-d8f7-4628-ae37-b6e15778d0c4 debit-lignes=500.00 debit-stocké=500.00 écart=0.00
+Écriture BQ-2026-00002 status=posted source=customer_payment:62d2c27a-76d7-48cb-a96c-6ae3ec134866 debit-lignes=556.00 debit-stocké=556.00 écart=0.00
+Écriture BQ-2026-00003 status=posted source=supplier_payment:102dd07b-b691-4471-8bd9-a2a277eb9e84 debit-lignes=600.00 debit-stocké=600.00 écart=0.00
+Stock null PRODUIT DEMO A: current=17 cumul emplacements=7 (écart 10.000)

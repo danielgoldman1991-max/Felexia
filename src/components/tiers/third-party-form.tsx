@@ -382,9 +382,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Link href={thirdParty ? `/tiers/${thirdParty.id}` : "/tiers"}>
-          <Button type="button" variant="secondary">Annuler</Button>
-        </Link>
+        <Button type="button" variant="secondary" asChild><Link href={thirdParty ? `/tiers/${thirdParty.id}` : "/tiers"}>Annuler</Link></Button>
         <Button disabled={pending}>{mode === "create" ? "Creer tiers" : "Enregistrer"}</Button>
       </div>
     </form>

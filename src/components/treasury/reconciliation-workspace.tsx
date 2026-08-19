@@ -69,7 +69,7 @@ function AutomaticSuggestionsForm({ suggestions }: { suggestions: Reconciliation
       {!state.success && state.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
       {state.success && (state.data as { message?: string } | undefined)?.message ? <p className="text-sm text-emerald-700">{(state.data as { message: string }).message}</p> : null}
       <div className="flex justify-end gap-2">
-        <Link href="/tresorerie/rapprochement"><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href="/tresorerie/rapprochement">Annuler</Link></Button>
         <Button disabled={pending}>Confirmer les rapprochements selectionnes</Button>
       </div>
     </form>
@@ -117,8 +117,8 @@ export function ReconciliationWorkspace({
             <div className="rounded-lg border border-[var(--border)] p-3"><span className="text-[var(--muted)]">Suggestions</span><p className="text-xl font-semibold">{suggestions.length}</p></div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link href={`/tresorerie/rapprochement?accountId=${selectedAccountId}&auto=1`}><Button type="button">Lancer le rapprochement automatique</Button></Link>
-            <Link href={`/tresorerie/rapprochement?accountId=${selectedAccountId}`}><Button type="button" variant="secondary">Rapprocher manuellement</Button></Link>
+            <Button type="button" asChild><Link href={`/tresorerie/rapprochement?accountId=${selectedAccountId}&auto=1`}>Lancer le rapprochement automatique</Link></Button>
+            <Button type="button" variant="secondary" asChild><Link href={`/tresorerie/rapprochement?accountId=${selectedAccountId}`}>Rapprocher manuellement</Link></Button>
           </div>
           {suggestions.length > 0 ? <AutomaticSuggestionsForm suggestions={suggestions} /> : null}
         </CardContent>

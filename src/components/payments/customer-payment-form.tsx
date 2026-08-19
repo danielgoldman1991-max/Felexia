@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState, useTransition } from "react";
+import { useActionState, useMemo, useRef, useState, useTransition } from "react";
 import { CustomerCombobox } from "@/components/sales/customer-combobox";
 import { CustomerOpenItems } from "@/components/payments/customer-open-items";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getCustomerOpenItemsAction } from "@/lib/payment-actions";
@@ -93,6 +94,7 @@ export function CustomerPaymentForm({
   const [allocations, setAllocations] = useState<Record<string, number>>(() => initialInvoiceId ? { [initialInvoiceId]: initialAmount } : {});
   const [openItems, setOpenItems] = useState<CustomerOpenItemsType | null>(initialOpenItems ?? openItemsFromInvoices(invoices));
   const [openItemsError, setOpenItemsError] = useState<string | null>(null);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const allocationRows = useMemo(
     () => Object.entries(allocations).map(([invoice_id, value]) => ({ invoice_id, amount: Number(value || 0) })).filter((row) => row.amount > 0),
     [allocations],
@@ -119,8 +121,14 @@ export function CustomerPaymentForm({
     });
   }
 
+  function handleSubmit(formData: FormData) {
+    idempotencyKeyRef.current ??= globalThis.crypto.randomUUID();
+    formData.set("idempotency_key", idempotencyKeyRef.current);
+    formAction(formData);
+  }
+
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={handleSubmit} className="space-y-5">
       {paymentId ? <input type="hidden" name="id" value={paymentId} /> : null}
       <input type="hidden" name="third_party_id" value={customerId} />
       <input type="hidden" name="source_type" value={initialInvoiceId ? "invoice" : "manual"} />
@@ -163,7 +171,7 @@ export function CustomerPaymentForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Montant *</span>
-            <Input type="number" min="0.01" step="0.01" name="amount" value={amount} onChange={(event) => setAmount(Number(event.target.value || 0))} />
+            <MoneyInput name="amount" min={0.01} value={amount} onValueChange={(nextAmount) => setAmount(nextAmount ?? 0)} required />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Reference</span>
@@ -213,7 +221,7 @@ export function CustomerPaymentForm({
 
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
-        <Link href={cancelHref}><Button type="button" variant="secondary">Annuler</Button></Link>
+        <Button type="button" variant="secondary" asChild><Link href={cancelHref}>Annuler</Link></Button>
         <Button disabled={pending || allocatedTotal > amount}>{submitLabel}</Button>
       </div>
     </form>

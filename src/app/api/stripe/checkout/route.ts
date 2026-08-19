@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createPlanCheckoutSession, createStripeCustomer, getStripePriceIdForPlan } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
 import { normalizePlanCode } from "@/lib/subscriptions/plans";
+import { isPlanPubliclyAvailable } from "@/lib/subscriptions/commercial-offers";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +20,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { billingInterval } = body;
     const planCode = normalizePlanCode(body.planCode);
+
+    // Protection commerciale serveur : Business / Premium ne sont plus
+    // achetables, même en modifiant l'URL ou le payload.
+    if (!isPlanPubliclyAvailable(planCode)) {
+      return NextResponse.json({ error: "PLAN_NOT_AVAILABLE" }, { status: 400 });
+    }
+
     const interval = billingInterval === "yearly" ? "yearly" : "monthly";
     const priceId = getStripePriceIdForPlan(planCode, interval);
 

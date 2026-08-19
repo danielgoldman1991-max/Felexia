@@ -16,7 +16,7 @@ export default async function SupplierOrdersPage() {
       <PageHeader
         title="Commandes fournisseurs"
         description="Commandes passees aux fournisseurs."
-        actions={<Link href="/achats/commandes/new"><Button><Plus className="h-4 w-4" /> Nouvelle commande</Button></Link>}
+        actions={<Button asChild><Link href="/achats/commandes/new"><Plus className="h-4 w-4" /> Nouvelle commande</Link></Button>}
       />
       <Card><CardContent><PurchaseDocumentsTable rows={rows} type="supplier_order" /></CardContent></Card>
     </ModulePage>

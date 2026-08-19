@@ -21,10 +21,24 @@ export const DOCUMENT_ORIGINS = [
 ] as const;
 
 export const DOCUMENT_STATUSES = [
-  { value: "active", label: "Disponible" },
   { value: "available", label: "Disponible" },
   { value: "draft", label: "Brouillon" },
   { value: "validated", label: "Validé" },
+  { value: "sent", label: "Envoyé" },
+  { value: "accepted", label: "Accepté" },
+  { value: "confirmed", label: "Confirmé" },
+  { value: "converted", label: "Converti" },
+  { value: "partially_received", label: "Partiellement reçu" },
+  { value: "received", label: "Reçu" },
+  { value: "partially_delivered", label: "Partiellement livré" },
+  { value: "delivered", label: "Livré" },
+  { value: "unpaid", label: "Non payé" },
+  { value: "partial", label: "Partiellement payé" },
+  { value: "partially_paid", label: "Partiellement payé" },
+  { value: "paid", label: "Payé" },
+  { value: "overdue", label: "En retard" },
+  { value: "cancelled", label: "Annulé" },
+  { value: "rejected", label: "Refusé" },
   { value: "archived", label: "Archivé" },
   { value: "deleted", label: "Supprimé" },
 ] as const;

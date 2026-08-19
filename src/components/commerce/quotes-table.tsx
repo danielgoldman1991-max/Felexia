@@ -43,13 +43,9 @@ export function QuotesTable({ rows }: { rows: SalesQuoteRecord[] }) {
             <Td><MoneyDisplay value={row.total_ttc} /></Td>
             <Td>
               <div className="flex items-center gap-2">
-                <Link href={`/devis/${row.id}`}>
-                  <Button variant="ghost" >Consulter</Button>
-                </Link>
+                <Button variant="ghost"  asChild><Link href={`/devis/${row.id}`}>Consulter</Link></Button>
                 {["draft", "sent"].includes(row.status) ? (
-                  <Link href={`/devis/${row.id}/edit`}>
-                    <Button variant="ghost" ><Pencil className="h-3 w-3" /></Button>
-                  </Link>
+                  <Button variant="ghost"  asChild><Link href={`/devis/${row.id}/edit`}><Pencil className="h-3 w-3" /></Link></Button>
                 ) : null}
               </div>
             </Td>

@@ -43,13 +43,9 @@ export function OrdersTable({ rows }: { rows: SalesOrderRecord[] }) {
             <Td><MoneyDisplay value={row.total_ttc} /></Td>
             <Td>
               <div className="flex items-center gap-2">
-                <Link href={`/commandes/${row.id}`}>
-                  <Button variant="ghost" >Consulter</Button>
-                </Link>
+                <Button variant="ghost"  asChild><Link href={`/commandes/${row.id}`}>Consulter</Link></Button>
                 {["draft"].includes(row.status) ? (
-                  <Link href={`/commandes/${row.id}/edit`}>
-                    <Button variant="ghost" ><Pencil className="h-3 w-3" /></Button>
-                  </Link>
+                  <Button variant="ghost"  asChild><Link href={`/commandes/${row.id}/edit`}><Pencil className="h-3 w-3" /></Link></Button>
                 ) : null}
               </div>
             </Td>

@@ -42,9 +42,7 @@ export default async function VatDeclarationsPage() {
         title="Déclarations TVA"
         description="Préparez et suivez vos déclarations périodiques de TVA."
         actions={
-          <Link href="/comptabilite/tva/declarations/new">
-            <Button disabled={!ready}><Plus className="h-4 w-4" /> Nouvelle déclaration TVA</Button>
-          </Link>
+          <Button disabled={!ready} asChild><Link href="/comptabilite/tva/declarations/new"><Plus className="h-4 w-4" /> Nouvelle déclaration TVA</Link></Button>
         }
       />
 
@@ -130,13 +128,9 @@ export default async function VatDeclarationsPage() {
                     </Td>
                     <Td>
                       <div className="flex flex-wrap gap-2">
-                        <Link href={`/comptabilite/tva/declarations/${d.id}`}>
-                          <Button type="button" variant="secondary">Consulter</Button>
-                        </Link>
+                        <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/tva/declarations/${d.id}`}>Consulter</Link></Button>
                         {d.status === "draft" || d.status === "under_review" ? (
-                          <Link href={`/comptabilite/tva/exports?from=${d.period_start}&to=${d.period_end}&frequency=${d.frequency}&preflight=1`}>
-                            <Button type="button" variant="secondary">Exporter</Button>
-                          </Link>
+                          <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/tva/exports?from=${d.period_start}&to=${d.period_end}&frequency=${d.frequency}&preflight=1`}>Exporter</Link></Button>
                         ) : null}
                       </div>
                     </Td>

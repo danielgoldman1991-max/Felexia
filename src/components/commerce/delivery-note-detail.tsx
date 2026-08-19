@@ -39,9 +39,7 @@ export function DeliveryNoteDetail({ delivery, lines }: { delivery: DeliveryNote
           <>
             {isDraft ? (
               <>
-                <Link href={`/livraisons/${delivery.id}/edit`}>
-                  <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-                </Link>
+                <Button variant="secondary" asChild><Link href={`/livraisons/${delivery.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <form action={validateAction}>
                   <input type="hidden" name="id" value={delivery.id} />
                   <Button><CheckCircle2 className="h-4 w-4" /> Valider</Button>

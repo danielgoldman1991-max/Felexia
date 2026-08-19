@@ -89,9 +89,7 @@ export function NewVatDeclarationForm() {
       ) : null}
 
       <div className="flex items-center gap-3">
-        <Link href="/comptabilite/tva/declarations">
-          <Button type="button" variant="ghost">Annuler</Button>
-        </Link>
+        <Button type="button" variant="ghost" asChild><Link href="/comptabilite/tva/declarations">Annuler</Link></Button>
         <Button type="submit" disabled={pending}>
           <Calculator className="h-4 w-4" />
           {pending ? "Calcul en cours..." : "Créer la déclaration"}

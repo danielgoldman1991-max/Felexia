@@ -1,0 +1,8 @@
+# Scénario A — Achat de référence (10 u. @100 HT TVA 20 %)
+- Généré : 2026-08-11T12:16:59.252Z
+- Tenant : stress-flx-2026-001
+
+
+## A1. Commande fournisseur 10 u. @100 HT
+
+- [BLOCKED] A1-po — new row violates row-level security policy for table "purchase_documents"

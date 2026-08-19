@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
 import { PrintActions } from "@/components/sales/print-actions";
-import { MoneyDisplay } from "@/components/erp/money-display";
-import { Table, Td, Th } from "@/components/ui/table";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintPartyCard } from "@/components/print/PrintPartyCard";
+import { PrintLineTable } from "@/components/print/PrintLineTable";
+import { PrintTotals } from "@/components/print/PrintTotals";
+import { PrintTerms } from "@/components/print/PrintTerms";
+import { PrintFooter } from "@/components/print/PrintFooter";
 import { getCustomerCreditNoteDetail } from "@/lib/credit-notes";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
-import { formatDate } from "@/lib/format";
-import { PrintCompanyBrand } from "@/components/shared/print-company-brand";
+import { formatDate, formatMoney } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -14,27 +20,67 @@ export default async function CreditNotePrintPage({ params }: { params: Promise<
   const { creditNote, lines } = await getCustomerCreditNoteDetail(id);
   if (!creditNote) notFound();
   const identity = await getOrganizationDocumentIdentity(creditNote.organization_id);
+
+  const companyInfoLines = [
+    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
+    identity.ice ? `ICE : ${identity.ice}` : null,
+  ].filter(Boolean) as string[];
+
+  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+
   return (
-    <main className="mx-auto max-w-5xl bg-white p-8 print:p-0">
+    <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
       <PrintActions backHref={`/facturation/avoirs/${creditNote.id}`} backLabel="Retour avoir" />
-      <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-        <PrintCompanyBrand identity={identity} />
-        <div className="text-right">
-          <h1 className="text-2xl font-bold">AVOIR CLIENT</h1>
-          <p className="mt-2">{creditNote.credit_note_number}</p>
-          <p>{formatDate(creditNote.credit_note_date)}</p>
-        </div>
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div><p className="text-sm text-[var(--muted)]">Client</p><p className="font-semibold">{creditNote.customer_name}</p></div>
-        <div className="text-right">
-          {creditNote.source_return_number ? <p>Origine : Bon de retour {creditNote.source_return_number}</p> : null}
-          {creditNote.source_invoice_number ? <p>Facture source : {creditNote.source_invoice_number}</p> : null}
-        </div>
-      </div>
-      <div className="mt-6"><Table><thead><tr><Th>#</Th><Th>Designation</Th><Th>Quantite</Th><Th>Prix HT</Th><Th>TVA</Th><Th>Total TTC</Th></tr></thead><tbody>{lines.map((line, index) => <tr key={line.id}><Td>{index + 1}</Td><Td>{line.description}</Td><Td>{line.quantity}</Td><Td><MoneyDisplay value={line.unit_price_ht} /></Td><Td>{line.tax_rate}%</Td><Td><MoneyDisplay value={line.total_ttc} /></Td></tr>)}</tbody></Table></div>
-      <div className="mt-6 grid gap-2 text-right"><p>Total HT : <MoneyDisplay value={creditNote.subtotal_ht} /></p><p>TVA : <MoneyDisplay value={creditNote.tax_total} /></p><p className="text-lg font-semibold">Total TTC : <MoneyDisplay value={creditNote.total_ttc} /></p><p>Disponible : <MoneyDisplay value={creditNote.available_amount} /></p></div>
-      {creditNote.reason ? <p className="mt-6 text-sm">Motif : {creditNote.reason}</p> : null}
+      <PrintPage>
+        <PrintHeader>
+          <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
+          <PrintDocumentTitle title="AVOIR CLIENT" documentNumber={creditNote.credit_note_number}>
+            <p><strong>Date :</strong> {formatDate(creditNote.credit_note_date)}</p>
+            {creditNote.source_return_number ? <p><strong>Origine :</strong> Bon de retour {creditNote.source_return_number}</p> : null}
+            {creditNote.source_invoice_number ? <p><strong>Facture source :</strong> {creditNote.source_invoice_number}</p> : null}
+          </PrintDocumentTitle>
+        </PrintHeader>
+
+        <PrintPartyCard title="Client" lines={[creditNote.customer_name].filter(Boolean) as string[]} />
+
+        <PrintLineTable
+          head={
+            <>
+              <th>#</th>
+              <th>Désignation</th>
+              <th className="right">Quantité</th>
+              <th className="right">Prix HT</th>
+              <th className="right">TVA</th>
+              <th className="right">Total TTC</th>
+            </>
+          }
+        >
+          {lines.map((line, index) => (
+            <tr key={line.id}>
+              <td>{index + 1}</td>
+              <td>{line.description}</td>
+              <td className="num">{formatMoney(line.quantity)}</td>
+              <td className="num">{formatMoney(line.unit_price_ht)}</td>
+              <td className="num">{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</td>
+              <td className="num strong">{formatMoney(line.total_ttc)}</td>
+            </tr>
+          ))}
+        </PrintLineTable>
+
+        <PrintTotals
+          rows={[
+            { label: "Total HT", value: formatMoney(creditNote.subtotal_ht) },
+            { label: "Total TVA", value: formatMoney(creditNote.tax_total) },
+            { label: "Disponible", value: formatMoney(creditNote.available_amount) },
+          ]}
+          grandTotalLabel="Total TTC"
+          grandTotalValue={formatMoney(creditNote.total_ttc)}
+        />
+
+        {creditNote.reason ? <PrintTerms title="Motif">{creditNote.reason}</PrintTerms> : null}
+
+        <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
+      </PrintPage>
     </main>
   );
 }

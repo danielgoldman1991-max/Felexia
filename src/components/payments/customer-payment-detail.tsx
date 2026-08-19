@@ -54,9 +54,9 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry }:
         description={payment.customer_name ?? ""}
         actions={(
           <>
-            <Link href={`/facturation/paiements/${payment.id}/print`} target="_blank"><Button type="button" variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button></Link>
-            {payment.available_amount > 0 && payment.status !== "cancelled" ? <Link href={`/facturation/paiements/${payment.id}/affecter`}><Button type="button">Affecter a des factures</Button></Link> : null}
-            {payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Link href={`/facturation/paiements/${payment.id}/edit`}><Button type="button" variant="secondary">Modifier</Button></Link> : null}
+            <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
+            {payment.available_amount > 0 && payment.status !== "cancelled" ? <Button type="button" asChild><Link href={`/facturation/paiements/${payment.id}/affecter`}>Affecter a des factures</Link></Button> : null}
+            {payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}>Modifier</Link></Button> : null}
             {payment.status !== "cancelled" ? <ActionForm label="Annuler" variant="danger" icon={<XCircle className="h-4 w-4" />} action={actionWithId(cancelCustomerPayment, "id", payment.id)} /> : null}
           </>
         )}
@@ -115,9 +115,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry }:
                 <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
                 <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
-                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
-              </Link>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
             </div>
           ) : payment.status === "draft" || payment.status === "cancelled" ? (
             <p className="text-sm text-[var(--muted)]">Confirmez d&apos;abord le paiement client avant de le comptabiliser.</p>

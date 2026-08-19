@@ -223,13 +223,9 @@ function PaymentsSection({
           <div className="flex flex-wrap items-center gap-2">
             {paymentStatusBadge(effectiveSummary)}
             {canRegisterPayment ? (
-              <Link href={paymentHref}>
-                <Button><CreditCard className="h-4 w-4" /> Enregistrer un paiement</Button>
-              </Link>
+              <Button asChild><Link href={paymentHref}><CreditCard className="h-4 w-4" /> Enregistrer un paiement</Link></Button>
             ) : (
-              <Link href={`/achats/paiements?supplierId=${invoice.supplier_id}`}>
-                <Button variant="secondary"><Wallet className="h-4 w-4" /> Voir les paiements</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/paiements?supplierId=${invoice.supplier_id}`}><Wallet className="h-4 w-4" /> Voir les paiements</Link></Button>
             )}
           </div>
         </div>
@@ -264,7 +260,7 @@ function PaymentsSection({
           <EmptyState
             title="Aucun paiement attaché"
             description="Aucun paiement confirmé n’est attaché à cette facture fournisseur."
-            action={canRegisterPayment ? <Link href={paymentHref}><Button>Enregistrer un paiement</Button></Link> : undefined}
+            action={canRegisterPayment ? <Button asChild><Link href={paymentHref}>Enregistrer un paiement</Link></Button> : undefined}
           />
         ) : (
           <Table>
@@ -350,21 +346,15 @@ export function SupplierInvoiceDetail({
         actions={
           <>
             {canEdit ? (
-              <Link href={`/achats/factures/${invoice.id}/edit`}>
-                <Button variant="secondary"><Pencil className="h-4 w-4" /> Modifier</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/factures/${invoice.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
             ) : null}
             {canValidate ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateSupplierInvoice, invoice.id)} />
             ) : null}
             {canPay ? (
-              <Link href={`/achats/paiements/new?supplierId=${invoice.supplier_id}&invoiceId=${invoice.id}`}>
-                <Button>Payer</Button>
-              </Link>
+              <Button asChild><Link href={`/achats/paiements/new?supplierId=${invoice.supplier_id}&invoiceId=${invoice.id}`}>Payer</Link></Button>
             ) : null}
-            <Link href={`/achats/factures/${invoice.id}/print`} target="_blank">
-              <Button variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/achats/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierInvoice, invoice.id)} />
             ) : null}
@@ -391,11 +381,9 @@ export function SupplierInvoiceDetail({
               </div>
             </div>
             {invoice.source_receipt_id ? (
-              <Link href={`/achats/receptions/${invoice.source_receipt_id}`}>
-                <Button type="button" variant="secondary" className="bg-white">
+              <Button type="button" variant="secondary" className="bg-white" asChild><Link href={`/achats/receptions/${invoice.source_receipt_id}`}>
                   Voir la réception source
-                </Button>
-              </Link>
+                </Link></Button>
             ) : null}
           </CardContent>
         </Card>
@@ -488,9 +476,7 @@ export function SupplierInvoiceDetail({
                 <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
                 <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>
-                <Button variant="secondary" className="h-8 px-3 text-xs">Voir l&apos;ecriture</Button>
-              </Link>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
             </div>
           ) : invoice.status === "draft" || invoice.status === "cancelled" ? (
             <p className="text-sm text-[var(--muted)]">Validez d&apos;abord la facture fournisseur avant de la comptabiliser.</p>

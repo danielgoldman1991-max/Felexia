@@ -70,20 +70,14 @@ export function SupplierReceiptDetail({
         actions={
           <>
             {isInvoiced ? (
-              <Link href={`/achats/factures/${existingInvoice!.id}`}>
-                <Button variant="secondary"><FileText className="h-4 w-4" /> Voir facture</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/factures/${existingInvoice!.id}`}><FileText className="h-4 w-4" /> Voir facture</Link></Button>
             ) : document.status === "validated" ? (
-              <Link href={`/achats/factures/new?receiptId=${document.id}`}>
-                <Button variant="secondary"><FileText className="h-4 w-4" /> Creer facture</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer facture</Link></Button>
             ) : null}
             {canValidate ? (
               <ActionForm label="Valider reception" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateSupplierReceipt, document.id)} />
             ) : null}
-            <Link href={`/achats/receptions/${document.id}/print`} target="_blank">
-              <Button variant="secondary"><Printer className="h-4 w-4" /> Imprimer</Button>
-            </Link>
+            <Button variant="secondary" asChild><Link href={`/achats/receptions/${document.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierReceipt, document.id)} />
             ) : null}
@@ -117,9 +111,7 @@ export function SupplierReceiptDetail({
               </div>
             </div>
             {existingInvoice ? (
-              <Link href={`/achats/factures/${existingInvoice.id}`}>
-                <Button type="button" variant="secondary" className="bg-white">Voir la facture liée</Button>
-              </Link>
+              <Button type="button" variant="secondary" className="bg-white" asChild><Link href={`/achats/factures/${existingInvoice.id}`}>Voir la facture liée</Link></Button>
             ) : null}
           </CardContent>
         </Card>
@@ -253,9 +245,7 @@ export function SupplierReceiptDetail({
             <Info label="Total TTC" value={<MoneyDisplay value={existingInvoice.total_ttc} />} />
             <Info label="Reste a payer" value={<MoneyDisplay value={existingInvoice.remaining_amount} />} />
             <div className="md:col-span-2">
-              <Link href={`/achats/factures/${existingInvoice.id}`}>
-                <Button variant="secondary"><FileText className="h-4 w-4" /> Consulter la facture</Button>
-              </Link>
+              <Button variant="secondary" asChild><Link href={`/achats/factures/${existingInvoice.id}`}><FileText className="h-4 w-4" /> Consulter la facture</Link></Button>
             </div>
           </CardContent>
         </Card>
@@ -270,9 +260,7 @@ export function SupplierReceiptDetail({
           <CardContent>
             <p className="text-sm text-[var(--muted)]">Cette reception n&apos;est pas encore facturee.</p>
             <div className="mt-3">
-              <Link href={`/achats/factures/new?receiptId=${document.id}`}>
-                <Button><FileText className="h-4 w-4" /> Creer la facture fournisseur</Button>
-              </Link>
+              <Button asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer la facture fournisseur</Link></Button>
             </div>
           </CardContent>
         </Card>

@@ -29,8 +29,8 @@ export function CustomerRemindersTable({ rows }: { rows: CustomerReminderRecord[
             <Td>{row.channel ? REMINDER_CHANNEL_LABELS[row.channel] : "-"}</Td>
             <Td>
               <div className="flex gap-1">
-                <Link href={`/facturation/relances/${row.id}`}><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir"><Eye className="h-4 w-4" /></Button></Link>
-                <Link href={`/facturation/relances/${row.id}/print`} target="_blank"><Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Imprimer"><Printer className="h-4 w-4" /></Button></Link>
+                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/facturation/relances/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
+                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Imprimer" asChild><Link href={`/facturation/relances/${row.id}/print`} target="_blank"><Printer className="h-4 w-4" /></Link></Button>
               </div>
             </Td>
           </tr>
