@@ -48,7 +48,11 @@ npm run build
 
 Le lint global inclut également les scripts historiques de `training/transaction-stress-test`, qui présentent des erreurs préexistantes. Le lint du code applicatif et des fichiers de cette version doit passer.
 
-La release de production `codex/felexia-light-production-20261031` est basée sur `origin/main` et conserve son système d'invitations. La refonte d'invitations sauvegardée dans `c6fd5c3` reste sur la branche de travail : sa migration 093 n'étant pas appliquée en production, elle est exclue de cette publication. La version légère ne demande aucune nouvelle migration et conserve la configuration de production existante (Supabase, Stripe, domaine et hébergement Vercel).
+La première publication légère (`348e68f`) conservait les invitations historiques. Le contrôle réel du parcours nouvel abonné a ensuite conduit à publier `41d6796` : inscription corrigée, invitations réellement envoyées et acceptées, règlements partiels simplifiés et écritures corrigées. La migration 093 a été appliquée manuellement puis vérifiée en production.
+
+Le test du rôle « Lecture seule » a révélé un droit de modification des factures. La migration additive `supabase/migrations/094_readonly_financial_documents.sql` corrige ce défaut sur 17 tables du lancement. Elle a été appliquée manuellement puis vérifiée avec le compte invité réel : modification refusée et note d'origine conservée. L'interface retire aussi les raccourcis de création pour ce rôle. Ces protections ne modifient ni les données ni les droits existants des autres rôles.
+
+Le parcours financier de test passe 41 contrôles et la seconde inscription 14 contrôles. Les résultats, les limites et les étapes SMTP figurent dans [le rapport du parcours de lancement](training/launch-e2e/qa-20261031t131126/REPORT.md). Le SMTP personnalisé n'est pas encore configuré : la réception des invitations Gmail de test ne valide pas la livraison des emails au public.
 
 ## Stack
 

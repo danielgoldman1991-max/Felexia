@@ -3,6 +3,7 @@ import { ArrowDownLeft, ArrowRight, ArrowUpRight, BookOpen, CheckCircle2, FilePl
 import { ModulePage } from "@/components/erp/module-page";
 import { TrialStartedBanner } from "@/components/dashboard/trial-started-banner";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 import { getLightDashboardData } from "@/lib/dashboard-data";
 import { getOnboardingChecklist } from "@/lib/onboarding";
 
@@ -15,10 +16,16 @@ export async function LightDashboard({ searchParams }: {
   const [data, checklist, params] = await Promise.all([
     getLightDashboardData(), getOnboardingChecklist(workspace.organization.id), searchParams,
   ]);
+  const readOnly = isReadOnlyRole(workspace.role);
   const name = workspace.profile?.full_name?.trim().split(/\s+/)[0];
   const trialStarted = Array.isArray(params?.trial_started) ? params.trial_started[0] : params?.trial_started;
   const setupNotice = Array.isArray(params?.setup_notice) ? params.setup_notice[0] : params?.setup_notice;
-  const actions = [
+  const actions = readOnly ? [
+    { label: "Factures de vente", description: "Consulter les factures clients", href: "/facturation/factures", icon: Receipt, primary: true },
+    { label: "Factures d’achat", description: "Consulter les factures fournisseurs", href: "/achats/factures", icon: ShoppingCart, primary: false },
+    { label: "Trésorerie", description: "Consulter les comptes et mouvements", href: "/tresorerie", icon: Landmark, primary: false },
+    { label: "Journaux", description: "Consulter les écritures comptables", href: "/comptabilite/journaux", icon: BookOpen, primary: false },
+  ] : [
     { label: "Facture de vente", description: "Facturer un client", href: "/facturation/factures/new", icon: FilePlus2, primary: true },
     { label: "Facture d’achat", description: "Enregistrer une facture fournisseur", href: "/achats/factures/new", icon: ShoppingCart, primary: false },
     { label: "Règlement client", description: "Enregistrer un encaissement", href: "/facturation/paiements/new", icon: ArrowDownLeft, primary: false },
@@ -40,16 +47,16 @@ export async function LightDashboard({ searchParams }: {
           <p className="mt-2 text-sm text-[var(--muted)]">Vos factures, vos règlements et votre trésorerie, simplement.</p>
         </header>
 
-        {trialStarted === "1" || workspace.subscription?.status === "trialing" ? <TrialStartedBanner forceOpen={trialStarted === "1"} planCode={workspace.subscription?.planCode} /> : null}
+        {!readOnly && (trialStarted === "1" || workspace.subscription?.status === "trialing") ? <TrialStartedBanner forceOpen={trialStarted === "1"} planCode={workspace.subscription?.planCode} /> : null}
 
-        {setupNotice === "defaults_incomplete" ? (
+        {!readOnly && setupNotice === "defaults_incomplete" ? (
           <p role="status" className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-sm leading-6">
             Votre entreprise est créée. Certains réglages de démarrage restent à finaliser. <Link href="/comptabilite/journaux" className="font-semibold text-[var(--primary)] underline">Ouvrez vos journaux pour réessayer</Link>. Si le problème persiste, <Link href="/parametres/modules" className="font-semibold text-[var(--primary)] underline">contactez notre équipe</Link> avant d’inviter vos collaborateurs.
           </p>
         ) : null}
 
         <section aria-labelledby="actions-title">
-          <h2 id="actions-title" className="mb-3 text-base font-semibold text-[var(--foreground)]">Que souhaitez-vous faire ?</h2>
+          <h2 id="actions-title" className="mb-3 text-base font-semibold text-[var(--foreground)]">{readOnly ? "Que souhaitez-vous consulter ?" : "Que souhaitez-vous faire ?"}</h2>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {actions.map(({ label, description, href, icon: Icon, primary }) => (
               <Link key={href} href={href} className={`rounded-2xl border p-5 transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)] ${primary ? "border-[var(--primary)] bg-[var(--primary)] !text-white" : "border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:border-[var(--primary)]"}`}>
@@ -61,14 +68,14 @@ export async function LightDashboard({ searchParams }: {
           </div>
         </section>
 
-        {!checklist.isCompleted ? <Link href="/bienvenue" className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+        {!readOnly && !checklist.isCompleted ? <Link href="/bienvenue" className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
           <span className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--primary)]" /><span><span className="block text-sm font-semibold">Vos premiers pas</span><span className="mt-1 block text-xs text-[var(--muted)]">{checklist.completedCount}/{checklist.totalCount} étapes réalisées. Configurez votre entreprise et créez votre première facture.</span></span></span>
           <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)]">Continuer<ArrowRight className="h-4 w-4" /></span>
         </Link> : null}
 
         <section aria-labelledby="overview-title">
           <h2 id="overview-title" className="mb-3 text-base font-semibold">Votre activité en un regard</h2>
-          {!data ? <p role="status" className="mb-3 rounded-xl bg-[var(--warning-soft)] p-3 text-sm">Les indicateurs sont momentanément indisponibles. Vous pouvez continuer à gérer vos factures.</p> : null}
+          {!data ? <p role="status" className="mb-3 rounded-xl bg-[var(--warning-soft)] p-3 text-sm">Les indicateurs sont momentanément indisponibles. Vous pouvez continuer à consulter vos factures.</p> : null}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map(({ label, value, caption, href, icon: Icon }) => <Link key={label} href={href} className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[var(--primary)]">
               <div className="flex items-center justify-between gap-2"><p className="text-sm text-[var(--muted)]">{label}</p><Icon className="h-4 w-4 text-[var(--primary)]" /></div>
@@ -82,7 +89,7 @@ export async function LightDashboard({ searchParams }: {
           <div className="flex flex-wrap items-center justify-between gap-3 p-5"><h2 id="recent-title" className="text-base font-semibold">Dernières factures</h2><Link href="/facturation/factures" className="text-sm font-medium text-[var(--primary)]">Toutes les ventes →</Link></div>
           {data?.recentInvoices.length ? <div className="divide-y divide-[var(--border)]">{data.recentInvoices.map((invoice) => <Link key={`${invoice.type}-${invoice.id}`} href={invoice.href} className="flex items-center gap-3 px-5 py-4 transition hover:bg-[var(--surface-soft)]">
             <Receipt className="h-5 w-5 shrink-0 text-[var(--primary)]" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{invoice.number}</span><span className="mt-0.5 block text-xs text-[var(--muted)]">{invoice.type === "sale" ? "Vente" : "Achat"} · {invoice.status === "draft" ? "Brouillon" : "Validée"}</span></span><span className="shrink-0 text-sm font-semibold">{money(invoice.total, invoice.currency)}</span><ArrowRight className="h-4 w-4 shrink-0 text-[var(--muted)]" />
-          </Link>)}</div> : <div className="border-t border-[var(--border)] p-8 text-center"><p className="text-sm text-[var(--muted)]">{data ? "Votre première facture apparaîtra ici." : "Consultez vos factures depuis Ventes ou Achats."}</p><Link href="/facturation/factures/new" className="mt-3 inline-block text-sm font-semibold text-[var(--primary)]">Créer une facture de vente →</Link></div>}
+          </Link>)}</div> : <div className="border-t border-[var(--border)] p-8 text-center"><p className="text-sm text-[var(--muted)]">{data ? "Les factures de votre entreprise apparaîtront ici." : "Consultez vos factures depuis Ventes ou Achats."}</p><Link href={readOnly ? "/facturation/factures" : "/facturation/factures/new"} className="mt-3 inline-block text-sm font-semibold text-[var(--primary)]">{readOnly ? "Consulter les factures de vente →" : "Créer une facture de vente →"}</Link></div>}
         </section>
 
         <div className="grid gap-3 sm:grid-cols-2">

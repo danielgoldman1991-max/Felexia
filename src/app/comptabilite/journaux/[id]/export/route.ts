@@ -1,5 +1,6 @@
 import { getAccountingJournalDetail, listAccountingJournalExportRows } from "@/lib/accounting";
 import type { AccountingJournalEntryFilters } from "@/lib/accounting-types";
+import { requireActiveWorkspace } from "@/lib/auth";
 
 function filtersFromUrl(url: string): AccountingJournalEntryFilters {
   const search = new URL(url).searchParams;
@@ -30,7 +31,8 @@ function amount(value: number) {
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const filters = filtersFromUrl(request.url);
-  const [detail, rows] = await Promise.all([
+  const [workspace, detail, rows] = await Promise.all([
+    requireActiveWorkspace(),
     getAccountingJournalDetail(id),
     listAccountingJournalExportRows(id, filters),
   ]);
@@ -66,6 +68,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   <html>
     <head><meta charset="utf-8" /></head>
     <body>
+      <p>${cell(workspace.organization.name)}</p>
       <h1>Journal ${cell(detail.journal.code)} - ${cell(detail.journal.name)}</h1>
       <h2>Ecritures</h2>
       <table border="1">

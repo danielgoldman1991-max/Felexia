@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getRoleLabel, ADMIN_ROLES } from "@/lib/auth/roles";
+import { getInvitationRoleId } from "@/lib/auth/invitation-roles";
 
 type Member = {
   id: string;
@@ -58,7 +59,8 @@ export function MembersFullList({
   const router = useRouter();
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState(roles.find((r) => r.name === "viewer")?.id ?? "");
+  const [inviteRole, setInviteRole] = useState<string | null>(null);
+  const resolvedInviteRole = getInvitationRoleId(roles, inviteRole);
   const [inviteFullName, setInviteFullName] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
@@ -97,7 +99,7 @@ export function MembersFullList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: inviteEmail.trim(),
-          roleId: inviteRole || null,
+          roleId: resolvedInviteRole,
           fullName: inviteFullName.trim() || null,
         }),
       });
@@ -112,6 +114,7 @@ export function MembersFullList({
       );
       setInviteEmail("");
       setInviteFullName("");
+      setInviteRole(null);
       router.refresh();
     } catch (err) {
       setInviteError((err as Error).message);
@@ -205,7 +208,10 @@ export function MembersFullList({
       {/* Actions bar */}
       <div className="flex flex-wrap items-center gap-3">
         {isOwner && (
-          <Button onClick={() => setShowInvite(!showInvite)} disabled={!limit.allowed}>
+          <Button onClick={() => {
+            if (!showInvite) { setInviteRole(null); setInviteError(null); setInviteSuccess(null); }
+            setShowInvite(!showInvite);
+          }} disabled={!limit.allowed}>
             <UserPlus className="mr-1.5 h-4 w-4" /> Inviter un utilisateur
           </Button>
         )}
@@ -241,8 +247,8 @@ export function MembersFullList({
                 onChange={(e) => setInviteFullName(e.target.value)}
               />
               <select
-                value={inviteRole}
-                onChange={(e) => setInviteRole(e.target.value)}
+                value={resolvedInviteRole ?? ""}
+                onChange={(e) => setInviteRole(e.target.value || null)}
                 className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--primary)]"
               >
                 {!roles.some((role) => role.name === "viewer") ? <option value="">Lecture seule (par défaut)</option> : null}

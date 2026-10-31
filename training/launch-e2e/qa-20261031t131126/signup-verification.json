@@ -1,0 +1,106 @@
+{
+  "run": "qa-20261031t131126",
+  "startedAt": "2026-10-31T13:34:17.637Z",
+  "readOnly": true,
+  "checks": [
+    {
+      "name": "public_new_signup_authentication",
+      "passed": true
+    },
+    {
+      "name": "one_profile",
+      "passed": true
+    },
+    {
+      "name": "profile_first_last_and_full_name",
+      "passed": true
+    },
+    {
+      "name": "auth_metadata_first_last",
+      "passed": true
+    },
+    {
+      "name": "exactly_one_active_company_membership",
+      "passed": true
+    },
+    {
+      "name": "company_name_and_onboarding_complete",
+      "passed": true
+    },
+    {
+      "name": "no_duplicate_company_visible_to_new_owner",
+      "passed": true
+    },
+    {
+      "name": "one_company_settings_row",
+      "passed": true
+    },
+    {
+      "name": "four_required_roles_without_duplicates",
+      "passed": true,
+      "observed": [
+        "accountant",
+        "admin",
+        "sales",
+        "viewer"
+      ]
+    },
+    {
+      "name": "five_required_journals_without_duplicates",
+      "passed": true,
+      "observed": [
+        "AC",
+        "BQ",
+        "CA",
+        "OD",
+        "VE"
+      ]
+    },
+    {
+      "name": "one_essentiel_trial_subscription",
+      "passed": true
+    },
+    {
+      "name": "trial_start_october31_utc",
+      "passed": true
+    },
+    {
+      "name": "trial_end_clamped_november30_utc",
+      "passed": true
+    },
+    {
+      "name": "trial_end_columns_consistent",
+      "passed": true
+    }
+  ],
+  "userId": "227659fa-52c8-4b7d-81e3-83b7a70a6f25",
+  "organizationId": "e039622e-97f7-4b4d-9b32-916f166f79d2",
+  "profile": {
+    "firstName": "Test",
+    "lastName": "Inscription corrigée",
+    "fullName": "Test Inscription corrigée"
+  },
+  "companyName": "FELEXIA TEST INSCRIPTION CORRIGÉE QA-20261031T131126",
+  "bootstrap": {
+    "roles": [
+      "accountant",
+      "admin",
+      "sales",
+      "viewer"
+    ],
+    "journals": [
+      "AC",
+      "BQ",
+      "CA",
+      "OD",
+      "VE"
+    ],
+    "subscriptions": 1
+  },
+  "trial": {
+    "startedAt": "2026-10-31T13:33:23.963Z",
+    "endsAt": "2026-11-30T13:33:23.963Z"
+  },
+  "completedAt": "2026-10-31T13:34:18.612Z",
+  "success": true
+}

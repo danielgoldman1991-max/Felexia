@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getEnv } from "@/lib/env";
 import { getLaunchDestination } from "@/lib/launch-profile";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 const SESSION_CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
 
@@ -70,6 +71,31 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/login";
       url.search = `?next=${encodeURIComponent(`${pathname}${request.nextUrl.search}`)}`;
       return redirectWithSession(url, supabaseResponse);
+    }
+
+    // Database RLS is the authority. This guard also keeps read-only members
+    // out of forms that they cannot submit, including Server Action POSTs.
+    const mutationRequest = request.method !== "GET" && request.method !== "HEAD";
+    const mutationForm = /\/(?:new|nouveau|edit|modifier|paiement|affecter|affectations?)(?:\/|$)/i.test(pathname);
+    if (user && (mutationRequest || mutationForm)) {
+      const { data: membership, error } = await supabase.from("organization_members")
+        .select("role:roles(name)").eq("user_id", user.id).eq("status", "active")
+        .limit(1).maybeSingle();
+      const role = Array.isArray(membership?.role) ? membership.role[0] : membership?.role;
+      if (error || isReadOnlyRole(role?.name)) {
+        if (mutationRequest) {
+          const response = NextResponse.json(
+            { error: "Votre accès est en lecture seule. Contactez votre administrateur pour modifier ces données.", code: "READ_ONLY_ACCESS" },
+            { status: 403, headers: { "Cache-Control": "no-store" } },
+          );
+          supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+          return response;
+        }
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        url.search = "";
+        return redirectWithSession(url, supabaseResponse);
+      }
     }
 
     const launchDestination = getLaunchDestination(pathname);

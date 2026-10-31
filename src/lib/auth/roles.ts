@@ -44,6 +44,10 @@ export function isAdminRole(role: string | null | undefined): boolean {
   return ADMIN_ROLES.includes(role as OrganizationRole);
 }
 
+export function isReadOnlyRole(role: string | null | undefined): boolean {
+  return ["viewer", "lecture seule", "lecteur", "readonly", "read_only"].includes(role?.trim().toLowerCase() ?? "");
+}
+
 export function normalizeRole(role: string | null | undefined): OrganizationRole {
   if (role === "admin") return "admin";
   return (role as OrganizationRole) ?? "viewer";

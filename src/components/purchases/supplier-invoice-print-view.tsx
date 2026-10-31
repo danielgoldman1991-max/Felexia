@@ -21,6 +21,7 @@ export function SupplierInvoicePrintView({
   identity: OrganizationIdentity;
 }) {
   const companyInfoLines = [
+    identity.address,
     identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
     identity.ice ? `ICE : ${identity.ice}` : null,
   ].filter(Boolean) as string[];

@@ -34,6 +34,7 @@ export function CustomerInvoicePrintView({
   ].filter(Boolean) as string[];
 
   const companyInfoLines = [
+    identity.address,
     identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
     identity.ice ? `ICE : ${identity.ice}` : null,
     identity.rc && identity.ifNumber

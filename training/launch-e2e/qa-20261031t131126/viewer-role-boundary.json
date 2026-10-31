@@ -1,0 +1,49 @@
+{
+  "run": "qa-20261031t131126",
+  "checkedAt": "2026-10-31T13:33:31.844Z",
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "invitationId": "b33618f5-4ae2-47ea-8233-0f46099ced61",
+  "publicKeyOnly": true,
+  "checks": [
+    {
+      "name": "actual_invitation_accepted",
+      "passed": true
+    },
+    {
+      "name": "active_viewer_membership",
+      "passed": true,
+      "observed": "viewer"
+    },
+    {
+      "name": "viewer_reads_own_company",
+      "passed": true,
+      "observed": 1
+    },
+    {
+      "name": "viewer_reads_no_other_tenant",
+      "passed": true,
+      "observed": 0
+    },
+    {
+      "name": "viewer_reads_own_QA_invoice",
+      "passed": true,
+      "observed": 1
+    },
+    {
+      "name": "viewer_invoice_notes_write_denied",
+      "passed": false,
+      "observed": {
+        "affectedRows": 1,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "QA_invoice_original_note_preserved",
+      "passed": true
+    }
+  ],
+  "updateAffectedRows": 1,
+  "updateErrorCode": null,
+  "viewerWriteEffective": true,
+  "originalNoteRestored": true
+}

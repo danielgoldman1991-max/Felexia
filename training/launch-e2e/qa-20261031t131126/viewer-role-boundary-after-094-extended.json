@@ -1,0 +1,124 @@
+{
+  "run": "qa-20261031t131126",
+  "checkedAt": "2026-10-31T13:37:48.923Z",
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "invitationId": "b33618f5-4ae2-47ea-8233-0f46099ced61",
+  "publicKeyOnly": true,
+  "checks": [
+    {
+      "name": "actual_invitation_accepted",
+      "passed": true
+    },
+    {
+      "name": "active_viewer_membership",
+      "passed": true,
+      "observed": "viewer"
+    },
+    {
+      "name": "viewer_reads_own_company",
+      "passed": true,
+      "observed": 1
+    },
+    {
+      "name": "viewer_reads_no_other_tenant",
+      "passed": true,
+      "observed": 0
+    },
+    {
+      "name": "viewer_reads_own_QA_invoice",
+      "passed": true,
+      "observed": 1
+    },
+    {
+      "name": "accepted_invitation_replay_is_idempotent",
+      "passed": true,
+      "observed": null
+    },
+    {
+      "name": "replay_preserves_membership_and_role",
+      "passed": true
+    },
+    {
+      "name": "replay_consumes_no_additional_invitation_seat",
+      "passed": true
+    },
+    {
+      "name": "viewer_supplier_invoices_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_treasury_accounts_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_third_parties_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_accounting_entries_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_customer_payments_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_supplier_payments_notes_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null,
+        "originalPreserved": true
+      }
+    },
+    {
+      "name": "viewer_company_settings_same_value_write_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "viewer_invoice_notes_write_denied",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "QA_invoice_original_note_preserved",
+      "passed": true
+    }
+  ],
+  "updateAffectedRows": 0,
+  "updateErrorCode": null,
+  "viewerWriteEffective": false,
+  "originalNoteRestored": true
+}

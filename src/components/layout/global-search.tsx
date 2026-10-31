@@ -40,7 +40,7 @@ function groupedResults(results: GlobalSearchResult[]) {
     .filter((group) => group.rows.length > 0);
 }
 
-export function GlobalSearch({ fullAccess = false }: { fullAccess?: boolean }) {
+export function GlobalSearch({ fullAccess = false, readOnly = false }: { fullAccess?: boolean; readOnly?: boolean }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,17 +53,17 @@ export function GlobalSearch({ fullAccess = false }: { fullAccess?: boolean }) {
   const requestIdRef = useRef(0);
 
   const staticResults = useMemo(
-    () => searchStaticRegistry(query, 100).filter((result) => isLaunchPathAvailable(result.href, fullAccess)).slice(0, query.trim() ? 12 : 6),
-    [query, fullAccess],
+    () => searchStaticRegistry(query, 100).filter((result) => isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create")).slice(0, query.trim() ? 12 : 6),
+    [query, fullAccess, readOnly],
   );
   const results = useMemo(() => {
     if (query.trim().length < 2) return staticResults;
     const byId = new Map<string, GlobalSearchResult>();
     for (const result of [...dynamicResults, ...staticResults]) {
-      if (isLaunchPathAvailable(result.href, fullAccess)) byId.set(result.id, result);
+      if (isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create")) byId.set(result.id, result);
     }
     return [...byId.values()];
-  }, [dynamicResults, fullAccess, query, staticResults]);
+  }, [dynamicResults, fullAccess, query, readOnly, staticResults]);
   const flatResults = results.slice(0, 30);
   const groups = groupedResults(flatResults);
 
