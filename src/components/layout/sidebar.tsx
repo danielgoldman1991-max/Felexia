@@ -18,7 +18,6 @@ import { NotificationDropdown } from "@/components/notifications/notification-dr
 import { cn, initials } from "@/lib/utils";
 import { lightSections, sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
-import { logoutAction } from "@/lib/auth-actions";
 import { getRoleLabel } from "@/lib/auth/roles";
 import { isOperatorPathAllowed, isOperatorRole } from "@/lib/auth/operator-access";
 
@@ -271,7 +270,7 @@ export function Sidebar({
                   <KeyRound className="h-4 w-4 text-[var(--muted)]" />
                   Modifier mon mot de passe
                 </Link>
-                <form action={logoutAction}>
+                <form action="/auth/logout" method="post">
                   <button
                     type="submit"
                     role="menuitem"

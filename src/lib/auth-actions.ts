@@ -79,14 +79,8 @@ export async function loginAction(
 }
 
 export async function logoutAction() {
-  if (hasSupabaseConfig()) {
-    try {
-      const supabase = await createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // Continue even if signOut fails
-    }
-  }
-
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+  if (error) throw new Error("La déconnexion n'a pas pu être confirmée. Réessayez dans quelques instants.");
   redirect("/login");
 }

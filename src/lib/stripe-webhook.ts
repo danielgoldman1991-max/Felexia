@@ -68,6 +68,7 @@ async function processEvent(event: any, service: ServiceClient) {
       if (!subscriptionId) throw new Error("Stripe subscription is not yet available");
       break;
     case "invoice.paid":
+    case "invoice.payment_succeeded":
     case "invoice.payment_failed":
       subscriptionId = getInvoiceSubscriptionId(object);
       if (!subscriptionId) return; // A one-off invoice has no subscription.

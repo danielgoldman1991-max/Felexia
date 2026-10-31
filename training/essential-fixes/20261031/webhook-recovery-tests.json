@@ -1,6 +1,6 @@
 {
   "success": true,
-  "checks": 25,
+  "checks": 27,
   "scope": "Real TypeScript modules; synthetic Stripe/DB/cookies; no network/project environment",
   "results": [
     "Modern subscription item start preserved",
@@ -10,6 +10,8 @@
     "Modern invoice paid updates subscription",
     "Modern failed invoice updates payment status",
     "Legacy invoice reference remains compatible",
+    "Configured legacy payment_succeeded event updates subscription",
+    "Modern payment_succeeded event retains billing dates",
     "Deleted subscription maps canceled state",
     "Persistence failure is rejected for Stripe retry",
     "Failed persistence never marks processed",
