@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-31T21:38:04.804Z",
+  "scope": "Stripe endpoint configuration read-only and one unsigned request refused before processing",
+  "stripeWrites": 0,
+  "businessWrites": 0,
+  "hasMore": false,
+  "endpoints": [
+    {
+      "status": "enabled",
+      "livemode": true,
+      "origin": "https://felexia.pro",
+      "path": "/api/stripe/webhook",
+      "apiVersion": "2020-08-27",
+      "events": [
+        "checkout.session.completed",
+        "customer.subscription.created",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "invoice.payment_succeeded",
+        "invoice.payment_failed"
+      ]
+    }
+  ],
+  "unsignedWebhookStatus": 400
+}

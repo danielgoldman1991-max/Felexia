@@ -1,0 +1,272 @@
+{
+  "run": "essential-final-20261031202921",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "scope": "Real public Auth and real application recovery functions; Next cookie/request context supplied by fixture adapter",
+  "phases": {
+    "request": {
+      "date": "2026-10-31T21:20:28.068Z",
+      "phase": "request",
+      "success": true,
+      "checks": [
+        {
+          "name": "administrator authenticates before the recovery request",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains the dedicated company",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains administrator rights",
+          "passed": true
+        },
+        {
+          "name": "recovery redirects to the public Felexia domain",
+          "passed": true
+        },
+        {
+          "name": "real recovery action accepts the email dispatch",
+          "passed": true
+        },
+        {
+          "name": "the real request generated a private PKCE verifier",
+          "passed": true
+        }
+      ],
+      "diagnostics": [],
+      "emailsDispatched": 1
+    },
+    "complete": {
+      "date": "2026-10-31T21:20:43.421Z",
+      "phase": "complete",
+      "success": true,
+      "checks": [
+        {
+          "name": "recovery request was confirmed before completion",
+          "passed": true
+        },
+        {
+          "name": "real recovery email has been received",
+          "passed": true
+        },
+        {
+          "name": "new test password differs from the old password",
+          "passed": true
+        },
+        {
+          "name": "recovery redirects to the public Felexia domain",
+          "passed": true
+        },
+        {
+          "name": "PKCE completion has its original private verifier",
+          "passed": true
+        },
+        {
+          "name": "real Auth email link returns a recovery redirect",
+          "passed": true
+        },
+        {
+          "name": "recovery email redirect has a destination",
+          "passed": true
+        },
+        {
+          "name": "Supabase preserves the configured recovery callback",
+          "passed": true
+        },
+        {
+          "name": "real PKCE email verification returns an authorization code",
+          "passed": true
+        },
+        {
+          "name": "real callback returns the password-reset page",
+          "passed": true
+        },
+        {
+          "name": "received recovery link authenticates the expected administrator",
+          "passed": true
+        },
+        {
+          "name": "callback issues a short HttpOnly signed recovery cookie",
+          "passed": true
+        },
+        {
+          "name": "recovery cookie secure flag matches the server environment",
+          "passed": true
+        },
+        {
+          "name": "real recovery proof validates for the authenticated account",
+          "passed": true
+        },
+        {
+          "name": "real password action completes and returns to login",
+          "passed": true
+        },
+        {
+          "name": "completed password action consumes the recovery cookie",
+          "passed": true
+        },
+        {
+          "name": "new password authenticates through public Auth",
+          "passed": true
+        },
+        {
+          "name": "old password is refused by public Auth with invalid credentials",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains the dedicated company",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains administrator rights",
+          "passed": true
+        },
+        {
+          "name": "password recovery preserves exactly three active team users",
+          "passed": true
+        },
+        {
+          "name": "password recovery preserves the admin account and role",
+          "passed": true
+        },
+        {
+          "name": "password recovery preserves the operator account and role",
+          "passed": true
+        },
+        {
+          "name": "password recovery preserves the viewer account and role",
+          "passed": true
+        }
+      ],
+      "diagnostics": [],
+      "emailsDispatched": 0,
+      "flow": "PKCE"
+    }
+  },
+  "date": "2026-10-31T21:20:45.704Z",
+  "checks": [
+    {
+      "name": "administrator authenticates before the recovery request",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains the dedicated company",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains administrator rights",
+      "passed": true
+    },
+    {
+      "name": "recovery redirects to the public Felexia domain",
+      "passed": true
+    },
+    {
+      "name": "real recovery action accepts the email dispatch",
+      "passed": true
+    },
+    {
+      "name": "the real request generated a private PKCE verifier",
+      "passed": true
+    },
+    {
+      "name": "recovery request was confirmed before completion",
+      "passed": true
+    },
+    {
+      "name": "real recovery email has been received",
+      "passed": true
+    },
+    {
+      "name": "new test password differs from the old password",
+      "passed": true
+    },
+    {
+      "name": "recovery redirects to the public Felexia domain",
+      "passed": true
+    },
+    {
+      "name": "PKCE completion has its original private verifier",
+      "passed": true
+    },
+    {
+      "name": "real Auth email link returns a recovery redirect",
+      "passed": true
+    },
+    {
+      "name": "recovery email redirect has a destination",
+      "passed": true
+    },
+    {
+      "name": "Supabase preserves the configured recovery callback",
+      "passed": true
+    },
+    {
+      "name": "real PKCE email verification returns an authorization code",
+      "passed": true
+    },
+    {
+      "name": "real callback returns the password-reset page",
+      "passed": true
+    },
+    {
+      "name": "received recovery link authenticates the expected administrator",
+      "passed": true
+    },
+    {
+      "name": "callback issues a short HttpOnly signed recovery cookie",
+      "passed": true
+    },
+    {
+      "name": "recovery cookie secure flag matches the server environment",
+      "passed": true
+    },
+    {
+      "name": "real recovery proof validates for the authenticated account",
+      "passed": true
+    },
+    {
+      "name": "real password action completes and returns to login",
+      "passed": true
+    },
+    {
+      "name": "completed password action consumes the recovery cookie",
+      "passed": true
+    },
+    {
+      "name": "new password authenticates through public Auth",
+      "passed": true
+    },
+    {
+      "name": "old password is refused by public Auth with invalid credentials",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains the dedicated company",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains administrator rights",
+      "passed": true
+    },
+    {
+      "name": "password recovery preserves exactly three active team users",
+      "passed": true
+    },
+    {
+      "name": "password recovery preserves the admin account and role",
+      "passed": true
+    },
+    {
+      "name": "password recovery preserves the operator account and role",
+      "passed": true
+    },
+    {
+      "name": "password recovery preserves the viewer account and role",
+      "passed": true
+    }
+  ],
+  "success": true,
+  "emailsDispatched": 1,
+  "status": "complete"
+}

@@ -1,0 +1,2079 @@
+{
+  "date": "2026-10-31T21:28:44.447Z",
+  "run": "essential-final-20261031202921",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "scope": "Final read-only checks of the explicitly authorized fictitious QA company",
+  "businessWrites": 0,
+  "checks": [
+    {
+      "name": "operator reads the same scoped organization_members",
+      "passed": true,
+      "observed": {
+        "actual": "204ba349f32266ac1c47d1d746591db6014dea367d488d99b6f03e4fbb7b6d28",
+        "expected": "204ba349f32266ac1c47d1d746591db6014dea367d488d99b6f03e4fbb7b6d28"
+      }
+    },
+    {
+      "name": "operator reads the same scoped roles",
+      "passed": true,
+      "observed": {
+        "actual": "a3690b04156ffc9b98cca4f01c269263fcba7eeeeb4749dc70dabc7462aee45c",
+        "expected": "a3690b04156ffc9b98cca4f01c269263fcba7eeeeb4749dc70dabc7462aee45c"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_invoices",
+      "passed": true,
+      "observed": {
+        "actual": "639ba1c3fe83902eb557ff674a904651e541459cc45aeaf3e926663c68eabf41",
+        "expected": "639ba1c3fe83902eb557ff674a904651e541459cc45aeaf3e926663c68eabf41"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_invoice_lines",
+      "passed": true,
+      "observed": {
+        "actual": "8fc288dc0052dc8264558d2d29f824af6af23e36cdd9dc8e40f64f8a7fa2fa73",
+        "expected": "8fc288dc0052dc8264558d2d29f824af6af23e36cdd9dc8e40f64f8a7fa2fa73"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_invoices",
+      "passed": true,
+      "observed": {
+        "actual": "b038cf339c8a321166c0bfbd2f1decfb869fd61f984102bf93da01501fb3dc3a",
+        "expected": "b038cf339c8a321166c0bfbd2f1decfb869fd61f984102bf93da01501fb3dc3a"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_invoice_lines",
+      "passed": true,
+      "observed": {
+        "actual": "3371918e844baa5b19032f003f51b25ddc31ad53347ed5b77d0ea63d8b1e5e0e",
+        "expected": "3371918e844baa5b19032f003f51b25ddc31ad53347ed5b77d0ea63d8b1e5e0e"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_credit_notes",
+      "passed": true,
+      "observed": {
+        "actual": "49e63b4a14e2a3b55c32e5c5e209d6775f4973caeeed0190e0b1f3c023b4eadd",
+        "expected": "49e63b4a14e2a3b55c32e5c5e209d6775f4973caeeed0190e0b1f3c023b4eadd"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_credit_note_lines",
+      "passed": true,
+      "observed": {
+        "actual": "5891d26a0dfe4d708918b4ca258fa770eea9cdb8c8bd85635e1d219566ec5c32",
+        "expected": "5891d26a0dfe4d708918b4ca258fa770eea9cdb8c8bd85635e1d219566ec5c32"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_credit_note_applications",
+      "passed": true,
+      "observed": {
+        "actual": "9aaf7d92fcdbe70c97c454fee7d8da4aa420263954a52558a8ea2fb32907cfbe",
+        "expected": "9aaf7d92fcdbe70c97c454fee7d8da4aa420263954a52558a8ea2fb32907cfbe"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_credit_notes",
+      "passed": true,
+      "observed": {
+        "actual": "ecd44ab86bd01da7554c8c019c9649e7a9a2ba8a2cab1ae3fa4952042acf8f7f",
+        "expected": "ecd44ab86bd01da7554c8c019c9649e7a9a2ba8a2cab1ae3fa4952042acf8f7f"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_credit_note_lines",
+      "passed": true,
+      "observed": {
+        "actual": "a1a1d90711380d244a1d32dbd51b10c74b22820fbf3fe0c2f95803805caf65c3",
+        "expected": "a1a1d90711380d244a1d32dbd51b10c74b22820fbf3fe0c2f95803805caf65c3"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_credit_note_applications",
+      "passed": true,
+      "observed": {
+        "actual": "b26fd96f3cd36846b7ddeacad76ede01bde822da0669dfa9c9c8a04119d56e71",
+        "expected": "b26fd96f3cd36846b7ddeacad76ede01bde822da0669dfa9c9c8a04119d56e71"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_payments",
+      "passed": true,
+      "observed": {
+        "actual": "d9e895739da26d2f4001017c41e2557fca2b28b19f0b61c436f35291dc999b7f",
+        "expected": "d9e895739da26d2f4001017c41e2557fca2b28b19f0b61c436f35291dc999b7f"
+      }
+    },
+    {
+      "name": "operator reads the same scoped customer_payment_allocations",
+      "passed": true,
+      "observed": {
+        "actual": "d4b74e9301022a95b6039017901ef767f6561df20dc988ad404b27029debf458",
+        "expected": "d4b74e9301022a95b6039017901ef767f6561df20dc988ad404b27029debf458"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_payments",
+      "passed": true,
+      "observed": {
+        "actual": "574bfc4003fd6824bd02c8968f813265e91a6fcdf08724594ddf837d321debfc",
+        "expected": "574bfc4003fd6824bd02c8968f813265e91a6fcdf08724594ddf837d321debfc"
+      }
+    },
+    {
+      "name": "operator reads the same scoped supplier_payment_allocations",
+      "passed": true,
+      "observed": {
+        "actual": "6f271fadabc7c997429854b4aa8f94b18d045a43160a519f6cae9bad2ec50619",
+        "expected": "6f271fadabc7c997429854b4aa8f94b18d045a43160a519f6cae9bad2ec50619"
+      }
+    },
+    {
+      "name": "operator reads the same scoped treasury_accounts",
+      "passed": true,
+      "observed": {
+        "actual": "be7f2fb3555fc0b07ad5eb9f26c313b41c95571df252f24a3ae895fbdebfaf57",
+        "expected": "be7f2fb3555fc0b07ad5eb9f26c313b41c95571df252f24a3ae895fbdebfaf57"
+      }
+    },
+    {
+      "name": "operator reads the same scoped treasury_transactions",
+      "passed": true,
+      "observed": {
+        "actual": "59bdbb34459a3b160762d5ef6aff8b33729bb0833f46ad00f29aa518b27c79e8",
+        "expected": "59bdbb34459a3b160762d5ef6aff8b33729bb0833f46ad00f29aa518b27c79e8"
+      }
+    },
+    {
+      "name": "operator reads the same scoped accounting_entries",
+      "passed": true,
+      "observed": {
+        "actual": "11bcc63ea5dd1c29341f7dadab97037bba62bdc4ea55c218a9b3ba4e5be09f13",
+        "expected": "11bcc63ea5dd1c29341f7dadab97037bba62bdc4ea55c218a9b3ba4e5be09f13"
+      }
+    },
+    {
+      "name": "operator reads the same scoped accounting_entry_lines",
+      "passed": true,
+      "observed": {
+        "actual": "f9ae494c5afc6de9b4dc562d1af5b6718d4f2f1a4d343c3a1461c51fe7bf3888",
+        "expected": "f9ae494c5afc6de9b4dc562d1af5b6718d4f2f1a4d343c3a1461c51fe7bf3888"
+      }
+    },
+    {
+      "name": "operator reads the same scoped accounting_accounts",
+      "passed": true,
+      "observed": {
+        "actual": "3be436227e1699eec9ebbdbe3d4637de058fced2306570cc9122f36e69051e4a",
+        "expected": "3be436227e1699eec9ebbdbe3d4637de058fced2306570cc9122f36e69051e4a"
+      }
+    },
+    {
+      "name": "operator reads the same scoped accounting_journals",
+      "passed": true,
+      "observed": {
+        "actual": "45f9cfd439c0bca6531f30db0111df607491594e8c2a410dba73dae6a2ac8935",
+        "expected": "45f9cfd439c0bca6531f30db0111df607491594e8c2a410dba73dae6a2ac8935"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped organization_members",
+      "passed": true,
+      "observed": {
+        "actual": "204ba349f32266ac1c47d1d746591db6014dea367d488d99b6f03e4fbb7b6d28",
+        "expected": "204ba349f32266ac1c47d1d746591db6014dea367d488d99b6f03e4fbb7b6d28"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped roles",
+      "passed": true,
+      "observed": {
+        "actual": "a3690b04156ffc9b98cca4f01c269263fcba7eeeeb4749dc70dabc7462aee45c",
+        "expected": "a3690b04156ffc9b98cca4f01c269263fcba7eeeeb4749dc70dabc7462aee45c"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_invoices",
+      "passed": true,
+      "observed": {
+        "actual": "639ba1c3fe83902eb557ff674a904651e541459cc45aeaf3e926663c68eabf41",
+        "expected": "639ba1c3fe83902eb557ff674a904651e541459cc45aeaf3e926663c68eabf41"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_invoice_lines",
+      "passed": true,
+      "observed": {
+        "actual": "8fc288dc0052dc8264558d2d29f824af6af23e36cdd9dc8e40f64f8a7fa2fa73",
+        "expected": "8fc288dc0052dc8264558d2d29f824af6af23e36cdd9dc8e40f64f8a7fa2fa73"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_invoices",
+      "passed": true,
+      "observed": {
+        "actual": "b038cf339c8a321166c0bfbd2f1decfb869fd61f984102bf93da01501fb3dc3a",
+        "expected": "b038cf339c8a321166c0bfbd2f1decfb869fd61f984102bf93da01501fb3dc3a"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_invoice_lines",
+      "passed": true,
+      "observed": {
+        "actual": "3371918e844baa5b19032f003f51b25ddc31ad53347ed5b77d0ea63d8b1e5e0e",
+        "expected": "3371918e844baa5b19032f003f51b25ddc31ad53347ed5b77d0ea63d8b1e5e0e"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_credit_notes",
+      "passed": true,
+      "observed": {
+        "actual": "49e63b4a14e2a3b55c32e5c5e209d6775f4973caeeed0190e0b1f3c023b4eadd",
+        "expected": "49e63b4a14e2a3b55c32e5c5e209d6775f4973caeeed0190e0b1f3c023b4eadd"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_credit_note_lines",
+      "passed": true,
+      "observed": {
+        "actual": "5891d26a0dfe4d708918b4ca258fa770eea9cdb8c8bd85635e1d219566ec5c32",
+        "expected": "5891d26a0dfe4d708918b4ca258fa770eea9cdb8c8bd85635e1d219566ec5c32"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_credit_note_applications",
+      "passed": true,
+      "observed": {
+        "actual": "9aaf7d92fcdbe70c97c454fee7d8da4aa420263954a52558a8ea2fb32907cfbe",
+        "expected": "9aaf7d92fcdbe70c97c454fee7d8da4aa420263954a52558a8ea2fb32907cfbe"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_credit_notes",
+      "passed": true,
+      "observed": {
+        "actual": "ecd44ab86bd01da7554c8c019c9649e7a9a2ba8a2cab1ae3fa4952042acf8f7f",
+        "expected": "ecd44ab86bd01da7554c8c019c9649e7a9a2ba8a2cab1ae3fa4952042acf8f7f"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_credit_note_lines",
+      "passed": true,
+      "observed": {
+        "actual": "a1a1d90711380d244a1d32dbd51b10c74b22820fbf3fe0c2f95803805caf65c3",
+        "expected": "a1a1d90711380d244a1d32dbd51b10c74b22820fbf3fe0c2f95803805caf65c3"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_credit_note_applications",
+      "passed": true,
+      "observed": {
+        "actual": "b26fd96f3cd36846b7ddeacad76ede01bde822da0669dfa9c9c8a04119d56e71",
+        "expected": "b26fd96f3cd36846b7ddeacad76ede01bde822da0669dfa9c9c8a04119d56e71"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_payments",
+      "passed": true,
+      "observed": {
+        "actual": "d9e895739da26d2f4001017c41e2557fca2b28b19f0b61c436f35291dc999b7f",
+        "expected": "d9e895739da26d2f4001017c41e2557fca2b28b19f0b61c436f35291dc999b7f"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped customer_payment_allocations",
+      "passed": true,
+      "observed": {
+        "actual": "d4b74e9301022a95b6039017901ef767f6561df20dc988ad404b27029debf458",
+        "expected": "d4b74e9301022a95b6039017901ef767f6561df20dc988ad404b27029debf458"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_payments",
+      "passed": true,
+      "observed": {
+        "actual": "574bfc4003fd6824bd02c8968f813265e91a6fcdf08724594ddf837d321debfc",
+        "expected": "574bfc4003fd6824bd02c8968f813265e91a6fcdf08724594ddf837d321debfc"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped supplier_payment_allocations",
+      "passed": true,
+      "observed": {
+        "actual": "6f271fadabc7c997429854b4aa8f94b18d045a43160a519f6cae9bad2ec50619",
+        "expected": "6f271fadabc7c997429854b4aa8f94b18d045a43160a519f6cae9bad2ec50619"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped treasury_accounts",
+      "passed": true,
+      "observed": {
+        "actual": "be7f2fb3555fc0b07ad5eb9f26c313b41c95571df252f24a3ae895fbdebfaf57",
+        "expected": "be7f2fb3555fc0b07ad5eb9f26c313b41c95571df252f24a3ae895fbdebfaf57"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped treasury_transactions",
+      "passed": true,
+      "observed": {
+        "actual": "59bdbb34459a3b160762d5ef6aff8b33729bb0833f46ad00f29aa518b27c79e8",
+        "expected": "59bdbb34459a3b160762d5ef6aff8b33729bb0833f46ad00f29aa518b27c79e8"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped accounting_entries",
+      "passed": true,
+      "observed": {
+        "actual": "11bcc63ea5dd1c29341f7dadab97037bba62bdc4ea55c218a9b3ba4e5be09f13",
+        "expected": "11bcc63ea5dd1c29341f7dadab97037bba62bdc4ea55c218a9b3ba4e5be09f13"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped accounting_entry_lines",
+      "passed": true,
+      "observed": {
+        "actual": "f9ae494c5afc6de9b4dc562d1af5b6718d4f2f1a4d343c3a1461c51fe7bf3888",
+        "expected": "f9ae494c5afc6de9b4dc562d1af5b6718d4f2f1a4d343c3a1461c51fe7bf3888"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped accounting_accounts",
+      "passed": true,
+      "observed": {
+        "actual": "3be436227e1699eec9ebbdbe3d4637de058fced2306570cc9122f36e69051e4a",
+        "expected": "3be436227e1699eec9ebbdbe3d4637de058fced2306570cc9122f36e69051e4a"
+      }
+    },
+    {
+      "name": "viewer reads the same scoped accounting_journals",
+      "passed": true,
+      "observed": {
+        "actual": "45f9cfd439c0bca6531f30db0111df607491594e8c2a410dba73dae6a2ac8935",
+        "expected": "45f9cfd439c0bca6531f30db0111df607491594e8c2a410dba73dae6a2ac8935"
+      }
+    },
+    {
+      "name": "exactly three active team users",
+      "passed": true,
+      "observed": {
+        "actual": 3,
+        "expected": 3
+      }
+    },
+    {
+      "name": "three expected role identities",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices line calculations",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer_credit_notes line calculations",
+      "passed": true
+    },
+    {
+      "name": "customer_credit_notes header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "supplier_credit_notes line calculations",
+      "passed": true
+    },
+    {
+      "name": "supplier_credit_notes header matches line totals",
+      "passed": true
+    },
+    {
+      "name": "customer allocation has scoped invoice",
+      "passed": true
+    },
+    {
+      "name": "customer allocation has scoped invoice",
+      "passed": true
+    },
+    {
+      "name": "customer cash allocation preserves party identity",
+      "passed": true
+    },
+    {
+      "name": "customer cash allocation preserves party identity",
+      "passed": true
+    },
+    {
+      "name": "customer cash is actual payment allocations",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "customer credit is actual credit allocations",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer invoice outstanding balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer cash is actual payment allocations",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer credit is actual credit allocations",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer invoice outstanding balance",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "customer payment allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "customer payment available balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer payment allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "customer payment available balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer credit allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer credit available balance",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "supplier allocation has scoped invoice",
+      "passed": true
+    },
+    {
+      "name": "supplier allocation has scoped invoice",
+      "passed": true
+    },
+    {
+      "name": "supplier allocation has scoped invoice",
+      "passed": true
+    },
+    {
+      "name": "supplier cash allocation preserves party identity",
+      "passed": true
+    },
+    {
+      "name": "supplier cash allocation preserves party identity",
+      "passed": true
+    },
+    {
+      "name": "supplier credit allocation preserves party identity",
+      "passed": true
+    },
+    {
+      "name": "supplier cash is actual payment allocations",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "supplier credit is actual credit allocations",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "supplier invoice outstanding balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "supplier cash is actual payment allocations",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "supplier credit is actual credit allocations",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "supplier invoice outstanding balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "supplier payment allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "supplier payment available balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "supplier payment allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "supplier payment available balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "supplier credit allocated balance",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "supplier credit available balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 500,
+        "expected": 500
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 500,
+        "expected": 500
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 500,
+        "expected": 500
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted entry is balanced",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "entry debit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "entry credit matches its lines",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "posted entry has complete lines",
+      "passed": true
+    },
+    {
+      "name": "active source is posted once",
+      "passed": true
+    },
+    {
+      "name": "posted source amount matches customer_invoice",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "posted source amount matches customer_invoice",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "posted source amount matches supplier_invoice",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted source amount matches supplier_invoice",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted source amount matches customer_credit_note",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "posted source amount matches supplier_credit_note",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "posted source amount matches customer_payment",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "posted source amount matches customer_payment",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "posted source amount matches supplier_payment",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "posted source amount matches supplier_payment",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "all active operating sources have been posted",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "customer ledger reconciles commercial receivable less available credits",
+      "passed": true,
+      "observed": {
+        "actual": 21600,
+        "expected": 21600
+      }
+    },
+    {
+      "name": "supplier ledger reconciles commercial payable less available credits",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "bank account reconciles its movements",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "essential bank currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "movement currency",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "four real payment movements and no cash from credit notes",
+      "passed": true,
+      "observed": {
+        "actual": 4,
+        "expected": 4
+      }
+    },
+    {
+      "name": "four internal treasury movements retained",
+      "passed": true,
+      "observed": {
+        "actual": 4,
+        "expected": 4
+      }
+    },
+    {
+      "name": "only payment and internal-transfer movements are active",
+      "passed": true,
+      "observed": {
+        "actual": 8,
+        "expected": 8
+      }
+    },
+    {
+      "name": "transfer movement audit identities preserved",
+      "passed": true
+    },
+    {
+      "name": "cash account audit identity preserved",
+      "passed": true
+    },
+    {
+      "name": "cash account ends at zero MAD",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "cash currency remains MAD",
+      "passed": true,
+      "observed": {
+        "actual": "MAD",
+        "expected": "MAD"
+      }
+    },
+    {
+      "name": "cash archive remains traceable",
+      "passed": true
+    },
+    {
+      "name": "temporary manual movement remains archived in the audit trail",
+      "passed": true
+    },
+    {
+      "name": "exactly two internal transfer groups",
+      "passed": true,
+      "observed": {
+        "actual": 2,
+        "expected": 2
+      }
+    },
+    {
+      "name": "transfer group audit identity preserved",
+      "passed": true
+    },
+    {
+      "name": "each transfer retains both legs",
+      "passed": true,
+      "observed": {
+        "actual": 2,
+        "expected": 2
+      }
+    },
+    {
+      "name": "each transfer has incoming and outgoing legs",
+      "passed": true
+    },
+    {
+      "name": "transfer legs carry equal amounts",
+      "passed": true,
+      "observed": {
+        "actual": 1000,
+        "expected": 1000
+      }
+    },
+    {
+      "name": "each test transfer equals10 MAD",
+      "passed": true,
+      "observed": {
+        "actual": 1000,
+        "expected": 1000
+      }
+    },
+    {
+      "name": "transfer legs stay within the same company and currency",
+      "passed": true
+    },
+    {
+      "name": "transfer legs retain the correct operation types",
+      "passed": true
+    },
+    {
+      "name": "transfer crosses bank and cash accounts",
+      "passed": true
+    },
+    {
+      "name": "internal transfers are independent of commercial payments",
+      "passed": true
+    },
+    {
+      "name": "transfer group audit identity preserved",
+      "passed": true
+    },
+    {
+      "name": "each transfer retains both legs",
+      "passed": true,
+      "observed": {
+        "actual": 2,
+        "expected": 2
+      }
+    },
+    {
+      "name": "each transfer has incoming and outgoing legs",
+      "passed": true
+    },
+    {
+      "name": "transfer legs carry equal amounts",
+      "passed": true,
+      "observed": {
+        "actual": 1000,
+        "expected": 1000
+      }
+    },
+    {
+      "name": "each test transfer equals10 MAD",
+      "passed": true,
+      "observed": {
+        "actual": 1000,
+        "expected": 1000
+      }
+    },
+    {
+      "name": "transfer legs stay within the same company and currency",
+      "passed": true
+    },
+    {
+      "name": "transfer legs retain the correct operation types",
+      "passed": true
+    },
+    {
+      "name": "transfer crosses bank and cash accounts",
+      "passed": true
+    },
+    {
+      "name": "internal transfers are independent of commercial payments",
+      "passed": true
+    },
+    {
+      "name": "round-trip transfer restores the original account balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "round-trip transfer restores the original account balance",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "internal transfer inflows total20 MAD",
+      "passed": true,
+      "observed": {
+        "actual": 2000,
+        "expected": 2000
+      }
+    },
+    {
+      "name": "internal transfer outflows total20 MAD",
+      "passed": true,
+      "observed": {
+        "actual": 2000,
+        "expected": 2000
+      }
+    },
+    {
+      "name": "bank GL reconciles the test bank",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "customer payment produces exactly one cash movement",
+      "passed": true,
+      "observed": {
+        "actual": 1,
+        "expected": 1
+      }
+    },
+    {
+      "name": "customer cash movement matches actual payment",
+      "passed": true,
+      "observed": {
+        "actual": 7500,
+        "expected": 7500
+      }
+    },
+    {
+      "name": "customer flow direction",
+      "passed": true,
+      "observed": {
+        "actual": "in",
+        "expected": "in"
+      }
+    },
+    {
+      "name": "customer flow type",
+      "passed": true,
+      "observed": {
+        "actual": "customer_payment",
+        "expected": "customer_payment"
+      }
+    },
+    {
+      "name": "customer flow remains on its own treasury account",
+      "passed": true,
+      "observed": {
+        "actual": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71",
+        "expected": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71"
+      }
+    },
+    {
+      "name": "customer flow is linked to its own accounting source",
+      "passed": true
+    },
+    {
+      "name": "customer flow preserves party identity",
+      "passed": true,
+      "observed": {
+        "actual": "f4d825f3-14ae-4b34-a944-0c6dd2ee4efe",
+        "expected": "f4d825f3-14ae-4b34-a944-0c6dd2ee4efe"
+      }
+    },
+    {
+      "name": "customer optional invoice reference stays scoped",
+      "passed": true
+    },
+    {
+      "name": "customer payment produces exactly one cash movement",
+      "passed": true,
+      "observed": {
+        "actual": 1,
+        "expected": 1
+      }
+    },
+    {
+      "name": "customer cash movement matches actual payment",
+      "passed": true,
+      "observed": {
+        "actual": 16500,
+        "expected": 16500
+      }
+    },
+    {
+      "name": "customer flow direction",
+      "passed": true,
+      "observed": {
+        "actual": "in",
+        "expected": "in"
+      }
+    },
+    {
+      "name": "customer flow type",
+      "passed": true,
+      "observed": {
+        "actual": "customer_payment",
+        "expected": "customer_payment"
+      }
+    },
+    {
+      "name": "customer flow remains on its own treasury account",
+      "passed": true,
+      "observed": {
+        "actual": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71",
+        "expected": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71"
+      }
+    },
+    {
+      "name": "customer flow is linked to its own accounting source",
+      "passed": true
+    },
+    {
+      "name": "customer flow preserves party identity",
+      "passed": true,
+      "observed": {
+        "actual": "f4d825f3-14ae-4b34-a944-0c6dd2ee4efe",
+        "expected": "f4d825f3-14ae-4b34-a944-0c6dd2ee4efe"
+      }
+    },
+    {
+      "name": "customer optional invoice reference stays scoped",
+      "passed": true
+    },
+    {
+      "name": "supplier payment produces exactly one cash movement",
+      "passed": true,
+      "observed": {
+        "actual": 1,
+        "expected": 1
+      }
+    },
+    {
+      "name": "supplier cash movement matches actual payment",
+      "passed": true,
+      "observed": {
+        "actual": 12000,
+        "expected": 12000
+      }
+    },
+    {
+      "name": "supplier flow direction",
+      "passed": true,
+      "observed": {
+        "actual": "out",
+        "expected": "out"
+      }
+    },
+    {
+      "name": "supplier flow type",
+      "passed": true,
+      "observed": {
+        "actual": "supplier_payment",
+        "expected": "supplier_payment"
+      }
+    },
+    {
+      "name": "supplier flow remains on its own treasury account",
+      "passed": true,
+      "observed": {
+        "actual": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71",
+        "expected": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71"
+      }
+    },
+    {
+      "name": "supplier flow is linked to its own accounting source",
+      "passed": true
+    },
+    {
+      "name": "supplier flow preserves party identity",
+      "passed": true,
+      "observed": {
+        "actual": "fcc78210-b4d8-4d13-96da-1fed8ab15188",
+        "expected": "fcc78210-b4d8-4d13-96da-1fed8ab15188"
+      }
+    },
+    {
+      "name": "supplier optional invoice reference stays scoped",
+      "passed": true
+    },
+    {
+      "name": "supplier payment produces exactly one cash movement",
+      "passed": true,
+      "observed": {
+        "actual": 1,
+        "expected": 1
+      }
+    },
+    {
+      "name": "supplier cash movement matches actual payment",
+      "passed": true,
+      "observed": {
+        "actual": 9600,
+        "expected": 9600
+      }
+    },
+    {
+      "name": "supplier flow direction",
+      "passed": true,
+      "observed": {
+        "actual": "out",
+        "expected": "out"
+      }
+    },
+    {
+      "name": "supplier flow type",
+      "passed": true,
+      "observed": {
+        "actual": "supplier_payment",
+        "expected": "supplier_payment"
+      }
+    },
+    {
+      "name": "supplier flow remains on its own treasury account",
+      "passed": true,
+      "observed": {
+        "actual": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71",
+        "expected": "8a4cbfc7-a9af-42d4-ad0f-5ae6b105aa71"
+      }
+    },
+    {
+      "name": "supplier flow is linked to its own accounting source",
+      "passed": true
+    },
+    {
+      "name": "supplier flow preserves party identity",
+      "passed": true,
+      "observed": {
+        "actual": "fcc78210-b4d8-4d13-96da-1fed8ab15188",
+        "expected": "fcc78210-b4d8-4d13-96da-1fed8ab15188"
+      }
+    },
+    {
+      "name": "supplier optional invoice reference stays scoped",
+      "passed": true
+    },
+    {
+      "name": "final posted entry count",
+      "passed": true,
+      "observed": {
+        "actual": 11,
+        "expected": 11
+      }
+    },
+    {
+      "name": "final total journal debits",
+      "passed": true,
+      "observed": {
+        "actual": 122900,
+        "expected": 122900
+      }
+    },
+    {
+      "name": "final total journal credits",
+      "passed": true,
+      "observed": {
+        "actual": 122900,
+        "expected": 122900
+      }
+    },
+    {
+      "name": "VE final entry count",
+      "passed": true,
+      "observed": {
+        "actual": 3,
+        "expected": 3
+      }
+    },
+    {
+      "name": "VE final journal debit",
+      "passed": true,
+      "observed": {
+        "actual": 50400,
+        "expected": 50400
+      }
+    },
+    {
+      "name": "VE final journal credit",
+      "passed": true,
+      "observed": {
+        "actual": 50400,
+        "expected": 50400
+      }
+    },
+    {
+      "name": "AC final entry count",
+      "passed": true,
+      "observed": {
+        "actual": 3,
+        "expected": 3
+      }
+    },
+    {
+      "name": "AC final journal debit",
+      "passed": true,
+      "observed": {
+        "actual": 26400,
+        "expected": 26400
+      }
+    },
+    {
+      "name": "AC final journal credit",
+      "passed": true,
+      "observed": {
+        "actual": 26400,
+        "expected": 26400
+      }
+    },
+    {
+      "name": "BQ final entry count",
+      "passed": true,
+      "observed": {
+        "actual": 4,
+        "expected": 4
+      }
+    },
+    {
+      "name": "BQ final journal debit",
+      "passed": true,
+      "observed": {
+        "actual": 45600,
+        "expected": 45600
+      }
+    },
+    {
+      "name": "BQ final journal credit",
+      "passed": true,
+      "observed": {
+        "actual": 45600,
+        "expected": 45600
+      }
+    },
+    {
+      "name": "OD final entry count",
+      "passed": true,
+      "observed": {
+        "actual": 1,
+        "expected": 1
+      }
+    },
+    {
+      "name": "OD final journal debit",
+      "passed": true,
+      "observed": {
+        "actual": 500,
+        "expected": 500
+      }
+    },
+    {
+      "name": "OD final journal credit",
+      "passed": true,
+      "observed": {
+        "actual": 500,
+        "expected": 500
+      }
+    },
+    {
+      "name": "final bank balance MAD",
+      "passed": true,
+      "observed": {
+        "actual": 2400,
+        "expected": 2400
+      }
+    },
+    {
+      "name": "final gross treasury inflows MAD",
+      "passed": true,
+      "observed": {
+        "actual": 26000,
+        "expected": 26000
+      }
+    },
+    {
+      "name": "final gross treasury outflows MAD",
+      "passed": true,
+      "observed": {
+        "actual": 23600,
+        "expected": 23600
+      }
+    },
+    {
+      "name": "actual customer collections MAD",
+      "passed": true,
+      "observed": {
+        "actual": 24000,
+        "expected": 24000
+      }
+    },
+    {
+      "name": "actual supplier payments MAD",
+      "passed": true,
+      "observed": {
+        "actual": 21600,
+        "expected": 21600
+      }
+    },
+    {
+      "name": "final net customer receivable MAD",
+      "passed": true,
+      "observed": {
+        "actual": 21600,
+        "expected": 21600
+      }
+    },
+    {
+      "name": "final net supplier payable MAD",
+      "passed": true,
+      "observed": {
+        "actual": 0,
+        "expected": 0
+      }
+    }
+  ],
+  "pendingSources": [],
+  "sourceFlows": [
+    {
+      "type": "customer_payment",
+      "paymentId": "3935aa29-b678-4304-b98d-35d8a18f3617",
+      "transactionId": "58f76f5d-e8e4-42dc-bc68-6ab3bad4237f",
+      "accountingEntryId": "f49d1ec6-c54b-4628-a360-b86496c588c5"
+    },
+    {
+      "type": "customer_payment",
+      "paymentId": "aca37502-bebd-46aa-b967-f5069e5c33d5",
+      "transactionId": "4643b38d-a342-48a9-b2ae-51a11f075f13",
+      "accountingEntryId": "db3b8596-ee40-4a43-94d6-fe1729a2146c"
+    },
+    {
+      "type": "supplier_payment",
+      "paymentId": "eaeb04f7-466c-490e-888f-5e72b485a425",
+      "transactionId": "e81838a0-4178-4742-adf7-7c0d6a4d2332",
+      "accountingEntryId": "be79fa87-24f1-40fe-9a38-068bfbba46be"
+    },
+    {
+      "type": "supplier_payment",
+      "paymentId": "f536a750-35c9-4371-b9c2-cf3e3032df6d",
+      "transactionId": "b1eb6d51-2ddf-4ecf-8101-837f8c4a2e14",
+      "accountingEntryId": "4b66a81e-0b47-44ee-ba52-09d9b44669ae"
+    }
+  ],
+  "journals": [
+    {
+      "code": "VE",
+      "entries": 3,
+      "debit": 504,
+      "credit": 504
+    },
+    {
+      "code": "AC",
+      "entries": 3,
+      "debit": 264,
+      "credit": 264
+    },
+    {
+      "code": "BQ",
+      "entries": 4,
+      "debit": 456,
+      "credit": 456
+    },
+    {
+      "code": "OD",
+      "entries": 1,
+      "debit": 5,
+      "credit": 5
+    }
+  ],
+  "financial": {
+    "currency": "MAD",
+    "bank": 24,
+    "cash": 0,
+    "grossTreasuryIn": 260,
+    "grossTreasuryOut": 236,
+    "customerReceipts": 240,
+    "supplierPayments": 216,
+    "internalIn": 20,
+    "internalOut": 20,
+    "customerNet": 216,
+    "supplierNet": 0,
+    "postedEntries": 11,
+    "totalDebit": 1229,
+    "totalCredit": 1229
+  },
+  "success": true
+}

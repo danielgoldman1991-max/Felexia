@@ -55,7 +55,7 @@ async function action(file,name,data,expectSuccess=true){
 }
 const idFrom=result=>(result.redirect || '').match(/[0-9a-f]{8}-[0-9a-f-]{27,}/i)?.[0] || result.result?.data?.id;
 const today=new Date().toISOString().slice(0,10);
-const freeLine=(description,quantity,price,tax=20)=>({id:crypto.randomUUID(),mode:'free',description,quantity,unit_price_ht:price,discount_rate:0,tax_rate:tax});
+const freeLine=(description,quantity,price,tax=20)=>({id:crypto.randomUUID(),mode:'free',unit_name:'Unité',description,quantity,unit_price_ht:price,discount_rate:0,tax_rate:tax});
 
 async function prepare(){
   clients.admin=newClient();actor='admin';
@@ -118,6 +118,21 @@ async function accept(){
   check('company contains exactly three active users',members.length===3);save();
 }
 
+async function resend(){
+  await login('admin');await workspace();
+  const route=runner.load('src/app/api/invitations/[id]/route.ts');
+  for(const role of ['operator','viewer']){
+    check(role+' pending test invitation exists',Boolean(m.users[role].invitationId)&&!m.users[role].accepted);
+    if(m.users[role].resent)continue;
+    const response=await route.PATCH(new Request('https://felexia.pro/api/invitations/'+m.users[role].invitationId,{method:'PATCH'}),{params:Promise.resolve({id:m.users[role].invitationId})});
+    const body=await response.json();
+    check(role+' real invitation resend',response.status===200,body.code||body.error);
+    const row=await read(clients.admin.from('invitations').select('auth_user_id,status').eq('organization_id',m.organizationId).eq('id',m.users[role].invitationId).single(),'resent invitation');
+    check(role+' resend preserves invited account',row.auth_user_id===m.users[role].id&&row.status==='pending');
+    m.users[role].resent=true;delete m.users[role].receivedLink;save();
+  }
+}
+
 async function readOnly(){
   for(const role of ['admin','operator','viewer']){await login(role);const w=await workspace();check(role+' expected role',w.role===role || (role==='admin' && w.role==='owner'));}
 }
@@ -127,12 +142,16 @@ async function business(){
   const record=m.records;
   if(!record.bankId){const r=await action('src/lib/treasury-actions.ts','createTreasuryAccount',{name:'Banque de recette MAD',code:'QA-BQ',account_type:'bank',currency:'MAD',opening_balance:0,is_default:'on'});record.bankId=idFrom(r);save();}
   check('QA treasury account identifier',Boolean(record.bankId));
-  if(!record.productId){const r=await action('src/lib/product-actions.ts','createProduct',{name:'Service du catalogue de recette',type:'service',sale_price_ht:100,purchase_price_ht:50,status:'active',is_sellable:'on',is_purchasable:'on'});record.productId=idFrom(r);save();}
+  if(!record.productId){
+    let products=await read(clients.admin.from('products').select('id').eq('organization_id',m.organizationId).eq('name','Service du catalogue de recette'),'existing QA catalogue service');
+    if(!products.length){await action('src/lib/product-actions.ts','createProduct',{name:'Service du catalogue de recette',type:'service',sale_price_ht:100,purchase_price_ht:50,status:'active',is_sellable:'on',is_purchasable:'on'});products=await read(clients.admin.from('products').select('id').eq('organization_id',m.organizationId).eq('name','Service du catalogue de recette'),'created QA catalogue service');}
+    check('one identifiable QA catalogue service',products.length===1);record.productId=products[0].id;save();
+  }
   await login('operator');await workspace();
-  if(!record.customerId){const r=await action('src/lib/third-party-actions.ts','createThirdParty',{name:'CLIENT RECETTE ESSENTIELLE',type_customer:'on',status:'active',country:'Maroc'});record.customerId=idFrom(r);save();}
-  if(!record.supplierId){const r=await action('src/lib/third-party-actions.ts','createThirdParty',{name:'FOURNISSEUR RECETTE ESSENTIELLE',type_supplier:'on',status:'active',country:'Maroc'});record.supplierId=idFrom(r);save();}
+  if(!record.customerId){const r=await action('src/lib/third-party-actions.ts','createThirdParty',{name:'CLIENT RECETTE ESSENTIELLE',type_customer:'on',status:'active',country:'MA'});record.customerId=idFrom(r);save();}
+  if(!record.supplierId){const r=await action('src/lib/third-party-actions.ts','createThirdParty',{name:'FOURNISSEUR RECETTE ESSENTIELLE',type_supplier:'on',status:'active',country:'MA'});record.supplierId=idFrom(r);save();}
   check('QA customer and supplier created',Boolean(record.customerId && record.supplierId));
-  await action('src/lib/third-party-actions.ts','updateThirdParty',{id:record.customerId,name:'CLIENT RECETTE ESSENTIELLE',type_customer:'on',status:'active',country:'Maroc',city:'Casablanca',notes:'Coordonnées mises à jour pendant la recette'});
+  await action('src/lib/third-party-actions.ts','updateThirdParty',{id:record.customerId,name:'CLIENT RECETTE ESSENTIELLE',type_customer:'on',status:'active',country:'MA',city:'Casablanca',notes:'Coordonnées mises à jour pendant la recette'});
   const saleForm={customer_id:record.customerId,invoice_date:today,source_type:'manual',notes:'Recette de facturation libre',lines:[freeLine('Prestation de recette',2,100)]};
   if(!record.saleId){const r=await action('src/lib/invoice-actions.ts','createCustomerInvoice',saleForm);record.saleId=idFrom(r);save();}
   let sale=(await read(clients.operator.from('customer_invoices').select('id,invoice_number,total_ttc,status').eq('organization_id',m.organizationId).eq('id',record.saleId).single(),'created sale'));
@@ -369,11 +388,24 @@ async function main(){
   if(phase==='prepare')await prepare();
   else if(phase==='invite')await invite();
   else if(phase==='accept')await accept();
+  else if(phase==='resend')await resend();
   else if(phase==='read')await readOnly();
   else if(phase==='business')await business();
   else if(phase==='boundaries')await boundaries();
   else if(phase==='team')await team();
   else if(phase==='supplier-credit')await supplierCredit();
+  else if(phase==='finalize'){
+    await login('admin');await workspace();
+    check('final QA customer invoice exists',Boolean(m.corrections?.openSaleId));
+    await action('src/lib/accounting-actions.ts','postCustomerInvoiceToAccounting',{id:m.corrections.openSaleId});
+  }
+  else if(phase==='browser-cleanup'){
+    await login('operator');await workspace();
+    check('browser-only QA invoice is identified',Boolean(m.browser?.invoiceId));
+    await action('src/lib/invoice-actions.ts','cancelCustomerInvoice',{id:m.browser.invoiceId});
+    await action('src/lib/invoice-actions.ts','archiveCustomerInvoice',{id:m.browser.invoiceId});
+    m.browser.invoiceCancelledAndArchived=true;
+  }
   else throw new Error('Unknown recette phase');
   report.success=true;
 }

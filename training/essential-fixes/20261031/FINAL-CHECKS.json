@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-31T21:49:20.381Z",
+  "appCommit": "3970b9123b8dbee3e6f031466f2b4b93a6c301cd",
+  "scope": "Essential QA company, all three roles; each suite has overlapping assertions, no grand total",
+  "essentialOperationsValidated": true,
+  "suites": {
+    "financial": {
+      "success": true,
+      "assertions": 312,
+      "proof": "company-final-readonly.json"
+    },
+    "http": {
+      "success": true,
+      "assertions": 554,
+      "proof": "company-http-final.json"
+    },
+    "checkout": {
+      "success": true,
+      "assertions": 94,
+      "proof": "company-billing-checkout.json"
+    },
+    "browser": {
+      "success": true,
+      "assertions": 20,
+      "proof": "company-browser.json"
+    }
+  },
+  "financial": {
+    "currency": "MAD",
+    "bank": 24,
+    "cash": 0,
+    "grossTreasuryIn": 260,
+    "grossTreasuryOut": 236,
+    "customerReceipts": 240,
+    "supplierPayments": 216,
+    "internalIn": 20,
+    "internalOut": 20,
+    "customerNet": 216,
+    "supplierNet": 0,
+    "postedEntries": 11,
+    "totalDebit": 1229,
+    "totalCredit": 1229
+  },
+  "ci": [
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244615530",
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030"
+  ],
+  "remainingExternal": [
+    "Production CRON_SECRET absent at unsigned503 probe; manual setup requested",
+    "Public SMTP provider/branding and capacity beyond authorized mailbox aliases",
+    "Complete Stripe payment and signed webhook cycle was not executed",
+    "Hosted database and Storage backup recovery not verified",
+    "Legal publisher identity fields and legacy active subscription without end date"
+  ]
+}

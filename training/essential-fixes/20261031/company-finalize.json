@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-31T21:22:31.369Z",
+  "run": "essential-final-20261031202921",
+  "phase": "finalize",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "final QA customer invoice exists",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerInvoiceToAccounting",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}

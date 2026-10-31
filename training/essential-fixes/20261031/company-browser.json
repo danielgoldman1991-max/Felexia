@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-31T21:44:36.212Z",
+  "scope": "Observed browser interactions on public production with the three authorized QA profiles; no card payment",
+  "checks": [
+    {
+      "name": "operator login and correct company",
+      "passed": true
+    },
+    {
+      "name": "six light navigation entries and role-specific account menu",
+      "passed": true
+    },
+    {
+      "name": "client created through browser with name only",
+      "passed": true
+    },
+    {
+      "name": "client archived, found with archived filter and restored",
+      "passed": true
+    },
+    {
+      "name": "real CSV browser download contains created client",
+      "passed": true
+    },
+    {
+      "name": "browser invoice line 2 x50 HT +20percent VAT totals120 MAD",
+      "passed": true
+    },
+    {
+      "name": "browser invoice created and validated",
+      "passed": true
+    },
+    {
+      "name": "manual sent tracking explicitly explains no email is sent",
+      "passed": true
+    },
+    {
+      "name": "viewer dashboard offers consultation without creation shortcuts",
+      "passed": true
+    },
+    {
+      "name": "viewer client detail hides edit archive and creation forms",
+      "passed": true
+    },
+    {
+      "name": "viewer expanded contacts addresses attachments retain reading without mutation controls",
+      "passed": true
+    },
+    {
+      "name": "viewer unpaid invoice retains print but hides payment edit and credit actions",
+      "passed": true
+    },
+    {
+      "name": "published sales free line prints stored20percent VAT without catalogue reference",
+      "passed": true
+    },
+    {
+      "name": "published purchase free line prints stored20percent VAT and120 MAD",
+      "passed": true
+    },
+    {
+      "name": "viewer logout from financial page reaches login after dedicated endpoint fix",
+      "passed": true
+    },
+    {
+      "name": "administrator browser login succeeds with recovered password",
+      "passed": true
+    },
+    {
+      "name": "390px mobile dashboard has no page-level horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "mobile trial welcome message can be dismissed",
+      "passed": true
+    },
+    {
+      "name": "mobile navigation drawer opens and closes through its controls",
+      "passed": true
+    },
+    {
+      "name": "desktop viewport restored and dashboard has no page-level horizontal overflow",
+      "passed": true
+    }
+  ],
+  "success": true,
+  "financial": {
+    "bank": 24,
+    "invoiceReceivable": 240,
+    "availableCustomerCredit": 24,
+    "netCustomerReceivable": 216,
+    "supplierPayable": 0
+  },
+  "screenshots": [
+    "dashboard-desktop.jpg",
+    "dashboard-mobile.jpg",
+    "dashboard-mobile-welcome.jpg",
+    "menu-mobile.jpg"
+  ],
+  "browserCsv": "contacts-browser.csv",
+  "temporaryInvoiceCleanup": "Created and validated in browser; cancelled and archived through actual scoped server actions, no cash or journal posted",
+  "cleanup": {
+    "viewportReset": true,
+    "previousQaSessionRestored": true,
+    "temporaryTabsClosed": true
+  }
+}

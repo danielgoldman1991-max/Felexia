@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-31T21:15:37.397Z",
+  "run": "essential-final-20261031202921",
+  "phase": "business",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "QA treasury account identifier",
+      "passed": true
+    },
+    {
+      "name": "existing QA catalogue service query",
+      "passed": true
+    },
+    {
+      "name": "one identifiable QA catalogue service",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator createThirdParty",
+      "passed": true,
+      "observed": "/tiers/f4d825f3-14ae-4b34-a944-0c6dd2ee4efe"
+    },
+    {
+      "name": "operator createThirdParty",
+      "passed": true,
+      "observed": "/tiers/fcc78210-b4d8-4d13-96da-1fed8ab15188"
+    },
+    {
+      "name": "QA customer and supplier created",
+      "passed": true
+    },
+    {
+      "name": "operator updateThirdParty",
+      "passed": true,
+      "observed": "/tiers/f4d825f3-14ae-4b34-a944-0c6dd2ee4efe"
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true,
+      "observed": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6"
+    },
+    {
+      "name": "created sale query",
+      "passed": true
+    },
+    {
+      "name": "operator updateCustomerInvoice",
+      "passed": true,
+      "observed": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6"
+    },
+    {
+      "name": "operator updated sale query",
+      "passed": true
+    },
+    {
+      "name": "operator edit preserves invoice number",
+      "passed": true
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin updateCustomerInvoice",
+      "passed": true,
+      "observed": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6"
+    },
+    {
+      "name": "administrator updated sale query",
+      "passed": true
+    },
+    {
+      "name": "administrator edit preserves invoice number",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator validateCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "validated sale query",
+      "passed": true
+    },
+    {
+      "name": "sale HT TVA TTC are coherent",
+      "passed": true
+    },
+    {
+      "name": "operator createSupplierInvoice",
+      "passed": true,
+      "observed": "/achats/factures/67af159d-675b-4bf1-8d39-4aaf6a2069b1"
+    },
+    {
+      "name": "created purchase query",
+      "passed": true
+    },
+    {
+      "name": "operator updateSupplierInvoice",
+      "passed": true,
+      "observed": "/achats/factures/67af159d-675b-4bf1-8d39-4aaf6a2069b1"
+    },
+    {
+      "name": "updated purchase query",
+      "passed": true
+    },
+    {
+      "name": "purchase edit preserves internal number",
+      "passed": true
+    },
+    {
+      "name": "operator validateSupplierInvoice",
+      "passed": false,
+      "observed": "Certaines lignes de facture sont incomplètes : unité, prix HT ou TVA manquant."
+    }
+  ],
+  "diagnostics": [],
+  "success": false,
+  "failure": "QA_CHECK_FAILED: operator validateSupplierInvoice"
+}

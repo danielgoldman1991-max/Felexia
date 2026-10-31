@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-31T21:17:35.699Z",
+  "run": "essential-final-20261031202921",
+  "phase": "boundaries",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator createThirdPartyContact",
+      "passed": true
+    },
+    {
+      "name": "created contact query",
+      "passed": true
+    },
+    {
+      "name": "operator createThirdPartyAddress",
+      "passed": true
+    },
+    {
+      "name": "created address query",
+      "passed": true
+    },
+    {
+      "name": "operator createTreasuryAccount",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "operator postCustomerInvoiceToAccounting",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "operator cannot administer numbering",
+      "passed": true
+    },
+    {
+      "name": "operator cannot invite users",
+      "passed": true
+    },
+    {
+      "name": "viewer public authentication",
+      "passed": true
+    },
+    {
+      "name": "viewer company isolation",
+      "passed": true
+    },
+    {
+      "name": "viewer createThirdParty",
+      "passed": true,
+      "observed": "new row violates row-level security policy \"readonly_finance_insert_guard_v4\" for table \"third_parties\""
+    },
+    {
+      "name": "viewer createCustomerInvoice",
+      "passed": true,
+      "observed": "Votre profil ne permet pas cette modification."
+    },
+    {
+      "name": "viewer direct write refused on third_party_contacts",
+      "passed": true
+    },
+    {
+      "name": "viewer direct write refused on third_party_addresses",
+      "passed": true
+    },
+    {
+      "name": "viewer direct write refused on customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "viewer direct write refused on treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "viewer subscription read query",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot grant commercial entitlements",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company organizations",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company third_parties",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot read another company accounting_entries",
+      "passed": true
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "contact after rejected viewer write query",
+      "passed": true
+    },
+    {
+      "name": "address after rejected viewer write query",
+      "passed": true
+    },
+    {
+      "name": "contact and address remain intact",
+      "passed": true
+    },
+    {
+      "name": "subscription after rejected viewer write query",
+      "passed": true
+    },
+    {
+      "name": "commercial rights remain unchanged",
+      "passed": true
+    },
+    {
+      "name": "admin createTreasuryAccount",
+      "passed": true,
+      "observed": "Cette version utilise le MAD. Choisissez un compte en MAD ; aucun montant ni solde n’a été converti."
+    },
+    {
+      "name": "bank after rejected writes query",
+      "passed": true
+    },
+    {
+      "name": "rejected mutations preserve bank120 MAD",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}

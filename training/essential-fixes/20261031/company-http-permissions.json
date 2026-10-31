@@ -1,0 +1,562 @@
+{
+  "date": "2026-10-31T21:30:38.133Z",
+  "run": "essential-final-20261031202921",
+  "origin": "https://www.felexia.pro",
+  "phase": "permissions",
+  "scope": "Public HTTP with three independent SDK-created SSR cookie jars; current and previous fictitious QA companies only",
+  "businessWrites": 0,
+  "mailDispatches": 0,
+  "checks": [
+    {
+      "role": "admin",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA bank is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "semanticNotFound": true
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA bank is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "semanticNotFound": true
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA bank is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 200,
+        "semanticNotFound": true
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    }
+  ],
+  "roles": {
+    "admin": {
+      "nonemptyInternalNotesChecked": 0
+    },
+    "operator": {
+      "nonemptyInternalNotesChecked": 0
+    },
+    "viewer": {
+      "nonemptyInternalNotesChecked": 0
+    }
+  },
+  "limitations": [],
+  "success": true
+}

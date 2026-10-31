@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-31T21:20:53.228Z",
+  "run": "essential-final-20261031202921",
+  "phase": "supplier-credit",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator createSupplierInvoice",
+      "passed": true,
+      "observed": "/achats/factures/8f0f65d6-d4aa-4600-bd28-9931cebda897"
+    },
+    {
+      "name": "supplier credit target query",
+      "passed": true
+    },
+    {
+      "name": "operator validateSupplierInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createSupplierCreditNote",
+      "passed": true,
+      "observed": "/achats/avoirs/928208f8-0d9b-4b7e-ac10-24b61679cf6f"
+    },
+    {
+      "name": "supplier credit draft query",
+      "passed": true
+    },
+    {
+      "name": "operator updateSupplierCreditNote",
+      "passed": true,
+      "observed": "/achats/avoirs/928208f8-0d9b-4b7e-ac10-24b61679cf6f"
+    },
+    {
+      "name": "updated supplier credit query",
+      "passed": true
+    },
+    {
+      "name": "supplier credit edit preserves number and recalculates24",
+      "passed": true
+    },
+    {
+      "name": "operator validateSupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "operator applySupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "purchase after partial credit query",
+      "passed": true
+    },
+    {
+      "name": "supplier partial credit reduces remaining120 to108",
+      "passed": true
+    },
+    {
+      "name": "active supplier credit application query",
+      "passed": true
+    },
+    {
+      "name": "operator unapplySupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "purchase after credit removal query",
+      "passed": true
+    },
+    {
+      "name": "supplier credit removal restores remaining120",
+      "passed": true
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierInvoiceToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierCreditNoteToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierCreditNoteToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin cancelSupplierCreditNote",
+      "passed": true,
+      "observed": "Cet avoir est comptabilisé. Son annulation et ses montants sont verrouillés pour préserver le journal."
+    },
+    {
+      "name": "supplier credit journal entry query",
+      "passed": true
+    },
+    {
+      "name": "supplier credit posting is unique and balanced24",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator applySupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "operator createSupplierPayment",
+      "passed": true,
+      "observed": "/achats/paiements/f536a750-35c9-4371-b9c2-cf3e3032df6d"
+    },
+    {
+      "name": "supplier credit plus payment query",
+      "passed": true
+    },
+    {
+      "name": "credit24 plus payment96 clears purchase120",
+      "passed": true
+    },
+    {
+      "name": "posted supplier credit application query",
+      "passed": true
+    },
+    {
+      "name": "operator unapplySupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "posted supplier credit removal query",
+      "passed": true
+    },
+    {
+      "name": "operator can reassign posted credit without changing cash",
+      "passed": true
+    },
+    {
+      "name": "operator applySupplierCreditNote",
+      "passed": true
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierPaymentToAccounting",
+      "passed": true
+    },
+    {
+      "name": "bank after second supplier settlement query",
+      "passed": true
+    },
+    {
+      "name": "supplier credits create no cash and bank ends24 MAD",
+      "passed": true
+    },
+    {
+      "name": "supplier credit after reallocation query",
+      "passed": true
+    },
+    {
+      "name": "reallocation leaves supplier credit journal unchanged",
+      "passed": true
+    },
+    {
+      "name": "viewer public authentication",
+      "passed": true
+    },
+    {
+      "name": "viewer company isolation",
+      "passed": true
+    },
+    {
+      "name": "viewer supplier credit read query",
+      "passed": true
+    },
+    {
+      "name": "viewer reads supplier credit",
+      "passed": true
+    },
+    {
+      "name": "viewer cannot mutate supplier credit directly",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "financial": {
+    "supplierCredit": 24,
+    "secondSupplierPayment": 96,
+    "secondPurchase": 120,
+    "bankBalance": 24
+  },
+  "success": true
+}

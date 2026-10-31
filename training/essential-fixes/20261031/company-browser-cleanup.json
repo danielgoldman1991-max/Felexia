@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-31T21:28:40.726Z",
+  "run": "essential-final-20261031202921",
+  "phase": "browser-cleanup",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "browser-only QA invoice is identified",
+      "passed": true
+    },
+    {
+      "name": "operator cancelCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator archiveCustomerInvoice",
+      "passed": true,
+      "observed": "/facturation/factures"
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}

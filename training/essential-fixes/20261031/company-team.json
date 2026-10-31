@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-31T21:17:51.202Z",
+  "run": "essential-final-20261031202921",
+  "phase": "team",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "viewer public authentication",
+      "passed": true
+    },
+    {
+      "name": "viewer company isolation",
+      "passed": true
+    },
+    {
+      "name": "three-user team query",
+      "passed": true
+    },
+    {
+      "name": "three expected active team members exist",
+      "passed": true
+    },
+    {
+      "name": "three tenant role identifiers exist",
+      "passed": true
+    },
+    {
+      "name": "admin membership PATCH status 200",
+      "passed": true
+    },
+    {
+      "name": "disabled viewer loses workspace on existing session",
+      "passed": true
+    },
+    {
+      "name": "disabled viewer invoice access query",
+      "passed": true
+    },
+    {
+      "name": "disabled viewer immediately loses company data access",
+      "passed": true
+    },
+    {
+      "name": "admin membership PATCH status 200",
+      "passed": true
+    },
+    {
+      "name": "reactivated viewer regains consultation on existing session",
+      "passed": true
+    },
+    {
+      "name": "customer before role changes query",
+      "passed": true
+    },
+    {
+      "name": "admin membership PATCH role status 200",
+      "passed": true
+    },
+    {
+      "name": "operator downgrade is immediate on existing session",
+      "passed": true
+    },
+    {
+      "name": "downgraded operator immediately loses writes",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true,
+      "observed": "Votre profil ne permet pas cette modification."
+    },
+    {
+      "name": "admin membership PATCH role status 200",
+      "passed": true
+    },
+    {
+      "name": "customer notes restored after downgraded-role probe",
+      "passed": true
+    },
+    {
+      "name": "operator restoration is immediate on existing session",
+      "passed": true
+    },
+    {
+      "name": "restored operator immediately regains operational writes",
+      "passed": true
+    },
+    {
+      "name": "customer notes restored after role test",
+      "passed": true
+    },
+    {
+      "name": "admin membership PATCH status 403",
+      "passed": true
+    },
+    {
+      "name": "admin membership DELETE status 403",
+      "passed": true
+    },
+    {
+      "name": "admin membership PATCH role status 403",
+      "passed": true
+    },
+    {
+      "name": "operator membership PATCH status 403",
+      "passed": true
+    },
+    {
+      "name": "operator membership DELETE status 403",
+      "passed": true
+    },
+    {
+      "name": "operator membership PATCH role status 403",
+      "passed": true
+    },
+    {
+      "name": "viewer membership PATCH status 403",
+      "passed": true
+    },
+    {
+      "name": "viewer membership DELETE status 403",
+      "passed": true
+    },
+    {
+      "name": "viewer membership PATCH role status 403",
+      "passed": true
+    },
+    {
+      "name": "invitations before quota test query",
+      "passed": true
+    },
+    {
+      "name": "fourth user reservation is denied by the real quota",
+      "passed": true
+    },
+    {
+      "name": "quota refusal occurs before SMTP dispatch",
+      "passed": true
+    },
+    {
+      "name": "invitations after quota test query",
+      "passed": true
+    },
+    {
+      "name": "quota refusal creates no pending invitation",
+      "passed": true
+    },
+    {
+      "name": "team after denied administration query",
+      "passed": true
+    },
+    {
+      "name": "team ends with original three active roles",
+      "passed": true
+    }
+  ],
+  "diagnostics": [
+    "[INVITE] reservation failed"
+  ],
+  "team": {
+    "activeMembers": 3,
+    "rolesRestored": true,
+    "immediateRevocation": true,
+    "immediateRoleChange": true,
+    "selfDisableDenied": true,
+    "lastAdminDowngradeDenied": true,
+    "fourthUserQuotaDenied": true,
+    "smtpAttempts": 0
+  },
+  "success": true
+}

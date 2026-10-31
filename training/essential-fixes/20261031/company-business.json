@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-31T21:16:11.492Z",
+  "run": "essential-final-20261031202921",
+  "phase": "business",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "QA treasury account identifier",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "QA customer and supplier created",
+      "passed": true
+    },
+    {
+      "name": "operator updateThirdParty",
+      "passed": true,
+      "observed": "/tiers/f4d825f3-14ae-4b34-a944-0c6dd2ee4efe"
+    },
+    {
+      "name": "created sale query",
+      "passed": true
+    },
+    {
+      "name": "validated sale query",
+      "passed": true
+    },
+    {
+      "name": "sale HT TVA TTC are coherent",
+      "passed": true
+    },
+    {
+      "name": "created purchase query",
+      "passed": true
+    },
+    {
+      "name": "operator updateSupplierInvoice",
+      "passed": true,
+      "observed": "/achats/factures/67af159d-675b-4bf1-8d39-4aaf6a2069b1"
+    },
+    {
+      "name": "updated purchase query",
+      "passed": true
+    },
+    {
+      "name": "purchase edit preserves internal number",
+      "passed": true
+    },
+    {
+      "name": "operator validateSupplierInvoice",
+      "passed": true
+    },
+    {
+      "name": "validated purchase query",
+      "passed": true
+    },
+    {
+      "name": "purchase HT TVA TTC are coherent",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerPayment",
+      "passed": true,
+      "observed": "/facturation/paiements/3935aa29-b678-4304-b98d-35d8a18f3617"
+    },
+    {
+      "name": "sale after payment 1 query",
+      "passed": true
+    },
+    {
+      "name": "customer payment 1 updates invoice balance",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerPayment",
+      "passed": true,
+      "observed": "/facturation/paiements/aca37502-bebd-46aa-b967-f5069e5c33d5"
+    },
+    {
+      "name": "sale after payment 2 query",
+      "passed": true
+    },
+    {
+      "name": "customer payment 2 updates invoice balance",
+      "passed": true
+    },
+    {
+      "name": "operator createSupplierPayment",
+      "passed": true,
+      "observed": "/achats/paiements/eaeb04f7-466c-490e-888f-5e72b485a425"
+    },
+    {
+      "name": "purchase after payment query",
+      "passed": true
+    },
+    {
+      "name": "supplier payment clears purchase",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerPayment",
+      "passed": true,
+      "observed": "Le montant doit etre superieur a zero."
+    },
+    {
+      "name": "operator createCustomerPayment",
+      "passed": true,
+      "observed": "Le montant depasse le reste a payer de FAC-2610-00001."
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerInvoiceToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierInvoiceToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerPaymentToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerPaymentToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin postSupplierPaymentToAccounting",
+      "passed": true
+    },
+    {
+      "name": "admin cancelCustomerPayment",
+      "passed": true,
+      "observed": "Ce règlement est déjà comptabilisé. Son montant, son compte et son annulation sont verrouillés pour préserver le journal."
+    },
+    {
+      "name": "admin updateCustomerPayment",
+      "passed": true,
+      "observed": "Ce règlement est déjà comptabilisé. Son montant, son compte et son annulation sont verrouillés pour préserver le journal."
+    },
+    {
+      "name": "admin cancelSupplierPayment",
+      "passed": true,
+      "observed": "Ce règlement est déjà comptabilisé. Son montant, son compte et son annulation sont verrouillés pour préserver le journal."
+    },
+    {
+      "name": "bank after posted cancellation attempts query",
+      "passed": true
+    },
+    {
+      "name": "bank net equals 120 MAD",
+      "passed": true
+    },
+    {
+      "name": "company posted entries query",
+      "passed": true
+    },
+    {
+      "name": "five posted source entries created exactly once",
+      "passed": true
+    },
+    {
+      "name": "each posted entry is balanced",
+      "passed": true
+    },
+    {
+      "name": "posted sources are unique",
+      "passed": true
+    }
+  ],
+  "diagnostics": [
+    "[payments] atomic customer payment cancellation failed",
+    "[payments] atomic customer payment update failed",
+    "[purchases] atomic supplier payment cancellation failed"
+  ],
+  "financial": {
+    "saleTtc": 240,
+    "supplierInvoiceTtc": 120,
+    "bankBalance": 120,
+    "postedEntries": 5,
+    "totalDebit": 720,
+    "totalCredit": 720
+  },
+  "success": true
+}

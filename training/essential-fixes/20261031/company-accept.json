@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-31T21:14:59.830Z",
+  "run": "essential-final-20261031202921",
+  "phase": "accept",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "operator invitation email received",
+      "passed": true
+    },
+    {
+      "name": "operator received email establishes matching session",
+      "passed": true
+    },
+    {
+      "name": "operator completeInvitationAction",
+      "passed": true
+    },
+    {
+      "name": "operator activation completes",
+      "passed": true
+    },
+    {
+      "name": "operator company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator role preserved",
+      "passed": true
+    },
+    {
+      "name": "viewer invitation email received",
+      "passed": true
+    },
+    {
+      "name": "viewer received email establishes matching session",
+      "passed": true
+    },
+    {
+      "name": "viewer completeInvitationAction",
+      "passed": true
+    },
+    {
+      "name": "viewer activation completes",
+      "passed": true
+    },
+    {
+      "name": "viewer company isolation",
+      "passed": true
+    },
+    {
+      "name": "viewer role preserved",
+      "passed": true
+    },
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "active team query",
+      "passed": true
+    },
+    {
+      "name": "company contains exactly three active users",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}

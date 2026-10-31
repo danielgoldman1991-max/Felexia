@@ -1,0 +1,88 @@
+{
+  "run": "essential-final-20261031202921",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "scope": "Real public Auth and real application recovery functions; Next cookie/request context supplied by fixture adapter",
+  "phases": {
+    "request": {
+      "date": "2026-10-31T21:17:57.733Z",
+      "phase": "request",
+      "success": true,
+      "checks": [
+        {
+          "name": "administrator authenticates before the recovery request",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains the dedicated company",
+          "passed": true
+        },
+        {
+          "name": "recovery session retains administrator rights",
+          "passed": true
+        },
+        {
+          "name": "recovery redirects to the public Felexia domain",
+          "passed": true
+        },
+        {
+          "name": "real recovery action accepts the email dispatch",
+          "passed": true
+        },
+        {
+          "name": "the real request generated a private PKCE verifier",
+          "passed": true
+        }
+      ],
+      "diagnostics": [],
+      "emailsDispatched": 1
+    },
+    "complete": {
+      "date": "2026-10-31T21:18:42.238Z",
+      "phase": "complete",
+      "success": false,
+      "checks": [
+        {
+          "name": "recovery request was confirmed before completion",
+          "passed": false
+        }
+      ],
+      "diagnostics": [],
+      "emailsDispatched": 0,
+      "failure": "QA_CHECK_FAILED: recovery request was confirmed before completion"
+    }
+  },
+  "date": "2026-10-31T21:18:42.240Z",
+  "checks": [
+    {
+      "name": "administrator authenticates before the recovery request",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains the dedicated company",
+      "passed": true
+    },
+    {
+      "name": "recovery session retains administrator rights",
+      "passed": true
+    },
+    {
+      "name": "recovery redirects to the public Felexia domain",
+      "passed": true
+    },
+    {
+      "name": "real recovery action accepts the email dispatch",
+      "passed": true
+    },
+    {
+      "name": "the real request generated a private PKCE verifier",
+      "passed": true
+    },
+    {
+      "name": "recovery request was confirmed before completion",
+      "passed": false
+    }
+  ],
+  "success": false,
+  "emailsDispatched": 0,
+  "status": "completion_failed"
+}

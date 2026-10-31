@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-31T21:12:32.579Z",
+  "run": "essential-final-20261031202921",
+  "phase": "prepare",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "new subscriber registration succeeds",
+      "passed": true
+    },
+    {
+      "name": "signup establishes expected auto-confirmed session",
+      "passed": true
+    },
+    {
+      "name": "real registration profile API succeeds",
+      "passed": true
+    },
+    {
+      "name": "admin createEntrepriseAction",
+      "passed": true,
+      "observed": "/dashboard?trial_started=1&company_created=1"
+    },
+    {
+      "name": "company onboarding completes",
+      "passed": true
+    },
+    {
+      "name": "company has expected name",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "new company administrator role",
+      "passed": true
+    },
+    {
+      "name": "new company has usable Essentiel trial",
+      "passed": true
+    },
+    {
+      "name": "new company journals query",
+      "passed": true
+    },
+    {
+      "name": "new company accounts query",
+      "passed": true
+    },
+    {
+      "name": "new company roles query",
+      "passed": true
+    },
+    {
+      "name": "five base journals initialized",
+      "passed": true
+    },
+    {
+      "name": "base accounting initialized",
+      "passed": true
+    },
+    {
+      "name": "three required profiles available",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}

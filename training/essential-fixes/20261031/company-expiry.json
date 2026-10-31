@@ -1,0 +1,403 @@
+{
+  "date": "2026-10-31T21:21:27.075Z",
+  "run": "essential-final-20261031202921",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "phase": "expiry",
+  "success": true,
+  "restored": true,
+  "checks": [
+    {
+      "name": "Scoped QA company exists",
+      "passed": true
+    },
+    {
+      "name": "Server fixture targets the exact manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company was newly created for this recette",
+      "passed": true
+    },
+    {
+      "name": "admin authenticates through public Auth as the exact QA account",
+      "passed": true
+    },
+    {
+      "name": "admin retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "admin starts with the real active Essentiel trial",
+      "passed": true
+    },
+    {
+      "name": "operator authenticates through public Auth as the exact QA account",
+      "passed": true
+    },
+    {
+      "name": "operator retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "operator starts with the real active Essentiel trial",
+      "passed": true
+    },
+    {
+      "name": "viewer authenticates through public Auth as the exact QA account",
+      "passed": true
+    },
+    {
+      "name": "viewer retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "viewer starts with the real active Essentiel trial",
+      "passed": true
+    },
+    {
+      "name": "QA membership is readable",
+      "passed": true
+    },
+    {
+      "name": "Only the exact three prepared users belong to the company",
+      "passed": true
+    },
+    {
+      "name": "Scoped server subscription read",
+      "passed": true
+    },
+    {
+      "name": "Only one unpaid Essentiel trial will be simulated",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "customer_payments QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "supplier_payments QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "accounting_entries QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "treasury_transactions QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "Real commercial usage can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "Temporary QA subscription fixture is applied",
+      "passed": true
+    },
+    {
+      "name": "Exactly the intended subscription was temporarily expired",
+      "passed": true
+    },
+    {
+      "name": "admin retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "admin sees the expired trial as non-writable",
+      "passed": true
+    },
+    {
+      "name": "admin page loader preserves company consultation without an invented trial",
+      "passed": true
+    },
+    {
+      "name": "admin consultation guard keeps the same company",
+      "passed": true
+    },
+    {
+      "name": "admin can still read real sales and purchases",
+      "passed": true
+    },
+    {
+      "name": "admin can still read journals",
+      "passed": true
+    },
+    {
+      "name": "admin has posted journal history available",
+      "passed": true
+    },
+    {
+      "name": "admin journal export retains its entries",
+      "passed": true
+    },
+    {
+      "name": "admin sales export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin purchases export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin contacts export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin treasury export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin treasury-ledger export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin supplier-credits export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin real invoice action is refused after expiry",
+      "passed": true
+    },
+    {
+      "name": "admin raw public database insertion is refused",
+      "passed": true
+    },
+    {
+      "name": "operator retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "operator sees the expired trial as non-writable",
+      "passed": true
+    },
+    {
+      "name": "operator page loader preserves company consultation without an invented trial",
+      "passed": true
+    },
+    {
+      "name": "operator consultation guard keeps the same company",
+      "passed": true
+    },
+    {
+      "name": "operator can still read real sales and purchases",
+      "passed": true
+    },
+    {
+      "name": "operator can still read journals",
+      "passed": true
+    },
+    {
+      "name": "operator has posted journal history available",
+      "passed": true
+    },
+    {
+      "name": "operator journal export retains its entries",
+      "passed": true
+    },
+    {
+      "name": "operator sales export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator purchases export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator contacts export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator treasury export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator treasury-ledger export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator supplier-credits export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator real invoice action is refused after expiry",
+      "passed": true
+    },
+    {
+      "name": "operator raw public database insertion is refused",
+      "passed": true
+    },
+    {
+      "name": "viewer retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "viewer sees the expired trial as non-writable",
+      "passed": true
+    },
+    {
+      "name": "viewer page loader preserves company consultation without an invented trial",
+      "passed": true
+    },
+    {
+      "name": "viewer consultation guard keeps the same company",
+      "passed": true
+    },
+    {
+      "name": "viewer can still read real sales and purchases",
+      "passed": true
+    },
+    {
+      "name": "viewer can still read journals",
+      "passed": true
+    },
+    {
+      "name": "viewer has posted journal history available",
+      "passed": true
+    },
+    {
+      "name": "viewer journal export retains its entries",
+      "passed": true
+    },
+    {
+      "name": "viewer sales export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer purchases export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer contacts export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer treasury export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer treasury-ledger export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer supplier-credits export remains available after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer real invoice action is refused after expiry",
+      "passed": true
+    },
+    {
+      "name": "viewer raw public database insertion is refused",
+      "passed": true
+    },
+    {
+      "name": "Scoped server subscription read",
+      "passed": true
+    },
+    {
+      "name": "GET loaders and rejected writes never extend or bootstrap the subscription",
+      "passed": true
+    },
+    {
+      "name": "customer_invoices QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "supplier_invoices QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "customer_payments QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "supplier_payments QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "accounting_entries QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "treasury_transactions QA count can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "Real commercial usage can be read with public administrator session",
+      "passed": true
+    },
+    {
+      "name": "Rejected operations preserve document, payment, treasury, journal and quota counts",
+      "passed": true
+    },
+    {
+      "name": "Scoped QA company exists",
+      "passed": true
+    },
+    {
+      "name": "Server fixture targets the exact manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company was newly created for this recette",
+      "passed": true
+    },
+    {
+      "name": "Scoped server subscription read",
+      "passed": true
+    },
+    {
+      "name": "Original trial-end columns are restored exactly",
+      "passed": true
+    },
+    {
+      "name": "Scoped server subscription read",
+      "passed": true
+    },
+    {
+      "name": "Every subscription business field matches its original snapshot",
+      "passed": true
+    },
+    {
+      "name": "admin retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "admin regains the original usable trial after exact restoration",
+      "passed": true
+    },
+    {
+      "name": "operator retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "operator regains the original usable trial after exact restoration",
+      "passed": true
+    },
+    {
+      "name": "viewer retains the dedicated company and role",
+      "passed": true
+    },
+    {
+      "name": "viewer regains the original usable trial after exact restoration",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "scope": {
+    "subscriptionState": "Temporary server fixture on this new unpaid QA company only",
+    "business": "Real server functions, exports and PostgreSQL/RLS using three public Auth sessions",
+    "framework": "Next navigation/cache boundaries supplied by runner",
+    "payments": "No Stripe event, checkout, payment or email"
+  },
+  "auditUpdatedAtMayAdvance": true,
+  "completedAt": "2026-10-31T21:22:08.545Z"
+}

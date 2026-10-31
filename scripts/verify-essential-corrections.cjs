@@ -56,7 +56,7 @@ const line = (description, price, quantity = 1) => ({ id: crypto.randomUUID(), m
 const saleForm = (description, price = 10) => ({ customer_id: m.records.customerId, invoice_date: today, source_type: 'manual', notes: 'Recette fonctionnelle fictive : ' + description, lines: [line(description, price)] });
 async function contacts() {
   await login('operator');
-  if (!c.contactId) { c.contactId = idFrom(await action('src/lib/third-party-actions.ts', 'createThirdParty', { name: 'CLIENT RECETTE ARCHIVAGE RESTAURATION', type_customer: 'on', status: 'active', country: 'Maroc' })); save(); }
+  if (!c.contactId) { c.contactId = idFrom(await action('src/lib/third-party-actions.ts', 'createThirdParty', { name: 'CLIENT RECETTE ARCHIVAGE RESTAURATION', type_customer: 'on', status: 'active', country: 'MA' })); save(); }
   check('temporary contact created', Boolean(c.contactId));
   await action('src/lib/third-party-actions.ts', 'archiveThirdParty', { id: c.contactId, returnTo: '/tiers/clients' });
   const archived = await runner.load('src/lib/third-parties.ts').listThirdParties({ type: 'customer', status: 'archived', limit: 100 });

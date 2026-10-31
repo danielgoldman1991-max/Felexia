@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-31T21:18:20.989Z",
+  "run": "essential-final-20261031202921",
+  "phase": "treasury",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin authentication",
+      "passed": true
+    },
+    {
+      "name": "admin exact company",
+      "passed": true
+    },
+    {
+      "name": "operator authentication",
+      "passed": true
+    },
+    {
+      "name": "operator exact company",
+      "passed": true
+    },
+    {
+      "name": "viewer authentication",
+      "passed": true
+    },
+    {
+      "name": "viewer exact company",
+      "passed": true
+    },
+    {
+      "name": "admin createTreasuryAccount",
+      "passed": true
+    },
+    {
+      "name": "recette cash account exists",
+      "passed": true
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "manual movement adds exactly5 to cash query",
+      "passed": true
+    },
+    {
+      "name": "manual movement adds exactly5 to cash",
+      "passed": true
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "manual movement idempotent replay preserves identity",
+      "passed": true
+    },
+    {
+      "name": "manual replay creates no second amount query",
+      "passed": true
+    },
+    {
+      "name": "manual replay creates no second amount",
+      "passed": true
+    },
+    {
+      "name": "operator createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "operator archiveTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "viewer createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Votre accès est en lecture seule."
+    },
+    {
+      "name": "viewer archiveTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Votre accès est en lecture seule."
+    },
+    {
+      "name": "admin archiveTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "archived manual movement query",
+      "passed": true
+    },
+    {
+      "name": "manual movement is retained in archive",
+      "passed": true
+    },
+    {
+      "name": "manual archive restores cash to0 query",
+      "passed": true
+    },
+    {
+      "name": "manual archive restores cash to0",
+      "passed": true
+    },
+    {
+      "name": "admin archiveTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "manual archive is idempotent query",
+      "passed": true
+    },
+    {
+      "name": "manual archive is idempotent",
+      "passed": true
+    },
+    {
+      "name": "admin createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Les comptes source et destination doivent etre differents."
+    },
+    {
+      "name": "admin createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Le montant doit etre superieur a zero."
+    },
+    {
+      "name": "operator createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "viewer createManualTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Votre accès est en lecture seule."
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "forward transfer moves10 between accounts query",
+      "passed": true
+    },
+    {
+      "name": "forward transfer moves10 between accounts",
+      "passed": true
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "forward transfer replay retains identity",
+      "passed": true
+    },
+    {
+      "name": "transfer replay does not double balances query",
+      "passed": true
+    },
+    {
+      "name": "transfer replay does not double balances",
+      "passed": true
+    },
+    {
+      "name": "admin archiveTreasuryTransaction denied",
+      "passed": true,
+      "observed": "Ce mouvement lie doit etre annule depuis son document d'origine."
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "admin createManualTreasuryTransaction",
+      "passed": true
+    },
+    {
+      "name": "reverse transfer replay retains identity",
+      "passed": true
+    },
+    {
+      "name": "inverse transfer restores bank120 and cash0 query",
+      "passed": true
+    },
+    {
+      "name": "inverse transfer restores bank120 and cash0",
+      "passed": true
+    },
+    {
+      "name": "audited forward and inverse pairs query",
+      "passed": true
+    },
+    {
+      "name": "two complete transfer pairs remain active in audit history",
+      "passed": true
+    },
+    {
+      "name": "final treasury balances match base business query",
+      "passed": true
+    },
+    {
+      "name": "final treasury balances match base business",
+      "passed": true
+    },
+    {
+      "name": "admin archiveTreasuryAccount",
+      "passed": true
+    },
+    {
+      "name": "archived cash account query",
+      "passed": true
+    },
+    {
+      "name": "empty test cash account is archived without deletion",
+      "passed": true
+    },
+    {
+      "name": "consultation includes internal audit pairs without changing net120",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "financial": {
+    "bankBalance": 120,
+    "cashBalance": 0,
+    "manualArchived": true,
+    "transferPairs": 2,
+    "internalTransferPerDirection": 20,
+    "totalIn": 260,
+    "totalOut": 140,
+    "net": 120
+  },
+  "success": true
+}

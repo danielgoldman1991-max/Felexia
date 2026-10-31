@@ -1,0 +1,4 @@
+﻿"Code";"Nom";"Types";"ICE";"Email";"Téléphone";"Adresse";"Ville";"Pays";"Statut"
+"CU2610-00003";"CLIENT NAVIGATEUR RECETTE";"customer";"";"";"";"";"";"MA";"active"
+"CU2610-00002";"CLIENT RECETTE ARCHIVAGE RESTAURATION";"customer";"";"";"";"";"";"MA";"active"
+"CU2610-00001";"CLIENT RECETTE ESSENTIELLE";"customer";"";"";"";"";"Casablanca";"MA";"active"

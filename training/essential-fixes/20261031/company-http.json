@@ -1,0 +1,3428 @@
+{
+  "date": "2026-10-31T21:29:09.814Z",
+  "run": "essential-final-20261031202921",
+  "origin": "https://www.felexia.pro",
+  "phase": "all",
+  "scope": "Public HTTP with three independent SDK-created SSR cookie jars; current and previous fictitious QA companies only",
+  "businessWrites": 0,
+  "mailDispatches": 0,
+  "checks": [
+    {
+      "role": "admin",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "dashboard returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "dashboard renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "suppliers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "suppliers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sales list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sales list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchase list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury accounts returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "treasury accounts renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury ledger returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "treasury ledger renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury movements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "treasury movements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "entries list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "entries list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journals list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journals list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "bank detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "bank detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "manual entry detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "manual entry detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "cash movement detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "cash movement detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sale 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sale 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchase 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "credited purchase print distinguishes96 paid and24 credit",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "customer credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit print shows available/applied credit without a cash receipt",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal VE returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal VE renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal VE print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal VE print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal VE print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal VE print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal AC print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal AC print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal AC print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal AC print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal AC returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal AC renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal BQ print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal OD returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal OD renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal OD print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "journal OD print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal OD print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "journal OD print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sales CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sales CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 28,
+        "expected": 28
+      }
+    },
+    {
+      "role": "admin",
+      "name": "sales CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchases CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchases CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 2,
+        "expected": 2
+      }
+    },
+    {
+      "role": "admin",
+      "name": "purchases CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "contacts CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "contacts CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 4,
+        "expected": 4
+      }
+    },
+    {
+      "role": "admin",
+      "name": "contacts CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "admin",
+      "name": "treasury CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury-ledger CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury-ledger CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "admin",
+      "name": "treasury-ledger CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier-credits CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier-credits CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 1,
+        "expected": 1
+      }
+    },
+    {
+      "role": "admin",
+      "name": "supplier-credits CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "sales search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "purchase search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "supplier credit search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury inflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "treasury ledger outflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "customer type filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "client supplied foreign company does not select export scope",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "VE Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "VE Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "AC Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "AC Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "BQ Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "BQ Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "OD Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "OD Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA bank is unavailable",
+      "passed": false,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "admin",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "dashboard returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "dashboard renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "suppliers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "suppliers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sales list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sales list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchase list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury accounts returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "treasury accounts renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury movements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "treasury movements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury ledger returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "treasury ledger renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journals list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journals list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "entries list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "entries list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "bank detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "bank detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "manual entry detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "manual entry detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "cash movement detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "cash movement detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sale 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchase 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "credited purchase print distinguishes96 paid and24 credit",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "customer credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit print shows available/applied credit without a cash receipt",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal VE returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal VE renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal VE print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal VE print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal VE print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal VE print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal AC print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal AC print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal AC print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal AC print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal AC returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal AC renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal BQ print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal OD returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal OD renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal OD print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "journal OD print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal OD print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "journal OD print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sales CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sales CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 28,
+        "expected": 28
+      }
+    },
+    {
+      "role": "operator",
+      "name": "sales CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchases CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchases CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 2,
+        "expected": 2
+      }
+    },
+    {
+      "role": "operator",
+      "name": "purchases CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "contacts CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "contacts CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 4,
+        "expected": 4
+      }
+    },
+    {
+      "role": "operator",
+      "name": "contacts CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "operator",
+      "name": "treasury CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury-ledger CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury-ledger CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "operator",
+      "name": "treasury-ledger CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier-credits CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier-credits CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 1,
+        "expected": 1
+      }
+    },
+    {
+      "role": "operator",
+      "name": "supplier-credits CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "sales search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "purchase search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "supplier credit search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury inflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "treasury ledger outflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "customer type filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "client supplied foreign company does not select export scope",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "VE Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "VE Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "AC Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "AC Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "BQ Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "BQ Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "OD Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "OD Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "administration route redirects",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "empty administrative POST is refused without mail or data",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA bank is unavailable",
+      "passed": false,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "operator",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "SSR SDK login establishes a distinct cookie jar",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "dashboard returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "dashboard renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "suppliers returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "suppliers renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sales list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sales list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchase list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier settlements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier settlements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury ledger returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "treasury ledger renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury accounts returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "treasury accounts renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury movements returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "treasury movements renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "entries list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "entries list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journals list returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journals list renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "bank detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "bank detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "manual entry detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "manual entry detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "cash movement detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "cash movement detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sale 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sale 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "credited purchase print distinguishes96 paid and24 credit",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 1 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier payment 2 print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit detail returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit detail renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit print shows available/applied credit without a cash receipt",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal VE print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal AC print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal BQ renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD print returns200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD print renders its expected content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD print has the document print layout",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "journal OD print omits internal-note sections",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sales CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sales CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 28,
+        "expected": 28
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "sales CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchases CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchases CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 2,
+        "expected": 2
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "purchases CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "contacts CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "contacts CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 4,
+        "expected": 4
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "contacts CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "treasury CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury-ledger CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury-ledger CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 8,
+        "expected": 8
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "treasury-ledger CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier-credits CSV returns200 and download headers",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier-credits CSV includes every scoped matching row",
+      "passed": true,
+      "observed": {
+        "rows": 1,
+        "expected": 1
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "supplier-credits CSV is never publicly cacheable",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "sales search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "purchase search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "supplier credit search matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury inflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "treasury ledger outflow filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "customer type filter matches scoped source count",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "client supplied foreign company does not select export scope",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "VE Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "VE Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "AC Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "AC Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "BQ Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "BQ Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "OD Excel journal returns200 and attachment",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "OD Excel journal includes every entry and line",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "read-only form route redirects before rendering",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "empty forbidden mutation is refused before business logic",
+      "passed": true,
+      "observed": {
+        "status": 403
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA customer payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier payment is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA supplier payment leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA bank is unavailable",
+      "passed": false,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA bank leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA sale print leaks no company document content",
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase print is unavailable",
+      "passed": true,
+      "observed": {
+        "status": 404
+      }
+    },
+    {
+      "role": "viewer",
+      "name": "foreign QA purchase print leaks no company document content",
+      "passed": true
+    }
+  ],
+  "roles": {
+    "admin": {
+      "nonemptyInternalNotesChecked": 0,
+      "pageResponses": 47,
+      "pages": 47,
+      "exports": 6,
+      "filteredExports": 7,
+      "excelJournals": 4
+    },
+    "operator": {
+      "nonemptyInternalNotesChecked": 0,
+      "pageResponses": 47,
+      "pages": 47,
+      "exports": 6,
+      "filteredExports": 7,
+      "excelJournals": 4
+    },
+    "viewer": {
+      "nonemptyInternalNotesChecked": 0,
+      "pageResponses": 47,
+      "pages": 47,
+      "exports": 6,
+      "filteredExports": 7,
+      "excelJournals": 4
+    }
+  },
+  "limitations": [
+    "admin: no non-empty internal note in the prepared print sources; absence of internal-note sections verified",
+    "operator: no non-empty internal note in the prepared print sources; absence of internal-note sections verified",
+    "viewer: no non-empty internal note in the prepared print sources; absence of internal-note sections verified"
+  ],
+  "success": false
+}

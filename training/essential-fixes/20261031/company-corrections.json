@@ -1,0 +1,607 @@
+{
+  "date": "2026-10-31T21:19:17.171Z",
+  "run": "essential-final-20261031202921",
+  "phase": "corrections",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company scope",
+      "passed": true
+    },
+    {
+      "name": "operator public authentication",
+      "passed": true
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer public authentication",
+      "passed": true
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator createThirdParty",
+      "passed": true
+    },
+    {
+      "name": "temporary contact created",
+      "passed": true
+    },
+    {
+      "name": "operator archiveThirdParty",
+      "passed": true
+    },
+    {
+      "name": "archived contact is discoverable",
+      "passed": true
+    },
+    {
+      "name": "operator restoreThirdParty",
+      "passed": true
+    },
+    {
+      "name": "restored contact query",
+      "passed": true
+    },
+    {
+      "name": "contact restored without new identity",
+      "passed": true
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer archiveThirdParty denied",
+      "passed": true,
+      "observed": "Votre accès est en lecture seule."
+    },
+    {
+      "name": "viewer restoreThirdParty denied",
+      "passed": true,
+      "observed": "Votre accès est en lecture seule."
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "correction draft query",
+      "passed": true
+    },
+    {
+      "name": "operator cancelCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator archiveCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "cancelled archived draft query",
+      "passed": true
+    },
+    {
+      "name": "draft cancellation and archive remain traceable",
+      "passed": true
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "open credit target query",
+      "passed": true
+    },
+    {
+      "name": "operator validateCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerCreditNote",
+      "passed": true
+    },
+    {
+      "name": "created credit query",
+      "passed": true
+    },
+    {
+      "name": "operator updateCustomerCreditNote",
+      "passed": true
+    },
+    {
+      "name": "edited credit query",
+      "passed": true
+    },
+    {
+      "name": "credit draft edit preserves number and recomputes 24 TTC",
+      "passed": true
+    },
+    {
+      "name": "operator validateCustomerCreditNote",
+      "passed": true
+    },
+    {
+      "name": "current credit applications query",
+      "passed": true
+    },
+    {
+      "name": "operator applyCreditNoteToInvoices",
+      "passed": true
+    },
+    {
+      "name": "credited target query",
+      "passed": true
+    },
+    {
+      "name": "credit reduces open invoice to 216 without cash",
+      "passed": true
+    },
+    {
+      "name": "credit application to correct query",
+      "passed": true
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer unapplyCreditNoteFromInvoice denied",
+      "passed": true,
+      "observed": "Votre rôle ne permet pas de modifier les avoirs."
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator unapplyCreditNoteFromInvoice",
+      "passed": true
+    },
+    {
+      "name": "restored credit target query",
+      "passed": true
+    },
+    {
+      "name": "removal restores 240 and leaves cash unchanged",
+      "passed": true
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer updateCustomerCreditNote denied",
+      "passed": true,
+      "observed": "Votre rôle ne permet pas de modifier les avoirs."
+    },
+    {
+      "name": "viewer postCustomerCreditNote denied",
+      "passed": true,
+      "observed": "Seul un administrateur peut comptabiliser cet avoir."
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator postCustomerCreditNote denied",
+      "passed": true,
+      "observed": "Seul un administrateur peut comptabiliser cet avoir."
+    },
+    {
+      "name": "admin company scope",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerCreditNote",
+      "passed": true
+    },
+    {
+      "name": "credit posting query",
+      "passed": true
+    },
+    {
+      "name": "credit posting is unique and balanced at 24",
+      "passed": true
+    },
+    {
+      "name": "admin postCustomerCreditNote",
+      "passed": true
+    },
+    {
+      "name": "idempotent credit posting query",
+      "passed": true
+    },
+    {
+      "name": "repeated credit posting creates no duplicate entry",
+      "passed": true
+    },
+    {
+      "name": "admin cancelCustomerCreditNote denied",
+      "passed": true,
+      "observed": "Cet avoir est déjà comptabilisé. Une correction nécessite une contrepassation par l’administrateur."
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "posted credit current allocations query",
+      "passed": true
+    },
+    {
+      "name": "operator applyCreditNoteToInvoices",
+      "passed": true
+    },
+    {
+      "name": "posted credit operator allocation query",
+      "passed": true
+    },
+    {
+      "name": "operator unapplyCreditNoteFromInvoice",
+      "passed": true
+    },
+    {
+      "name": "posted credit target restoration query",
+      "passed": true
+    },
+    {
+      "name": "posting after operator allocation correction query",
+      "passed": true
+    },
+    {
+      "name": "operator may reallocate posted credit without changing cash or journal",
+      "passed": true
+    },
+    {
+      "name": "operator cancelCustomerCreditNote denied",
+      "passed": true,
+      "observed": "Cet avoir est déjà comptabilisé. Une correction nécessite une contrepassation par l’administrateur."
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "operator createCustomerInvoice",
+      "passed": true
+    },
+    {
+      "name": "26 synthetic pagination invoices have distinct identities",
+      "passed": true
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "second sales page is available to viewer",
+      "passed": true
+    },
+    {
+      "name": "sales pages do not duplicate records",
+      "passed": true
+    },
+    {
+      "name": "sales export expected count query",
+      "passed": true
+    },
+    {
+      "name": "sales export available to read-only user",
+      "passed": true
+    },
+    {
+      "name": "CSV contains every nonarchived sales invoice beyond first page",
+      "passed": true
+    },
+    {
+      "name": "purchases export available to read-only user",
+      "passed": true
+    },
+    {
+      "name": "contacts export available to read-only user",
+      "passed": true
+    },
+    {
+      "name": "treasury export available to read-only user",
+      "passed": true
+    },
+    {
+      "name": "treasury-ledger export available to read-only user",
+      "passed": true
+    },
+    {
+      "name": "admin company scope",
+      "passed": true
+    },
+    {
+      "name": "admin can read live invoice counter",
+      "passed": true
+    },
+    {
+      "name": "admin correctNumberingCounterAction",
+      "passed": true
+    },
+    {
+      "name": "counter correction is confirmed",
+      "passed": true
+    },
+    {
+      "name": "no issued document consumes the temporary corrected counter",
+      "passed": true
+    },
+    {
+      "name": "admin correctNumberingCounterAction",
+      "passed": true
+    },
+    {
+      "name": "invoice counter restored to its original value",
+      "passed": true
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator correctNumberingCounterAction denied",
+      "passed": true,
+      "observed": "Seul un administrateur peut corriger les compteurs de l’entreprise."
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer correctNumberingCounterAction denied",
+      "passed": true,
+      "observed": "Seul un administrateur peut corriger les compteurs de l’entreprise."
+    },
+    {
+      "name": "admin company scope",
+      "passed": true
+    },
+    {
+      "name": "manual entry accounts query",
+      "passed": true
+    },
+    {
+      "name": "manual entry journal query",
+      "passed": true
+    },
+    {
+      "name": "manual journal defaults are ready",
+      "passed": true
+    },
+    {
+      "name": "admin createAccountingEntry",
+      "passed": true
+    },
+    {
+      "name": "manual draft query",
+      "passed": true
+    },
+    {
+      "name": "admin postAccountingEntry",
+      "passed": true
+    },
+    {
+      "name": "operator company scope",
+      "passed": true
+    },
+    {
+      "name": "operator createAccountingEntry denied",
+      "passed": true,
+      "observed": "Ce profil Opérateur ne permet pas cette action. Contactez votre administrateur."
+    },
+    {
+      "name": "viewer company scope",
+      "passed": true
+    },
+    {
+      "name": "viewer createAccountingEntry denied",
+      "passed": true,
+      "observed": "Votre profil ne permet pas cette modification."
+    },
+    {
+      "name": "treasury totals retain base flows plus audited internal transfers and net120",
+      "passed": true
+    },
+    {
+      "name": "payment journal sources query",
+      "passed": true
+    },
+    {
+      "name": "treasury payments link their own posting instead of the invoice posting",
+      "passed": true
+    },
+    {
+      "name": "all journal aggregates remain balanced",
+      "passed": true
+    },
+    {
+      "name": "journal export matches entry count AC",
+      "passed": true
+    },
+    {
+      "name": "journal export matches entry count BQ",
+      "passed": true
+    },
+    {
+      "name": "journal export matches entry count CA",
+      "passed": true
+    },
+    {
+      "name": "journal export matches entry count OD",
+      "passed": true
+    },
+    {
+      "name": "journal export matches entry count VE",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "operations": {
+    "contactArchiveRestore": true,
+    "cancelledDraft": true,
+    "creditNote": {
+      "totalTtc": 24,
+      "available": 24,
+      "targetRemaining": 240,
+      "accountingBalanced": true,
+      "postedCancellationDenied": true,
+      "operatorMayReallocatePosted": true
+    },
+    "pagination": {
+      "distinctDraftsCreated": 26,
+      "salesRows": 28,
+      "pages": 2,
+      "exportDataRows": {
+        "sales": 28,
+        "purchases": 1,
+        "contacts": 3,
+        "treasury": 7,
+        "treasury-ledger": 7
+      }
+    },
+    "numbering": {
+      "corrected": true,
+      "restored": true,
+      "originalNextNumber": 30
+    },
+    "manualJournal": {
+      "posted": true,
+      "debit": 5,
+      "credit": 5
+    },
+    "treasury": {
+      "in": 260,
+      "out": 140,
+      "net": 120,
+      "internalTransfersPerDirection": 20
+    }
+  },
+  "success": true,
+  "completedAt": "2026-10-31T21:20:17.670Z"
+}

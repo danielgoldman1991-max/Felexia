@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-31T21:40:23.630Z",
+  "scope": "Public production health and unsigned cron rejection only",
+  "businessWrites": 0,
+  "healthStatus": 200,
+  "databaseReady": true,
+  "unsignedCronStatus": 503,
+  "cronSecretConfigured": false
+}

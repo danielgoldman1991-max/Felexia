@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-31T21:14:31.563Z",
+  "run": "essential-final-20261031202921",
+  "phase": "resend",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "checks": [
+    {
+      "name": "admin public authentication",
+      "passed": true
+    },
+    {
+      "name": "admin company isolation",
+      "passed": true
+    },
+    {
+      "name": "operator pending test invitation exists",
+      "passed": true
+    },
+    {
+      "name": "operator real invitation resend",
+      "passed": true
+    },
+    {
+      "name": "resent invitation query",
+      "passed": true
+    },
+    {
+      "name": "operator resend preserves invited account",
+      "passed": true
+    },
+    {
+      "name": "viewer pending test invitation exists",
+      "passed": true
+    },
+    {
+      "name": "viewer real invitation resend",
+      "passed": true
+    },
+    {
+      "name": "resent invitation query",
+      "passed": true
+    },
+    {
+      "name": "viewer resend preserves invited account",
+      "passed": true
+    }
+  ],
+  "diagnostics": [],
+  "success": true
+}
