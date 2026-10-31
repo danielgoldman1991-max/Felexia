@@ -4,6 +4,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { CompanyOnboardingFlow } from "@/components/onboarding/CompanyOnboardingFlow";
 import { getUserOnboardingStatus } from "@/lib/saas";
 import { createClient } from "@/lib/supabase/server";
+import { extractGoogleProfileData } from "@/lib/auth/ensure-profile-from-auth-user";
 
 export default async function EntreprisePage() {
   const supabase = await createClient();
@@ -30,6 +31,8 @@ export default async function EntreprisePage() {
     .select("first_name,last_name,avatar_url")
     .eq("id", user.id)
     .maybeSingle();
+
+  const authProfile = extractGoogleProfileData(user);
 
   return (
     <>
@@ -61,9 +64,9 @@ export default async function EntreprisePage() {
 
           <CompanyOnboardingFlow
             initialEmail={user.email ?? ""}
-            initialFirstName={profile?.first_name ?? undefined}
-            initialLastName={profile?.last_name ?? undefined}
-            initialAvatarUrl={profile?.avatar_url ?? null}
+            initialFirstName={profile?.first_name?.trim() || authProfile.firstName || undefined}
+            initialLastName={profile?.last_name?.trim() || authProfile.lastName || undefined}
+            initialAvatarUrl={profile?.avatar_url || authProfile.avatarUrl || null}
           />
         </div>
       </main>

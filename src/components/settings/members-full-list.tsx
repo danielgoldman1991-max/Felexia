@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Ban,
   Clock,
-  Copy,
   RotateCw,
   Search,
   Shield,
@@ -21,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getRoleLabel, ADMIN_ROLES } from "@/lib/auth/roles";
-import { getAppUrl } from "@/lib/app-url";
 
 type Member = {
   id: string;
@@ -37,7 +35,6 @@ type Invitation = {
   email: string;
   fullName: string | null;
   status: string;
-  token: string;
   role: string | null;
   createdAt: string;
   expiresAt: string;
@@ -48,7 +45,6 @@ export function MembersFullList({
   invitations,
   roles,
   isOwner,
-  organizationId,
   currentUserId,
   limit,
 }: {
@@ -56,17 +52,17 @@ export function MembersFullList({
   invitations: Invitation[];
   roles: { id: string; name: string }[];
   isOwner: boolean;
-  organizationId: string;
   currentUserId: string;
   limit: { allowed: boolean; current: number; max: number };
 }) {
   const router = useRouter();
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState(roles.find((r) => r.name === "viewer")?.id ?? roles[0]?.id ?? "");
+  const [inviteRole, setInviteRole] = useState(roles.find((r) => r.name === "viewer")?.id ?? "");
   const [inviteFullName, setInviteFullName] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  const [inviting, setInviting] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [changingRole, setChangingRole] = useState<string | null>(null);
@@ -86,9 +82,6 @@ export function MembersFullList({
     return matchesSearch && matchesRole;
   });
 
-  const inviteLink = (token: string) =>
-    `${getAppUrl(window.location.origin)}/invitation?token=${token}`;
-
   async function handleInvite() {
     if (!inviteEmail.trim()) { setInviteError("Email requis."); return; }
     if (!inviteEmail.includes("@")) { setInviteError("Format d'email invalide."); return; }
@@ -96,6 +89,7 @@ export function MembersFullList({
 
     setInviteError(null);
     setInviteSuccess(null);
+    setInviting(true);
 
     try {
       const res = await fetch("/api/invitations", {
@@ -104,24 +98,25 @@ export function MembersFullList({
         body: JSON.stringify({
           email: inviteEmail.trim(),
           roleId: inviteRole || null,
-          organizationId,
           fullName: inviteFullName.trim() || null,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
-      if (data.inviteLink) {
-        await navigator.clipboard.writeText(data.inviteLink);
-        setInviteSuccess(`Invitation créée. Lien copié dans le presse-papier.`);
-      } else {
-        setInviteSuccess(`Invitation envoyée à ${inviteEmail}`);
+      if (!res.ok) {
+        setInviteError(data.error || "L'invitation n'a pas pu être envoyée.");
+        return;
       }
+
+      setInviteSuccess(
+        `Email d'invitation envoyé à ${inviteEmail.trim()}. Le destinataire recevra un lien pour définir son mot de passe.`,
+      );
       setInviteEmail("");
       setInviteFullName("");
       router.refresh();
     } catch (err) {
       setInviteError((err as Error).message);
+    } finally {
+      setInviting(false);
     }
   }
 
@@ -156,12 +151,14 @@ export function MembersFullList({
 
   async function handleRevoke(invId: string) {
     try {
-      await fetch(`/api/invitations/${invId}`, { method: "DELETE" });
+      const response = await fetch(`/api/invitations/${invId}`, { method: "DELETE" });
+      const payload = await response.json();
+      if (!response.ok) { setInviteError(payload.error || "Impossible de révoquer cette invitation."); return; }
       router.refresh();
-    } catch { /* ignore */ }
+    } catch { setInviteError("Impossible de révoquer cette invitation. Réessayez."); }
   }
 
-  async function handleResend(invId: string) {
+  async function handleResend(invId: string, invEmail: string) {
     try {
       const res = await fetch(`/api/invitations/${invId}`, { method: "PATCH" });
       const data = await res.json();
@@ -169,10 +166,7 @@ export function MembersFullList({
         alert(data.error);
         return;
       }
-      if (data.token) {
-        await navigator.clipboard.writeText(inviteLink(data.token));
-        alert("Invitation renvoyée. Nouveau lien copié dans le presse-papier.");
-      }
+      setInviteSuccess(`Email d'invitation renvoyé à ${invEmail}.`);
       router.refresh();
     } catch { /* ignore */ }
   }
@@ -223,6 +217,8 @@ export function MembersFullList({
       </div>
 
       {/* Invite form */}
+      {!showInvite && inviteError ? <p role="alert" className="rounded-xl bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">{inviteError}</p> : null}
+      {!showInvite && inviteSuccess ? <p role="status" className="rounded-xl bg-[var(--success-soft)] p-3 text-sm text-[var(--success)]">{inviteSuccess}</p> : null}
       {showInvite && (
         <Card className="border-blue-200 bg-blue-50/40">
           <CardContent className="space-y-3 p-4">
@@ -230,7 +226,7 @@ export function MembersFullList({
               <UserPlus className="h-4 w-4" /> Inviter un utilisateur
             </h3>
             <p className="text-sm text-[var(--muted)]">
-              Envoyez une invitation à rejoindre votre organisation Felexia.
+              Un email d&apos;invitation sera envoyé avec un lien pour rejoindre votre organisation et définir un mot de passe.
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <Input
@@ -249,6 +245,7 @@ export function MembersFullList({
                 onChange={(e) => setInviteRole(e.target.value)}
                 className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--primary)]"
               >
+                {!roles.some((role) => role.name === "viewer") ? <option value="">Lecture seule (par défaut)</option> : null}
                 {roles.map((r) => (
                   <option key={r.id} value={r.id}>{getRoleLabel(r.name)}</option>
                 ))}
@@ -257,7 +254,9 @@ export function MembersFullList({
             {inviteError && <p className="text-sm text-red-600">{inviteError}</p>}
             {inviteSuccess && <p className="text-sm text-green-600">{inviteSuccess}</p>}
             <div className="flex gap-2">
-              <Button onClick={handleInvite}>Envoyer l&apos;invitation</Button>
+              <Button onClick={handleInvite} disabled={inviting || !limit.allowed}>
+                {inviting ? "Envoi de l'invitation..." : "Envoyer l'invitation"}
+              </Button>
               <Button variant="secondary" onClick={() => { setShowInvite(false); setInviteError(null); setInviteSuccess(null); }}>Annuler</Button>
             </div>
           </CardContent>
@@ -428,26 +427,15 @@ export function MembersFullList({
                     </div>
                     <div className="flex items-center gap-2">
                       {isExpired && <Badge tone="warning">Expirée</Badge>}
-                      {!isExpired && (
-                        <>
-                          <button
-                            type="button"
-                            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-blue-600 hover:bg-blue-50"
-                            onClick={() => {
-                              navigator.clipboard.writeText(inviteLink(inv.token));
-                            }}
-                          >
-                            <Copy className="h-3.5 w-3.5" /> Copier
-                          </button>
-                          {isOwner && (
+                      {isOwner && (
                             <>
-                              <button
+                              {!isExpired ? <button
                                 type="button"
                                 className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-amber-600 hover:bg-amber-50"
-                                onClick={() => handleResend(inv.id)}
+                                onClick={() => handleResend(inv.id, inv.email)}
                               >
-                                <RotateCw className="h-3.5 w-3.5" /> Renvoyer
-                              </button>
+                                <RotateCw className="h-3.5 w-3.5" /> Renvoyer le mail
+                              </button> : null}
                               <button
                                 type="button"
                                 className="rounded-lg p-1.5 text-red-500 hover:bg-red-50"
@@ -457,8 +445,6 @@ export function MembersFullList({
                                 <X className="h-4 w-4" />
                               </button>
                             </>
-                          )}
-                        </>
                       )}
                     </div>
                   </div>

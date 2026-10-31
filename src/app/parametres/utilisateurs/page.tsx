@@ -18,7 +18,7 @@ export default async function UsersSettingsPage() {
       .order("created_at"),
     supabase
       .from("invitations")
-      .select("id, email, full_name, token, status, created_at, expires_at, role:roles(name)")
+      .select("id, email, full_name, status, created_at, expires_at, role:roles(name)")
       .eq("organization_id", workspace.organization.id)
       .order("created_at"),
     supabase
@@ -43,7 +43,6 @@ export default async function UsersSettingsPage() {
     email: inv.email,
     fullName: inv.full_name,
     status: inv.status,
-    token: inv.token,
     role: (inv.role as unknown as { name: string } | null)?.name ?? null,
     createdAt: inv.created_at,
     expiresAt: inv.expires_at,
@@ -62,7 +61,6 @@ export default async function UsersSettingsPage() {
         invitations={invitations}
         roles={roles}
         isOwner={isOwner}
-        organizationId={workspace.organization.id}
         currentUserId={workspace.userId}
         limit={limit}
       />

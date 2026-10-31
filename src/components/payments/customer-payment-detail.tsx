@@ -94,7 +94,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
         </CardContent>
       </Card>
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
-        <summary className="cursor-pointer text-sm font-medium">Journal comptable</summary>
+        <summary className="cursor-pointer text-sm font-medium">{!accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>

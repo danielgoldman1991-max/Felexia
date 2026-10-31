@@ -9,7 +9,9 @@ import {
 import { DOCUMENT_STATUSES } from "../src/lib/document-types";
 import { computeWeightedAmount } from "../src/lib/treasury/treasury-forecast";
 import { canonicalMoney, parseLocalizedMoney } from "../src/lib/money";
+import { synchronizeSingleInvoiceAllocation } from "../src/lib/payment-amount-allocation";
 import { resolveSeedLineParents } from "./lib/seed-line-parents";
+import { getDefaultTrialEndDate, getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
 
 const accountingLines = buildCustomerInvoiceLines([
   {
@@ -65,6 +67,16 @@ assert.equal(
 assert.equal(computeWeightedAmount(600, 100, "outflow", "realistic"), 600, "Une probabilité de 100 % ne doit pas multiplier le montant par 100.");
 assert.equal(parseLocalizedMoney("600,00"), 600, "Une saisie française ne doit pas être convertie en centimes.");
 assert.equal(canonicalMoney("600,00"), "600.00", "Le serveur doit recevoir une valeur décimale canonique.");
+const singleSale = [{ id: "sale", remaining_amount: 240 }];
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ sale: 240 }, 100, singleSale), { sale: 100 }, "Un règlement partiel de 100 doit affecter 100 à la facture de 240.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ sale: 100 }, 300, singleSale), { sale: 240 }, "Un versement de 300 doit solder 240 et conserver 60 disponibles, sans suraffectation.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ sale: 240 }, 0, singleSale), { sale: 0 }, "Effacer le montant ne doit pas conserver une affectation positive.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ sale: 0 }, 140, [{ id: "sale", remaining_amount: 140 }]), { sale: 140 }, "Le règlement suivant doit pouvoir solder les 140 restants.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ purchase: 120 }, 50, [{ id: "purchase", remaining_amount: 120 }]), { purchase: 50 }, "Le même comportement partiel doit s'appliquer aux achats.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({ sale: 240, other: 0 }, 100, singleSale), { sale: 100 }, "Une ancienne ligne à zéro ne doit pas empêcher le règlement partiel de l'unique facture sélectionnée.");
+const multipleAllocations = { sale: 100, other: 40 };
+assert.equal(synchronizeSingleInvoiceAllocation(multipleAllocations, 80, singleSale), multipleAllocations, "Les affectations de plusieurs factures doivent conserver la répartition manuelle.");
+assert.deepEqual(synchronizeSingleInvoiceAllocation({}, 60, singleSale), {}, "Une avance libre doit rester non affectée.");
 assert.equal(parseLocalizedMoney("1 290,50"), 1_290.5, "Les séparateurs de milliers français doivent être acceptés.");
 assert.equal(DOCUMENT_STATUSES.filter((status) => status.label === "Disponible").length, 1, "Le filtre Disponible ne doit apparaître qu'une fois.");
 
@@ -187,5 +199,21 @@ assert.equal(
   false,
   "La référence technique de seed ne doit jamais être envoyée à Supabase.",
 );
+
+// Calendar-month trials must stop at the last valid day of the target month.
+const trialDateCases: Array<{ start: string; expected: string; business?: boolean }> = [
+  { start: "2026-10-31T12:34:56.000Z", expected: "2026-11-30T12:34:56.000Z" },
+  { start: "2026-01-31T08:00:00.000Z", expected: "2026-02-28T08:00:00.000Z" },
+  { start: "2028-01-31T08:00:00.000Z", expected: "2028-02-29T08:00:00.000Z" },
+  { start: "2026-12-31T08:00:00.000Z", expected: "2027-01-31T08:00:00.000Z" },
+  { start: "2026-05-15T23:59:00.000Z", expected: "2026-06-15T23:59:00.000Z" },
+  { start: "2026-11-30T08:00:00.000Z", expected: "2027-02-28T08:00:00.000Z", business: true },
+];
+for (const { start, expected, business } of trialDateCases) {
+  const source = new Date(start);
+  const end = business ? getBusinessTrialEndDate(source) : getDefaultTrialEndDate(source);
+  assert.equal(end.toISOString(), expected, `L’essai du ${start} doit se terminer le ${expected}.`);
+  assert.equal(source.toISOString(), start, "Le calcul d’essai ne doit pas modifier la date source.");
+}
 
 console.log("Régressions QA vérifiées : comptabilisation des remises, prévisions, statuts documentaires et rattachement du seed.");

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-user";
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    const { email, fullName } = await request.json();
-
     const supabase = await createClient();
 
     const { data: userResult, error: userError } = await supabase.auth.getUser();
@@ -16,20 +15,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data, error } = await supabase.rpc("ensure_user_profile", {
-      p_full_name: fullName ?? null,
-      p_email: email ?? userResult.user.email ?? null,
-    });
-
-    if (error) {
-      console.error("create-profile error:", error.message);
+    const result = await ensureProfileFromAuthUser(supabase, userResult.user);
+    if (!result.ok) {
+      console.error("[create-profile] initialization failed", { userId: userResult.user.id, reason: result.reason });
       return NextResponse.json(
-        { error: error.message },
-        { status: 400 },
+        { error: result.reason === "conflict" ? "Un autre compte utilise déjà cette adresse. Contactez le support." : "Le profil n’a pas pu être initialisé. Réessayez dans un instant." },
+        { status: result.reason === "conflict" ? 409 : 503 },
       );
     }
 
-    return NextResponse.json({ success: true, profile_id: data });
+    return NextResponse.json({ success: true, profile_id: userResult.user.id });
   } catch (err) {
     console.error("create-profile unexpected error:", err);
     return NextResponse.json(

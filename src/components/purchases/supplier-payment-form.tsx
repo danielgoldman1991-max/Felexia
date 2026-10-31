@@ -14,6 +14,7 @@ import { getSupplierOpenInvoicesAction } from "@/lib/actions/supplier-open-invoi
 import type { TreasuryAccountRecord } from "@/lib/treasury-types";
 import type { SupplierInvoicePaymentSummary, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { formatDate } from "@/lib/format";
+import { synchronizeSingleInvoiceAllocation } from "@/lib/payment-amount-allocation";
 
 export function SupplierPaymentForm({
   suppliers,
@@ -156,7 +157,14 @@ export function SupplierPaymentForm({
                 min={0.01}
                 value={amount}
                 disabled={isPreselectedInvoiceBlocked}
-                onValueChange={(value) => setAmount(value ?? 0)}
+                onValueChange={(value) => {
+                  const next = value ?? 0;
+                  setAmount(next);
+                  if (!fullAccess) setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, availableInvoices.map((invoice) => ({
+                    id: invoice.id,
+                    remaining_amount: invoice.id === preselectedInvoiceId ? preselectedMaxAmount : invoice.remaining_amount,
+                  }))));
+                }}
                 className="mt-1"
                 required
               />

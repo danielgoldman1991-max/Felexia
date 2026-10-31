@@ -537,9 +537,19 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   const unitError = validateUnits(lines);
   if (unitError) return { success: false, error: unitError };
 
+  const initialTotals = lines.reduce<{ subtotal_ht: number; discount_total: number; tax_total: number; total_ttc: number }>((totals, line) => {
+    const calculated = calculatePurchaseLine(line);
+    return {
+      subtotal_ht: totals.subtotal_ht + Number(calculated.subtotal_ht),
+      discount_total: totals.discount_total + Number(calculated.discount_amount),
+      tax_total: totals.tax_total + Number(calculated.tax_amount),
+      total_ttc: totals.total_ttc + Number(calculated.total_ttc),
+    };
+  }, { subtotal_ht: 0, discount_total: 0, tax_total: 0, total_ttc: 0 });
+
   const { data: inv, error: invError } = await supabase
     .from("supplier_invoices")
-    .insert({ organization_id: orgId, invoice_number: "", supplier_id: supplierId, supplier_invoice_number: supplierInvoiceNumber, source_type: sourceReceiptId ? "supplier_receipt" : "manual", source_receipt_id: sourceReceiptId, invoice_date: invoiceDate, due_date: dueDate, notes, internal_notes: internalNotes, status: "draft" })
+    .insert({ organization_id: orgId, invoice_number: "", supplier_id: supplierId, supplier_invoice_number: supplierInvoiceNumber, source_type: sourceReceiptId ? "supplier_receipt" : "manual", source_receipt_id: sourceReceiptId, invoice_date: invoiceDate, due_date: dueDate, notes, internal_notes: internalNotes, status: "draft", ...initialTotals, paid_amount: 0, remaining_amount: initialTotals.total_ttc, payment_status: "unpaid" })
     .select("id, invoice_number")
     .single();
   if (invError) return { success: false, error: invError.message };
@@ -596,8 +606,8 @@ export async function updateSupplierInvoice(prev: PurchaseActionResult, formData
   const invoiceId = text(formData, "id");
   if (!invoiceId) return { success: false, error: "ID facture manquant." };
 
-  const { data: existing } = await supabase.from("supplier_invoices").select("status").eq("id", invoiceId).eq("organization_id", orgId).single();
-  if (!existing || existing.status !== "draft") return { success: false, error: "Seules les factures brouillon peuvent etre modifiees." };
+  const { data: existing } = await supabase.from("supplier_invoices").select("status, paid_amount").eq("id", invoiceId).eq("organization_id", orgId).single();
+  if (!existing || existing.status !== "draft" || Number(existing.paid_amount ?? 0) !== 0) return { success: false, error: "Seules les factures brouillon non réglées peuvent être modifiées." };
 
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
   const dueDate = text(formData, "due_date");
@@ -661,7 +671,7 @@ export async function updateSupplierInvoice(prev: PurchaseActionResult, formData
     const discountTotal = calculated.reduce((s, l) => s + l.discount_amount, 0);
     const taxTotal = calculated.reduce((s, l) => s + l.tax_amount, 0);
     const totalTtc = calculated.reduce((s, l) => s + l.total_ttc, 0);
-    await supabase.from("supplier_invoices").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc }).eq("id", invoiceId);
+    await supabase.from("supplier_invoices").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc, paid_amount: 0, remaining_amount: totalTtc, payment_status: "unpaid" }).eq("id", invoiceId).eq("organization_id", orgId).eq("status", "draft").eq("paid_amount", 0);
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : "Erreur mise a jour lignes." };
   }

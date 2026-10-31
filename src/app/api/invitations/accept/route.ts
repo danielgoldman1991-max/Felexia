@@ -1,73 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createServiceClient } from "@/lib/supabase/service";
+import { completeInvitationAction } from "@/lib/actions/complete-invitation";
+import type { InvitationPreview } from "@/lib/auth/invitation-callback";
 
-type InvitationByToken = {
-  id: string;
-  organization_id: string;
-  organization_name: string | null;
-  email: string;
-  role_id: string | null;
-  status: string;
-  expires_at: string;
-};
-
+/** Legacy links require an already verified session. They never sign up or
+ * attach somebody else's account merely because the caller knows a token. */
 export async function POST(req: NextRequest) {
   try {
-    const { token, password } = await req.json();
-
-    if (!token || !password) {
-      return NextResponse.json({ error: "Token et mot de passe requis" }, { status: 400 });
-    }
-
-    const supabase = await createClient();
-
-    const { data: invitation } = (await supabase
-      .rpc("get_invitation_by_token", { p_token: token })
-      .maybeSingle()) as {
-      data: InvitationByToken | null;
-      error: { message: string } | null;
+    const body: unknown = await req.json();
+    const { token, password } = (typeof body === "object" && body !== null ? body : {}) as {
+      token?: unknown; password?: unknown;
     };
-
-    if (!invitation) {
-      return NextResponse.json({ error: "Invitation invalide ou expiree" }, { status: 404 });
+    if (typeof token !== "string" || !token || typeof password !== "string") {
+      return NextResponse.json({ error: "Lien et mot de passe requis." }, { status: 400 });
     }
-
-    if (invitation.status !== "pending" || new Date(invitation.expires_at) < new Date()) {
-      return NextResponse.json({ error: "Invitation expiree" }, { status: 410 });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email_confirmed_at) {
+      return NextResponse.json({ error: "Demandez à votre administrateur de renvoyer l'invitation par email, puis validez son lien." }, { status: 401 });
     }
-
-    const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-      email: invitation.email,
-      password,
-    });
-
-    if (signUpError || !user) {
-      return NextResponse.json({ error: signUpError?.message || "Erreur d'inscription" }, { status: 500 });
+    const { data: invitation } = await supabase.rpc("get_invitation_by_token", { p_token: token }).maybeSingle<InvitationPreview>();
+    if (!invitation) return NextResponse.json({ error: "Invitation introuvable." }, { status: 404 });
+    if (invitation.email.toLowerCase() !== user.email?.toLowerCase()) {
+      return NextResponse.json({ error: "Cette invitation ne correspond pas à votre compte." }, { status: 403 });
     }
-
-    const serviceClient = createServiceClient();
-
-    await serviceClient.from("profiles").upsert({
-      id: user.id,
-      email: invitation.email,
-      full_name: invitation.email.split("@")[0],
-    }, { onConflict: "id" });
-
-    await serviceClient.from("organization_members").insert({
-      organization_id: invitation.organization_id,
-      user_id: user.id,
-      role_id: invitation.role_id || null,
-      status: "active",
-    });
-
-    const { error: acceptError } = await supabase.rpc("accept_invitation", { p_token: token });
-    if (acceptError) {
-      return NextResponse.json({ error: acceptError.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    const data = new FormData();
+    data.set("invitationId", invitation.id);
+    data.set("password", password);
+    const result = await completeInvitationAction({ error: null }, data);
+    return NextResponse.json(result.error ? result : { success: true }, { status: result.error ? 400 : 200 });
+  } catch (error) {
+    if (error instanceof SyntaxError) return NextResponse.json({ error: "Payload invalide." }, { status: 400 });
+    console.error("[INVITE] legacy acceptance failed", error);
+    return NextResponse.json({ error: "Impossible de finaliser cette invitation." }, { status: 500 });
   }
 }

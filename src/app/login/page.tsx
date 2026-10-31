@@ -31,9 +31,9 @@ function friendlyAuthError(errorCode: string | undefined): string | null {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; next?: string; error?: string }>;
+  searchParams: Promise<{ mode?: string; next?: string; error?: string; notice?: string }>;
 }) {
-  const { mode, next, error: errorCode } = await searchParams;
+  const { mode, next, error: errorCode, notice } = await searchParams;
   const isRegisterMode = mode === "register";
   const isLoginMode = !isRegisterMode;
   const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : "";
@@ -94,6 +94,11 @@ export default async function LoginPage({
           </div>
 
           <div className="mt-8">
+            {notice === "confirm_email" ? (
+              <p role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm leading-6 text-blue-800">
+                Consultez votre boîte mail et ouvrez le lien de confirmation pour continuer la création de votre entreprise. Si votre email est déjà confirmé, connectez-vous ci-dessous.
+              </p>
+            ) : null}
             {authError ? (
               <p
                 role="alert"
@@ -125,15 +130,8 @@ export default async function LoginPage({
             <BrandLogo variant="horizontal" size="xl" />
           </div>
           <blockquote className="text-lg font-medium text-slate-700">
-            &ldquo;FelexiaERP a transformé notre gestion d&apos;entreprise. Factures, devis, comptabilité — tout est centralisé.&rdquo;
+            Vos factures de vente et d’achat, leurs règlements et votre trésorerie, dans un espace simple.
           </blockquote>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-slate-300" />
-            <div className="text-left">
-              <p className="text-sm font-semibold text-slate-900">Karim B.</p>
-              <p className="text-xs text-slate-500">CEO, Atlas Distribution</p>
-            </div>
-          </div>
           <div className="mt-10 flex items-center justify-center gap-8 text-xs text-slate-400">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -141,11 +139,11 @@ export default async function LoginPage({
             </span>
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Comptabilité
+              Journaux
             </span>
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Stock
+              Trésorerie
             </span>
           </div>
         </div>

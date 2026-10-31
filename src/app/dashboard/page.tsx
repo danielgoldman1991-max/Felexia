@@ -4,7 +4,7 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 
 export default async function DashboardPage({ searchParams }: {
-  searchParams?: Promise<{ trial_started?: string | string[] }>;
+  searchParams?: Promise<{ trial_started?: string | string[]; setup_notice?: string | string[] }>;
 }) {
   const workspace = await requireActiveWorkspace();
   if (await hasFullErpAccess(workspace.organization.id)) {

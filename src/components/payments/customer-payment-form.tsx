@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getCustomerOpenItemsAction } from "@/lib/payment-actions";
 import { PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
+import { synchronizeSingleInvoiceAllocation } from "@/lib/payment-amount-allocation";
 import { CUSTOMER_PAYMENT_TYPE_LABELS, type CustomerOpenItems as CustomerOpenItemsType, type OpenInvoiceForAllocation, type PaymentActionResult } from "@/lib/payment-types";
 import type { InvoiceCustomerOption } from "@/lib/invoice-types";
 import type { TreasuryAccountRecord } from "@/lib/treasury-types";
@@ -179,7 +180,9 @@ export function CustomerPaymentForm({
             <span className="font-medium text-[var(--muted)]">Montant *</span>
             <MoneyInput name="amount" min={0.01} value={amount} onValueChange={(nextAmount) => {
               amountEdited.current = true;
-              setAmount(nextAmount ?? 0);
+              const next = nextAmount ?? 0;
+              setAmount(next);
+              if (!fullAccess) setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, openItems?.invoices ?? []));
             }} required />
           </label>
           <label className="space-y-1.5 text-sm">

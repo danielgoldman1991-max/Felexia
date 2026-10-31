@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getAppUrl } from "@/lib/app-url";
 import { useRouter } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -56,76 +57,54 @@ export function RegisterAdminForm() {
       return;
     }
 
-    const supabase = createClient();
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: `${firstName} ${lastName}`,
-        },
-      },
-    });
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setPending(false);
-      return;
-    }
-
-    if (!signUpData.user) {
-      setError("Impossible de créer le compte utilisateur.");
-      setPending(false);
-      return;
-    }
-
-    let hasSession = Boolean(signUpData.session);
-
-    if (!hasSession) {
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    try {
+      const supabase = createClient();
+      const callback = new URL("/auth/callback", getAppUrl(window.location.origin));
+      callback.searchParams.set("next", "/onboarding/entreprise");
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: callback.toString(),
+          data: {
+            full_name: `${firstName} ${lastName}`,
+            first_name: firstName,
+            last_name: lastName,
+          },
+        },
       });
 
-      if (signInError || !signInData.session) {
-        setError("Compte créé. Veuillez confirmer votre email puis vous connecter pour créer votre entreprise.");
-        setPending(false);
-        router.push("/login?next=/onboarding/entreprise");
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+      if (!signUpData.user) {
+        setError("Impossible de créer le compte utilisateur.");
+        return;
+      }
+      if (!signUpData.session) {
+        // Confirmation-required signups have no session yet. Keep the notice in
+        // the destination URL instead of losing a local message on navigation.
+        router.replace("/login?notice=confirm_email&next=/onboarding/entreprise");
         return;
       }
 
-      hasSession = true;
-    }
-
-    if (hasSession) {
-      await supabase.auth.getSession();
-    }
-
-    // Create profile via server action
-    try {
       const response = await fetch("/api/auth/create-profile", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          fullName: `${firstName} ${lastName}`,
-        }),
+        body: JSON.stringify({ email, fullName: `${firstName} ${lastName}` }),
       });
-
       if (!response.ok) {
-        setError("Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer.");
-        setPending(false);
+        setError("Votre compte est créé. Connectez-vous pour reprendre la configuration de votre entreprise.");
         return;
       }
+      router.replace("/onboarding/entreprise");
     } catch {
-      setError("Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer.");
+      setError("La connexion a été interrompue. Réessayez ou connectez-vous si votre compte a déjà été créé.");
+    } finally {
       setPending(false);
-      return;
     }
-
-    router.push("/onboarding/entreprise");
   }
 
   return (

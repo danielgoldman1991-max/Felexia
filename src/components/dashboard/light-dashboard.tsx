@@ -9,7 +9,7 @@ import { getOnboardingChecklist } from "@/lib/onboarding";
 const money = (value: number, currency = "MAD") => `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)} ${currency}`;
 
 export async function LightDashboard({ searchParams }: {
-  searchParams?: Promise<{ trial_started?: string | string[] }>;
+  searchParams?: Promise<{ trial_started?: string | string[]; setup_notice?: string | string[] }>;
 }) {
   const workspace = await requireActiveWorkspace();
   const [data, checklist, params] = await Promise.all([
@@ -17,6 +17,7 @@ export async function LightDashboard({ searchParams }: {
   ]);
   const name = workspace.profile?.full_name?.trim().split(/\s+/)[0];
   const trialStarted = Array.isArray(params?.trial_started) ? params.trial_started[0] : params?.trial_started;
+  const setupNotice = Array.isArray(params?.setup_notice) ? params.setup_notice[0] : params?.setup_notice;
   const actions = [
     { label: "Facture de vente", description: "Facturer un client", href: "/facturation/factures/new", icon: FilePlus2, primary: true },
     { label: "Facture d’achat", description: "Enregistrer une facture fournisseur", href: "/achats/factures/new", icon: ShoppingCart, primary: false },
@@ -40,6 +41,12 @@ export async function LightDashboard({ searchParams }: {
         </header>
 
         {trialStarted === "1" || workspace.subscription?.status === "trialing" ? <TrialStartedBanner forceOpen={trialStarted === "1"} planCode={workspace.subscription?.planCode} /> : null}
+
+        {setupNotice === "defaults_incomplete" ? (
+          <p role="status" className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-sm leading-6">
+            Votre entreprise est créée. Certains réglages de démarrage restent à finaliser. <Link href="/comptabilite/journaux" className="font-semibold text-[var(--primary)] underline">Ouvrez vos journaux pour réessayer</Link>. Si le problème persiste, <Link href="/parametres/modules" className="font-semibold text-[var(--primary)] underline">contactez notre équipe</Link> avant d’inviter vos collaborateurs.
+          </p>
+        ) : null}
 
         <section aria-labelledby="actions-title">
           <h2 id="actions-title" className="mb-3 text-base font-semibold text-[var(--foreground)]">Que souhaitez-vous faire ?</h2>

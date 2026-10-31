@@ -245,21 +245,30 @@ export async function createEntrepriseAction(
     };
   }
 
+  let defaultsIncomplete = false;
   try {
-    await ensureAccountingBaseSetup(orgId);
+    const accountingSetup = await ensureAccountingBaseSetup(orgId);
+    if ("error" in accountingSetup.settings && accountingSetup.settings.error) {
+      defaultsIncomplete = true;
+      console.error("createEntreprise: accounting settings initialization incomplete", accountingSetup.settings.error);
+    }
   } catch (accountingErr) {
+    defaultsIncomplete = true;
     console.error("createEntreprise: accounting defaults error", accountingErr);
   }
 
   if (hasServiceRoleKey()) {
     try {
       await initializeOrganizationDefaults(orgId);
+      defaultsIncomplete = false;
     } catch (defaultsErr) {
+      defaultsIncomplete = true;
       console.error("createEntreprise: defaults initialization error", defaultsErr);
     }
   } else {
+    defaultsIncomplete = true;
     console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
-  redirect("/dashboard?trial_started=1&company_created=1");
+  redirect(`/dashboard?trial_started=1&company_created=1${defaultsIncomplete ? "&setup_notice=defaults_incomplete" : ""}`);
 }

@@ -633,6 +633,12 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
   const entryNumber = await generateEntryNumber(orgId, "AC");
   const displayNumber = invoice.supplier_invoice_number || invoice.invoice_number;
   const label = `Facture fournisseur ${displayNumber} - ${supplierName ?? "Fournisseur"}`;
+  const accountLabels = new Map([
+    [supplierAccount.id, { code: supplierAccount.code, name: supplierAccount.name }],
+    [purchaseProductAccount.id, { code: purchaseProductAccount.code, name: purchaseProductAccount.name }],
+    [purchaseServiceAccount.id, { code: purchaseServiceAccount.code, name: purchaseServiceAccount.name }],
+    [purchaseVatAccount.id, { code: purchaseVatAccount.code, name: purchaseVatAccount.name }],
+  ]);
 
   const { data: entry, error: insertError } = await supabase
     .from("accounting_entries")
@@ -664,8 +670,8 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
       entry_id: entry.id,
       line_number: i + 1,
       account_id: l.account_id,
-      account_code: l.account_code || "",
-      account_label: l.account_name,
+      account_code: accountLabels.get(l.account_id)?.code ?? l.account_code,
+      account_label: accountLabels.get(l.account_id)?.name ?? l.account_name,
       debit: l.debit,
       credit: l.credit,
       label: l.label,

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-user";
 
 export type RegisterAdminState = {
   error: string | null;
@@ -42,6 +43,8 @@ export async function registerAdminAction(
     options: {
       data: {
         full_name: `${firstName} ${lastName}`,
+        first_name: firstName,
+        last_name: lastName,
       },
     },
   });
@@ -55,24 +58,21 @@ export async function registerAdminAction(
   }
 
   // Forcer la connexion pour garantir que la session est dans les cookies
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (signInError) {
+  if (signInError || !signInData.user) {
     return {
       success: "Compte créé. Veuillez confirmer votre email pour continuer la configuration de votre entreprise.",
       error: null,
     };
   }
 
-  const { error: profileError } = await supabase.rpc("ensure_user_profile", {
-    p_full_name: `${firstName} ${lastName}`,
-    p_email: email,
-  });
+  const profileResult = await ensureProfileFromAuthUser(supabase, signInData.user);
 
-  if (profileError) {
+  if (!profileResult.ok) {
     return { error: "Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer." };
   }
 
