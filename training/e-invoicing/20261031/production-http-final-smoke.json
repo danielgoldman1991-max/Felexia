@@ -1,0 +1,135 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-31T23:51:28.260Z",
+  "deployment": "dpl_wA2oqwzYL8cfcTAWraUns1iF8bL1",
+  "commit": "b02c42b",
+  "checks": 28,
+  "results": [
+    "The original nonpilot QA company is explicitly identified",
+    "Existing authorized QA identity authenticates",
+    "The nonpilot QA organization remains unactivated",
+    "The final deployment serves the nonpilot admin module",
+    "The nonpilot authenticated page disables shared caching",
+    "Global rollout exposes opt-in activation to another organization",
+    "The nonpilot admin has an activation link",
+    "The nonpilot module does not claim an unfinished deployment",
+    "The nonpilot administrator can open activation settings",
+    "The nonpilot activation form is available",
+    "Reading opt-in pages never activates or creates settings",
+    "Existing authorized QA identity authenticates",
+    "Final deployment still serves the pilot reader",
+    "Final deployment reader list has no mutation form",
+    "Final deployment serves the issued detail",
+    "Final deployment retains issued and archived state",
+    "Final deployment reader detail has no mutation form",
+    "The final deployment keeps both immutable formats",
+    "Final reader download xml succeeds",
+    "Final archive disables caching",
+    "Final download preserves its immutable byte count",
+    "Final download preserves its immutable SHA256",
+    "Final reader download pdf succeeds",
+    "Final archive disables caching",
+    "Final download preserves its immutable byte count",
+    "Final download preserves its immutable SHA256",
+    "The final PDF is exactly the previewed and issued file",
+    "Final public health endpoint succeeds"
+  ],
+  "nonpilotOrganizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "nonpilotActivated": false,
+  "pilotOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+  "sourceId": "51279ec6-c2e1-4331-8b29-b496448bcbb6",
+  "versionId": "be7ecb77-8909-4c47-bae8-d7a3fdbebd6e",
+  "downloads": [
+    {
+      "format": "xml",
+      "sha256": "eed0fb286eba67cdd898adb86f68530f47cdb8e6b115832f25afadb756c413c2",
+      "bytes": 3508
+    },
+    {
+      "format": "pdf",
+      "sha256": "7f75395c8f1c1b2b023812f1a8b823e34c10e2bd4f76b57bf9829bdab6b39082",
+      "bytes": 9754
+    }
+  ],
+  "requests": [
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_settings",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_settings",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_artifacts",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    }
+  ],
+  "authorizedExistingQaLogins": 2,
+  "businessMutationRequests": 0,
+  "emailsRequested": 0,
+  "notes": [
+    "Only existing authorized QA identities were used; normal Auth sessions/audit entries are distinct from business changes.",
+    "No activation, emission, preparation or other business mutation was submitted."
+  ]
+}

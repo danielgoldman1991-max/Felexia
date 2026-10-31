@@ -1,8 +1,8 @@
 # Facturation électronique Maroc — Felexia Pro
 
-Le parcours documentaire a été simplifié et activé dans l’aperçu local : génération PDF/XML, aperçu et téléchargement, puis émission et archivage atomiques. Le bandeau technique répété est retiré ; les connexions avancées restent dans la configuration. Voir [la correction opérationnelle et ses preuves](OPERATIONS-UPDATE.md). Le nouveau parcours nécessite les migrations102 et103, disponibles dans un [installateur transactionnel](../../supabase/electronic-invoicing-102-103.sql). La version en ligne n’a pas été modifiée.
+Le parcours documentaire est publié sur [Felexia Pro](https://www.felexia.pro/facturation/electronique) : génération PDF/XML, aperçu et téléchargement, puis émission et archivage atomiques. Le bandeau technique répété est retiré ; les connexions avancées restent dans la configuration. Les migrations102 et103 ont été appliquées par l’utilisateur puis vérifiées avec une session réelle. Chaque administrateur peut activer le module pour son entreprise. Voir [la publication et les contrôles hébergés](PRODUCTION-RELEASE.md), [la correction opérationnelle](OPERATIONS-UPDATE.md) et l’[installateur transactionnel](../../supabase/electronic-invoicing-102-103.sql).
 
-Module préparatoire développé sur `codex/e-invoicing-maroc-20261031`, à partir du socle `c74c2f2c1fe8625d56a39bd8bf010a1b257aec59`. **Aucun déploiement ni migration102 en production n’est autorisé par ce dossier.**
+Module initial développé sur `codex/e-invoicing-maroc-20261031`, à partir du socle `c74c2f2c1fe8625d56a39bd8bf010a1b257aec59`, puis simplifié sur `codex/e-invoicing-operational-20261031`. La publication du code `b02c42b` a ensuite été explicitement autorisée par l’utilisateur : « envoi sur le site ». Ce dossier seul n’autorise aucune autre publication ou modification de production.
 
 ## Livrables
 
@@ -17,12 +17,15 @@ Module préparatoire développé sur `codex/e-invoicing-maroc-20261031`, à part
 | Sécurité et limites | [SECURITY.md](SECURITY.md) |
 | Exploitation, supervision, sauvegarde, migration et retour arrière | [OPERATIONS.md](OPERATIONS.md) |
 | Résultats et limites de recette | [TEST-REPORT.md](TEST-REPORT.md) |
+| Publication et recette hébergée actuelle | [PRODUCTION-RELEASE.md](PRODUCTION-RELEASE.md) |
 | Fonctionnalités en attente et autorisation de publication | [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md) |
 | Migration additive | [102_electronic_invoicing_maroc.sql](../../supabase/migrations/102_electronic_invoicing_maroc.sql) |
 
 ## Architecture intégrée
 
-`Facture/avoir client existant → capture fiscale exacte → contrôles → instantané versionné → XML UBL + XSD + PDF → validation interne → émission figée → prêt → simulation interne facultative`.
+`Facture/avoir client existant → génération PDF/XML contrôlée et versionnée → aperçu/téléchargement → validation et émission/archivage atomiques`.
+
+Les contrôles avancés et les simulations internes sont facultatifs et séparés du parcours documentaire courant.
 
 La vente, les règlements et la comptabilité restent gérés par leurs fonctions existantes. Ce module ne renumérote pas les pièces et ne génère aucune écriture comptable. Les montants traversent ses frontières sous forme de chaînes décimales et sont calculés avec des entiers. Les versions, artefacts et contrôles sont persistés dans une seule transaction serveur ; l’interface ne détient pas le privilège d’écrire ces archives directement.
 

@@ -1,0 +1,171 @@
+{
+  "checkedAt": "2026-10-31T23:40:31.388Z",
+  "targetFingerprint": "0db5b22143dca140",
+  "qaOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+  "productionReadOnlyBusiness": true,
+  "authorizedExistingQaLogin": true,
+  "credentialsPrinted": false,
+  "userJwtRole": "authenticated",
+  "readiness": {
+    "status": 200,
+    "errorCode": null,
+    "response": {
+      "workflow_version": 2,
+      "atomic_issuance": true
+    },
+    "valid": true
+  },
+  "contracts": {
+    "metadataSource": "service OpenAPI (user documentation endpoint unavailable)",
+    "userMetadataStatus": 401,
+    "serviceMetadataStatus": 200,
+    "capabilities": {
+      "visible": true,
+      "argumentNames": [
+        "p_organization_id"
+      ]
+    },
+    "issueAndArchive": {
+      "visible": true,
+      "argumentNames": [
+        "p_document_id",
+        "p_expected_version"
+      ]
+    },
+    "signaturesValid": true
+  },
+  "accessChecks": {
+    "qaAdminAllowed": true,
+    "nonmemberOrganization": {
+      "status": 403,
+      "errorCode": "42501",
+      "denied": true
+    },
+    "anonymous": {
+      "status": 401,
+      "errorCode": "42501",
+      "denied": true
+    },
+    "scopeDenialsValid": true,
+    "userRoleGrantCatalogAvailable": false,
+    "grantCatalogLimitation": "Authenticated OpenAPI documentation remains unavailable; effective tenant/anonymous read access was tested directly without mutation."
+  },
+  "tables": {
+    "einvoice_settings": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_documents": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_versions": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_artifacts": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_validations": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_transmissions": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_jobs": {
+      "status": 200,
+      "count": 0
+    },
+    "einvoice_events": {
+      "status": 200,
+      "count": 0
+    }
+  },
+  "allTablesPresent": true,
+  "archivesEmpty": true,
+  "completeRequiredWorkflowContract": true,
+  "passed": true,
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/rpc/einvoice_get_capabilities",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/rpc/einvoice_get_capabilities",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/rpc/einvoice_get_capabilities",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/",
+      "status": 401
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_settings",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_documents",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_versions",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_artifacts",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_validations",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_transmissions",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_jobs",
+      "status": 200
+    },
+    {
+      "method": "HEAD",
+      "path": "/rest/v1/einvoice_events",
+      "status": 200
+    }
+  ],
+  "mutationFunctionsInvoked": 0,
+  "businessMutationRequests": 0,
+  "emailsRequested": 0,
+  "notes": [
+    "No invoice preparation, issuance, settings update, SQL migration, payment or email function was invoked.",
+    "One authorized QA password login creates its normal Auth session/audit entry; all subsequent requests were GET or HEAD.",
+    "The installed SQL text hash is not asserted from API metadata alone."
+  ]
+}

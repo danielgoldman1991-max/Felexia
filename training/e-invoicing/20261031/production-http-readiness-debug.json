@@ -1,0 +1,92 @@
+{
+  "checkedAt": "2026-10-31T23:43:20.794Z",
+  "productionReadOnlyBusiness": true,
+  "qaOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+  "client": "Actual @supabase/ssr createServerClient with cookie jar and public environment key",
+  "cookieCount": 2,
+  "get": {
+    "status": 200,
+    "error": null,
+    "data": {
+      "atomic_issuance": true,
+      "workflow_version": 2
+    },
+    "expected": true
+  },
+  "post": {
+    "status": 200,
+    "error": null,
+    "data": {
+      "atomic_issuance": true,
+      "workflow_version": 2
+    },
+    "expected": true,
+    "functionStableReadOnly": true
+  },
+  "settingsRead": {
+    "status": 200,
+    "error": null,
+    "row": null
+  },
+  "workspaceRead": {
+    "membershipStatus": 200,
+    "membershipError": null,
+    "activeMemberships": 1,
+    "qaMembershipPresent": true,
+    "qaRole": "admin",
+    "profileStatus": 200,
+    "profileError": null,
+    "defaultOrganizationMatchesQa": true
+  },
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/rpc/einvoice_get_capabilities",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/rest/v1/rpc/einvoice_get_capabilities",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/einvoice_settings",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/profiles",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/rest/v1/customer_invoices",
+      "status": 200
+    }
+  ],
+  "authLogins": 1,
+  "businessMutationRequests": 0,
+  "emailsRequested": 0,
+  "issueOrGenerationInvoked": false,
+  "observedBrowserInvoice": {
+    "id": "0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1",
+    "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+    "matchesIntendedQaPilot": false,
+    "fieldsRead": [
+      "id",
+      "organization_id"
+    ],
+    "businessMutationRequests": 0
+  }
+}

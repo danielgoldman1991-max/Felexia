@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-31T23:47:31.407Z",
+  "role": "viewer",
+  "qaOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+  "sourceId": "51279ec6-c2e1-4331-8b29-b496448bcbb6",
+  "versionId": "be7ecb77-8909-4c47-bae8-d7a3fdbebd6e",
+  "artifactId": "82a622e9-74d9-4f3d-92e9-69218b7924c0",
+  "bytes": 9754,
+  "sha256": "7f75395c8f1c1b2b023812f1a8b823e34c10e2bd4f76b57bf9829bdab6b39082",
+  "file": "C:\\Users\\XXX\\Documents\\Felexia\\backups\\einvoice-production-qa\\prepared-fr.pdf",
+  "requests": [
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_artifacts",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    }
+  ],
+  "authorizedExistingQaLogins": 1,
+  "businessMutationRequests": 0,
+  "emailsRequested": 0
+}

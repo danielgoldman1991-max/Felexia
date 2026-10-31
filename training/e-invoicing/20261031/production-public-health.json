@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-10-31T23:49:22.172Z",
+  "productionDeployment": "dpl_wA2oqwzYL8cfcTAWraUns1iF8bL1",
+  "sourceCommit": "b02c42b158021d3747009cc6654266fb9c45f639",
+  "requests": [
+    {
+      "path": "/api/health",
+      "status": 200,
+      "location": null,
+      "cacheControl": "no-store",
+      "body": {
+        "status": "ok",
+        "app": "FelexiaERP",
+        "environment": "production",
+        "checks": {
+          "database": "ok"
+        }
+      }
+    },
+    {
+      "path": "/facturation/electronique",
+      "status": 307,
+      "location": "/login?next=%2Ffacturation%2Felectronique",
+      "cacheControl": "public, max-age=0, must-revalidate"
+    },
+    {
+      "path": "/api/cron/e-invoicing",
+      "status": 401,
+      "location": null,
+      "cacheControl": "no-store",
+      "body": {
+        "error": "Non autorisé"
+      }
+    }
+  ],
+  "noCredentialsSent": true,
+  "noMutation": true
+}

@@ -1,0 +1,83 @@
+{
+  "verifiedAt": "2026-10-31T23:52:06.393Z",
+  "userAuthorization": "envoi sur le site",
+  "projectId": "prj_3VWRIDk122M2EssODvf3tZWXGRnQ",
+  "teamId": "team_Sd2yomYgKo41tdigwC6e4n5u",
+  "productionOrigin": "https://www.felexia.pro",
+  "deploymentId": "dpl_wA2oqwzYL8cfcTAWraUns1iF8bL1",
+  "deploymentUrl": "https://felexia-1t3zxam76-danielgoldman1991-maxs-projects.vercel.app",
+  "status": "READY",
+  "sourceCommit": "b02c42b158021d3747009cc6654266fb9c45f639",
+  "productionBranch": "main",
+  "framework": "nextjs",
+  "buildingAt": 1793490503820,
+  "readyAt": 1793490526072,
+  "buildDurationMs": 22252,
+  "rebuiltFromGit": true,
+  "localBuildUploaded": false,
+  "productionMigrationsAppliedBy": "User, both102 and103 markers confirmed; authenticated capability verified",
+  "databaseSqlContentHashReadBack": false,
+  "migration103Sha256": "f82118ea8aaf2b6cf49f94906c1884d2d4ad3ae37d0b7e45ae8f252076ae59b8",
+  "installerSha256": "3f589eac13719793dafb5352a287ca71ee6fdad6a2973ff03dec5b105abe7c30",
+  "rollout": {
+    "globalAvailable": true,
+    "organizationActivation": "Explicit administrator opt-in, disabled by default",
+    "pilotOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+    "nonpilotQaLeftDisabled": true
+  },
+  "qaUiActions": {
+    "syntheticCompanyAndClientFieldsCompleted": true,
+    "organizationModuleActivated": true,
+    "sourceInvoiceId": "51279ec6-c2e1-4331-8b29-b496448bcbb6",
+    "archivedVersionId": "be7ecb77-8909-4c47-bae8-d7a3fdbebd6e",
+    "documentsGenerated": 1,
+    "documentsIssued": 1,
+    "commercialNumbersOrAmountsChanged": false,
+    "paymentsCreated": 0,
+    "journalsCreated": 0,
+    "emailsRequested": 0,
+    "officialTransmissions": 0,
+    "signatureConfigured": false
+  },
+  "ci": [
+    {
+      "name": "essential main",
+      "conclusion": "success",
+      "runId": 41253478034
+    },
+    {
+      "name": "essential feature",
+      "conclusion": "success",
+      "runId": 41253468722
+    }
+  ],
+  "observability": {
+    "healthHttpStatus": 200,
+    "database": "ok",
+    "anonymousModuleRedirectsToLogin": true,
+    "unsignedElectronicCronHttpStatus": 401,
+    "internalVercelLogApi": "Not accessible through current connection,403; no exhaustive log claim",
+    "drainsConfiguredByThisRelease": 0
+  },
+  "reports": {
+    "production-http-readonly": {
+      "passed": true,
+      "checks": 46,
+      "sha256": "011f14a328feb9e9f29ac457640b910953654fe7a6e95dd4227ffa350a81846b"
+    },
+    "production-issued-http": {
+      "passed": true,
+      "checks": 208,
+      "sha256": "f1706ab2c6a20963473ddea817c4f8440912a097fadb6f300e14207105473d14"
+    },
+    "production-http-final-smoke": {
+      "passed": true,
+      "checks": 28,
+      "sha256": "259dde0a17ad53c4208c69b031b903847b381f298c56090caa23b059b63d825c"
+    },
+    "production-migration-check": {
+      "passed": true,
+      "sha256": "7d1e7e297cd63da0915aa118e3188be2489bc3dc58c3ed055c9741c9b6c8114f"
+    }
+  }
+}

@@ -1,0 +1,552 @@
+{
+  "passed": false,
+  "checkedAt": "2026-10-31T23:50:04.879Z",
+  "checks": 168,
+  "results": [
+    "admin uses its actual active QA membership",
+    "admin effective role is read from production membership",
+    "operator uses its actual active QA membership",
+    "operator effective role is read from production membership",
+    "viewer uses its actual active QA membership",
+    "viewer effective role is read from production membership",
+    "All three authorized existing QA roles are available",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin reaches the actual electronic-invoicing module",
+    "admin has an active document service",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator reaches the actual electronic-invoicing module",
+    "operator has an active document service",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator administrative route is refused by an authenticated middleware redirect",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator administrative route is refused by an authenticated middleware redirect",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer reaches the actual electronic-invoicing module",
+    "Reader module page contains no mutation form (GET search remains allowed)",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer sees an explicit administrative access refusal",
+    "viewer administrative page exposes no mutation form",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer sees an explicit administrative access refusal",
+    "viewer administrative page exposes no mutation form",
+    "Issued version retains both document formats",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin sees the issued-and-archived state",
+    "admin has an explicit PDF download",
+    "admin downloads the issued xml",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "admin downloads the issued pdf",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "Issued PDF download is actual PDF bytes",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator sees the issued-and-archived state",
+    "operator has an explicit PDF download",
+    "operator downloads the issued xml",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "operator downloads the issued pdf",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "Issued PDF download is actual PDF bytes",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer sees the issued-and-archived state",
+    "viewer has an explicit PDF download",
+    "Reader issued detail contains no mutation form",
+    "viewer downloads the issued xml",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "viewer downloads the issued pdf",
+    "Private archive cache policy is explicit",
+    "Archive sniffing is disabled",
+    "Archive is a download attachment",
+    "Downloaded byte count equals the immutable SQL metadata",
+    "Downloaded SHA256 equals the immutable SQL metadata",
+    "Issued PDF download is actual PDF bytes",
+    "Anonymous archive download is refused before content is served",
+    "Issuance preserved the exact preview version",
+    "Issuance preserved the exact preview PDF",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin Arabic detail uses RTL",
+    "admin Arabic interface downloads frozen xml",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "admin Arabic interface downloads frozen pdf",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "admin explicit PDF preview is available",
+    "PDF preview disposition is inline",
+    "Inline PDF preview equals frozen archive",
+    "admin legacy print redirects to the archive",
+    "admin foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "admin foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "admin cannot enumerate another tenant electronic documents",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator Arabic detail uses RTL",
+    "operator Arabic interface downloads frozen xml",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "operator Arabic interface downloads frozen pdf",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "operator explicit PDF preview is available",
+    "PDF preview disposition is inline",
+    "Inline PDF preview equals frozen archive",
+    "operator legacy print redirects to the archive",
+    "operator foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "operator foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "operator cannot enumerate another tenant electronic documents",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer Arabic detail uses RTL",
+    "Arabic reader detail has no mutation form",
+    "viewer Arabic interface downloads frozen xml",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "viewer Arabic interface downloads frozen pdf",
+    "Interface language never regenerates an issued archive",
+    "Arabic interface archive keeps the private cache policy",
+    "viewer explicit PDF preview is available",
+    "PDF preview disposition is inline",
+    "Inline PDF preview equals frozen archive",
+    "viewer legacy print redirects to the archive",
+    "viewer foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "viewer foreign or unknown source never returns archive bytes",
+    "Missing-source archive response remains private",
+    "viewer cannot enumerate another tenant electronic documents",
+    "Source subtotal_ht still equals its captured pre-issuance value",
+    "Source discount_total still equals its captured pre-issuance value",
+    "Source tax_total still equals its captured pre-issuance value",
+    "Source total_ttc still equals its captured pre-issuance value",
+    "Source invoice number is unchanged"
+  ],
+  "requests": [
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_artifacts",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_documents",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_artifacts",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/print",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1/download",
+      "status": 404
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/ffffffff-ffff-4fff-8fff-ffffffffffff/download",
+      "status": 404
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_documents",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/print",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1/download",
+      "status": 404
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/ffffffff-ffff-4fff-8fff-ffffffffffff/download",
+      "status": 404
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_documents",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/download",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/factures/51279ec6-c2e1-4331-8b29-b496448bcbb6/print",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1/download",
+      "status": 404
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/factures/ffffffff-ffff-4fff-8fff-ffffffffffff/download",
+      "status": 404
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_documents",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/treasury_accounts",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/treasury_transactions",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/accounting_entries",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/accounting_journals",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/customer_payments",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/supplier_payments",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/customer_invoices",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/einvoice_versions",
+      "status": 200
+    }
+  ],
+  "error": "Electronic issuance does not alter commercial source status\n+ actual - expected\n\n+ 'paid'\n- 'validated'\n",
+  "businessMutationRequests": 0,
+  "emailsRequested": 0
+}

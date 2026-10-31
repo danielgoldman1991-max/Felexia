@@ -1,0 +1,192 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-31T23:46:37.246Z",
+  "nodeVersion": "v22.23.4",
+  "productionOrigin": "https://www.felexia.pro",
+  "qaOrganizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+  "phase": "activated-module-readonly",
+  "checks": 46,
+  "results": [
+    "admin uses its actual active QA membership",
+    "admin effective role is read from production membership",
+    "operator uses its actual active QA membership",
+    "operator effective role is read from production membership",
+    "viewer uses its actual active QA membership",
+    "viewer effective role is read from production membership",
+    "All three authorized existing QA roles are available",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin reaches the actual electronic-invoicing module",
+    "admin has an active document service",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "admin page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator reaches the actual electronic-invoicing module",
+    "operator has an active document service",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator administrative route is refused by an authenticated middleware redirect",
+    "operator page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "operator administrative route is refused by an authenticated middleware redirect",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer reaches the actual electronic-invoicing module",
+    "Reader module page contains no mutation form (GET search remains allowed)",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer sees an explicit administrative access refusal",
+    "viewer administrative page exposes no mutation form",
+    "viewer page returns200 without a render failure",
+    "Authenticated module HTML disables shared caching",
+    "The removed preparatory banner is absent from the normal module page",
+    "viewer sees an explicit administrative access refusal",
+    "viewer administrative page exposes no mutation form"
+  ],
+  "observations": [
+    {
+      "role": "admin",
+      "listLoaded": true,
+      "administrativeAccess": "allowed",
+      "businessMutationRequests": 0
+    },
+    {
+      "role": "operator",
+      "listLoaded": true,
+      "administrativeAccess": "refused",
+      "businessMutationRequests": 0
+    },
+    {
+      "role": "viewer",
+      "listLoaded": true,
+      "administrativeAccess": "refused",
+      "businessMutationRequests": 0
+    }
+  ],
+  "archive": null,
+  "requests": [
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "POST",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "surface": "Supabase",
+      "method": "GET",
+      "path": "/rest/v1/organization_members",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 307
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/configuration",
+      "status": 200
+    },
+    {
+      "surface": "Felexia production",
+      "method": "GET",
+      "path": "/facturation/electronique/supervision",
+      "status": 200
+    }
+  ],
+  "authorizedExistingQaLogins": 3,
+  "businessMutationRequests": 0,
+  "emailsRequested": 0,
+  "notes": [
+    "Only the three explicitly authorized existing QA users were used.",
+    "Password logins create normal Auth sessions/audit records. Subsequent requests are GET/HEAD only.",
+    "No mutation form was submitted and no creation, emission, payment, email or configuration action was invoked.",
+    "Administrative denial can be a403, a middleware redirect away from the requested route, or an inline refusal. The first harness attempt expected only the inline variant; the observed operator redirect was correct.",
+    "This report contains no passwords, tokens, personal names or email addresses."
+  ]
+}
