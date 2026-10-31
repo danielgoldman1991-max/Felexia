@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
-import { MoneyDisplay } from "@/components/erp/money-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +39,7 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
             <p><span className="text-[var(--muted)]">Type :</span> {TREASURY_ACCOUNT_TYPE_LABELS[account.account_type]}</p>
             <p><span className="text-[var(--muted)]">Banque :</span> {account.bank_name ?? "-"}</p>
             <p><span className="text-[var(--muted)]">Devise :</span> {account.currency}</p>
-            <p><span className="text-[var(--muted)]">Solde actuel :</span> <MoneyDisplay value={account.current_balance} /></p>
+            <p><span className="text-[var(--muted)]">Solde actuel :</span> {account.current_balance.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {account.currency}</p>
             <p><span className="text-[var(--muted)]">Statut :</span> <Badge tone={account.status === "active" ? "success" : "neutral"}>{account.status}</Badge></p>
             <p><span className="text-[var(--muted)]">Par defaut :</span> {account.is_default ? "Oui" : "Non"}</p>
             <p><span className="text-[var(--muted)]">Notes :</span> {account.notes ?? "-"}</p>
@@ -48,7 +47,7 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
         </Card>
         <Card>
           <CardHeader><h2 className="font-semibold">Derniers mouvements</h2></CardHeader>
-          <CardContent><TreasuryTransactionsTable rows={transactions} fullAccess={fullAccess} /></CardContent>
+          <CardContent><TreasuryTransactionsTable rows={transactions.slice(0, 50)} fullAccess={fullAccess} /><div className="mt-4"><Button variant="secondary" asChild><Link href={`/tresorerie/mouvements?accountId=${account.id}`}>Voir l’historique complet ({transactions.length} mouvements)</Link></Button></div></CardContent>
         </Card>
       </div>
     </ModulePage>

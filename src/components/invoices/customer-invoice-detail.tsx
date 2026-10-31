@@ -50,7 +50,7 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow, fullAccess = false, canPostAccounting = true }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[]; fullAccess?: boolean; canPostAccounting?: boolean }) {
+export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow, fullAccess = false, canWrite = false, canPostAccounting = false }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[]; fullAccess?: boolean; canWrite?: boolean; canPostAccounting?: boolean }) {
   const discountPresent = hasDiscount(lines);
   return (
     <div className="space-y-6">
@@ -60,27 +60,28 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer / PDF</Link></Button>
-            {!["draft", "cancelled", "paid"].includes(invoice.status) && invoice.remaining_amount > 0 ? (
+            {canWrite && !["draft", "cancelled", "paid"].includes(invoice.status) && invoice.remaining_amount > 0 ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/paiement`}><WalletCards className="h-4 w-4" /> Enregistrer paiement</Link></Button>
             ) : null}
-            {["validated", "sent", "partially_paid", "paid"].includes(invoice.status) ? (
+            {canWrite && ["validated", "sent", "partially_paid", "paid"].includes(invoice.status) ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><RotateCcw className="h-4 w-4" /> Creer avoir</Link></Button>
             ) : null}
-            {fullAccess && invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
+            {canWrite && fullAccess && invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Bell className="h-4 w-4" /> Creer relance</Link></Button>
             ) : null}
-            {invoice.status === "draft" ? (
+            {canWrite && invoice.status === "draft" ? (
               <>
                 <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/edit`}>Modifier</Link></Button>
                 <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateCustomerInvoice, invoice.id)} />
                 <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelCustomerInvoice, invoice.id)} />
               </>
             ) : null}
-            {invoice.status === "validated" ? <ActionForm label="Marquer envoyee" icon={<Send className="h-4 w-4" />} action={actionWithId(markInvoiceAsSent, invoice.id)} /> : null}
+            {canWrite && invoice.status === "validated" ? <ActionForm label="Marquer comme envoyée" icon={<Send className="h-4 w-4" />} action={actionWithId(markInvoiceAsSent, invoice.id)} /> : null}
           </>
         )}
       />
       {fullAccess ? <DocumentFlowMap steps={documentFlow ?? []} /> : null}
+      {invoice.status === "validated" || invoice.status === "sent" ? <p className="text-sm text-[var(--muted)]">Pour transmettre cette facture, téléchargez son PDF depuis Imprimer puis joignez-le à votre email. « Marquer comme envoyée » met à jour le suivi ; ce bouton n’envoie pas d’email.</p> : null}
       <Card><CardContent className="flex flex-wrap items-center gap-3"><InvoiceStatusBadge status={invoice.status} /><InvoicePaymentStatusBadge status={invoice.payment_status} /><span className="text-sm text-[var(--muted)]">Cree le {formatDate(invoice.created_at)}</span></CardContent></Card>
       <Card>
         <CardHeader><h2 className="font-semibold">Informations facture</h2></CardHeader>

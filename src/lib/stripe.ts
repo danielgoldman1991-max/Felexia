@@ -26,7 +26,7 @@ export async function createStripeCustomer(
     email,
     name,
     metadata: { organization_id: organizationId },
-  });
+  }, { idempotencyKey: `felexia-customer-${organizationId}` });
   return customer;
 }
 
@@ -67,6 +67,7 @@ export async function createPlanCheckoutSession(
   billingInterval: "monthly" | "yearly",
   successUrl?: string,
   cancelUrl?: string,
+  idempotencyKey?: string,
 ): Promise<Stripe.Checkout.Session> {
   // Protection commerciale serveur : Business / Premium ne sont plus
   // commercialisés. Personne ne doit pouvoir lancer un checkout pour ces
@@ -98,7 +99,7 @@ export async function createPlanCheckoutSession(
     },
     success_url: successUrl || `${env.appUrl}/parametres/abonnement?success=true&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`,
-  });
+  }, idempotencyKey ? { idempotencyKey } : undefined);
   return session;
 }
 

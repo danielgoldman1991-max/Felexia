@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { pageRows, positivePage, readAllPages, searchText } from "@/lib/listing";
 import type {
   PurchaseDocumentRecord,
   PurchaseDocumentLineRecord,
@@ -45,7 +46,7 @@ const SUPPLIER_INVOICE_SELECT = `
   id, organization_id, invoice_number, supplier_invoice_number, supplier_id,
   source_type, source_receipt_id, invoice_date, due_date,
   status, payment_status, subtotal_ht, discount_total, tax_total, total_ttc,
-  paid_amount, remaining_amount, currency, notes, internal_notes,
+  paid_amount, credit_amount, remaining_amount, currency, notes, internal_notes,
   validated_at, created_by, created_at, updated_at, archived_at,
   supplier:supplier_id (name, ice, phone, email)
 `;
@@ -173,16 +174,18 @@ function computeSupplierInvoicePaymentSummary(
   payments: SupplierInvoicePaymentAttachment[],
 ): SupplierInvoicePaymentSummary {
   const invoiceTotalTtc = toAmount(invoice.total_ttc);
+  const creditAmount = Math.max(0, toAmount(invoice.credit_amount));
+  const netToPay = Math.max(0, toAmount(invoiceTotalTtc - creditAmount));
   const paidAmount = toAmount(payments.filter((payment) => payment.counted_in_paid_total).reduce((sum, payment) => sum + payment.amount, 0));
-  const remainingAmount = Math.max(toAmount(invoiceTotalTtc - paidAmount), 0);
-  const overpaidAmount = Math.max(toAmount(paidAmount - invoiceTotalTtc), 0);
+  const remainingAmount = Math.max(toAmount(netToPay - paidAmount), 0);
+  const overpaidAmount = Math.max(toAmount(paidAmount - netToPay), 0);
   const tolerance = 0.01;
   const paymentStatus =
-    paidAmount <= tolerance
+    paidAmount + creditAmount <= tolerance
       ? "unpaid"
-      : paidAmount < invoiceTotalTtc - tolerance
+      : paidAmount < netToPay - tolerance
         ? "partial"
-        : paidAmount > invoiceTotalTtc + tolerance
+        : paidAmount > netToPay + tolerance
           ? "overpaid"
           : "paid";
   const paymentStatusComputed = paymentStatus === "partial" ? "partially_paid" : paymentStatus;
@@ -195,7 +198,7 @@ function computeSupplierInvoicePaymentSummary(
   const storedPaidAmount = toAmount(invoice.paid_amount);
   const storedRemainingAmount = toAmount(invoice.remaining_amount);
   const hasPaymentInconsistency =
-    ((invoice.payment_status === "paid" || invoice.payment_status === "partial") && paidAmount <= tolerance) ||
+    ((invoice.payment_status === "paid" || invoice.payment_status === "partial") && paidAmount + creditAmount <= tolerance) ||
     (storedPaidAmount > tolerance && paidAmount <= tolerance) ||
     Math.abs(storedPaidAmount - paidAmount) > tolerance ||
     Math.abs(storedRemainingAmount - remainingAmount) > tolerance ||
@@ -204,6 +207,8 @@ function computeSupplierInvoicePaymentSummary(
   return {
     invoiceId: invoice.id,
     invoiceTotalTtc,
+    creditAmount,
+    netToPay,
     totalTtc: invoiceTotalTtc,
     confirmedPaidAmount: paidAmount,
     paidAmount,
@@ -754,19 +759,32 @@ export async function getSupplierInvoicePreparationFromReceipt(receiptId: string
   };
 }
 
-export async function listSupplierInvoices(filters?: { status?: string; supplierId?: string }) {
+export type SupplierInvoiceListFilters = { status?: string; supplierId?: string; query?: string; paymentStatus?: string; dateFrom?: string; dateTo?: string; page?: number; pageSize?: number };
+
+export async function listSupplierInvoiceExportRows(filters: SupplierInvoiceListFilters = {}) {
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
-  let query = supabase
+  const all = await readAllPages((from, to) => {
+    let query = supabase
     .from("supplier_invoices")
     .select(SUPPLIER_INVOICE_SELECT)
     .eq("organization_id", workspace.organization.id)
     .is("archived_at", null)
-    .order("created_at", { ascending: false });
-  if (filters?.status) query = query.eq("status", filters.status);
+    .order("invoice_date", { ascending: false }).order("id");
+  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
   if (filters?.supplierId) query = query.eq("supplier_id", filters.supplierId);
-  const { data } = await query;
-  return { rows: (data ?? []).map((r: Record<string, unknown>) => mapSupplierInvoice(r)) };
+  if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
+  if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("invoice_date", filters.dateFrom);
+  if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("invoice_date", filters.dateTo);
+  return query.range(from, to);
+  });
+  const needle = searchText(filters.query);
+  return all.map((r) => mapSupplierInvoice(r as Record<string, unknown>)).filter((row) => !needle || `${row.invoice_number} ${row.supplier_invoice_number ?? ""} ${row.supplier_name ?? ""}`.toLocaleLowerCase("fr").includes(needle));
+}
+
+export async function listSupplierInvoices(filters: SupplierInvoiceListFilters = {}) {
+  const rows = await listSupplierInvoiceExportRows(filters);
+  return pageRows(rows, positivePage(filters.page), Math.min(100, positivePage(filters.pageSize, 25)));
 }
 
 async function getSupplierPaymentEnrichments(

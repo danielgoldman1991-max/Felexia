@@ -4,7 +4,7 @@ export const MAX_NUMBERING_VALUE = 2_147_483_646;
 export const NUMBERING_ADMIN_ERROR = "Seul un administrateur peut corriger les compteurs de l’entreprise.";
 export const NUMBERING_ACTIVATION_MESSAGE = "Le réglage des compteurs doit être activé par l’équipe Felexia.";
 
-const lightKeys = new Set(["customer_invoice", "supplier_invoice", "customer_payment", "supplier_payment", "customer_credit_note", "customer", "supplier"]);
+const lightKeys = new Set(["customer_invoice", "supplier_invoice", "customer_payment", "supplier_payment", "customer_credit_note", "supplier_credit_note", "customer", "supplier"]);
 const fullKeys = new Set([...lightKeys, "customer_reminder", "sales_quote", "sales_order", "sales_delivery", "sales_return", "purchase_order", "purchase_receipt", "prospect"]);
 const groups = new Set<NumberingGroup>(["sales", "purchases", "contacts", "accounting", "other"]);
 

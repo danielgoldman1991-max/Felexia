@@ -11,6 +11,8 @@ import { RECONCILIATION_STATUS_LABELS, TREASURY_TRANSACTION_TYPE_LABELS } from "
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isAdminRole } from "@/lib/auth/roles";
+import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +21,11 @@ export default async function TreasuryTransactionDetailPage({ params }: { params
   const workspace = await requireActiveWorkspace();
   const fullAccess = !isOperatorRole(workspace.role) && await hasFullErpAccess(workspace.organization.id);
   const tx = await getTreasuryTransactionDetail(id);
+  const canManage = isAdminRole(workspace.role) && canWriteWorkspaceSubscription(workspace.subscription);
   return (
     <ModulePage>
       <PageHeader title={tx?.label ?? "Mouvement introuvable"} actions={<Button variant="secondary" asChild><Link href="/tresorerie/mouvements"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>} />
+      {tx && ["transfer_in", "transfer_out"].includes(tx.transaction_type) ? <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm"><p>Pour corriger ce transfert, enregistrez un transfert inverse entre les mêmes comptes.</p>{canManage ? <Button variant="secondary" asChild><Link href="/tresorerie/mouvements/new">Enregistrer un transfert inverse</Link></Button> : null}</div> : null}
       {tx ? (
         <Card>
           <CardHeader><h2 className="font-semibold">Detail mouvement</h2></CardHeader>

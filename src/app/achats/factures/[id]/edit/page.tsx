@@ -12,7 +12,7 @@ export default async function EditSupplierInvoicePage({ params }: { params: Prom
   const { id } = await params;
   const workspace = await requireActiveWorkspace();
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
-  const [result, suppliers, products, taxRates] = await Promise.all([getSupplierInvoiceDetail(id), listPurchaseSuppliers(), fullAccess ? listPurchaseProducts() : Promise.resolve([]), listInvoiceTaxRates()]);
+  const [result, suppliers, products, taxRates] = await Promise.all([getSupplierInvoiceDetail(id), listPurchaseSuppliers(), listPurchaseProducts(), listInvoiceTaxRates()]);
   if (!result.invoice) notFound();
   return (
     <ModulePage>

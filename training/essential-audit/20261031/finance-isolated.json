@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "date": "2026-10-31T20:12:26.953Z",
+  "syntheticOnly": true,
+  "scope": "Disposable in-memory PostgreSQL; no production configuration or data",
+  "postgresVersion": "18.6",
+  "checks": 13,
+  "results": [
+    "Administrator draft update accepts the blank reference sent by the action",
+    "Operator draft update rejects the same action payload",
+    "Customer payment is hardcoded to MAD",
+    "The MAD payment is accepted into a EUR account",
+    "EUR account balance increases by the raw MAD amount without exchange",
+    "Administrator cancellation succeeds for a posted customer payment",
+    "Linked accounting entry remains posted after cancellation",
+    "Treasury balance is reversed without a linked journal reversal",
+    "Administrator cannot read another company's customer",
+    "Cross-company customer invoice remains visible in the current company",
+    "Customer invoice accepts a known foreign-company customer UUID",
+    "Supplier invoice accepts a known foreign-company supplier UUID at the database boundary",
+    "All synthetic fixtures are rolled back"
+  ],
+  "evidence": {
+    "invoiceEdit": {
+      "originalNumberPresent": true,
+      "administratorResult": "",
+      "operatorError": "OPERATOR_NUMBERING_READ_ONLY"
+    },
+    "currencyMismatch": {
+      "payment_currency": "MAD",
+      "account_currency": "EUR",
+      "current_balance": "100.00",
+      "transaction_currency": "MAD"
+    },
+    "postedCancellation": {
+      "payment_status": "cancelled",
+      "entry_status": "posted",
+      "current_balance": "0.00"
+    },
+    "crossTenantReferences": {
+      "foreignCustomerReadDenied": true,
+      "customerDocumentCrossReferenceAccepted": true,
+      "supplierDocumentCrossReferenceAccepted": true,
+      "foreignDataDisclosureTested": false
+    }
+  },
+  "fixtureRollbackVerified": true,
+  "limitations": [
+    "These are reproductions of reported gaps, not assertions that the application is healthy.",
+    "No production document was created, updated or cancelled.",
+    "Historical accounting table creation DDL is missing in the repository; the explicit minimal schema from the numbering suite is used for the posted-payment guard.",
+    "Cross-tenant reference acceptance does not prove disclosure of another company's private fields."
+  ]
+}

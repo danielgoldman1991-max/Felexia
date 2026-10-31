@@ -1,0 +1,26 @@
+{
+  "scope": "Local VM; real handler source with fixture-only Stripe and DB boundaries; no network",
+  "sdkApiVersion": "2026-04-22.dahlia",
+  "observations": [
+    {
+      "name": "New SDK subscription item periods are discarded",
+      "confirmed": true,
+      "actual": {
+        "start": null,
+        "end": null
+      }
+    },
+    {
+      "name": "Modern invoice.paid returns success without updating subscription",
+      "confirmed": true
+    },
+    {
+      "name": "Modern invoice.payment_failed returns success without updating subscription",
+      "confirmed": true
+    },
+    {
+      "name": "Database write errors are acknowledged as successfully received",
+      "confirmed": true
+    }
+  ]
+}

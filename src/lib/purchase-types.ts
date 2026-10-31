@@ -99,6 +99,7 @@ export type SupplierInvoiceStatus = "draft" | "validated" | "partially_paid" | "
 export type SupplierPaymentStatus = "unpaid" | "partial" | "paid";
 
 export type SupplierInvoiceRecord = {
+  credit_amount?: number;
   id: string;
   organization_id: string;
   invoice_number: string;
@@ -297,6 +298,8 @@ export type SupplierInvoicePaymentAttachment = {
 export type SupplierInvoicePaymentComputedStatus = "unpaid" | "partially_paid" | "paid" | "overpaid";
 
 export type SupplierInvoicePaymentSummary = {
+  creditAmount?: number;
+  netToPay?: number;
   invoiceId?: string;
   invoiceTotalTtc: number;
   totalTtc?: number;

@@ -45,25 +45,37 @@ export function Button({
   if (asChild && isValidElement(children)) {
     const child = children as ReactElement<{
       className?: string;
+      children?: ReactNode;
+      href?: string;
+      title?: string;
+      "aria-label"?: string;
       onClick?: (event: { preventDefault(): void; stopPropagation(): void }) => void;
       tabIndex?: number;
-      "aria-disabled"?: boolean;
+      "aria-disabled"?: ButtonHTMLAttributes<HTMLButtonElement>["aria-disabled"];
       "data-variant"?: ButtonVariant;
     }>;
     const { disabled, ...childCompatibleProps } = props;
+    if (disabled) {
+      return (
+        <span
+          className={cn(child.props.className, classes)}
+          data-variant={variant}
+          role={child.props.href ? "link" : undefined}
+          aria-disabled="true"
+          aria-label={props["aria-label"] ?? child.props["aria-label"]}
+          title={props.title ?? child.props.title}
+        >
+          {child.props.children}
+        </span>
+      );
+    }
     const childButtonOnClick = childCompatibleProps.onClick as unknown as typeof child.props.onClick;
     return cloneElement(child, {
       ...childCompatibleProps,
       className: cn(child.props.className, classes),
       "data-variant": variant,
-      "aria-disabled": disabled || undefined,
-      tabIndex: disabled ? -1 : child.props.tabIndex,
-      onClick: disabled
-        ? (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        : childButtonOnClick ?? child.props.onClick,
+      tabIndex: child.props.tabIndex,
+      onClick: childButtonOnClick ?? child.props.onClick,
     });
   }
 

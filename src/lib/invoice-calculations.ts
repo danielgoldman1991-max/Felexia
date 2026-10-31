@@ -5,14 +5,14 @@ export function roundInvoice2(value: number) {
 }
 
 export function calculateInvoiceLine(line: InvoiceLineFormValue): InvoiceLineFormValue {
-  const quantity = Number(line.quantity || 0);
-  const unitPrice = Number(line.unit_price_ht || 0);
-  const discountRate = Number(line.discount_rate || 0);
-  const taxRate = Number(line.tax_rate || 0);
-  const grossHt = quantity * unitPrice;
-  const discountAmount = grossHt * discountRate / 100;
-  const subtotalHt = grossHt - discountAmount;
-  const taxAmount = subtotalHt * taxRate / 100;
+  const quantity = Math.round((Number(line.quantity || 0) + Number.EPSILON) * 1000) / 1000;
+  const unitPrice = roundInvoice2(Number(line.unit_price_ht || 0));
+  const discountRate = roundInvoice2(Number(line.discount_rate || 0));
+  const taxRate = roundInvoice2(Number(line.tax_rate || 0));
+  const grossHt = roundInvoice2(quantity * unitPrice);
+  const discountAmount = roundInvoice2(grossHt * discountRate / 100);
+  const subtotalHt = roundInvoice2(grossHt - discountAmount);
+  const taxAmount = roundInvoice2(subtotalHt * taxRate / 100);
 
   return {
     ...line,

@@ -5,8 +5,6 @@ import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_PLAN_CODE, getEnabledModulesForPlan, getPlanDefinition, normalizePlanCode, type PlanCode, type PlanFeatureKey, type PlanLimits } from "@/lib/subscriptions/plans";
 import { PLAN_KEYS, type PlanKey } from "@/lib/subscriptions/plans-config";
-import { isSubscriptionUsable } from "@/lib/subscriptions/subscription-access";
-import { getBusinessTrialEndDate, getDefaultTrialEndDate } from "@/lib/subscriptions/trial-config";
 
 export type OrganizationSubscription = {
   id: string;
@@ -59,35 +57,27 @@ export function canAccessModule(planCode: string | null | undefined, moduleKey: 
   return getEnabledModulesForPlan(planCode).includes(normalizeModuleKey(moduleKey));
 }
 
-export async function getOrganizationSubscription(organizationId: string): Promise<OrganizationSubscription | null> {
+export async function getOrganizationSubscription(organizationId: string, options: { throwOnError?: boolean } = {}): Promise<OrganizationSubscription | null> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("organization_subscriptions")
-    .select("*, plan:subscription_plans(code, slug)")
+    .select("*")
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(1);
 
+  if (error) {
+    console.error("[subscription] read failed", { organizationId, code: error.code });
+    if (options.throwOnError) throw new Error("Impossible de charger votre abonnement. Réessayez dans quelques instants.");
+    return null;
+  }
   if (!data || data.length === 0) return null;
 
   const rows = data as Record<string, unknown>[];
-  const row = rows.find((candidate) =>
-    isSubscriptionUsable({
-      status: candidate.status as string | null,
-      trial_ends_at: (candidate.trial_ends_at as string | null) ?? (candidate.trial_end as string | null) ?? null,
-      current_period_end: (candidate.current_period_end as string | null) ?? null,
-    }),
-  ) ?? rows[0];
-  const planData = row.plan;
-  const plan = Array.isArray(planData)
-    ? planData[0] as { code?: string | null; slug?: string | null } | undefined
-    : planData as { code?: string | null; slug?: string | null } | null;
-  const planCode = normalizePlanCode(
-    (row.plan_code as string | null) ??
-    (row.plan_key as string | null) ??
-    plan?.code ??
-    plan?.slug,
-  );
+  // Canonical latest row, identical to workspace/middleware/SQL guards. The
+  // schema also enforces one durable row per company (migration 069).
+  const row = rows[0];
+  const planCode = normalizePlanCode((row.plan_code as string | null) ?? (row.plan_key as string | null));
 
   return {
     id: row.id as string,
@@ -109,63 +99,10 @@ async function upsertTrialForPlan(
   organizationId: string,
   planKey: PlanKey,
 ): Promise<void> {
-  const trialStart = new Date();
-  const trialEnd = planKey === PLAN_KEYS.BUSINESS
-    ? getBusinessTrialEndDate(trialStart)
-    : getDefaultTrialEndDate(trialStart);
-
-  const { data: existingSubscription, error: existingError } = await supabase
-    .from("organization_subscriptions")
-    .select("id, status, plan_code, trial_ends_at, trial_end, current_period_end")
-    .eq("organization_id", organizationId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (existingError) {
-    throw new Error(`Impossible de vérifier l'abonnement existant : ${existingError.message}`);
-  }
-
-  if (existingSubscription?.id) {
-    return;
-  }
-
-  const { data: plan, error: planError } = await supabase
-    .from("subscription_plans")
-    .select("id")
-    .eq("code", planKey)
-    .maybeSingle();
-
-  if (planError) {
-    throw new Error(`Impossible de lire le plan ${planKey} : ${planError.message}`);
-  }
-
-  const payload = {
-    organization_id: organizationId,
-    plan_id: (plan as { id?: string } | null)?.id ?? null,
-    plan_code: planKey,
-    status: "trialing",
-    billing_cycle: "monthly",
-    billing_interval: "monthly",
-    trial_started_at: trialStart.toISOString(),
-    trial_start: trialStart.toISOString(),
-    trial_end: trialEnd.toISOString(),
-    trial_ends_at: trialEnd.toISOString(),
-    trial_consent_accepted: true,
-    trial_consent_accepted_at: trialStart.toISOString(),
-    current_period_start: trialStart.toISOString(),
-    current_period_end: trialEnd.toISOString(),
-    cancel_at_period_end: false,
-    monthly_amount: getPlanDefinition(planKey).monthlyPrice,
-    yearly_amount: getPlanDefinition(planKey).yearlyPrice,
-    created_at: trialStart.toISOString(),
-  };
-
-  const { error } = await supabase.from("organization_subscriptions").insert(payload);
-
-  if (error) {
-    throw new Error(`Impossible d'activer l'essai gratuit ${planKey} : ${error.message}`);
-  }
+  // Billing fields are server-owned. This RPC creates only the public one-time trial.
+  void planKey;
+  const { error } = await supabase.rpc("ensure_essential_trial", { p_organization_id: organizationId });
+  if (error) throw new Error("Impossible d'activer l'essai Essentiel. Contactez l'assistance.");
 }
 
 export async function ensureDefaultTrialAndModulesNoRevalidate(
@@ -244,11 +181,12 @@ export async function enableBusinessModulesForOrganization(organizationId: strin
   await upsertModulesForPlan(supabase, organizationId, PLAN_KEYS.BUSINESS);
 }
 
-export async function canCreateUser(organizationId?: string): Promise<{ allowed: boolean; current: number; max: number }> {
+export async function canCreateUser(organizationId?: string): Promise<{ allowed: boolean; current: number; max: number; reason?: "subscription" }> {
   const workspace = organizationId ? null : await requireActiveWorkspace();
   const orgId = organizationId ?? workspace!.organization.id;
   const subscription = await getOrganizationSubscription(orgId);
-  const max = getPlanLimits(subscription?.planCode).users;
+  if (!subscription) return { allowed: false, current: 0, max: 0, reason: "subscription" };
+  const max = getPlanLimits(subscription.planCode).users;
 
   const supabase = await createClient();
   const { count } = await supabase
@@ -271,16 +209,10 @@ export async function canCreateDocument(organizationId?: string): Promise<{ allo
     return { allowed: true, current: 0, max };
   }
 
-  const now = new Date();
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   const supabase = await createClient();
-  const { count } = await supabase
-    .from("documents")
-    .select("*", { count: "exact", head: true })
-    .eq("organization_id", orgId)
-    .gte("created_at", monthStart);
-
-  const current = count ?? 0;
+  const { data, error } = await supabase.rpc("get_commercial_document_usage", { p_organization_id: orgId });
+  if (error) throw new Error("Impossible de charger l'utilisation des documents.");
+  const current = Number(data ?? 0);
   return { allowed: current < max, current, max };
 }
 

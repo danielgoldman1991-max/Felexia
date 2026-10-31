@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { readAllPages } from "@/lib/listing";
 import type {
   AccountingAccountRecord,
   AccountingJournalDetail,
@@ -172,7 +173,7 @@ function normalizeFilters(filters: AccountingJournalEntryFilters = {}) {
   };
 }
 
-async function getMatchingEntryIds(organizationId: string, journalId: string, filters: AccountingJournalEntryFilters) {
+async function getMatchingEntryIds(organizationId: string, journalId: string, filters: AccountingJournalEntryFilters): Promise<string[] | null> {
   const supabase = await createClient();
   let idSet: Set<string> | null = null;
 
@@ -182,35 +183,32 @@ async function getMatchingEntryIds(organizationId: string, journalId: string, fi
   }
 
   if (filters.account_id) {
-    const { data, error } = await supabase
+    const data = await readAllPages((from, to) => supabase
       .from("accounting_entry_lines")
       .select("entry_id")
       .eq("organization_id", organizationId)
-      .eq("account_id", filters.account_id);
-    if (error) throw new Error(error.message);
+      .eq("account_id", filters.account_id).order("id").range(from, to));
     await intersect((data ?? []).map((row) => row.entry_id as string));
   }
 
   if (filters.q?.trim()) {
-    const q = filters.q.trim();
+    const q = filters.q.replace(/[(),]/g, " ").trim();
     const [entryMatches, lineMatches] = await Promise.all([
-      supabase
+      readAllPages((from, to) => supabase
         .from("accounting_entries")
         .select("id")
         .eq("organization_id", organizationId)
         .eq("journal_id", journalId)
-        .or(`entry_number.ilike.%${q}%,label.ilike.%${q}%,reference.ilike.%${q}%,source_document_type.ilike.%${q}%`),
-      supabase
+        .or(`entry_number.ilike.%${q}%,label.ilike.%${q}%,reference.ilike.%${q}%,source_document_type.ilike.%${q}%`).order("id").range(from, to)),
+      readAllPages((from, to) => supabase
         .from("accounting_entry_lines")
         .select("entry_id")
         .eq("organization_id", organizationId)
-        .or(`label.ilike.%${q}%,account_code.ilike.%${q}%,account_label.ilike.%${q}%`),
+        .or(`label.ilike.%${q}%,account_code.ilike.%${q}%,account_label.ilike.%${q}%`).order("id").range(from, to)),
     ]);
-    if (entryMatches.error) throw new Error(entryMatches.error.message);
-    if (lineMatches.error) throw new Error(lineMatches.error.message);
     const ids = new Set<string>();
-    for (const row of entryMatches.data ?? []) ids.add(row.id as string);
-    for (const row of lineMatches.data ?? []) ids.add(row.entry_id as string);
+    for (const row of entryMatches) ids.add(row.id as string);
+    for (const row of lineMatches) ids.add(row.entry_id as string);
     await intersect([...ids]);
   }
 
@@ -229,7 +227,8 @@ async function fetchJournalEntries(
   const matchingIds = await getMatchingEntryIds(organizationId, journalId, normalized);
   if (matchingIds && matchingIds.length === 0) return { entries: [], count: 0 };
 
-  let query = supabase
+  const data = await readAllPages((from, to) => {
+    let query = supabase
     .from("accounting_entries")
     .select("*", { count: "exact" })
     .eq("organization_id", organizationId)
@@ -240,26 +239,21 @@ async function fetchJournalEntries(
   if (normalized.date_to) query = query.lte("entry_date", normalized.date_to);
   if (normalized.status) query = query.eq("status", normalized.status);
   if (normalized.source_type) query = query.eq("source_document_type", normalized.source_type);
-  if (matchingIds) query = query.in("id", matchingIds);
-  query = query.order("entry_date", { ascending: false }).order("entry_number", { ascending: false });
-  if (range) query = query.range(range.from, range.to);
-
-  const { data, error, count } = await query;
-  if (error) throw new Error(error.message);
-  return { entries: (data ?? []).map((row) => asEntryRow(row as Record<string, unknown>)), count: count ?? 0 };
+    return query.order("entry_date", { ascending: false }).order("entry_number", { ascending: false }).order("id").range(from, to);
+  });
+  const ids = matchingIds ? new Set(matchingIds) : null;
+  const entries = data.filter((row) => !ids || ids.has(row.id as string)).map((row) => asEntryRow(row as Record<string, unknown>));
+  return { entries: range ? entries.slice(range.from, range.to + 1) : entries, count: entries.length };
 }
 
 async function getLinesForEntries(organizationId: string, entries: AccountingJournalEntryRow[]): Promise<AccountingJournalLineRow[]> {
   if (entries.length === 0) return [];
   const supabase = await createClient();
   const entryById = new Map(entries.map((entry) => [entry.id, entry]));
-  const { data, error } = await supabase
-    .from("accounting_entry_lines")
-    .select("*")
-    .eq("organization_id", organizationId)
-    .in("entry_id", entries.map((entry) => entry.id))
-    .order("line_number", { ascending: true });
-  if (error) throw new Error(error.message);
+  const data: Record<string, unknown>[] = [];
+  for (let offset = 0; offset < entries.length; offset += 100) {
+    data.push(...await readAllPages((from, to) => supabase.from("accounting_entry_lines").select("*").eq("organization_id", organizationId).in("entry_id", entries.slice(offset, offset + 100).map((entry) => entry.id)).order("entry_id").order("line_number").order("id").range(from, to)));
+  }
   return (data ?? []).map((row) => {
     const entry = entryById.get(row.entry_id as string);
     return {
@@ -289,12 +283,11 @@ export async function listAccountingJournalsWithStats(): Promise<AccountingJourn
   const workspace = await requireActiveWorkspace();
   const organizationId = workspace.organization.id;
   const supabase = await createClient();
-  const [{ data: journals, error: journalError }, { data: entries, error: entryError }] = await Promise.all([
+  const [{ data: journals, error: journalError }, entries] = await Promise.all([
     supabase.from("accounting_journals").select("*").eq("organization_id", organizationId).order("code"),
-    supabase.from("accounting_entries").select("journal_id, total_debit, total_credit, entry_date, status").eq("organization_id", organizationId).in("status", ["draft", "posted"]),
+    readAllPages((from, to) => supabase.from("accounting_entries").select("journal_id, total_debit, total_credit, entry_date, status").eq("organization_id", organizationId).in("status", ["draft", "posted"]).order("id").range(from, to)),
   ]);
   if (journalError) throw new Error(journalError.message);
-  if (entryError) throw new Error(entryError.message);
   return (journals ?? []).map((journalRow) => {
     const journal = asJournal(journalRow as Record<string, unknown>);
     const journalEntries = (entries ?? []).filter((entry) => entry.journal_id === journal.id);

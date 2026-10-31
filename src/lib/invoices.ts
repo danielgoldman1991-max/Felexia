@@ -19,6 +19,7 @@ import type {
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
 import { getSalesDocumentFlow } from "@/lib/sales";
+import { pageRows, positivePage, readAllPages, searchText } from "@/lib/listing";
 
 const INVOICE_SELECT = `
   id, organization_id, invoice_number, customer_id, source_type, source_document_id,
@@ -259,28 +260,35 @@ export async function listInvoiceTaxRates(): Promise<TaxRateForSalesSelect[]> {
 export async function listCustomerInvoices(filters: InvoiceListFilters = {}) {
   const organizationId = await activeOrganizationId();
   const supabase = await createClient();
-  const page = filters.page ?? 1;
-  const pageSize = filters.pageSize ?? 25;
+  const page = positivePage(filters.page);
+  const pageSize = Math.min(100, positivePage(filters.pageSize, 25));
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  let query = supabase
+  const makeQuery = () => {
+    let query = supabase
     .from("customer_invoices")
     .select(INVOICE_SELECT, { count: "exact" })
     .eq("organization_id", organizationId)
     .is("archived_at", null)
     .order("invoice_date", { ascending: false })
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .order("created_at", { ascending: false }).order("id");
 
   if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
   if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
-  if (filters.query) {
-    const value = filters.query.trim();
-    if (value) query = query.or(`invoice_number.ilike.%${value}%`);
+    if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("invoice_date", filters.dateFrom);
+    if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("invoice_date", filters.dateTo);
+    return query;
+  };
+
+  if (searchText(filters.query)) {
+    const all = await readAllPages((first, last) => makeQuery().range(first, last));
+    const needle = searchText(filters.query);
+    const result = pageRows(all.map(mapInvoice).filter((row) => `${row.invoice_number} ${row.customer_name ?? ""}`.toLocaleLowerCase("fr").includes(needle)), page, pageSize);
+    return { ...result, rows: await enrichInvoicesAccountingStatus(organizationId, result.rows) };
   }
 
-  const { data, error, count } = await query;
+  const { data, error, count } = await makeQuery().range(from, to);
   if (error) throw new Error(error.message);
   const rows = await enrichInvoicesAccountingStatus(organizationId, (data ?? []).map(mapInvoice));
   return {
@@ -290,6 +298,21 @@ export async function listCustomerInvoices(filters: InvoiceListFilters = {}) {
     pageSize,
     totalPages: Math.max(1, Math.ceil((count ?? 0) / pageSize)),
   };
+}
+
+export async function listCustomerInvoiceExportRows(filters: InvoiceListFilters = {}) {
+  const organizationId = await activeOrganizationId();
+  const supabase = await createClient();
+  const all = await readAllPages((from, to) => {
+    let query = supabase.from("customer_invoices").select(INVOICE_SELECT).eq("organization_id", organizationId).is("archived_at", null).order("invoice_date", { ascending: false }).order("id");
+    if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+    if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
+    if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("invoice_date", filters.dateFrom);
+    if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("invoice_date", filters.dateTo);
+    return query.range(from, to);
+  });
+  const needle = searchText(filters.query);
+  return all.map(mapInvoice).filter((row) => !needle || `${row.invoice_number} ${row.customer_name ?? ""}`.toLocaleLowerCase("fr").includes(needle));
 }
 
 export async function getCustomerInvoiceDetail(id: string) {

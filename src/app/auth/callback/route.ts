@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sanitizeInternalPath } from "@/lib/auth/sanitize-internal-path";
 import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-user";
 import { resolveAuthenticatedUserRedirect } from "@/lib/auth/resolve-authenticated-user-redirect";
+import { allowPasswordRecovery } from "@/lib/auth/recovery-session";
 
 function redirectToLogin(requestUrl: URL, errorCode: string) {
   const url = new URL("/login", requestUrl.origin);
@@ -14,6 +15,18 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const next = sanitizeInternalPath(requestUrl.searchParams.get("next"));
+  const isRecovery = requestUrl.searchParams.get("recovery") === "1" || requestUrl.searchParams.get("type") === "recovery";
+
+  if (isRecovery) {
+    if (requestUrl.searchParams.has("error")) return NextResponse.redirect(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
+    const supabase = await createClient();
+    const tokenHash = requestUrl.searchParams.get("token_hash");
+    const result = tokenHash
+      ? await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" })
+      : code ? await supabase.auth.exchangeCodeForSession(code) : null;
+    if (result && !result.error && result.data.user) await allowPasswordRecovery(result.data.user.id);
+    return NextResponse.redirect(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
+  }
 
   // Erreur remontée par le fournisseur OAuth (annulation, refus, etc.)
   if (requestUrl.searchParams.has("error")) {

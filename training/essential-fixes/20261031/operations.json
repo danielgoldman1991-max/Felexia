@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-31T20:31:35.484Z",
+  "businessWrites": 0,
+  "checks": [
+    {
+      "name": "health checks actual public database",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "health fails closed when database config missing",
+      "passed": true,
+      "status": 503
+    },
+    {
+      "name": "cron requires server secret",
+      "passed": true,
+      "status": 503
+    },
+    {
+      "name": "cron refuses wrong bearer before any write",
+      "passed": true,
+      "status": 401
+    }
+  ]
+}

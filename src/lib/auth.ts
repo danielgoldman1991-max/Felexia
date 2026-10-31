@@ -99,15 +99,16 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
 
   let subscription: { status: string; planCode: PlanCode; planSlug: string; trialStartedAt: string | null; trialEndsAt: string | null; currentPeriodEnd: string | null } | null = null;
   try {
-    const { data: sub } = await supabase
+    const { data: sub, error: subscriptionError } = await supabase
       .from("organization_subscriptions")
-      .select("status, plan_code, trial_started_at, trial_start, trial_ends_at, trial_end, current_period_end, plan:subscription_plans(code, slug)")
+      .select("status, plan_code, trial_started_at, trial_start, trial_ends_at, trial_end, current_period_end")
       .eq("organization_id", organization.id)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (subscriptionError) throw new Error(subscriptionError.code);
     if (sub) {
-      const plan = sub.plan as unknown as { code?: string | null; slug?: string | null } | null;
-      const planCode = normalizePlanCode(sub.plan_code ?? plan?.code ?? plan?.slug);
+      const planCode = normalizePlanCode(sub.plan_code);
       subscription = {
         status: sub.status,
         planCode,
@@ -118,7 +119,8 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
       };
     }
   } catch {
-    // Table doesn't exist yet (migration not applied)
+    // Keep reads available during an outage; mutation guards fail closed on null.
+    console.error("[workspace] subscription could not be loaded", { organizationId: organization.id });
   }
 
   let storedModules: string[] = [];

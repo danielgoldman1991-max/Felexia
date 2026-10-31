@@ -4,6 +4,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { TrialStartedBanner } from "@/components/dashboard/trial-started-banner";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isReadOnlyRole } from "@/lib/auth/roles";
+import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
 import { getLightDashboardData } from "@/lib/dashboard-data";
 import { getOnboardingChecklist } from "@/lib/onboarding";
@@ -17,7 +18,7 @@ export async function LightDashboard({ searchParams }: {
   const [data, checklist, params] = await Promise.all([
     getLightDashboardData(), getOnboardingChecklist(workspace.organization.id), searchParams,
   ]);
-  const readOnly = isReadOnlyRole(workspace.role);
+  const readOnly = isReadOnlyRole(workspace.role) || !canWriteWorkspaceSubscription(workspace.subscription);
   const operator = isOperatorRole(workspace.role);
   const name = workspace.profile?.full_name?.trim().split(/\s+/)[0];
   const trialStarted = Array.isArray(params?.trial_started) ? params.trial_started[0] : params?.trial_started;

@@ -1,4 +1,5 @@
 import { requireActiveWorkspace } from "@/lib/auth";
+import { pageRows, positivePage, readAllPages, searchText } from "@/lib/listing";
 import { createClient } from "@/lib/supabase/server";
 import type {
   BankStatementImportRecord,
@@ -170,11 +171,10 @@ export async function getTreasuryAccountDetail(id: string) {
   const supabase = await createClient();
   const [account, transactions] = await Promise.all([
     supabase.from("treasury_accounts").select(ACCOUNT_SELECT).eq("organization_id", orgId).eq("id", id).maybeSingle(),
-    supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).eq("treasury_account_id", id).is("archived_at", null).order("transaction_date", { ascending: false }).limit(50),
+    listTreasuryTransactions({ accountId: id }),
   ]);
   if (account.error) throw new Error(account.error.message);
-  if (transactions.error) throw new Error(transactions.error.message);
-  return { account: account.data ? mapAccount(account.data) : null, transactions: (transactions.data ?? []).map(mapTransaction) };
+  return { account: account.data ? mapAccount(account.data) : null, transactions };
 }
 
 export async function getTreasuryAccountLedger(accountId: string, filters: { direction?: string; type?: string; status?: string } = {}) {
@@ -186,17 +186,23 @@ export async function getTreasuryAccountBalance(accountId: string) {
   return detail.account?.current_balance ?? 0;
 }
 
-export async function listTreasuryTransactions(filters: { accountId?: string; direction?: string; type?: string; status?: string } = {}) {
+export type TreasuryListFilters = { accountId?: string; direction?: string; type?: string; status?: string; dateFrom?: string; dateTo?: string; q?: string };
+
+export async function listTreasuryTransactions(filters: TreasuryListFilters = {}) {
   const orgId = await activeOrgId();
   const supabase = await createClient();
-  let query = supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }).limit(100);
+  return readAllPages((from, to) => {
+  let query = supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }).order("id");
   if (filters.accountId) query = query.eq("treasury_account_id", filters.accountId);
   if (filters.direction && filters.direction !== "all") query = query.eq("direction", filters.direction);
   if (filters.type && filters.type !== "all") query = query.eq("transaction_type", filters.type);
   if (filters.status && filters.status !== "all") query = query.eq("reconciliation_status", filters.status);
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(mapTransaction);
+  if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("transaction_date", filters.dateFrom);
+  if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("transaction_date", filters.dateTo);
+  const value = (filters.q ?? "").replace(/[(),]/g, " ").trim();
+  if (value) query = query.or(`label.ilike.%${value}%,reference.ilike.%${value}%`);
+  return query.range(from, to);
+  }).then((data) => data.map(mapTransaction));
 }
 
 export async function getTreasuryTransactionDetail(id: string) {
@@ -368,20 +374,30 @@ const CONSULTATION_TRANSACTION_SELECT = "id, organization_id, treasury_account_i
 
 type ConsultationRaw = Record<string, unknown> & { account?: { name: string; account_type: string } | Record<string, unknown> | null; third_party?: { name: string; primary_type: string } | Record<string, unknown> | null };
 
+async function lookupConsultationRows(table: string, columns: string, ids: string[], sourceField = "id") {
+  const organizationId = await activeOrgId();
+  const supabase = await createClient();
+  const rows: Record<string, unknown>[] = [];
+  const unique = [...new Set(ids)];
+  for (let offset = 0; offset < unique.length; offset += 100) {
+    rows.push(...await readAllPages((from, to) => supabase.from(table).select(columns).eq("organization_id", organizationId).in(sourceField, unique.slice(offset, offset + 100)).order("id").range(from, to)) as unknown as Record<string, unknown>[]);
+  }
+  return rows;
+}
+
 async function resolvePaymentMethods(
   customerPaymentIds: string[],
   supplierPaymentIds: string[],
 ): Promise<Map<string, { method: string; reference: string | null }>> {
   const map = new Map<string, { method: string; reference: string | null }>();
-  const supabase = await createClient();
   if (customerPaymentIds.length > 0) {
-    const { data } = await supabase.from("customer_payments").select("id, payment_method, reference").in("id", customerPaymentIds);
+    const data = await lookupConsultationRows("customer_payments", "id, payment_method, reference", customerPaymentIds);
     for (const p of data ?? []) {
       map.set(p.id as string, { method: p.payment_method as string, reference: p.reference as string | null });
     }
   }
   if (supplierPaymentIds.length > 0) {
-    const { data } = await supabase.from("supplier_payments").select("id, payment_method, reference").in("id", supplierPaymentIds);
+    const data = await lookupConsultationRows("supplier_payments", "id, payment_method, reference", supplierPaymentIds);
     for (const p of data ?? []) {
       map.set(p.id as string, { method: p.payment_method as string, reference: p.reference as string | null });
     }
@@ -394,15 +410,14 @@ async function resolveInvoiceNumbers(
   supplierInvoiceIds: string[],
 ): Promise<Map<string, { number: string; source_type: string }>> {
   const map = new Map<string, { number: string; source_type: string }>();
-  const supabase = await createClient();
   if (customerInvoiceIds.length > 0) {
-    const { data } = await supabase.from("customer_invoices").select("id, invoice_number").in("id", customerInvoiceIds);
+    const data = await lookupConsultationRows("customer_invoices", "id, invoice_number", customerInvoiceIds);
     for (const inv of data ?? []) {
       map.set(inv.id as string, { number: inv.invoice_number as string, source_type: "customer" });
     }
   }
   if (supplierInvoiceIds.length > 0) {
-    const { data } = await supabase.from("supplier_invoices").select("id, invoice_number").in("id", supplierInvoiceIds);
+    const data = await lookupConsultationRows("supplier_invoices", "id, invoice_number", supplierInvoiceIds);
     for (const inv of data ?? []) {
       map.set(inv.id as string, { number: inv.invoice_number as string, source_type: "supplier" });
     }
@@ -415,14 +430,9 @@ async function resolveAccountingStatus(
 ): Promise<Map<string, { id: string; entry_number: string; status: string }>> {
   const map = new Map<string, { id: string; entry_number: string; status: string }>();
   if (documentIds.length === 0) return map;
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("accounting_entries")
-    .select("id, entry_number, status, source_document_id")
-    .neq("status", "cancelled")
-    .in("source_document_id", documentIds);
-  for (const entry of data ?? []) {
-    const srcId = entry.source_document_id as string;
+  const data = await lookupConsultationRows("accounting_entries", "id, entry_number, status, source_document_type, source_document_id", documentIds, "source_document_id");
+  for (const entry of data.filter((row) => row.status !== "cancelled")) {
+    const srcId = `${entry.source_document_type}:${entry.source_document_id}`;
     if (!map.has(srcId)) {
       map.set(srcId, { id: entry.id as string, entry_number: entry.entry_number as string, status: entry.status as string });
     }
@@ -430,7 +440,7 @@ async function resolveAccountingStatus(
   return map;
 }
 
-export async function listTreasuryConsultationFlows(filters: TreasuryConsultationFilters): Promise<{
+export async function listTreasuryConsultationFlows(filters: TreasuryConsultationFilters, exportAll = false): Promise<{
   rows: TreasuryConsultationRow[];
   summary: TreasuryConsultationSummary;
   total: number;
@@ -440,24 +450,26 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
 }> {
   const orgId = await activeOrgId();
   const supabase = await createClient();
-  const page = Math.max(1, filters.page ?? 1);
-  const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 50));
+  const page = positivePage(filters.page);
+  const pageSize = Math.min(500, positivePage(filters.pageSize, 50));
 
   let accountIds: string[] | null = null;
   if (filters.account_type) {
-    const { data: accounts } = await supabase
+    const { data: accounts, error: accountError } = await supabase
       .from("treasury_accounts")
       .select("id")
       .eq("organization_id", orgId)
       .eq("account_type", filters.account_type)
       .is("archived_at", null);
+    if (accountError) throw new Error(accountError.message);
     accountIds = (accounts ?? []).map((a) => a.id as string);
     if (accountIds.length === 0) {
       return { rows: [], summary: zeroSummary(), total: 0, page, pageSize, totalPages: 0 };
     }
   }
 
-  let query = supabase.from("treasury_transactions").select(CONSULTATION_TRANSACTION_SELECT, { count: "exact" }).eq("organization_id", orgId).is("archived_at", null);
+  const rawData = await readAllPages((from, to) => {
+  let query = supabase.from("treasury_transactions").select(CONSULTATION_TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null);
 
   if (filters.date_from) query = query.gte("transaction_date", filters.date_from);
   if (filters.date_to) query = query.lte("transaction_date", filters.date_to);
@@ -467,22 +479,12 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
   if (filters.transaction_type && filters.transaction_type !== "all") query = query.eq("transaction_type", filters.transaction_type);
   if (filters.reconciliation_status && filters.reconciliation_status !== "all") query = query.eq("reconciliation_status", filters.reconciliation_status);
   if (filters.third_party_id) query = query.eq("third_party_id", filters.third_party_id);
-  if (filters.q) {
-    const q = `%${filters.q}%`;
-    query = query.or(`label.ilike.${q},reference.ilike.${q}`);
-  }
-
-  query = query.order("transaction_date", { ascending: false }).order("created_at", { ascending: false });
-  query = query.range((page - 1) * pageSize, page * pageSize - 1);
-
-  const { data: rawData, error, count } = await query;
-  if (error) throw new Error(error.message);
-  const total = count ?? 0;
-  const totalPages = Math.ceil(total / pageSize);
+  return query.order("transaction_date", { ascending: false }).order("created_at", { ascending: false }).order("id").range(from, to);
+  });
 
   const rows = rawData as unknown as ConsultationRaw[];
   if (rows.length === 0) {
-    return { rows: [], summary: zeroSummary(), total, page, pageSize, totalPages };
+    return { rows: [], summary: zeroSummary(), total: 0, page: 1, pageSize, totalPages: 1 };
   }
 
   const customerPaymentIds = rows.filter((r) => r.customer_payment_id).map((r) => r.customer_payment_id as string);
@@ -505,7 +507,11 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
     const pm = paymentId ? paymentMethods.get(paymentId) : undefined;
     const invId = (r.customer_invoice_id ?? r.supplier_invoice_id) as string | null;
     const invInfo = invId ? invoiceNumbers.get(invId) : undefined;
-    const accEntry = invId ? accountingStatusMap.get(invId) : paymentId ? accountingStatusMap.get(paymentId) : undefined;
+    const accountingSource = r.customer_payment_id ? `customer_payment:${r.customer_payment_id}`
+      : r.supplier_payment_id ? `supplier_payment:${r.supplier_payment_id}`
+      : r.customer_invoice_id ? `customer_invoice:${r.customer_invoice_id}`
+      : r.supplier_invoice_id ? `supplier_invoice:${r.supplier_invoice_id}` : null;
+    const accEntry = accountingSource ? accountingStatusMap.get(accountingSource) : undefined;
     const isPosted = accEntry?.status === "posted";
 
     return {
@@ -523,7 +529,7 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
       third_party_id: r.third_party_id as string | null,
       third_party_name: thirdParty?.name ?? null,
       third_party_type: thirdParty?.primary_type ?? null,
-      payment_method: pm?.method ?? null,
+      payment_method: pm?.method === "transfer" ? "bank_transfer" : pm?.method === "cheque" ? "check" : pm?.method ?? null,
       payment_reference: pm?.reference ?? null,
       customer_payment_id: r.customer_payment_id as string | null,
       supplier_payment_id: r.supplier_payment_id as string | null,
@@ -540,18 +546,6 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
     };
   });
 
-  const summary: TreasuryConsultationSummary = {
-    total_entries: result.length,
-    total_in: result.filter((r) => r.direction === "in").reduce((s, r) => s + r.amount, 0),
-    total_out: result.filter((r) => r.direction === "out").reduce((s, r) => s + r.amount, 0),
-    net_flow: 0,
-    posted_count: result.filter((r) => r.accounting_status === "posted").length,
-    not_posted_count: result.filter((r) => r.accounting_status === "not_posted").length,
-    reconciled_count: result.filter((r) => r.reconciliation_status === "reconciled").length,
-    unreconciled_count: result.filter((r) => r.reconciliation_status !== "reconciled").length,
-  };
-  summary.net_flow = summary.total_in - summary.total_out;
-
   let filtered = result;
   if (filters.accounting_status && filters.accounting_status !== "all") {
     filtered = filtered.filter((r) => r.accounting_status === filters.accounting_status);
@@ -560,7 +554,7 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
     filtered = filtered.filter((r) => r.payment_method === filters.payment_method);
   }
   if (filters.q && filters.q.trim()) {
-    const q = filters.q.toLowerCase();
+    const q = searchText(filters.q);
     filtered = filtered.filter((r) =>
       r.label.toLowerCase().includes(q) ||
       (r.reference ?? "").toLowerCase().includes(q) ||
@@ -568,7 +562,22 @@ export async function listTreasuryConsultationFlows(filters: TreasuryConsultatio
     );
   }
 
-  return { rows: filtered, summary, total, page, pageSize, totalPages };
+  const currencyTotals = [...new Set(filtered.map((row) => row.currency || "MAD"))].map((currency) => {
+    const same = filtered.filter((row) => (row.currency || "MAD") === currency);
+    const total_in = same.filter((row) => row.direction === "in").reduce((sum, row) => sum + row.amount, 0);
+    const total_out = same.filter((row) => row.direction === "out").reduce((sum, row) => sum + row.amount, 0);
+    return { currency, total_in, total_out, net_flow: total_in - total_out };
+  });
+  const mad = currencyTotals.find((total) => total.currency === "MAD");
+  const summary: TreasuryConsultationSummary = {
+    total_entries: filtered.length, total_in: mad?.total_in ?? 0, total_out: mad?.total_out ?? 0, net_flow: mad?.net_flow ?? 0,
+    posted_count: filtered.filter((row) => row.accounting_status === "posted").length,
+    not_posted_count: filtered.filter((row) => row.accounting_status === "not_posted").length,
+    reconciled_count: filtered.filter((row) => row.reconciliation_status === "reconciled").length,
+    unreconciled_count: filtered.filter((row) => row.reconciliation_status !== "reconciled").length,
+    currencyTotals,
+  };
+  return { ...pageRows(filtered, exportAll ? 1 : page, exportAll ? Math.max(1, filtered.length) : pageSize), summary };
 }
 
 function zeroSummary(): TreasuryConsultationSummary {

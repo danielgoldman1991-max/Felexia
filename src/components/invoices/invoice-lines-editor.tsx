@@ -107,7 +107,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
             <span className="font-medium text-[var(--muted)]">Article / Service</span>
             <ProductCombobox products={products} value={draft.product_id} onChange={handleProductChange} disabled={draft.mode === "free"} />
           </label>
-        </div> : <p className="mb-3 text-sm text-[var(--muted)]">Décrivez ce que vous facturez, indiquez la quantité, le prix et la TVA.</p>}
+        </div> : <div className="mb-3 space-y-3"><p className="text-sm text-[var(--muted)]">Décrivez ce que vous facturez, indiquez la quantité, le prix et la TVA.</p><details className="rounded-lg border border-[var(--border)] p-3"><summary className="cursor-pointer text-sm font-medium">Depuis mon catalogue (facultatif)</summary><div className="mt-3"><ProductCombobox products={products} value={draft.product_id} onChange={handleProductChange} /></div><p className="mt-2 text-xs text-[var(--muted)]">L’article préremplit la ligne. Vous pouvez adapter la description et le prix.</p></details></div>}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <label className="flex flex-col gap-1 text-xs lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Description</span>

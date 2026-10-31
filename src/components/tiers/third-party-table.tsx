@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Archive, Eye, Pencil } from "lucide-react";
-import { archiveThirdParty } from "@/lib/third-party-actions";
+import { Archive, Eye, Pencil, RotateCcw } from "lucide-react";
+import { archiveThirdParty, restoreThirdParty } from "@/lib/third-party-actions";
 import type { ThirdPartyRecord } from "@/lib/third-party-types";
 import { formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import { Table, Td, Th } from "@/components/ui/table";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { ThirdPartyBadges } from "@/components/tiers/third-party-badges";
 
-export function ThirdPartyTable({ rows, fullAccess = false }: { rows: ThirdPartyRecord[]; fullAccess?: boolean }) {
+export function ThirdPartyTable({ rows, fullAccess = false, canWrite = false, returnTo = "/tiers/clients" }: { rows: ThirdPartyRecord[]; fullAccess?: boolean; canWrite?: boolean; returnTo?: string }) {
   const [archiveState, archiveAction] = useActionState(archiveThirdParty, { success: true });
+  const [restoreState, restoreAction] = useActionState(restoreThirdParty, { success: true });
 
   return (
     <>
+      {!restoreState.success && restoreState.error ? <p role="alert" className="mb-3 text-sm text-red-600">{restoreState.error}</p> : null}
       {!archiveState.success && archiveState.error ? (
         <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{archiveState.error}</p>
       ) : null}
@@ -66,24 +68,27 @@ export function ThirdPartyTable({ rows, fullAccess = false }: { rows: ThirdParty
                      asChild><Link href={`/tiers/${row.id}`} title="Consulter">
                       <Eye className="h-4 w-4" />
                     </Link></Button>
-                  <Button
+                  {canWrite ? <><Button
                       variant="ghost"
                       className="h-9 w-9 border border-slate-200 px-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       aria-label={`Modifier ${row.name}`}
                      asChild><Link href={`/tiers/${row.id}/edit`} title="Modifier">
                       <Pencil className="h-4 w-4" />
                     </Link></Button>
-                  <form action={archiveAction}>
+                  <form action={row.status === "archived" || row.archived_at ? restoreAction : archiveAction} onSubmit={(event) => {
+                    if (row.status !== "archived" && !row.archived_at && !window.confirm(`Archiver ${row.name} ? Vous pourrez le restaurer depuis le filtre Archivés.`)) event.preventDefault();
+                  }}>
                     <input type="hidden" name="id" value={row.id} />
+                    <input type="hidden" name="returnTo" value={returnTo} />
                     <Button
                       variant="ghost"
                       className="h-9 w-9 border border-slate-200 px-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                      title="Archiver"
-                      aria-label={`Archiver ${row.name}`}
+                      title={row.status === "archived" || row.archived_at ? "Restaurer" : "Archiver"}
+                      aria-label={`${row.status === "archived" || row.archived_at ? "Restaurer" : "Archiver"} ${row.name}`}
                     >
-                      <Archive className="h-4 w-4" />
+                      {row.status === "archived" || row.archived_at ? <RotateCcw className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
                     </Button>
-                  </form>
+                  </form></> : null}
                 </div>
               </Td>
             </tr>

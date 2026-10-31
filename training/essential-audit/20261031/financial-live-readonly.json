@@ -1,0 +1,214 @@
+{
+  "run": "audit-essentiel-20261031",
+  "phase": "final",
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "startedAt": "2026-10-31T20:10:07.179Z",
+  "readOnly": true,
+  "checks": [
+    {
+      "name": "public_admin_authentication",
+      "passed": true
+    },
+    {
+      "name": "active_own_membership",
+      "passed": true
+    },
+    {
+      "name": "five_default_journals",
+      "passed": true
+    },
+    {
+      "name": "global_vat20_visible_to_new_user",
+      "passed": true
+    },
+    {
+      "name": "sale_found_in_own_tenant",
+      "passed": true
+    },
+    {
+      "name": "purchase_found_in_own_tenant",
+      "passed": true
+    },
+    {
+      "name": "sale_totals_200_40_240",
+      "passed": true
+    },
+    {
+      "name": "purchase_totals_100_20_120",
+      "passed": true
+    },
+    {
+      "name": "sale_payment_state",
+      "passed": true,
+      "observed": {
+        "paid": 240,
+        "remaining": 0,
+        "status": "paid"
+      }
+    },
+    {
+      "name": "purchase_payment_state",
+      "passed": true,
+      "observed": {
+        "paid": 120,
+        "remaining": 0,
+        "status": "paid"
+      }
+    },
+    {
+      "name": "manual_sale_without_delivery",
+      "passed": true
+    },
+    {
+      "name": "manual_purchase_without_receipt",
+      "passed": true
+    },
+    {
+      "name": "sale_free_line_2x100_vat20",
+      "passed": true
+    },
+    {
+      "name": "purchase_free_line_1x100_vat20_with_unit",
+      "passed": true
+    },
+    {
+      "name": "customer_allocations_match_paid_amount",
+      "passed": true
+    },
+    {
+      "name": "supplier_allocations_match_paid_amount",
+      "passed": true
+    },
+    {
+      "name": "customer_payment_amounts",
+      "passed": true
+    },
+    {
+      "name": "supplier_payment_amounts",
+      "passed": true
+    },
+    {
+      "name": "payments_fully_allocated_in_mad_bank",
+      "passed": true
+    },
+    {
+      "name": "exact_payment_treasury_movements",
+      "passed": true
+    },
+    {
+      "name": "one_treasury_movement_per_payment",
+      "passed": true
+    },
+    {
+      "name": "treasury_net_cash_flow",
+      "passed": true,
+      "observed": 120
+    },
+    {
+      "name": "bank_balance_matches_opening_and_payments",
+      "passed": true,
+      "observed": {
+        "opening": 0,
+        "current": 120
+      }
+    },
+    {
+      "name": "accounting_source_uniqueness",
+      "passed": true
+    },
+    {
+      "name": "accounting_codes_match_tenant_accounts",
+      "passed": true
+    },
+    {
+      "name": "accounting_entries_balanced_with_lines",
+      "passed": true
+    },
+    {
+      "name": "five_posted_entries",
+      "passed": true
+    },
+    {
+      "name": "accounting_entry_amounts_match_sources",
+      "passed": true
+    },
+    {
+      "name": "ledger_matches_sale_purchase_and_settlements",
+      "passed": true
+    },
+    {
+      "name": "no_stock_movements_for_manual_invoice_journey",
+      "passed": true,
+      "observed": 0
+    },
+    {
+      "name": "rls_no_foreign_organization_members",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_third_parties",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_customer_payments",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_supplier_payments",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_treasury_transactions",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_accounting_entries",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_accounting_entry_lines",
+      "passed": true
+    },
+    {
+      "name": "rls_no_foreign_organizations",
+      "passed": true
+    }
+  ],
+  "authenticatedUserId": "5568a06d-2403-4702-8a33-5176a8b76d8c",
+  "financial": {
+    "salePaid": 240,
+    "saleRemaining": 0,
+    "purchasePaid": 120,
+    "purchaseRemaining": 0,
+    "treasuryMovementCount": 3,
+    "treasuryNet": 120,
+    "bankBalance": 120,
+    "postedEntryCount": 5
+  },
+  "testIds": {
+    "saleId": "0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1",
+    "purchaseId": "f599229f-6f41-4ce3-9466-e24fa3e4b1b7",
+    "bankId": "388c01de-736d-4ce7-81f0-e7d62c8e2175",
+    "customerPaymentIds": [
+      "4f7847eb-363e-4b41-8b90-2c614dc9006e",
+      "6c8e4878-d65c-481b-a4bd-1622b39b181b"
+    ],
+    "supplierPaymentIds": [
+      "14e626b1-f4e0-4699-af8c-4eca2a491e08"
+    ]
+  },
+  "completedAt": "2026-10-31T20:10:10.387Z",
+  "success": true
+}

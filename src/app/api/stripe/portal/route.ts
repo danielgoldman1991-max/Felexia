@@ -1,54 +1,25 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createPortalSession } from "@/lib/stripe";
+import { getActiveWorkspace } from "@/lib/auth";
+import { createClient as createServiceClient } from "@/lib/supabase/service";
+import { createPortalSession, getStripe } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
-import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { isAdminRole, isOperatorRole } from "@/lib/auth/roles";
+import { OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 
 export async function POST() {
   try {
-    if (!hasStripeEnv()) {
-      return NextResponse.json({ error: "Stripe non configure" }, { status: 500 });
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Non authentifie" }, { status: 401 });
-    }
-
-    const { data: membership } = await supabase
-      .from("organization_members")
-      .select("organization_id, role:roles(name)")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-
-    if (!membership?.organization_id) {
-      return NextResponse.json({ error: "Aucune organisation active" }, { status: 400 });
-    }
-
-    const role = Array.isArray(membership.role) ? membership.role[0] : membership.role;
-    if (isOperatorRole(role?.name)) {
-      return NextResponse.json(
-        { error: OPERATOR_ACCESS_ERROR, code: "OPERATOR_ACCESS_DENIED" },
-        { status: 403 },
-      );
-    }
-
-    const { data: org } = await supabase
-      .from("organizations")
-      .select("stripe_customer_id")
-      .eq("id", membership.organization_id)
-      .single();
-
-    if (!org?.stripe_customer_id) {
-      return NextResponse.json({ error: "Aucun client Stripe" }, { status: 400 });
-    }
-
-    const session = await createPortalSession(org.stripe_customer_id);
-    return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    const workspace = await getActiveWorkspace();
+    if (!workspace) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+    if (!isAdminRole(workspace.role)) return NextResponse.json({ error: isOperatorRole(workspace.role) ? OPERATOR_ACCESS_ERROR : "Seul un administrateur peut gérer l'abonnement.", code: isOperatorRole(workspace.role) ? "OPERATOR_ACCESS_DENIED" : "BILLING_ADMIN_REQUIRED" }, { status: 403 });
+    if (!hasStripeEnv()) return NextResponse.json({ error: "La facturation est momentanément indisponible." }, { status: 503 });
+    const { data: org, error } = await createServiceClient().from("organizations").select("stripe_customer_id").eq("id", workspace.organization.id).single();
+    if (error || !org?.stripe_customer_id) return NextResponse.json({ error: "Aucun abonnement Stripe à gérer. Choisissez l'offre Essentiel pour souscrire." }, { status: 400 });
+    const customer = await getStripe().customers.retrieve(org.stripe_customer_id);
+    if (customer.deleted || customer.metadata.organization_id !== workspace.organization.id) throw new Error("BILLING_CUSTOMER_MISMATCH");
+    const session = await createPortalSession(customer.id);
+    return NextResponse.json({ url: session.url });
+  } catch {
+    console.error("[billing] portal preparation failed");
+    return NextResponse.json({ error: "Le portail de facturation n'a pas pu être ouvert. Réessayez ou contactez l'assistance." }, { status: 503 });
   }
 }

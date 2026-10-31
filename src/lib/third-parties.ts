@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { positivePage, readAllPages } from "@/lib/listing";
 import type {
   PaginatedResult,
   ThirdPartyAddress,
@@ -33,8 +34,8 @@ export async function listThirdParties(
 ): Promise<PaginatedResult<ThirdPartyRecord>> {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
-  const page = filters.page ?? 1;
-  const limit = filters.limit ?? 25;
+  const page = positivePage(filters.page);
+  const limit = Math.min(100, positivePage(filters.limit, 25));
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
@@ -42,9 +43,11 @@ export async function listThirdParties(
     .from("third_parties")
     .select(SELECT_COLUMNS, { count: "exact" })
     .eq("organization_id", workspace.organization.id)
-    .is("archived_at", null)
     .order("created_at", { ascending: false })
+    .order("id")
     .range(from, to);
+
+  if (filters.status !== "archived" && filters.status !== "all") query = query.is("archived_at", null);
 
   if (filters.type && filters.type !== "all") {
     query = query.contains("types", [filters.type]);
@@ -96,6 +99,22 @@ export async function listThirdParties(
     limit,
     totalPages: Math.max(1, Math.ceil((count ?? 0) / limit)),
   };
+}
+
+export async function listThirdPartyExportRows(filters: ThirdPartyFilters = {}) {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  return readAllPages((from, to) => {
+    let query = supabase.from("third_parties").select(SELECT_COLUMNS).eq("organization_id", workspace.organization.id).order("id");
+    if (filters.status !== "archived" && filters.status !== "all") query = query.is("archived_at", null);
+    if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+    if (filters.type && filters.type !== "all") query = query.contains("types", [filters.type]);
+    if (filters.city) query = query.ilike("city", `%${filters.city}%`);
+    if (filters.vat === "yes" || filters.vat === "no") query = query.eq("vat_subject", filters.vat === "yes");
+    const value = (filters.query ?? "").replace(/[(),]/g, " ").trim();
+    if (value) query = query.or(["name", "code", "ice", "phone", "mobile", "email", "city"].map((field) => `${field}.ilike.%${value}%`).join(","));
+    return query.range(from, to);
+  }) as Promise<ThirdPartyRecord[]>;
 }
 
 export async function getThirdParty(id: string) {

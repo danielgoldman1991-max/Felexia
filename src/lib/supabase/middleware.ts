@@ -5,6 +5,7 @@ import { getLaunchDestination } from "@/lib/launch-profile";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isReadOnlyRole } from "@/lib/auth/roles";
 import { getOperatorDestination, isOperatorPathAllowed, isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { hasValidSubscriptionAccess, SUBSCRIPTION_READ_ONLY_MESSAGE } from "@/lib/subscriptions/subscription-access";
 
 const SESSION_CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
 
@@ -101,8 +102,10 @@ export async function updateSession(request: NextRequest) {
     // out of forms that they cannot submit, including Server Action POSTs.
     const mutationRequest = request.method !== "GET" && request.method !== "HEAD";
     const mutationForm = /\/(?:new|nouveau|edit|modifier|paiement|affecter|affectations?)(?:\/|$)/i.test(pathname);
+    const personalSettings = ["/parametres/profil", "/parametres/preferences", "/parametres/securite"]
+      .includes(pathname.replace(/\/+$/, ""));
     if (user && (mutationRequest || mutationForm)) {
-      if (membershipError || isReadOnlyRole(activeRole?.name)) {
+      if (membershipError || (isReadOnlyRole(activeRole?.name) && !personalSettings)) {
         if (mutationRequest) {
           const response = NextResponse.json(
             { error: "Votre accès est en lecture seule. Contactez votre administrateur pour modifier ces données.", code: "READ_ONLY_ACCESS" },
@@ -114,6 +117,30 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";
         url.search = "";
+        return redirectWithSession(url, supabaseResponse);
+      }
+    }
+
+    const businessPath = /^\/(?:facturation|achats|tiers|tresorerie|articles)(?:\/|$)/.test(pathname)
+      || pathname.startsWith("/comptabilite/ecritures");
+    if (user && activeMembership?.organization_id && businessPath && (mutationRequest || mutationForm)) {
+      const { data: subscription, error: subscriptionError } = await supabase
+        .from("organization_subscriptions")
+        .select("status, trial_ends_at, trial_end, current_period_end")
+        .eq("organization_id", activeMembership.organization_id)
+        .order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (subscriptionError || !hasValidSubscriptionAccess(subscription)) {
+        if (mutationRequest) {
+          const response = NextResponse.json(
+            { error: SUBSCRIPTION_READ_ONLY_MESSAGE, code: "SUBSCRIPTION_WRITE_REQUIRED" },
+            { status: 403, headers: { "Cache-Control": "no-store" } },
+          );
+          supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+          return response;
+        }
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        url.search = "?notice=subscription_read_only";
         return redirectWithSession(url, supabaseResponse);
       }
     }

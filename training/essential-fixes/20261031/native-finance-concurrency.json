@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "date": "2026-10-31T20:54:49.316Z",
+  "engine": "Native PostgreSQL",
+  "migrations": [
+    98,
+    99,
+    100
+  ],
+  "threeSyntheticUsers": true,
+  "checks": 20,
+  "results": [
+    "Native company has exactly three active synthetic users",
+    "Fractional-cent document has coherent rounded TTC",
+    "Rounded HT plus VAT equals TTC exactly",
+    "Combined 098099100 credit application settles invoice",
+    "Combined correction restores invoice outstanding amount",
+    "Concurrent posting of one payment waits on its source lock",
+    "Concurrent retry returns the same committed entry",
+    "Concurrent posting produces one source entry",
+    "Payment cancellation waits for its in-flight posting",
+    "Cancellation racing committed posting is refused",
+    "Refused concurrent cancellation preserves payment",
+    "Posting waits for an in-flight payment cancellation",
+    "Posting cannot resurrect a cancelled payment",
+    "Cancelled source leaves no orphan accounting entry",
+    "Second posting waits for an uncommitted first attempt",
+    "Rolled-back posting does not consume a committed number",
+    "Resumed posting commits its complete balanced lines",
+    "Third user can read the company invoice history",
+    "Third user cannot create an invoice through the RPC",
+    "Native treasury account and active movements reconcile after races"
+  ],
+  "productionDataRead": false,
+  "productionDataWritten": false,
+  "localFixtureDatabaseRetainedForRestoreTest": true
+}

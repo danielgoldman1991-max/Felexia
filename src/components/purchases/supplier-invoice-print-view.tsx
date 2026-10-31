@@ -64,7 +64,7 @@ export function SupplierInvoicePrintView({
             <th className="right">Prix HT</th>
             {discountPresent ? <th className="right">Remise</th> : null}
             <th className="right">TVA</th>
-            <th className="right">Total HT</th>
+            <th className="right">{discountPresent ? "HT avant remise" : "Total HT"}</th>
             <th className="right">Total TTC</th>
           </>
         }
@@ -93,14 +93,15 @@ export function SupplierInvoicePrintView({
       </>}>
       <PrintTotals
         rows={[
-          { label: "Total HT", value: money(invoice.subtotal_ht) },
-          ...(invoice.discount_total > 0 ? [{ label: "Remises déjà déduites", value: money(invoice.discount_total) }] : []),
+          { label: invoice.discount_total > 0 ? "HT avant remise" : "Total HT", value: money(invoice.subtotal_ht) },
+          ...(invoice.discount_total > 0 ? [{ label: "Remises", value: money(-invoice.discount_total) }, { label: "Total HT net", value: money(invoice.subtotal_ht - invoice.discount_total) }] : []),
           { label: "Total TVA", value: money(invoice.tax_total) },
         ]}
         grandTotalLabel="Total TTC"
         grandTotalValue={money(invoice.total_ttc)}
         settlementRows={[
           { label: "Montant payé", value: money(invoice.paid_amount) },
+          ...(Number(invoice.credit_amount || 0) > 0 ? [{ label: "Avoirs déduits", value: money(invoice.credit_amount) }] : []),
           { label: "Reste à payer", value: money(invoice.remaining_amount) },
         ]}
       />

@@ -236,6 +236,7 @@ export type TreasuryConsultationRow = {
 };
 
 export type TreasuryConsultationSummary = {
+  currencyTotals?: { currency: string; total_in: number; total_out: number; net_flow: number }[];
   total_entries: number;
   total_in: number;
   total_out: number;

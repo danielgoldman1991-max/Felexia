@@ -124,6 +124,8 @@ export type InvoiceListFilters = {
   query?: string;
   status?: string;
   paymentStatus?: string;
+  dateFrom?: string;
+  dateTo?: string;
   page?: number;
   pageSize?: number;
 };

@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "checks": 26,
+  "scope": "Real server actions/callback/proof; synthetic Auth and cookies; zero network or emails",
+  "results": [
+    "Invalid email never reaches Auth",
+    "Known and unknown accounts receive the same non-enumerating response",
+    "Recovery uses the existing public allowlisted callback",
+    "Auth rate limiting returns a readable retry message",
+    "Mail-provider failure never claims an email was dispatched",
+    "Password shorter than twelve characters is rejected before Auth",
+    "Password must contain a digit",
+    "Password confirmation must match",
+    "Unauthenticated session cannot reset a password",
+    "Ordinary authenticated session without recovery proof cannot reset a password",
+    "A recovery URL without a code never creates proof",
+    "Provider error never exchanges a code or creates proof",
+    "Invalid or expired Auth code never creates recovery proof",
+    "Real callback redirects to the reset page",
+    "Callback sets a short HttpOnly signed proof cookie",
+    "Cookie transport policy matches the server environment",
+    "The real signed proof validates for the recovered account",
+    "Recovery proof cannot reset another account",
+    "A tampered signed proof cannot reset the password",
+    "Auth same-password rejection retains proof and session for correction",
+    "Failed Auth write cannot claim a completed password change",
+    "Successful real action redirects to login with confirmation",
+    "Successful change consumes proof and signs out the local session",
+    "Consumed recovery proof cannot be replayed by an authenticated session",
+    "The supported token-hash callback also requires real Auth verification",
+    "Runner remains compatible without request-cookie options"
+  ]
+}

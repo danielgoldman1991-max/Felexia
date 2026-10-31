@@ -12,6 +12,8 @@ import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { PurchaseProductCombobox } from "@/components/purchases/purchase-product-combobox";
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierInvoice, updateSupplierInvoice } from "@/lib/purchase-actions";
+import { calculateSupplierInvoiceLine } from "@/lib/purchase-line-amounts";
+import { roundInvoice2 } from "@/lib/invoice-calculations";
 import type { SupplierInvoiceLineFormValue, BillableSupplierReceipt, SupplierInvoiceRecord, SupplierInvoiceLineRecord, PurchaseProductOption } from "@/lib/purchase-types";
 
 export function SupplierInvoiceForm({
@@ -59,20 +61,15 @@ export function SupplierInvoiceForm({
   const action = isEdit ? updateSupplierInvoice : createSupplierInvoice;
   const [state, formAction, pending] = useActionState(action, { success: true });
   const totals = useMemo(() => lines.reduce((sum, line) => {
-    const net = Number(line.quantity) * Number(line.unit_price_ht) * (1 - Number(line.discount_rate) / 100);
-    const tax = net * Number(line.tax_rate) / 100;
-    return { ht: sum.ht + net, tax: sum.tax + tax, ttc: sum.ttc + net + tax };
+    const calculated = calculateSupplierInvoiceLine(line);
+    return { ht: roundInvoice2(sum.ht + calculated.subtotal_ht - calculated.discount_amount), tax: roundInvoice2(sum.tax + calculated.tax_amount), ttc: roundInvoice2(sum.ttc + calculated.total_ttc) };
   }, { ht: 0, tax: 0, ttc: 0 }), [lines]);
 
   const importReceiptLines = useCallback((receipt: BillableSupplierReceipt) => {
     setLines((prev) => [
       ...prev,
       ...receipt.lines.map((l) => {
-        const baseHt = l.quantity * l.unit_price_ht;
-        const discountAmount = baseHt * ((l.discount_rate ?? 0) / 100);
-        const subtotalHt = baseHt - discountAmount;
-        const taxAmount = subtotalHt * ((l.tax_rate ?? 0) / 100);
-        return ({
+        return calculateSupplierInvoiceLine({
         id: crypto.randomUUID(),
         mode: "product" as const,
         product_id: l.product_id ?? "",
@@ -85,10 +82,10 @@ export function SupplierInvoiceForm({
         discount_rate: l.discount_rate,
         tax_rate_id: l.tax_rate_id ?? "",
         tax_rate: l.tax_rate,
-        subtotal_ht: subtotalHt,
-        discount_amount: discountAmount,
-        tax_amount: taxAmount,
-        total_ttc: subtotalHt + taxAmount,
+        subtotal_ht: 0,
+        discount_amount: 0,
+        tax_amount: 0,
+        total_ttc: 0,
         source_line_id: l.id,
         source_document_id: receipt.id,
       });
@@ -112,14 +109,7 @@ export function SupplierInvoiceForm({
       next[index] = { ...next[index], [field]: value };
       if (field === "tax_rate") next[index].tax_rate_id = "";
       if (["quantity", "unit_price_ht", "discount_rate", "tax_rate"].includes(field)) {
-        const qty = field === "quantity" ? Number(value) : next[index].quantity;
-        const price = field === "unit_price_ht" ? Number(value) : next[index].unit_price_ht;
-        const disc = field === "discount_rate" ? Number(value) : next[index].discount_rate;
-        const tax = field === "tax_rate" ? Number(value) : next[index].tax_rate;
-        next[index].subtotal_ht = qty * price;
-        next[index].discount_amount = next[index].subtotal_ht * (disc / 100);
-        next[index].tax_amount = (next[index].subtotal_ht - next[index].discount_amount) * (tax / 100);
-        next[index].total_ttc = next[index].subtotal_ht - next[index].discount_amount + next[index].tax_amount;
+        next[index] = calculateSupplierInvoiceLine(next[index]);
       }
       return next;
     });
@@ -178,7 +168,7 @@ export function SupplierInvoiceForm({
                   Importer depuis reception
                 </Button>
               ) : null}
-              {fullAccess ? <PurchaseProductCombobox products={products} onSelect={addProductLine} /> : null}
+              {fullAccess ? <PurchaseProductCombobox products={products} onSelect={addProductLine} /> : <details className="rounded-lg border border-[var(--border)] p-2"><summary className="cursor-pointer text-sm font-medium">Depuis mon catalogue</summary><div className="mt-2"><PurchaseProductCombobox products={products} onSelect={addProductLine} /></div></details>}
               <Button type="button" variant="secondary" onClick={addFreeLine}><Plus className="h-4 w-4" /> Ajouter une ligne</Button>
             </div>
           </CardHeader>
@@ -208,9 +198,9 @@ export function SupplierInvoiceForm({
                       {fullAccess ? <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.unit_name ? <Badge tone="warning">À compléter</Badge> : null}</Td> : null}
                       <Td><input aria-label={`Prix HT de la ligne ${i + 1}`} type="number" min="0.01" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-24 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
                       {fullAccess ? <Td><input type="number" min="0" max="100" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td> : null}
-                      <Td className="text-xs">{(Number(line.quantity) * Number(line.unit_price_ht) * (1 - Number(line.discount_rate) / 100)).toFixed(2)}</Td>
+                      <Td className="text-xs">{roundInvoice2(calculateSupplierInvoiceLine(line).subtotal_ht - calculateSupplierInvoiceLine(line).discount_amount).toFixed(2)}</Td>
                       <Td><input aria-label={`TVA de la ligne ${i + 1}`} type="number" min="0" max="100" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
-                      <Td className="text-xs">{(line.total_ttc ?? 0).toFixed(2)}</Td>
+                      <Td className="text-xs">{calculateSupplierInvoiceLine(line).total_ttc.toFixed(2)}</Td>
                       <Td><button type="button" aria-label={`Supprimer la ligne ${i + 1}`} onClick={() => removeLine(i)} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></button></Td>
                     </tr>
                   ))}

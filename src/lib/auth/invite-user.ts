@@ -14,7 +14,7 @@ export type InvitationErrorCode =
   | "UNAUTHENTICATED" | "FORBIDDEN" | "INVALID_EMAIL" | "INVALID_ROLE"
   | "MEMBER_EXISTS" | "INVITE_PENDING" | "USER_LIMIT" | "AUTH_USER_EXISTS"
   | "EMAIL_PROVIDER_DISABLED" | "EMAIL_RATE_LIMIT" | "EMAIL_NOT_AUTHORIZED"
-  | "EMAIL_SMTP_FAILED" | "SUPABASE_UNKNOWN";
+  | "EMAIL_SMTP_FAILED" | "SUPABASE_UNKNOWN" | "SUBSCRIPTION_REQUIRED";
 
 export class InvitationError extends Error {
   constructor(readonly code: InvitationErrorCode, message: string, readonly status: number) {
@@ -63,6 +63,7 @@ export async function inviteOrganizationUser(input: {
   const workspace = await getActiveWorkspace();
   if (!workspace) throw new InvitationError("UNAUTHENTICATED", "Non authentifié.", 401);
   if (!isAdminRole(workspace.role)) throw new InvitationError("FORBIDDEN", "Seul un administrateur peut inviter un utilisateur.", 403);
+  if (!workspace.subscription) throw new InvitationError("SUBSCRIPTION_REQUIRED", "Votre abonnement n'a pas pu être vérifié. Actualisez la page avant d'inviter un utilisateur.", 403);
   if (!matchesInvitationOrganization(workspace.organization.id, input.legacyOrganizationId)) {
     throw new InvitationError("FORBIDDEN", "L’entreprise affichée ne correspond plus à votre espace actif. Actualisez la page avant d’inviter un utilisateur.", 403);
   }

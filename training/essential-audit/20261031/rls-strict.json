@@ -1,0 +1,46 @@
+{
+  "scope": "Disposable in-memory PostgreSQL; actual039/042/043/069/093/094/095/096/097 and legacy contact migrations; no project secrets/network/data",
+  "relaxedV3": false,
+  "findings": [
+    {
+      "name": "Viewer can INSERT own-company contact",
+      "confirmed": true
+    },
+    {
+      "name": "Viewer can UPDATE own-company contact",
+      "confirmed": true
+    },
+    {
+      "name": "Viewer can INSERT own-company address",
+      "confirmed": true
+    },
+    {
+      "name": "Viewer can UPDATE own-company address",
+      "confirmed": true
+    },
+    {
+      "name": "Viewer can make own-company subscription active Premium until2099",
+      "confirmed": true
+    },
+    {
+      "name": "Foreign-company contact remains protected",
+      "confirmed": true
+    },
+    {
+      "name": "Admin can create invoice while subscription trialing and all dates expired",
+      "confirmed": true
+    },
+    {
+      "name": "Admin can create invoice while subscription canceled and all dates expired",
+      "confirmed": true
+    },
+    {
+      "name": "Admin can create invoice while subscription unpaid and all dates expired",
+      "confirmed": true
+    },
+    {
+      "name": "All fixture changes were rolled back",
+      "confirmed": true
+    }
+  ]
+}

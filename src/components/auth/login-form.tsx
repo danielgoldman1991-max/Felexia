@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { loginAction, type LoginState } from "@/lib/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const initialState: LoginState = {
   error: null,
@@ -37,6 +38,7 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Connexion..." : "Se connecter"}
       </Button>
+      <Link href="/mot-de-passe-oublie" className="block text-center text-sm font-medium text-[var(--primary)]">Mot de passe oublié ?</Link>
     </form>
   );
 }

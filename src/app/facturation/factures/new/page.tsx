@@ -62,7 +62,7 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
 
   const [customers, products, units, taxRates, sourcePreparation] = await Promise.all([
     listInvoiceCustomers(),
-    fullAccess ? listInvoiceProducts() : Promise.resolve([]),
+    listInvoiceProducts(),
     listInvoiceUnits(),
     listInvoiceTaxRates(),
     initialCustomerId && initialDeliveryNoteId

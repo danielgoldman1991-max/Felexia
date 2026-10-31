@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-10-31T20:59:56.986Z",
+  "success": true,
+  "checks": 144,
+  "scope": "Real source functions; isolated dependencies; no credentials, network, email or database",
+  "allThreeRolesReadWithoutAdministrativeWrites": true,
+  "missingOrExpiredSubscriptionNeverInvented": true,
+  "consultationAndExportsRetained": true
+}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import { COUNTRY_OPTIONS } from "@/lib/location-options";
 import { SUPPLIER_PURCHASE_TERMS_OPTIONS, SUPPLIER_PAYMENT_METHOD_OPTIONS } from "@/lib/supplier-options";
@@ -350,6 +351,7 @@ export async function archiveThirdParty(
 ): Promise<ThirdPartyActionResult> {
   void previousState;
   const workspace = await requireActiveWorkspace();
+  if (isReadOnlyRole(workspace.role)) return { success: false, error: "Votre accès est en lecture seule." };
   const id = text(formData, "id");
 
   if (!id) {
@@ -376,7 +378,22 @@ export async function archiveThirdParty(
   });
 
   revalidatePath("/tiers");
-  redirect("/tiers");
+  const destination = text(formData, "returnTo");
+  redirect(destination === "/tiers/fournisseurs" || destination === "/achats/fournisseurs" ? destination : "/tiers/clients");
+}
+
+export async function restoreThirdParty(previousState: ThirdPartyActionResult, formData: FormData): Promise<ThirdPartyActionResult> {
+  void previousState;
+  const workspace = await requireActiveWorkspace();
+  if (isReadOnlyRole(workspace.role)) return { success: false, error: "Votre accès est en lecture seule." };
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "Contact introuvable." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("third_parties").update({ status: "active", archived_at: null }).eq("organization_id", workspace.organization.id).eq("id", id);
+  if (error) return { success: false, error: "Impossible de restaurer ce contact." };
+  await logThirdPartyActivity({ organizationId: workspace.organization.id, userId: workspace.userId, thirdPartyId: id, action: "restore", changes: { message: "Restauration du contact archivé." } });
+  revalidatePath("/tiers/clients"); revalidatePath("/tiers/fournisseurs"); revalidatePath("/achats/fournisseurs");
+  return { success: true };
 }
 
 export async function convertProspectToCustomer(

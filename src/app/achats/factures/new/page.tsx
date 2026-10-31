@@ -20,7 +20,7 @@ export default async function NewSupplierInvoicePage({ searchParams }: { searchP
     if (existing) redirect(`/achats/factures/${existing.id}`);
   }
 
-  const [suppliers, products, billableReceipts, taxRates] = await Promise.all([listPurchaseSuppliers(), fullAccess ? listPurchaseProducts() : Promise.resolve([]), fullAccess ? listBillableSupplierReceipts() : Promise.resolve([]), listInvoiceTaxRates()]);
+  const [suppliers, products, billableReceipts, taxRates] = await Promise.all([listPurchaseSuppliers(), listPurchaseProducts(), fullAccess ? listBillableSupplierReceipts() : Promise.resolve([]), listInvoiceTaxRates()]);
 
   let prefillSupplierId = "";
   let prefillSourceReceiptId = "";

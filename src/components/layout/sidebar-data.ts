@@ -236,6 +236,7 @@ export const lightSections: SidebarSection[] = [
       { label: "Factures fournisseurs", href: "/achats/factures", icon: Receipt },
       { label: "Fournisseurs", href: "/achats/fournisseurs", icon: Building2 },
       { label: "Règlements versés", href: "/achats/paiements", icon: WalletCards },
+      { label: "Avoirs fournisseurs", href: "/achats/avoirs", icon: Receipt },
     ],
   },
   {
@@ -247,6 +248,7 @@ export const lightSections: SidebarSection[] = [
       { label: "Vue d'ensemble", href: "/tresorerie", icon: Gauge },
       { label: "Comptes & caisses", href: "/tresorerie/comptes", icon: Landmark },
       { label: "Mouvements", href: "/tresorerie/mouvements", icon: ArrowLeftRight },
+      { label: "Consultation & export", href: "/tresorerie/consultation", icon: FileText },
     ],
   },
   {

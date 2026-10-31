@@ -32,6 +32,7 @@ export function SubscriptionManage({
   storageUsedMb,
   hasStripe,
   nowIso,
+  canManageBilling = true,
 }: {
   currentSubscription: CurrentSubscription | null;
   plans?: Record<string, unknown>[];
@@ -41,6 +42,7 @@ export function SubscriptionManage({
   storageUsedMb?: number;
   hasStripe: boolean;
   nowIso?: string;
+  canManageBilling?: boolean;
   enabledModules?: string[];
   catalog?: unknown[];
 }) {
@@ -63,6 +65,7 @@ export function SubscriptionManage({
   const periodEnd = currentSubscription?.current_period_end ?? currentSubscription?.trial_ends_at ?? currentSubscription?.trial_end ?? null;
   const isTrial = status === "trialing" || status === "trial";
   const referenceTime = nowIso ? new Date(nowIso).getTime() : null;
+  const hasPaidStripeSubscription = Boolean(currentSubscription?.stripe_subscription_id && ["active", "past_due", "unpaid", "incomplete", "trialing"].includes(status));
   const daysRemaining = periodEnd && referenceTime !== null
     ? Math.max(0, Math.ceil((new Date(periodEnd).getTime() - referenceTime) / (1000 * 60 * 60 * 24)))
     : null;
@@ -77,7 +80,7 @@ export function SubscriptionManage({
   };
 
   async function openBillingPortal() {
-    if (!hasStripe) return;
+    if (!hasStripe || !canManageBilling) return;
     setLoadingPortal(true);
     setError(null);
     try {
@@ -99,7 +102,7 @@ export function SubscriptionManage({
   }
 
   async function choosePlan(planCode: PlanCode) {
-    if (!hasStripe) return;
+    if (!hasStripe || !canManageBilling) return;
     setLoadingPlan(planCode);
     setError(null);
     try {
@@ -125,7 +128,7 @@ export function SubscriptionManage({
   }
 
   async function startTrial() {
-    if (loadingTrial) return;
+    if (loadingTrial || !canManageBilling) return;
     setLoadingTrial(true);
     setError(null);
     try {
@@ -174,7 +177,7 @@ export function SubscriptionManage({
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
-            <Button onClick={startTrial} disabled={loadingTrial}>
+            <Button onClick={startTrial} disabled={loadingTrial || !canManageBilling}>
               {loadingTrial ? "Activation en cours..." : "Démarrer l'essai Essentiel"}
             </Button>
           </CardContent>
@@ -189,10 +192,10 @@ export function SubscriptionManage({
                   <h2 className="text-lg font-semibold">Plan actuel</h2>
                 </div>
                 <p className="mt-1 text-sm text-[var(--muted)]">
-                  Les modules Felexia sont maintenant inclus selon votre pack.
+                  Votre offre et ses limites restent visibles à tout moment.
                 </p>
               </div>
-              <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{statusBadge[status]?.label ?? status}</Badge>
+              <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{isTrial && daysRemaining === 0 ? "Essai terminé" : statusBadge[status]?.label ?? status}</Badge>
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-6">
@@ -216,6 +219,7 @@ export function SubscriptionManage({
               value={`${storageUsedMb ?? 0} Mo/${currentPlan.limits.storageMb} Mo`}
               icon={<Database className="h-4 w-4" />}
             />
+            <p className="text-xs text-[var(--muted)] md:col-span-6">Le quota compte les factures de vente, les factures d’achat, les avoirs et les autres documents commerciaux créés ce mois-ci. Les règlements et les pièces jointes ne le consomment pas. Une suppression ne réduit pas le nombre de documents créés dans le mois.</p>
             {periodEnd && (
               <p className="md:col-span-6 text-sm text-[var(--muted)]">
                 {isTrial ? (
@@ -248,7 +252,7 @@ export function SubscriptionManage({
         <h2 className="text-lg font-semibold">Votre abonnement</h2>
         <div className="flex items-center gap-2">
           {currentSubscription?.stripe_customer_id ? (
-            <Button variant="secondary" disabled={!hasStripe || loadingPortal} onClick={openBillingPortal}>
+            <Button variant="secondary" disabled={!hasStripe || loadingPortal || !canManageBilling} onClick={openBillingPortal}>
               {loadingPortal ? "Redirection..." : "Gerer la facturation"}
             </Button>
           ) : null}
@@ -287,7 +291,7 @@ export function SubscriptionManage({
 
       <div className="grid gap-4 lg:grid-cols-3">
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
-          const isCurrentPlan = hasSubscription && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
+          const isCurrentPlan = hasSubscription && status === "active" && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
           const savings = yearlySavings.find((s) => s.code === plan.code);
 
           return (
@@ -338,11 +342,11 @@ export function SubscriptionManage({
                   <Button
                     className="w-full"
                     variant={isCurrentPlan ? "secondary" : "primary"}
-                    disabled={isCurrentPlan || !hasStripe || loadingPlan !== null}
-                    onClick={() => choosePlan(plan.code)}
+                    disabled={!canManageBilling || !hasStripe || loadingPlan !== null || loadingPortal}
+                    onClick={() => hasPaidStripeSubscription ? openBillingPortal() : choosePlan(plan.code)}
                   >
-                    {isCurrentPlan
-                      ? "Plan actuel"
+                    {!canManageBilling ? "Géré par l’administrateur"
+                      : hasPaidStripeSubscription ? "Gérer mon abonnement"
                       : loadingPlan === plan.code
                         ? "Redirection..."
                         : billingInterval === "yearly"

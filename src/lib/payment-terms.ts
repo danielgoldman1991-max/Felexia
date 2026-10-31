@@ -8,7 +8,9 @@ export function getPaymentTermLabel(value: string | null | undefined): string {
 
 export function getPaymentMethodLabel(value: string | null | undefined): string {
   if (!value) return "";
-  const option = PAYMENT_METHOD_OPTIONS.find((o) => o.value === value);
+  const aliases: Record<string, string> = { transfer: "bank_transfer", cheque: "check" };
+  const code = aliases[value.trim().toLowerCase()] || value.trim();
+  const option = PAYMENT_METHOD_OPTIONS.find((o) => o.value === code);
   return option?.label ?? value;
 }
 

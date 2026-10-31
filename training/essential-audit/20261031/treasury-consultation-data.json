@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-31T20:14:16.253Z",
+  "commit": "31b17b027142254e61b4d10c80371025a5659061",
+  "readOnly": true,
+  "businessWrites": 0,
+  "scope": "Existing fictitious QA company",
+  "liveUiReportedByParent": {
+    "url": "https://www.felexia.pro/tresorerie/consultation",
+    "status": 500,
+    "digest": "663431968"
+  },
+  "authenticatedDatabaseChecks": [
+    {
+      "name": "exact consultation select with count/order/range",
+      "status": 200,
+      "count": 3,
+      "rows": 3,
+      "error": null
+    },
+    {
+      "name": "normal movement select with same count/order/range",
+      "status": 200,
+      "count": 3,
+      "rows": 3,
+      "error": null
+    },
+    {
+      "name": "basic movement select",
+      "status": 200,
+      "count": 3,
+      "rows": 3,
+      "error": null
+    }
+  ],
+  "sourceCause": {
+    "confidence": "high; local server stack confirmation pending",
+    "page": "src/app/tresorerie/consultation/page.tsx:53",
+    "callsite": "src/app/tresorerie/consultation/page.tsx:59",
+    "button": "src/components/ui/button.tsx:61",
+    "mechanism": "Always-disabled server Button clones client Next Link with a new function onClick; RSC forbids passing event handlers to Client Component props.",
+    "nextError": "Event handlers cannot be passed to Client Component props."
+  }
+}

@@ -50,13 +50,13 @@ export default async function TreasuryConsultationPage({ searchParams }: { searc
     listTreasuryConsultationFlows(filters),
   ]);
 
-  const csvUrl = "";
+  const csvUrl = `/api/exports/treasury-ledger?${sp}`;
 
   return (
     <ModulePage>
       <PageHeader title="Consultation tresorerie" description="Vue complete, filtrable et tracable des flux avant/apres comptabilisation." actions={
         <div className="flex items-center gap-2">
-          <Button variant="secondary" disabled={!csvUrl} asChild><Link href={csvUrl || "#"}><Download className="h-4 w-4" /> Exporter</Link></Button>
+          <Button variant="secondary" asChild><a href={csvUrl}><Download className="h-4 w-4" /> Exporter CSV</a></Button>
         </div>
       } />
       <TreasuryConsultationFilters accounts={accounts} />

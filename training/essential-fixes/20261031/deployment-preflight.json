@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-31T20:41:43.723Z",
+  "scope": "Read-only preflight aggregate counts; no business changes",
+  "businessWrites": 0,
+  "accountingEntryCount": 1086,
+  "duplicateAccountingSourceGroups": 0,
+  "postedEntriesWithoutLines": 0,
+  "postedEntriesWithUnbalancedLines": 0,
+  "postedHeaderLineTotalMismatches": 0,
+  "duplicateActiveSupplierReferences": 0,
+  "existingNonMadTreasuryAccounts": 0,
+  "activeSubscriptionsMissingEnd": 1,
+  "subscriptionCount": 97
+}

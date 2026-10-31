@@ -130,10 +130,12 @@ function PaymentsSection({
   invoice,
   payments,
   summary,
+  canWrite,
 }: {
   invoice: SupplierInvoiceRecord;
   payments: SupplierInvoicePaymentAttachment[];
   summary: SupplierInvoicePaymentSummary | null;
+  canWrite: boolean;
 }) {
   const effectiveSummary = summary ?? {
     invoiceTotalTtc: Number(invoice.total_ttc ?? 0),
@@ -150,7 +152,7 @@ function PaymentsSection({
   } satisfies SupplierInvoicePaymentSummary;
   const confirmedPayments = payments.filter((payment) => payment.matchStatus === "confirmed");
   const possiblePayments = payments.filter((payment) => payment.matchStatus === "possible_match");
-  const canRegisterPayment = effectiveSummary.canRegisterPayment !== false && effectiveSummary.paymentStatus !== "paid" && invoice.status !== "cancelled";
+  const canRegisterPayment = canWrite && effectiveSummary.canRegisterPayment !== false && effectiveSummary.paymentStatus !== "paid" && !["draft", "cancelled"].includes(invoice.status);
   const paymentHref = `/achats/paiements/new?supplierId=${invoice.supplier_id}&invoiceId=${invoice.id}`;
   const renderPaymentRows = (rows: SupplierInvoicePaymentAttachment[]) =>
     rows.map((payment) => (
@@ -234,6 +236,7 @@ function PaymentsSection({
         <div className="grid gap-3 md:grid-cols-4">
           <SummaryTile label="Total facture" value={<MoneyDisplay value={effectiveSummary.invoiceTotalTtc} />} />
           <SummaryTile label="Total payé confirmé" value={<MoneyDisplay value={effectiveSummary.paidAmount} />} helper="Paiements affectés ou liés directement." />
+          {Number(invoice.credit_amount || 0) > 0 ? <SummaryTile label="Avoirs déduits" value={<MoneyDisplay value={invoice.credit_amount} />} helper="Les avoirs réduisent le solde ; ils ne constituent pas un décaissement." /> : null}
           <SummaryTile label="Reste à payer" value={<MoneyDisplay value={Math.max(effectiveSummary.remainingAmount, 0)} />} />
           <SummaryTile label="Trop payé" value={<MoneyDisplay value={effectiveSummary.overpaidAmount} />} />
         </div>
@@ -251,7 +254,7 @@ function PaymentsSection({
             <div className="space-y-2">
               <p>Statut incohérent : cette facture est marquée payée ou partiellement payée en base, mais les règlements confirmés attachés indiquent un autre solde.</p>
               <p className="text-xs">Montant payé enregistré : <MoneyDisplay value={effectiveSummary.storedPaidAmount ?? 0} /> / montant confirmé : <MoneyDisplay value={effectiveSummary.confirmedPaidAmount ?? effectiveSummary.paidAmount} />.</p>
-              <ActionForm label="Recalculer le statut de paiement" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(recalculateSupplierInvoicePaymentStatusAction, invoice.id)} />
+              {canWrite ? <ActionForm label="Recalculer le statut de paiement" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(recalculateSupplierInvoicePaymentStatusAction, invoice.id)} /> : null}
             </div>
           </div>
         ) : null}
@@ -322,7 +325,8 @@ export function SupplierInvoiceDetail({
   accountingEntry,
   documentFlow,
   fullAccess = false,
-  canPostAccounting = true,
+  canWrite = false,
+  canPostAccounting = false,
 }: {
   invoice: SupplierInvoiceRecord;
   lines: SupplierInvoiceLineRecord[];
@@ -331,16 +335,17 @@ export function SupplierInvoiceDetail({
   accountingEntry?: AccountingEntryInfo | null;
   documentFlow?: DocumentFlowStep[];
   fullAccess?: boolean;
+  canWrite?: boolean;
   canPostAccounting?: boolean;
 }) {
-  const canEdit = invoice.status === "draft";
-  const canValidate = invoice.status === "draft";
-  const canPay = !["draft", "cancelled"].includes(invoice.status) && paymentSummary?.canRegisterPayment !== false;
+  const canEdit = canWrite && invoice.status === "draft";
+  const canValidate = canWrite && invoice.status === "draft";
+  const canPay = canWrite && !["draft", "cancelled"].includes(invoice.status) && paymentSummary?.canRegisterPayment !== false;
   const topPaymentSummary = paymentSummary ?? null;
   const fromReceipt = isSupplierInvoiceFromReceipt(invoice, lines);
   const hasConfirmedPayment = Number(paymentSummary?.paidAmount ?? paymentSummary?.confirmedPaidAmount ?? 0) > 0.01;
   const hasAccountingEntry = Boolean(accountingEntry?.entry);
-  const canCancel = invoice.status !== "cancelled" && !fromReceipt && !hasConfirmedPayment && !hasAccountingEntry;
+  const canCancel = canWrite && invoice.status !== "cancelled" && !fromReceipt && !hasConfirmedPayment && !hasAccountingEntry;
 
   return (
     <div className="space-y-6">
@@ -359,6 +364,7 @@ export function SupplierInvoiceDetail({
               <Button asChild><Link href={`/achats/paiements/new?supplierId=${invoice.supplier_id}&invoiceId=${invoice.id}`}>Payer</Link></Button>
             ) : null}
             <Button variant="secondary" asChild><Link href={`/achats/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
+            {canWrite && invoice.status !== "draft" && invoice.status !== "cancelled" ? <Button variant="secondary" asChild><Link href={`/achats/avoirs/new?invoiceId=${invoice.id}`}>Enregistrer un avoir fournisseur</Link></Button> : null}
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierInvoice, invoice.id)} />
             ) : null}
@@ -456,7 +462,7 @@ export function SupplierInvoiceDetail({
         </CardContent>
       </Card>
 
-      <PaymentsSection invoice={invoice} payments={payments} summary={paymentSummary} />
+      <PaymentsSection invoice={invoice} payments={payments} summary={paymentSummary} canWrite={canWrite} />
 
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
         <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>

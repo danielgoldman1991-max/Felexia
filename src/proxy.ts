@@ -14,6 +14,7 @@ export const config = {
     "/api/stripe/portal",
     "/api/subscriptions/start-trial",
     "/api/onboarding/complete",
+    "/api/exports/:path*",
     "/achats/:path*",
     "/vente/:path*",
     "/ventes/:path*",

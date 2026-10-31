@@ -1,0 +1,232 @@
+{
+  "date": "2026-10-31T20:15:34.632Z",
+  "context": "Existing fictitious QA company",
+  "businessSubmissions": 0,
+  "emailsSent": 0,
+  "pages": [
+    {
+      "route": "/facturation/factures",
+      "url": "https://www.felexia.pro/facturation/factures",
+      "serverError": false,
+      "headings": [
+        "31 heading Factures clients, Value: 1"
+      ]
+    },
+    {
+      "route": "/achats/factures",
+      "url": "https://www.felexia.pro/achats/factures",
+      "serverError": false,
+      "headings": [
+        "~\t\t31 heading Factures fournisseurs, Value: 1"
+      ]
+    },
+    {
+      "route": "/tiers/clients",
+      "url": "https://www.felexia.pro/tiers/clients",
+      "serverError": false,
+      "headings": [
+        "31 heading Clients, Value: 1"
+      ]
+    },
+    {
+      "route": "/tiers/fournisseurs",
+      "url": "https://www.felexia.pro/tiers/fournisseurs",
+      "serverError": false,
+      "headings": [
+        "28 heading Fournisseurs, Value: 1"
+      ]
+    },
+    {
+      "route": "/facturation/paiements",
+      "url": "https://www.felexia.pro/facturation/paiements",
+      "serverError": false,
+      "headings": [
+        "31 heading Règlements reçus, Value: 1"
+      ]
+    },
+    {
+      "route": "/achats/paiements",
+      "url": "https://www.felexia.pro/achats/paiements",
+      "serverError": false,
+      "headings": [
+        "~\t\t31 heading Règlements fournisseurs, Value: 1"
+      ]
+    },
+    {
+      "route": "/tresorerie",
+      "url": "https://www.felexia.pro/tresorerie",
+      "serverError": false,
+      "headings": [
+        "31 heading Trésorerie, Value: 1",
+        "53 heading Comptes avec soldes, Value: 2",
+        "98 heading Derniers mouvements, Value: 2"
+      ]
+    },
+    {
+      "route": "/tresorerie/comptes",
+      "url": "https://www.felexia.pro/tresorerie/comptes",
+      "serverError": false,
+      "headings": [
+        "31 heading Comptes & caisses, Value: 1"
+      ]
+    },
+    {
+      "route": "/tresorerie/mouvements",
+      "url": "https://www.felexia.pro/tresorerie/mouvements",
+      "serverError": false,
+      "headings": [
+        "31 heading Mouvements de tresorerie, Value: 1"
+      ]
+    },
+    {
+      "route": "/comptabilite/journaux",
+      "url": "https://www.felexia.pro/comptabilite/journaux",
+      "serverError": false,
+      "headings": [
+        "30 heading Journaux, Value: 1"
+      ]
+    },
+    {
+      "route": "/comptabilite/ecritures",
+      "url": "https://www.felexia.pro/comptabilite/ecritures",
+      "serverError": false,
+      "headings": [
+        "30 heading Ecritures comptables, Value: 1"
+      ]
+    },
+    {
+      "route": "/parametres/entreprise",
+      "url": "https://www.felexia.pro/parametres/entreprise",
+      "serverError": false,
+      "headings": [
+        "36 heading Entreprise, Value: 1",
+        "40 heading Logo, Value: 2",
+        "45 heading Informations légales, Value: 2"
+      ]
+    },
+    {
+      "route": "/parametres/utilisateurs",
+      "url": "https://www.felexia.pro/parametres/utilisateurs",
+      "serverError": false,
+      "headings": [
+        "36 heading Utilisateurs, Value: 1",
+        "48 heading Membres actifs (2), Value: 2",
+        "65 heading Invitations en attente (1), Value: 2"
+      ]
+    },
+    {
+      "route": "/parametres/documents",
+      "url": "https://www.felexia.pro/parametres/documents",
+      "serverError": false,
+      "headings": [
+        "36 heading Documents commerciaux, Value: 1",
+        "40 heading Numérotation des documents, Value: 2",
+        "45 heading Mentions et apparence, Value: 2"
+      ]
+    },
+    {
+      "route": "/parametres/numerotation",
+      "url": "https://www.felexia.pro/parametres/numerotation",
+      "serverError": false,
+      "headings": [
+        "36 heading Numérotation, Value: 1",
+        "56 heading Ventes, Value: 2",
+        "61 heading Factures clients, Value: 3"
+      ]
+    },
+    {
+      "route": "/parametres/profil",
+      "url": "https://www.felexia.pro/parametres/profil",
+      "serverError": false,
+      "headings": [
+        "36 heading Mon profil, Value: 1",
+        "41 heading Test Lancement, Value: 2",
+        "45 heading Identité, Value: 2"
+      ]
+    },
+    {
+      "route": "/articles",
+      "url": "https://www.felexia.pro/articles",
+      "serverError": false,
+      "headings": [
+        "28 heading Articles et services, Value: 1"
+      ]
+    },
+    {
+      "route": "/facturation/factures/new",
+      "url": "https://www.felexia.pro/facturation/factures/new",
+      "serverError": false,
+      "headings": [
+        "31 heading Nouvelle facture de vente, Value: 1",
+        "35 heading Informations générales, Value: 2",
+        "50 heading Lignes de facture, Value: 2"
+      ]
+    },
+    {
+      "route": "/achats/factures/new",
+      "url": "https://www.felexia.pro/achats/factures/new",
+      "serverError": false,
+      "headings": [
+        "31 heading Nouvelle facture d’achat, Value: 1",
+        "35 heading Informations générales, Value: 2",
+        "50 heading Lignes, Value: 2"
+      ]
+    },
+    {
+      "route": "/facturation/paiements/new",
+      "url": "https://www.felexia.pro/facturation/paiements/new",
+      "serverError": false,
+      "headings": [
+        "31 heading Nouveau règlement client, Value: 1",
+        "35 heading Informations paiement, Value: 2"
+      ]
+    },
+    {
+      "route": "/achats/paiements/new",
+      "url": "https://www.felexia.pro/achats/paiements/new",
+      "serverError": false,
+      "headings": [
+        "31 heading Nouveau paiement fournisseur, Value: 1",
+        "35 heading Paiement, Value: 2"
+      ]
+    },
+    {
+      "route": "/tiers/new?type=customer",
+      "url": "https://www.felexia.pro/tiers/new?type=customer",
+      "serverError": false,
+      "headings": [
+        "28 heading Nouveau client, Value: 1",
+        "32 heading Informations générales, Value: 2",
+        "40 heading Coordonnées, Value: 2"
+      ]
+    },
+    {
+      "route": "/tiers/new?type=supplier",
+      "url": "https://www.felexia.pro/tiers/new?type=supplier",
+      "serverError": false,
+      "headings": [
+        "28 heading Nouveau fournisseur, Value: 1",
+        "32 heading Informations générales, Value: 2",
+        "40 heading Coordonnées, Value: 2"
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "serverError": false,
+      "heading": "Bonjour Test",
+      "observed": "Core actions and bank120 MAD/sales240 MAD displayed"
+    },
+    {
+      "route": "/parametres/abonnement",
+      "serverError": false,
+      "heading": "Abonnement",
+      "semanticError": "No trial shown while authenticated database has active Essentiel trial"
+    },
+    {
+      "route": "/tresorerie/consultation",
+      "serverError": true,
+      "digest": "663431968",
+      "reproducedTwice": true
+    }
+  ]
+}

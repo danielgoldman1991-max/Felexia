@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/erp/empty-state";
-import { MoneyDisplay } from "@/components/erp/money-display";
+import { getPaymentMethodLabel } from "@/lib/payment-terms";
 import { Badge } from "@/components/ui/badge";
 import { Table, Td, Th } from "@/components/ui/table";
 import { RECONCILIATION_STATUS_LABELS, TREASURY_TRANSACTION_TYPE_LABELS, TREASURY_ACCOUNT_TYPE_LABELS, type TreasuryConsultationRow } from "@/lib/treasury-types";
@@ -49,8 +49,8 @@ export function TreasuryConsultationTable({ rows }: { rows: TreasuryConsultation
                 {row.supplier_invoice_number && <Link href={`/achats/factures/${row.supplier_invoice_id}`} className="text-indigo-700 hover:underline">{row.supplier_invoice_number}</Link>}
                 {!row.customer_invoice_number && !row.supplier_invoice_number && "-"}
               </Td>
-              <Td className="whitespace-nowrap font-mono tabular-nums"><MoneyDisplay value={row.amount} /></Td>
-              <Td className="whitespace-nowrap">{row.payment_method ?? "-"}</Td>
+              <Td className="whitespace-nowrap font-mono tabular-nums">{row.amount.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {row.currency}</Td>
+              <Td className="whitespace-nowrap">{getPaymentMethodLabel(row.payment_method) || "—"}</Td>
               <Td className="whitespace-nowrap"><Badge tone={row.reconciliation_status === "reconciled" ? "success" : "neutral"}>{RECONCILIATION_STATUS_LABELS[row.reconciliation_status]}</Badge></Td>
               <Td className="whitespace-nowrap">
                 {row.accounting_entry_id ? (

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canAccessApp } from "@/lib/subscriptions/subscription-access";
 import { startDefaultTrialAndEnableModules } from "@/lib/subscriptions/plan-access";
 import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { isAdminRole } from "@/lib/auth/roles";
 
 export const runtime = "nodejs";
 
@@ -36,9 +37,9 @@ export async function POST() {
     }
 
     const role = Array.isArray(membership.role) ? membership.role[0] : membership.role;
-    if (isOperatorRole(role?.name)) {
+    if (!isAdminRole(role?.name)) {
       return NextResponse.json(
-        { error: OPERATOR_ACCESS_ERROR, code: "OPERATOR_ACCESS_DENIED" },
+        { error: isOperatorRole(role?.name) ? OPERATOR_ACCESS_ERROR : "Seul un administrateur peut activer l'essai.", code: isOperatorRole(role?.name) ? "OPERATOR_ACCESS_DENIED" : "BILLING_ADMIN_REQUIRED" },
         { status: 403 },
       );
     }
@@ -58,6 +59,10 @@ export async function POST() {
         { error: "Impossible de vérifier l'abonnement actuel." },
         { status: 500 },
       );
+    }
+
+    if (existingSubscription && !canAccessApp({ status: existingSubscription.status, trial_ends_at: existingSubscription.trial_ends_at ?? existingSubscription.trial_end, current_period_end: existingSubscription.current_period_end })) {
+      return NextResponse.json({ error: "L'essai de cette entreprise a déjà été utilisé. Souscrivez à l'offre Essentiel pour continuer les créations ; vos données restent consultables et exportables." }, { status: 409 });
     }
 
     if (existingSubscription && canAccessApp({

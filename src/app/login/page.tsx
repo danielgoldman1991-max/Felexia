@@ -94,6 +94,7 @@ export default async function LoginPage({
           </div>
 
           <div className="mt-8">
+            {notice === "password_updated" ? <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">Votre mot de passe a été modifié. Connectez-vous avec votre nouveau mot de passe.</div> : null}
             {notice === "confirm_email" ? (
               <p role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm leading-6 text-blue-800">
                 Consultez votre boîte mail et ouvrez le lien de confirmation pour continuer la création de votre entreprise. Si votre email est déjà confirmé, connectez-vous ci-dessous.

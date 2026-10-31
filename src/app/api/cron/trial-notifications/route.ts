@@ -5,7 +5,11 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const secret = process.env.CRON_SECRET;
 
-  if (secret && authHeader !== `Bearer ${secret}`) {
+  if (!secret) {
+    console.error("[TRIAL_CRON] missing server credential");
+    return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+  }
+  if (authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 

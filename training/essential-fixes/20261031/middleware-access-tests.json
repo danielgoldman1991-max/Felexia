@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "checks": 17,
+  "scope": "Real middleware and Next request/response; isolated Auth/DB/deployment; zero network or project secrets",
+  "refreshedCookiesAndPrivateCacheRetained": true,
+  "results": [
+    "Active viewer may update own profil",
+    "Expired viewer may update own profil",
+    "Operator may update own profil",
+    "Active viewer may update own preferences",
+    "Expired viewer may update own preferences",
+    "Operator may update own preferences",
+    "Active viewer may update own securite",
+    "Expired viewer may update own securite",
+    "Operator may update own securite",
+    "Viewer financial POST is forbidden",
+    "Viewer financial form redirects to consultation",
+    "Expired administrator financial POST is forbidden",
+    "Expired operator financial POST is forbidden",
+    "Expired viewer retains CSV export access",
+    "Anonymous personal POST redirects to login",
+    "Membership failure still blocks personal POST",
+    "Subscription lookup error fails financial writes closed"
+  ]
+}

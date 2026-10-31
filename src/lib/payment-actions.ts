@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getCustomerOpenItems } from "@/lib/payments";
 import { createClient } from "@/lib/supabase/server";
+import { financialErrorMessage } from "@/lib/financial-errors";
 import type { PaymentActionResult } from "@/lib/payment-types";
 
 function text(formData: FormData, key: string) {
@@ -130,7 +131,7 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
       success: false,
       error: ["PGRST202", "42883"].includes(atomicResult.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant de créer un paiement client."
-        : "Le paiement a été refusé afin de préserver la facture et la trésorerie.",
+        : financialErrorMessage(atomicResult.error, "Le paiement a été refusé afin de préserver la facture et la trésorerie."),
     };
   }
   const atomicPayment = Array.isArray(atomicResult.data) ? atomicResult.data[0] : atomicResult.data;
@@ -178,7 +179,7 @@ export async function updateCustomerPayment(prev: PaymentActionResult, formData:
       success: false,
       error: ["PGRST202", "42883"].includes(result.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant de modifier ce paiement."
-        : "La modification a été refusée afin de préserver la trésorerie.",
+        : financialErrorMessage(result.error, "La modification a été refusée afin de préserver la trésorerie."),
     };
   }
   revalidatePath(`/facturation/paiements/${id}`);
@@ -218,7 +219,7 @@ export async function allocatePaymentToInvoices(prev: PaymentActionResult, formD
       success: false,
       error: ["PGRST202", "42883"].includes(result.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant d'affecter ce paiement."
-        : "L'affectation a été refusée afin de préserver les soldes client.",
+        : financialErrorMessage(result.error, "L'affectation a été refusée afin de préserver les soldes client."),
     };
   }
   revalidatePath(`/facturation/paiements/${paymentId}`);
@@ -251,7 +252,7 @@ export async function unallocatePaymentFromInvoice(prev: PaymentActionResult, fo
       success: false,
       error: ["PGRST202", "42883"].includes(result.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant de retirer cette affectation."
-        : "Le retrait a été refusé afin de préserver les soldes client.",
+        : financialErrorMessage(result.error, "Le retrait a été refusé afin de préserver les soldes client."),
     };
   }
   revalidatePath(`/facturation/paiements/${allocation.payment_id}`);
@@ -279,7 +280,7 @@ export async function cancelCustomerPayment(prev: PaymentActionResult, formData:
       success: false,
       error: ["PGRST202", "42883"].includes(cancelResult.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant d'annuler un paiement client."
-        : "L'annulation a été refusée afin de préserver la facture et la trésorerie.",
+        : financialErrorMessage(cancelResult.error, "L'annulation a été refusée afin de préserver la facture et la trésorerie."),
     };
   }
   revalidatePath(`/facturation/paiements/${id}`);
@@ -295,7 +296,7 @@ export async function confirmCustomerPayment(prev: PaymentActionResult, formData
   if (!id) return { success: false, error: "Paiement introuvable." };
   const supabase = await createClient();
   const { error } = await supabase.from("customer_payments").update({ status: "confirmed", confirmed_at: new Date().toISOString() }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath(`/facturation/paiements/${id}`);
   return { success: true };
 }
@@ -307,7 +308,7 @@ export async function archiveCustomerPayment(prev: PaymentActionResult, formData
   if (!id) return { success: false, error: "Paiement introuvable." };
   const supabase = await createClient();
   const { error } = await supabase.from("customer_payments").update({ archived_at: new Date().toISOString() }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/facturation/paiements");
   redirect("/facturation/paiements");
 }

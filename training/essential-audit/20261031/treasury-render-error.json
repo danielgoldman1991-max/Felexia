@@ -1,0 +1,6 @@
+{
+  "productionUrl": "https://www.felexia.pro/tresorerie/consultation",
+  "productionErrorRepeated": true,
+  "productionDigest": "663431968",
+  "localException": "Error: Event handlers cannot be passed to Client Component props.\n  <... href=\"#\" children={[...]} className=... data-variant=... aria-disabled=... tabIndex=... onClick={function}>\n                                                                                                       ^^^^^^^^^^\nIf you need interactivity, consider converting part of this to a Client Component.\n    at resolveErrorDev (http://localhost:3100/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js:1937:105)\n    at processFullStringRow (http://localhost:3100/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js:2456:29)\n    at processFullBinaryRow (http://localhost:3100/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js:2415:9)\n    at processBinaryChunk (http://localhost:3100/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js:2524:221)\n    at progress (http://localhost:3100/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js:2711:13)"
+}

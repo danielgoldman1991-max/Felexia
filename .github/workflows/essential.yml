@@ -1,0 +1,67 @@
+name: Essential launch checks
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: essential-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  essential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_APP_URL: https://www.felexia.pro
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run lint -- src
+      - name: Check authorized recette harness syntax
+        run: |
+          node --check scripts/essential-action-runner.cjs
+          node --check scripts/verify-essential-company.cjs
+          node --check scripts/verify-essential-corrections.cjs
+          node --check scripts/verify-essential-recovery.cjs
+          node --check scripts/verify-essential-expiry.cjs
+      - run: npm run test:regressions
+      - run: npm run test:light-launch
+      - run: npx tsx scripts/verify-operator-access.ts
+      - run: npx tsx scripts/verify-invitation-roles.ts
+      - run: npx tsx scripts/verify-invitation-callback.ts
+      - run: node scripts/verify-operator-read-bootstrap.mjs --report
+      - run: npx tsx scripts/verify-numbering-model.ts
+      - name: Install isolated PostgreSQL test runtime
+        run: npm install --prefix "$RUNNER_TEMP/felexia-qa" --no-save --ignore-scripts @electric-sql/pglite@0.5.14
+      - name: Verify database boundaries and transactions
+        run: |
+          node training/essential-fixes/20261031/verify-finance.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/essential-fixes/20261031/verify-finance.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/essential-fixes/20261031/verify-subscription-access.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/essential-fixes/20261031/verify-subscription-access.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+      - name: Verify checkout, recovery, exports and histories
+        run: |
+          node training/essential-fixes/20261031/verify-checkout-fixtures.cjs
+          node training/essential-fixes/20261031/verify-webhook-recovery.cjs
+          node training/essential-fixes/20261031/verify-recovery-actions.cjs
+          node training/essential-fixes/20261031/verify-expiry-harness.cjs
+          node training/essential-fixes/20261031/verify-middleware-access.cjs
+          node scripts/verify-essential-workflows.mjs
+          node training/essential-fixes/20261031/verify-supplier-credit-print.cjs
+      - run: npm run build

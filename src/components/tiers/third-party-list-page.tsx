@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Plus, SearchX, Star, Store, Truck, Users,
+  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Download, Plus, SearchX, Star, Store, Truck, Users,
 } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
 import { PageHeader } from "@/components/erp/page-header";
@@ -13,6 +13,8 @@ import { filtersFromSearchParams, getThirdPartyCounters, listThirdParties } from
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
+import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 
 type PageMeta = { title: string; description: string; buttonLabel: string; buttonHref: string };
 
@@ -98,13 +100,17 @@ export async function ThirdPartyListPage({
 }) {
   const params = await searchParams;
   const workspace = await requireActiveWorkspace();
+  const canWrite = !isReadOnlyRole(workspace.role) && canWriteWorkspaceSubscription(workspace.subscription);
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const filters = filtersFromSearchParams(params, forcedType);
   const meta = titles[forcedType ?? "all"];
   const hasFilters = Boolean(filters.query || filters.city || (filters.status && filters.status !== "active") || (filters.vat && filters.vat !== "all") || (!forcedType && filters.type && filters.type !== "all"));
   const contactLabel = forcedType === "customer" ? "client" : forcedType === "supplier" ? "fournisseur" : forcedType === "prospect" ? "prospect" : "contact";
   const ContactIcon = forcedType === "supplier" ? Truck : Users;
-  const createAction = <Button asChild><Link href={meta.buttonHref}><Plus className="h-4 w-4" aria-hidden="true" />{meta.buttonLabel}</Link></Button>;
+  const exportParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (typeof value === "string") exportParams.set(key, value);
+  if (forcedType) exportParams.set("type", forcedType);
+  const createAction = <div className="flex flex-wrap gap-2"><Button variant="secondary" asChild><a href={`/api/exports/contacts?${exportParams}`}><Download className="h-4 w-4" />Exporter CSV</a></Button>{canWrite ? <Button asChild><Link href={meta.buttonHref}><Plus className="h-4 w-4" aria-hidden="true" />{meta.buttonLabel}</Link></Button> : null}</div>;
 
   let rows: ThirdPartyRecord[] = [];
   let counters = {
@@ -169,7 +175,7 @@ export async function ThirdPartyListPage({
       <ThirdPartyFilters filters={filters} forcedType={forcedType} fullAccess={fullAccess} />
       {rows.length ? (
         <>
-          <ThirdPartyTable rows={rows} fullAccess={fullAccess} />
+          <ThirdPartyTable rows={rows} fullAccess={fullAccess} canWrite={canWrite} returnTo={forcedType === "supplier" ? "/tiers/fournisseurs" : "/tiers/clients"} />
           <PaginationBar page={pagination.page} totalPages={pagination.totalPages} searchParams={params} />
         </>
       ) : (

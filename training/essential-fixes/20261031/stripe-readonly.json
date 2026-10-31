@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-31T20:51:12.473Z",
+  "scope": "Read-only Stripe account and configured prices; local server configuration only, no checkout or charge",
+  "stripeWrites": 0,
+  "plans": [
+    {
+      "cycle": "monthly",
+      "configured": true,
+      "active": true,
+      "livemode": true,
+      "currency": "mad",
+      "amount": 29000,
+      "interval": "month",
+      "matchesPublishedOffer": true
+    },
+    {
+      "cycle": "yearly",
+      "configured": true,
+      "active": true,
+      "livemode": true,
+      "currency": "mad",
+      "amount": 290000,
+      "interval": "year",
+      "matchesPublishedOffer": true
+    }
+  ],
+  "account": {
+    "chargesEnabled": true,
+    "payoutsEnabled": true,
+    "detailsSubmitted": true,
+    "requirementsDueCount": 0
+  }
+}

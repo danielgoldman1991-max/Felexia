@@ -6,7 +6,8 @@ import { getEntryWithLinesBySource } from "@/lib/accounting";
 import { getActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
-import { isReadOnlyRole } from "@/lib/auth/roles";
+import { isAdminRole, isReadOnlyRole } from "@/lib/auth/roles";
+import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +21,14 @@ export default async function CustomerInvoiceDetailPage({ params }: { params: Pr
   if (!invoice) notFound();
 
   const workspace = await getActiveWorkspace();
+  const canWrite = Boolean(workspace && !isReadOnlyRole(workspace.role) && canWriteWorkspaceSubscription(workspace.subscription));
   const orgId = workspace?.organization.id;
   const fullAccess = orgId && !isOperatorRole(workspace?.role) ? await hasFullErpAccess(orgId) : false;
   const accountingEntry = orgId ? await getEntryWithLinesBySource(orgId, "customer_invoice", id) : null;
 
   return (
     <ModulePage>
-      <CustomerInvoiceDetail fullAccess={fullAccess} canPostAccounting={!isOperatorRole(workspace?.role) && !isReadOnlyRole(workspace?.role)} invoice={invoice} lines={lines} accountingEntry={accountingEntry} documentFlow={documentFlow} />
+      <CustomerInvoiceDetail fullAccess={fullAccess} canWrite={canWrite} canPostAccounting={canWrite && isAdminRole(workspace?.role)} invoice={invoice} lines={lines} accountingEntry={accountingEntry} documentFlow={documentFlow} />
     </ModulePage>
   );
 }

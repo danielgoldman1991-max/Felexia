@@ -13,7 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCustomerCreditNote } from "@/lib/credit-note-actions";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import type { CreditNoteActionResult, CustomerCreditNoteSourceType } from "@/lib/credit-note-types";
+import type { CreditNoteActionResult, CustomerCreditNoteRecord, CustomerCreditNoteSourceType } from "@/lib/credit-note-types";
 import type { InvoiceCustomerOption, InvoiceLineFormValue, InvoiceProductOption } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 
@@ -33,6 +33,8 @@ export function CustomerCreditNoteForm({
   sourceType,
   defaultReason = "",
   initialLines = [],
+  creditNote,
+  action = createCustomerCreditNote,
 }: {
   customers: InvoiceCustomerOption[];
   products: InvoiceProductOption[];
@@ -45,8 +47,10 @@ export function CustomerCreditNoteForm({
   sourceType?: CustomerCreditNoteSourceType;
   defaultReason?: string;
   initialLines?: InvoiceLineFormValue[];
+  creditNote?: CustomerCreditNoteRecord;
+  action?: (prev: CreditNoteActionResult, formData: FormData) => Promise<CreditNoteActionResult>;
 }) {
-  const [state, formAction, pending] = useActionState<CreditNoteActionResult, FormData>(createCustomerCreditNote, { success: true });
+  const [state, formAction, pending] = useActionState<CreditNoteActionResult, FormData>(action, { success: true });
   const [customerId, setCustomerId] = useState(initialCustomerId);
   const [lines, setLines] = useState(initialLines);
   const totals = calculateInvoiceTotals(lines);
@@ -54,6 +58,7 @@ export function CustomerCreditNoteForm({
   const defaultSourceType = sourceType ?? (sourceInvoiceId ? "invoice_partial" : "manual");
   return (
     <form action={formAction} className="space-y-5">
+      <input type="hidden" name="id" value={creditNote?.id || ""} />
       <input type="hidden" name="customer_id" value={customerId} />
       <input type="hidden" name="source_invoice_id" value={sourceInvoiceId} />
       <input type="hidden" name="source_return_id" value={sourceReturnId} />
@@ -67,7 +72,7 @@ export function CustomerCreditNoteForm({
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date avoir</span>
-            <DateField name="credit_note_date" defaultValue={today()} />
+            <DateField name="credit_note_date" defaultValue={creditNote?.credit_note_date || today()} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Origine</span>
@@ -81,8 +86,7 @@ export function CustomerCreditNoteForm({
             ) : (
               <Select name="source_type" defaultValue={defaultSourceType}>
                 <option value="manual">Libre</option>
-                <option value="invoice_total">Facture totale</option>
-                <option value="invoice_partial">Facture partielle</option>
+                {sourceInvoiceId ? <><option value="invoice_total">Facture totale</option><option value="invoice_partial">Facture partielle</option></> : null}
                 <option value="commercial_gesture">Geste commercial</option>
                 <option value="correction">Correction</option>
               </Select>
@@ -99,11 +103,11 @@ export function CustomerCreditNoteForm({
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Notes client</span>
-            <Textarea name="notes" />
+            <Textarea name="notes" defaultValue={creditNote?.notes || ""} />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Notes internes</span>
-            <Textarea name="internal_notes" />
+            <Textarea name="internal_notes" defaultValue={creditNote?.internal_notes || ""} />
           </label>
         </CardContent>
       </Card>
@@ -113,7 +117,7 @@ export function CustomerCreditNoteForm({
       </Card>
       <Card><CardContent className="grid gap-3 md:grid-cols-3"><div>Total HT : <strong><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div>TVA : <strong><MoneyDisplay value={totals.tax_total} /></strong></div><div>Total TTC : <strong><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href="/facturation/avoirs">Annuler</Link></Button><Button disabled={pending || !customerId || lines.length === 0}>Creer avoir</Button></div>
+      <div className="flex justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href={creditNote ? `/facturation/avoirs/${creditNote.id}` : "/facturation/avoirs"}>Annuler</Link></Button><Button disabled={pending || !customerId || lines.length === 0}>{pending ? "Enregistrement…" : creditNote ? "Enregistrer les modifications" : "Créer l’avoir"}</Button></div>
     </form>
   );
 }

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "date": "2026-10-31T20:54:49.801Z",
+  "engine": "Native PostgreSQL",
+  "checks": 9,
+  "results": [
+    "Payment waits for an in-flight supplier credit allocation",
+    "Payment racing a committed credit cannot overpay the invoice",
+    "Credit-first race leaves the exact invoice remainder",
+    "Rejected competing payment creates no cash movement",
+    "Credit allocation waits for an in-flight supplier payment",
+    "Credit racing a committed payment cannot over-allocate the invoice",
+    "Cash-first race preserves cash and credit separation",
+    "Refused racing allocation preserves the supplier credit availability",
+    "Cancelling synthetic nonposted fixtures restores the original bank balance"
+  ],
+  "syntheticFixtureHistoryRetained": true,
+  "noProductionRead": true,
+  "noProductionWrite": true
+}

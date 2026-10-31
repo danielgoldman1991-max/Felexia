@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-31T20:11:23.720Z",
+  "scope": "Existing fictitious QA company, authenticated reads only",
+  "businessMutations": 0,
+  "emailsSent": 0,
+  "queries": {
+    "subscriptionWithoutEmbed": {
+      "error": null,
+      "count": 1,
+      "rows": [
+        {
+          "status": "trialing",
+          "plan_code": "essentiel",
+          "trial_end": "2026-12-01T13:13:44.831+00:00",
+          "trial_ends_at": "2026-12-01T13:13:44.831+00:00",
+          "current_period_end": "2026-12-01T13:13:44.831+00:00"
+        }
+      ]
+    },
+    "subscriptionAsApplication": {
+      "error": {
+        "code": "PGRST201",
+        "message": "Could not embed because more than one relationship was found for 'organization_subscriptions' and 'subscription_plans'"
+      },
+      "count": 0
+    },
+    "subscriptionWithExplicitRelationship": {
+      "error": null,
+      "count": 1,
+      "rows": [
+        {
+          "status": "trialing",
+          "plan_code": "essentiel",
+          "trial_end": "2026-12-01T13:13:44.831+00:00",
+          "plan": {
+            "code": "essentiel",
+            "slug": "essentiel"
+          }
+        }
+      ]
+    }
+  },
+  "publicAuthSettings": {
+    "httpStatus": 200,
+    "disableSignup": false,
+    "emailAutoconfirm": true,
+    "emailProvider": true,
+    "googleProvider": true
+  },
+  "publicHealth": {
+    "httpStatus": 200,
+    "body": {
+      "status": "ok",
+      "app": "FelexiaERP",
+      "environment": "production"
+    }
+  },
+  "localEnvironmentOnly": {
+    "stripeSecretPresent": true,
+    "stripeKeyMode": "live",
+    "stripeWebhookSecretPresent": true,
+    "stripePublishablePresent": true,
+    "essentielMonthlyPricePresent": true,
+    "essentielYearlyPricePresent": true,
+    "cronSecretPresent": false
+  }
+}

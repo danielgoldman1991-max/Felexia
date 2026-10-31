@@ -1,0 +1,375 @@
+{
+  "date": "2026-10-31T20:56:17.064Z",
+  "scope": "Synthetic local PostgreSQL fixture only; no Supabase production backup or restore",
+  "sourceDatabase": "numbering_qa_essential_098_20261031",
+  "restoredDatabase": "numbering_qa_restore_20261031205615",
+  "backupSha256": "5c6d8a0eedd11c91d33a528ebf28b5f9bb967059c2cee3e71f60e19711b91d22",
+  "restoreMs": 913,
+  "tables": [
+    {
+      "table": "auth.users",
+      "count": 3
+    },
+    {
+      "table": "public.accounting_accounts",
+      "count": 2
+    },
+    {
+      "table": "public.accounting_auxiliaries",
+      "count": 0
+    },
+    {
+      "table": "public.accounting_entries",
+      "count": 9
+    },
+    {
+      "table": "public.accounting_entry_lines",
+      "count": 18
+    },
+    {
+      "table": "public.accounting_journals",
+      "count": 1
+    },
+    {
+      "table": "public.accounting_settings",
+      "count": 0
+    },
+    {
+      "table": "public.audit_logs",
+      "count": 0
+    },
+    {
+      "table": "public.bank_reconciliations",
+      "count": 0
+    },
+    {
+      "table": "public.bank_statement_imports",
+      "count": 0
+    },
+    {
+      "table": "public.bank_statement_lines",
+      "count": 0
+    },
+    {
+      "table": "public.billing_checkout_leases",
+      "count": 0
+    },
+    {
+      "table": "public.cash_accounts",
+      "count": 0
+    },
+    {
+      "table": "public.cash_transactions",
+      "count": 0
+    },
+    {
+      "table": "public.cashflow_forecasts",
+      "count": 0
+    },
+    {
+      "table": "public.commercial_document_usage",
+      "count": 15
+    },
+    {
+      "table": "public.company_settings",
+      "count": 0
+    },
+    {
+      "table": "public.contacts",
+      "count": 0
+    },
+    {
+      "table": "public.customer_credit_note_applications",
+      "count": 3
+    },
+    {
+      "table": "public.customer_credit_note_lines",
+      "count": 3
+    },
+    {
+      "table": "public.customer_credit_notes",
+      "count": 3
+    },
+    {
+      "table": "public.customer_invoice_lines",
+      "count": 4
+    },
+    {
+      "table": "public.customer_invoices",
+      "count": 4
+    },
+    {
+      "table": "public.customer_payment_allocations",
+      "count": 0
+    },
+    {
+      "table": "public.customer_payments",
+      "count": 12
+    },
+    {
+      "table": "public.customer_reminder_invoices",
+      "count": 0
+    },
+    {
+      "table": "public.customer_reminders",
+      "count": 0
+    },
+    {
+      "table": "public.delivery_note_lines",
+      "count": 0
+    },
+    {
+      "table": "public.delivery_notes",
+      "count": 0
+    },
+    {
+      "table": "public.document_settings",
+      "count": 0
+    },
+    {
+      "table": "public.goods_receipt_lines",
+      "count": 0
+    },
+    {
+      "table": "public.goods_receipts",
+      "count": 0
+    },
+    {
+      "table": "public.inventory_adjustment_lines",
+      "count": 0
+    },
+    {
+      "table": "public.inventory_adjustments",
+      "count": 0
+    },
+    {
+      "table": "public.invitations",
+      "count": 0
+    },
+    {
+      "table": "public.modules_catalog",
+      "count": 0
+    },
+    {
+      "table": "public.numbering_counter_changes",
+      "count": 0
+    },
+    {
+      "table": "public.numbering_number_issues",
+      "count": 40
+    },
+    {
+      "table": "public.numbering_sequences",
+      "count": 9
+    },
+    {
+      "table": "public.organization_members",
+      "count": 3
+    },
+    {
+      "table": "public.organization_modules",
+      "count": 0
+    },
+    {
+      "table": "public.organization_subscriptions",
+      "count": 1
+    },
+    {
+      "table": "public.organizations",
+      "count": 1
+    },
+    {
+      "table": "public.payment_reminders",
+      "count": 0
+    },
+    {
+      "table": "public.permissions",
+      "count": 1
+    },
+    {
+      "table": "public.product_categories",
+      "count": 0
+    },
+    {
+      "table": "public.products",
+      "count": 0
+    },
+    {
+      "table": "public.profiles",
+      "count": 3
+    },
+    {
+      "table": "public.purchase_document_lines",
+      "count": 0
+    },
+    {
+      "table": "public.purchase_documents",
+      "count": 0
+    },
+    {
+      "table": "public.purchase_order_lines",
+      "count": 0
+    },
+    {
+      "table": "public.purchase_orders",
+      "count": 0
+    },
+    {
+      "table": "public.role_permissions",
+      "count": 1
+    },
+    {
+      "table": "public.roles",
+      "count": 3
+    },
+    {
+      "table": "public.sales_document_lines",
+      "count": 0
+    },
+    {
+      "table": "public.sales_documents",
+      "count": 0
+    },
+    {
+      "table": "public.sales_invoice_lines",
+      "count": 0
+    },
+    {
+      "table": "public.sales_invoices",
+      "count": 0
+    },
+    {
+      "table": "public.sales_order_lines",
+      "count": 0
+    },
+    {
+      "table": "public.sales_orders",
+      "count": 0
+    },
+    {
+      "table": "public.sales_quote_lines",
+      "count": 0
+    },
+    {
+      "table": "public.sales_quotes",
+      "count": 0
+    },
+    {
+      "table": "public.stock_levels",
+      "count": 0
+    },
+    {
+      "table": "public.stock_moves",
+      "count": 0
+    },
+    {
+      "table": "public.stripe_events",
+      "count": 0
+    },
+    {
+      "table": "public.subscription_plans",
+      "count": 5
+    },
+    {
+      "table": "public.supplier_credit_note_applications",
+      "count": 2
+    },
+    {
+      "table": "public.supplier_credit_note_lines",
+      "count": 4
+    },
+    {
+      "table": "public.supplier_credit_notes",
+      "count": 4
+    },
+    {
+      "table": "public.supplier_invoice_lines",
+      "count": 4
+    },
+    {
+      "table": "public.supplier_invoices",
+      "count": 4
+    },
+    {
+      "table": "public.supplier_payment_allocations",
+      "count": 2
+    },
+    {
+      "table": "public.supplier_payments",
+      "count": 2
+    },
+    {
+      "table": "public.tax_rates",
+      "count": 0
+    },
+    {
+      "table": "public.third_parties",
+      "count": 2
+    },
+    {
+      "table": "public.third_party_addresses",
+      "count": 0
+    },
+    {
+      "table": "public.third_party_contacts",
+      "count": 0
+    },
+    {
+      "table": "public.treasury_accounts",
+      "count": 1
+    },
+    {
+      "table": "public.treasury_transactions",
+      "count": 14
+    },
+    {
+      "table": "public.units",
+      "count": 0
+    },
+    {
+      "table": "public.warehouses",
+      "count": 0
+    }
+  ],
+  "policyCount": 485,
+  "checks": [
+    {
+      "name": "all restored table counts and row digests match",
+      "passed": true
+    },
+    {
+      "name": "all row-security policies restored exactly",
+      "passed": true
+    },
+    {
+      "name": "combined release returns all four activation indicators",
+      "passed": true
+    },
+    {
+      "name": "combined release reapplication preserves restored business rows",
+      "passed": true
+    },
+    {
+      "name": "three active test users restored",
+      "passed": true
+    },
+    {
+      "name": "restored posted entries remain balanced",
+      "passed": true
+    },
+    {
+      "name": "admin can read own restored company",
+      "passed": true
+    },
+    {
+      "name": "operator can read own restored company",
+      "passed": true
+    },
+    {
+      "name": "viewer can read own restored company",
+      "passed": true
+    }
+  ],
+  "success": true,
+  "limitation": "A hosted Supabase database and Storage recovery must also be verified with the provider configuration."
+}

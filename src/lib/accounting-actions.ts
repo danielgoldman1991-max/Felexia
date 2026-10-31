@@ -1,5 +1,6 @@
 "use server";
 
+import { financialErrorMessage } from "@/lib/financial-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
@@ -46,6 +47,17 @@ function parseLines(formData: FormData): AccountingEntryLineFormValue[] {
 
 
 
+async function saveAtomicAccountingEntry(supabase: Awaited<ReturnType<typeof createClient>>, header: Record<string, unknown>, lines: Record<string, unknown>[]) {
+  const result = await supabase.rpc("save_accounting_entry_atomic", {
+    p_organization_id: header.organization_id,
+    p_entry_id: null,
+    p_header: header,
+    p_lines: lines,
+  });
+  const row = Array.isArray(result.data) ? result.data[0] : result.data;
+  return { error: result.error ? { ...result.error, message: financialErrorMessage(result.error) } : null, entry: row ? { id: String(row.entry_id), entry_number: String(row.entry_number) } : null };
+}
+
 export async function listAccountingJournals() {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
@@ -54,7 +66,7 @@ export async function listAccountingJournals() {
     .select("*")
     .eq("organization_id", workspace.organization.id)
     .order("code");
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -75,7 +87,7 @@ export async function listAccountingAccounts(filters?: { query?: string; class_n
     query = query.eq("type", filters.type);
   }
   const { data, error } = await query.order("code");
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -88,7 +100,7 @@ export async function getAccountingAccount(id: string) {
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   if (!data) return { success: false, error: "Compte introuvable." } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
@@ -107,7 +119,7 @@ export async function listAccountingAuxiliaries(filters?: { query?: string; type
     query = query.eq("type", filters.type);
   }
   const { data, error } = await query.order("code");
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -119,7 +131,7 @@ export async function listAccountingFiscalYears() {
     .select("*")
     .eq("organization_id", workspace.organization.id)
     .order("start_date", { ascending: false });
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -134,7 +146,7 @@ export async function listAccountingPeriods(fiscalYearId?: string) {
     query = query.eq("fiscal_year_id", fiscalYearId);
   }
   const { data, error } = await query.order("start_date");
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -172,7 +184,7 @@ export async function listAccountingEntries(filters?: {
     .order("entry_date", { ascending: false })
     .range(from, to);
 
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data: { entries: data ?? [], total: count ?? 0 } } as AccountingActionResult;
 }
 
@@ -218,7 +230,7 @@ export async function getAccountingSettings() {
     .select("*")
     .eq("organization_id", workspace.organization.id)
     .maybeSingle();
-  if (error) return { success: false, error: error.message } as AccountingActionResult;
+  if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
   return { success: true, data } as AccountingActionResult;
 }
 
@@ -260,9 +272,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
 
   if (!journal) return { success: false, error: "Sélectionnez un journal de votre entreprise." };
 
-  const { data: entry, error: insertError } = await supabase
-    .from("accounting_entries")
-    .insert({
+  const { entry, error: insertError } = await saveAtomicAccountingEntry(supabase, {
       organization_id: workspace.organization.id,
       entry_number: null,
       journal_id: journalId,
@@ -274,17 +284,9 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
       total_debit: totalDebit,
       total_credit: totalCredit,
       created_by: workspace.userId,
-    })
-    .select("id, entry_number")
-    .single();
-
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture." };
-
-  const { error: linesError } = await supabase
-    .from("accounting_entry_lines")
-    .insert(lines.map((line, index) => ({
+    }, lines.map((line, index) => ({
       organization_id: workspace.organization.id,
-      entry_id: entry.id,
+
       line_number: index + 1,
       account_id: line.account_id,
       account_code: line.account_code,
@@ -294,7 +296,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
       label: line.label || null,
     })));
 
-  if (linesError) return { success: false, error: linesError.message };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture." };
 
   revalidatePath("/comptabilite/ecritures");
   redirect(`/comptabilite/ecritures/${entry.id}`);
@@ -321,7 +323,7 @@ export async function postAccountingEntry(prev: AccountingActionResult, formData
     .update({ status: "posted", posted_by: workspace.userId, posted_at: new Date().toISOString() })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
-  if (updateError) return { success: false, error: updateError.message };
+  if (updateError) return { success: false, error: financialErrorMessage(updateError) };
   revalidatePath("/comptabilite/ecritures");
   revalidatePath(`/comptabilite/ecritures/${id}`);
   return { success: true };
@@ -516,9 +518,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
     [salesVatAccount.id, { code: salesVatAccount.code, name: salesVatAccount.name }],
   ]);
 
-  const { data: entry, error: insertError } = await supabase
-    .from("accounting_entries")
-    .insert({
+  const { entry, error: insertError } = await saveAtomicAccountingEntry(supabase, {
       organization_id: orgId,
       entry_number: null,
       journal_id: journal.id,
@@ -532,17 +532,9 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
       total_credit: totalCredit,
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
-    })
-    .select("id, entry_number")
-    .single();
-
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
-
-  const { error: linesError } = await supabase
-    .from("accounting_entry_lines")
-    .insert(accountLines.map((l, i) => ({
+    }, accountLines.map((l, i) => ({
       organization_id: orgId,
-      entry_id: entry.id,
+
       line_number: i + 1,
       account_id: l.account_id,
       account_code: accountLabels.get(l.account_id)?.code ?? l.account_code,
@@ -552,7 +544,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
       label: l.label,
     })));
 
-  if (linesError) return { success: false, error: linesError.message };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -645,9 +637,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
     [purchaseVatAccount.id, { code: purchaseVatAccount.code, name: purchaseVatAccount.name }],
   ]);
 
-  const { data: entry, error: insertError } = await supabase
-    .from("accounting_entries")
-    .insert({
+  const { entry, error: insertError } = await saveAtomicAccountingEntry(supabase, {
       organization_id: orgId,
       entry_number: null,
       journal_id: journal.id,
@@ -662,17 +652,9 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
       total_credit: totalCredit,
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
-    })
-    .select("id, entry_number")
-    .single();
-
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
-
-  const { error: insertLinesError } = await supabase
-    .from("accounting_entry_lines")
-    .insert(accountLines.map((l, i) => ({
+    }, accountLines.map((l, i) => ({
       organization_id: orgId,
-      entry_id: entry.id,
+
       line_number: i + 1,
       account_id: l.account_id,
       account_code: accountLabels.get(l.account_id)?.code ?? l.account_code,
@@ -682,7 +664,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
       label: l.label,
     })));
 
-  if (insertLinesError) return { success: false, error: insertLinesError.message };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -743,9 +725,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
 
   const label = `Encaissement client ${payment.payment_number} - ${customer?.name ?? "Client"}`;
 
-  const { data: entry, error: insertError } = await supabase
-    .from("accounting_entries")
-    .insert({
+  const { entry, error: insertError } = await saveAtomicAccountingEntry(supabase, {
       organization_id: orgId,
       entry_number: null,
       journal_id: journal.id,
@@ -760,17 +740,9 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
       total_credit: totalCredit,
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
-    })
-    .select("id, entry_number")
-    .single();
-
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
-
-  const { error: linesError } = await supabase
-    .from("accounting_entry_lines")
-    .insert(lines.map((l, i) => ({
+    }, lines.map((l, i) => ({
       organization_id: orgId,
-      entry_id: entry.id,
+
       line_number: i + 1,
       account_id: l.account_id,
       account_code: l.account_code,
@@ -780,7 +752,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
       label: l.label,
     })));
 
-  if (linesError) return { success: false, error: linesError.message };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -841,9 +813,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
 
   const label = `Paiement fournisseur ${payment.payment_number} - ${supplier?.name ?? "Fournisseur"}`;
 
-  const { data: entry, error: insertError } = await supabase
-    .from("accounting_entries")
-    .insert({
+  const { entry, error: insertError } = await saveAtomicAccountingEntry(supabase, {
       organization_id: orgId,
       entry_number: null,
       journal_id: journal.id,
@@ -858,17 +828,9 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
       total_credit: totalCredit,
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
-    })
-    .select("id, entry_number")
-    .single();
-
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
-
-  const { error: linesError } = await supabase
-    .from("accounting_entry_lines")
-    .insert(lines.map((l, i) => ({
+    }, lines.map((l, i) => ({
       organization_id: orgId,
-      entry_id: entry.id,
+
       line_number: i + 1,
       account_id: l.account_id,
       account_code: l.account_code,
@@ -878,7 +840,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
       label: l.label,
     })));
 
-  if (linesError) return { success: false, error: linesError.message };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -905,7 +867,7 @@ export async function updateAccountingSettings(prev: AccountingActionResult, for
     .from("accounting_settings")
     .update(payload)
     .eq("organization_id", workspace.organization.id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/comptabilite/parametres");
   return { success: true };
 }
@@ -958,7 +920,7 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
     })
     .eq("organization_id", workspace.organization.id)
     .eq("id", lineId);
-  if (updateError) return { success: false, error: updateError.message };
+  if (updateError) return { success: false, error: financialErrorMessage(updateError) };
 
   const { data: totals, error: totalsError } = await supabase
     .from("accounting_entry_lines")
@@ -1156,7 +1118,7 @@ export async function createChartOfAccount(prev: AccountingActionResult, formDat
     notes,
     created_by: workspace.userId,
   });
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/comptabilite/plan-comptable");
   return { success: true };
@@ -1238,7 +1200,7 @@ export async function updateChartOfAccount(prev: AccountingActionResult, formDat
     .update(payload)
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/comptabilite/plan-comptable");
   revalidatePath(`/comptabilite/comptes/${id}`);
@@ -1276,7 +1238,7 @@ export async function archiveChartOfAccount(prev: AccountingActionResult, formDa
     .update({ archived_at: new Date().toISOString(), is_active: false })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/comptabilite/plan-comptable");
   revalidatePath(`/comptabilite/comptes/${id}`);
@@ -1304,7 +1266,7 @@ export async function toggleChartOfAccountActive(prev: AccountingActionResult, f
     .update({ is_active: !account.is_active })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/comptabilite/plan-comptable");
   revalidatePath(`/comptabilite/comptes/${id}`);

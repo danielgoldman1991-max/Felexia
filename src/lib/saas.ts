@@ -9,13 +9,10 @@ import {
   type PlanCode,
 } from "@/lib/subscriptions/plans";
 import {
-  ensureDefaultTrialAndModulesNoRevalidate,
   getOrganizationSubscription,
   startDefaultTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
-import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
 import { canAccessApp } from "@/lib/subscriptions/subscription-access";
-import { isOperatorRole } from "@/lib/auth/operator-access";
 
 export type ModuleInfo = {
   module_key: string;
@@ -121,30 +118,9 @@ export function isSubscriptionValid(sub: SubscriptionInfo | null): boolean {
 }
 
 export async function requireValidSubscription(organizationId: string): Promise<SubscriptionInfo> {
-  let sub = await getSubscription(organizationId);
-  if (!sub || !isSubscriptionValid(sub)) {
-    const supabase = await createClient();
-    await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId);
-    sub = await getSubscription(organizationId);
-  }
-  if (!isSubscriptionValid(sub)) {
-    return {
-      id: "default-trial-pending",
-      status: "trialing",
-      plan_code: DEFAULT_PLAN_CODE,
-      billing_interval: "monthly",
-      trial_start: null,
-      trial_end: null,
-      current_period_start: null,
-      current_period_end: null,
-      monthly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).monthlyPrice,
-      yearly_amount: getPlanDefinition(DEFAULT_PLAN_CODE).yearlyPrice,
-      selected_modules: getEnabledModulesForPlan(DEFAULT_PLAN_CODE),
-      stripe_customer_id: null,
-      stripe_subscription_id: null,
-    };
-  }
-  return sub!;
+  const sub = await getSubscription(organizationId);
+  if (!sub || !isSubscriptionValid(sub)) throw new Error("Votre abonnement doit être renouvelé. La consultation et les exports restent disponibles.");
+  return sub;
 }
 
 export async function canAccessModule(organizationId: string, moduleKey: string): Promise<boolean> {
@@ -162,27 +138,6 @@ export type OnboardingStatus = {
   hasValidSubscription: boolean;
   nextPath: string;
 };
-
-async function markOrganizationOnboardingCompleted(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  organizationId: string,
-): Promise<void> {
-  const { error } = await supabase
-    .from("organizations")
-    .update({
-      onboarding_step: "completed",
-      onboarding_completed: true,
-      onboarding_completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", organizationId);
-  if (error) {
-    console.error("[onboarding-status] mark completed failed", {
-      organizationId,
-      message: error.message,
-    });
-  }
-}
 
 export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
   const supabase = await createClient();
@@ -215,39 +170,9 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
     : membership?.organization;
   const onboardingStep = (organization?.onboarding_step as string | null) ?? null;
   const onboardingCompleted = Boolean(organization?.onboarding_completed);
-  const role = Array.isArray(membership?.role) ? membership.role[0] : membership?.role;
-  const canBootstrap = !isOperatorRole(role?.name);
-  let sub = organizationId ? await getSubscription(organizationId) : null;
-  let hasValidSubscription = isSubscriptionValid(sub);
-
-  // Bootstrap Essentiel : ces écritures ne doivent JAMAIS lever d'erreur en
-  // lecture (layout /dashboard, AppShell) — un échec DB est simplement loggé
-  // et l'utilisateur reste sur un état safe (onboarding ou dashboard).
-  if (canBootstrap && organizationId && !hasValidSubscription) {
-    try {
-      await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
-      sub = await getSubscription(organizationId);
-      hasValidSubscription = isSubscriptionValid(sub);
-      if (hasValidSubscription) {
-        await markOrganizationOnboardingCompleted(supabase, organizationId);
-      }
-    } catch (e) {
-      console.error("[onboarding-status] trial bootstrap failed", {
-        organizationId,
-        error: e instanceof Error ? e.message : String(e),
-      });
-    }
-  } else if (canBootstrap && organizationId && hasValidSubscription && !onboardingCompleted) {
-    try {
-      await upsertModulesForPlan(supabase, organizationId, sub!.plan_code);
-      await markOrganizationOnboardingCompleted(supabase, organizationId);
-    } catch (e) {
-      console.error("[onboarding-status] module bootstrap failed", {
-        organizationId,
-        error: e instanceof Error ? e.message : String(e),
-      });
-    }
-  }
+  // Loading a page never creates, resets or extends a subscription.
+  const sub = organizationId ? await getSubscription(organizationId) : null;
+  const hasValidSubscription = isSubscriptionValid(sub);
 
   let nextPath = "/onboarding/entreprise";
   if (organizationId && onboardingCompleted) {

@@ -54,17 +54,19 @@ export function SupplierPaymentDetail({
   allocations,
   accountingEntry,
   fullAccess = false,
-  canPostAccounting = true,
+  canWrite = false,
+  canPostAccounting = false,
 }: {
   payment: SupplierPaymentRecord;
   allocations: SupplierPaymentAllocationRecord[];
   accountingEntry?: AccountingEntryInfo | null;
   fullAccess?: boolean;
+  canWrite?: boolean;
   canPostAccounting?: boolean;
 }) {
-  const canAllocate = payment.available_amount > 0;
-  const lockedAccountingPayment = !canPostAccounting && accountingEntry?.entry?.status === "posted";
-  const canCancel = !lockedAccountingPayment && payment.status !== "cancelled";
+  const canAllocate = canWrite && payment.available_amount > 0 && payment.status !== "cancelled";
+  const lockedAccountingPayment = accountingEntry?.entry?.status === "posted";
+  const canCancel = canWrite && !lockedAccountingPayment && payment.status !== "cancelled";
 
   return (
     <div className="space-y-6">
@@ -84,7 +86,7 @@ export function SupplierPaymentDetail({
         }
       />
 
-      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé. Contactez votre administrateur pour le modifier ou l’annuler.</p> : null}
+      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé : son montant, son compte et son annulation sont verrouillés pour préserver le journal. Les affectations et les informations complémentaires restent accessibles.</p> : null}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">{SUPPLIER_PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}</span>

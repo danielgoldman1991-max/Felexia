@@ -1,111 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createPlanCheckoutSession, createStripeCustomer, getStripePriceIdForPlan } from "@/lib/stripe";
+import { getActiveWorkspace } from "@/lib/auth";
+import { createClient as createServiceClient } from "@/lib/supabase/service";
+import { createPlanCheckoutSession, createStripeCustomer, createPortalSession, getStripePriceIdForPlan, getStripe } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
-import { normalizePlanCode } from "@/lib/subscriptions/plans";
 import { isPlanPubliclyAvailable } from "@/lib/subscriptions/commercial-offers";
-import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { isAdminRole, isOperatorRole } from "@/lib/auth/roles";
+import { OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 
 export async function POST(req: NextRequest) {
+  let lease: string | null = null;
+  let organizationId: string | null = null;
   try {
-    if (!hasStripeEnv()) {
-      return NextResponse.json({ error: "Stripe non configure" }, { status: 500 });
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) {
-      return NextResponse.json({ error: "Non authentifie" }, { status: 401 });
-    }
-
-    const { data: membership } = await supabase
-      .from("organization_members")
-      .select("organization_id, role:roles(name)")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .limit(1)
-      .maybeSingle();
-
-    const role = Array.isArray(membership?.role) ? membership.role[0] : membership?.role;
-    if (isOperatorRole(role?.name)) {
-      return NextResponse.json(
-        { error: OPERATOR_ACCESS_ERROR, code: "OPERATOR_ACCESS_DENIED" },
-        { status: 403 },
-      );
-    }
-
-    if (!membership?.organization_id) {
-      return NextResponse.json({ error: "Aucune organisation active" }, { status: 400 });
-    }
-
-    const body = await req.json();
-    const { billingInterval } = body;
-    const planCode = normalizePlanCode(body.planCode);
-
-    // Protection commerciale serveur : Business / Premium ne sont plus
-    // achetables, même en modifiant l'URL ou le payload.
-    if (!isPlanPubliclyAvailable(planCode)) {
-      return NextResponse.json({ error: "PLAN_NOT_AVAILABLE" }, { status: 400 });
-    }
-
-    const interval = billingInterval === "yearly" ? "yearly" : "monthly";
+    const workspace = await getActiveWorkspace();
+    if (!workspace) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+    if (!isAdminRole(workspace.role)) return NextResponse.json({ error: isOperatorRole(workspace.role) ? OPERATOR_ACCESS_ERROR : "Seul un administrateur peut gérer l'abonnement.", code: isOperatorRole(workspace.role) ? "OPERATOR_ACCESS_DENIED" : "BILLING_ADMIN_REQUIRED" }, { status: 403 });
+    if (!hasStripeEnv()) return NextResponse.json({ error: "La souscription est momentanément indisponible. Contactez l'assistance." }, { status: 503 });
+    const body = await req.json().catch(() => null);
+    if (!body || !isPlanPubliclyAvailable(body.planCode)) return NextResponse.json({ error: "PLAN_NOT_AVAILABLE" }, { status: 400 });
+    const planCode = body.planCode as "essentiel";
+    if (body.billingInterval !== "monthly" && body.billingInterval !== "yearly") return NextResponse.json({ error: "Choisissez une périodicité valide." }, { status: 400 });
+    const interval = body.billingInterval as "monthly" | "yearly";
     const priceId = getStripePriceIdForPlan(planCode, interval);
-
-    if (!priceId) {
-      const missingVar = `STRIPE_PRICE_${planCode.toUpperCase()}_${interval.toUpperCase()}`;
-      return NextResponse.json(
-        { error: `Variable d'environnement manquante : ${missingVar}. Ajoutez-la dans Vercel > Settings > Environment Variables.` },
-        { status: 400 },
-      );
-    }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .single();
-
-    const orgId = membership.organization_id;
-
-    const { data: orgData } = await supabase
-      .from("organizations")
-      .select("name")
-      .eq("id", orgId)
-      .single();
-
-    const orgName = orgData?.name ?? null;
-
-    const { data: existingCust } = await supabase
-      .from("organizations")
-      .select("stripe_customer_id")
-      .eq("id", orgId)
-      .single();
-
-    let customerId = existingCust?.stripe_customer_id;
-
+    if (!priceId) return NextResponse.json({ error: "Ce tarif est momentanément indisponible. Contactez l'assistance." }, { status: 503 });
+    organizationId = workspace.organization.id;
+    const service = createServiceClient();
+    const claimed = await service.rpc("claim_billing_checkout", { p_organization_id: organizationId });
+    if (claimed.error) throw new Error("CHECKOUT_RESERVATION_FAILED");
+    if (!claimed.data) return NextResponse.json({ error: "Une souscription est déjà en cours de préparation. Réessayez dans quelques instants." }, { status: 409 });
+    lease = String(claimed.data);
+    const { data: org, error: orgError } = await service.from("organizations").select("stripe_customer_id,name").eq("id", organizationId).single();
+    if (orgError || !org) throw new Error("BILLING_COMPANY_UNAVAILABLE");
+    const stripe = getStripe();
+    let customerId = org.stripe_customer_id as string | null;
     if (!customerId) {
-      const customer = await createStripeCustomer(
-        user.email,
-        profile?.full_name || orgName || orgId,
-        orgId,
-      );
+      if (!workspace.email) throw new Error("BILLING_EMAIL_REQUIRED");
+      const customer = await createStripeCustomer(workspace.email, org.name || workspace.organization.name, organizationId);
       customerId = customer.id;
-      await supabase
-        .from("organizations")
-        .update({ stripe_customer_id: customerId })
-        .eq("id", orgId);
+      const saved = await service.from("organizations").update({ stripe_customer_id: customerId }).eq("id", organizationId);
+      if (saved.error) throw new Error("BILLING_CUSTOMER_SAVE_FAILED");
+    } else {
+      const customer = await stripe.customers.retrieve(customerId);
+      if (customer.deleted || customer.metadata.organization_id !== organizationId) throw new Error("BILLING_CUSTOMER_MISMATCH");
     }
-
-    const session = await createPlanCheckoutSession(
-      customerId,
-      planCode,
-      priceId,
-      orgId,
-      interval,
-    );
-
-    return NextResponse.json({ url: session.url }, { status: 200 });
-  } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    // An existing subscription is changed/recovered through the portal. Never
+    // start a second recurring charge when a cycle or payment method changes.
+    const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 });
+    if (subscriptions.has_more) throw new Error("BILLING_REVIEW_REQUIRED");
+    if (subscriptions.data.some(sub => !["canceled", "incomplete_expired"].includes(sub.status))) {
+      const portal = await createPortalSession(customerId);
+      return NextResponse.json({ url: portal.url, destination: "portal" });
+    }
+    const sessions = await stripe.checkout.sessions.list({ customer: customerId, status: "open", limit: 100 });
+    if (sessions.has_more) throw new Error("BILLING_REVIEW_REQUIRED");
+    for (const open of sessions.data.filter(session => session.mode === "subscription")) {
+      if (open.metadata?.organization_id !== organizationId) throw new Error("BILLING_CUSTOMER_MISMATCH");
+      if (open.metadata.plan_code === planCode && open.metadata.billing_cycle === interval && open.url) return NextResponse.json({ url: open.url, destination: "checkout" });
+      await stripe.checkout.sessions.expire(open.id);
+    }
+    const session = await createPlanCheckoutSession(customerId, planCode, priceId, organizationId, interval, undefined, undefined, `felexia-checkout-${lease}`);
+    return NextResponse.json({ url: session.url, destination: "checkout" });
+  } catch {
+    console.error("[billing] checkout preparation failed", { organizationId });
+    return NextResponse.json({ error: "La souscription n'a pas pu être préparée. Aucun paiement n'a été lancé. Réessayez ou contactez l'assistance." }, { status: 503 });
+  } finally {
+    if (lease && organizationId) {
+      const released = await createServiceClient().rpc("release_billing_checkout", { p_organization_id: organizationId, p_lease_token: lease });
+      if (released.error) console.error("[billing] checkout lease release failed", { organizationId });
+    }
   }
 }

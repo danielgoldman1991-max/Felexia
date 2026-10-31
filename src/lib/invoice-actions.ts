@@ -1,5 +1,6 @@
 "use server";
 
+import { financialErrorMessage } from "@/lib/financial-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -144,6 +145,10 @@ async function buildInvoicePayload(formData: FormData) {
   const normalized = normalizeInvoiceLines(parseLines(formData));
   if (!customerId) return { workspace, error: "Selectionnez un client." };
   if (normalized.error) return { workspace, error: normalized.error };
+  const supabase = await createClient();
+  const { data: customer, error: customerError } = await supabase.from("third_parties")
+    .select("id").eq("organization_id", workspace.organization.id).eq("id", customerId).is("archived_at", null).maybeSingle();
+  if (customerError || !customer) return { workspace, error: "Sélectionnez un client actif de votre entreprise." };
 
   const unitValidation = await validateUnits(workspace.organization.id, normalized.lines);
   if (unitValidation.error) return { workspace, error: unitValidation.error };
@@ -188,7 +193,6 @@ async function buildInvoicePayload(formData: FormData) {
     totals,
     payload: {
       organization_id: workspace.organization.id,
-      invoice_number: "",
       customer_id: customerId,
       source_type: sourceType,
       source_document_id: singleDeliveryId ?? text(formData, "source_document_id"),
@@ -238,14 +242,15 @@ export async function createCustomerInvoice(prev: InvoiceActionResult, formData:
   if (built.error) return { success: false, error: built.error };
   if (!built.payload) return { success: false, error: "Facture invalide." };
   const supabase = await createClient();
-  const { data, error } = await supabase.from("customer_invoices").insert(built.payload).select("id").single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer la facture." };
-  const { error: lineError } = await supabase
-    .from("customer_invoice_lines")
-    .insert(built.lines.map((line, index) => linePayload(data.id, built.workspace.organization.id, line, index)));
-  if (lineError) return { success: false, error: lineError.message };
+  const { data, error } = await supabase.rpc("save_customer_invoice_atomic", {
+    p_organization_id: built.workspace.organization.id,
+    p_invoice_id: null,
+    p_header: built.payload,
+    p_lines: built.lines.map((line, index) => linePayload("", built.workspace.organization.id, line, index)),
+  });
+  if (error || !data) return { success: false, error: financialErrorMessage(error, "Impossible de créer la facture.") };
   revalidatePath("/facturation/factures");
-  redirect(`/facturation/factures/${data.id}`);
+  redirect(`/facturation/factures/${String(data)}`);
 }
 
 export async function updateCustomerInvoice(prev: InvoiceActionResult, formData: FormData): Promise<InvoiceActionResult> {
@@ -264,13 +269,13 @@ export async function updateCustomerInvoice(prev: InvoiceActionResult, formData:
     .maybeSingle();
   if (fetchError || !invoice) return { success: false, error: "Facture introuvable." };
   if (invoice.status !== "draft") return { success: false, error: "Seule une facture brouillon est modifiable." };
-  const { error } = await supabase.from("customer_invoices").update(built.payload).eq("organization_id", built.workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
-  await supabase.from("customer_invoice_lines").delete().eq("organization_id", built.workspace.organization.id).eq("invoice_id", id);
-  const { error: lineError } = await supabase
-    .from("customer_invoice_lines")
-    .insert(built.lines.map((line, index) => linePayload(id, built.workspace.organization.id, line, index)));
-  if (lineError) return { success: false, error: lineError.message };
+  const { error } = await supabase.rpc("save_customer_invoice_atomic", {
+    p_organization_id: built.workspace.organization.id,
+    p_invoice_id: id,
+    p_header: built.payload,
+    p_lines: built.lines.map((line, index) => linePayload(id, built.workspace.organization.id, line, index)),
+  });
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath(`/facturation/factures/${id}`);
   redirect(`/facturation/factures/${id}`);
 }
@@ -295,7 +300,7 @@ async function updateInvoiceStatus(id: string, status: string, expected: string[
   if (status === "sent") payload.sent_at = new Date().toISOString();
   if (status === "cancelled") payload.cancelled_at = new Date().toISOString();
   const { error: updateError } = await supabase.from("customer_invoices").update(payload).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (updateError) return { success: false, error: updateError.message };
+  if (updateError) return { success: false, error: financialErrorMessage(updateError) };
   revalidatePath(`/facturation/factures/${id}`);
   return { success: true };
 }
@@ -326,7 +331,7 @@ export async function archiveCustomerInvoice(prev: InvoiceActionResult, formData
     .update({ archived_at: new Date().toISOString() })
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/facturation/factures");
   redirect("/facturation/factures");
 }

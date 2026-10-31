@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "date": "2026-10-31T20:54:48.072Z",
+  "results": [
+    {
+      "file": "098_essential_finance_integrity.sql",
+      "sha256": "526cd8a8832d2f9ba45b47ef9eba17c7ffae1ffdc9ae5d35d2b6a5a8eaca9b0e",
+      "checks": [
+        {
+          "integrite_098_active": true
+        }
+      ]
+    },
+    {
+      "file": "099_essential_subscription_access.sql",
+      "sha256": "6871dc1e5105aedc9cf67d35e960789a9cc5d6145bc6ac2a11b2169bdaafcd07",
+      "checks": [
+        {
+          "abonnement_099_actif": true
+        }
+      ]
+    },
+    {
+      "file": "100_essential_credit_note_corrections.sql",
+      "sha256": "055de20ddff830ce9e1981f0f85f6cbeba1e1e810fd482f9f0562f475346c199",
+      "checks": [
+        {
+          "avoirs_100_actifs": true
+        }
+      ]
+    },
+    {
+      "file": "101_essential_supplier_credit_notes.sql",
+      "sha256": "83c5096d29ecc9bee73080cb63a5b5580133e8e4fb001d7cdeb2fc45e25d870b",
+      "checks": [
+        {
+          "avoirs_fournisseurs_101_actifs": true
+        }
+      ]
+    }
+  ]
+}

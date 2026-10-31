@@ -1,5 +1,6 @@
 "use server";
 
+import { financialErrorMessage } from "@/lib/financial-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -40,15 +41,15 @@ function parseJsonLines(formData: FormData, key: string): Record<string, unknown
 }
 
 function calculatePurchaseLine(line: Record<string, unknown>): Record<string, unknown> {
-  const quantity = numberValue(line.quantity);
-  const unitPriceHt = numberValue(line.unit_price_ht);
-  const discountRate = numberValue(line.discount_rate);
-  const taxRate = numberValue(line.tax_rate);
-  const subtotalHt = quantity * unitPriceHt;
-  const discountAmount = subtotalHt * (discountRate / 100);
-  const afterDiscount = subtotalHt - discountAmount;
-  const taxAmount = afterDiscount * (taxRate / 100);
-  const totalTtc = afterDiscount + taxAmount;
+  const quantity = Math.round((numberValue(line.quantity) + Number.EPSILON) * 1000) / 1000;
+  const unitPriceHt = roundMoney(numberValue(line.unit_price_ht));
+  const discountRate = roundMoney(numberValue(line.discount_rate));
+  const taxRate = roundMoney(numberValue(line.tax_rate));
+  const subtotalHt = roundMoney(quantity * unitPriceHt);
+  const discountAmount = roundMoney(subtotalHt * (discountRate / 100));
+  const afterDiscount = roundMoney(subtotalHt - discountAmount);
+  const taxAmount = roundMoney(afterDiscount * (taxRate / 100));
+  const totalTtc = roundMoney(afterDiscount + taxAmount);
   return {
     ...line,
     quantity,
@@ -142,6 +143,9 @@ export async function createSupplierOrder(prev: PurchaseActionResult, formData: 
 
   const supplierId = text(formData, "supplier_id");
   if (!supplierId) return { success: false, error: "Veuillez selectionner un fournisseur." };
+  const { data: supplier, error: supplierError } = await supabase.from("third_parties")
+    .select("id").eq("organization_id", orgId).eq("id", supplierId).is("archived_at", null).maybeSingle();
+  if (supplierError || !supplier) return { success: false, error: "Sélectionnez un fournisseur actif de votre entreprise." };
 
   const documentDate = text(formData, "document_date") ?? new Date().toISOString().slice(0, 10);
   const expectedReceiptDate = text(formData, "expected_receipt_date");
@@ -223,7 +227,7 @@ export async function confirmSupplierOrder(prev: PurchaseActionResult, formData:
   if (doc.status !== "draft") return { success: false, error: "Seules les commandes brouillon peuvent etre confirmees." };
 
   const { error } = await supabase.from("purchase_documents").update({ status: "confirmed" }).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/achats/commandes");
   return { success: true };
 }
@@ -241,7 +245,7 @@ export async function cancelSupplierOrder(prev: PurchaseActionResult, formData: 
   if (doc.status === "received") return { success: false, error: "Impossible d'annuler une commande entierement recue." };
 
   const { error } = await supabase.from("purchase_documents").update({ status: "cancelled" }).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/achats/commandes");
   return { success: true };
 }
@@ -460,7 +464,7 @@ export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData
   if (doc.status !== "draft") return { success: false, error: "Seules les receptions brouillon peuvent etre annulees." };
 
   const { error } = await supabase.from("purchase_documents").update({ status: "cancelled" }).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/achats/receptions");
   return { success: true };
 }
@@ -468,6 +472,20 @@ export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData
 // ============================================================================
 // Supplier Invoices
 // ============================================================================
+function supplierInvoiceLinePayloads(lines: Record<string, unknown>[]) {
+  return lines.map((line) => {
+    const calculated = calculatePurchaseLine(line);
+    return {
+      ...calculated,
+      source_line_id: calculated.source_line_id || null,
+      source_document_id: calculated.source_document_id || null,
+      product_id: calculated.product_id || null,
+      unit_id: calculated.unit_id || null,
+      tax_rate_id: calculated.tax_rate_id || null,
+    };
+  });
+}
+
 export async function createSupplierInvoice(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
@@ -537,64 +555,16 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   const unitError = validateUnits(lines);
   if (unitError) return { success: false, error: unitError };
 
-  const initialTotals = lines.reduce<{ subtotal_ht: number; discount_total: number; tax_total: number; total_ttc: number }>((totals, line) => {
-    const calculated = calculatePurchaseLine(line);
-    return {
-      subtotal_ht: totals.subtotal_ht + Number(calculated.subtotal_ht),
-      discount_total: totals.discount_total + Number(calculated.discount_amount),
-      tax_total: totals.tax_total + Number(calculated.tax_amount),
-      total_ttc: totals.total_ttc + Number(calculated.total_ttc),
-    };
-  }, { subtotal_ht: 0, discount_total: 0, tax_total: 0, total_ttc: 0 });
-
-  const { data: inv, error: invError } = await supabase
-    .from("supplier_invoices")
-    .insert({ organization_id: orgId, invoice_number: "", supplier_id: supplierId, supplier_invoice_number: supplierInvoiceNumber, source_type: sourceReceiptId ? "supplier_receipt" : "manual", source_receipt_id: sourceReceiptId, invoice_date: invoiceDate, due_date: dueDate, notes, internal_notes: internalNotes, status: "draft", ...initialTotals, paid_amount: 0, remaining_amount: initialTotals.total_ttc, payment_status: "unpaid" })
-    .select("id, invoice_number")
-    .single();
-  if (invError) return { success: false, error: invError.message };
-  if (!inv) return { success: false, error: "Erreur creation facture." };
-
-  try {
-    const calculated = lines.map((line, index) => {
-      const calc = calculatePurchaseLine(line);
-      return {
-        organization_id: orgId,
-        invoice_id: inv.id,
-        source_line_id: (calc.source_line_id as string) || null,
-        source_document_id: (calc.source_document_id as string) || null,
-        line_order: index + 1,
-        product_id: (calc.product_id as string) || null,
-        product_name: (calc.product_name as string) || null,
-        description: (calc.description as string) || "",
-        quantity: calc.quantity as number,
-        unit_id: (calc.unit_id as string) || null,
-        unit_name: (calc.unit_name as string) || null,
-        unit_price_ht: calc.unit_price_ht as number,
-        discount_rate: calc.discount_rate as number,
-        tax_rate_id: (calc.tax_rate_id as string) || null,
-        tax_rate: calc.tax_rate as number,
-        subtotal_ht: calc.subtotal_ht as number,
-        discount_amount: calc.discount_amount as number,
-        tax_amount: calc.tax_amount as number,
-        total_ttc: calc.total_ttc as number,
-      };
-    });
-    const { error: linesError } = await supabase.from("supplier_invoice_lines").insert(calculated);
-    if (linesError) throw new Error(linesError.message);
-
-    const subtotalHt = calculated.reduce((s, l) => s + l.subtotal_ht, 0);
-    const discountTotal = calculated.reduce((s, l) => s + l.discount_amount, 0);
-    const taxTotal = calculated.reduce((s, l) => s + l.tax_amount, 0);
-    const totalTtc = calculated.reduce((s, l) => s + l.total_ttc, 0);
-    await supabase.from("supplier_invoices").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc }).eq("id", inv.id);
-  } catch (e) {
-    await supabase.from("supplier_invoices").delete().eq("id", inv.id);
-    return { success: false, error: e instanceof Error ? e.message : "Erreur insertion lignes." };
-  }
+  const { data: invoiceId, error } = await supabase.rpc("save_supplier_invoice_atomic", {
+    p_organization_id: orgId,
+    p_invoice_id: null,
+    p_header: { supplier_id: supplierId, supplier_invoice_number: supplierInvoiceNumber, source_type: sourceReceiptId ? "supplier_receipt" : "manual", source_receipt_id: sourceReceiptId, invoice_date: invoiceDate, due_date: dueDate, notes, internal_notes: internalNotes },
+    p_lines: supplierInvoiceLinePayloads(lines),
+  });
+  if (error || !invoiceId) return { success: false, error: financialErrorMessage(error, "Impossible de créer la facture fournisseur.") };
 
   revalidatePath("/achats/factures");
-  redirect(`/achats/factures/${inv.id}`);
+  redirect(`/achats/factures/${String(invoiceId)}`);
 }
 
 export async function updateSupplierInvoice(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
@@ -637,44 +607,13 @@ export async function updateSupplierInvoice(prev: PurchaseActionResult, formData
   const unitError = validateUnits(lines);
   if (unitError) return { success: false, error: unitError };
 
-  await supabase.from("supplier_invoices").update({ invoice_date: invoiceDate, due_date: dueDate, supplier_invoice_number: supplierInvoiceNumber, notes, internal_notes: internalNotes }).eq("id", invoiceId);
-  await supabase.from("supplier_invoice_lines").delete().eq("invoice_id", invoiceId);
-
-  try {
-    const calculated = lines.map((line, index) => {
-      const calc = calculatePurchaseLine(line);
-      return {
-        organization_id: orgId,
-        invoice_id: invoiceId,
-        source_line_id: (calc.source_line_id as string) || null,
-        source_document_id: (calc.source_document_id as string) || null,
-        line_order: index + 1,
-        product_id: (calc.product_id as string) || null,
-        product_name: (calc.product_name as string) || null,
-        description: (calc.description as string) || "",
-        quantity: calc.quantity as number,
-        unit_id: (calc.unit_id as string) || null,
-        unit_name: (calc.unit_name as string) || null,
-        unit_price_ht: calc.unit_price_ht as number,
-        discount_rate: calc.discount_rate as number,
-        tax_rate_id: (calc.tax_rate_id as string) || null,
-        tax_rate: calc.tax_rate as number,
-        subtotal_ht: calc.subtotal_ht as number,
-        discount_amount: calc.discount_amount as number,
-        tax_amount: calc.tax_amount as number,
-        total_ttc: calc.total_ttc as number,
-      };
-    });
-    const { error: linesError } = await supabase.from("supplier_invoice_lines").insert(calculated);
-    if (linesError) throw new Error(linesError.message);
-    const subtotalHt = calculated.reduce((s, l) => s + l.subtotal_ht, 0);
-    const discountTotal = calculated.reduce((s, l) => s + l.discount_amount, 0);
-    const taxTotal = calculated.reduce((s, l) => s + l.tax_amount, 0);
-    const totalTtc = calculated.reduce((s, l) => s + l.total_ttc, 0);
-    await supabase.from("supplier_invoices").update({ subtotal_ht: subtotalHt, discount_total: discountTotal, tax_total: taxTotal, total_ttc: totalTtc, paid_amount: 0, remaining_amount: totalTtc, payment_status: "unpaid" }).eq("id", invoiceId).eq("organization_id", orgId).eq("status", "draft").eq("paid_amount", 0);
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Erreur mise a jour lignes." };
-  }
+  const { error } = await supabase.rpc("save_supplier_invoice_atomic", {
+    p_organization_id: orgId,
+    p_invoice_id: invoiceId,
+    p_header: { supplier_id: invSupplierId, invoice_date: invoiceDate, due_date: dueDate, supplier_invoice_number: supplierInvoiceNumber, notes, internal_notes: internalNotes },
+    p_lines: supplierInvoiceLinePayloads(lines),
+  });
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/achats/factures");
   redirect(`/achats/factures/${invoiceId}`);
@@ -844,7 +783,7 @@ export async function archiveSupplierInvoice(prev: PurchaseActionResult, formDat
     .update({ archived_at: new Date().toISOString() })
     .eq("id", id)
     .eq("organization_id", workspace.organization.id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
 
   revalidatePath("/achats/factures");
   revalidatePath(`/achats/factures/${id}`);
@@ -1060,7 +999,7 @@ export async function cancelSupplierPayment(prev: PurchaseActionResult, formData
       success: false,
       error: ["PGRST202", "42883"].includes(cancelResult.error.code ?? "")
         ? "La mise à niveau d'intégrité de la base doit être appliquée avant d'annuler un paiement fournisseur."
-        : "L'annulation a été refusée afin de préserver la facture et la trésorerie.",
+        : financialErrorMessage(cancelResult.error, "L’annulation a été refusée afin de préserver la facture et la trésorerie."),
     };
   }
 
@@ -1114,7 +1053,7 @@ export async function archivePurchaseDocument(prev: PurchaseActionResult, formDa
   }
 
   const { error } = await supabase.from("purchase_documents").update({ archived_at: new Date().toISOString() }).eq("id", id).eq("organization_id", workspace.organization.id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: financialErrorMessage(error) };
   if ((docType ?? doc.document_type) === "supplier_order") revalidatePath("/achats/commandes");
   else revalidatePath("/achats/receptions");
   return { success: true };

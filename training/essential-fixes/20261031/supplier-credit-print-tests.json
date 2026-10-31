@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "checks": 14,
+  "scope": "Real print page and components; synthetic document; no network or project environment",
+  "results": [
+    "Supplier credit note is explicitly identified",
+    "Print identifies it as a received document",
+    "Supplier external reference preserved",
+    "Source invoice reference preserved",
+    "Correct company identity rendered",
+    "Line appears exactly once",
+    "Document descriptions remain escaped",
+    "Public note printed",
+    "Internal note excluded from output",
+    "Net HT is not discounted twice",
+    "Grand total and available credit preserved",
+    "TVA summary rendered",
+    "Exactly one printed page container",
+    "Missing document yields notFound"
+  ]
+}

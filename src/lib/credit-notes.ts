@@ -3,6 +3,7 @@ import { calculateInvoiceLine, calculateInvoiceTotals } from "@/lib/invoice-calc
 import { getCustomerInvoiceDetail, getCustomerInvoiceDocumentFlow, listInvoiceCustomers, listInvoiceProducts, listInvoiceTaxRates, listInvoiceUnits } from "@/lib/invoices";
 import { createClient } from "@/lib/supabase/server";
 import { getSalesDocumentFlow } from "@/lib/sales";
+import { readAllPages } from "@/lib/listing";
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
 import type {
@@ -120,14 +121,13 @@ function mapApplication(row: Record<string, unknown>): CreditNoteApplicationReco
 export async function listCustomerCreditNotes() {
   const organizationId = await activeOrganizationId();
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const data = await readAllPages((from, to) => supabase
     .from("customer_credit_notes")
     .select(CREDIT_NOTE_SELECT)
     .eq("organization_id", organizationId)
     .is("archived_at", null)
-    .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) throw new Error(error.message);
+    .order("created_at", { ascending: false }).order("id")
+    .range(from, to));
   return (data ?? []).map((row) => mapCreditNote(row as Record<string, unknown>));
 }
 
@@ -417,7 +417,7 @@ export async function listAvailableCreditNotes(customerId: string) {
 export async function listOpenInvoicesForCreditApplication(customerId: string) {
   const organizationId = await activeOrganizationId();
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const data = await readAllPages((from, to) => supabase
     .from("customer_invoices")
     .select("id, invoice_number, invoice_date, due_date, total_ttc, paid_amount, credit_amount, remaining_amount, payment_status, status")
     .eq("organization_id", organizationId)
@@ -425,8 +425,7 @@ export async function listOpenInvoicesForCreditApplication(customerId: string) {
     .gt("remaining_amount", 0)
     .not("status", "in", "(cancelled,draft)")
     .is("archived_at", null)
-    .order("due_date", { ascending: true });
-  if (error) throw new Error(error.message);
+    .order("due_date", { ascending: true }).order("id").range(from, to));
   return (data ?? []).map((row) => ({
     id: row.id as string,
     invoice_number: row.invoice_number as string,

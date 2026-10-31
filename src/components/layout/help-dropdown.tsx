@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, CircleHelp, FileText, Settings, Sparkles } from "lucide-react";
+import { BookOpen, CircleHelp, FileText, Mail, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const helpLinks = [
@@ -54,6 +54,7 @@ export function HelpDropdown({ align = "right", fullAccess = false, operator = f
             <p className="mt-1 text-xs text-[var(--muted)]">Choisissez une ressource pour continuer.</p>
           </div>
           <div className="p-2">
+            <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "contact@felexia.pro"}?subject=Assistance%20Felexia%20Pro`} className="flex items-start gap-3 rounded-xl p-3 transition hover:bg-[var(--surface-soft)]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]"><Mail className="h-4 w-4" /></span><span><span className="block text-sm font-semibold">Contacter l’assistance</span><span className="mt-0.5 block text-xs text-[var(--muted)]">Décrivez votre besoin et indiquez le nom de votre entreprise.</span></span></a>
             {(operator ? operatorHelpLinks : fullAccess ? helpLinks : lightHelpLinks).map((item) => {
               const Icon = item.icon;
               return <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex items-start gap-3 rounded-xl p-3 transition hover:bg-[var(--surface-soft)]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]"><Icon className="h-4 w-4" /></span><span><span className="block text-sm font-semibold">{item.label}</span><span className="mt-0.5 block text-xs text-[var(--muted)]">{item.description}</span></span></Link>;

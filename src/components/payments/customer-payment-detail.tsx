@@ -46,8 +46,8 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerPaymentDetail({ payment, allocations, accountingEntry, fullAccess = false, canPostAccounting = true }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null; fullAccess?: boolean; canPostAccounting?: boolean }) {
-  const lockedAccountingPayment = !canPostAccounting && accountingEntry?.entry?.status === "posted";
+export function CustomerPaymentDetail({ payment, allocations, accountingEntry, fullAccess = false, canWrite = false, canPostAccounting = false }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null; fullAccess?: boolean; canWrite?: boolean; canPostAccounting?: boolean }) {
+  const lockedAccountingPayment = accountingEntry?.entry?.status === "posted";
   return (
     <div className="space-y-6">
       <PageHeader
@@ -56,14 +56,14 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
-            {payment.available_amount > 0 && payment.status !== "cancelled" ? <Button type="button" asChild><Link href={`/facturation/paiements/${payment.id}/affecter`}>Affecter a des factures</Link></Button> : null}
-            {!lockedAccountingPayment && payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}>Modifier</Link></Button> : null}
-            {!lockedAccountingPayment && payment.status !== "cancelled" ? <ActionForm label="Annuler" variant="danger" icon={<XCircle className="h-4 w-4" />} action={actionWithId(cancelCustomerPayment, "id", payment.id)} /> : null}
+            {canWrite && payment.available_amount > 0 && payment.status !== "cancelled" ? <Button type="button" asChild><Link href={`/facturation/paiements/${payment.id}/affecter`}>Affecter a des factures</Link></Button> : null}
+            {canWrite && !lockedAccountingPayment && payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}>Modifier</Link></Button> : null}
+            {canWrite && !lockedAccountingPayment && payment.status !== "cancelled" ? <ActionForm label="Annuler" variant="danger" icon={<XCircle className="h-4 w-4" />} action={actionWithId(cancelCustomerPayment, "id", payment.id)} /> : null}
           </>
         )}
       />
       <Card><CardContent className="flex flex-wrap items-center gap-3"><PaymentStatusBadge status={payment.status} /><span className="text-sm text-[var(--muted)]">Cree le {formatDate(payment.created_at)}</span></CardContent></Card>
-      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé. Contactez votre administrateur pour le modifier ou l’annuler.</p> : null}
+      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé : son montant, son compte et son annulation sont verrouillés pour préserver le journal. Les affectations et les informations complémentaires restent accessibles.</p> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Informations paiement</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -88,7 +88,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
               ) : allocations.map((allocation) => (
                 <tr key={allocation.id}>
                   <Td>{allocation.invoice_number}</Td><Td>{formatDate(allocation.allocation_date)}</Td><Td><MoneyDisplay value={allocation.amount} /></Td>
-                  <Td><ActionForm label="Retirer" action={actionWithId(unallocatePaymentFromInvoice, "allocation_id", allocation.id)} /></Td>
+                  <Td>{canWrite && payment.status !== "cancelled" ? <ActionForm label="Retirer" action={actionWithId(unallocatePaymentFromInvoice, "allocation_id", allocation.id)} /> : null}</Td>
                 </tr>
               ))}
             </tbody>

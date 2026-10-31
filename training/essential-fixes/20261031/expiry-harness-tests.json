@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "checks": 12,
+  "scope": "Real harness; isolated SDK/filesystem/Auth fixtures; zero network or project data",
+  "results": [
+    "Successful simulated expiry restores the QA trial",
+    "Only two scoped fixture writes occur and restore the exact timestamps",
+    "Public report never contains private passwords or the subscription snapshot",
+    "A business-read exception still executes exact restoration",
+    "Lost expiry-update response still triggers restoration",
+    "Transient restoration failure retries without changing the scoped target",
+    "Persistent restore failure retains the private original snapshot and marks the report failed",
+    "Restore-only mode safely recovers an interrupted pending fixture",
+    "foreignCompany is rejected before any subscription mutation",
+    "paidCompany is rejected before any subscription mutation",
+    "fourthMember is rejected before any subscription mutation",
+    "authFailure is rejected before any subscription mutation"
+  ]
+}

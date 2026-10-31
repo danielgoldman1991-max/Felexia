@@ -7,6 +7,9 @@ import { calculateInvoiceLine, calculateInvoiceTotals, getCustomerCreditNoteDeta
 import { createClient } from "@/lib/supabase/server";
 import type { CreditNoteActionResult, CreditNoteLineFormValue } from "@/lib/credit-note-types";
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
+import { isAdminRole } from "@/lib/auth/roles";
+import { buildCustomerInvoiceLines, getAccountByNumber, getAccountingSettings, getExistingEntryBySource, getJournalByCode } from "@/lib/accounting";
+import { financialErrorMessage } from "@/lib/financial-errors";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -66,192 +69,65 @@ function normalizeLine(line: CreditNoteLineFormValue): InvoiceLineFormValue {
   });
 }
 
-function linePayload(organizationId: string, creditNoteId: string, line: InvoiceLineFormValue, sourceInvoiceLineId: string | null, index: number) {
-  return {
-    organization_id: organizationId,
-    credit_note_id: creditNoteId,
-    source_invoice_line_id: sourceInvoiceLineId,
-    line_order: index + 1,
-    product_id: line.product_id || null,
-    product_name: line.product_name || null,
-    description: line.description,
-    quantity: line.quantity,
-    unit_id: line.unit_id || null,
-    unit_name: line.unit_name || null,
-    unit_price_ht: line.unit_price_ht,
-    discount_rate: line.discount_rate,
-    tax_rate_id: line.tax_rate_id || null,
-    tax_rate: line.tax_rate,
-    subtotal_ht: line.subtotal_ht,
-    discount_amount: line.discount_amount,
-    tax_amount: line.tax_amount,
-    total_ttc: line.total_ttc,
-  };
+function creditNoteError(error: { code?: string; message?: string } | null) {
+  const message = error?.message || "";
+  if (error?.code === "PGRST202" || error?.code === "42883") return "La mise à jour des avoirs doit être activée avant cette opération.";
+  if (message.includes("POSTED")) return "Cet avoir est déjà comptabilisé. Une correction nécessite une contrepassation par l’administrateur.";
+  if (message.includes("CREDIT_WRITE_REQUIRED")) return "Votre rôle ne permet pas de modifier les avoirs.";
+  if (message.includes("DRAFT_REQUIRED") || message.includes("READ_ONLY")) return "Seul un avoir brouillon peut être modifié.";
+  if (message.includes("AVAILABLE")) return "Le montant dépasse le disponible de l’avoir. Actualisez puis vérifiez les affectations.";
+  if (message.includes("BALANCE_EXCEEDED")) return "Le montant dépasse le reste à régler de la facture.";
+  if (message.includes("SUBSCRIPTION")) return "Votre abonnement ne permet pas de nouvelle écriture. Consultez Mon abonnement.";
+  return "L’opération n’a pas pu être confirmée. Vérifiez le client, les lignes et les affectations, puis actualisez.";
+}
+
+async function saveCreditNote(formData: FormData, id: string | null): Promise<{ id?: string; error?: string }> {
+  const workspace = await requireActiveWorkspace();
+  const rawLines = parseLines(formData);
+  if (!text(formData, "customer_id")) return { error: "Sélectionnez un client." };
+  if (rawLines.length < 1 || rawLines.length > 500) return { error: "Ajoutez entre 1 et 500 lignes." };
+  const lines = rawLines.map(normalizeLine);
+  if (lines.some((line) => !line.description.trim() || line.quantity <= 0 || line.unit_price_ht < 0 || line.discount_rate < 0 || line.discount_rate > 100 || line.tax_rate < 0 || line.tax_rate > 100)) return { error: "Vérifiez les quantités, prix et taux des lignes." };
+  if (calculateInvoiceTotals(lines).total_ttc <= 0) return { error: "Le total de l’avoir doit être supérieur à zéro." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("save_customer_credit_note_atomic", {
+    p_organization_id: workspace.organization.id, p_credit_note_id: id,
+    p_header: Object.fromEntries(["customer_id","source_invoice_id","source_return_id","source_type","credit_note_date","reason","notes","internal_notes"].map((key) => [key,text(formData,key)])),
+    p_lines: lines.map((line,index) => ({...line,source_invoice_line_id:rawLines[index].source_invoice_line_id || null})),
+  });
+  if (error || !data) return { error: creditNoteError(error) };
+  revalidatePath("/facturation/avoirs");
+  return { id: String(data) };
 }
 
 export async function createCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  if (text(formData, "source_type") === "return" || text(formData, "source_return_id")) {
-    return createCreditNoteFromReturn({ success: true }, formData);
-  }
-  const workspace = await requireActiveWorkspace();
-  const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
-  const rawLines = parseLines(formData);
-  if (rawLines.length === 0) return { success: false, error: "Ajoutez au moins une ligne a l'avoir." };
-  const lines = rawLines.map(normalizeLine);
-  if (lines.some((line) => !line.description || line.quantity <= 0 || line.unit_price_ht < 0)) return { success: false, error: "Verifiez les lignes de l'avoir." };
-  const totals = calculateInvoiceTotals(lines);
-  if (totals.total_ttc <= 0) return { success: false, error: "Le total de l'avoir doit etre superieur a zero." };
+  const result = await saveCreditNote(formData,null);
+  if (result.error || !result.id) return { success: false, error: result.error || "Création non confirmée." };
+  redirect("/facturation/avoirs/"+result.id);
+}
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("customer_credit_notes")
-    .insert({
-      organization_id: workspace.organization.id,
-      credit_note_number: "",
-      customer_id: customerId,
-      source_invoice_id: text(formData, "source_invoice_id"),
-      source_return_id: text(formData, "source_return_id"),
-      source_type: text(formData, "source_type") ?? "manual",
-      credit_note_date: text(formData, "credit_note_date") ?? new Date().toISOString().split("T")[0],
-      subtotal_ht: totals.subtotal_ht,
-      discount_total: totals.discount_total,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      applied_amount: 0,
-      available_amount: 0,
-      reason: text(formData, "reason"),
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      created_by: workspace.userId,
-    })
-    .select("id")
-    .single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer l'avoir." };
-
-  const { error: lineError } = await supabase.from("customer_credit_note_lines").insert(
-    lines.map((line, index) => linePayload(workspace.organization.id, data.id, line, rawLines[index].source_invoice_line_id ?? null, index)),
-  );
-  if (lineError) return { success: false, error: lineError.message };
-  revalidatePath("/facturation/avoirs");
-  redirect(`/facturation/avoirs/${data.id}`);
+export async function updateCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
+  void prev;
+  const id=text(formData,"id");
+  if (!id) return { success:false,error:"Avoir introuvable." };
+  const result=await saveCreditNote(formData,id);
+  if(result.error) return {success:false,error:result.error};
+  revalidatePath("/facturation/avoirs/"+id);
+  redirect("/facturation/avoirs/"+id);
 }
 
 export const createCreditNoteFromInvoice = createCustomerCreditNote;
 
 export async function createCreditNoteFromReturn(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
-  void prev;
-  const workspace = await requireActiveWorkspace();
-  const returnId = text(formData, "source_return_id") ?? text(formData, "return_id");
-  if (!returnId) return { success: false, error: "Bon de retour introuvable." };
-
-  const supabase = await createClient();
-  const { data: returnDocument, error: returnError } = await supabase
-    .from("sales_documents")
-    .select("id, organization_id, customer_id, document_type, document_number, status, return_reason, archived_at")
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", returnId)
-    .maybeSingle();
-  if (returnError) return { success: false, error: returnError.message };
-  if (!returnDocument || returnDocument.document_type !== "return_note") return { success: false, error: "Bon de retour introuvable." };
-  if (returnDocument.archived_at) return { success: false, error: "Impossible de creer un avoir depuis un retour archive." };
-  if (returnDocument.status !== "validated") return { success: false, error: "Validez d'abord le bon de retour avant de creer un avoir." };
-
-  const { data: existingCreditNote, error: existingError } = await supabase
-    .from("customer_credit_notes")
-    .select("id")
-    .eq("organization_id", workspace.organization.id)
-    .eq("source_return_id", returnId)
-    .neq("status", "cancelled")
-    .is("archived_at", null)
-    .limit(1)
-    .maybeSingle();
-  if (existingError) return { success: false, error: existingError.message };
-  if (existingCreditNote) return { success: false, error: "Ce bon de retour est deja rattache a un avoir client." };
-
-  const rawLines = parseLines(formData);
-  if (rawLines.length === 0) return { success: false, error: "Ajoutez au moins une ligne a l'avoir." };
-  const lines = rawLines.map(normalizeLine);
-  if (lines.some((line) => !line.description || line.quantity <= 0 || line.unit_price_ht < 0)) return { success: false, error: "Verifiez les lignes de l'avoir." };
-  const totals = calculateInvoiceTotals(lines);
-  if (totals.total_ttc <= 0) return { success: false, error: "Le total de l'avoir doit etre superieur a zero." };
-
-  let sourceInvoiceId = text(formData, "source_invoice_id");
-  if (!sourceInvoiceId) {
-    const preparation = await getCreditNoteReturnPreparation(returnId);
-    sourceInvoiceId = preparation.relatedInvoice?.id ?? null;
-  }
-
-  const { data, error } = await supabase
-    .from("customer_credit_notes")
-    .insert({
-      organization_id: workspace.organization.id,
-      credit_note_number: "",
-      customer_id: returnDocument.customer_id,
-      source_type: "return",
-      source_return_id: returnId,
-      source_invoice_id: sourceInvoiceId,
-      credit_note_date: text(formData, "credit_note_date") ?? new Date().toISOString().split("T")[0],
-      subtotal_ht: totals.subtotal_ht,
-      discount_total: totals.discount_total,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      applied_amount: 0,
-      available_amount: 0,
-      reason: text(formData, "reason") ?? returnDocument.return_reason ?? "Avoir suite retour client",
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      created_by: workspace.userId,
-    })
-    .select("id")
-    .single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer l'avoir." };
-
-  const { error: lineError } = await supabase.from("customer_credit_note_lines").insert(
-    lines.map((line, index) => linePayload(workspace.organization.id, data.id, line, rawLines[index].source_invoice_line_id ?? null, index)),
-  );
-  if (lineError) return { success: false, error: lineError.message };
-
-  revalidatePath(`/vente/retours/${returnId}`);
-  revalidatePath("/facturation/avoirs");
-  redirect(`/facturation/avoirs/${data.id}`);
-}
-
-async function recalculateCreditNote(organizationId: string, creditNoteId: string) {
-  const supabase = await createClient();
-  const [{ data: note }, { data: applications, error }] = await Promise.all([
-    supabase.from("customer_credit_notes").select("id, total_ttc, status").eq("organization_id", organizationId).eq("id", creditNoteId).maybeSingle(),
-    supabase.from("customer_credit_note_applications").select("amount").eq("organization_id", organizationId).eq("credit_note_id", creditNoteId).is("cancelled_at", null),
-  ]);
-  if (!note) return { error: "Avoir introuvable." };
-  if (error) return { error: error.message };
-  if (note.status === "cancelled" || note.status === "draft") return {};
-  const applied = (applications ?? []).reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
-  const total = Number(note.total_ttc ?? 0);
-  const available = Math.max(total - applied, 0);
-  const status = applied <= 0 ? "validated" : available > 0 ? "partially_applied" : "applied";
-  const { error: updateError } = await supabase.from("customer_credit_notes").update({ applied_amount: applied, available_amount: available, status }).eq("organization_id", organizationId).eq("id", creditNoteId);
-  return updateError ? { error: updateError.message } : {};
-}
-
-export async function recalculateInvoiceFinancialStatus(organizationId: string, invoiceId: string) {
-  const supabase = await createClient();
-  const [{ data: invoice }, { data: applications, error }] = await Promise.all([
-    supabase.from("customer_invoices").select("id, total_ttc, paid_amount, status").eq("organization_id", organizationId).eq("id", invoiceId).maybeSingle(),
-    supabase.from("customer_credit_note_applications").select("amount").eq("organization_id", organizationId).eq("invoice_id", invoiceId).is("cancelled_at", null),
-  ]);
-  if (!invoice) return { error: "Facture introuvable." };
-  if (error) return { error: error.message };
-  if (invoice.status === "cancelled") return {};
-  const creditAmount = (applications ?? []).reduce((sum, row) => sum + Number(row.amount ?? 0), 0);
-  const total = Number(invoice.total_ttc ?? 0);
-  const paid = Number(invoice.paid_amount ?? 0);
-  const remaining = Math.max(total - paid - creditAmount, 0);
-  const paymentStatus = remaining <= 0 ? "paid" : paid > 0 || creditAmount > 0 ? "partial" : "unpaid";
-  const status = paymentStatus === "paid" ? "paid" : paymentStatus === "partial" ? "partially_paid" : invoice.status;
-  const { error: updateError } = await supabase.from("customer_invoices").update({ credit_amount: creditAmount, remaining_amount: remaining, payment_status: paymentStatus, status }).eq("organization_id", organizationId).eq("id", invoiceId);
-  return updateError ? { error: updateError.message } : {};
+  const returnId=text(formData,"source_return_id") || text(formData,"return_id");
+  if(!returnId)return {success:false,error:"Bon de retour introuvable."};
+  const preparation=await getCreditNoteReturnPreparation(returnId);
+  if(!preparation.returnDocument || preparation.returnDocument.status!=="validated") return {success:false,error:"Validez le bon de retour avant de créer l’avoir."};
+  formData.set("customer_id",preparation.returnDocument.customer_id);formData.set("source_type","return");formData.set("source_return_id",returnId);
+  if(preparation.relatedInvoice?.id)formData.set("source_invoice_id",preparation.relatedInvoice.id);
+  if(!text(formData,"reason"))formData.set("reason",preparation.returnDocument.return_reason || "Avoir suite retour client");
+  return createCustomerCreditNote(prev,formData);
 }
 
 export async function validateCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
@@ -277,7 +153,7 @@ export async function validateCustomerCreditNote(prev: CreditNoteActionResult, f
     }
   }
   const { error } = await supabase.from("customer_credit_notes").update({ status: "validated", validated_at: new Date().toISOString(), available_amount: Number(note.total_ttc ?? 0) }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: creditNoteError(error) };
   revalidatePath(`/facturation/avoirs/${id}`);
   return { success: true };
 }
@@ -292,7 +168,7 @@ export async function cancelCustomerCreditNote(prev: CreditNoteActionResult, for
   if (applications.length > 0) return { success: false, error: "Retirez les affectations avant d'annuler l'avoir." };
   const supabase = await createClient();
   const { error } = await supabase.from("customer_credit_notes").update({ status: "cancelled", cancelled_at: new Date().toISOString(), available_amount: 0 }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: creditNoteError(error) };
   revalidatePath(`/facturation/avoirs/${id}`);
   return { success: true };
 }
@@ -309,36 +185,55 @@ function parseApplications(formData: FormData) {
 
 export async function applyCreditNoteToInvoices(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
-  const creditNoteId = text(formData, "credit_note_id");
-  if (!creditNoteId) return { success: false, error: "Avoir introuvable." };
-  const applications = parseApplications(formData);
-  if (applications.length === 0) return { success: false, error: "Saisissez au moins une affectation." };
-  const { creditNote } = await getCustomerCreditNoteDetail(creditNoteId);
-  if (!creditNote || !["validated", "partially_applied"].includes(creditNote.status)) return { success: false, error: "Avoir non affectable." };
-  const total = applications.reduce((sum, item) => sum + item.amount, 0);
-  if (total > creditNote.available_amount) return { success: false, error: "Le montant affecte depasse le disponible de l'avoir." };
-  const supabase = await createClient();
-  const { data: invoices, error: invoiceError } = await supabase.from("customer_invoices").select("id, customer_id, remaining_amount, status").eq("organization_id", workspace.organization.id).in("id", applications.map((item) => item.invoice_id));
-  if (invoiceError) return { success: false, error: invoiceError.message };
-  for (const application of applications) {
-    const invoice = (invoices ?? []).find((item) => item.id === application.invoice_id);
-    if (!invoice || invoice.customer_id !== creditNote.customer_id) return { success: false, error: "L'avoir et la facture doivent appartenir au meme client." };
-    if (invoice.status === "cancelled") return { success: false, error: "Impossible d'affecter une facture annulee." };
-    if (application.amount > Number(invoice.remaining_amount ?? 0)) return { success: false, error: "Le montant affecte depasse le reste a payer d'une facture." };
-  }
-  const { error } = await supabase.from("customer_credit_note_applications").insert(applications.map((application) => ({ organization_id: workspace.organization.id, credit_note_id: creditNoteId, invoice_id: application.invoice_id, customer_id: creditNote.customer_id, amount: application.amount, created_by: workspace.userId })));
-  if (error) return { success: false, error: error.message };
-  for (const application of applications) await recalculateInvoiceFinancialStatus(workspace.organization.id, application.invoice_id);
-  const result = await recalculateCreditNote(workspace.organization.id, creditNoteId);
-  if (result.error) return { success: false, error: result.error };
-  revalidatePath(`/facturation/avoirs/${creditNoteId}`);
-  revalidatePath("/facturation/factures");
-  redirect(`/facturation/avoirs/${creditNoteId}`);
+  const workspace=await requireActiveWorkspace();
+  const id=text(formData,"credit_note_id");
+  if(!id) return {success:false,error:"Avoir introuvable."};
+  const applications=parseApplications(formData);
+  if(!applications.length) return {success:false,error:"Saisissez au moins une affectation."};
+  const supabase=await createClient();
+  const {error}=await supabase.rpc("apply_customer_credit_note_atomic",{p_organization_id:workspace.organization.id,p_credit_note_id:id,p_applications:applications});
+  if(error)return {success:false,error:creditNoteError(error)};
+  revalidatePath("/facturation/avoirs/"+id); revalidatePath("/facturation/factures");
+  redirect("/facturation/avoirs/"+id);
 }
 
 export async function unapplyCreditNoteFromInvoice(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  void formData;
-  return { success: false, error: "Retrait d'affectation prevu dans une prochaine iteration." };
+  const workspace=await requireActiveWorkspace();
+  const applicationId=text(formData,"id");
+  if(!applicationId)return {success:false,error:"Affectation introuvable."};
+  const supabase=await createClient();
+  const {data,error}=await supabase.rpc("unapply_customer_credit_note_atomic",{p_organization_id:workspace.organization.id,p_application_id:applicationId});
+  if(error)return {success:false,error:creditNoteError(error)};
+  revalidatePath("/facturation/avoirs/"+String(data));revalidatePath("/facturation/factures");
+  return {success:true};
+}
+
+export async function postCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
+  void prev;
+  const workspace = await requireActiveWorkspace();
+  if (!isAdminRole(workspace.role)) return { success: false, error: "Seul un administrateur peut comptabiliser cet avoir." };
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "Avoir introuvable." };
+  const existing = await getExistingEntryBySource(workspace.organization.id, "customer_credit_note", id);
+  if (existing) return { success: true };
+  const { creditNote, lines } = await getCustomerCreditNoteDetail(id);
+  if (!creditNote || ["draft", "cancelled"].includes(creditNote.status) || !lines.length) return { success: false, error: "Validez l’avoir et vérifiez ses lignes avant de le comptabiliser." };
+  if (creditNote.currency !== "MAD") return { success: false, error: "Ce parcours utilise le MAD. Les montants historiques de cet avoir sont conservés." };
+  const settings = await getAccountingSettings(workspace.organization.id);
+  const [journal, customer, product, service, vat] = await Promise.all([
+    getJournalByCode(workspace.organization.id, "VE"),
+    getAccountByNumber(workspace.organization.id, String(settings?.default_customer_account_code || "3421")),
+    getAccountByNumber(workspace.organization.id, String(settings?.default_sales_account_code || "7111")),
+    getAccountByNumber(workspace.organization.id, "7124"),
+    getAccountByNumber(workspace.organization.id, String(settings?.default_sales_vat_account_code || "4455")),
+  ]);
+  if (!journal || !customer || !product || !service || !vat) return { success: false, error: "Le journal des ventes ou les comptes nécessaires ne sont pas configurés. Contactez l’assistance." };
+  const accountingLines = buildCustomerInvoiceLines(lines, { sales_product: product.id, sales_service: service.id, customer: customer.id, sales_vat: vat.id }).map((line) => ({ account_id: line.account_id, label: `Avoir ${creditNote.credit_note_number} · ${line.label}`, debit: line.credit, credit: line.debit }));
+  if (Math.abs(accountingLines.reduce((sum, line) => sum + line.debit, 0) - creditNote.total_ttc) > 0.005) return { success: false, error: "Les totaux de cet avoir nécessitent une vérification avant comptabilisation." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("save_accounting_entry_atomic", { p_organization_id: workspace.organization.id, p_entry_id: null, p_header: { journal_id: journal.id, entry_date: creditNote.credit_note_date, label: `Avoir client ${creditNote.credit_note_number}`, reference: creditNote.credit_note_number, status: "posted", source_module: "invoicing", source_document_type: "customer_credit_note", source_document_id: id, source_number: creditNote.credit_note_number }, p_lines: accountingLines });
+  if (error) return { success: false, error: financialErrorMessage(error) };
+  revalidatePath(`/facturation/avoirs/${id}`); revalidatePath("/comptabilite/journaux"); revalidatePath("/comptabilite/ecritures");
+  return { success: true };
 }

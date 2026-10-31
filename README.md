@@ -4,6 +4,16 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ## Version légère de lancement — 31 octobre 2026
 
+### Correctifs de l'audit Essentiel
+
+La branche `codex/essential-launch-fixes-20261031` corrige les écritures financières partielles, les droits après échéance, les données d'abonnement, les exports incomplets et la récupération de compte. Elle ajoute le parcours des avoirs fournisseurs, avec affectation sans mouvement fictif de trésorerie. Les avoirs clients et fournisseurs comptabilisés peuvent être affectés ou désaffectés par l'administrateur et l'opérateur ; leurs montants et leur annulation sont verrouillés. Les règlements comptabilisés sont également protégés contre les corrections monétaires.
+
+**Avant publication, exécuter intégralement `supabase/essential-launch-098-101.sql` dans le SQL Editor du projet Felexia.** Ce fichier regroupe les migrations 098 à 101 dans une transaction. La dernière requête doit retourner les quatre indicateurs à `true`. Il ne renumérote pas les documents existants et ne réécrit pas leurs montants. Le fichier est reproductible avec `node scripts/prepare-essential-sql.cjs` et son empreinte est consignée dans `training/essential-fixes/20261031/sql-release.json`.
+
+Les tests isolés et les procédures d'exploitation sont documentés dans `training/essential-fixes/20261031/` et [le guide d'exploitation](docs/OPERATIONS.md). La restauration locale du schéma, des droits et de 81 tables synthétiques a été vérifiée ; elle ne remplace pas une sauvegarde du projet Supabase et de ses fichiers Storage. La recette réelle à trois utilisateurs reste à terminer après installation du SQL et publication.
+
+Sauvegarde source préalable : branche `codex/backup-before-essential-fixes-20261031` au commit `6c91fc8`, archive autonome `../backups/felexia-before-essential-fixes-20261031.bundle` vérifiée. Revenir à une version de code compatible avec le schéma installé ; ne pas retirer les protections RLS pour restaurer une ancienne interface.
+
 ### Compteurs de numérotation
 
 `/parametres/numerotation` affiche les séries réellement utilisées : factures et avoirs clients, règlements clients/fournisseurs, factures fournisseurs, codes clients/fournisseurs et numéros annuels des journaux. Les autres documents commerciaux et les prospects apparaissent dans le profil ERP complet. La période mensuelle peut être sélectionnée ; les écritures suivent l'année de leur date comptable.

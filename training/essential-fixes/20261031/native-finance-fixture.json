@@ -1,0 +1,13 @@
+{
+  "org": "199fbd63-26d9-47aa-96b3-1b3a8fb302e4",
+  "admin": "20000000-0000-4000-8000-000000000001",
+  "operator": "20000000-0000-4000-8000-000000000002",
+  "viewer": "20000000-0000-4000-8000-000000000003",
+  "customer": "5c1c28f9-ee8c-43d8-bbf8-bdf1efe4dff2",
+  "supplier": "55ba7f06-926f-40c7-a8f4-294fb971e45c",
+  "bank": "150f13af-ebab-4755-8307-589d0dbbefa5",
+  "journal": "58c4942a-53ba-4535-9c14-20fed070f6bc",
+  "accountA": "86f50a12-c60e-40ee-afcb-1cb9d4b2f8af",
+  "accountB": "3e161edc-f76e-4b0d-be44-e62e23246d96",
+  "period": "2026-10-31"
+}

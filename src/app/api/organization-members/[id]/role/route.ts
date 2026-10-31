@@ -20,17 +20,18 @@ export async function PATCH(
       return NextResponse.json({ error: "Role requis" }, { status: 400 });
     }
 
-    const { data: member } = await supabase
+    const { data: member, error: memberError } = await supabase
       .from("organization_members")
       .select("organization_id, user_id, role:roles(name)")
       .eq("id", id)
       .single();
+    if (memberError && memberError.code !== "PGRST116") return NextResponse.json({ error: "Impossible de charger ce membre. Réessayez." }, { status: 503 });
 
     if (!member) {
       return NextResponse.json({ error: "Membre introuvable" }, { status: 404 });
     }
 
-    const { data: adminMembership } = await supabase
+    const { data: adminMembership, error: adminError } = await supabase
       .from("organization_members")
       .select("role_id, role:roles(name)")
       .eq("user_id", user.id)
@@ -38,6 +39,7 @@ export async function PATCH(
       .eq("status", "active")
       .limit(1)
       .maybeSingle();
+    if (adminError) return NextResponse.json({ error: "Impossible de vérifier vos droits. Réessayez." }, { status: 503 });
 
     const adminRole = Array.isArray(adminMembership?.role)
       ? adminMembership?.role[0]
@@ -50,12 +52,13 @@ export async function PATCH(
       );
     }
 
-    const { data: newRole } = await supabase
+    const { data: newRole, error: roleError } = await supabase
       .from("roles")
       .select("name")
       .eq("id", roleId)
       .eq("organization_id", member.organization_id)
       .single();
+    if (roleError && roleError.code !== "PGRST116") return NextResponse.json({ error: "Impossible de vérifier ce rôle. Réessayez." }, { status: 503 });
 
     if (!newRole) {
       return NextResponse.json({ error: "Role invalide" }, { status: 400 });
@@ -68,20 +71,20 @@ export async function PATCH(
     const isRemovingAdmin = ADMIN_ROLES.includes(memberRole?.name ?? "") && !ADMIN_ROLES.includes(newRole.name);
 
     if (isRemovingAdmin) {
-      const adminRoleIds = (
-        await supabase
+      const { data: adminRoleIds, error: rolesError } = await supabase
           .from("roles")
           .select("id")
           .eq("organization_id", member.organization_id)
-          .in("name", ADMIN_ROLES)
-      ).data ?? [];
+          .in("name", ADMIN_ROLES);
+      if (rolesError) return NextResponse.json({ error: "Impossible de vérifier les administrateurs. Réessayez." }, { status: 503 });
 
-      const { count } = await supabase
+      const { count, error: countError } = await supabase
         .from("organization_members")
         .select("*", { count: "exact", head: true })
         .eq("organization_id", member.organization_id)
         .eq("status", "active")
-        .in("role_id", adminRoleIds.map((r) => r.id));
+        .in("role_id", (adminRoleIds ?? []).map((r) => r.id));
+      if (countError || count === null) return NextResponse.json({ error: "Impossible de vérifier les administrateurs actifs. Réessayez." }, { status: 503 });
 
       if ((count ?? 0) <= 1) {
         return NextResponse.json(
@@ -98,10 +101,13 @@ export async function PATCH(
       );
     }
 
-    await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("organization_members")
       .update({ role_id: roleId, updated_at: new Date().toISOString() })
-      .eq("id", id);
+      .eq("id", id).eq("organization_id", member.organization_id)
+      .select("id").maybeSingle();
+    if (updateError) return NextResponse.json({ error: "Le rôle n’a pas pu être enregistré. Actualisez puis réessayez." }, { status: updateError.code === "42501" ? 403 : 409 });
+    if (!updated) return NextResponse.json({ error: "Ce membre n’a pas pu être modifié. Actualisez la liste." }, { status: 409 });
 
     return NextResponse.json({ success: true });
   } catch (err) {

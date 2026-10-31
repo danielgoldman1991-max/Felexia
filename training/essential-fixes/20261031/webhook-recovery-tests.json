@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "checks": 25,
+  "scope": "Real TypeScript modules; synthetic Stripe/DB/cookies; no network/project environment",
+  "results": [
+    "Modern subscription item start preserved",
+    "Modern subscription item end preserved",
+    "Completion is persisted",
+    "Duplicate processed event has no side effects",
+    "Modern invoice paid updates subscription",
+    "Modern failed invoice updates payment status",
+    "Legacy invoice reference remains compatible",
+    "Deleted subscription maps canceled state",
+    "Persistence failure is rejected for Stripe retry",
+    "Failed persistence never marks processed",
+    "Failed event can be retried successfully",
+    "Completion-marker failure is not acknowledged",
+    "Completion failure retains retry state",
+    "Completion retry succeeds",
+    "Claim failure rejects before Stripe side effects",
+    "No retrieve when event claim fails",
+    "Simultaneous processing asks Stripe to retry",
+    "Invalid signature rejected",
+    "Missing active billing period rejected",
+    "No reset without recovery proof",
+    "Valid recovery proof accepted",
+    "Recovery is bound to the authenticated account",
+    "Tampered recovery signature rejected",
+    "Recovery proof expires after ten minutes",
+    "Successful reset can consume recovery proof"
+  ]
+}

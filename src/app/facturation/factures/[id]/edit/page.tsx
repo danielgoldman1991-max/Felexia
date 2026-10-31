@@ -16,7 +16,7 @@ export default async function EditCustomerInvoicePage({ params }: { params: Prom
   const [{ invoice, lines }, customers, products, units, taxRates] = await Promise.all([
     getCustomerInvoiceDetail(id),
     listInvoiceCustomers(),
-    fullAccess ? listInvoiceProducts() : Promise.resolve([]),
+    listInvoiceProducts(),
     listInvoiceUnits(),
     listInvoiceTaxRates(),
   ]);

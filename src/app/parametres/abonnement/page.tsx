@@ -4,25 +4,20 @@ import { PageHeader } from "@/components/erp/page-header";
 import { SubscriptionManage } from "@/components/settings/subscription-manage";
 import { hasStripeEnv } from "@/lib/env";
 import { getOrganizationSubscription } from "@/lib/subscriptions/plan-access";
+import { isAdminRole } from "@/lib/auth/roles";
 
 export default async function AbonnementPage() {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
 
-  const monthStart = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)).toISOString();
-
   const [subscription, memberResult, documentsResult, storageResult] = await Promise.all([
-    getOrganizationSubscription(workspace.organization.id),
+    getOrganizationSubscription(workspace.organization.id, { throwOnError: true }),
     supabase
       .from("organization_members")
       .select("*", { count: "exact", head: true })
       .eq("organization_id", workspace.organization.id)
       .eq("status", "active"),
-    supabase
-      .from("documents")
-      .select("*", { count: "exact", head: true })
-      .eq("organization_id", workspace.organization.id)
-      .gte("created_at", monthStart),
+    supabase.rpc("get_commercial_document_usage", { p_organization_id: workspace.organization.id }),
     supabase
       .from("documents")
       .select("size_bytes")
@@ -30,8 +25,11 @@ export default async function AbonnementPage() {
       .is("archived_at", null),
   ]);
 
+  if (memberResult.error || documentsResult.error || storageResult.error) {
+    return <div><PageHeader title="Abonnement" description="Votre offre et votre utilisation." /><div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">Votre utilisation n’a pas pu être chargée. Actualisez cette page dans quelques instants ; aucun essai n’a été recréé.</div></div>;
+  }
   const memberCount = memberResult.count ?? 0;
-  const documentsThisMonth = documentsResult.count ?? 0;
+  const documentsThisMonth = Number(documentsResult.data ?? 0);
   const storageUsedMb = Math.ceil(
     ((storageResult.data ?? []).reduce((total, row) => total + Number(row.size_bytes ?? 0), 0)) / 1024 / 1024,
   );
@@ -57,6 +55,7 @@ export default async function AbonnementPage() {
         documentsThisMonth={documentsThisMonth}
         storageUsedMb={storageUsedMb}
         hasStripe={hasStripeEnv()}
+        canManageBilling={isAdminRole(workspace.role)}
         nowIso={new Date().toISOString()}
       />
     </div>
