@@ -54,6 +54,11 @@ type SourceTaxLine = {
   tax_rate_name?: string | null;
 };
 
+/** Free invoice lines retain a stored rate even without a tax-catalogue FK. */
+export function documentTaxRateLabel(line: Pick<SourceTaxLine, "tax_rate" | "tax_rate_name">): string {
+  return line.tax_rate_name?.trim() || `${new Intl.NumberFormat("fr-MA").format(line.tax_rate)} %`;
+}
+
 /** Groups stored tax amounts. Does not recompute tax from a rate or base. */
 export function documentTaxSummary(lines: SourceTaxLine[], currency: string) {
   const groups = new Map<string, number>();

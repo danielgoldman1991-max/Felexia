@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { SupplierInvoiceLineRecord, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { SUPPLIER_INVOICE_STATUS_LABELS } from "@/lib/purchase-types";
@@ -80,7 +80,7 @@ export function SupplierInvoicePrintView({
             <td>{line.unit_name ?? "-"}</td>
             <td className="num">{formatDocumentNumber(line.unit_price_ht)}</td>
             {discountPresent ? <td className="num">{line.discount_rate > 0 ? `${formatNumber(line.discount_rate)} %` : "—"}</td> : null}
-            <td className="num">{line.tax_rate_id ? `${line.tax_rate}%` : "-"}</td>
+            <td className="num">{documentTaxRateLabel(line)}</td>
             <td className="num">{formatDocumentNumber(line.subtotal_ht)}</td>
             <td className="num strong">{formatDocumentNumber(line.total_ttc)}</td>
           </tr>

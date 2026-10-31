@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentPaymentMethodLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentPaymentMethodLabel, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import { getPaymentTermLabel } from "@/lib/payment-terms";
 import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from "@/lib/invoice-types";
@@ -85,7 +85,7 @@ export function CustomerInvoicePrintView({
             <td className="num">{formatDocumentNumber(line.unit_price_ht)}</td>
             {discountPresent ? <td className="num">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td> : null}
             <td className="num">
-              {line.tax_rate_id ? `${line.tax_rate}%` : "-"}
+              {documentTaxRateLabel(line)}
             </td>
             <td className="num">{formatDocumentNumber(line.subtotal_ht)}</td>
             <td className="num strong">{formatDocumentNumber(line.total_ttc)}</td>

@@ -120,6 +120,28 @@ assert(!purchaseHtml.includes("MAD") && purchaseHtml.includes("EUR"), "Purchase 
 assert(!purchaseHtml.includes("NE-PAS-IMPRIMER-NOTE-INTERNE-QA"), "Purchase internal notes must stay internal");
 summary.push({ name: "achat-eur-remise", rows: purchaseLines.length, currency: "EUR", total: purchase.total_ttc, html: "achat-eur-remise.html" });
 
+// Regression: Essentiel's free lines have a numeric VAT rate without a tax FK.
+// Inspect their actual line rows, so a correct tax-summary label cannot hide a blank column.
+const freeTaxLines = [
+  { ...invoiceLine(1, false), description: "TVA-LIBRE-20", quantity: 1, unit_price_ht: 100, discount_rate: 0, discount_amount: 0, subtotal_ht: 100, tax_rate_id: null, tax_rate: 20, tax_amount: 20, total_ttc: 120, tax_rate_name: null },
+  { ...invoiceLine(2, false), description: "TVA-LIBRE-ZERO", quantity: 1, unit_price_ht: 50, discount_rate: 0, discount_amount: 0, subtotal_ht: 50, tax_rate_id: null, tax_rate: 0, tax_amount: 0, total_ttc: 50, tax_rate_name: null },
+  { ...invoiceLine(3, false), description: "TVA-LIBRE-EXONEREE", quantity: 1, unit_price_ht: 25, discount_rate: 0, discount_amount: 0, subtotal_ht: 25, tax_rate_id: null, tax_rate: 0, tax_amount: 0, total_ttc: 25, tax_rate_name: "Exonérée" },
+];
+const freeTaxInvoice = invoice(freeTaxLines, "MAD", false);
+const freeTaxPurchase = { ...purchase, currency: "MAD", subtotal_ht: 175, discount_total: 0, tax_total: 20, total_ttc: 195, remaining_amount: 195 };
+for (const [name, markup] of [
+  ["vente-tva-lignes-libres", renderToStaticMarkup(<CustomerInvoicePrintView invoice={freeTaxInvoice} lines={freeTaxLines} identity={identity} />)],
+  ["achat-tva-lignes-libres", renderToStaticMarkup(<SupplierInvoicePrintView invoice={freeTaxPurchase} lines={freeTaxLines} identity={identity} />)],
+] as const) {
+  const html = save(name, markup);
+  const renderedRows = html.match(/<tr\b[^>]*>[\s\S]*?<\/tr>/g) ?? [];
+  for (const [marker, expected] of [["TVA-LIBRE-20", "20 %"], ["TVA-LIBRE-ZERO", "0 %"], ["TVA-LIBRE-EXONEREE", "Exonérée"]]) {
+    const row = renderedRows.find((value) => value.includes(marker));
+    assert(row?.includes(`<td class="num">${expected}</td>`), `${name}: ${marker} must print its stored VAT label without a tax FK`);
+  }
+  summary.push({ name, rows: freeTaxLines.length, currency: "MAD", total: 195, html: `${name}.html` });
+}
+
 const salesLines: SalesDocumentLineRecord[] = Array.from({ length: 4 }, (_, index) => ({
   ...invoiceLine(index + 1, false), document_id: "synthetic-sales", tax_rate_name: null,
   ordered_quantity: 5, delivered_quantity: 2, returned_quantity: 0, remaining_quantity: 3, stock_move_id: null,
