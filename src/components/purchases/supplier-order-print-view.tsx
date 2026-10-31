@@ -1,5 +1,7 @@
-import { formatDate, formatMoney, formatNumber } from "@/lib/format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
+import { SUPPLIER_ORDER_STATUS_LABELS } from "@/lib/purchase-types";
 import type { OrganizationIdentity } from "@/lib/company-identity";
 import { PrintPage } from "@/components/print/PrintPage";
 import { PrintHeader } from "@/components/print/PrintHeader";
@@ -10,6 +12,8 @@ import { PrintLineTable } from "@/components/print/PrintLineTable";
 import { PrintTotals } from "@/components/print/PrintTotals";
 import { PrintTerms } from "@/components/print/PrintTerms";
 import { PrintFooter } from "@/components/print/PrintFooter";
+import { PrintSummary } from "@/components/print/PrintSummary";
+import { PrintTaxSummary } from "@/components/print/PrintTaxSummary";
 
 export function SupplierOrderPrintView({
   document,
@@ -20,12 +24,12 @@ export function SupplierOrderPrintView({
   lines: PurchaseDocumentLineRecord[];
   identity: OrganizationIdentity;
 }) {
-  const companyInfoLines = [
-    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
-    identity.ice ? `ICE : ${identity.ice}` : null,
-  ].filter(Boolean) as string[];
+  const currency = document.currency || identity.currency;
+  const money = (value: number | null | undefined) => formatDocumentMoney(value, currency);
+  const companyInfoLines = documentIdentityInfoLines(identity);
 
-  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+  const companyContact = documentIdentityContact(identity);
+  const discountPresent = lines.some((line) => line.discount_rate > 0);
 
   return (
     <PrintPage>
@@ -33,16 +37,17 @@ export function SupplierOrderPrintView({
         <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
         <PrintDocumentTitle title="COMMANDE FOURNISSEUR" documentNumber={document.document_number}>
           <p><strong>Date :</strong> {formatDate(document.document_date)}</p>
+          <p><strong>Statut :</strong> {SUPPLIER_ORDER_STATUS_LABELS[document.status] ?? document.status}</p>
           {document.expected_receipt_date ? <p><strong>Réception prévue :</strong> {formatDate(document.expected_receipt_date)}</p> : null}
         </PrintDocumentTitle>
       </PrintHeader>
 
       <PrintPartyCard
         title="Fournisseur"
-        lines={[document.supplier_name, document.supplier_ice ? `ICE : ${document.supplier_ice}` : null].filter(Boolean) as string[]}
+        lines={[document.supplier_name, document.supplier_phone ? `Tél. : ${document.supplier_phone}` : null, document.supplier_email, document.supplier_ice ? `ICE : ${document.supplier_ice}` : null].filter(Boolean) as string[]}
       />
 
-      <PrintLineTable
+      <PrintLineTable currency={currency}
         head={
           <>
             <th>#</th>
@@ -50,7 +55,7 @@ export function SupplierOrderPrintView({
             <th className="right">Quantité</th>
             <th>Unité</th>
             <th className="right">Prix HT</th>
-            <th className="right">Remise</th>
+            {discountPresent ? <th className="right">Remise</th> : null}
             <th className="right">TVA</th>
             <th className="right">Total HT</th>
             <th className="right">Total TTC</th>
@@ -66,25 +71,29 @@ export function SupplierOrderPrintView({
             </td>
             <td className="num">{formatNumber(line.quantity)}</td>
             <td>{line.unit_name ?? "-"}</td>
-            <td className="num">{formatMoney(line.unit_price_ht)}</td>
-            <td className="num">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td>
+            <td className="num">{formatDocumentNumber(line.unit_price_ht)}</td>
+            {discountPresent ? <td className="num">{line.discount_rate > 0 ? `${formatNumber(line.discount_rate)} %` : "—"}</td> : null}
             <td className="num">{line.tax_rate_id ? `${line.tax_rate}%` : "-"}</td>
-            <td className="num">{formatMoney(line.subtotal_ht)}</td>
-            <td className="num strong">{formatMoney(line.total_ttc)}</td>
+            <td className="num">{formatDocumentNumber(line.subtotal_ht)}</td>
+            <td className="num strong">{formatDocumentNumber(line.total_ttc)}</td>
           </tr>
         ))}
       </PrintLineTable>
 
+      <PrintSummary aside={<>
+        <PrintTaxSummary rows={documentTaxSummary(lines, currency)} />
+        {document.notes ? <PrintTerms title="Notes">{document.notes}</PrintTerms> : null}
+      </>}>
       <PrintTotals
         rows={[
-          { label: "Total HT", value: formatMoney(document.subtotal_ht) },
-          { label: "Total TVA", value: formatMoney(document.tax_total) },
+          { label: "Total HT", value: money(document.subtotal_ht) },
+          ...(document.discount_total > 0 ? [{ label: "Remises déjà déduites", value: money(document.discount_total) }] : []),
+          { label: "Total TVA", value: money(document.tax_total) },
         ]}
         grandTotalLabel="Total TTC"
-        grandTotalValue={formatMoney(document.total_ttc)}
+        grandTotalValue={money(document.total_ttc)}
       />
-
-      {document.notes ? <PrintTerms title="Notes">{document.notes}</PrintTerms> : null}
+      </PrintSummary>
 
       <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
     </PrintPage>

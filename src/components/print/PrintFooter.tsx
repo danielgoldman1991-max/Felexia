@@ -6,6 +6,7 @@ type Props = {
 };
 
 export function PrintFooter({ footerText, contact, name }: Props) {
+  if (!footerText && !contact && !name) return null;
   return (
     <footer className="print-footer">
       {footerText ? (
@@ -13,9 +14,9 @@ export function PrintFooter({ footerText, contact, name }: Props) {
           <strong>{footerText}</strong>
         </p>
       ) : null}
-      {contact ? (
+      {contact || name ? (
         <p>
-          {name ? <strong>{name}</strong> : null} {name ? " - " : ""}
+          {name ? <strong>{name}</strong> : null} {name && contact ? " · " : ""}
           {contact}
         </p>
       ) : null}

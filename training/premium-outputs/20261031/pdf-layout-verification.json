@@ -1,0 +1,170 @@
+{
+  "engine": "WeasyPrint 70.0; PDF inspection pdfplumber",
+  "syntheticOnly": true,
+  "results": [
+    {
+      "name": "facture-courte-mad",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1423,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        }
+      ],
+      "expectedRows": 3,
+      "missingRows": [],
+      "duplicateRows": [],
+      "currency": "MAD"
+    },
+    {
+      "name": "facture-longue-eur",
+      "pages": [
+        {
+          "page": 1,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1664,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 2,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1629,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 3,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1464,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 4,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1462,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 5,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1470,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 6,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 1306,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 7,
+          "width": 595.28,
+          "height": 841.89,
+          "characters": 888,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": false
+        }
+      ],
+      "expectedRows": 75,
+      "missingRows": [],
+      "duplicateRows": [],
+      "currency": "EUR"
+    },
+    {
+      "name": "journal-long-paysage",
+      "pages": [
+        {
+          "page": 1,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2497,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 2,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2955,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 3,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2955,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 4,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2955,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 5,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2987,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 6,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 2995,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        },
+        {
+          "page": 7,
+          "width": 841.89,
+          "height": 595.28,
+          "characters": 895,
+          "outsideSafeBounds": 0,
+          "pageCounter": true,
+          "tableHeader": true
+        }
+      ],
+      "expectedRows": 120,
+      "missingRows": [],
+      "duplicateRows": [],
+      "currency": "MAD"
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

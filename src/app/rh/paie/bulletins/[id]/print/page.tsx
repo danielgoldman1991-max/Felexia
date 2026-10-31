@@ -1,18 +1,35 @@
-import { HrPreparatoryNotice } from "@/components/hr/hr-notice";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
+import { documentIdentityContact, documentIdentityInfoLines } from "@/lib/print-format";
+import { PrintActions } from "@/components/sales/print-actions";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintTerms } from "@/components/print/PrintTerms";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 export default async function HrPayslipPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+  const companyContact = documentIdentityContact(identity);
   return (
-    <main className="min-h-screen bg-white p-10 text-slate-950">
-      <h1 className="text-2xl font-semibold">Bulletin préparatoire</h1>
-      <p className="mt-2 text-sm text-slate-600">Référence : {id}</p>
-      <div className="mt-8 rounded-xl border border-slate-200 p-6">
-        <p>Bulletin préparatoire généré par Felexia.</p>
-        <p className="mt-2 text-sm text-slate-600">À valider par l&apos;employeur, le comptable ou le conseiller social avant remise.</p>
-      </div>
-      <div className="mt-8 text-slate-800">
-        <HrPreparatoryNotice />
-      </div>
-    </main>
+    <div className="print-preview">
+      <PrintActions backHref={`/rh/paie/bulletins/${id}`} backLabel="Retour au bulletin" />
+      <PrintPage>
+        <PrintHeader>
+          <PrintOrganizationIdentity identity={identity} infoLines={documentIdentityInfoLines(identity)} contact={companyContact} />
+          <PrintDocumentTitle title="Bulletin préparatoire" documentNumber={id}><p>Document préparatoire</p></PrintDocumentTitle>
+        </PrintHeader>
+        <PrintTerms title="Préparation du bulletin">
+          Bulletin préparatoire généré par Felexia. À compléter et à valider par l’employeur, le comptable ou le conseiller social avant remise.
+        </PrintTerms>
+        <PrintTerms title="Validation requise">
+          Les calculs sociaux et fiscaux sont préparatoires et doivent être validés par votre comptable ou conseiller social selon la réglementation applicable.
+        </PrintTerms>
+        <PrintFooter footerText={identity.footerText} name={identity.name} contact={companyContact} />
+      </PrintPage>
+    </div>
   );
 }

@@ -47,8 +47,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       <td>${cell(entry.source_number ?? "")}</td>
       <td>${cell(entry.label)}</td>
       <td>${cell(entry.status)}</td>
-      <td>${amount(entry.total_debit)}</td>
-      <td>${amount(entry.total_credit)}</td>
+      <td class="amount">${amount(entry.total_debit)}</td>
+      <td class="amount">${amount(entry.total_credit)}</td>
     </tr>
   `).join("");
 
@@ -59,27 +59,47 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       <td>${cell(`${line.account_code} - ${line.account_label}`)}</td>
       <td>${cell(line.label ?? "")}</td>
       <td></td>
-      <td>${amount(line.debit)}</td>
-      <td>${amount(line.credit)}</td>
+      <td class="amount">${amount(line.debit)}</td>
+      <td class="amount">${amount(line.credit)}</td>
     </tr>
   `).join("");
 
   const html = `<!doctype html>
-  <html>
-    <head><meta charset="utf-8" /></head>
+  <html lang="fr" xmlns:x="urn:schemas-microsoft-com:office:excel">
+    <head>
+      <meta charset="utf-8" />
+      <title>Journal ${cell(detail.journal.code)} - ${cell(workspace.organization.name)}</title>
+      <style>
+        body { font-family: Calibri, Arial, sans-serif; color: #14213d; margin: 28px; font-size: 11pt; }
+        h1 { font-size: 22pt; color: #14213d; margin: 8px 0 12px; }
+        h2 { font-size: 14pt; color: #2454d8; margin: 28px 0 10px; }
+        p { margin: 4px 0; }
+        .company { font-size: 12pt; font-weight: bold; }
+        .metadata { color: #52627a; font-size: 10pt; }
+        table { border-collapse: collapse; width: 100%; }
+        th { background: #14213d; color: #ffffff; font-weight: bold; text-align: left; padding: 10px 12px; border: 1px solid #14213d; }
+        td { padding: 8px 12px; border: 1px solid #dce4ef; vertical-align: top; }
+        tbody tr:nth-child(even) td { background: #f5f7fb; }
+        .amount { text-align: right; white-space: nowrap; mso-number-format: "#,##0.00"; }
+        .caption { margin-top: 24px; padding-top: 10px; border-top: 1px solid #dce4ef; color: #52627a; font-size: 9pt; }
+      </style>
+    </head>
     <body>
-      <p>${cell(workspace.organization.name)}</p>
+      <p class="company">${cell(workspace.organization.name)}</p>
       <h1>Journal ${cell(detail.journal.code)} - ${cell(detail.journal.name)}</h1>
-      <h2>Ecritures</h2>
-      <table border="1">
-        <thead><tr><th>Date</th><th>N ecriture</th><th>Journal</th><th>Source</th><th>N source</th><th>Libelle</th><th>Statut</th><th>Total debit</th><th>Total credit</th></tr></thead>
+      <p class="metadata">Période : ${cell(filters.date_from || "Depuis l’origine")} au ${cell(filters.date_to || "dernier mouvement")}</p>
+      <p class="metadata">${rows.entries.length} écriture(s) · ${rows.lines.length} ligne(s) d’écriture</p>
+      <h2>Écritures</h2>
+      <table>
+        <thead><tr><th>Date</th><th>N° d’écriture</th><th>Journal</th><th>Source</th><th>N° source</th><th>Libellé</th><th>Statut</th><th>Total débit</th><th>Total crédit</th></tr></thead>
         <tbody>${entriesRows}</tbody>
       </table>
-      <h2>Lignes d'ecriture</h2>
-      <table border="1">
-        <thead><tr><th>N ecriture</th><th>Date</th><th>Compte</th><th>Libelle ligne</th><th>Tiers</th><th>Debit</th><th>Credit</th></tr></thead>
+      <h2>Lignes d’écriture</h2>
+      <table>
+        <thead><tr><th>N° d’écriture</th><th>Date</th><th>Compte</th><th>Libellé de la ligne</th><th>Tiers</th><th>Débit</th><th>Crédit</th></tr></thead>
         <tbody>${lineRows}</tbody>
       </table>
+      <p class="caption">${cell(workspace.organization.name)} · Journal ${cell(detail.journal.code)} · Export Felexia Pro</p>
     </body>
   </html>`;
 

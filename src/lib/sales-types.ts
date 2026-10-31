@@ -266,13 +266,13 @@ export const SALES_DOCUMENT_LABELS: Record<SalesDocumentType, string> = {
 
 export const SALES_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  sent: "Envoye",
-  accepted: "Accepte",
-  rejected: "Rejete",
+  sent: "Envoyé",
+  accepted: "Accepté",
+  rejected: "Rejeté",
   converted: "Converti",
-  confirmed: "Confirmee",
-  partially_delivered: "Partiellement livree",
-  validated: "Valide",
-  delivered: "Livre",
-  cancelled: "Annule",
+  confirmed: "Confirmée",
+  partially_delivered: "Partiellement livrée",
+  validated: "Validé",
+  delivered: "Livré",
+  cancelled: "Annulé",
 };

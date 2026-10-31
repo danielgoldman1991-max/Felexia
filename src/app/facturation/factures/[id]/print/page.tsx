@@ -17,9 +17,9 @@ export default async function CustomerInvoicePrintPage({ params }: { params: Pro
   const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
+    <div className="print-preview">
       <PrintActions backHref={`/facturation/factures/${invoice.id}`} backLabel="Retour facture" />
       <CustomerInvoicePrintView invoice={invoice} lines={lines} identity={identity} />
-    </main>
+    </div>
   );
 }

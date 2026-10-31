@@ -17,7 +17,7 @@ export default async function SalesQuotePrintPage({ params }: { params: Promise<
   const identity = await getOrganizationDocumentIdentity(document.organization_id);
 
   return (
-    <div className="min-h-screen bg-slate-100 py-4 print:bg-white print:py-0">
+    <div className="print-preview">
       <PrintActions backHref={`/vente/devis/${document.id}`} backLabel="Retour au devis" />
       <SalesQuotePrintView document={document} lines={lines} identity={identity} />
     </div>

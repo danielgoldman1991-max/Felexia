@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-31",
+  "context": "Authenticated public Supabase client in the existing fictitious QA company",
+  "operation": "Read-only verification of supplier-payment allocations",
+  "businessWrites": 0,
+  "originalQuery": {
+    "selection": "*, invoice:invoice_id (invoice_number, total_ttc)",
+    "errorCode": "PGRST200",
+    "cause": "PostgREST could not resolve the relationship between supplier_payment_allocations and invoice_id in its schema cache.",
+    "effect": "The old reader ignored the query error and returned an empty allocations array."
+  },
+  "replacement": {
+    "allocationsRead": "Select active allocations scoped by payment_id and the authenticated workspace organization_id.",
+    "invoiceRead": "Select id, invoice_number and total_ttc only for the referenced invoice IDs, scoped by the same organization_id.",
+    "errorsAreExplicit": true,
+    "activeAllocationCount": 1,
+    "allocationRows": [
+      {
+        "invoiceNumber": "FF-2610-00001",
+        "invoiceTotalTtc": 120,
+        "allocatedAmount": 120
+      }
+    ],
+    "totalAllocated": 120,
+    "paymentAmount": 120,
+    "paymentStoredAllocatedAmount": 120,
+    "paymentStoredAvailableAmount": 0,
+    "verificationPassed": true
+  },
+  "displayOnlyCorrections": {
+    "legacyPaymentMethodCode": "transfer",
+    "printedPaymentMethod": "Virement bancaire",
+    "dataCodeChanged": false,
+    "paymentTermLabel": "Paiement immédiat"
+  },
+  "validation": {
+    "typecheck": "passed",
+    "targetedLint": "passed"
+  }
+}

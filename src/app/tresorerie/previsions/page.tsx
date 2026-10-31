@@ -12,9 +12,12 @@ import { TreasuryForecastFilters } from "@/components/treasury/treasury-forecast
 import { TreasuryForecastChart } from "@/components/treasury/treasury-forecast-chart";
 import { TreasuryForecastManualItem } from "@/components/treasury/treasury-forecast-manual-item";
 import { TreasuryPrintButton } from "@/components/treasury/treasury-print-button";
+import { TreasuryForecastPrintView } from "@/components/treasury/treasury-forecast-print-view";
+import { PrintActions } from "@/components/sales/print-actions";
 import { listTreasuryAccounts } from "@/lib/treasury";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { formatMoney, formatDate } from "@/lib/format";
 import { getTreasuryForecast, type TreasuryForecastItem, type TreasuryForecastScenario } from "@/lib/treasury/treasury-forecast";
 
@@ -109,7 +112,13 @@ export default async function TreasuryForecastPage({
     type: direction,
   });
   const exportHref = `/tresorerie/previsions/export?${exportParams.toString()}`;
+  const backHref = `/tresorerie/previsions?${exportParams.toString()}`;
+  const printHref = `${backHref}&print=1`;
 
+  if (get("print") === "1") {
+    const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+    return <div className="print-preview"><PrintActions backHref={backHref} backLabel="Retour aux prévisions" /><TreasuryForecastPrintView identity={identity} forecast={forecast} /></div>;
+  }
 
   return (
     <ModulePage>
@@ -119,7 +128,7 @@ export default async function TreasuryForecastPage({
         actions={
           <>
             <Button variant="secondary" asChild><Link href={exportHref}><Download className="h-4 w-4" /> Exporter CSV</Link></Button>
-            <TreasuryPrintButton />
+            <TreasuryPrintButton href={printHref} />
             <form action="">
               <Button type="submit" variant="secondary"><RefreshCw className="h-4 w-4" /> Actualiser</Button>
             </form>

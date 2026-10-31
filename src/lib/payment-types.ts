@@ -149,17 +149,17 @@ export type PaymentActionResult = {
 
 export const CUSTOMER_PAYMENT_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  confirmed: "Confirme",
-  partially_allocated: "Partiellement affecte",
-  allocated: "Affecte",
-  cancelled: "Annule",
+  confirmed: "Confirmé",
+  partially_allocated: "Partiellement affecté",
+  allocated: "Affecté",
+  cancelled: "Annulé",
 };
 
 export const CUSTOMER_PAYMENT_TYPE_LABELS: Record<string, string> = {
-  customer_payment: "Reglement client",
+  customer_payment: "Règlement client",
   advance_payment: "Avance client",
   deposit: "Acompte",
-  overpayment: "Trop-percu",
-  refund_received: "Remboursement recu",
+  overpayment: "Trop-perçu",
+  refund_received: "Remboursement reçu",
   other: "Autre",
 };

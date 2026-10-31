@@ -281,9 +281,9 @@ export const ACCOUNT_CLASS_LABELS: Record<string, string> = {
 
 export const ENTRY_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  posted: "Comptabilisee",
+  posted: "Comptabilisée",
   cancelled: "Non disponible",
-  reversed: "Contre-passee",
+  reversed: "Contre-passée",
 };
 
 export const FISCAL_YEAR_STATUS_LABELS: Record<string, string> = {

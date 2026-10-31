@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { APP_BRAND } from "@/lib/brand";
 import type { OrganizationIdentity } from "@/lib/company-identity";
 
 export function PrintOrganizationLogo({
@@ -7,26 +6,26 @@ export function PrintOrganizationLogo({
 }: {
   identity: OrganizationIdentity;
 }) {
-  const logoSrc = identity.logoUrl || APP_BRAND.logo;
-  const alt = identity.logoUrl ? `Logo ${identity.name}` : APP_BRAND.logoAlt;
+  const logoSrc = identity.logoUrl;
+  const alt = `Logo ${identity.name}`;
 
   if (!logoSrc) {
     return (
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50">
-        <span className="text-2xl font-bold text-[#2d2490]">{identity.name.charAt(0)}</span>
+      <div className="print-logo-monogram" aria-hidden="true">
+        <span>{identity.name.trim().split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase() || "E"}</span>
       </div>
     );
   }
 
   return (
-    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <div className="print-logo">
       <Image
         src={logoSrc}
         alt={alt}
         fill
-        className="object-contain p-1"
+        className="object-contain object-left"
         loading="eager"
-        sizes="80px"
+        sizes="128px"
       />
     </div>
   );

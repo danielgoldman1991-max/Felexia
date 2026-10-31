@@ -1,11 +1,19 @@
 import { notFound } from "next/navigation";
-import { getActiveWorkspace } from "@/lib/auth";
+import { requireActiveWorkspace } from "@/lib/auth";
 import { getAccountingJournalDetail, listAccountingJournalEntries } from "@/lib/accounting";
-import { formatDate } from "@/lib/format";
-import { MoneyDisplay } from "@/components/erp/money-display";
+import { formatDate, formatMoney } from "@/lib/format";
 import { ACCOUNTING_SOURCE_LABELS } from "@/components/accounting/accounting-source-badge";
 import { ENTRY_STATUS_LABELS } from "@/lib/accounting-types";
 import type { AccountingJournalEntryFilters } from "@/lib/accounting-types";
+import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
+import { documentIdentityContact, documentIdentityInfoLines } from "@/lib/print-format";
+import { PrintActions } from "@/components/sales/print-actions";
+import { PrintPage } from "@/components/print/PrintPage";
+import { PrintHeader } from "@/components/print/PrintHeader";
+import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
+import { PrintDocumentTitle } from "@/components/print/PrintDocumentTitle";
+import { PrintLineTable } from "@/components/print/PrintLineTable";
+import { PrintFooter } from "@/components/print/PrintFooter";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -31,62 +39,61 @@ export default async function AccountingJournalPrintPage({ params, searchParams 
   const { id } = await params;
   const filters = filtersFromParams(await searchParams);
   const [workspace, detail, list] = await Promise.all([
-    getActiveWorkspace(),
+    requireActiveWorkspace(),
     getAccountingJournalDetail(id),
     listAccountingJournalEntries(id, filters),
   ]);
   if (!detail.journal) notFound();
+  const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+  const companyContact = documentIdentityContact(identity);
+  const backSearch = new URLSearchParams();
+  for (const [key, filter] of Object.entries(filters)) {
+    if (key !== "pageSize" && typeof filter === "string" && filter) backSearch.set(key, filter);
+  }
+  const backHref = `/comptabilite/journaux/${id}${backSearch.size ? `?${backSearch.toString()}` : ""}`;
+  const filterDescriptions = [
+    filters.status ? `Statut : ${ENTRY_STATUS_LABELS[filters.status] ?? filters.status}` : null,
+    filters.source_type ? `Source : ${ACCOUNTING_SOURCE_LABELS[filters.source_type] ?? filters.source_type}` : null,
+    filters.account_id ? "Compte sélectionné" : null,
+    filters.third_party_id ? "Tiers sélectionné" : null,
+    filters.q ? `Recherche : ${filters.q}` : null,
+  ].filter(Boolean);
 
   return (
-    <main className="min-h-screen bg-white p-8 text-slate-950 print:p-0">
-      <style>{`
-        @page { size: A4 landscape; margin: 12mm; }
-        @media print { .no-print { display: none; } body { background: white; } }
-      `}</style>
-      <div className="no-print mb-6 flex justify-end">
-        <button type="button" className="rounded-lg border border-slate-300 px-4 py-2 text-sm" onClick={undefined}>Utilisez Ctrl+P pour imprimer</button>
-      </div>
-      <header className="mb-6 border-b border-slate-300 pb-4">
-        <p className="text-sm text-slate-500">{workspace?.organization.name ?? "Felexia"}</p>
-        <h1 className="mt-1 text-2xl font-semibold">Journal {detail.journal.code} - {detail.journal.name}</h1>
-        <p className="mt-2 text-sm text-slate-600">Imprime le {formatDate(new Date().toISOString())}</p>
-        <p className="text-sm text-slate-600">Periode : {filters.date_from ?? "debut"} au {filters.date_to ?? "fin"}</p>
-      </header>
-      <section className="mb-4 grid grid-cols-3 gap-4 text-sm">
-        <div><span className="text-slate-500">Ecritures :</span> {list.stats.entries_count}</div>
-        <div><span className="text-slate-500">Total debit :</span> <MoneyDisplay value={list.stats.total_debit} /></div>
-        <div><span className="text-slate-500">Total credit :</span> <MoneyDisplay value={list.stats.total_credit} /></div>
-      </section>
-      <table className="w-full border-collapse text-xs">
-        <thead>
-          <tr className="bg-slate-100">
-            <th className="border border-slate-300 p-2 text-left">Date</th>
-            <th className="border border-slate-300 p-2 text-left">N ecriture</th>
-            <th className="border border-slate-300 p-2 text-left">Source</th>
-            <th className="border border-slate-300 p-2 text-left">Libelle</th>
-            <th className="border border-slate-300 p-2 text-right">Debit</th>
-            <th className="border border-slate-300 p-2 text-right">Credit</th>
-            <th className="border border-slate-300 p-2 text-left">Statut</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="print-preview">
+      <PrintActions backHref={backHref} backLabel="Retour au journal" />
+      <PrintPage orientation="landscape">
+        <PrintHeader>
+          <PrintOrganizationIdentity identity={identity} infoLines={documentIdentityInfoLines(identity)} contact={companyContact} />
+          <PrintDocumentTitle title="Journal comptable" documentNumber={detail.journal.code}>
+            <p><strong>Journal :</strong> {detail.journal.name}</p>
+            <p><strong>Période :</strong> {filters.date_from ? formatDate(filters.date_from) : "Depuis l’origine"} au {filters.date_to ? formatDate(filters.date_to) : "dernier mouvement"}</p>
+            <p><strong>Édité le :</strong> {formatDate(new Date())}</p>
+          </PrintDocumentTitle>
+        </PrintHeader>
+        {filterDescriptions.length > 0 ? <p className="print-report-note">Filtres appliqués : {filterDescriptions.join(" · ")}</p> : null}
+        <section className="print-report-summary" aria-label="Synthèse du journal">
+          <div><p className="print-report-summary-label">Écritures</p><p className="print-report-summary-value">{list.stats.entries_count}</p></div>
+          <div><p className="print-report-summary-label">Total débit</p><p className="print-report-summary-value">{formatMoney(list.stats.total_debit)}</p></div>
+          <div><p className="print-report-summary-label">Total crédit</p><p className="print-report-summary-value">{formatMoney(list.stats.total_credit)}</p></div>
+        </section>
+        <PrintLineTable variant="report" head={<><th>Date</th><th>N° d’écriture</th><th>Source</th><th>Libellé</th><th className="right">Débit</th><th className="right">Crédit</th><th>Statut</th></>}>
           {list.entries.map((entry) => (
             <tr key={entry.id}>
-              <td className="border border-slate-300 p-2">{formatDate(entry.entry_date)}</td>
-              <td className="border border-slate-300 p-2">{entry.entry_number}</td>
-              <td className="border border-slate-300 p-2">{ACCOUNTING_SOURCE_LABELS[entry.source_document_type ?? "manual"] ?? entry.source_document_type ?? "Manuel"} {entry.source_number ?? ""}</td>
-              <td className="border border-slate-300 p-2">{entry.label}</td>
-              <td className="border border-slate-300 p-2 text-right"><MoneyDisplay value={entry.total_debit} /></td>
-              <td className="border border-slate-300 p-2 text-right"><MoneyDisplay value={entry.total_credit} /></td>
-              <td className="border border-slate-300 p-2">{ENTRY_STATUS_LABELS[entry.status] ?? entry.status}</td>
+              <td>{formatDate(entry.entry_date)}</td>
+              <td className="strong print-reference">{entry.entry_number}</td>
+              <td>{ACCOUNTING_SOURCE_LABELS[entry.source_document_type ?? "manual"] ?? entry.source_document_type ?? "Manuel"}{entry.source_number ? <p className="muted">{entry.source_number}</p> : null}</td>
+              <td>{entry.label}</td>
+              <td className="num">{formatMoney(entry.total_debit)}</td>
+              <td className="num">{formatMoney(entry.total_credit)}</td>
+              <td>{ENTRY_STATUS_LABELS[entry.status] ?? entry.status}</td>
             </tr>
           ))}
-        </tbody>
-      </table>
-      <footer className="mt-10 grid grid-cols-2 gap-16 text-sm">
-        <div className="border-t border-slate-400 pt-2">Signature</div>
-        <div className="border-t border-slate-400 pt-2">Cachet</div>
-      </footer>
-    </main>
+          {list.entries.length === 0 ? <tr><td colSpan={7} className="print-report-empty">Aucune écriture pour les critères sélectionnés.</td></tr> : null}
+        </PrintLineTable>
+        <section className="print-signature print-signature-duo" aria-label="Validation du journal"><div className="print-signature-box">Visa du responsable</div><div className="print-signature-box">Cachet de l’entreprise</div></section>
+        <PrintFooter footerText={identity.footerText} name={identity.name} contact={companyContact} />
+      </PrintPage>
+    </div>
   );
 }

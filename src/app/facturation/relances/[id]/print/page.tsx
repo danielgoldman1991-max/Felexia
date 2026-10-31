@@ -1,3 +1,4 @@
+import { documentIdentityInfoLines, documentIdentityContact, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
 import { notFound } from "next/navigation";
 import { PrintActions } from "@/components/sales/print-actions";
 import { PrintPage } from "@/components/print/PrintPage";
@@ -11,7 +12,7 @@ import { PrintTerms } from "@/components/print/PrintTerms";
 import { PrintFooter } from "@/components/print/PrintFooter";
 import { getCustomerReminderDetail } from "@/lib/reminders";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -21,15 +22,14 @@ export default async function CustomerReminderPrintPage({ params }: { params: Pr
   if (!reminder) notFound();
   const identity = await getOrganizationDocumentIdentity(reminder.organization_id);
 
-  const companyInfoLines = [
-    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
-    identity.ice ? `ICE : ${identity.ice}` : null,
-  ].filter(Boolean) as string[];
+  const currency = identity.currency;
+  const money = (value: number | null | undefined) => formatDocumentMoney(value, currency);
+  const companyInfoLines = documentIdentityInfoLines(identity);
 
-  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+  const companyContact = documentIdentityContact(identity);
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
+    <div className="print-preview">
       <PrintActions backHref={`/facturation/relances/${reminder.id}`} backLabel="Retour relance" />
       <PrintPage>
         <PrintHeader>
@@ -42,10 +42,10 @@ export default async function CustomerReminderPrintPage({ params }: { params: Pr
 
         <PrintPartyCard title="Client" lines={[reminder.customer_name].filter(Boolean) as string[]} />
 
-        {reminder.subject ? <PrintTerms title={reminder.subject}>{reminder.message}</PrintTerms> : null}
+        {reminder.subject || reminder.message ? <PrintTerms title={reminder.subject || "Objet de la relance"}>{reminder.message}</PrintTerms> : null}
 
         {invoices.length > 0 ? (
-          <PrintLineTable
+          <PrintLineTable currency={currency}
             head={
               <>
                 <th>#</th>
@@ -62,7 +62,7 @@ export default async function CustomerReminderPrintPage({ params }: { params: Pr
                 <td className="strong">{invoice.invoice_number}</td>
                 <td>{invoice.due_date ? formatDate(invoice.due_date) : "-"}</td>
                 <td className="num">{invoice.days_overdue ?? 0} j</td>
-                <td className="num strong">{formatMoney(invoice.remaining_amount)}</td>
+                <td className="num strong">{formatDocumentNumber(invoice.remaining_amount)}</td>
               </tr>
             ))}
           </PrintLineTable>
@@ -71,11 +71,11 @@ export default async function CustomerReminderPrintPage({ params }: { params: Pr
         <PrintTotals
           rows={[]}
           grandTotalLabel="Total en retard"
-          grandTotalValue={formatMoney(reminder.total_overdue_amount)}
+          grandTotalValue={money(reminder.total_overdue_amount)}
         />
 
         <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
       </PrintPage>
-    </main>
+    </div>
   );
 }

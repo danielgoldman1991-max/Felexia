@@ -1,12 +1,9 @@
-"use client";
-
+import Link from "next/link";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function TreasuryPrintButton() {
+export function TreasuryPrintButton({ href }: { href: string }) {
   return (
-    <Button type="button" variant="secondary" onClick={() => window.print()}>
-      <Printer className="h-4 w-4" /> Imprimer
-    </Button>
+    <Button variant="secondary" asChild><Link href={href}><Printer className="h-4 w-4" /> Aperçu / PDF</Link></Button>
   );
 }

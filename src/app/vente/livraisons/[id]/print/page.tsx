@@ -17,7 +17,7 @@ export default async function SalesDeliveryPrintPage({ params }: { params: Promi
   const identity = await getOrganizationDocumentIdentity(document.organization_id);
 
   return (
-    <div className="min-h-screen bg-slate-100 py-4 print:bg-white print:py-0">
+    <div className="print-preview">
       <PrintActions backHref={`/vente/livraisons/${document.id}`} backLabel="Retour au BL" />
       <SalesQuotePrintView document={document} lines={lines} identity={identity} title="BON DE LIVRAISON" showSignature />
     </div>

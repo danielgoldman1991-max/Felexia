@@ -13,7 +13,7 @@ export function PrintOrganizationIdentity({ identity, infoLines = [], contact = 
   return (
     <div className="print-identity">
       <PrintOrganizationLogo identity={identity} />
-      <div>
+      <div className="print-identity-details">
         <p className="print-identity-name">{identity.name || "Mon Entreprise"}</p>
         {infoLines.length > 0 ? (
           <p className="print-identity-info">
@@ -24,10 +24,8 @@ export function PrintOrganizationIdentity({ identity, infoLines = [], contact = 
               </span>
             ))}
           </p>
-        ) : (
-          <p className="print-identity-info">-</p>
-        )}
-        {contact ? <p className="print-identity-info">{contact}</p> : null}
+        ) : null}
+        {contact ? <p className="print-identity-info print-identity-contact">{contact.split(/\s[·|]\s/).map((line, index) => <span key={index}>{line}</span>)}</p> : null}
       </div>
     </div>
   );

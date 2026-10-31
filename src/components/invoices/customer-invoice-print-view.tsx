@@ -1,5 +1,6 @@
-import { formatDate, formatMoney } from "@/lib/format";
-import { getPaymentTermLabel, getPaymentMethodLabel } from "@/lib/payment-terms";
+import { documentIdentityInfoLines, documentIdentityContact, documentPaymentMethodLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { formatDate, formatNumber } from "@/lib/format";
+import { getPaymentTermLabel } from "@/lib/payment-terms";
 import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from "@/lib/invoice-types";
 import type { CustomerInvoiceLineRecord, CustomerInvoiceRecord } from "@/lib/invoice-types";
 import { hasDiscount } from "@/lib/sales-types";
@@ -13,6 +14,8 @@ import { PrintLineTable } from "@/components/print/PrintLineTable";
 import { PrintTotals } from "@/components/print/PrintTotals";
 import { PrintTerms } from "@/components/print/PrintTerms";
 import { PrintFooter } from "@/components/print/PrintFooter";
+import { PrintSummary } from "@/components/print/PrintSummary";
+import { PrintTaxSummary } from "@/components/print/PrintTaxSummary";
 
 export function CustomerInvoicePrintView({
   invoice,
@@ -33,20 +36,13 @@ export function CustomerInvoicePrintView({
     invoice.customer_ice ? `ICE : ${invoice.customer_ice}` : null,
   ].filter(Boolean) as string[];
 
-  const companyInfoLines = [
-    identity.address,
-    identity.city && identity.country ? `${identity.city}, ${identity.country}` : null,
-    identity.ice ? `ICE : ${identity.ice}` : null,
-    identity.rc && identity.ifNumber
-      ? `RC : ${identity.rc} - IF : ${identity.ifNumber}`
-      : identity.rc
-        ? `RC : ${identity.rc}`
-        : identity.ifNumber
-          ? `IF : ${identity.ifNumber}`
-          : null,
-  ].filter(Boolean) as string[];
+  const currency = invoice.currency || identity.currency;
+  const money = (value: number | null | undefined) => formatDocumentMoney(value, currency);
+  const companyInfoLines = documentIdentityInfoLines(identity);
 
-  const companyContact = [identity.email, identity.phone].filter(Boolean).join(" - ");
+  const companyContact = documentIdentityContact(identity);
+  const paymentTerms = invoice.custom_payment_terms || getPaymentTermLabel(invoice.payment_terms) || (invoice.payment_terms_days ? `${invoice.payment_terms_days} jours` : null);
+  const paymentMethod = invoice.custom_payment_method || documentPaymentMethodLabel(invoice.payment_method);
 
   return (
     <PrintPage>
@@ -54,9 +50,7 @@ export function CustomerInvoicePrintView({
         <PrintOrganizationIdentity identity={identity} infoLines={companyInfoLines} contact={companyContact} />
         <PrintDocumentTitle title="FACTURE" documentNumber={invoice.invoice_number}>
           <p><strong>Date :</strong> {formatDate(invoice.invoice_date)}</p>
-          <p><strong>Échéance :</strong> {invoice.due_date ? formatDate(invoice.due_date) : "-"}</p>
-          <p><strong>Conditions :</strong> {getPaymentTermLabel(invoice.payment_terms) || (invoice.payment_terms_days ? `${invoice.payment_terms_days} jours` : "-")}</p>
-          <p><strong>Modalité :</strong> {getPaymentMethodLabel(invoice.payment_method) || "-"}</p>
+          {invoice.due_date ? <p><strong>Échéance :</strong> {formatDate(invoice.due_date)}</p> : null}
           <p><strong>Statut :</strong> {INVOICE_STATUS_LABELS[invoice.status] ?? invoice.status}</p>
           <p><strong>Paiement :</strong> {INVOICE_PAYMENT_STATUS_LABELS[invoice.payment_status] ?? invoice.payment_status}</p>
         </PrintDocumentTitle>
@@ -64,7 +58,7 @@ export function CustomerInvoicePrintView({
 
       <PrintPartyCard title="Client" lines={clientLines} />
 
-      <PrintLineTable
+      <PrintLineTable currency={currency}
         head={
           <>
             <th>#</th>
@@ -86,31 +80,39 @@ export function CustomerInvoicePrintView({
               <p className="strong">{line.description}</p>
               {line.product_name ? <p className="muted">{line.product_name}</p> : null}
             </td>
-            <td className="num">{line.quantity}</td>
+            <td className="num">{formatNumber(line.quantity)}</td>
             <td>{line.unit_name ?? "-"}</td>
-            <td className="num">{formatMoney(line.unit_price_ht)}</td>
+            <td className="num">{formatDocumentNumber(line.unit_price_ht)}</td>
             {discountPresent ? <td className="num">{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</td> : null}
             <td className="num">
               {line.tax_rate_id ? `${line.tax_rate}%` : "-"}
             </td>
-            <td className="num">{formatMoney(line.subtotal_ht)}</td>
-            <td className="num strong">{formatMoney(line.total_ttc)}</td>
+            <td className="num">{formatDocumentNumber(line.subtotal_ht)}</td>
+            <td className="num strong">{formatDocumentNumber(line.total_ttc)}</td>
           </tr>
         ))}
       </PrintLineTable>
 
+      <PrintSummary aside={<>
+        <PrintTaxSummary rows={documentTaxSummary(lines, currency)} />
+        {paymentTerms || paymentMethod ? <PrintTerms title="Conditions de règlement">{[paymentTerms, paymentMethod].filter(Boolean).join(" · ")}</PrintTerms> : null}
+        {invoice.notes ? <PrintTerms title="Notes">{invoice.notes}</PrintTerms> : null}
+      </>}>
       <PrintTotals
         rows={[
-          { label: "Total HT", value: formatMoney(invoice.subtotal_ht) },
-          { label: "Total TVA", value: formatMoney(invoice.tax_total) },
-          { label: "Montant payé", value: formatMoney(invoice.paid_amount) },
-          { label: "Reste à payer", value: formatMoney(invoice.remaining_amount) },
+          { label: "Total HT", value: money(invoice.subtotal_ht) },
+          ...(invoice.discount_total > 0 ? [{ label: "Remises déjà déduites", value: money(invoice.discount_total) }] : []),
+          { label: "Total TVA", value: money(invoice.tax_total) },
         ]}
         grandTotalLabel="Total TTC"
-        grandTotalValue={formatMoney(invoice.total_ttc)}
+        grandTotalValue={money(invoice.total_ttc)}
+        settlementRows={[
+          { label: "Montant payé", value: money(invoice.paid_amount) },
+          ...(invoice.credit_amount > 0 ? [{ label: "Avoirs imputés", value: money(invoice.credit_amount) }] : []),
+          { label: "Reste à payer", value: money(invoice.remaining_amount) },
+        ]}
       />
-
-      {invoice.notes ? <PrintTerms title="Notes">{invoice.notes}</PrintTerms> : null}
+      </PrintSummary>
 
       <PrintFooter footerText={identity.footerText || "Merci pour votre confiance."} name={identity.name} contact={companyContact} />
     </PrintPage>

@@ -4,6 +4,16 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ## Version légère de lancement — 31 octobre 2026
 
+### États de sortie professionnels
+
+Tous les aperçus imprimables partagent la charte A4 de `src/styles/print.css` : identité de l'entreprise, références, tableaux avec en-têtes répétés, devise explicite, TVA, total puis règlements, notes, signatures et pagination. Le journal utilise le paysage ; les documents commerciaux utilisent le portrait. L'aperçu reste clair quel que soit le thème de l'application. Un logo d'entreprise est utilisé lorsqu'il est renseigné ; sinon un monogramme de l'entreprise le remplace.
+
+L'aperçu s'ajuste à la largeur de l'écran, avec un bouton **Taille réelle / Ajuster à l'écran** pour lire les détails, notamment sur mobile. Cet ajustement n'affecte pas les dimensions de la feuille imprimée.
+
+Les règlements fournisseurs disposent désormais d'un justificatif imprimable depuis leur fiche. Les prévisions de trésorerie ont un aperçu dédié qui conserve les filtres et n'imprime pas la navigation. L'export du journal compatible Excel est harmonisé ; les CSV et fichiers fiscaux conservent leur structure d'échange. Le bulletin RH existant reste un document préparatoire.
+
+Les formats et la confidentialité sont vérifiés par `npx tsx scripts/verify-print-outputs.tsx` (données fictives, sans base). Les preuves de pagination PDF, de montants en EUR, de remises et de documents longs sont décrites dans `training/premium-outputs/20261031/QA-PRINT.md`. Aucune migration n'est nécessaire. Sauvegarde préalable vérifiée : `../backups/felexia-pro-before-output-design-20261031.bundle`, branche `codex/backup-before-output-design-20261031`.
+
 ### Interface harmonisée
 
 L’application utilise une palette bleu et bleu nuit, des surfaces blanches et des composants partagés dans `src/styles/interface.css`. La navigation, les boutons, les formulaires, les tableaux, les états vides et le tableau de bord suivent la même hiérarchie visuelle, avec adaptation mobile et mode sombre. Les tableaux de factures et de journaux regroupent les informations secondaires pour conserver les actions visibles sur ordinateur.

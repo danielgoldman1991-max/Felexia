@@ -1287,14 +1287,29 @@ export async function getSupplierPaymentDetail(id: string): Promise<{ payment: S
   const orgId = workspace.organization.id;
   const [payRes, allocRes, invoicesRes] = await Promise.all([
     supabase.from("supplier_payments").select(`*, supplier:supplier_id (name)`).eq("id", id).eq("organization_id", orgId).single(),
-    supabase.from("supplier_payment_allocations").select(`*, invoice:invoice_id (invoice_number, total_ttc)`).eq("payment_id", id).eq("organization_id", orgId).is("cancelled_at", null).order("created_at"),
+    supabase.from("supplier_payment_allocations").select("*").eq("payment_id", id).eq("organization_id", orgId).is("cancelled_at", null).order("created_at"),
     supabase.from("supplier_invoices").select(SUPPLIER_INVOICE_SELECT).eq("organization_id", orgId).eq("supplier_id", (await supabase.from("supplier_payments").select("supplier_id").eq("id", id).single()).data?.supplier_id ?? "").in("status", ["validated", "partially_paid"]).is("archived_at", null).order("created_at"),
   ]);
+  if (allocRes.error) {
+    console.error("[supplier-payment-detail] allocations read failed", { code: allocRes.error.code, message: allocRes.error.message });
+    throw new Error("Impossible de charger les affectations de ce règlement fournisseur.");
+  }
+  // Some deployed schemas have no relationship in the PostgREST cache for
+  // invoice_id. Resolve the labels separately without depending on an embed.
+  const allocationInvoiceIds = [...new Set((allocRes.data ?? []).flatMap((allocation) => typeof allocation.invoice_id === "string" ? [allocation.invoice_id] : []))];
+  const allocationInvoices = allocationInvoiceIds.length > 0
+    ? await supabase.from("supplier_invoices").select("id, invoice_number, total_ttc").eq("organization_id", orgId).in("id", allocationInvoiceIds)
+    : { data: [], error: null };
+  if (allocationInvoices.error) {
+    console.error("[supplier-payment-detail] allocation invoices read failed", { code: allocationInvoices.error.code, message: allocationInvoices.error.message });
+    throw new Error("Impossible de charger les factures affectées à ce règlement fournisseur.");
+  }
+  const allocationInvoiceMap = new Map((allocationInvoices.data ?? []).map((invoice) => [invoice.id, invoice]));
   const payment = payRes.data ? { ...payRes.data, supplier_name: (payRes.data as Record<string, unknown>).supplier ? ((payRes.data as Record<string, unknown>).supplier as Record<string, unknown>)["name"] as string : null } as SupplierPaymentRecord : null;
   const allocations = (allocRes.data ?? []).map((a: Record<string, unknown>) => ({
     ...a,
-    invoice_number: (a.invoice as Record<string, unknown>)?.["invoice_number"] ?? null,
-    invoice_total_ttc: (a.invoice as Record<string, unknown>)?.["total_ttc"] ?? null,
+    invoice_number: allocationInvoiceMap.get(a.invoice_id as string)?.invoice_number ?? null,
+    invoice_total_ttc: allocationInvoiceMap.get(a.invoice_id as string)?.total_ttc ?? null,
   })) as SupplierPaymentAllocationRecord[];
   const openInvoices = (invoicesRes.data ?? []).map((r: Record<string, unknown>) => mapSupplierInvoice(r));
   return { payment, allocations, openInvoices };

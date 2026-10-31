@@ -12,9 +12,9 @@ export default async function SupplierInvoicePrintPage({ params }: { params: Pro
   if (!invoice) notFound();
   const identity = await getOrganizationDocumentIdentity(invoice.organization_id);
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 print:bg-white print:p-0">
+    <div className="print-preview">
       <PrintActions backHref={`/achats/factures/${invoice.id}`} backLabel="Retour facture" />
       <SupplierInvoicePrintView invoice={invoice} lines={lines} identity={identity} />
-    </main>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { BookOpenCheck, XCircle, ArrowLeftRight } from "lucide-react";
+import { BookOpenCheck, XCircle, ArrowLeftRight, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -73,6 +73,7 @@ export function SupplierPaymentDetail({
         description={payment.supplier_name ?? ""}
         actions={
           <>
+            <Button variant="secondary" asChild><Link href={`/achats/paiements/${payment.id}/print`} target="_blank" rel="noopener noreferrer"><Printer className="h-4 w-4" /> Imprimer / PDF</Link></Button>
             {canAllocate ? (
               <Button variant="secondary" asChild><Link href={`/achats/paiements/${payment.id}/affecter`}><ArrowLeftRight className="h-4 w-4" /> Affecter</Link></Button>
             ) : null}
