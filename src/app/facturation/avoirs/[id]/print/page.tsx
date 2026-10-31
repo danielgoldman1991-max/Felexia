@@ -16,11 +16,15 @@ import { getCustomerCreditNoteDetail } from "@/lib/credit-notes";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { formatDate, formatNumber } from "@/lib/format";
 import { CREDIT_NOTE_STATUS_LABELS } from "@/lib/credit-note-types";
+import { redirectIssuedEinvoicePrint } from "@/lib/e-invoicing/print-archive";
+import { requireActiveWorkspace } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function CreditNotePrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  await redirectIssuedEinvoicePrint(workspace.organization.id, "credit_note", id);
   const { creditNote, lines } = await getCustomerCreditNoteDetail(id);
   if (!creditNote) notFound();
   const identity = await getOrganizationDocumentIdentity(creditNote.organization_id);

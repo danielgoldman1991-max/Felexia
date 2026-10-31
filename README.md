@@ -2,6 +2,12 @@
 
 Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se concentre sur les factures de vente et d'achat, leurs règlements, la trésorerie et les journaux comptables. Les autres modules sont conservés et proposés sur demande.
 
+## Facturation électronique préparatoire — développement du 31 octobre 2026
+
+Le module de factures et avoirs clients sortants est développé sur `codex/e-invoicing-maroc-20261031` : calculs exacts, XML UBL2.1 générique avec validation XSD réelle, PDF FR/AR, versions immuables, émission figée, droits multi-entreprises, file de simulation persistante et supervision. **Aucune connexion officielle DGI, signature qualifiée ou conformité fiscale certifiée n’est revendiquée.** Le mode officiel reste bloqué.
+
+La migration additive102 et la branche ne sont **pas publiées ni appliquées en production**. L’activation est désactivée par défaut et nécessite une autorisation explicite avant publication. La sauvegarde source préalable est `../backups/felexia-before-e-invoicing-20261031.bundle`. Consulter [les livrables](docs/e-invoicing/README.md), [le rapport final et ses limites](docs/e-invoicing/TEST-REPORT.md) et [la checklist](docs/e-invoicing/RELEASE-CHECKLIST.md). La recette locale utilise trois rôles, une seconde entreprise, de vrais moteurs Next/PostgreSQL/XML/PDF et une façade Auth/REST de test explicitement simulée.
+
 ## Version légère de lancement — 31 octobre 2026
 
 ### Correctifs de l'audit Essentiel

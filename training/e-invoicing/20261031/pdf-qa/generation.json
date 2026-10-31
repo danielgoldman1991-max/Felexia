@@ -1,0 +1,196 @@
+{
+  "date": "2026-10-31T23:05:10.996Z",
+  "success": true,
+  "scope": "Four actual PDFKit PDFs and real UBL/XSD from synthetic snapshots; no database, DGI or network",
+  "networkAttempts": 0,
+  "layoutOverflowRejections": 2,
+  "internalNoteSentinel": "INTERNAL-NOTE-MUST-NOT-APPEAR-PDF-XML",
+  "documents": [
+    {
+      "name": "einvoice-fr",
+      "file": "output/pdf/einvoice-fr.pdf",
+      "language": "fr",
+      "rows": 3,
+      "bytes": 17349,
+      "pdfSha256": "2d3affad7209d6f8f070ccce1b00a3f7f056a8a64b946162f1d1acc90da42940",
+      "snapshotSha256": "dda2ba2f92679c12fb04595dea00823e2eddf6bd9fa05f0b939835d9ff9aea9b",
+      "xmlSha256": "16c3bb2d9cf656a7b11402751e0c3368682baaeb93b388e9f944752ecc7ec8fa",
+      "totals": {
+        "subtotalHt": "255.00",
+        "discountTotal": "20.00",
+        "taxTotal": "41.00",
+        "totalTtc": "296.00",
+        "lineExtensionAmount": "255.00",
+        "taxExclusiveAmount": "255.00",
+        "taxInclusiveAmount": "296.00",
+        "allowanceTotalAmount": "0.00",
+        "prepaidAmount": "0.00",
+        "payableAmount": "296.00"
+      },
+      "taxSubtotals": [
+        {
+          "category": "E",
+          "rate": "0.00",
+          "exemptionReason": "Motif explicite de test, sans qualification réglementaire",
+          "taxableAmount": "25.00",
+          "taxAmount": "0.00"
+        },
+        {
+          "category": "S",
+          "rate": "10.00",
+          "exemptionReason": null,
+          "taxableAmount": "50.00",
+          "taxAmount": "5.00"
+        },
+        {
+          "category": "S",
+          "rate": "20.00",
+          "exemptionReason": null,
+          "taxableAmount": "180.00",
+          "taxAmount": "36.00"
+        }
+      ],
+      "xsdValid": true,
+      "signed": false,
+      "officialConformityClaim": false
+    },
+    {
+      "name": "einvoice-ar",
+      "file": "output/pdf/einvoice-ar.pdf",
+      "language": "ar",
+      "rows": 3,
+      "bytes": 21266,
+      "pdfSha256": "7e2514e79ece7b7b7608a8e916b0c63d06e404e3dacbeb6bff66ef9029016c15",
+      "snapshotSha256": "dda2ba2f92679c12fb04595dea00823e2eddf6bd9fa05f0b939835d9ff9aea9b",
+      "xmlSha256": "16c3bb2d9cf656a7b11402751e0c3368682baaeb93b388e9f944752ecc7ec8fa",
+      "totals": {
+        "subtotalHt": "255.00",
+        "discountTotal": "20.00",
+        "taxTotal": "41.00",
+        "totalTtc": "296.00",
+        "lineExtensionAmount": "255.00",
+        "taxExclusiveAmount": "255.00",
+        "taxInclusiveAmount": "296.00",
+        "allowanceTotalAmount": "0.00",
+        "prepaidAmount": "0.00",
+        "payableAmount": "296.00"
+      },
+      "taxSubtotals": [
+        {
+          "category": "E",
+          "rate": "0.00",
+          "exemptionReason": "Motif explicite de test, sans qualification réglementaire",
+          "taxableAmount": "25.00",
+          "taxAmount": "0.00"
+        },
+        {
+          "category": "S",
+          "rate": "10.00",
+          "exemptionReason": null,
+          "taxableAmount": "50.00",
+          "taxAmount": "5.00"
+        },
+        {
+          "category": "S",
+          "rate": "20.00",
+          "exemptionReason": null,
+          "taxableAmount": "180.00",
+          "taxAmount": "36.00"
+        }
+      ],
+      "xsdValid": true,
+      "signed": false,
+      "officialConformityClaim": false
+    },
+    {
+      "name": "credit-note-fr",
+      "file": "output/pdf/credit-note-fr.pdf",
+      "language": "fr",
+      "rows": 3,
+      "bytes": 17536,
+      "pdfSha256": "52182daa2f7fe31fc85aeb71104fd87ade29f46fe31d4a0c378ea05977b33dfe",
+      "snapshotSha256": "d11ac17d6b946048f5c944846e854a32c313655ce59bc2f4a9c9051832086e07",
+      "xmlSha256": "fdf2e365312be0e66462be85718933c5268b7a2d498eaea7d7b8052189f01cbe",
+      "totals": {
+        "subtotalHt": "255.00",
+        "discountTotal": "20.00",
+        "taxTotal": "41.00",
+        "totalTtc": "296.00",
+        "lineExtensionAmount": "255.00",
+        "taxExclusiveAmount": "255.00",
+        "taxInclusiveAmount": "296.00",
+        "allowanceTotalAmount": "0.00",
+        "prepaidAmount": "0.00",
+        "payableAmount": "296.00"
+      },
+      "taxSubtotals": [
+        {
+          "category": "E",
+          "rate": "0.00",
+          "exemptionReason": "Motif explicite de test, sans qualification réglementaire",
+          "taxableAmount": "25.00",
+          "taxAmount": "0.00"
+        },
+        {
+          "category": "S",
+          "rate": "10.00",
+          "exemptionReason": null,
+          "taxableAmount": "50.00",
+          "taxAmount": "5.00"
+        },
+        {
+          "category": "S",
+          "rate": "20.00",
+          "exemptionReason": null,
+          "taxableAmount": "180.00",
+          "taxAmount": "36.00"
+        }
+      ],
+      "xsdValid": true,
+      "signed": false,
+      "officialConformityClaim": false
+    },
+    {
+      "name": "einvoice-multipage",
+      "file": "output/pdf/einvoice-multipage.pdf",
+      "language": "fr",
+      "rows": 68,
+      "bytes": 49555,
+      "pdfSha256": "89214f29908dd3f61219a2556392cac2412eb50e2cf9475f56a714ddc0a08803",
+      "snapshotSha256": "89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e",
+      "xmlSha256": "88a221e059b00e948468e233d97868a1b87eab7247be28d976d2c31c043e7aec",
+      "totals": {
+        "subtotalHt": "14166.10",
+        "discountTotal": "524.62",
+        "taxTotal": "2253.13",
+        "totalTtc": "16419.23",
+        "lineExtensionAmount": "14166.10",
+        "taxExclusiveAmount": "14166.10",
+        "taxInclusiveAmount": "16419.23",
+        "allowanceTotalAmount": "0.00",
+        "prepaidAmount": "0.00",
+        "payableAmount": "16419.23"
+      },
+      "taxSubtotals": [
+        {
+          "category": "E",
+          "rate": "0.00",
+          "exemptionReason": "Motif explicite de test, sans qualification réglementaire",
+          "taxableAmount": "2901.12",
+          "taxAmount": "0.00"
+        },
+        {
+          "category": "S",
+          "rate": "20.00",
+          "exemptionReason": null,
+          "taxableAmount": "11264.98",
+          "taxAmount": "2253.13"
+        }
+      ],
+      "xsdValid": true,
+      "signed": false,
+      "officialConformityClaim": false
+    }
+  ],
+  "visualReview": "Byte-identical to all four PDFs already inspected in visual-review.json; prior visual inspection remains applicable."
+}

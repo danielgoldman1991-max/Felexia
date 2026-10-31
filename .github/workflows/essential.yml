@@ -38,6 +38,8 @@ jobs:
           node --check scripts/verify-essential-expiry.cjs
       - run: npm run test:regressions
       - run: npm run test:light-launch
+      - run: npm run test:e-invoicing
+      - run: npx tsx training/e-invoicing/20261031/verify-pdf.ts
       - run: npx tsx scripts/verify-operator-access.ts
       - run: npx tsx scripts/verify-invitation-roles.ts
       - run: npx tsx scripts/verify-invitation-callback.ts
@@ -55,6 +57,11 @@ jobs:
           node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+      - name: Verify electronic invoicing decimal and database boundaries
+        run: |
+          npx tsx training/e-invoicing/20261031/verify-decimal-parity.ts --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/e-invoicing/20261031/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/e-invoicing/20261031/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
       - name: Verify checkout, recovery, exports and histories
         run: |
           node training/essential-fixes/20261031/verify-checkout-fixtures.cjs
@@ -68,3 +75,4 @@ jobs:
           node training/essential-fixes/20261031/verify-supplier-credit-print.cjs
           npx tsx scripts/verify-print-outputs.tsx
       - run: npm run build
+      - run: node training/e-invoicing/20261031/verify-tracing.mjs

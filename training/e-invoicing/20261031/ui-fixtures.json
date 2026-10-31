@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-31T23:07:12.004Z",
+  "passed": true,
+  "checks": 43,
+  "scope": "Real UI pages/components and navigation with synthetic service/Auth boundaries; SSR only, no browser or production",
+  "networkRequests": 0,
+  "databaseMutations": 0,
+  "actionCalls": 0
+}

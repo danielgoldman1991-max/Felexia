@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "checks": 55,
+  "runtime": {
+    "engine": "libxml2-wasm-0.7.2",
+    "schemaCount": 15,
+    "schemaManifestSha256": "b9a63cb97a977f58255e247e7307d75bc2f4d5f3b6c5a19ed5552df8e5521606",
+    "externalResourceAttempts": 0,
+    "networkRequests": 0
+  },
+  "observedNetworkAttempts": 0,
+  "scope": "Real decimal/UBL/XSD/C14N domain; synthetic business fixtures and connector outcomes; no database, credentials, DGI or network"
+}

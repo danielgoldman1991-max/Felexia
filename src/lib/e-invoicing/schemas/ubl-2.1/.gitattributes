@@ -1,0 +1,5 @@
+# Preserve the exact official bytes pinned by manifest.json on every platform.
+*.xsd -text
+*.xsd -whitespace
+manifest.json -text
+NOTICE.md text eol=lf

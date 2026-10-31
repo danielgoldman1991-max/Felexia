@@ -4,6 +4,7 @@ export const isLightLaunch = true;
 const LIGHT_ROOTS = [
   "/dashboard", "/bienvenue", "/parametres", "/articles",
   "/facturation/factures", "/facturation/paiements", "/facturation/avoirs",
+  "/facturation/electronique",
   "/achats/factures", "/achats/fournisseurs", "/achats/paiements", "/achats/avoirs",
   "/tresorerie/comptes", "/tresorerie/mouvements", "/tresorerie/consultation",
   "/comptabilite/journaux", "/comptabilite/ecritures",

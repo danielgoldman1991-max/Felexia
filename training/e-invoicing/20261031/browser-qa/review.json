@@ -1,0 +1,36 @@
+{
+  "reviewedAt": "2026-10-31T23:02:16.238Z",
+  "build": "Next16.4.3 optimized local3103, Node22.23.4",
+  "databaseMigrationSha256": "b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354",
+  "auth": "Explicit local Auth test double; real SQL/RLS",
+  "desktop": {
+    "width": 1440,
+    "height": 1000,
+    "noDocumentOverflow": true,
+    "screenshot": "desktop-fr.png"
+  },
+  "mobile": {
+    "documentWidth": 375,
+    "heading": "الفوترة الإلكترونية بالمغرب",
+    "rtl": true,
+    "tableContainers": [
+      {
+        "scrollWidth": 858,
+        "width": 301
+      }
+    ],
+    "viewport": 390,
+    "height": 844,
+    "screenshot": "mobile-ar.png",
+    "menuClosedForContentReview": true
+  },
+  "checks": [
+    "One six-root navigation retained",
+    "French desktop list and explicit simulation notices visible",
+    "Arabic module RTL and line wrapping legible",
+    "Mobile content contains no document-wide horizontal overflow",
+    "Table has its own horizontal scrolling container",
+    "Default browser viewport restored after test"
+  ],
+  "productionWrite": false
+}

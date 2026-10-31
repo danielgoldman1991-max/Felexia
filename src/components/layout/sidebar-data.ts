@@ -105,6 +105,7 @@ export const sections: SidebarSection[] = [
     moduleKey: "invoicing",
     items: [
       { label: "Factures", href: "/facturation/factures", icon: FileText },
+      { label: "Facturation électronique", href: "/facturation/electronique", icon: FileText },
       { label: "Avoirs", href: "/facturation/avoirs", icon: RotateCcw },
       { label: "Paiements reçus", href: "/facturation/paiements", icon: WalletCards },
       { label: "Impayés", href: "/facturation/factures?paymentStatus=unpaid", icon: ShieldAlert, badge: "12", badgeTone: "danger" },
@@ -223,6 +224,7 @@ export const lightSections: SidebarSection[] = [
     icon: BadgeDollarSign,
     items: [
       { label: "Factures clients", href: "/facturation/factures", icon: Receipt },
+      { label: "Facturation électronique", href: "/facturation/electronique", icon: FileText },
       { label: "Clients", href: "/tiers/clients", icon: Users },
       { label: "Règlements reçus", href: "/facturation/paiements", icon: WalletCards },
     ],

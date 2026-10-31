@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "cases": 405,
+  "checks": 3645,
+  "engine": "PostgreSQL numeric via disposable PGlite",
+  "scope": "No project schema, secrets, data or network"
+}

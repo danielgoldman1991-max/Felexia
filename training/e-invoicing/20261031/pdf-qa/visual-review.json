@@ -1,0 +1,75 @@
+{
+  "reviewedAt": "2026-10-31T22:54:52.593956+00:00",
+  "success": true,
+  "method": "Actual Poppler 110 dpi PNGs inspected via image viewer. All 15 pages inspected in contact sheets; invoice FR/AR, credit note and long pages 1,6,11,12 also inspected at original render size. Extraction and geometry tests are independent and do not replace visual inspection.",
+  "checks": [
+    {
+      "name": "French and mixed Arabic text legible; connected Arabic glyphs and natural Latin/Arabic run order",
+      "passed": true
+    },
+    {
+      "name": "Arabic invoice RTL hierarchy, mirrored party/column order, natural LTR dates/addresses/amounts",
+      "passed": true
+    },
+    {
+      "name": "No missing-glyph squares, clipping or overlapping text",
+      "passed": true
+    },
+    {
+      "name": "Each three-row document includes totals, TVA, terms and public notes on one page",
+      "passed": true
+    },
+    {
+      "name": "Long document has 68 lines, 15 note paragraphs, repeated table headings and 12 correctly numbered pages",
+      "passed": true
+    },
+    {
+      "name": "A4 margins, section hierarchy, footer hashes and safe note page breaks reviewed",
+      "passed": true
+    }
+  ],
+  "documents": [
+    {
+      "name": "einvoice-fr",
+      "pdfSha256": "2d3affad7209d6f8f070ccce1b00a3f7f056a8a64b946162f1d1acc90da42940",
+      "snapshotSha256": "dda2ba2f92679c12fb04595dea00823e2eddf6bd9fa05f0b939835d9ff9aea9b",
+      "pages": 1
+    },
+    {
+      "name": "einvoice-ar",
+      "pdfSha256": "7e2514e79ece7b7b7608a8e916b0c63d06e404e3dacbeb6bff66ef9029016c15",
+      "snapshotSha256": "dda2ba2f92679c12fb04595dea00823e2eddf6bd9fa05f0b939835d9ff9aea9b",
+      "pages": 1
+    },
+    {
+      "name": "credit-note-fr",
+      "pdfSha256": "52182daa2f7fe31fc85aeb71104fd87ade29f46fe31d4a0c378ea05977b33dfe",
+      "snapshotSha256": "d11ac17d6b946048f5c944846e854a32c313655ce59bc2f4a9c9051832086e07",
+      "pages": 1
+    },
+    {
+      "name": "einvoice-multipage",
+      "pdfSha256": "89214f29908dd3f61219a2556392cac2412eb50e2cf9475f56a714ddc0a08803",
+      "snapshotSha256": "89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e",
+      "pages": 12
+    }
+  ],
+  "images": [
+    "einvoice-fr-1.png",
+    "einvoice-ar-1.png",
+    "credit-note-fr-1.png",
+    "einvoice-multipage-01.png",
+    "einvoice-multipage-06.png",
+    "einvoice-multipage-11.png",
+    "einvoice-multipage-12.png",
+    "einvoice-multipage-contact-1.png",
+    "einvoice-multipage-contact-2.png"
+  ],
+  "limits": [
+    "Fictitious fixtures only: no issue, signature, DGI submission or database mutation.",
+    "Generic UBL 2.1 export; no PDF/A, qualified-signature or certified-DGI claim.",
+    "PDF readers differ in Arabic text extraction. Logical source lines are preserved through standard PDF ActualText spans in addition to valid embedded-font ToUnicode maps."
+  ],
+  "independentExtractionChecks": 230,
+  "networkAttempts": 0
+}

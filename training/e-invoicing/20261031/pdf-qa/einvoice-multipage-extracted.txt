@@ -1,0 +1,907 @@
+FELEXIA PRO
+FACTURE
+FAC-DEMO-0068
+ÉMETTEUR
+Atelier Démonstration - مق​اولة​ ت​ج​رت​ب​ي​ة 
+1 rue fictive de la Recette
+20000 Casablanca MA
+ICE  000000000000000
+IF  QA-IF-0000
+RC  QA-RC-0000
+CLIENT
+Client de test - عمي​ل ت​ج​رت​ب​ي 
+10 avenue fictive des Essais
+Rabat MA
+ICE  000000000000001
+Date d’émission
+31/10/2026
+Échéance
+30/11/2026
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-001 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+0.00%
+E
+216.04 216.04
+QA-ROW-002 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-003 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-004 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-005 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+Export UBL 2.1 générique · document non signé Page 1/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-006 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-007 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-008 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-009 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-010 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-011 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 0.00%
+E
+246.90 246.90
+QA-ROW-012 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+Export UBL 2.1 générique · document non signé Page 2/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-013 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-014 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-015 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-016 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-017 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-018 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-019 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+Export UBL 2.1 générique · document non signé Page 3/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-020 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-021 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+0.00%
+E
+216.04 216.04
+QA-ROW-022 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-023 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-024 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-025 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-026 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+Export UBL 2.1 générique · document non signé Page 4/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-027 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-028 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-029 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-030 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-031 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 0.00%
+E
+246.90 246.90
+QA-ROW-032 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-033 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+Export UBL 2.1 générique · document non signé Page 5/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-034 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-035 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-036 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-037 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-038 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-039 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-040 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+Export UBL 2.1 générique · document non signé Page 6/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-041 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+0.00%
+E
+216.04 216.04
+QA-ROW-042 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-043 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-044 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-045 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-046 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-047 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+Export UBL 2.1 générique · document non signé Page 7/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-048 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-049 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-050 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-051 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 0.00%
+E
+246.90 246.90
+QA-ROW-052 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-053 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-054 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+Export UBL 2.1 générique · document non signé Page 8/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-055 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-056 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-057 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-058 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-059 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-060 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-061 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+0.00%
+E
+216.04 216.04
+Export UBL 2.1 générique · document non signé Page 9/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Désignation Qté P .U. HT TVA HT net TTC
+QA-ROW-062 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-063 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-064 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+QA-ROW-065 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+2.000
+C62
+123.45
+-12.50%
+20.00%
+S
+216.04 259.25
+QA-ROW-066 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 0.00%
+E
+185.18 185.18
+QA-ROW-067 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-REFERENCE-REFERENCE-REFER
+ENCE-REFERENCE-REFERENCE-REFERENCE-.
+2.000
+C62
+123.45 20.00%
+S
+246.90 296.28
+QA-ROW-068 | Accompagnement méthodologique
+détaillé : revue des documents, contrôle des pièces et
+restitution des recommandations pour chaque
+établissement. Référence de test
+REFERENCE-REFERENCE-.
+1.500
+C62
+123.45 20.00%
+S
+185.18 222.22
+Export UBL 2.1 générique · document non signé Page 10/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+Total HT net 14166.10 MAD
+Total TVA 2253.13 MAD
+TOTAL TTC 16419.23 MAD
+Remises déjà incluses : 524.62 MAD
+DÉTAIL DE TVA Base HT / TVA
+E · 0.00% · Motif explicite de test, sans qualification réglementaire 2901.12 / 0.00 MAD
+S · 20.00% 11264.98 / 2253.13 MAD
+Conditions de règlement
+Règlement à 30 jours - الأ​داء خ​لال ت​لات​ي​ن​ ت​وماً 
+Informations complémentaires
+DOCUMENT FICTIF DE TEST - AUCUN PAIEMENT ATTENDU.
+QA-NOTE-001 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-002 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-003 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-004 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-005 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-006 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-007 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+Export UBL 2.1 générique · document non signé Page 11/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e
+FELEXIA PRO
+Suite du document
+FAC-DEMO-0068
+QA-NOTE-008 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-009 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-010 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-011 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-012 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-013 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-014 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTE-015 | Note publique de démonstration : Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les
+montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé
+avec le fichier XML. Les montants sont ceux de l’instantané structuré conservé avec le fichier XML. Les montants sont ceux de
+l’instantané structuré conservé avec le fichier XML.
+QA-NOTES-FIN
+Export UBL 2.1 générique · document non signé Page 12/12
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 89c57f509cddbc38b580268d43b3c4d631e27a36b1f0d669b1ac97b793161c2e

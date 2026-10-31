@@ -1,0 +1,149 @@
+{
+  "verifiedAt": "2026-10-31T23:07:27.596700+00:00",
+  "branch": "codex/e-invoicing-maroc-20261031",
+  "baseCommit": "c74c2f2c1fe8625d56a39bd8bf010a1b257aec59",
+  "optimizedLocalBuild": true,
+  "buildId": "ZnExZd6A62eD-jfedXDLS",
+  "nodeVersion": "22.23.4",
+  "lintSrcAndModuleScripts": true,
+  "typecheckDuringBuild": true,
+  "legacyRegressionSuite": true,
+  "lightNavigationRegression": true,
+  "legacyPrintFixtures": 10,
+  "migrationAppliedInProduction": false,
+  "productionDeployment": false,
+  "officialTaxTransmission": false,
+  "authenticationBoundary": "Explicit local test double; hosted Supabase Auth not verified",
+  "checks": {
+    "domain-tests": {
+      "passed": true,
+      "checks": 55
+    },
+    "decimal-postgres-parity": {
+      "passed": true,
+      "checks": 3645
+    },
+    "database-strict": {
+      "passed": true,
+      "checks": 135
+    },
+    "database-relaxed": {
+      "passed": true,
+      "checks": 135
+    },
+    "database-native": {
+      "passed": true,
+      "checks": 135
+    },
+    "database-concurrency": {
+      "passed": true,
+      "checks": 30
+    },
+    "database-restore": {
+      "passed": true,
+      "checks": 11
+    },
+    "local-gateway-probes": {
+      "passed": true,
+      "checks": 50
+    },
+    "next-flow": {
+      "passed": true,
+      "checks": 94
+    },
+    "next-permissions": {
+      "passed": true,
+      "checks": 10
+    },
+    "next-production-build": {
+      "passed": true,
+      "checks": 35
+    },
+    "ui-fixtures": {
+      "passed": true,
+      "checks": 43
+    },
+    "server-guards": {
+      "passed": true,
+      "checks": 29
+    },
+    "build-tracing": {
+      "passed": true,
+      "checks": 96
+    },
+    "dependency-audit": {
+      "passed": true,
+      "checks": 0
+    },
+    "pdf": {
+      "passed": true,
+      "checks": 230,
+      "layoutOverflowRejections": 2,
+      "reviewedExactBytes": true
+    }
+  },
+  "files": {
+    "next.config.mjs": "12ec7a5169b6755a4a5ec2cf58daa0d3d5548708d01d93edf832950201f08c41",
+    "package-lock.json": "f2e20cb4b774320876e4b2eb67ccf134c4a64faa7ec19eca4762af31a4243b5e",
+    "package.json": "4abe68c70a9538d0057e30fc8fb1e4f85a7b38d9407b3ff7f927ff4665676a97",
+    "src/app/api/cron/e-invoicing/route.ts": "dcada6d3d4d5d37a9d6bc1067f1617cbf3d09c2fc0dbf9700795e9ea3f6935fb",
+    "src/app/facturation/avoirs/[id]/print/page.tsx": "619ad8970f76083754083a17805ef4a747bac10b951a11c89abcbff06345b598",
+    "src/app/facturation/electronique/[kind]/[sourceId]/download/route.ts": "03b7ee661a5f5ca9b879e53621dc7477ae1afbee6a6a7a266b0ae1833f970a2d",
+    "src/app/facturation/electronique/[kind]/[sourceId]/page.tsx": "cb215d42af20bb9d41f6e85b98d4e2f56988d8920f4c38a67e4ca6efb51eed8b",
+    "src/app/facturation/electronique/configuration/page.tsx": "e29b693f7b3049d2e06c0358be1a579e970bc37095f52dce681d0febc64484e4",
+    "src/app/facturation/electronique/page.tsx": "879f375c4f49e127a3b5d22fc39154273825420ddf3620c8f6c4445bdade3757",
+    "src/app/facturation/electronique/supervision/page.tsx": "80c210ded940c3aba8a16560e27b920df513b6c95a44dae092c22f844cd27158",
+    "src/app/facturation/factures/[id]/print/page.tsx": "67c3c515abaab89635ba8139e6170245fda79615e6a9cbca32a718fc8d2840bc",
+    "src/components/e-invoicing/operation-form.tsx": "605bef90f6a5f366c2d4ddc53a7545582f1815d11abd4ef23f8eb122de669aad",
+    "src/components/e-invoicing/preparation-form.tsx": "a3d2a864d00068c9e49e1c8ed4b780b3f3c5c71f18ca0a5ab536914238c4125a",
+    "src/components/e-invoicing/presentation.ts": "0d49c10d5cafef4a178021006fdca5c64e095c12b478fa7eec9ce2588a8116ca",
+    "src/components/e-invoicing/shared.tsx": "ca39df8b70144981eb2d66cf11c9ba2fd6bfa780d2cba4c3d5232918e12de21c",
+    "src/components/e-invoicing/submit-button.tsx": "c5d18f337c42a1b5ee42365d90787781dc994d4ee63da64287f89f1dec3c8b20",
+    "src/components/layout/sidebar-data.ts": "46154cb9edd35d9beb3686d702a6e09f90b7c3de5ab692b4f50c2ced5b245423",
+    "src/lib/auth/operator-access.ts": "8f73b3e036a698e8eef67913de793ed9350da7c0f73293ae8241b237b1d16fe7",
+    "src/lib/e-invoicing/access.ts": "45b0d92e10cb0a3afbf9d66e27f7103a1dc8a3a28e28a7b68a6a422d44ef8ccd",
+    "src/lib/e-invoicing/actions.ts": "2d30ce2624dafc5d0c6f8d8493dbd148357579124ac5bb9df2642103e875edee",
+    "src/lib/e-invoicing/assets/.gitattributes": "678a19d5838527144b02d2802098b44bbbb12bd54119c19822d82ed5de2a75bb",
+    "src/lib/e-invoicing/assets/font-manifest.json": "5181704ef4217417a8493060ea4c4e6bc10348b004a40aa00aee106a6571ccb8",
+    "src/lib/e-invoicing/assets/notonaskharabic-OFL.txt": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af",
+    "src/lib/e-invoicing/assets/notonaskharabic.ttf": "67b5a525a661b607971fbd3f96a81b89d3a768e74534fca84f18ac97e6fab72f",
+    "src/lib/e-invoicing/assets/notosans-OFL.txt": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+    "src/lib/e-invoicing/assets/notosans.ttf": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+    "src/lib/e-invoicing/calculations.ts": "e9bcc3895e056e3c2c3e49093af2c6aafc7a821201e0e60dea6200f895dfcb66",
+    "src/lib/e-invoicing/connector.ts": "e4898ef237053f962f89c132af463fde9006caf1aa3831b93fb30d74b5854bce",
+    "src/lib/e-invoicing/decimal.ts": "92b4730ff18735db9c2481f5897554cbad26ae684c13596972ca15f00d43a601",
+    "src/lib/e-invoicing/integrity.ts": "b55eac35e94c0e7a8fb6028f3c037cb2fe3589216a0f9623aa4ab8292f5fcec1",
+    "src/lib/e-invoicing/jobs.ts": "0fd47f60b68f097b3077bc3d59500db73f8d84e30c419ec7b6acf82d686a531a",
+    "src/lib/e-invoicing/pdf.ts": "a476cd3a2e551d3697aca0f1e95c28aa2ff4ae6f0178a17be87bd660a05d611b",
+    "src/lib/e-invoicing/print-archive.ts": "ca736ea441455620338ccd869ea3a6c52529fffb8f30b9f2393b7f301d5e017a",
+    "src/lib/e-invoicing/regulatory.ts": "a710d26c650649633f03c0ec9e941b0928cced1af7a1ac469862e610ecdd6eb4",
+    "src/lib/e-invoicing/repository.ts": "d3721248667136511a5981d757b782dab8cb3c683d6c084c40282a5c4f89034e",
+    "src/lib/e-invoicing/schemas/ubl-2.1/.gitattributes": "c77ddc2a6b75935ac8e865aaa8c1b8ee3861c769226b47cb420430002fc6550a",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/CCTS_CCT_SchemaModule-2.1.xsd": "dd546e4809df86b6445589f69f0d6c9df162840ae386574ddfc1da7638103e15",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-CommonAggregateComponents-2.1.xsd": "939172ad8dd057cd403e7f763f6532184dd5ed4b9de24c42ebb35db4792ba613",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-CommonBasicComponents-2.1.xsd": "bd4ad043ee1d9da1c7f8018dabf739cfafdfb59143d0d16b9ef769e6b7c408a7",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-CommonExtensionComponents-2.1.xsd": "ad7a4e490978adfbcfc5ec0bb20941cf11ac960ccf0c4de8791a7c731a8dbe87",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-CommonSignatureComponents-2.1.xsd": "3db472305f029bba5c1ae157bfd0178f715c3f9b94bd8e6c557dbce5e88da874",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-ExtensionContentDataType-2.1.xsd": "fcee77a11870208e6377ea6311b9f2a050bca24bdad8606ea02d71e9f9e72f8d",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-QualifiedDataTypes-2.1.xsd": "7dcb156e610239c97ae70940cf4653b88e48c3595bf5f56a2204a32e2893e6cf",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-SignatureAggregateComponents-2.1.xsd": "17bb6b62d709b4fd81449a37655af36aa6a1276ad4fdb1b2e249a5ed4b7c2172",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-SignatureBasicComponents-2.1.xsd": "cef924d7ba3d1d8ade14469325cde1364f8c174e46f0198ec02da8e9e748a489",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-UnqualifiedDataTypes-2.1.xsd": "09052d406b4293e2a5f9c2bfee6df10ad4d8d5f0b36e24a6349d7f7936d89eb6",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-XAdESv132-2.1.xsd": "a4f726bcf8cc3f7d9ffa4dab99e005535a8e8b60dced1e5d94578d2e05afa96e",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-XAdESv141-2.1.xsd": "1fa4625e9cefcb7a9abb5ac1b64315547450031eece8a55bd584e4ba4b79dbc1",
+    "src/lib/e-invoicing/schemas/ubl-2.1/common/UBL-xmldsig-core-schema-2.1.xsd": "101909c9f06456d61ddcc4fb982f1d40dc357b439f393b1a2eb46e42acd60809",
+    "src/lib/e-invoicing/schemas/ubl-2.1/maindoc/UBL-CreditNote-2.1.xsd": "a54651b1225052f811bf2ba01346f13f2454e7cc3e0be290c91dd680dc7b7b1a",
+    "src/lib/e-invoicing/schemas/ubl-2.1/maindoc/UBL-Invoice-2.1.xsd": "40fae8cb436f3a9506d7acce65ba162caef3b0bed4d5cbc0992b2153ded4edf4",
+    "src/lib/e-invoicing/schemas/ubl-2.1/manifest.json": "b9a63cb97a977f58255e247e7307d75bc2f4d5f3b6c5a19ed5552df8e5521606",
+    "src/lib/e-invoicing/schemas/ubl-2.1/NOTICE.md": "605c27daad5cf45d70dc5181b6ef668b6124debf16714c8177b504ca540a5eb3",
+    "src/lib/e-invoicing/service.ts": "eeb174225d2111e89c014c6d7f5d49a23e8b303ec5779c3e832d00c9e3d57f98",
+    "src/lib/e-invoicing/source.ts": "aae13dea82792b399c44d9a3ffb9ad20be793ac85c9596ce09596e8f68e2cad5",
+    "src/lib/e-invoicing/types.ts": "52a976f45280bb454a043bc6d1d68565a7a11fa114698973f0bd2ac11bf69433",
+    "src/lib/e-invoicing/ubl.ts": "49c1d4b436d704b77bc69fa59d5dc9e02940b0c460bb55761dc23134e5466060",
+    "src/lib/e-invoicing/validation.ts": "d9ebc91081caff52badcef5e47095676f6ca229f9af9d3405817a10ba862bb96",
+    "src/lib/e-invoicing/view-types.ts": "9011eee5a282e2f79729674d2c33531e7cde5aa93a97e65845a265700e97402c",
+    "src/lib/e-invoicing/xml-runtime.ts": "e5e0d79258f547b78d0c6af48dab086aedbba3b8b6867223bd1c2e9af3fbd531",
+    "src/lib/launch-profile.ts": "9d3ffdf5e6bd4d144f3a855883ab86d74edac35d3ba3200d22cb480ff17536a8",
+    "supabase/migrations/102_electronic_invoicing_maroc.sql": "b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354"
+  }
+}

@@ -1,0 +1,3 @@
+# Preserve the exact licensed font/notice bytes pinned in font-manifest.json.
+* -text
+*.txt -whitespace

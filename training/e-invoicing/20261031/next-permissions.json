@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "date": "2026-10-31T23:00:35.963Z",
+  "applicationOrigin": "http://localhost:3102",
+  "checks": 10,
+  "requests": 19,
+  "results": [
+    "Authenticated Next page responds successfully",
+    "operator cannot configure through a forged real Next POST",
+    "viewer cannot configure through a forged real Next POST",
+    "Even administrator cannot activate an official connector by changing the form payload",
+    "Denied configuration operations leave SQL configuration revision unchanged",
+    "Authenticated Next page responds successfully",
+    "Operator cannot submit a new simulation through a forged administrator form",
+    "Foreign-origin server action cannot mutate the configuration",
+    "An archive version cannot be substituted from another source in the same tenant",
+    "Anonymous archive request redirects to authentication without content"
+  ],
+  "scope": "Actual Next HTTP authorization and CSRF tests against local Auth double plus real PostgreSQL; no production access"
+}

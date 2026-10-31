@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "date": "2026-10-31T22:59:13.195Z",
+  "scope": "Synthetic local PostgreSQL dump/restore only; no production or hosted Supabase recovery",
+  "sourceDatabase": "numbering_qa_einvoice_races_1793487544945",
+  "restoredDatabase": "numbering_qa_einvoice_restore_1793487551063",
+  "archiveCount": 8,
+  "versionCount": 4,
+  "tableCount": 89,
+  "policyCount": 493,
+  "backupSha256": "0b2d76f15ac99bc000734b77b7bfc8a3cdbd923e53b4c52ee03dcf1cf805b22f",
+  "migrationSha256": "b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354",
+  "restoreMs": 1250,
+  "checks": [
+    {
+      "name": "All restored table counts and exact row digests match",
+      "passed": true
+    },
+    {
+      "name": "All restored RLS policies match",
+      "passed": true
+    },
+    {
+      "name": "Restored fixture contains both XML and PDF archives",
+      "passed": true
+    },
+    {
+      "name": "Every restored binary archive verifies its exact SHA256 and size",
+      "passed": true
+    },
+    {
+      "name": "Every restored canonical snapshot verifies its own SHA256",
+      "passed": true
+    },
+    {
+      "name": "Three fixture role memberships are restored",
+      "passed": true
+    },
+    {
+      "name": "admin reads its restored archive metadata through RLS",
+      "passed": true
+    },
+    {
+      "name": "operator reads its restored archive metadata through RLS",
+      "passed": true
+    },
+    {
+      "name": "viewer reads its restored archive metadata through RLS",
+      "passed": true
+    },
+    {
+      "name": "Migration102 remains safely reapplicable after restore",
+      "passed": true
+    },
+    {
+      "name": "Migration reapplication preserves restored snapshots and all business data",
+      "passed": true
+    }
+  ],
+  "limitation": "Archive payloads are labeled SQL-boundary fixtures. This does not prove hosted backup/PITR, retention, or legally certified archiving."
+}

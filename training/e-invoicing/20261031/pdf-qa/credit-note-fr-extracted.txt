@@ -1,0 +1,62 @@
+FELEXIA PRO
+AVOIR
+AV-DEMO-0001
+ÉMETTEUR
+Atelier Démonstration - مق​اولة​ ت​ج​رت​ب​ي​ة 
+1 rue fictive de la Recette
+20000 Casablanca MA
+ICE  000000000000000
+IF  QA-IF-0000
+RC  QA-RC-0000
+CLIENT
+Client de test - عمي​ل ت​ج​رت​ب​ي 
+10 avenue fictive des Essais
+Rabat MA
+ICE  000000000000001
+Date d’émission
+31/10/2026
+Échéance
+30/11/2026
+Facture d’origine
+FAC-DEMO-0001
+Désignation Qté P .U. HT TVA HT net TTC
+QA-SHORT-01 | Conseil & accompagnement - خ​دمة 
+اسي​ش​ارت​ة​ 
+2.000
+C62
+100.00
+-10.00%
+20.00%
+S
+180.00 216.00
+QA-SHORT-02 | Prestation de démonstration - خ​دمة 
+ت​ج​رت​ب​ي​ة​ 
+1.000
+C62
+50.00 10.00%
+S
+50.00 55.00
+QA-SHORT-03 | Traitement à taux nul de
+démonstration
+1.000
+C62
+25.00 0.00%
+E
+25.00 25.00
+Total HT net 255.00 MAD
+Total TVA 41.00 MAD
+TOTAL TTC 296.00 MAD
+Remises déjà incluses : 20.00 MAD
+DÉTAIL DE TVA Base HT / TVA
+E · 0.00% · Motif explicite de test, sans qualification réglementaire 25.00 / 0.00 MAD
+S · 10.00% 50.00 / 5.00 MAD
+S · 20.00% 180.00 / 36.00 MAD
+Conditions de règlement
+Règlement à 30 jours - الأ​داء خ​لال ت​لات​ي​ن​ ت​وماً 
+Informations complémentaires
+Correction fictive - sans émission ni transmission officielle
+DOCUMENT FICTIF DE TEST - AUCUN PAIEMENT ATTENDU.
+وت​ي​ق​ة​ ت​ج​رت​ب​ي​ة​ لأ ت​مي​ل ف​ات​ورة​ خق​ي​ق​ي​ة 
+Export UBL 2.1 générique · document non signé Page 1/1
+Aucune transmission DGI attestée. Les règlements sont suivis séparément.
+SHA-256 d11ac17d6b946048f5c944846e854a32c313655ce59bc2f4a9c9051832086e07

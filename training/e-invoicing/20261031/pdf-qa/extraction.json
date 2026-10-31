@@ -1,0 +1,1284 @@
+{
+  "success": true,
+  "checks": [
+    {
+      "name": "einvoice-fr: PDF digest matches generation",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: metadata title",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: metadata author",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: metadata creator",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: no encryption",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: no signature field",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: page 1 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: page 1 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: page 1 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: embedded /DZZZZZ+NotoNaskhArabic-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: page 1 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-fr: page 1 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-fr: page 1 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: internal notes absent",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: logical Arabic name retained in ActualText",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: logical mixed-script name retained",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: ActualText excludes internal notes",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact total present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact HT present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact tax present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: XML digest matches immutable artifact",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact XML/PDF TaxExclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact XML/PDF TaxInclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact XML/PDF PayableAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: exact XML/PDF VAT",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: XML row count retained in PDF",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: real XSD validation succeeded",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: three-row document fits one page",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: all three rows exactly once",
+      "passed": true
+    },
+    {
+      "name": "einvoice-fr: logical Arabic public note retained",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: PDF digest matches generation",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: metadata title",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: metadata author",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: metadata creator",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: no encryption",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: no signature field",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: page 1 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: page 1 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: page 1 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: embedded /DZZZZZ+NotoNaskhArabic-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: page 1 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-ar: page 1 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-ar: page 1 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: internal notes absent",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: logical Arabic name retained in ActualText",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: logical mixed-script name retained",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: ActualText excludes internal notes",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact total present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact HT present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact tax present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: XML digest matches immutable artifact",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact XML/PDF TaxExclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact XML/PDF TaxInclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact XML/PDF PayableAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: exact XML/PDF VAT",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: XML row count retained in PDF",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: real XSD validation succeeded",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: three-row document fits one page",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: all three rows exactly once",
+      "passed": true
+    },
+    {
+      "name": "einvoice-ar: logical Arabic public note retained",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: PDF digest matches generation",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: metadata title",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: metadata author",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: metadata creator",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: no encryption",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: no signature field",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: page 1 A4",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: page 1 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: page 1 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: embedded /DZZZZZ+NotoNaskhArabic-Regular",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: page 1 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "credit-note-fr: page 1 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "credit-note-fr: page 1 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: internal notes absent",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: logical Arabic name retained in ActualText",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: logical mixed-script name retained",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: ActualText excludes internal notes",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact total present",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact HT present",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact tax present",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: XML digest matches immutable artifact",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact XML/PDF TaxExclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact XML/PDF TaxInclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact XML/PDF PayableAmount",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: exact XML/PDF VAT",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: XML row count retained in PDF",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: real XSD validation succeeded",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: three-row document fits one page",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: all three rows exactly once",
+      "passed": true
+    },
+    {
+      "name": "credit-note-fr: logical Arabic public note retained",
+      "passed": true
+    },
+    {
+      "name": "credit note: original invoice reference retained",
+      "passed": true
+    },
+    {
+      "name": "credit note: credit title",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: PDF digest matches generation",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: metadata title",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: metadata author",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: metadata creator",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: no encryption",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: no signature field",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 1 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 1 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 1 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /DZZZZZ+NotoNaskhArabic-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 1 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 1 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 1 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 2 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 2 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 2 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 2 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 2 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 2 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 3 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 3 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 3 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 3 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 3 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 3 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 4 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 4 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 4 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 4 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 4 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 4 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 5 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 5 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 5 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 5 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 5 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 5 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 6 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 6 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 6 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 6 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 6 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 6 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 7 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 7 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 7 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 7 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 7 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 7 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 8 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 8 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 8 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 8 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 8 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 8 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 9 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 9 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 9 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 9 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 9 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 9 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 10 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 10 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 10 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 10 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 10 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 10 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 11 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 11 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 11 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /DZZZZZ+NotoNaskhArabic-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 11 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 11 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 11 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 12 A4",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 12 snapshot hash",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 12 explicit unsigned profile",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: embedded /CZZZZZ+NotoSans-Regular",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: valid nonempty ToUnicode destinations",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: page 12 no .notdef glyph",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 12 text inside margins",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "einvoice-multipage: page 12 body clear of footer",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: internal notes absent",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: logical Arabic name retained in ActualText",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: logical mixed-script name retained",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: ActualText excludes internal notes",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact total present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact HT present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact tax present",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: XML digest matches immutable artifact",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact XML/PDF TaxExclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact XML/PDF TaxInclusiveAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact XML/PDF PayableAmount",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: exact XML/PDF VAT",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: XML row count retained in PDF",
+      "passed": true
+    },
+    {
+      "name": "einvoice-multipage: real XSD validation succeeded",
+      "passed": true
+    },
+    {
+      "name": "multipage: compact layout no more than twelve pages",
+      "passed": true
+    },
+    {
+      "name": "multipage: all 68 rows exactly once",
+      "passed": true,
+      "detail": [
+        "QA-ROW-001",
+        "QA-ROW-002",
+        "QA-ROW-003",
+        "QA-ROW-004",
+        "QA-ROW-005",
+        "QA-ROW-006",
+        "QA-ROW-007",
+        "QA-ROW-008",
+        "QA-ROW-009",
+        "QA-ROW-010",
+        "QA-ROW-011",
+        "QA-ROW-012",
+        "QA-ROW-013",
+        "QA-ROW-014",
+        "QA-ROW-015",
+        "QA-ROW-016",
+        "QA-ROW-017",
+        "QA-ROW-018",
+        "QA-ROW-019",
+        "QA-ROW-020",
+        "QA-ROW-021",
+        "QA-ROW-022",
+        "QA-ROW-023",
+        "QA-ROW-024",
+        "QA-ROW-025",
+        "QA-ROW-026",
+        "QA-ROW-027",
+        "QA-ROW-028",
+        "QA-ROW-029",
+        "QA-ROW-030",
+        "QA-ROW-031",
+        "QA-ROW-032",
+        "QA-ROW-033",
+        "QA-ROW-034",
+        "QA-ROW-035",
+        "QA-ROW-036",
+        "QA-ROW-037",
+        "QA-ROW-038",
+        "QA-ROW-039",
+        "QA-ROW-040",
+        "QA-ROW-041",
+        "QA-ROW-042",
+        "QA-ROW-043",
+        "QA-ROW-044",
+        "QA-ROW-045",
+        "QA-ROW-046",
+        "QA-ROW-047",
+        "QA-ROW-048",
+        "QA-ROW-049",
+        "QA-ROW-050",
+        "QA-ROW-051",
+        "QA-ROW-052",
+        "QA-ROW-053",
+        "QA-ROW-054",
+        "QA-ROW-055",
+        "QA-ROW-056",
+        "QA-ROW-057",
+        "QA-ROW-058",
+        "QA-ROW-059",
+        "QA-ROW-060",
+        "QA-ROW-061",
+        "QA-ROW-062",
+        "QA-ROW-063",
+        "QA-ROW-064",
+        "QA-ROW-065",
+        "QA-ROW-066",
+        "QA-ROW-067",
+        "QA-ROW-068"
+      ]
+    },
+    {
+      "name": "multipage: all 15 note paragraphs exactly once",
+      "passed": true,
+      "detail": [
+        "QA-NOTE-001",
+        "QA-NOTE-002",
+        "QA-NOTE-003",
+        "QA-NOTE-004",
+        "QA-NOTE-005",
+        "QA-NOTE-006",
+        "QA-NOTE-007",
+        "QA-NOTE-008",
+        "QA-NOTE-009",
+        "QA-NOTE-010",
+        "QA-NOTE-011",
+        "QA-NOTE-012",
+        "QA-NOTE-013",
+        "QA-NOTE-014",
+        "QA-NOTE-015"
+      ]
+    },
+    {
+      "name": "multipage: last note retained",
+      "passed": true
+    },
+    {
+      "name": "multipage: repeated table headers",
+      "passed": true
+    },
+    {
+      "name": "pypdf strict: no parser warnings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "French and Arabic same immutable snapshot",
+      "passed": true
+    },
+    {
+      "name": "French and Arabic same immutable XML",
+      "passed": true
+    },
+    {
+      "name": "No network attempted",
+      "passed": true
+    }
+  ],
+  "passed": 230,
+  "documents": [
+    {
+      "name": "einvoice-fr",
+      "pages": [
+        {
+          "page": 1,
+          "characters": 1152,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 720.67
+        }
+      ],
+      "embeddedFonts": [
+        "/CZZZZZ+NotoSans-Regular",
+        "/DZZZZZ+NotoNaskhArabic-Regular"
+      ],
+      "metadata": {
+        "/Producer": "Felexia Pro / PDFKit",
+        "/Creator": "Felexia Pro",
+        "/CreationDate": "D:20261031000000Z",
+        "/Title": "FACTURE FAC-DEMO-0001",
+        "/Author": "Atelier Démonstration - مقاولة تجريبية",
+        "/Subject": "Export UBL 2.1 générique · document non signé",
+        "/ModDate": "D:20261031000000Z"
+      }
+    },
+    {
+      "name": "einvoice-ar",
+      "pages": [
+        {
+          "page": 1,
+          "characters": 1290,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 729.23
+        }
+      ],
+      "embeddedFonts": [
+        "/CZZZZZ+NotoSans-Regular",
+        "/DZZZZZ+NotoNaskhArabic-Regular"
+      ],
+      "metadata": {
+        "/Producer": "Felexia Pro / PDFKit",
+        "/Creator": "Felexia Pro",
+        "/CreationDate": "D:20261031000000Z",
+        "/Title": "فاتورة FAC-DEMO-0001",
+        "/Author": "Atelier Démonstration - مقاولة تجريبية",
+        "/Subject": "تصدير UBL 2.1 عام - وثيقة غير موقعة",
+        "/ModDate": "D:20261031000000Z"
+      }
+    },
+    {
+      "name": "credit-note-fr",
+      "pages": [
+        {
+          "page": 1,
+          "characters": 1230,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 737.56
+        }
+      ],
+      "embeddedFonts": [
+        "/CZZZZZ+NotoSans-Regular",
+        "/DZZZZZ+NotoNaskhArabic-Regular"
+      ],
+      "metadata": {
+        "/Producer": "Felexia Pro / PDFKit",
+        "/Creator": "Felexia Pro",
+        "/CreationDate": "D:20261031000000Z",
+        "/Title": "AVOIR AV-DEMO-0001",
+        "/Author": "Atelier Démonstration - مقاولة تجريبية",
+        "/Subject": "Export UBL 2.1 générique · document non signé",
+        "/ModDate": "D:20261031000000Z"
+      }
+    },
+    {
+      "name": "einvoice-multipage",
+      "pages": [
+        {
+          "page": 1,
+          "characters": 1665,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 716.69
+        },
+        {
+          "page": 2,
+          "characters": 1824,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 3,
+          "characters": 1892,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 720.05
+        },
+        {
+          "page": 4,
+          "characters": 1831,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 5,
+          "characters": 1832,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 6,
+          "characters": 1885,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 720.05
+        },
+        {
+          "page": 7,
+          "characters": 1831,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 8,
+          "characters": 1832,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 9,
+          "characters": 1891,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 720.05
+        },
+        {
+          "page": 10,
+          "characters": 1826,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 707.15
+        },
+        {
+          "page": 11,
+          "characters": 3154,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 731.04
+        },
+        {
+          "page": 12,
+          "characters": 3192,
+          "textBounds": [
+            42.0,
+            26.26,
+            553.0,
+            795.76
+          ],
+          "bodyBottom": 565.57
+        }
+      ],
+      "embeddedFonts": [
+        "/CZZZZZ+NotoSans-Regular",
+        "/DZZZZZ+NotoNaskhArabic-Regular"
+      ],
+      "metadata": {
+        "/Producer": "Felexia Pro / PDFKit",
+        "/Creator": "Felexia Pro",
+        "/CreationDate": "D:20261031000000Z",
+        "/Title": "FACTURE FAC-DEMO-0068",
+        "/Author": "Atelier Démonstration - مقاولة تجريبية",
+        "/Subject": "Export UBL 2.1 générique · document non signé",
+        "/ModDate": "D:20261031000000Z"
+      }
+    }
+  ],
+  "visualReview": "Must be completed by viewing original Poppler PNGs; text/geometry checks do not establish visual fidelity"
+}
