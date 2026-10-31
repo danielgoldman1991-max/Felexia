@@ -50,7 +50,7 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[] }) {
+export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow, fullAccess = false }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[]; fullAccess?: boolean }) {
   const discountPresent = hasDiscount(lines);
   return (
     <div className="space-y-6">
@@ -66,7 +66,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
             {["validated", "sent", "partially_paid", "paid"].includes(invoice.status) ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><RotateCcw className="h-4 w-4" /> Creer avoir</Link></Button>
             ) : null}
-            {invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
+            {fullAccess && invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Bell className="h-4 w-4" /> Creer relance</Link></Button>
             ) : null}
             {invoice.status === "draft" ? (
@@ -80,7 +80,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
           </>
         )}
       />
-      <DocumentFlowMap steps={documentFlow ?? []} />
+      {fullAccess ? <DocumentFlowMap steps={documentFlow ?? []} /> : null}
       <Card><CardContent className="flex flex-wrap items-center gap-3"><InvoiceStatusBadge status={invoice.status} /><InvoicePaymentStatusBadge status={invoice.payment_status} /><span className="text-sm text-[var(--muted)]">Cree le {formatDate(invoice.created_at)}</span></CardContent></Card>
       <Card>
         <CardHeader><h2 className="font-semibold">Informations facture</h2></CardHeader>
@@ -88,7 +88,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
           <Info label="Client" value={invoice.customer_name} />
           <Info label="Date facture" value={formatDate(invoice.invoice_date)} />
           <Info label="Echeance" value={invoice.due_date ? formatDate(invoice.due_date) : null} />
-          <Info label="Source" value={invoice.source_order_number ?? invoice.source_delivery_number ?? invoice.source_document_number ?? invoice.source_type ?? "manual"} />
+          {fullAccess ? <Info label="Source" value={invoice.source_order_number ?? invoice.source_delivery_number ?? invoice.source_document_number ?? invoice.source_type ?? "manual"} /> : null}
           {invoice.payment_terms || invoice.payment_method ? (
             <>
               <Info label="Conditions de paiement" value={getPaymentTermLabel(invoice.payment_terms) || (invoice.payment_terms_days ? `${invoice.payment_terms_days} jours` : null)} />
@@ -121,7 +121,9 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
           <Info label="Reste a payer" value={<MoneyDisplay value={invoice.remaining_amount} />} />
         </CardContent>
       </Card>
-      <Card>
+      <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
+        <summary className="cursor-pointer text-sm font-medium">Journal comptable</summary>
+        <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
@@ -155,6 +157,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
           )}
         </CardContent>
       </Card>
+      </details>
       {invoice.notes || invoice.internal_notes ? <Card><CardHeader><h2 className="font-semibold">Notes</h2></CardHeader><CardContent className="grid gap-4 md:grid-cols-2"><Info label="Notes client" value={invoice.notes} /><Info label="Notes internes" value={invoice.internal_notes} /></CardContent></Card> : null}
     </div>
   );

@@ -49,17 +49,17 @@ export function TrialStartedBanner({
               Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez d&apos;un essai {planLabel}, sans carte bancaire et sans engagement.
             </p>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              Vous pouvez commencer à gérer vos clients, devis, factures, documents et paiements. Votre offre Essentiel est active, vous pourrez gérer votre abonnement depuis Paramètres &gt; Abonnement.
+              Créez vos factures de vente et d’achat, enregistrez leurs règlements et suivez votre trésorerie. Vos journaux restent accessibles. Vous pourrez gérer votre abonnement depuis Paramètres &gt; Abonnement.
             </p>
           </div>
         </div>
 
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:pt-9">
           <Link
-            href="/clients"
+            href="/facturation/factures/new"
             className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:brightness-110"
           >
-            Commencer maintenant
+            Créer une facture
           </Link>
           <Link
             href="/parametres/abonnement"

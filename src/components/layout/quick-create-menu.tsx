@@ -75,7 +75,33 @@ const groups = [
   },
 ];
 
-export function QuickCreateMenu() {
+const lightGroups = [
+  {
+    title: "Ventes",
+    items: [
+      { label: "Facture client", href: "/facturation/factures/new", icon: Receipt },
+      { label: "Encaisser un règlement", href: "/facturation/paiements/new", icon: WalletCards },
+      { label: "Nouveau client", href: "/tiers/new?type=customer", icon: Users },
+    ],
+  },
+  {
+    title: "Achats",
+    items: [
+      { label: "Facture fournisseur", href: "/achats/factures/new", icon: Receipt },
+      { label: "Régler un fournisseur", href: "/achats/paiements/new", icon: WalletCards },
+      { label: "Nouveau fournisseur", href: "/tiers/new?type=supplier", icon: Building2 },
+    ],
+  },
+  {
+    title: "Trésorerie",
+    items: [
+      { label: "Compte bancaire ou caisse", href: "/tresorerie/comptes/new", icon: Landmark },
+      { label: "Entrée ou sortie d'argent", href: "/tresorerie/mouvements/new", icon: Banknote },
+    ],
+  },
+];
+
+export function QuickCreateMenu({ fullAccess = false }: { fullAccess?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -83,8 +109,15 @@ export function QuickCreateMenu() {
     const handlePointerDown = (event: PointerEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   return (
@@ -94,18 +127,18 @@ export function QuickCreateMenu() {
         onClick={() => setOpen((value) => !value)}
         className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition hover:brightness-110"
         aria-label="Creation rapide"
+        aria-expanded={open}
       >
         <Plus className="h-5 w-5" />
       </button>
       {open ? (
-        <div className="absolute right-0 top-14 z-[100] w-[min(92vw,640px)] rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)]">
+        <div className="fixed left-4 right-4 top-20 z-[100] rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)] sm:absolute sm:left-auto sm:right-0 sm:top-14 sm:w-[min(92vw,640px)]">
           <div className="mb-2 px-2">
-            <p className="section-title">Command center</p>
             <p className="mt-1 text-base font-semibold text-[var(--popover-foreground)]">Création rapide</p>
-            <p className="text-xs text-[var(--muted)]">Créez les documents importants sans changer de module.</p>
+            <p className="text-xs text-[var(--muted)]">Une facture, un règlement ou un contact en un clic.</p>
           </div>
           <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2">
-            {groups.map((group) => (
+            {(fullAccess ? groups : lightGroups).map((group) => (
               <div key={group.title} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/50 p-2">
                 <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">{group.title}</p>
                 <div className="space-y-1">

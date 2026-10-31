@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { BookOpen, CircleHelp, FileText, Settings } from "lucide-react";
+import { BookOpen, CircleHelp, FileText, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const helpLinks = [
@@ -11,7 +11,13 @@ const helpLinks = [
   { href: "/parametres", label: "Paramètres", description: "Configurer votre entreprise et vos modules.", icon: Settings },
 ];
 
-export function HelpDropdown({ align = "right" }: { align?: "left" | "right" }) {
+const lightHelpLinks = [
+  { href: "/bienvenue", label: "Bien démarrer", description: "Configurer votre entreprise et créer votre première facture.", icon: BookOpen },
+  { href: "/parametres", label: "Mon entreprise", description: "Votre entreprise, vos utilisateurs et votre abonnement.", icon: Settings },
+  { href: "/parametres/modules", label: "Un besoin supplémentaire ?", description: "Demander l'accès aux modules complémentaires.", icon: Sparkles },
+];
+
+export function HelpDropdown({ align = "right", fullAccess = false }: { align?: "left" | "right"; fullAccess?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -19,8 +25,15 @@ export function HelpDropdown({ align = "right" }: { align?: "left" | "right" }) 
     function closeOutside(event: PointerEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
     }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
     document.addEventListener("pointerdown", closeOutside);
-    return () => document.removeEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, []);
 
   return (
@@ -35,7 +48,7 @@ export function HelpDropdown({ align = "right" }: { align?: "left" | "right" }) 
             <p className="mt-1 text-xs text-[var(--muted)]">Choisissez une ressource pour continuer.</p>
           </div>
           <div className="p-2">
-            {helpLinks.map((item) => {
+            {(fullAccess ? helpLinks : lightHelpLinks).map((item) => {
               const Icon = item.icon;
               return <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex items-start gap-3 rounded-xl p-3 transition hover:bg-[var(--surface-soft)]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]"><Icon className="h-4 w-4" /></span><span><span className="block text-sm font-semibold">{item.label}</span><span className="mt-0.5 block text-xs text-[var(--muted)]">{item.description}</span></span></Link>;
             })}

@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
-  title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+  title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
   description:
-    "Gérez ventes, achats, stock, trésorerie, comptabilité et documents avec FelexiaERP.",
+    "Gérez vos factures de vente et d’achat, leurs règlements, votre trésorerie et vos journaux avec Felexia Pro.",
   icons: {
     icon: [
       { url: BRAND.favicon },
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+    title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
     description:
-      "Gérez ventes, achats, stock, trésorerie, comptabilité et documents avec FelexiaERP.",
+      "Gérez vos factures de vente et d’achat, leurs règlements, votre trésorerie et vos journaux avec Felexia Pro.",
     images: [{ url: BRAND.logoHorizontal, width: 1783, height: 592, alt: BRAND.name }],
   },
 };

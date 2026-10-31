@@ -1,13 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type OnboardingChecklistStepKey =
-  | "company"
-  | "prospect"
-  | "article"
-  | "treasury"
-  | "quote"
-  | "pdf";
-
+export type OnboardingChecklistStepKey = "company" | "customer" | "supplier" | "treasury" | "invoice";
 export type OnboardingChecklistStep = {
   key: OnboardingChecklistStepKey;
   title: string;
@@ -15,7 +8,6 @@ export type OnboardingChecklistStep = {
   href: string;
   completed: boolean;
 };
-
 export type OnboardingChecklist = {
   organizationName: string;
   completedCount: number;
@@ -24,161 +16,37 @@ export type OnboardingChecklist = {
   progress: number;
   steps: OnboardingChecklistStep[];
 };
+const hasText = (value: unknown) => typeof value === "string" && value.trim().length > 0;
 
-function hasText(value: unknown) {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function countCompleted(steps: OnboardingChecklistStep[]) {
-  return steps.filter((step) => step.completed).length;
-}
-
-export async function getOnboardingChecklist(
-  organizationId: string,
-): Promise<OnboardingChecklist> {
+export async function getOnboardingChecklist(organizationId: string): Promise<OnboardingChecklist> {
   const supabase = await createClient();
-
-  const [{ data: organization }, { data: companySettings }] = await Promise.all([
-    supabase
-      .from("organizations")
-      .select("id, name, address, city, phone, email, logo_url")
-      .eq("id", organizationId)
-      .maybeSingle(),
-    supabase
-      .from("company_settings")
-      .select("organization_id, legal_name, address, city, phone, email, logo_url")
-      .eq("organization_id", organizationId)
-      .maybeSingle(),
+  const [organization, settings, customers, suppliers, accounts, invoices] = await Promise.all([
+    supabase.from("organizations").select("name, address, city").eq("id", organizationId).maybeSingle(),
+    supabase.from("company_settings").select("legal_name, address, city").eq("organization_id", organizationId).maybeSingle(),
+    supabase.from("third_parties").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).contains("types", ["customer"]).neq("status", "archived"),
+    supabase.from("third_parties").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).contains("types", ["supplier"]).neq("status", "archived"),
+    supabase.from("treasury_accounts").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("status", "active").is("archived_at", null),
+    supabase.from("customer_invoices").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).neq("status", "cancelled").is("archived_at", null),
   ]);
-
-  const companyInfoCompleted = [
-    organization?.name ?? companySettings?.legal_name,
-    organization?.address ?? companySettings?.address,
-    organization?.city ?? companySettings?.city,
-    organization?.phone ?? companySettings?.phone,
-    organization?.email ?? companySettings?.email,
-  ].every(hasText);
-  const logoCompleted = hasText(organization?.logo_url) || hasText(companySettings?.logo_url);
-  const companyCompleted = companyInfoCompleted && logoCompleted;
-
-  const [
-    { count: prospectCount },
-    { count: productCount },
-    { count: treasuryAccountCount },
-    { count: quoteCount },
-    { count: printableQuoteCount },
-    { data: latestQuote },
-  ] = await Promise.all([
-    supabase
-      .from("third_parties")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .contains("types", ["prospect"])
-      .neq("status", "archived"),
-    supabase
-      .from("products")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .is("archived_at", null),
-    supabase
-      .from("treasury_accounts")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .eq("status", "active")
-      .is("archived_at", null),
-    supabase
-      .from("sales_documents")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .eq("document_type", "quote")
-      .neq("status", "cancelled"),
-    supabase
-      .from("sales_documents")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId)
-      .eq("document_type", "quote")
-      .not("status", "in", "(draft,cancelled)"),
-    supabase
-      .from("sales_documents")
-      .select("id")
-      .eq("organization_id", organizationId)
-      .eq("document_type", "quote")
-      .not("status", "in", "(draft,cancelled)")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const hasProspect = (prospectCount ?? 0) > 0;
-  const hasArticle = (productCount ?? 0) > 0;
-  const hasTreasuryAccount = (treasuryAccountCount ?? 0) > 0;
-  const hasQuote = (quoteCount ?? 0) > 0;
-  const hasPrintableQuote = (printableQuoteCount ?? 0) > 0;
-  const pdfHref = latestQuote?.id
-    ? `/vente/devis/${latestQuote.id}/print`
-    : "/vente/devis";
-
+  const company = {
+    name: organization.data?.name || settings.data?.legal_name,
+    address: organization.data?.address || settings.data?.address,
+    city: organization.data?.city || settings.data?.city,
+  };
   const steps: OnboardingChecklistStep[] = [
-    {
-      key: "company",
-      title: "Configurer mon entreprise",
-      description: "Adresse, coordonnées, informations légales, logo",
-      href: "/parametres/entreprise",
-      completed: companyCompleted,
-    },
-    {
-      key: "prospect",
-      title: "Ajouter mon premier prospect",
-      description: "Nom, coordonnées, besoin identifié",
-      href: "/tiers/new?type=prospect",
-      completed: hasProspect,
-    },
-    {
-      key: "article",
-      title: "Ajouter mon premier article",
-      description: "Produit, service, prix et TVA",
-      href: "/articles/new?type=product",
-      completed: hasArticle,
-    },
-    {
-      key: "treasury",
-      title: "Ajouter mes comptes & caisses",
-      description: "Banques, caisses et moyens de paiement",
-      href: "/tresorerie/comptes",
-      completed: hasTreasuryAccount,
-    },
-    {
-      key: "quote",
-      title: "Créer mon premier devis",
-      description: "Préparer une première proposition commerciale",
-      href: "/vente/devis/new",
-      completed: hasQuote,
-    },
-    {
-      key: "pdf",
-      title: "Générer mon premier PDF",
-      description: "Valider et télécharger",
-      href: pdfHref,
-      completed: hasPrintableQuote,
-    },
+    { key: "company", title: "Vérifier mon entreprise", description: "Vos coordonnées et informations affichées sur vos factures", href: "/parametres/entreprise", completed: [company.name, company.address, company.city].every(hasText) },
+    { key: "customer", title: "Ajouter un client", description: "Le destinataire de votre première facture de vente", href: "/tiers/new?type=customer", completed: (customers.count ?? 0) > 0 },
+    { key: "supplier", title: "Ajouter un fournisseur", description: "Pour enregistrer vos factures d’achat", href: "/tiers/new?type=supplier", completed: (suppliers.count ?? 0) > 0 },
+    { key: "treasury", title: "Ajouter un compte ou une caisse", description: "Pour enregistrer vos encaissements et vos paiements", href: "/tresorerie/comptes/new", completed: (accounts.count ?? 0) > 0 },
+    { key: "invoice", title: "Créer ma première facture", description: "Saisissez vos prestations ou produits directement dans la facture", href: "/facturation/factures/new", completed: (invoices.count ?? 0) > 0 },
   ];
-
-  const completedCount = countCompleted(steps);
-  const totalCount = steps.length;
-
+  const completedCount = steps.filter((step) => step.completed).length;
   return {
-    organizationName:
-      (organization?.name as string | null | undefined) ??
-      (companySettings?.legal_name as string | null | undefined) ??
-      "votre entreprise",
-    completedCount,
-    totalCount,
-    isCompleted: completedCount >= totalCount,
-    progress: totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0,
-    steps,
+    organizationName: company.name || "votre entreprise",
+    completedCount, totalCount: steps.length, isCompleted: completedCount === steps.length,
+    progress: Math.round(completedCount / steps.length * 100), steps,
   };
 }
-
 export function isOnboardingChecklistComplete(checklist: OnboardingChecklist) {
   return checklist.isCompleted;
 }

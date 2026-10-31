@@ -4,6 +4,7 @@ import { CustomerInvoiceDetail } from "@/components/invoices/customer-invoice-de
 import { getCustomerInvoiceDetail, getCustomerInvoiceDocumentFlow } from "@/lib/invoices";
 import { getEntryWithLinesBySource } from "@/lib/accounting";
 import { getActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +19,12 @@ export default async function CustomerInvoiceDetailPage({ params }: { params: Pr
 
   const workspace = await getActiveWorkspace();
   const orgId = workspace?.organization.id;
+  const fullAccess = orgId ? await hasFullErpAccess(orgId) : false;
   const accountingEntry = orgId ? await getEntryWithLinesBySource(orgId, "customer_invoice", id) : null;
 
   return (
     <ModulePage>
-      <CustomerInvoiceDetail invoice={invoice} lines={lines} accountingEntry={accountingEntry} documentFlow={documentFlow} />
+      <CustomerInvoiceDetail fullAccess={fullAccess} invoice={invoice} lines={lines} accountingEntry={accountingEntry} documentFlow={documentFlow} />
     </ModulePage>
   );
 }

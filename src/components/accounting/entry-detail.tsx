@@ -20,9 +20,10 @@ type Props = {
   updateLineAccountAction: (prev: AccountingActionResult, formData: FormData) => Promise<AccountingActionResult>;
   accounts: ChartOfAccountOption[];
   documentFlow?: DocumentFlowStep[];
+  fullAccess?: boolean;
 };
 
-export function EntryDetailView({ detail, postAction, updateLineAccountAction, accounts, documentFlow }: Props) {
+export function EntryDetailView({ detail, postAction, updateLineAccountAction, accounts, documentFlow, fullAccess = false }: Props) {
   const { entry } = detail;
   const [editingLineId, setEditingLineId] = useState<string | null>(null);
   if (!entry) {
@@ -59,7 +60,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
         </div>
       </div>
 
-      <DocumentFlowMap steps={documentFlow ?? []} />
+      {fullAccess ? <DocumentFlowMap steps={documentFlow ?? []} /> : null}
 
       <Card>
         <CardHeader>

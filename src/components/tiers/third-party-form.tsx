@@ -29,6 +29,7 @@ type Props = {
   action: (state: ThirdPartyActionResult, formData: FormData) => Promise<ThirdPartyActionResult>;
   initialType?: ThirdPartyKind;
   customerCategories: CustomerCategory[];
+  fullAccess?: boolean;
 };
 
 const initialState: ThirdPartyActionResult = { success: true };
@@ -42,15 +43,20 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ThirdPartyForm({ mode, thirdParty, action, initialType, customerCategories }: Props) {
+function OptionalSection({ fullAccess, title, children }: { fullAccess: boolean; title: string; children: React.ReactNode }) {
+  if (fullAccess) return <>{children}</>;
+  return <details className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"><summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">{title}</summary><div className="mt-4">{children}</div></details>;
+}
+
+export function ThirdPartyForm({ mode, thirdParty, action, initialType, customerCategories, fullAccess = false }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [customerCatList, setCustomerCatList] = useState<CustomerCategory[]>(customerCategories);
   const initialTypes = useMemo<ThirdPartyKind[]>(() => {
     const fromRecord = normalizeTypes(thirdParty?.types);
     if (fromRecord.length) return fromRecord;
-    if (initialType) return [initialType];
-    return ["prospect"];
-  }, [thirdParty, initialType]);
+    if (initialType && (fullAccess || initialType !== "prospect")) return [initialType];
+    return [fullAccess ? "prospect" : "customer"];
+  }, [thirdParty, initialType, fullAccess]);
   const [types, setTypes] = useState<ThirdPartyKind[]>(initialTypes);
   const [country, setCountry] = useState(thirdParty?.country ?? getDefaultCountry());
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
@@ -100,18 +106,18 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       <input type="hidden" name="supplier_product_categories" value={selectedCategories.join(",")} />
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">En-tete / Type de tiers</h2>
+          <h2 className="font-semibold">{fullAccess ? "Type de tiers" : "Client ou fournisseur"}</h2>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
-          <Field label="Nom du tiers *">
+          <Field label="Nom ou raison sociale *">
             <Input name="name" defaultValue={thirdParty?.name ?? ""} required />
           </Field>
           {/* Nom commercial / marque masqué pour simplification PME */}
           <input type="hidden" name="commercial_name" value={thirdParty?.commercial_name ?? ""} />
           <div className="space-y-2 lg:col-span-2">
-            <p className="text-sm font-medium text-[var(--muted)]">Categories</p>
+            <p className="text-sm font-medium text-[var(--muted)]">Type de contact</p>
             <div className="flex flex-wrap gap-3">
-              {(["prospect", "customer", "supplier"] as ThirdPartyKind[]).map((type) => (
+              {(fullAccess ? ["prospect", "customer", "supplier"] as ThirdPartyKind[] : ["customer", "supplier"] as ThirdPartyKind[]).map((type) => (
                 <label key={type} className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
                   <input
                     type="checkbox"
@@ -124,30 +130,28 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
               ))}
             </div>
           </div>
-          <Field label="Code tiers">
+          {!fullAccess && hasProspect ? <input type="hidden" name="type_prospect" value="on" /> : null}
+          {fullAccess ? <Field label="Code tiers">
             <Input name="code" value={thirdParty?.code ?? "Genere automatiquement"} disabled readOnly />
-          </Field>
-          <Field label="Statut">
+          </Field> : null}
+          {fullAccess ? <Field label="Statut">
             <Select name="status" defaultValue={thirdParty?.status ?? "active"}>
               <option value="active">Actif</option>
               <option value="inactive">Inactif</option>
               <option value="blocked">Bloque</option>
               <option value="archived">Archive</option>
             </Select>
-          </Field>
+          </Field> : <input type="hidden" name="status" value={thirdParty?.status ?? "active"} />}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Coordonnees</h2>
+          <h2 className="font-semibold">Coordonnées</h2>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-4">
           <Field label="Adresse">
             <Textarea name="address" defaultValue={thirdParty?.address ?? ""} className="lg:col-span-4" />
-          </Field>
-          <Field label="Code postal">
-            <Input name="postal_code" defaultValue={thirdParty?.postal_code ?? ""} />
           </Field>
           <Field label="Pays">
             <Select
@@ -175,18 +179,23 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <Field label="Telephone">
             <Input name="phone" defaultValue={thirdParty?.phone ?? ""} />
           </Field>
-          <Field label="Tel portable">
-            <Input name="mobile" defaultValue={thirdParty?.mobile ?? ""} />
-          </Field>
           <Field label="Email">
             <Input name="email" type="email" defaultValue={thirdParty?.email ?? ""} />
           </Field>
-          <Field label="Web">
-            <Input name="website" defaultValue={thirdParty?.website ?? ""} />
-          </Field>
+          {!fullAccess ? <Field label="ICE"><Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} /></Field> : null}
+          <div className="lg:col-span-4">
+            <OptionalSection fullAccess={fullAccess} title="Coordonnées complémentaires (facultatif)">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Code postal"><Input name="postal_code" defaultValue={thirdParty?.postal_code ?? ""} /></Field>
+                <Field label="Téléphone portable"><Input name="mobile" defaultValue={thirdParty?.mobile ?? ""} /></Field>
+                <Field label="Site web"><Input name="website" defaultValue={thirdParty?.website ?? ""} /></Field>
+              </div>
+            </OptionalSection>
+          </div>
         </CardContent>
       </Card>
 
+      <OptionalSection fullAccess={fullAccess} title="Autres identifiants professionnels (facultatif)">
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Identifiants professionnels Maroc</h2>
@@ -204,9 +213,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <Field label="Id. prof. 4 (C.N.S.S.)">
             <Input name="cnss" defaultValue={thirdParty?.cnss ?? ""} />
           </Field>
-          <Field label="Identifiant Commun d'Entreprise (ICE)">
+          {fullAccess ? <Field label="Identifiant Commun d'Entreprise (ICE)">
             <Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} />
-          </Field>
+          </Field> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex items-center gap-2 self-end rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
               <input name="vat_subject" type="checkbox" defaultChecked={thirdParty?.vat_subject ?? false} />
@@ -218,8 +227,10 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           </div>
         </CardContent>
       </Card>
+      </OptionalSection>
 
       {hasProspect ? (
+        <OptionalSection fullAccess={fullAccess} title="Historique de prospection">
         <Card>
           <CardHeader><h2 className="font-semibold">Prospection</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-4">
@@ -243,6 +254,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <Field label="Notes de prospection"><Textarea name="prospect_notes" defaultValue={thirdParty?.prospect_notes ?? ""} /></Field>
           </CardContent>
         </Card>
+        </OptionalSection>
       ) : null}
 
       {hasCustomer || hasProspect ? (
@@ -277,6 +289,8 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <input type="hidden" name="default_discount_rate" value={thirdParty?.default_discount_rate ?? 0} />
             <input type="hidden" name="customer_category" value={thirdParty?.customer_category ?? ""} />
             <input type="hidden" name="risk_level" value={thirdParty?.risk_level ?? ""} />
+            <div className="lg:col-span-4">
+            <OptionalSection fullAccess={fullAccess} title="Catégorie client (facultatif)">
             <Field label="Categorie client">
               <ComboboxCreate
                 options={customerCatList.map((c) => ({ id: c.id, label: c.name }))}
@@ -298,11 +312,22 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
               />
               <input type="hidden" name="customer_category_id" value={customerCategoryValue} />
             </Field>
+            </OptionalSection>
+            </div>
           </CardContent>
         </Card>
       ) : null}
 
       {hasSupplier ? (
+        <>
+        {!fullAccess ? <Card>
+          <CardHeader><h2 className="font-semibold">Règlements fournisseur</h2></CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Field label="Conditions de paiement"><Select name="supplier_payment_terms" defaultValue={thirdParty?.supplier_payment_terms ?? ""}><option value="">Sélectionner</option>{SUPPLIER_PURCHASE_TERMS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</Select></Field>
+            <Field label="Mode de paiement"><Select name="supplier_payment_method" defaultValue={thirdParty?.supplier_payment_method ?? ""}><option value="">Sélectionner</option>{SUPPLIER_PAYMENT_METHOD_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</Select></Field>
+          </CardContent>
+        </Card> : null}
+        <OptionalSection fullAccess={fullAccess} title="Informations fournisseur complémentaires (facultatif)">
         <Card>
           <CardHeader><h2 className="font-semibold">Informations fournisseur</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-3">
@@ -329,14 +354,14 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
                 ))}
               </div>
             </div>
-            <Field label="Conditions d'achat">
+            {fullAccess ? <Field label="Conditions d'achat">
               <Select name="supplier_payment_terms" defaultValue={thirdParty?.supplier_payment_terms ?? ""}>
                 <option value="">-- Selectionner --</option>
                 {SUPPLIER_PURCHASE_TERMS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Select>
-            </Field>
+            </Field> : null}
             <Field label="Delai moyen livraison (jours)">
               <Input name="supplier_delivery_delay_days" type="number" min="0" step="1" defaultValue={thirdParty?.supplier_delivery_delay_days ?? ""} placeholder="Ex : 3" />
             </Field>
@@ -350,40 +375,44 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <Field label="Contact achat principal">
               <Input name="supplier_main_contact" defaultValue={thirdParty?.supplier_main_contact ?? ""} placeholder="Nom du contact achat principal" />
             </Field>
-            <Field label="Mode de paiement fournisseur">
+            {fullAccess ? <Field label="Mode de paiement fournisseur">
               <Select name="supplier_payment_method" defaultValue={thirdParty?.supplier_payment_method ?? ""}>
                 <option value="">-- Selectionner --</option>
                 {SUPPLIER_PAYMENT_METHOD_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Select>
-            </Field>
+            </Field> : null}
             <Field label="Notes achat">
               <Textarea name="supplier_notes" defaultValue={thirdParty?.supplier_notes ?? ""} placeholder="Notes internes liees aux achats, conditions particulieres, historique fournisseur..." />
             </Field>
           </CardContent>
         </Card>
+        </OptionalSection>
+        </>
       ) : null}
 
+      <OptionalSection fullAccess={fullAccess} title="Notes internes (facultatif)">
       <Card>
         <CardHeader><h2 className="font-semibold">Plus</h2></CardHeader>
         <CardContent>
           <Field label="Notes internes">
             <Textarea name="notes" defaultValue={thirdParty?.notes ?? ""} />
           </Field>
-          <div className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--muted)]">
+          {fullAccess ? <div className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--muted)]">
             Contacts, adresses secondaires et pieces jointes sont geres depuis la fiche tiers apres creation.
-          </div>
+          </div> : null}
         </CardContent>
       </Card>
+      </OptionalSection>
 
       {!state.success && state.error ? (
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
-        <Button type="button" variant="secondary" asChild><Link href={thirdParty ? `/tiers/${thirdParty.id}` : "/tiers"}>Annuler</Link></Button>
-        <Button disabled={pending}>{mode === "create" ? "Creer tiers" : "Enregistrer"}</Button>
+        <Button type="button" variant="secondary" asChild><Link href={thirdParty ? `/tiers/${thirdParty.id}` : hasSupplier && !hasCustomer ? "/achats/fournisseurs" : "/tiers/clients"}>Annuler</Link></Button>
+        <Button disabled={pending}>{pending ? "Enregistrement…" : mode === "create" ? "Créer le contact" : "Enregistrer"}</Button>
       </div>
     </form>
   );

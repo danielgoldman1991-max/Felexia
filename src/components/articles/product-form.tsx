@@ -20,6 +20,7 @@ type Props = {
   taxRates: TaxRate[];
   action: (state: ProductActionResult, formData: FormData) => Promise<ProductActionResult>;
   initialType?: ProductType;
+  fullAccess?: boolean;
 };
 
 const initialState: ProductActionResult = { success: true };
@@ -33,7 +34,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export function ProductForm({ mode, product, categories, units, taxRates, action, initialType }: Props) {
+export function ProductForm({ mode, product, categories, units, taxRates, action, initialType, fullAccess = false }: Props) {
+  const OptionalPanel = fullAccess ? "div" : "details";
   const [state, formAction, pending] = useActionState(action, initialState);
   const [type, setType] = useState<ProductType>(initialType ?? (product?.type as ProductType) ?? "product");
   const [catList, setCatList] = useState(categories);
@@ -41,6 +43,8 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
   const [taxRateId, setTaxRateId] = useState(() => product?.tax_rate_id ?? taxRates.find((t) => t.is_default)?.id ?? taxRates.find((t) => Number(t.rate) === 20)?.id ?? taxRates[0]?.id ?? "");
   const [purchasePrice, setPurchasePrice] = useState(product?.purchase_price_ht ?? 0);
   const [salePrice, setSalePrice] = useState(product?.sale_price_ht ?? 0);
+  const [sellable, setSellable] = useState(product?.is_sellable ?? true);
+  const [purchasable, setPurchasable] = useState(product?.is_purchasable ?? true);
 
   const defaultCategoryId = useMemo(() => {
     if (mode === "edit" || product?.category_id) return product?.category_id ?? "";
@@ -80,21 +84,25 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
         <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Type *">
-            <Select name="type" value={type} onChange={(e) => setType(e.target.value as ProductType)}>
+            <Select name="type" value={type} onChange={(e) => setType(e.target.value as ProductType)} disabled={!fullAccess && mode === "edit"}>
               <option value="product">Produit</option>
               <option value="service">Service</option>
             </Select>
+            {!fullAccess && mode === "edit" ? <input type="hidden" name="type" value={type} /> : null}
           </Field>
           {/* Reference interne (SKU) masquée pour simplification PME */}
-          <Field label="Code-barres">
+          {fullAccess ? <Field label="Code-barres">
             <Input name="barcode" defaultValue={product?.barcode ?? ""} placeholder="Optionnel" />
-          </Field>
+          </Field> : <input type="hidden" name="barcode" value={product?.barcode ?? ""} />}
           <Field label="Nom *">
             <Input name="name" defaultValue={product?.name ?? ""} required />
           </Field>
           <Field label="Description">
             <Textarea name="description" defaultValue={product?.description ?? ""} />
           </Field>
+          <OptionalPanel className="space-y-4 lg:col-span-3">
+            {!fullAccess ? <summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Catégorie, unité et statut (facultatif)</summary> : null}
+            <div className="grid gap-4 lg:grid-cols-3">
           <Field label="Categorie">
             <ComboboxCreate
               options={catList.map((c) => ({ id: c.id, label: c.code ? `${c.code} — ${c.name}` : c.name }))}
@@ -153,8 +161,11 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             <Select name="status" defaultValue={product?.status ?? "active"}>
               <option value="active">Actif</option>
               <option value="inactive">Inactif</option>
+              {product?.status === "archived" ? <option value="archived">Archivé</option> : null}
             </Select>
           </Field>
+            </div>
+          </OptionalPanel>
         </CardContent>
       </Card>
 
@@ -191,26 +202,33 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
           <Field label="Prix vente TTC">
             <Input value={salePriceTtc.toFixed(2)} disabled readOnly />
           </Field>
-          <Field label="Marge estimee">
+          {fullAccess ? <Field label="Marge estimee">
             <Input
               value={`${marginAmount.toFixed(2)} MAD`}
               disabled
               readOnly
               className={marginAmount >= 0 ? "" : "text-red-600"}
             />
-          </Field>
-          <Field label="Taux de marge">
+          </Field> : null}
+          {fullAccess ? <Field label="Taux de marge">
             <Input
               value={`${marginRate.toFixed(1)}%`}
               disabled
               readOnly
               className={marginRate >= 0 ? "" : "text-red-600"}
             />
-          </Field>
+          </Field> : null}
         </CardContent>
       </Card>
 
-      {type === "product" ? (
+      {!fullAccess ? (
+        <>
+          <input type="hidden" name="track_stock" value={product?.track_stock ? "on" : "off"} />
+          <input type="hidden" name="current_stock" value={product?.current_stock ?? 0} />
+          <input type="hidden" name="min_stock" value={product?.min_stock ?? 0} />
+          <input type="hidden" name="stock_alert_enabled" value={product?.stock_alert_enabled ? "on" : "off"} />
+        </>
+      ) : type === "product" ? (
         <Card>
           <CardHeader><h2 className="font-semibold">Stock</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-4">
@@ -256,15 +274,19 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
         </>
       )}
 
+      <OptionalPanel className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+        {!fullAccess ? <summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Options et notes (facultatif)</summary> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Options commerciales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-4">
           <label className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
-            <input name="is_sellable" type="checkbox" defaultChecked={product?.is_sellable ?? true} />
+            <input type="hidden" name="is_sellable" value={sellable ? "on" : "off"} />
+            <input type="checkbox" checked={sellable} onChange={(event) => setSellable(event.target.checked)} />
             Vendable
           </label>
           <label className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
-            <input name="is_purchasable" type="checkbox" defaultChecked={product?.is_purchasable ?? true} />
+            <input type="hidden" name="is_purchasable" value={purchasable ? "on" : "off"} />
+            <input type="checkbox" checked={purchasable} onChange={(event) => setPurchasable(event.target.checked)} />
             Achetable
           </label>
           {/* Remise par defaut masquée pour simplification PME */}
@@ -273,6 +295,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
           </Field>
         </CardContent>
       </Card>
+      </OptionalPanel>
 
       {!state.success && state.error ? (
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
@@ -281,7 +304,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={product ? `/articles/${product.id}` : "/articles"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? (type === "product" ? "Creer produit" : "Creer service") : "Enregistrer"}
+          {pending ? "Enregistrement…" : mode === "create" ? (type === "product" ? "Créer l'article" : "Créer le service") : "Enregistrer"}
         </Button>
       </div>
     </form>

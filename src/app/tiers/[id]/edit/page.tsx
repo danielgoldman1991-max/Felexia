@@ -5,9 +5,13 @@ import { ThirdPartyForm } from "@/components/tiers/third-party-form";
 import { updateThirdParty } from "@/lib/third-party-actions";
 import { getThirdParty } from "@/lib/third-parties";
 import { listCustomerCategories } from "@/lib/customer-categories";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export default async function EditThirdPartyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const { thirdParty } = await getThirdParty(id);
 
   if (!thirdParty) {
@@ -18,8 +22,8 @@ export default async function EditThirdPartyPage({ params }: { params: Promise<{
 
   return (
     <ModulePage>
-      <PageHeader title="Modifier tiers" description={thirdParty.name} />
-      <ThirdPartyForm mode="edit" thirdParty={thirdParty} action={updateThirdParty} customerCategories={customerCategories} />
+      <PageHeader title="Modifier le contact" description={thirdParty.name} />
+      <ThirdPartyForm mode="edit" thirdParty={thirdParty} action={updateThirdParty} customerCategories={customerCategories} fullAccess={fullAccess} />
     </ModulePage>
   );
 }

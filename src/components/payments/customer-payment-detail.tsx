@@ -46,7 +46,7 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerPaymentDetail({ payment, allocations, accountingEntry }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null }) {
+export function CustomerPaymentDetail({ payment, allocations, accountingEntry, fullAccess = false }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null; fullAccess?: boolean }) {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -93,7 +93,9 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry }:
           </Table>
         </CardContent>
       </Card>
-      <Card>
+      <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
+        <summary className="cursor-pointer text-sm font-medium">Journal comptable</summary>
+        <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
@@ -127,6 +129,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry }:
           )}
         </CardContent>
       </Card>
+      </details>
       {payment.notes || payment.internal_notes ? <Card><CardHeader><h2 className="font-semibold">Notes</h2></CardHeader><CardContent className="grid gap-4 md:grid-cols-2"><Info label="Notes" value={payment.notes} /><Info label="Notes internes" value={payment.internal_notes} /></CardContent></Card> : null}
     </div>
   );

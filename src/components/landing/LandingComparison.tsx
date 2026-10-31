@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const comparison = [
-  { label: "Données reliées entre modules", excel: false, felexia: true },
-  { label: "Prévisions de trésorerie", excel: "Bricolées", felexia: true },
+  { label: "Factures et règlements reliés", excel: false, felexia: true },
+  { label: "Suivi des montants à encaisser et à payer", excel: "Manuel", felexia: true },
   { label: "Suivi TVA par taux", excel: false, felexia: true },
   { label: "Documents PDF avec logo", excel: false, felexia: true },
   { label: "Accès multi-utilisateurs", excel: false, felexia: true },

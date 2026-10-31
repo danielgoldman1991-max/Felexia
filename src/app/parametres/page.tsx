@@ -5,13 +5,15 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getPlanDefinition } from "@/lib/subscriptions/plans";
+import { hasFullErpAccess } from "@/lib/launch-access";
 import {
-  Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight,
+  Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight, Package, Sparkles, Hash,
 } from "lucide-react";
 
 export default async function ParametresPage() {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
 
   const [{ count: memberCount }, { data: company }] = await Promise.all([
     supabase
@@ -101,12 +103,29 @@ export default async function ParametresPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <QuickLink href="/parametres/entreprise" icon={Building2} label="Modifier l'entreprise" />
           <QuickLink href="/parametres/utilisateurs" icon={Users} label="Inviter un utilisateur" />
-          <QuickLink href="/parametres/roles" icon={Shield} label="Gérer les rôles" />
+          {fullAccess ? <QuickLink href="/parametres/roles" icon={Shield} label="Gérer les rôles" /> : null}
           <QuickLink href="/parametres/abonnement" icon={CreditCard} label="Gérer l'abonnement" />
-          <QuickLink href="/parametres/documents" icon={FileText} label="Configurer les documents" />
-          <QuickLink href="/parametres/preferences" icon={UserCog} label="Préférences" />
+          <QuickLink href="/parametres/documents" icon={FileText} label="Personnaliser mes factures" />
+          <QuickLink href="/parametres/numerotation" icon={Hash} label="Numérotation des factures" />
+          <QuickLink href="/articles" icon={Package} label="Catalogue articles & services" />
+          {fullAccess ? <QuickLink href="/parametres/preferences" icon={UserCog} label="Préférences" /> : null}
         </div>
       </div>
+
+      {!fullAccess ? (
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+          <div className="flex items-start gap-3">
+            <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--primary)]" />
+            <div>
+              <h2 className="text-sm font-semibold">Votre activité évolue ?</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Les modules complémentaires sont disponibles sur demande.</p>
+              <Link href="/parametres/modules" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
+                Découvrir les modules sur demande <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

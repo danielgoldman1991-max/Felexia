@@ -1,29 +1,29 @@
-﻿import { FileCheck2, Landmark, MapPin, Percent } from "lucide-react";
+import { FileCheck2, Landmark, MapPin, Percent } from "lucide-react";
 
 const items = [
   {
     icon: MapPin,
     title: "Ancrée dans le contexte marocain",
     description:
-      "Dirham marocain, plan comptable marocain, TVA à 20%, 14%, 10% et 7%, documents conformes aux attentes de vos partenaires.",
+      "Vos factures en dirhams, avec les coordonnées et les identifiants de votre entreprise.",
   },
   {
     icon: Percent,
-    title: "TVA maîtrisée",
+    title: "TVA sur vos factures",
     description:
-      "TVA collectée et déductible suivies par taux et par mois, avec un projet de déclaration préparatoire prérempli.",
+      "Saisissez les taux applicables à vos opérations et retrouvez les montants HT, TVA et TTC.",
   },
   {
     icon: Landmark,
-    title: "États comptables locaux",
+    title: "Journaux à portée de main",
     description:
-      "Balance, grand livre, bilan et comptes de produits et charges aux formats attendus par les experts-comptables marocains.",
+      "Consultez les journaux et les écritures associés à vos ventes, achats et règlements.",
   },
   {
     icon: FileCheck2,
-    title: "Documents conformes",
+    title: "Factures à votre image",
     description:
-      "Devis, factures et avoirs avec numérotation légale, mentions obligatoires et vos coordonnées et ICE.",
+      "Personnalisez vos factures avec votre logo, vos coordonnées, votre ICE et leur numérotation.",
   },
 ];
 
@@ -38,11 +38,10 @@ export function LandingMorocco() {
             Pensé pour le Maroc
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#0B2A5B] sm:text-4xl">
-            Aux normes du marché marocain
+            Pensé pour votre activité au Maroc
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-slate-600">
-            FelexiaERP est construit pour les réalités des PME marocaines : devises, fiscalité,
-            comptabilité et documents.
+            Felexia Pro accompagne le quotidien des PME marocaines : facturer, régler et suivre sa trésorerie.
           </p>
         </div>
 
@@ -62,9 +61,9 @@ export function LandingMorocco() {
         </div>
 
         <p className="mx-auto mt-10 max-w-3xl rounded-2xl border border-amber-200/60 bg-amber-50/60 px-6 py-4 text-center text-sm leading-relaxed text-slate-600">
-          Les fonctions fiscales, sociales et comptables de FelexiaERP sont{" "}
+          Les journaux et écritures de Felexia Pro sont{" "}
           <strong className="font-semibold text-slate-700">préparatoires</strong> : elles
-          préparent vos données et vos projets de déclarations, mais ne remplacent ni
+          vous aident à organiser vos opérations, mais ne remplacent ni
           l&apos;expertise d&apos;un expert-comptable ni les obligations déclaratives applicables au
           Maroc.
         </p>

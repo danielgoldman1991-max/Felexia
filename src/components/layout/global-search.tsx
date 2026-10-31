@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { searchStaticRegistry, type GlobalSearchCategory, type GlobalSearchResult } from "@/lib/global-search-registry";
 import { cn } from "@/lib/utils";
+import { isLaunchPathAvailable } from "@/lib/launch-profile";
 
 const categoryIcons: Record<GlobalSearchCategory, ComponentType<{ className?: string }>> = {
   "Acces rapide": Sparkles,
@@ -39,7 +40,7 @@ function groupedResults(results: GlobalSearchResult[]) {
     .filter((group) => group.rows.length > 0);
 }
 
-export function GlobalSearch() {
+export function GlobalSearch({ fullAccess = false }: { fullAccess?: boolean }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,13 +52,18 @@ export function GlobalSearch() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
 
-  const staticResults = useMemo(() => searchStaticRegistry(query, query.trim() ? 12 : 6), [query]);
+  const staticResults = useMemo(
+    () => searchStaticRegistry(query, 100).filter((result) => isLaunchPathAvailable(result.href, fullAccess)).slice(0, query.trim() ? 12 : 6),
+    [query, fullAccess],
+  );
   const results = useMemo(() => {
     if (query.trim().length < 2) return staticResults;
     const byId = new Map<string, GlobalSearchResult>();
-    for (const result of [...dynamicResults, ...staticResults]) byId.set(result.id, result);
+    for (const result of [...dynamicResults, ...staticResults]) {
+      if (isLaunchPathAvailable(result.href, fullAccess)) byId.set(result.id, result);
+    }
     return [...byId.values()];
-  }, [dynamicResults, query, staticResults]);
+  }, [dynamicResults, fullAccess, query, staticResults]);
   const flatResults = results.slice(0, 30);
   const groups = groupedResults(flatResults);
 
@@ -152,12 +158,12 @@ export function GlobalSearch() {
         onFocus={() => setOpen(true)}
         onKeyDown={handleInputKeyDown}
         className="h-11 rounded-2xl pl-10 pr-20 text-sm"
-        placeholder="Rechercher une fonction, un client, un document..."
+        placeholder={fullAccess ? "Rechercher une fonction, un client, un document..." : "Rechercher une facture, un client..."}
       />
       <span className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:block">Ctrl K</span>
 
       {open ? (
-        <div className="absolute left-0 right-0 top-14 z-[100] max-h-[70vh] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)]">
+        <div className="fixed left-4 right-4 top-20 z-[100] max-h-[70vh] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)] sm:absolute sm:left-0 sm:right-0 sm:top-14">
           {loading ? <p className="px-3 py-2 text-sm text-[var(--muted)]">Recherche...</p> : null}
           {searchError ? <p className="mx-2 mb-2 rounded-xl bg-[var(--danger-soft)] px-3 py-2 text-sm text-[var(--danger)]">{searchError} Réessayez dans un instant.</p> : null}
           {!loading && flatResults.length === 0 ? <p className="px-3 py-8 text-center text-sm text-[var(--muted)]">Aucun resultat trouve.</p> : null}

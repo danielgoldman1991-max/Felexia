@@ -3,10 +3,12 @@ import { AppShellClient } from "@/components/layout/app-shell-client";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getOnboardingChecklist, isOnboardingChecklistComplete } from "@/lib/onboarding";
 import { getUserOnboardingStatus } from "@/lib/saas";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export async function AppShell({ children }: { children: ReactNode }) {
   await getUserOnboardingStatus();
   const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   let showWelcomeGuide = true;
 
   try {
@@ -17,7 +19,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AppShellClient workspace={workspace} showWelcomeGuide={showWelcomeGuide}>
+    <AppShellClient workspace={workspace} showWelcomeGuide={showWelcomeGuide} fullAccess={fullAccess}>
       {children}
     </AppShellClient>
   );

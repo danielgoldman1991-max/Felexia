@@ -87,13 +87,16 @@ export function ThirdPartyDetail({
   addresses,
   attachments,
   activity,
+  fullAccess = false,
 }: {
   thirdParty: ThirdPartyRecord;
   contacts: ThirdPartyContact[];
   addresses: ThirdPartyAddress[];
   attachments: ThirdPartyAttachment[];
   activity: ThirdPartyActivityItem[];
+  fullAccess?: boolean;
 }) {
+  const OptionalPanel = fullAccess ? "div" : "details";
   const isProspect = thirdParty.types?.includes("prospect");
   const isCustomer = thirdParty.types?.includes("customer");
   const isSupplier = thirdParty.types?.includes("supplier");
@@ -112,7 +115,7 @@ export function ThirdPartyDetail({
         description={thirdParty.code ?? "Code tiers non genere"}
         actions={
           <>
-            {isProspect && !isCustomer ? (
+            {fullAccess && isProspect && !isCustomer ? (
               <form action={convertAction}>
                 <input type="hidden" name="id" value={thirdParty.id} />
                 <Button disabled={convertPending}>
@@ -145,13 +148,13 @@ export function ThirdPartyDetail({
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Card>
+        {fullAccess ? <Card>
           <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Nom commercial" value={thirdParty.commercial_name} />
             <Info label="Code tiers" value={thirdParty.code} />
           </CardContent>
-        </Card>
+        </Card> : null}
         <Card>
           <CardHeader><h2 className="font-semibold">Coordonnees</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
@@ -161,10 +164,22 @@ export function ThirdPartyDetail({
             <Info label="Telephone" value={thirdParty.phone} />
             <Info label="Portable" value={thirdParty.mobile} />
             <Info label="Email" value={thirdParty.email} />
+            {!fullAccess ? <Info label="ICE" value={thirdParty.ice} /> : null}
             <Info label="Web" value={thirdParty.website} />
           </CardContent>
         </Card>
       </div>
+
+      {!fullAccess ? <Card>
+        <CardHeader><h2 className="font-semibold">Conditions de paiement</h2></CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          {isCustomer ? <Info label="Client" value={getPaymentTermLabel(thirdParty.payment_terms) || `${thirdParty.payment_terms_days ?? 0} jours`} /> : null}
+          {isSupplier ? <Info label="Fournisseur" value={getSupplierPurchaseTermsLabel(thirdParty.supplier_payment_terms)} /> : null}
+        </CardContent>
+      </Card> : null}
+
+      <OptionalPanel className="space-y-6 rounded-xl border border-[var(--border)] p-4">
+      {!fullAccess ? <summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Informations complémentaires, contacts et historique</summary> : null}
 
       <Card>
         <CardHeader><h2 className="font-semibold">Identifiants professionnels</h2></CardHeader>
@@ -333,6 +348,7 @@ export function ThirdPartyDetail({
           )}
         </CardContent>
       </Card>
+      </OptionalPanel>
     </div>
   );
 }

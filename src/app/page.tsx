@@ -14,15 +14,15 @@ import { LandingWhy } from "@/components/landing/LandingWhy";
 import { LandingWorkflow } from "@/components/landing/LandingWorkflow";
 
 export const metadata: Metadata = {
-  title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+  title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
   description:
-    "Gérez ventes, achats, stock, trésorerie, comptabilité, documents et prévisions dans une plateforme SaaS simple et professionnelle adaptée aux PME marocaines.",
+    "Créez votre entreprise, vos factures de vente et d’achat, enregistrez vos règlements et suivez votre trésorerie et vos journaux avec Felexia Pro.",
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    title: "FelexiaERP — Mini ERP moderne pour PME au Maroc",
+    title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
     description:
-      "Ventes, achats, stock, trésorerie, comptabilité et prévisions : toute votre PME dans un seul outil.",
+      "Factures de vente et d’achat, règlements, trésorerie et journaux : l’essentiel pour démarrer simplement.",
   },
 };
 

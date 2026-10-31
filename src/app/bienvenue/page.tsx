@@ -40,7 +40,7 @@ export default async function WelcomePage({
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-950">Votre entreprise est prête</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Votre essai {planLabel} est activé. Les modules {planLabel} sont disponibles pour démarrer Felexia sans blocage.
+                  Votre essai {planLabel} est activé. Vous pouvez créer vos factures de vente et d’achat, enregistrer leurs règlements et suivre votre trésorerie.
                 </p>
                 {trialEndsAt && (
                   <p className="mt-2 text-xs font-medium text-slate-500">

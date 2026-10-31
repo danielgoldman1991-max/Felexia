@@ -12,6 +12,8 @@ import {
   listInvoiceUnits,
 } from "@/lib/invoices";
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
@@ -38,10 +40,12 @@ function isOrderPreparation(value: unknown): value is OrderPreparation {
 
 export default async function NewCustomerInvoicePage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const sourceType = params.sourceType ?? "manual";
-  const sourceId = params.sourceId ?? "";
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const sourceType = fullAccess ? params.sourceType ?? "manual" : "manual";
+  const sourceId = fullAccess ? params.sourceId ?? "" : "";
   const initialCustomerId = params.customerId ?? "";
-  const initialDeliveryNoteId = params.deliveryNoteId ?? (sourceType === "delivery_note" ? sourceId : "");
+  const initialDeliveryNoteId = fullAccess ? params.deliveryNoteId ?? (sourceType === "delivery_note" ? sourceId : "") : "";
 
   if (sourceType === "order") {
     return (
@@ -58,7 +62,7 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
 
   const [customers, products, units, taxRates, sourcePreparation] = await Promise.all([
     listInvoiceCustomers(),
-    listInvoiceProducts(),
+    fullAccess ? listInvoiceProducts() : Promise.resolve([]),
     listInvoiceUnits(),
     listInvoiceTaxRates(),
     initialCustomerId && initialDeliveryNoteId
@@ -69,14 +73,15 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
   const orderSourceDocument = isOrderPreparation(sourcePreparation) ? sourcePreparation.document : null;
   const initialLines = sourcePreparation?.lines ?? [];
   const initialCustomer = orderSourceDocument?.customer_id ?? initialCustomerId;
-  const initialDeliveryNotes = initialCustomer ? await listBillableDeliveryNotesByCustomer(initialCustomer) : [];
+  const initialDeliveryNotes = fullAccess && initialCustomer ? await listBillableDeliveryNotesByCustomer(initialCustomer) : [];
 
   return (
     <ModulePage>
-      <PageHeader title="Nouvelle facture" description="Selectionnez d'abord un client, puis importez ses BL valides a facturer." />
+      <PageHeader title="Nouvelle facture de vente" description={fullAccess ? "Choisissez un client, puis saisissez les lignes ou importez ses bons de livraison." : "Choisissez votre client, ajoutez les lignes, puis enregistrez la facture."} />
 
       <CustomerInvoiceForm
         action={createCustomerInvoice}
+        fullAccess={fullAccess}
         customers={customers}
         products={products}
         units={units}

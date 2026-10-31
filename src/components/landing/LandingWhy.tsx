@@ -1,4 +1,4 @@
-﻿import {
+import {
   BarChart3,
   Building2,
   CheckCircle2,
@@ -14,37 +14,37 @@ const points = [
     icon: Building2,
     title: "Conçu pour le Maroc",
     description:
-      "Dirham (MAD), TVA (20%, 14%, 10%, 7%), plan comptable marocain et documents aux normes locales.",
+      "Montants en dirhams (MAD), TVA configurable et coordonnées de votre entreprise sur vos factures.",
   },
   {
     icon: Users2,
     title: "Pour PME & équipes",
     description:
-      "Un outil unique pour les commerciaux, la production, le stock, la trésorerie et la comptabilité.",
+      "Un espace clair pour gérer vos factures, vos clients, vos fournisseurs et leurs règlements.",
   },
   {
     icon: BarChart3,
     title: "Connecté & pilotable",
     description:
-      "Devis, commandes, factures, stock et trésorerie reliés entre eux : zéro saisie en double.",
+      "Factures et règlements sont reliés : retrouvez le montant restant à régler sans refaire vos calculs.",
   },
   {
     icon: CheckCircle2,
     title: "Toujours à jour",
     description:
-      "Chaque opération met à jour vos indicateurs : CA, encours clients, stock critique, soldes.",
+      "Retrouvez vos ventes du mois, vos factures à encaisser, vos factures à payer et vos soldes.",
   },
   {
     icon: Cloud,
     title: "Accessible partout",
     description:
-      "SaaS dans le navigateur : pas d'installation, pas de serveur, vos données disponibles 24h/24.",
+      "Accédez à votre espace depuis votre navigateur, sur ordinateur, tablette ou téléphone.",
   },
   {
     icon: Rocket,
     title: "Évolutif avec vous",
     description:
-      "Toutes les fonctions essentielles incluses dans une seule offre, et de nouvelles fonctionnalités arrivent régulièrement.",
+      "Démarrez avec l’essentiel. Les modules complémentaires peuvent être activés sur demande par notre équipe.",
   },
 ];
 

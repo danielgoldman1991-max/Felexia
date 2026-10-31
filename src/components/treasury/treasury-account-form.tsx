@@ -13,9 +13,10 @@ import { TREASURY_ACCOUNT_TYPE_LABELS, type TreasuryAccountRecord, type Treasury
 type Props = {
   account?: TreasuryAccountRecord | null;
   action: (state: TreasuryActionResult, formData: FormData) => Promise<TreasuryActionResult>;
+  fullAccess?: boolean;
 };
 
-export function TreasuryAccountForm({ account, action }: Props) {
+export function TreasuryAccountForm({ account, action, fullAccess = false }: Props) {
   const [state, formAction, pending] = useActionState(action, { success: true });
 
   return (
@@ -29,10 +30,6 @@ export function TreasuryAccountForm({ account, action }: Props) {
             <Input name="name" defaultValue={account?.name ?? ""} required />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Code</span>
-            <Input name="code" defaultValue={account?.code ?? ""} placeholder="BANK-MAIN" />
-          </label>
-          <label className="space-y-2 text-sm">
             <span className="font-medium">Type</span>
             <Select name="account_type" defaultValue={account?.account_type ?? "bank"}>
               {Object.entries(TREASURY_ACCOUNT_TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -41,6 +38,21 @@ export function TreasuryAccountForm({ account, action }: Props) {
           <label className="space-y-2 text-sm">
             <span className="font-medium">Devise</span>
             <Input name="currency" defaultValue={account?.currency ?? "MAD"} />
+          </label>
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Solde initial{account ? " (non modifiable)" : ""}</span>
+            <MoneyInput name="opening_balance" min={0} defaultValue={account?.opening_balance ?? 0} disabled={Boolean(account)} />
+          </label>
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Date solde initial</span>
+            <Input name="opening_balance_date" type="date" defaultValue={account?.opening_balance_date ?? ""} />
+          </label>
+          <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4 md:col-span-2">
+            <summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Coordonnées bancaires et options (facultatif)</summary>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm">
+            <span className="font-medium">Code</span>
+            <Input name="code" defaultValue={account?.code ?? ""} placeholder="BANK-MAIN" />
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Banque</span>
@@ -63,16 +75,8 @@ export function TreasuryAccountForm({ account, action }: Props) {
             <Input name="swift" defaultValue={account?.swift ?? ""} />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Numero compte</span>
+            <span className="font-medium">Numéro de compte</span>
             <Input name="account_number" defaultValue={account?.account_number ?? ""} />
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">Solde initial{account ? " (non modifiable)" : ""}</span>
-            <MoneyInput name="opening_balance" min={0} defaultValue={account?.opening_balance ?? 0} disabled={Boolean(account)} />
-          </label>
-          <label className="space-y-2 text-sm">
-            <span className="font-medium">Date solde initial</span>
-            <Input name="opening_balance_date" type="date" defaultValue={account?.opening_balance_date ?? ""} />
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Statut</span>
@@ -90,12 +94,14 @@ export function TreasuryAccountForm({ account, action }: Props) {
             <span className="font-medium">Notes</span>
             <Textarea name="notes" defaultValue={account?.notes ?? ""} />
           </label>
+            </div>
+          </details>
         </CardContent>
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/comptes">Annuler</Link></Button>
-        <Button disabled={pending}>{account ? "Enregistrer" : "Creer compte"}</Button>
+        <Button disabled={pending}>{pending ? "Enregistrement…" : account ? "Enregistrer" : "Créer le compte"}</Button>
       </div>
     </form>
   );

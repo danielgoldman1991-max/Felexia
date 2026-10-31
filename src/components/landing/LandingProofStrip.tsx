@@ -1,25 +1,25 @@
-﻿import { Building2, Database, FileText, FolderCheck, LineChart } from "lucide-react";
+import { Building2, Database, FileText, FolderCheck, LineChart } from "lucide-react";
 
 const items = [
   {
     icon: Building2,
-    title: "Création d'entreprise",
+    title: "Espace entreprise",
     detail: "en quelques minutes",
   },
   {
     icon: FileText,
-    title: "Documents commerciaux",
+    title: "Factures personnalisées",
     detail: "avec logo et ICE",
   },
   {
     icon: LineChart,
-    title: "Suivi ventes, achats, stock",
-    detail: "et trésorerie en temps réel",
+    title: "Ventes et achats",
+    detail: "et suivi des règlements",
   },
   {
     icon: FolderCheck,
-    title: "Comptabilité structurée",
-    detail: "et prête à l'emploi",
+    title: "Journaux accessibles",
+    detail: "pour garder la main",
   },
   {
     icon: Database,

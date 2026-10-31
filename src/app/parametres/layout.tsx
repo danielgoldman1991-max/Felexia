@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 const navItems = [
   { label: "Mon profil", href: "/parametres/profil", key: "profil" },
@@ -16,13 +18,25 @@ const navItems = [
   { label: "Numérotation", href: "/parametres/numerotation", key: "numerotation" },
 ];
 
+const lightNavItems = [
+  { label: "Mon entreprise", href: "/parametres/entreprise", key: "entreprise" },
+  { label: "Mon équipe", href: "/parametres/utilisateurs", key: "utilisateurs" },
+  { label: "Mon abonnement", href: "/parametres/abonnement", key: "abonnement" },
+  { label: "Modèles de factures", href: "/parametres/documents", key: "documents" },
+  { label: "Numérotation", href: "/parametres/numerotation", key: "numerotation" },
+  { label: "Catalogue articles & services", href: "/articles", key: "articles" },
+  { label: "Modules sur demande", href: "/parametres/modules", key: "modules" },
+];
+
 export default async function ParametresLayout({ children }: { children: ReactNode }) {
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   return (
     <ModulePage>
       <div className="flex gap-8">
         <aside className="hidden w-56 shrink-0 lg:block">
-          <nav className="sticky top-8 space-y-1">
-            {navItems.map((item) => (
+          <nav aria-label="Paramètres de l'entreprise" className="sticky top-8 space-y-1">
+            {(fullAccess ? navItems : lightNavItems).map((item) => (
               <Link
                 key={item.key}
                 href={item.href}

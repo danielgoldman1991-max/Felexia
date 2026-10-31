@@ -53,10 +53,12 @@ export function SupplierPaymentDetail({
   payment,
   allocations,
   accountingEntry,
+  fullAccess = false,
 }: {
   payment: SupplierPaymentRecord;
   allocations: SupplierPaymentAllocationRecord[];
   accountingEntry?: AccountingEntryInfo | null;
+  fullAccess?: boolean;
 }) {
   const canAllocate = payment.available_amount > 0;
   const canCancel = payment.status !== "cancelled";
@@ -106,7 +108,9 @@ export function SupplierPaymentDetail({
         </Card>
       </div>
 
-      <Card>
+      <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
+        <summary className="cursor-pointer text-sm font-medium">Journal comptable</summary>
+        <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
@@ -140,6 +144,7 @@ export function SupplierPaymentDetail({
           )}
         </CardContent>
       </Card>
+      </details>
 
       {allocations.length > 0 ? (
         <Card>

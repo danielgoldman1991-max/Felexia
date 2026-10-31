@@ -11,6 +11,8 @@ import { ThirdPartyFilters } from "@/components/tiers/third-party-filters";
 import { ThirdPartyTable } from "@/components/tiers/third-party-table";
 import { filtersFromSearchParams, getThirdPartyCounters, listThirdParties } from "@/lib/third-parties";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 type PageMeta = { title: string; description: string; buttonLabel: string; buttonHref: string };
 
@@ -95,6 +97,8 @@ export async function ThirdPartyListPage({
   showCounters?: boolean;
 }) {
   const params = await searchParams;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const filters = filtersFromSearchParams(params, forcedType);
   const meta = titles[forcedType ?? "all"];
 
@@ -114,7 +118,7 @@ export async function ThirdPartyListPage({
   try {
     const [listResult, counterResult] = await Promise.all([
       listThirdParties(filters),
-      showCounters ? getThirdPartyCounters() : Promise.resolve(counters),
+      showCounters && fullAccess ? getThirdPartyCounters() : Promise.resolve(counters),
     ]);
     rows = listResult.rows;
     counters = counterResult;
@@ -132,8 +136,8 @@ export async function ThirdPartyListPage({
           actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
         />
         <EmptyState
-          title="Module Tiers pret, migration requise"
-          description={`Appliquez la migration 002_third_parties_complete.sql. Detail: ${errorMessage}`}
+          title="Impossible de charger vos contacts"
+          description={fullAccess ? `Appliquez la migration 002_third_parties_complete.sql. Detail: ${errorMessage}` : "Réessayez dans un instant ou contactez l'assistance."}
           action={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
         />
       </ModulePage>
@@ -144,10 +148,10 @@ export async function ThirdPartyListPage({
     <ModulePage>
       <PageHeader
         title={meta.title}
-        description={meta.description}
+        description={fullAccess ? meta.description : "Les coordonnées de vos contacts pour vos factures et règlements."}
         actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
       />
-      {showCounters ? (
+      {showCounters && fullAccess ? (
         <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
           <StatCard title="Total tiers" value={counters.total} icon={<Building2 className="h-5 w-5" />} />
           <StatCard title="Prospects actifs" value={counters.prospects} icon={<Users className="h-5 w-5" />} />
@@ -158,10 +162,10 @@ export async function ThirdPartyListPage({
           <StatCard title="Fournisseurs evalues" value={counters.ratedSuppliers} icon={<Star className="h-5 w-5" />} />
         </div>
       ) : null}
-      <ThirdPartyFilters filters={filters} forcedType={forcedType} />
+      <ThirdPartyFilters filters={filters} forcedType={forcedType} fullAccess={fullAccess} />
       {rows.length ? (
         <>
-          <ThirdPartyTable rows={rows} />
+          <ThirdPartyTable rows={rows} fullAccess={fullAccess} />
           <PaginationBar page={pagination.page} totalPages={pagination.totalPages} searchParams={params} />
         </>
       ) : (

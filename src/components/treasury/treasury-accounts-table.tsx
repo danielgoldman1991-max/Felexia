@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { useActionState } from "react";
 import { Archive, CheckCircle2, Eye, Pencil } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
-import { MoneyDisplay } from "@/components/erp/money-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -38,7 +37,7 @@ export function TreasuryAccountsTable({ rows }: { rows: TreasuryAccountRecord[] 
             <Td>{TREASURY_ACCOUNT_TYPE_LABELS[row.account_type]}</Td>
             <Td>{row.bank_name ?? "-"}</Td>
             <Td>{row.currency}</Td>
-            <Td><MoneyDisplay value={row.current_balance} /></Td>
+            <Td><span className="font-mono tabular-nums">{row.current_balance.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {row.currency}</span></Td>
             <Td><Badge tone={row.status === "active" ? "success" : "neutral"}>{row.status === "active" ? "Actif" : row.status === "inactive" ? "Inactif" : "Archive"}</Badge></Td>
             <Td>{row.is_default ? <Badge tone="info">Par defaut</Badge> : "-"}</Td>
             <Td>

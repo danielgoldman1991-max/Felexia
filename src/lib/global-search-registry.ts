@@ -19,6 +19,7 @@ export type GlobalSearchResult = {
 };
 
 export const GLOBAL_SEARCH_REGISTRY: GlobalSearchResult[] = [
+  { id: "journals", title: "Journaux comptables", subtitle: "Ventes, achats, banque et caisse", href: "/comptabilite/journaux", category: "Acces rapide", type: "route", keywords: ["journal", "écritures", "comptabilité"] },
   { id: "dashboard", title: "Tableau de bord", subtitle: "Vue generale Felexia", href: "/dashboard", category: "Acces rapide", type: "route", keywords: ["dashboard", "accueil", "pilotage"] },
   { id: "tiers", title: "Tiers", subtitle: "Clients, prospects et fournisseurs", href: "/tiers", category: "Tiers", type: "route", keywords: ["crm", "client", "fournisseur", "prospect"] },
   { id: "tiers-prospects", title: "Prospects", subtitle: "Liste des prospects", href: "/tiers/prospects", category: "Tiers", type: "route", keywords: ["prospect", "crm"] },
@@ -75,7 +76,7 @@ export const GLOBAL_SEARCH_REGISTRY: GlobalSearchResult[] = [
 ];
 
 export const FREQUENT_SEARCH_RESULTS = GLOBAL_SEARCH_REGISTRY.filter((item) =>
-  ["new-client", "new-quote", "new-invoice", "new-customer-payment", "stock-moves", "bank-reconciliation"].includes(item.id),
+  ["new-client", "new-invoice", "new-customer-payment", "new-supplier-invoice", "new-supplier-payment", "journals"].includes(item.id),
 );
 
 export function searchStaticRegistry(query: string, limit = 12) {

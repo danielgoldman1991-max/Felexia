@@ -3,18 +3,24 @@ import { ModulePage } from "@/components/erp/module-page";
 import { SupplierInvoiceForm } from "@/components/purchases/supplier-invoice-form";
 import { listPurchaseSuppliers, listPurchaseProducts, listBillableSupplierReceipts, getSupplierInvoiceByReceiptId, getSupplierInvoicePreparationFromReceipt } from "@/lib/purchases";
 import type { SupplierInvoiceLineFormValue } from "@/lib/purchase-types";
+import { listInvoiceTaxRates } from "@/lib/invoices";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewSupplierInvoicePage({ searchParams }: { searchParams: Promise<{ receiptId?: string }> }) {
-  const { receiptId } = await searchParams;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const params = await searchParams;
+  const receiptId = fullAccess ? params.receiptId : undefined;
 
   if (receiptId) {
     const existing = await getSupplierInvoiceByReceiptId(receiptId);
     if (existing) redirect(`/achats/factures/${existing.id}`);
   }
 
-  const [suppliers, products, billableReceipts] = await Promise.all([listPurchaseSuppliers(), listPurchaseProducts(), listBillableSupplierReceipts()]);
+  const [suppliers, products, billableReceipts, taxRates] = await Promise.all([listPurchaseSuppliers(), fullAccess ? listPurchaseProducts() : Promise.resolve([]), fullAccess ? listBillableSupplierReceipts() : Promise.resolve([]), listInvoiceTaxRates()]);
 
   let prefillSupplierId = "";
   let prefillSourceReceiptId = "";
@@ -51,7 +57,7 @@ export default async function NewSupplierInvoicePage({ searchParams }: { searchP
 
   return (
     <ModulePage>
-      <SupplierInvoiceForm suppliers={suppliers} products={products} billableReceipts={billableReceipts} prefillSupplierId={prefillSupplierId} prefillSourceReceiptId={prefillSourceReceiptId} prefillLines={prefillLines} />
+      <SupplierInvoiceForm fullAccess={fullAccess} taxRates={taxRates} suppliers={suppliers} products={products} billableReceipts={billableReceipts} prefillSupplierId={prefillSupplierId} prefillSourceReceiptId={prefillSourceReceiptId} prefillLines={prefillLines} />
     </ModulePage>
   );
 }

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const produitLinks = [
@@ -10,13 +10,11 @@ const produitLinks = [
 ];
 
 const moduleLinks = [
-  "Ventes & CRM",
-  "Achats",
-  "Stock & Articles",
+  "Factures de vente",
+  "Factures d’achat",
+  "Règlements",
   "Trésorerie",
-  "Comptabilité",
-  "Documents & Modèles",
-  "TVA & Déclarations",
+  "Journaux",
 ];
 
 const legalLinks = [
@@ -33,8 +31,7 @@ export function LandingFooter() {
           <div className="lg:col-span-2">
             <BrandLogo size="md" priority />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-600">
-              FelexiaERP — Mini ERP moderne pour PME marocaines. Ventes, achats, stock,
-              trésorerie, comptabilité et prévisions dans une seule plateforme.
+              Felexia Pro — Vos factures de vente et d’achat, leurs règlements, votre trésorerie et vos journaux dans un espace simple.
             </p>
           </div>
 
@@ -55,7 +52,7 @@ export function LandingFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Modules</h3>
+            <h3 className="text-sm font-bold text-slate-900">Au quotidien</h3>
             <ul className="mt-4 space-y-2.5">
               {moduleLinks.map((label) => (
                 <li key={label}>
@@ -94,7 +91,7 @@ export function LandingFooter() {
           <p className="text-sm text-slate-500">
             &copy; {new Date().getFullYear()} Felexia Conseils. FelexiaERP — Tous droits réservés.
           </p>
-          <p className="text-sm text-slate-500">Mini-ERP pour PME marocaines.</p>
+          <p className="text-sm text-slate-500">La gestion simple pour les PME marocaines.</p>
         </div>
       </div>
     </footer>

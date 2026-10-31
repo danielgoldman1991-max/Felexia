@@ -45,6 +45,7 @@ type Props = {
   submitLabel?: string;
   cancelHref?: string;
   invoiceId?: string;
+  fullAccess?: boolean;
 };
 
 function today() {
@@ -77,6 +78,7 @@ export function CustomerInvoiceForm({
   submitLabel = "Creer facture",
   cancelHref = "/facturation/factures",
   invoiceId,
+  fullAccess = false,
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { success: true });
   const [customerId, setCustomerId] = useState(initialCustomerId);
@@ -121,12 +123,12 @@ export function CustomerInvoiceForm({
 
   function handleCustomerChange(nextCustomerId: string) {
     if (nextCustomerId === customerId) return;
-    if (lines.length > 0) {
+    if (fullAccess && lines.length > 0) {
       const confirmed = window.confirm("Changer de client supprimera les lignes deja importees. Continuer ?");
       if (!confirmed) return;
     }
     setCustomerId(nextCustomerId);
-    setLines([]);
+    if (fullAccess) setLines([]);
     setSelectedDeliveryNoteIds([]);
     setDeliveryNotes([]);
     setDeliveryError(null);
@@ -200,6 +202,7 @@ export function CustomerInvoiceForm({
             <span className="font-medium text-[var(--muted)]">Client *</span>
             <CustomerCombobox customers={customers} value={customerId} onChange={handleCustomerChange} placeholder="Rechercher un client..." />
           </label>
+          {customers.length === 0 ? <p className="text-sm lg:col-span-2"><Link href="/tiers/new?type=customer" className="font-medium text-[var(--primary)] underline">Créer mon premier client</Link>, puis revenir à cette facture.</p> : null}
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date facture</span>
             <DateField name="invoice_date" defaultValue={initialInvoiceDate} />
@@ -208,6 +211,9 @@ export function CustomerInvoiceForm({
             <span className="font-medium text-[var(--muted)]">Date echeance</span>
             <DateField name="due_date" value={dueDate} onChange={(iso) => setDueDate(iso)} />
           </label>
+          <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4 lg:col-span-2">
+            <summary className="cursor-pointer text-sm font-medium">Conditions de règlement et notes (facultatif)</summary>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Conditions de paiement</span>
             <select
@@ -265,10 +271,12 @@ export function CustomerInvoiceForm({
             <span className="font-medium text-[var(--muted)]">Notes internes</span>
             <Textarea name="internal_notes" rows={3} defaultValue={initialInternalNotes ?? ""} />
           </label>
+            </div>
+          </details>
         </CardContent>
       </Card>
 
-      <Card>
+      {fullAccess ? <Card>
         <CardHeader><h2 className="font-semibold">Bons de livraison a facturer</h2></CardHeader>
         <CardContent className="space-y-4">
           {!customerId ? (
@@ -294,12 +302,12 @@ export function CustomerInvoiceForm({
           )}
           {deliveryError ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{deliveryError}</p> : null}
         </CardContent>
-      </Card>
+      </Card> : null}
 
       <Card>
         <CardHeader><h2 className="font-semibold">Lignes facture</h2></CardHeader>
         <CardContent>
-          <InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} />
+          <InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} fullAccess={fullAccess} />
         </CardContent>
       </Card>
 
@@ -309,17 +317,17 @@ export function CustomerInvoiceForm({
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={cancelHref}>Annuler</Link></Button>
-        <Button disabled={pending}>{submitLabel}</Button>
+        <Button disabled={pending || !customerId || lines.length === 0}>{pending ? "Enregistrement…" : submitLabel}</Button>
       </div>
 
-      <BillableDeliveryNotesModal
+      {fullAccess ? <BillableDeliveryNotesModal
         key={modalOpen ? selectedDeliveryNoteIds.join("|") || "new-selection" : "closed"}
         open={modalOpen}
         onOpenChange={setModalOpen}
         deliveryNotes={deliveryNotes}
         selectedIds={selectedDeliveryNoteIds}
         onConfirm={importDeliveryNotes}
-      />
+      /> : null}
     </form>
   );
 }

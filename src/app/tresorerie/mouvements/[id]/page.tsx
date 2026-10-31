@@ -8,11 +8,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getTreasuryTransactionDetail } from "@/lib/treasury";
 import { RECONCILIATION_STATUS_LABELS, TREASURY_TRANSACTION_TYPE_LABELS } from "@/lib/treasury-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function TreasuryTransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const tx = await getTreasuryTransactionDetail(id);
   return (
     <ModulePage>
@@ -28,7 +32,7 @@ export default async function TreasuryTransactionDetailPage({ params }: { params
             <p><span className="text-[var(--muted)]">Date :</span> {tx.transaction_date}</p>
             <p><span className="text-[var(--muted)]">Reference :</span> {tx.reference ?? "-"}</p>
             <p><span className="text-[var(--muted)]">Tiers :</span> {tx.third_party_name ?? "-"}</p>
-            <p><span className="text-[var(--muted)]">Rapprochement :</span> {RECONCILIATION_STATUS_LABELS[tx.reconciliation_status]}</p>
+            {fullAccess ? <p><span className="text-[var(--muted)]">Rapprochement :</span> {RECONCILIATION_STATUS_LABELS[tx.reconciliation_status]}</p> : null}
             <p className="md:col-span-2"><span className="text-[var(--muted)]">Description :</span> {tx.description ?? "-"}</p>
           </CardContent>
         </Card>

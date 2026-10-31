@@ -2,6 +2,8 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { searchStaticRegistry, type GlobalSearchResult } from "@/lib/global-search-registry";
 import { createClient } from "@/lib/supabase/server";
 import { formatMoney } from "@/lib/format";
+import { hasFullErpAccess } from "@/lib/launch-access";
+import { isLaunchPathAvailable } from "@/lib/launch-profile";
 
 function obj(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -79,10 +81,13 @@ async function findThirdPartyIds(orgId: string, query: string) {
 
 export async function globalSearch(query: string): Promise<GlobalSearchResult[]> {
   const q = cleanQuery(query);
-  const staticResults = searchStaticRegistry(q, 12);
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const staticResults = searchStaticRegistry(q, 100)
+    .filter((result) => isLaunchPathAvailable(result.href, fullAccess))
+    .slice(0, 12);
   if (q.length < 2) return staticResults;
 
-  const workspace = await requireActiveWorkspace();
   const orgId = workspace.organization.id;
   const supabase = await createClient();
   const thirdPartyIds = await safe(findThirdPartyIds(orgId, q), []);
@@ -132,6 +137,7 @@ export async function globalSearch(query: string): Promise<GlobalSearchResult[]>
   ]);
 
   for (const row of tiers) {
+    if (!fullAccess && typeLabel(row.types, row.primary_type) === "Prospect") continue;
     const id = str(row.id);
     results.push({ id: `third-party-${id}`, title: str(row.name, "Tiers"), subtitle: [typeLabel(row.types, row.primary_type), str(row.city), row.ice ? `ICE ${str(row.ice)}` : null].filter(Boolean).join(" · "), href: `/tiers/${id}`, category: "Tiers", type: "record" });
   }
@@ -186,5 +192,5 @@ export async function globalSearch(query: string): Promise<GlobalSearchResult[]>
     results.push({ id: `bank-import-${id}`, title: str(row.import_code || row.file_name, "Releve bancaire"), subtitle: ["Releve bancaire", `${Number(row.imported_lines_count ?? 0)} lignes`].join(" · "), href: `/tresorerie/releves/${id}`, category: "Tresorerie", type: "record" });
   }
 
-  return results.slice(0, 30);
+  return results.filter((result) => isLaunchPathAvailable(result.href, fullAccess)).slice(0, 30);
 }

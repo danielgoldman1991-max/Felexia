@@ -16,7 +16,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { HelpDropdown } from "@/components/layout/help-dropdown";
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 import { cn, initials } from "@/lib/utils";
-import { sections } from "@/components/layout/sidebar-data";
+import { lightSections, sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
 import { logoutAction } from "@/lib/auth-actions";
 
@@ -39,22 +39,24 @@ export function Sidebar({
   onCloseMobile,
   workspace,
   showWelcomeGuide = true,
+  fullAccess = false,
 }: {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   workspace?: ActiveWorkspace | null;
   showWelcomeGuide?: boolean;
+  fullAccess?: boolean;
 }) {
   const pathname = usePathname();
   const visibleSections = useMemo(
     () =>
-      sections.filter((section) => {
+      (fullAccess ? sections : lightSections).filter((section) => {
         if (section.hidden) return false;
         if (section.key === "welcome") return showWelcomeGuide;
         if (!section.moduleKey) return true;
         return workspace?.enabledModules?.includes(section.moduleKey) ?? false;
       }),
-    [showWelcomeGuide, workspace?.enabledModules],
+    [fullAccess, showWelcomeGuide, workspace?.enabledModules],
   );
 
   const initiallyOpen = useMemo(
@@ -91,8 +93,8 @@ export function Sidebar({
     );
   }
 
-  const displayName = workspace?.profile?.full_name ?? workspace?.email ?? "Sophie Laurent";
-  const role = workspace?.role ?? "Administratrice";
+  const displayName = workspace?.profile?.full_name ?? workspace?.email ?? "Mon compte";
+  const role = workspace?.role ?? "Utilisateur";
   const organizationName = workspace?.organization.name || "Organisation";
   const userEmail = workspace?.profile?.email ?? workspace?.email ?? "";
 
@@ -149,12 +151,12 @@ export function Sidebar({
             </Link>
             <div className="mt-3 flex items-center gap-2 lg:hidden">
               <NotificationDropdown align="left" />
-              <HelpDropdown align="left" />
+              <HelpDropdown align="left" fullAccess={fullAccess} />
               <span className="text-xs text-[var(--sidebar-muted)]">Notifications et aide</span>
             </div>
           </div>
 
-          <nav className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">
+          <nav aria-label="Navigation principale" className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">
             {visibleSections.map((section) => {
               const Icon = section.icon;
               const active =
@@ -181,9 +183,6 @@ export function Sidebar({
                       ) : null}
                       <Icon className={cn("h-4 w-4 shrink-0", active ? "text-[var(--primary)]" : "")} />
                       <span className="min-w-0 flex-1 truncate">{section.label}</span>
-                      {section.key === "facturation" ? (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--danger-soft)] px-1.5 text-[10px] font-bold text-[var(--danger)]">12</span>
-                      ) : null}
                     </Link>
                     {hasItems ? (
                       <button
@@ -191,6 +190,7 @@ export function Sidebar({
                         onClick={() => toggle(section.key)}
                         className="flex h-10 w-9 items-center justify-center rounded-xl text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]"
                         aria-label={`Ouvrir ${section.label}`}
+                        aria-expanded={expanded}
                       >
                         <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", expanded && "rotate-180")} />
                       </button>
@@ -205,6 +205,7 @@ export function Sidebar({
                           <Link
                             key={`${section.key}-${item.label}`}
                             href={item.href}
+                            aria-current={pathname === item.href.split("?")[0] ? "page" : undefined}
                             onClick={onCloseMobile}
                             className={cn(
                               "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-all",
@@ -235,7 +236,7 @@ export function Sidebar({
                 <div className="border-b border-[var(--border-subtle)] px-3 py-3">
                   <div className="flex items-center gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)]">
-                      {initials(displayName) || "SL"}
+                      {initials(displayName) || "MO"}
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-[var(--popover-foreground)]">{displayName}</span>
@@ -289,7 +290,7 @@ export function Sidebar({
                 className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] p-2 text-left transition hover:border-[var(--border-strong)]"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-[var(--shadow-sm)]">
-                  {initials(displayName) || "SL"}
+                  {initials(displayName) || "MO"}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-[var(--sidebar-foreground)]">{displayName}</span>

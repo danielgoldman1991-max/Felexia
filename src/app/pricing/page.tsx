@@ -6,7 +6,7 @@ import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-off
 
 export const metadata = {
   title: "Tarifs - Felexia",
-  description: "Une seule offre, Essentiel, pour gerer les ventes, achats, documents, paiements et la comptabilite de votre PME.",
+  description: "Une offre Essentiel pour vos factures de vente et d’achat, leurs règlements, votre trésorerie et vos journaux.",
 };
 
 const faqs = [
@@ -24,7 +24,11 @@ const faqs = [
   },
   {
     question: "Felexia est-il adapte aux PME marocaines ?",
-    answer: "Oui. L'offre integre les usages de gestion commerciale, TVA, documents et comptabilite au Maroc.",
+    answer: "Oui. Factures en MAD, TVA configurable, coordonnées de votre entreprise et accès à vos journaux.",
+  },
+  {
+    question: "Puis-je accéder à d’autres modules ?",
+    answer: "Oui, les modules complémentaires sont accessibles sur demande auprès de notre équipe. L’interface de lancement reste centrée sur les factures, leurs règlements, la trésorerie et les journaux.",
   },
 ];
 
@@ -61,7 +65,7 @@ export default function PricingPage() {
         </h1>
         <p className="mx-auto mt-5 max-w-3xl text-lg text-[var(--muted-strong)]">
           FelexiaERP Essentiel rassemble les fonctions dont une PME a besoin pour piloter son
-          activité au quotidien : ventes, achats, stock, trésorerie et comptabilité.
+          activité au quotidien : factures de vente et d’achat, règlements, trésorerie et journaux.
         </p>
       </section>
 

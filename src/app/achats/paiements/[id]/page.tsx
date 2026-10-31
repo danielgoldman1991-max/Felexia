@@ -4,6 +4,7 @@ import { SupplierPaymentDetail } from "@/components/purchases/supplier-payment-d
 import { getSupplierPaymentDetail } from "@/lib/purchases";
 import { getEntryWithLinesBySource } from "@/lib/accounting";
 import { getActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,12 @@ export default async function SupplierPaymentDetailPage({ params }: { params: Pr
 
   const workspace = await getActiveWorkspace();
   const orgId = workspace?.organization.id;
+  const fullAccess = orgId ? await hasFullErpAccess(orgId) : false;
   const accountingEntry = orgId ? await getEntryWithLinesBySource(orgId, "supplier_payment", id) : null;
 
   return (
     <ModulePage>
-      <SupplierPaymentDetail payment={payment} allocations={allocations} accountingEntry={accountingEntry} />
+      <SupplierPaymentDetail fullAccess={fullAccess} payment={payment} allocations={allocations} accountingEntry={accountingEntry} />
     </ModulePage>
   );
 }

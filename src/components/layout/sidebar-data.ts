@@ -212,3 +212,52 @@ export const sections: SidebarSection[] = [
   },
   { key: "settings", label: "Paramètres", href: "/parametres", icon: Settings },
 ];
+
+/** The launch menu follows the daily invoice → payment workflow. */
+export const lightSections: SidebarSection[] = [
+  { key: "dashboard", label: "Accueil", href: "/dashboard", icon: LayoutDashboard },
+  {
+    key: "ventes",
+    label: "Ventes",
+    href: "/facturation/factures",
+    icon: BadgeDollarSign,
+    items: [
+      { label: "Factures clients", href: "/facturation/factures", icon: Receipt },
+      { label: "Clients", href: "/tiers/clients", icon: Users },
+      { label: "Règlements reçus", href: "/facturation/paiements", icon: WalletCards },
+    ],
+  },
+  {
+    key: "achats",
+    label: "Achats",
+    href: "/achats/factures",
+    icon: ShoppingCart,
+    items: [
+      { label: "Factures fournisseurs", href: "/achats/factures", icon: Receipt },
+      { label: "Fournisseurs", href: "/achats/fournisseurs", icon: Building2 },
+      { label: "Règlements versés", href: "/achats/paiements", icon: WalletCards },
+    ],
+  },
+  {
+    key: "tresorerie",
+    label: "Trésorerie",
+    href: "/tresorerie",
+    icon: Landmark,
+    items: [
+      { label: "Vue d'ensemble", href: "/tresorerie", icon: Gauge },
+      { label: "Comptes & caisses", href: "/tresorerie/comptes", icon: Landmark },
+      { label: "Mouvements", href: "/tresorerie/mouvements", icon: ArrowLeftRight },
+    ],
+  },
+  {
+    key: "journaux",
+    label: "Journaux",
+    href: "/comptabilite/journaux",
+    icon: BookOpen,
+    items: [
+      { label: "Mes journaux", href: "/comptabilite/journaux", icon: BookOpen },
+      { label: "Écritures", href: "/comptabilite/ecritures", icon: FileText },
+    ],
+  },
+  { key: "settings", label: "Paramètres", href: "/parametres", icon: Settings },
+];

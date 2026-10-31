@@ -6,11 +6,15 @@ import { createPaymentAndAllocateToInvoice } from "@/lib/payment-actions";
 import { getCustomerInvoiceDetail } from "@/lib/invoices";
 import { getCustomerOpenItems, listPaymentCustomers } from "@/lib/payments";
 import { getDefaultTreasuryAccountId, listActiveTreasuryAccounts } from "@/lib/treasury";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function CreatePaymentFromInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   await getDefaultTreasuryAccountId();
   const [{ invoice }, customers, treasuryAccounts] = await Promise.all([getCustomerInvoiceDetail(id), listPaymentCustomers(), listActiveTreasuryAccounts()]);
   if (!invoice || invoice.status === "cancelled" || invoice.remaining_amount <= 0) notFound();
@@ -19,6 +23,7 @@ export default async function CreatePaymentFromInvoicePage({ params }: { params:
     <ModulePage>
       <PageHeader title="Enregistrer paiement" description={invoice.invoice_number} />
       <CustomerPaymentForm
+        fullAccess={fullAccess}
         action={createPaymentAndAllocateToInvoice}
         customers={customers}
         treasuryAccounts={treasuryAccounts}

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { Clock } from "lucide-react";
 
-// Page de verrouillage neutre : Business / Premium ne sont plus commercialisés,
-// on ne propose donc plus d'upgrade. Les modules non inclus dans l'offre
-// Essentiel sont simplement annoncés comme bientôt disponibles.
+// Complementary modules are requested from the team; no self-service upgrade.
 export function ModuleUpgradePage() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-12">
@@ -12,17 +10,17 @@ export function ModuleUpgradePage() {
           <Clock className="h-6 w-6" />
         </span>
         <h1 className="mt-5 text-xl font-semibold text-slate-950">
-          Fonctionnalité bientôt disponible
+          Module disponible sur demande
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Ce module fait partie de la feuille de route FelexiaERP. Il sera
-          disponible prochainement dans votre espace.
+          Votre espace se concentre sur la facturation et la trésorerie.
+          Contactez Felexia pour activer ce module selon vos besoins.
         </p>
         <Link
-          href="/dashboard"
+          href="/parametres/modules"
           className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-6 text-sm font-medium text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition hover:brightness-110"
         >
-          Retour au tableau de bord
+          Demander ce module
         </Link>
       </div>
     </div>

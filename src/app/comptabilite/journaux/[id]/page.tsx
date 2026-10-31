@@ -69,6 +69,7 @@ export default async function AccountingJournalDetailPage({ params, searchParams
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href="/comptabilite/journaux"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
+            <Button asChild><Link href={`/comptabilite/ecritures/nouveau?journalId=${id}`}>Nouvelle écriture</Link></Button>
             <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${id}/print${qs}`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${id}/export${qs}`}><Download className="h-4 w-4" /> Export Excel</Link></Button>
           </>

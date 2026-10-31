@@ -11,7 +11,7 @@ import { Table, Td, Th } from "@/components/ui/table";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { ThirdPartyBadges } from "@/components/tiers/third-party-badges";
 
-export function ThirdPartyTable({ rows }: { rows: ThirdPartyRecord[] }) {
+export function ThirdPartyTable({ rows, fullAccess = false }: { rows: ThirdPartyRecord[]; fullAccess?: boolean }) {
   const [archiveState, archiveAction] = useActionState(archiveThirdParty, { success: true });
 
   return (
@@ -23,14 +23,14 @@ export function ThirdPartyTable({ rows }: { rows: ThirdPartyRecord[] }) {
         <thead>
           <tr>
             <Th>Nom</Th>
-            <Th>Types</Th>
-            <Th>Code tiers</Th>
+            {fullAccess ? <Th>Types</Th> : null}
+            {fullAccess ? <Th>Code tiers</Th> : null}
             <Th>Ville</Th>
             <Th>Telephone</Th>
             <Th>Email</Th>
             <Th>ICE</Th>
             <Th>Statut</Th>
-            <Th>Creation</Th>
+            {fullAccess ? <Th>Creation</Th> : null}
             <Th>Actions</Th>
           </tr>
         </thead>
@@ -45,10 +45,10 @@ export function ThirdPartyTable({ rows }: { rows: ThirdPartyRecord[] }) {
                   <p className="text-xs text-[var(--muted)]">{row.commercial_name}</p>
                 ) : null}
               </Td>
-              <Td>
+              {fullAccess ? <Td>
                 <ThirdPartyBadges types={row.types} />
-              </Td>
-              <Td className="font-mono text-xs">{row.code ?? "-"}</Td>
+              </Td> : null}
+              {fullAccess ? <Td className="font-mono text-xs">{row.code ?? "-"}</Td> : null}
               <Td>{row.city ?? "-"}</Td>
               <Td>{row.mobile ?? row.phone ?? "-"}</Td>
               <Td>{row.email ?? "-"}</Td>
@@ -56,7 +56,7 @@ export function ThirdPartyTable({ rows }: { rows: ThirdPartyRecord[] }) {
               <Td>
                 <StatusBadge status={row.status} />
               </Td>
-              <Td>{formatDate(row.created_at)}</Td>
+              {fullAccess ? <Td>{formatDate(row.created_at)}</Td> : null}
               <Td>
                 <div className="flex items-center gap-1">
                   <Button

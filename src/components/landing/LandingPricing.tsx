@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Check } from "lucide-react";
 import Link from "next/link";
@@ -10,18 +10,16 @@ import { Button } from "@/components/ui/button";
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
 
 const includedFeatures = [
-  "Tableau de bord",
-  "Clients / Tiers",
-  "Ventes",
-  "Facturation",
-  "Achats",
-  "Stock",
-  "Trésorerie",
-  "Comptabilité",
-  "Articles",
-  "Documents",
-  "Paramètres",
-  "Utilisateurs",
+  "Votre espace entreprise",
+  "Clients et fournisseurs",
+  "Factures de vente",
+  "Factures d’achat",
+  "Règlements clients et fournisseurs",
+  "Comptes bancaires et caisses",
+  "Mouvements de trésorerie",
+  "Journaux et écritures",
+  "Factures PDF avec votre logo",
+  "Jusqu’à 3 utilisateurs",
 ];
 
 export function LandingPricing() {
@@ -112,7 +110,7 @@ export function LandingPricing() {
         </div>
 
         <p className="mt-8 text-center text-sm text-slate-500">
-          Essai Essentiel gratuit, sans carte bancaire.
+          Essai Essentiel gratuit, sans carte bancaire. Modules complémentaires accessibles sur demande.
         </p>
       </div>
     </section>

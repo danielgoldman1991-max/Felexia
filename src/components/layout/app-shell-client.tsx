@@ -10,10 +10,12 @@ export function AppShellClient({
   children,
   workspace,
   showWelcomeGuide,
+  fullAccess = false,
 }: {
   children: ReactNode;
   workspace: ActiveWorkspace;
   showWelcomeGuide: boolean;
+  fullAccess?: boolean;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -24,10 +26,11 @@ export function AppShellClient({
         onCloseMobile={() => setMobileOpen(false)}
         workspace={workspace}
         showWelcomeGuide={showWelcomeGuide}
+        fullAccess={fullAccess}
       />
 
       <div className="min-h-screen min-w-0 max-w-full overflow-x-clip transition-[padding] duration-300 lg:pl-[288px]">
-        <Topbar onOpenMenu={() => setMobileOpen(true)} />
+        <Topbar onOpenMenu={() => setMobileOpen(true)} fullAccess={fullAccess} />
         <main className="mx-auto min-w-0 w-full max-w-[1540px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <div className="page-shell">{children}</div>
         </main>

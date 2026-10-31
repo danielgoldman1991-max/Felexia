@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "#modules", label: "Modules" },
+  { href: "#modules", label: "Au quotidien" },
   { href: "#why", label: "Pourquoi Felexia" },
   { href: "#features", label: "Fonctionnalités" },
   { href: "#pricing", label: "Tarifs" },

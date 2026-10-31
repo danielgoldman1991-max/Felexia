@@ -321,6 +321,7 @@ export function SupplierInvoiceDetail({
   paymentSummary = null,
   accountingEntry,
   documentFlow,
+  fullAccess = false,
 }: {
   invoice: SupplierInvoiceRecord;
   lines: SupplierInvoiceLineRecord[];
@@ -328,6 +329,7 @@ export function SupplierInvoiceDetail({
   paymentSummary?: SupplierInvoicePaymentSummary | null;
   accountingEntry?: AccountingEntryInfo | null;
   documentFlow?: DocumentFlowStep[];
+  fullAccess?: boolean;
 }) {
   const canEdit = invoice.status === "draft";
   const canValidate = invoice.status === "draft";
@@ -362,7 +364,7 @@ export function SupplierInvoiceDetail({
         }
       />
 
-      <DocumentFlowMap steps={documentFlow ?? []} />
+      {fullAccess ? <DocumentFlowMap steps={documentFlow ?? []} /> : null}
 
       {fromReceipt || hasConfirmedPayment || hasAccountingEntry ? (
         <Card className="border-blue-200 bg-blue-50">
@@ -380,7 +382,7 @@ export function SupplierInvoiceDetail({
                 </p>
               </div>
             </div>
-            {invoice.source_receipt_id ? (
+            {fullAccess && invoice.source_receipt_id ? (
               <Button type="button" variant="secondary" className="bg-white" asChild><Link href={`/achats/receptions/${invoice.source_receipt_id}`}>
                   Voir la réception source
                 </Link></Button>
@@ -431,7 +433,7 @@ export function SupplierInvoiceDetail({
                     <Td>{line.unit_price_ht > 0 ? <MoneyDisplay value={line.unit_price_ht} /> : <Badge tone="warning">À compléter</Badge>}</Td>
                     <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td>
                     <Td><MoneyDisplay value={line.subtotal_ht} /></Td>
-                    <Td>{line.tax_rate_id || line.tax_rate > 0 ? `${line.tax_rate}%` : <Badge tone="warning">À compléter</Badge>}</Td>
+                    <Td>{line.tax_rate !== null ? `${line.tax_rate}%` : <Badge tone="warning">À compléter</Badge>}</Td>
                     <Td><MoneyDisplay value={line.total_ttc} /></Td>
                   </tr>
                 ))}
@@ -454,7 +456,9 @@ export function SupplierInvoiceDetail({
 
       <PaymentsSection invoice={invoice} payments={payments} summary={paymentSummary} />
 
-      <Card>
+      <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
+        <summary className="cursor-pointer text-sm font-medium">Journal comptable</summary>
+        <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
@@ -488,6 +492,7 @@ export function SupplierInvoiceDetail({
           )}
         </CardContent>
       </Card>
+      </details>
       {invoice.notes || invoice.internal_notes ? (
         <Card>
           <CardHeader><h2 className="font-semibold">Notes</h2></CardHeader>

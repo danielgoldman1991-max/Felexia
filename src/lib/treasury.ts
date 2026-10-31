@@ -303,25 +303,57 @@ export async function suggestBankReconciliationMatches(accountId: string) {
 export async function getTreasuryDashboard(): Promise<TreasuryCounters & { accounts: TreasuryAccountRecord[]; recentTransactions: TreasuryTransactionRecord[] }> {
   const orgId = await activeOrgId();
   const supabase = await createClient();
-  const today = new Date();
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
-  const [accounts, transactions, statementCount] = await Promise.all([
+  const monthParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit",
+  }).formatToParts(new Date());
+  const year = Number(monthParts.find((part) => part.type === "year")?.value);
+  const month = Number(monthParts.find((part) => part.type === "month")?.value);
+  const monthStart = `${year}-${String(month).padStart(2, "0")}-01`;
+  const nextMonthStart = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+
+  async function getMonthlyFlows() {
+    let monthlyIn = 0;
+    let monthlyOut = 0;
+    // The display limit must never truncate the totals. Read every MAD movement
+    // in the calendar month, including months exceeding PostgREST's page limit.
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await supabase.from("treasury_transactions")
+        .select("id, direction, amount")
+        .eq("organization_id", orgId).is("archived_at", null).ilike("currency", "MAD")
+        .gte("transaction_date", monthStart).lt("transaction_date", nextMonthStart)
+        .order("id").range(offset, offset + 999);
+      if (error) throw new Error(error.message);
+      for (const row of data ?? []) {
+        if (row.direction === "in") monthlyIn += Number(row.amount) || 0;
+        if (row.direction === "out") monthlyOut += Number(row.amount) || 0;
+      }
+      if ((data?.length ?? 0) < 1000) return { monthlyIn, monthlyOut };
+    }
+  }
+
+  const [accounts, transactions, statementCount, transactionCount, monthlyFlows] = await Promise.all([
     listTreasuryAccounts(),
-    supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).gte("transaction_date", monthStart).order("transaction_date", { ascending: false }).limit(20),
+    supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).gte("transaction_date", monthStart).lt("transaction_date", nextMonthStart).order("transaction_date", { ascending: false }).order("id", { ascending: false }).limit(20),
     supabase.from("bank_statement_lines").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("reconciliation_status", "unreconciled"),
+    supabase.from("treasury_transactions").select("id", { count: "exact", head: true }).eq("organization_id", orgId).is("archived_at", null).eq("reconciliation_status", "unreconciled"),
+    getMonthlyFlows(),
   ]);
   if (transactions.error) throw new Error(transactions.error.message);
+  if (statementCount.error) throw new Error(statementCount.error.message);
+  if (transactionCount.error) throw new Error(transactionCount.error.message);
   const txRows = (transactions.data ?? []).map(mapTransaction);
-  const monthlyIn = txRows.filter((tx) => tx.direction === "in").reduce((sum, tx) => sum + tx.amount, 0);
-  const monthlyOut = txRows.filter((tx) => tx.direction === "out").reduce((sum, tx) => sum + tx.amount, 0);
+  const { monthlyIn, monthlyOut } = monthlyFlows;
+  const activeMadAccounts = accounts.filter((account) =>
+    account.status === "active" && account.archived_at === null && account.currency.trim().toUpperCase() === "MAD",
+  );
   return {
-    bankBalance: accounts.filter((a) => a.account_type === "bank").reduce((sum, a) => sum + a.current_balance, 0),
-    cashBalance: accounts.filter((a) => a.account_type === "cash").reduce((sum, a) => sum + a.current_balance, 0),
+    bankBalance: activeMadAccounts.filter((a) => a.account_type === "bank").reduce((sum, a) => sum + a.current_balance, 0),
+    cashBalance: activeMadAccounts.filter((a) => a.account_type === "cash").reduce((sum, a) => sum + a.current_balance, 0),
     monthlyIn,
     monthlyOut,
     monthlyNet: monthlyIn - monthlyOut,
     unreconciledStatementLines: statementCount.count ?? 0,
-    unreconciledTransactions: txRows.filter((tx) => tx.reconciliation_status === "unreconciled").length,
+    unreconciledTransactions: transactionCount.count ?? 0,
     accounts,
     recentTransactions: txRows,
   };

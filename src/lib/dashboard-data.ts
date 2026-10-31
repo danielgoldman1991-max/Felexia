@@ -3,6 +3,64 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 
+export interface LightDashboardData {
+  receivable: number;
+  payable: number;
+  cash: number;
+  monthlySales: number;
+  recentInvoices: { id: string; number: string; total: number; currency: string; status: string; type: "sale" | "purchase"; href: string }[];
+}
+
+/** Only invoices and cash accounts are read by the launch dashboard. */
+export async function getLightDashboardData(): Promise<LightDashboardData | null> {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  const orgId = workspace.organization.id;
+  type InvoiceRow = { id: string; invoice_number: string; invoice_date: string; total_ttc: number; remaining_amount: number; currency: string; status: string; created_at: string };
+
+  async function readInvoices(table: "customer_invoices" | "supplier_invoices") {
+    const rows: InvoiceRow[] = [];
+    // Paginate so totals are not truncated by PostgREST's default 1,000 row limit.
+    for (let offset = 0; ; offset += 1000) {
+      const result = await supabase.from(table)
+        .select("id, invoice_number, invoice_date, total_ttc, remaining_amount, currency, status, created_at")
+        .eq("organization_id", orgId).is("archived_at", null).neq("status", "cancelled")
+        .order("id").range(offset, offset + 999);
+      if (result.error) throw new Error(`${table}: ${result.error.code}`);
+      rows.push(...(result.data ?? []) as InvoiceRow[]);
+      if ((result.data?.length ?? 0) < 1000) return rows;
+    }
+  }
+
+  try {
+    const [sales, purchases, accounts] = await Promise.all([
+      readInvoices("customer_invoices"), readInvoices("supplier_invoices"),
+      supabase.from("treasury_accounts").select("current_balance")
+        .eq("organization_id", orgId).eq("status", "active").ilike("currency", "MAD").is("archived_at", null),
+    ]);
+    if (accounts.error) throw new Error(`treasury_accounts: ${accounts.error.code}`);
+    const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit" }).formatToParts(new Date());
+    const month = `${parts.find((part) => part.type === "year")?.value}-${parts.find((part) => part.type === "month")?.value}`;
+    // Never add foreign-currency amounts to a value labelled MAD.
+    const inMad = (row: InvoiceRow) => row.currency.trim().toUpperCase() === "MAD";
+    const outstanding = (rows: InvoiceRow[]) => rows.reduce((sum, row) => row.status === "draft" || !inMad(row) ? sum : sum + Math.max(0, Number(row.remaining_amount) || 0), 0);
+    const recentInvoices = [
+      ...sales.map((row) => ({ ...row, type: "sale" as const, href: `/facturation/factures/${row.id}` })),
+      ...purchases.map((row) => ({ ...row, type: "purchase" as const, href: `/achats/factures/${row.id}` })),
+    ].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5)
+      .map((row) => ({ id: row.id, number: row.invoice_number, total: Number(row.total_ttc) || 0, currency: row.currency, status: row.status, type: row.type, href: row.href }));
+    return {
+      receivable: outstanding(sales), payable: outstanding(purchases),
+      cash: (accounts.data ?? []).reduce((sum, row) => sum + (Number(row.current_balance) || 0), 0),
+      monthlySales: sales.reduce((sum, row) => row.status !== "draft" && inMad(row) && row.invoice_date.startsWith(month) ? sum + (Number(row.total_ttc) || 0) : sum, 0),
+      recentInvoices,
+    };
+  } catch (error) {
+    console.error("[light-dashboard] Indicators unavailable", { organizationId: orgId, message: error instanceof Error ? error.message : "unknown" });
+    return null;
+  }
+}
+
 export interface DashboardData {
   revenue: number;
   collections: number;

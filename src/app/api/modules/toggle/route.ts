@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST() {
   return NextResponse.json(
     {
-      error: "La vente et l'activation module par module sont desactivees. Les modules sont inclus dans l'offre Essentiel.",
+      error: "Les modules complémentaires sont disponibles sur demande auprès de Felexia. Contactez-nous depuis Paramètres → Modules sur demande.",
     },
     { status: 410 },
   );

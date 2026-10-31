@@ -3,10 +3,8 @@ import {
   ArrowRight,
   Building2,
   CheckCircle2,
-  Download,
   FileText,
   Landmark,
-  Package,
   Users,
 } from "lucide-react";
 import { CompleteOnboardingButton } from "@/components/onboarding/complete-onboarding-button";
@@ -14,14 +12,14 @@ import type { OnboardingChecklist, OnboardingChecklistStepKey } from "@/lib/onbo
 
 const STEP_ICONS: Record<OnboardingChecklistStepKey, typeof Building2> = {
   company: Building2,
-  prospect: Users,
-  article: Package,
+  customer: Users,
+  supplier: Building2,
   treasury: Landmark,
-  quote: FileText,
-  pdf: Download,
+  invoice: FileText,
 };
 
 export function WelcomeChecklist({ checklist }: { checklist: OnboardingChecklist }) {
+  const nextStep = checklist.steps.find((step) => !step.completed);
   return (
     <div className="mx-auto w-full max-w-4xl">
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -84,10 +82,10 @@ export function WelcomeChecklist({ checklist }: { checklist: OnboardingChecklist
           <div className="flex gap-3">
             <CompleteOnboardingButton />
             <Link
-              href="/parametres/entreprise"
+              href={nextStep?.href ?? "/dashboard"}
               className="inline-flex h-11 items-center justify-center rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-500"
             >
-              Continuer
+              {nextStep ? "Continuer" : "Ouvrir mon espace"}
             </Link>
           </div>
         </div>

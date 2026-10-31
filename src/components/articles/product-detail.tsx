@@ -22,7 +22,8 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export function ProductDetail({ product }: { product: ProductRecord }) {
+export function ProductDetail({ product, fullAccess = false }: { product: ProductRecord; fullAccess?: boolean }) {
+  const OptionalPanel = fullAccess ? "div" : "details";
   const [archiveState, archiveAction] = useActionState(archiveProduct, { success: true });
   const isService = product.type === "service";
   const lowStock = product.track_stock && product.current_stock <= product.min_stock;
@@ -44,7 +45,7 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button variant="secondary" asChild><Link href={`/articles/${product.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
-            {!isService ? (
+            {fullAccess && !isService ? (
               <>
                 <Button variant="secondary" asChild><Link href={`/stock/mouvements?productId=${product.id}`}><History className="h-4 w-4" /> Mouvements stock</Link></Button>
                 <Button variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}><Plus className="h-4 w-4" /> Entree stock</Link></Button>
@@ -68,8 +69,8 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
           <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Type" value={isService ? "Service" : "Produit"} />
-            <Info label="Reference interne" value={product.sku} />
-            <Info label="Code-barres" value={product.barcode} />
+            {fullAccess ? <Info label="Reference interne" value={product.sku} /> : null}
+            {fullAccess ? <Info label="Code-barres" value={product.barcode} /> : null}
             <Info label="Categorie" value={product.category_name} />
             <Info label="Unite" value={product.unit_name ? `${product.unit_name} (${product.unit_symbol ?? ""})` : null} />
             <div className="md:col-span-2">
@@ -85,13 +86,13 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
             <Info label="Prix de vente HT" value={<MoneyDisplay value={product.sale_price_ht} />} />
             <Info label="TVA" value={product.tax_rate_name ?? null} />
             <Info label="Prix vente TTC" value={<MoneyDisplay value={product.sale_price_ttc} />} />
-            <Info label="Marge estimee" value={<MoneyDisplay value={product.margin_amount} />} />
-            <Info label="Taux de marge" value={product.margin_rate ? `${product.margin_rate.toFixed(1)}%` : null} />
+            {fullAccess ? <Info label="Marge estimee" value={<MoneyDisplay value={product.margin_amount} />} /> : null}
+            {fullAccess ? <Info label="Taux de marge" value={product.margin_rate ? `${product.margin_rate.toFixed(1)}%` : null} /> : null}
           </CardContent>
         </Card>
       </div>
 
-      {isService ? (
+      {fullAccess ? isService ? (
         <Card>
           <CardContent className="py-4 text-sm text-[var(--muted)]">
             Le stock n&apos;est pas applicable aux services.
@@ -111,8 +112,10 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
             <Info label="Alerte stock bas" value={product.stock_alert_enabled ? "Oui" : "Non"} />
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
+      <OptionalPanel className="rounded-xl border border-[var(--border)] p-4">
+        {!fullAccess ? <summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Options commerciales et notes</summary> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Options commerciales</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
@@ -133,13 +136,14 @@ export function ProductDetail({ product }: { product: ProductRecord }) {
             )}
           </CardContent>
         </Card>
-        <Card>
+        {fullAccess ? <Card>
           <CardHeader><h2 className="font-semibold">Activite recente</h2></CardHeader>
           <CardContent>
             <EmptyState title="Activite a venir" description="L'activite article sera disponible dans une prochaine etape." />
           </CardContent>
-        </Card>
+        </Card> : null}
       </div>
+      </OptionalPanel>
     </div>
   );
 }

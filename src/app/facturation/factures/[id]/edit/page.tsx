@@ -4,15 +4,19 @@ import { PageHeader } from "@/components/erp/page-header";
 import { CustomerInvoiceForm } from "@/components/invoices/customer-invoice-form";
 import { updateCustomerInvoice } from "@/lib/invoice-actions";
 import { getCustomerInvoiceDetail, listInvoiceCustomers, listInvoiceProducts, listInvoiceTaxRates, listInvoiceUnits } from "@/lib/invoices";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditCustomerInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const [{ invoice, lines }, customers, products, units, taxRates] = await Promise.all([
     getCustomerInvoiceDetail(id),
     listInvoiceCustomers(),
-    listInvoiceProducts(),
+    fullAccess ? listInvoiceProducts() : Promise.resolve([]),
     listInvoiceUnits(),
     listInvoiceTaxRates(),
   ]);
@@ -24,6 +28,7 @@ export default async function EditCustomerInvoicePage({ params }: { params: Prom
       <PageHeader title="Modifier la facture" description={invoice.invoice_number} />
       <CustomerInvoiceForm
         action={updateCustomerInvoice}
+        fullAccess={fullAccess}
         customers={customers}
         products={products}
         units={units}

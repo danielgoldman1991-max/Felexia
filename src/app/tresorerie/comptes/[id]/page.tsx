@@ -9,11 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { TreasuryTransactionsTable } from "@/components/treasury/treasury-transactions-table";
 import { getTreasuryAccountDetail } from "@/lib/treasury";
 import { TREASURY_ACCOUNT_TYPE_LABELS } from "@/lib/treasury-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function TreasuryAccountDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const workspace = await requireActiveWorkspace();
+  const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const { account, transactions } = await getTreasuryAccountDetail(id);
   if (!account) {
     return <ModulePage><PageHeader title="Compte introuvable" actions={<Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>} /></ModulePage>;
@@ -41,7 +45,7 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
         </Card>
         <Card>
           <CardHeader><h2 className="font-semibold">Derniers mouvements</h2></CardHeader>
-          <CardContent><TreasuryTransactionsTable rows={transactions} /></CardContent>
+          <CardContent><TreasuryTransactionsTable rows={transactions} fullAccess={fullAccess} /></CardContent>
         </Card>
       </div>
     </ModulePage>

@@ -14,6 +14,7 @@ type Props = {
   journals: AccountingJournalRecord[];
   accounts: AccountingAccountRecord[];
   initialValues?: AccountingEntryFormValues;
+  initialJournalId?: string;
 };
 
 let lineIdCounter = 0;
@@ -22,9 +23,9 @@ function nextLineId() {
   return `line-${lineIdCounter}`;
 }
 
-export function EntryForm({ action, journals, accounts, initialValues }: Props) {
+export function EntryForm({ action, journals, accounts, initialValues, initialJournalId }: Props) {
   const [state, formAction, pending] = useActionState(action, { success: true });
-  const [journalId, setJournalId] = useState(initialValues?.journal_id ?? "");
+  const [journalId, setJournalId] = useState(initialValues?.journal_id ?? initialJournalId ?? "");
   const [entryDate, setEntryDate] = useState(initialValues?.entry_date ?? new Date().toISOString().slice(0, 10));
   const [reference, setReference] = useState(initialValues?.reference ?? "");
   const [label, setLabel] = useState(initialValues?.label ?? "");

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, useCallback, useMemo, useRef } from "react";
+import { useActionState, useState, useCallback, useMemo, useRef, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/erp/page-header";
@@ -10,6 +10,7 @@ import { MoneyInput } from "@/components/ui/money-input";
 import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierPayment } from "@/lib/purchase-actions";
+import { getSupplierOpenInvoicesAction } from "@/lib/actions/supplier-open-invoices";
 import type { TreasuryAccountRecord } from "@/lib/treasury-types";
 import type { SupplierInvoicePaymentSummary, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { formatDate } from "@/lib/format";
@@ -21,6 +22,7 @@ export function SupplierPaymentForm({
   preselectedInvoiceId,
   preselectedPaymentSummary,
   treasuryAccounts = [],
+  fullAccess = false,
 }: {
   suppliers: { id: string; name: string; ice: string | null }[];
   openInvoices: SupplierInvoiceRecord[];
@@ -28,7 +30,12 @@ export function SupplierPaymentForm({
   preselectedInvoiceId?: string;
   preselectedPaymentSummary?: SupplierInvoicePaymentSummary | null;
   treasuryAccounts?: TreasuryAccountRecord[];
+  fullAccess?: boolean;
 }) {
+  const [availableInvoices, setAvailableInvoices] = useState(openInvoices);
+  const [loadingInvoices, startInvoiceTransition] = useTransition();
+  const [invoiceLoadError, setInvoiceLoadError] = useState<string | null>(null);
+  const invoiceRequest = useRef(0);
   const initialSupplierId = preselectedSupplierId ?? "";
   const preselectedInvoice = preselectedInvoiceId ? openInvoices.find((invoice) => invoice.id === preselectedInvoiceId) : undefined;
   const preselectedMaxAmount = preselectedPaymentSummary?.maxPaymentAmount ?? preselectedInvoice?.remaining_amount ?? 0;
@@ -38,7 +45,7 @@ export function SupplierPaymentForm({
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [valueDate, setValueDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [treasuryAccountId, setTreasuryAccountId] = useState(treasuryAccounts[0]?.id ?? "");
+  const [treasuryAccountId, setTreasuryAccountId] = useState(treasuryAccounts.find((account) => account.is_default)?.id ?? treasuryAccounts[0]?.id ?? "");
   const [reference, setReference] = useState("");
   const [bankName, setBankName] = useState("");
   const [checkNumber, setCheckNumber] = useState("");
@@ -46,31 +53,28 @@ export function SupplierPaymentForm({
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
   const idempotencyKeyRef = useRef<string | null>(null);
-  const filteredInvoices = useMemo(() => openInvoices.filter((inv) => inv.supplier_id === supplierId), [openInvoices, supplierId]);
+  const filteredInvoices = useMemo(() => availableInvoices.filter((inv) => inv.supplier_id === supplierId), [availableInvoices, supplierId]);
   const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice && preselectedMaxAmount > 0 ? { [preselectedInvoice.id]: preselectedMaxAmount } : {});
 
   const [state, formAction, pending] = useActionState(createSupplierPayment, { success: true });
 
   const toggleInvoice = useCallback((invId: string, invAmount: number) => {
-    setAllocations((prev) => {
-      if (prev[invId]) {
-        const next = { ...prev };
-        delete next[invId];
-        return next;
-      }
-      return { ...prev, [invId]: invAmount };
-    });
-  }, [setAllocations]);
+    const next = { ...allocations };
+    if (next[invId]) delete next[invId];
+    else next[invId] = invAmount;
+    setAllocations(next);
+    if (!fullAccess) setAmount(Object.values(next).reduce((sum, value) => sum + value, 0));
+  }, [allocations, fullAccess]);
 
   const updateAllocAmount = useCallback((invId: string, value: number) => {
-    const invoice = openInvoices.find((inv) => inv.id === invId);
+    const invoice = availableInvoices.find((inv) => inv.id === invId);
     const max = Math.max(Number(invoice?.remaining_amount ?? value) || 0, 0);
     setAllocations((prev) => ({ ...prev, [invId]: Math.min(Math.max(0, value), max) }));
-  }, [openInvoices, setAllocations]);
+  }, [availableInvoices, setAllocations]);
 
   const totalAllocated = Object.values(allocations).reduce((s, v) => s + v, 0);
   const allocationTooHigh = Object.entries(allocations).some(([invoiceId, value]) => {
-    const invoice = openInvoices.find((inv) => inv.id === invoiceId);
+    const invoice = availableInvoices.find((inv) => inv.id === invoiceId);
     return invoice ? value > Number(invoice.remaining_amount ?? 0) + 0.01 : false;
   });
   const unallocatedAmount = Math.max(amount - totalAllocated, 0);
@@ -79,6 +83,15 @@ export function SupplierPaymentForm({
     setSupplierId(nextSupplierId);
     setAllocations({});
     setAmount(0);
+    setAvailableInvoices([]);
+    setInvoiceLoadError(null);
+    const request = ++invoiceRequest.current;
+    if (nextSupplierId) startInvoiceTransition(async () => {
+      const result = await getSupplierOpenInvoicesAction(nextSupplierId);
+      if (request !== invoiceRequest.current) return;
+      setAvailableInvoices(result.invoices);
+      if (!result.success) setInvoiceLoadError(result.error);
+    });
   }
 
   function handleSubmit(formData: FormData) {
@@ -96,7 +109,7 @@ export function SupplierPaymentForm({
     if (transferReference) formData.set("transfer_reference", transferReference);
     if (dueDate) formData.set("due_date", dueDate);
     if (notes) formData.set("notes", notes);
-    if (preselectedInvoiceId) formData.set("supplier_invoice_id", preselectedInvoiceId);
+    if (preselectedInvoiceId && supplierId === initialSupplierId) formData.set("supplier_invoice_id", preselectedInvoiceId);
     const allocs = Object.entries(allocations)
       .filter(([, amt]) => amt > 0)
       .map(([invoiceId, amt]) => ({ invoice_id: invoiceId, amount: amt }));
@@ -134,7 +147,7 @@ export function SupplierPaymentForm({
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
-              <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={handleSupplierChange} />
+              {preselectedInvoiceId ? <p className="mt-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm">{suppliers.find((supplier) => supplier.id === supplierId)?.name ?? "Fournisseur de la facture"}</p> : <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={handleSupplierChange} />}
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Montant</label>
@@ -154,7 +167,7 @@ export function SupplierPaymentForm({
               ) : null}
             </div>
             <DateField label="Date paiement" value={paymentDate} onChange={setPaymentDate} />
-            <DateField label="Date valeur" value={valueDate} onChange={setValueDate} placeholder="jj/mm/aaaa" />
+            {fullAccess ? <DateField label="Date valeur" value={valueDate} onChange={setValueDate} placeholder="jj/mm/aaaa" /> : null}
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Mode de paiement</label>
               <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
@@ -173,11 +186,15 @@ export function SupplierPaymentForm({
                 <option value="">Selectionner...</option>
                 {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
               </select>
+              {treasuryAccounts.length === 0 ? <Link href="/tresorerie/comptes/new" className="mt-2 block text-sm text-[var(--primary)] underline">Ajouter un compte bancaire ou une caisse</Link> : null}
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Reference</label>
               <input value={reference} onChange={(e) => setReference(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
+            <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4 md:col-span-2 xl:col-span-3">
+              <summary className="cursor-pointer text-sm font-medium">Informations complémentaires (facultatif)</summary>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Banque</label>
               <input value={bankName} onChange={(e) => setBankName(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
@@ -197,9 +214,13 @@ export function SupplierPaymentForm({
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
+              </div>
+            </details>
           </CardContent>
         </Card>
 
+        {loadingInvoices ? <p className="mt-4 text-sm text-[var(--muted)]">Chargement des factures…</p> : null}
+        {invoiceLoadError ? <p role="alert" className="mt-4 text-sm text-red-600">{invoiceLoadError}</p> : null}
         {supplierId && filteredInvoices.length > 0 ? (
           <Card className="mt-6">
             <CardHeader><h2 className="font-semibold">Affectation aux factures</h2></CardHeader>
@@ -253,9 +274,10 @@ export function SupplierPaymentForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
-            Creer paiement fournisseur
+          <Button type="submit" disabled={pending || loadingInvoices || Boolean(invoiceLoadError) || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
+            {pending ? "Enregistrement…" : "Enregistrer le règlement"}
           </Button>
+          <Button type="button" variant="secondary" asChild><Link href="/achats/paiements">Annuler</Link></Button>
         </div>
       </form>
     </div>

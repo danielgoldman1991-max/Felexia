@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getEnv } from "@/lib/env";
+import { getLaunchDestination } from "@/lib/launch-profile";
+import { hasFullErpAccess } from "@/lib/launch-access";
 
 const SESSION_CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
 
@@ -68,6 +70,36 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/login";
       url.search = `?next=${encodeURIComponent(`${pathname}${request.nextUrl.search}`)}`;
       return redirectWithSession(url, supabaseResponse);
+    }
+
+    const launchDestination = getLaunchDestination(pathname);
+    if (user && launchDestination) {
+      // The organisation comes from the authenticated membership, never a query
+      // parameter, user metadata or a client-supplied interface preference.
+      const { data: membership } = await supabase
+        .from("organization_members")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle();
+      const fullAccess = membership?.organization_id
+        ? await hasFullErpAccess(membership.organization_id)
+        : false;
+      if (!fullAccess) {
+        if (request.method !== "GET" && request.method !== "HEAD") {
+          const response = NextResponse.json(
+            { error: "Ce module est disponible sur demande.", code: "MODULE_ON_REQUEST" },
+            { status: 403 },
+          );
+          supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+          return response;
+        }
+        const url = request.nextUrl.clone();
+        url.pathname = membership ? launchDestination : "/onboarding/entreprise";
+        url.search = "";
+        return redirectWithSession(url, supabaseResponse);
+      }
     }
 
     return supabaseResponse;
