@@ -57,8 +57,8 @@ export function canAccessModule(planCode: string | null | undefined, moduleKey: 
   return getEnabledModulesForPlan(planCode).includes(normalizeModuleKey(moduleKey));
 }
 
-export async function getOrganizationSubscription(organizationId: string, options: { throwOnError?: boolean } = {}): Promise<OrganizationSubscription | null> {
-  const supabase = await createClient();
+export async function getOrganizationSubscription(organizationId: string, options: { throwOnError?: boolean; client?: SupabaseClient } = {}): Promise<OrganizationSubscription | null> {
+  const supabase = options.client ?? await createClient();
   const { data, error } = await supabase
     .from("organization_subscriptions")
     .select("*")

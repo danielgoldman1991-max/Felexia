@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildTrialNotification } from "@/lib/notifications/trial";
+import { generateTrialNotificationForOrg } from "@/lib/notifications/trial";
+import { readAllPages } from "@/lib/listing";
+
+const NO_STORE = { "Cache-Control": "no-store" };
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -7,62 +10,32 @@ export async function GET(req: NextRequest) {
 
   if (!secret) {
     console.error("[TRIAL_CRON] missing server credential");
-    return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+    return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503, headers: NO_STORE });
   }
   if (authHeader !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 401, headers: NO_STORE });
   }
 
-  const { createClient: createServiceClient } = await import("@/lib/supabase/service");
-  const supabase = await createServiceClient();
-
-  // Find all organizations with trialing or past_due subscriptions
-  const { data: orgs } = await supabase
-    .from("organization_subscriptions")
-    .select("organization_id, status, trial_end")
-    .in("status", ["trialing", "past_due", "canceled"]);
-
-  if (!orgs || orgs.length === 0) {
-    return NextResponse.json({ generated: 0 });
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
   let generated = 0;
-
-  for (const sub of orgs) {
-    const trialEnd = sub.trial_end as string | null;
-    const daysLeft = trialEnd
-      ? Math.max(0, Math.ceil((new Date(trialEnd).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-      : 0;
-
-    const notification = buildTrialNotification(sub.status as string, trialEnd, daysLeft);
-    if (!notification) continue;
-
-    // Dedup: check existing
-    const { data: existing } = await supabase
-      .from("app_notifications")
-      .select("id")
-      .eq("organization_id", sub.organization_id)
-      .eq("type", notification.type)
-      .gte("created_at", `${today}T00:00:00Z`)
-      .lt("created_at", `${today}T23:59:59Z`)
-      .limit(1);
-
-    if (existing && existing.length > 0) continue;
-
-    await supabase.from("app_notifications").insert({
-      organization_id: sub.organization_id,
-      type: notification.type,
-      title: notification.title,
-      message: notification.message,
-      action_label: notification.action_label,
-      action_url: notification.action_url,
-      severity: notification.severity,
-      metadata: notification.metadata,
-    });
-
-    generated++;
+  try {
+    const { createClient: createServiceClient } = await import("@/lib/supabase/service");
+    const supabase = createServiceClient();
+    // Migration 069 enforces one row per company. Re-read the canonical row in
+    // the shared generator as well, so a payment during the batch is respected.
+    const candidates = await readAllPages<{ organization_id: string }>((from, to) => supabase
+      .from("organization_subscriptions")
+      .select("organization_id")
+      .in("status", ["trialing", "past_due", "canceled", "unpaid"])
+      .order("organization_id", { ascending: true })
+      .range(from, to));
+    const now = new Date();
+    for (const organizationId of new Set(candidates.map(row => row.organization_id))) {
+      const result = await generateTrialNotificationForOrg(organizationId, { client: supabase, now });
+      if (result === "created") generated++;
+    }
+    return NextResponse.json({ generated }, { headers: NO_STORE });
+  } catch {
+    console.error("[TRIAL_CRON] notification batch failed", { generated });
+    return NextResponse.json({ error: "Le traitement des notifications n'a pas pu être terminé.", generated }, { status: 503, headers: NO_STORE });
   }
-
-  return NextResponse.json({ generated });
 }

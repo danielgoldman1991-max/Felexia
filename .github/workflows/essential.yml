@@ -63,6 +63,7 @@ jobs:
           node training/essential-fixes/20261031/verify-expiry-harness.cjs
           node training/essential-fixes/20261031/verify-middleware-access.cjs
           node training/essential-fixes/20261031/verify-logout-route.cjs
+          node training/essential-fixes/20261031/verify-trial-notifications.cjs
           node scripts/verify-essential-workflows.mjs
           node training/essential-fixes/20261031/verify-supplier-credit-print.cjs
           npx tsx scripts/verify-print-outputs.tsx

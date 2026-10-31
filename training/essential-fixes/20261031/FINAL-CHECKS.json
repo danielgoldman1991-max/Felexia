@@ -23,6 +23,11 @@
       "success": true,
       "assertions": 20,
       "proof": "company-browser.json"
+    },
+    "notificationsIsolated": {
+      "success": true,
+      "assertions": 34,
+      "proof": "trial-notification-tests.json"
     }
   },
   "financial": {
@@ -46,7 +51,7 @@
     "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030"
   ],
   "remainingExternal": [
-    "Production CRON_SECRET absent at unsigned503 probe; manual setup requested",
+    "CRON_SECRET added as Production Secret and Vercel schedule enabled; redeployment and unsigned401 verification in progress",
     "Public SMTP provider/branding and capacity beyond authorized mailbox aliases",
     "Complete Stripe payment and signed webhook cycle was not executed",
     "Hosted database and Storage backup recovery not verified",

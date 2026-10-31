@@ -10,9 +10,11 @@ Le runtime du projet est Node.js 22 à jour, aligné avec la CI. Vérifier les d
 
 ## Notifications d'essai
 
-`vercel.json` programme le traitement quotidien à 06:00 UTC. Définir `CRON_SECRET` dans les variables serveur Vercel, avec une valeur aléatoire forte conservée dans le gestionnaire de secrets de l'exploitant. Vercel transmet ce secret dans l'en-tête Bearer du cron. Sans secret, l'endpoint retourne 503 ; avec un secret incorrect, 401. Ne jamais rendre le cron anonyme.
+`vercel.json` programme le traitement quotidien à 06:00 UTC. Le 31 octobre 2026, `CRON_SECRET` a été ajouté depuis la session propriétaire Vercel comme variable de type Secret, pour l'environnement Production uniquement. Sa valeur n'est ni copiée dans la documentation ni conservée dans le dépôt. Le tableau de bord confirme que le cron est activé à 06:00 UTC ; la fenêtre d'exécution constatée sur le plan Hobby est d'une heure. [Configuration du secret](../training/essential-fixes/20261031/cron-secret-production.jpg), [planification constatée](../training/essential-fixes/20261031/cron-schedule-production.jpg)
 
-Après configuration, vérifier les journaux d'exécution et une notification unique sur une entreprise de recette. Une lecture de `/api/health` ne valide pas l'exécution du cron.
+Le contrôle public antérieur à cet ajout répondait 200 pour la santé et 503 pour le cron sans secret. Le redéploiement qui prend la variable en compte et le refus HTTP 401 d'une requête sans authentification restent à vérifier par le pilote de recette. Vercel transmet le secret dans l'en-tête Bearer du cron ; un secret absent produit 503 et une authentification incorrecte produit 401. Ne pas rendre le cron anonyme.
+
+Après cette vérification, contrôler les journaux d'exécution et une notification unique sur une entreprise de recette. Une lecture de `/api/health` ne valide pas l'exécution du cron. Le transport des emails observés reste Supabase Auth/Postmark ; la configuration Gmail déclarée n'est pas une preuve de transport Gmail.
 
 ## Emails et récupération de compte
 
