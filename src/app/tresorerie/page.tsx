@@ -10,26 +10,29 @@ import { TreasuryAccountsTable } from "@/components/treasury/treasury-accounts-t
 import { getTreasuryDashboard } from "@/lib/treasury";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
 export default async function TreasuryDashboardPage() {
   const workspace = await requireActiveWorkspace();
-  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const fullAccess = !isOperatorRole(workspace.role) && await hasFullErpAccess(workspace.organization.id);
+  const canWrite = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
   const dashboard = await getTreasuryDashboard();
   return (
     <ModulePage>
       <PageHeader
         title="Trésorerie"
         description="Retrouvez vos soldes bancaires, votre caisse et vos entrées et sorties d’argent."
-        actions={<><Button variant="secondary" asChild><Link href="/tresorerie/comptes/new"><Plus className="h-4 w-4" /> Ajouter un compte</Link></Button><Button asChild><Link href="/tresorerie/mouvements/new"><Plus className="h-4 w-4" /> Nouveau mouvement</Link></Button></>}
+        actions={canWrite ? <><Button variant="secondary" asChild><Link href="/tresorerie/comptes/new"><Plus className="h-4 w-4" /> Ajouter un compte</Link></Button><Button asChild><Link href="/tresorerie/mouvements/new"><Plus className="h-4 w-4" /> Nouveau mouvement</Link></Button></> : undefined}
       />
       <div className="space-y-6">
         <TreasuryDashboardCards counters={dashboard} fullAccess={fullAccess} />
         <p className="text-sm text-[var(--muted)]">Pour régler une facture, utilisez <Link href="/facturation/paiements/new" className="font-medium text-[var(--primary)] underline">un règlement client</Link> ou <Link href="/achats/paiements/new" className="font-medium text-[var(--primary)] underline">un règlement fournisseur</Link>. Le mouvement de trésorerie sera créé automatiquement.</p>
         <Card>
           <CardHeader><h2 className="font-semibold">Comptes avec soldes</h2></CardHeader>
-          <CardContent><TreasuryAccountsTable rows={dashboard.accounts} /></CardContent>
+          <CardContent><TreasuryAccountsTable rows={dashboard.accounts} canManage={canWrite} /></CardContent>
         </Card>
         <Card>
           <CardHeader><h2 className="font-semibold">Derniers mouvements</h2></CardHeader>

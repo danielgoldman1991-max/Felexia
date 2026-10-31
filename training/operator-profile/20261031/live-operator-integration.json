@@ -1,0 +1,306 @@
+{
+  "checkedAt": "2026-10-31T18:08:26.707Z",
+  "publicKeyOnly": true,
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "newAuthenticationUsers": 0,
+  "emailsSent": 0,
+  "stripeCalls": 0,
+  "checks": [
+    {
+      "name": "temporary_operator_assignment",
+      "passed": true
+    },
+    {
+      "name": "operator_role_visible_in_public_session",
+      "passed": true
+    },
+    {
+      "name": "operator_reads_own_company",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_organizations",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_third_parties",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_accounting_entries",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_customer",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_supplier",
+      "passed": true
+    },
+    {
+      "name": "operator_automatic_CU_code",
+      "passed": true,
+      "observed": {
+        "code": "CU2610-00002"
+      }
+    },
+    {
+      "name": "operator_automatic_SU_code",
+      "passed": true,
+      "observed": {
+        "code": "SU2610-00002"
+      }
+    },
+    {
+      "name": "operator_creates_customer_contact",
+      "passed": true
+    },
+    {
+      "name": "operator_edits_customer_contact",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_supplier_address",
+      "passed": true
+    },
+    {
+      "name": "operator_edits_supplier_address",
+      "passed": true
+    },
+    {
+      "name": "operator_edits_own_customer",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_and_numbers_customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_customer_invoice_lines",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_removes_own_draft_customer_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_creates_and_numbers_supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "operator_creates_supplier_invoice_lines",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_removes_own_draft_supplier_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_customer_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_supplier_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_customer_payments",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_supplier_payments",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_treasury_account",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": "42501"
+      }
+    },
+    {
+      "name": "operator_cannot_change_company_settings",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_memberships",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_roles",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_company",
+      "passed": true
+    },
+    {
+      "name": "operator_cannot_change_subscription",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_entries",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_journals",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_accounts",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "existing_financial_amounts_and_statuses_preserved",
+      "passed": true
+    },
+    {
+      "name": "temporary_business_records_removed",
+      "passed": true
+    },
+    {
+      "name": "original_viewer_role_restored",
+      "passed": true
+    },
+    {
+      "name": "final_financial_snapshot_unchanged",
+      "passed": true
+    }
+  ],
+  "temporaryRecords": [
+    {
+      "table": "third_parties",
+      "id": "1b298306-9b86-4b52-9190-1d58250a881f"
+    },
+    {
+      "table": "third_parties",
+      "id": "d6ccded2-1e74-41cb-a7d6-3042449bd104"
+    },
+    {
+      "table": "third_party_contacts",
+      "id": "097b75d6-b09c-4e0f-9bbd-cd0025342cdd"
+    },
+    {
+      "table": "third_party_addresses",
+      "id": "36edf7a0-0f41-4678-adca-0fbcdbfb465f"
+    },
+    {
+      "table": "customer_invoices",
+      "id": "e3628cb3-849c-424e-92c3-b17624e563d4"
+    },
+    {
+      "table": "supplier_invoices",
+      "id": "857fc1e1-3fab-42c7-b8e0-38fe388f6ca0"
+    }
+  ],
+  "skippedNewDocuments": false,
+  "auditLogsAndQANumberingMayRecordTheTest": true,
+  "cleanup": [
+    {
+      "table": "supplier_invoices",
+      "id": "857fc1e1-3fab-42c7-b8e0-38fe388f6ca0",
+      "removed": true
+    },
+    {
+      "table": "customer_invoices",
+      "id": "e3628cb3-849c-424e-92c3-b17624e563d4",
+      "removed": true
+    },
+    {
+      "table": "third_party_addresses",
+      "id": "36edf7a0-0f41-4678-adca-0fbcdbfb465f",
+      "removed": true
+    },
+    {
+      "table": "third_party_contacts",
+      "id": "097b75d6-b09c-4e0f-9bbd-cd0025342cdd",
+      "removed": true
+    },
+    {
+      "table": "third_parties",
+      "id": "d6ccded2-1e74-41cb-a7d6-3042449bd104",
+      "removed": true
+    },
+    {
+      "table": "third_parties",
+      "id": "1b298306-9b86-4b52-9190-1d58250a881f",
+      "removed": true
+    }
+  ],
+  "success": true,
+  "finishedAt": "2026-10-31T18:08:35.570Z"
+}

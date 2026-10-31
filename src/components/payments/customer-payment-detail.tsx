@@ -46,7 +46,8 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerPaymentDetail({ payment, allocations, accountingEntry, fullAccess = false }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null; fullAccess?: boolean }) {
+export function CustomerPaymentDetail({ payment, allocations, accountingEntry, fullAccess = false, canPostAccounting = true }: { payment: CustomerPaymentRecord; allocations: CustomerPaymentAllocationRecord[]; accountingEntry?: AccountingEntryInfo | null; fullAccess?: boolean; canPostAccounting?: boolean }) {
+  const lockedAccountingPayment = !canPostAccounting && accountingEntry?.entry?.status === "posted";
   return (
     <div className="space-y-6">
       <PageHeader
@@ -56,12 +57,13 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
           <>
             <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             {payment.available_amount > 0 && payment.status !== "cancelled" ? <Button type="button" asChild><Link href={`/facturation/paiements/${payment.id}/affecter`}>Affecter a des factures</Link></Button> : null}
-            {payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}>Modifier</Link></Button> : null}
-            {payment.status !== "cancelled" ? <ActionForm label="Annuler" variant="danger" icon={<XCircle className="h-4 w-4" />} action={actionWithId(cancelCustomerPayment, "id", payment.id)} /> : null}
+            {!lockedAccountingPayment && payment.allocated_amount <= 0 && payment.status !== "cancelled" ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}/edit`}>Modifier</Link></Button> : null}
+            {!lockedAccountingPayment && payment.status !== "cancelled" ? <ActionForm label="Annuler" variant="danger" icon={<XCircle className="h-4 w-4" />} action={actionWithId(cancelCustomerPayment, "id", payment.id)} /> : null}
           </>
         )}
       />
       <Card><CardContent className="flex flex-wrap items-center gap-3"><PaymentStatusBadge status={payment.status} /><span className="text-sm text-[var(--muted)]">Cree le {formatDate(payment.created_at)}</span></CardContent></Card>
+      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé. Contactez votre administrateur pour le modifier ou l’annuler.</p> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Informations paiement</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -94,7 +96,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
         </CardContent>
       </Card>
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
-        <summary className="cursor-pointer text-sm font-medium">{!accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
+        <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
@@ -124,7 +126,7 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour ce paiement.</p>
-              <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postCustomerPaymentToAccounting, payment.id)} />
+              {canPostAccounting ? <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postCustomerPaymentToAccounting, payment.id)} /> : null}
             </div>
           )}
         </CardContent>

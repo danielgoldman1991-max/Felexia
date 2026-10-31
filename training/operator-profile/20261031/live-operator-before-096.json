@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-31T13:59:08.495Z",
+  "publicKeyOnly": true,
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "newAuthenticationUsers": 0,
+  "emailsSent": 0,
+  "stripeCalls": 0,
+  "checks": [
+    {
+      "name": "temporary_operator_assignment",
+      "passed": true
+    },
+    {
+      "name": "operator_role_visible_in_public_session",
+      "passed": true
+    },
+    {
+      "name": "operator_reads_own_company",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_organizations",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_third_parties",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_accounting_entries",
+      "passed": true
+    },
+    {
+      "name": "integration_completed_without_error",
+      "passed": false
+    },
+    {
+      "name": "temporary_business_records_removed",
+      "passed": true
+    },
+    {
+      "name": "original_viewer_role_restored",
+      "passed": true
+    },
+    {
+      "name": "final_financial_snapshot_unchanged",
+      "passed": true
+    }
+  ],
+  "temporaryRecords": [],
+  "errorDetail": "OPERATOR_NUMBERING_READ_ONLY",
+  "error": "insert_third_parties: 42501",
+  "cleanup": [],
+  "success": false,
+  "finishedAt": "2026-10-31T13:59:13.215Z"
+}

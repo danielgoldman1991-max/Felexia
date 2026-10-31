@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { searchStaticRegistry, type GlobalSearchCategory, type GlobalSearchResult } from "@/lib/global-search-registry";
 import { cn } from "@/lib/utils";
 import { isLaunchPathAvailable } from "@/lib/launch-profile";
+import { isOperatorPathAllowed } from "@/lib/auth/operator-access";
 
 const categoryIcons: Record<GlobalSearchCategory, ComponentType<{ className?: string }>> = {
   "Acces rapide": Sparkles,
@@ -40,7 +41,7 @@ function groupedResults(results: GlobalSearchResult[]) {
     .filter((group) => group.rows.length > 0);
 }
 
-export function GlobalSearch({ fullAccess = false, readOnly = false }: { fullAccess?: boolean; readOnly?: boolean }) {
+export function GlobalSearch({ fullAccess = false, readOnly = false, operator = false }: { fullAccess?: boolean; readOnly?: boolean; operator?: boolean }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,17 +54,17 @@ export function GlobalSearch({ fullAccess = false, readOnly = false }: { fullAcc
   const requestIdRef = useRef(0);
 
   const staticResults = useMemo(
-    () => searchStaticRegistry(query, 100).filter((result) => isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create")).slice(0, query.trim() ? 12 : 6),
-    [query, fullAccess, readOnly],
+    () => searchStaticRegistry(query, 100).filter((result) => isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create") && (!operator || isOperatorPathAllowed(result.href))).slice(0, query.trim() ? 12 : 6),
+    [query, fullAccess, readOnly, operator],
   );
   const results = useMemo(() => {
     if (query.trim().length < 2) return staticResults;
     const byId = new Map<string, GlobalSearchResult>();
     for (const result of [...dynamicResults, ...staticResults]) {
-      if (isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create")) byId.set(result.id, result);
+      if (isLaunchPathAvailable(result.href, fullAccess) && (!readOnly || result.type !== "create") && (!operator || isOperatorPathAllowed(result.href))) byId.set(result.id, result);
     }
     return [...byId.values()];
-  }, [dynamicResults, fullAccess, query, readOnly, staticResults]);
+  }, [dynamicResults, fullAccess, query, readOnly, operator, staticResults]);
   const flatResults = results.slice(0, 30);
   const groups = groupedResults(flatResults);
 

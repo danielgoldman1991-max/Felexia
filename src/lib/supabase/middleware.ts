@@ -4,6 +4,7 @@ import { getEnv } from "@/lib/env";
 import { getLaunchDestination } from "@/lib/launch-profile";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isReadOnlyRole } from "@/lib/auth/roles";
+import { getOperatorDestination, isOperatorPathAllowed, isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 
 const SESSION_CACHE_HEADERS = ["cache-control", "expires", "pragma"] as const;
 
@@ -67,9 +68,32 @@ export async function updateSession(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user && pathname !== "/login") {
+      if (pathname.startsWith("/api/")) {
+        const response = NextResponse.json({ error: "Non authentifié." }, { status: 401, headers: { "Cache-Control": "no-store" } });
+        supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+        return response;
+      }
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `?next=${encodeURIComponent(`${pathname}${request.nextUrl.search}`)}`;
+      return redirectWithSession(url, supabaseResponse);
+    }
+
+    const { data: activeMembership, error: membershipError } = user ? await supabase.from("organization_members")
+      .select("organization_id, role:roles(name)").eq("user_id", user.id).eq("status", "active")
+      .limit(1).maybeSingle() : { data: null, error: null };
+    const activeRole = Array.isArray(activeMembership?.role) ? activeMembership.role[0] : activeMembership?.role;
+    const requestedPath = `${pathname}${request.nextUrl.search}`;
+    if (user && isOperatorRole(activeRole?.name) && !isOperatorPathAllowed(requestedPath, request.method)) {
+      if (request.method !== "GET" && request.method !== "HEAD" || pathname.startsWith("/api/")) {
+        const response = NextResponse.json({ error: OPERATOR_ACCESS_ERROR, code: "OPERATOR_ACCESS_DENIED" },
+          { status: 403, headers: { "Cache-Control": "no-store" } });
+        supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+        return response;
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = getOperatorDestination(requestedPath) ?? "/dashboard";
+      url.search = "";
       return redirectWithSession(url, supabaseResponse);
     }
 
@@ -78,11 +102,7 @@ export async function updateSession(request: NextRequest) {
     const mutationRequest = request.method !== "GET" && request.method !== "HEAD";
     const mutationForm = /\/(?:new|nouveau|edit|modifier|paiement|affecter|affectations?)(?:\/|$)/i.test(pathname);
     if (user && (mutationRequest || mutationForm)) {
-      const { data: membership, error } = await supabase.from("organization_members")
-        .select("role:roles(name)").eq("user_id", user.id).eq("status", "active")
-        .limit(1).maybeSingle();
-      const role = Array.isArray(membership?.role) ? membership.role[0] : membership?.role;
-      if (error || isReadOnlyRole(role?.name)) {
+      if (membershipError || isReadOnlyRole(activeRole?.name)) {
         if (mutationRequest) {
           const response = NextResponse.json(
             { error: "Votre accès est en lecture seule. Contactez votre administrateur pour modifier ces données.", code: "READ_ONLY_ACCESS" },
@@ -98,17 +118,11 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
-    const launchDestination = getLaunchDestination(pathname);
+    const launchDestination = pathname.startsWith("/api/") ? null : getLaunchDestination(requestedPath);
     if (user && launchDestination) {
       // The organisation comes from the authenticated membership, never a query
       // parameter, user metadata or a client-supplied interface preference.
-      const { data: membership } = await supabase
-        .from("organization_members")
-        .select("organization_id")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .limit(1)
-        .maybeSingle();
+      const membership = activeMembership;
       const fullAccess = membership?.organization_id
         ? await hasFullErpAccess(membership.organization_id)
         : false;

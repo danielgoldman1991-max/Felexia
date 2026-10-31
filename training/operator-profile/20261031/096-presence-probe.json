@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-31T18:05:18.139Z",
+  "publicKeyOnly": true,
+  "company": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "checks": [
+    {
+      "name": "third_party_contacts",
+      "passed": false,
+      "errorCode": "42501",
+      "errorMessage": "new row violates row-level security policy \"operator_insert_guard_v5\" for table \"third_party_contacts\""
+    },
+    {
+      "name": "third_party_addresses",
+      "passed": false,
+      "errorCode": "42501",
+      "errorMessage": "new row violates row-level security policy \"operator_insert_guard_v5\" for table \"third_party_addresses\""
+    },
+    {
+      "name": "viewer_restored",
+      "passed": true
+    }
+  ]
+}

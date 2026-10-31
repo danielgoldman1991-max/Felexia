@@ -4,6 +4,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { TrialStartedBanner } from "@/components/dashboard/trial-started-banner";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isReadOnlyRole } from "@/lib/auth/roles";
+import { isOperatorRole } from "@/lib/auth/operator-access";
 import { getLightDashboardData } from "@/lib/dashboard-data";
 import { getOnboardingChecklist } from "@/lib/onboarding";
 
@@ -17,6 +18,7 @@ export async function LightDashboard({ searchParams }: {
     getLightDashboardData(), getOnboardingChecklist(workspace.organization.id), searchParams,
   ]);
   const readOnly = isReadOnlyRole(workspace.role);
+  const operator = isOperatorRole(workspace.role);
   const name = workspace.profile?.full_name?.trim().split(/\s+/)[0];
   const trialStarted = Array.isArray(params?.trial_started) ? params.trial_started[0] : params?.trial_started;
   const setupNotice = Array.isArray(params?.setup_notice) ? params.setup_notice[0] : params?.setup_notice;
@@ -47,9 +49,9 @@ export async function LightDashboard({ searchParams }: {
           <p className="mt-2 text-sm text-[var(--muted)]">Vos factures, vos règlements et votre trésorerie, simplement.</p>
         </header>
 
-        {!readOnly && (trialStarted === "1" || workspace.subscription?.status === "trialing") ? <TrialStartedBanner forceOpen={trialStarted === "1"} planCode={workspace.subscription?.planCode} /> : null}
+        {!readOnly && !operator && (trialStarted === "1" || workspace.subscription?.status === "trialing") ? <TrialStartedBanner forceOpen={trialStarted === "1"} planCode={workspace.subscription?.planCode} /> : null}
 
-        {!readOnly && setupNotice === "defaults_incomplete" ? (
+        {!readOnly && !operator && setupNotice === "defaults_incomplete" ? (
           <p role="status" className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-sm leading-6">
             Votre entreprise est créée. Certains réglages de démarrage restent à finaliser. <Link href="/comptabilite/journaux" className="font-semibold text-[var(--primary)] underline">Ouvrez vos journaux pour réessayer</Link>. Si le problème persiste, <Link href="/parametres/modules" className="font-semibold text-[var(--primary)] underline">contactez notre équipe</Link> avant d’inviter vos collaborateurs.
           </p>
@@ -68,7 +70,7 @@ export async function LightDashboard({ searchParams }: {
           </div>
         </section>
 
-        {!readOnly && !checklist.isCompleted ? <Link href="/bienvenue" className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+        {!readOnly && !operator && !checklist.isCompleted ? <Link href="/bienvenue" className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
           <span className="flex items-center gap-3"><CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--primary)]" /><span><span className="block text-sm font-semibold">Vos premiers pas</span><span className="mt-1 block text-xs text-[var(--muted)]">{checklist.completedCount}/{checklist.totalCount} étapes réalisées. Configurez votre entreprise et créez votre première facture.</span></span></span>
           <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)]">Continuer<ArrowRight className="h-4 w-4" /></span>
         </Link> : null}

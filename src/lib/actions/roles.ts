@@ -57,7 +57,7 @@ export async function deleteRoleAction(
 
     if (!role) return { error: "Rôle introuvable." };
 
-    const systemRoles = ["owner", "admin", "commercial", "comptable", "stock", "lecture seule"];
+    const systemRoles = ["owner", "admin", "operator", "operateur", "opérateur", "commercial", "comptable", "stock", "lecture seule"];
     if (systemRoles.includes(role.name.toLowerCase())) {
       return { error: "Ce rôle est un rôle système et ne peut pas être supprimé." };
     }

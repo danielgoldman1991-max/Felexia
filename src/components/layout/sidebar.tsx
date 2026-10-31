@@ -19,6 +19,8 @@ import { cn, initials } from "@/lib/utils";
 import { lightSections, sections } from "@/components/layout/sidebar-data";
 import type { ActiveWorkspace } from "@/lib/auth";
 import { logoutAction } from "@/lib/auth-actions";
+import { getRoleLabel } from "@/lib/auth/roles";
+import { isOperatorPathAllowed, isOperatorRole } from "@/lib/auth/operator-access";
 
 function pathMatches(pathname: string, href: string) {
   const cleanHref = href.split("?")[0];
@@ -48,15 +50,21 @@ export function Sidebar({
   fullAccess?: boolean;
 }) {
   const pathname = usePathname();
+  const operator = isOperatorRole(workspace?.role);
   const visibleSections = useMemo(
     () =>
-      (fullAccess ? sections : lightSections).filter((section) => {
+      (fullAccess && !operator ? sections : lightSections).map((section) => (
+        operator && section.key === "settings"
+          ? { ...section, label: "Mon compte", href: "/parametres/profil" }
+          : { ...section, items: section.items?.filter((item) => !operator || isOperatorPathAllowed(item.href)) }
+      )).filter((section) => {
         if (section.hidden) return false;
+        if (operator && !isOperatorPathAllowed(section.href)) return false;
         if (section.key === "welcome") return showWelcomeGuide;
         if (!section.moduleKey) return true;
         return workspace?.enabledModules?.includes(section.moduleKey) ?? false;
       }),
-    [fullAccess, showWelcomeGuide, workspace?.enabledModules],
+    [fullAccess, operator, showWelcomeGuide, workspace?.enabledModules],
   );
 
   const initiallyOpen = useMemo(
@@ -94,7 +102,7 @@ export function Sidebar({
   }
 
   const displayName = workspace?.profile?.full_name ?? workspace?.email ?? "Mon compte";
-  const role = workspace?.role ?? "Utilisateur";
+  const role = workspace?.role ? getRoleLabel(workspace.role) : "Utilisateur";
   const organizationName = workspace?.organization.name || "Organisation";
   const userEmail = workspace?.profile?.email ?? workspace?.email ?? "";
 
@@ -135,9 +143,9 @@ export function Sidebar({
 
           <div className="px-4 pb-4">
             <Link
-              href="/parametres/entreprise"
+              href={operator ? "/dashboard" : "/parametres/entreprise"}
               onClick={onCloseMobile}
-              title="Paramètres de l’entreprise"
+              title={operator ? organizationName : "Paramètres de l’entreprise"}
               className="group flex items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] px-3 py-3 transition hover:border-[var(--border-strong)]"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] ring-1 ring-[var(--border)]">
@@ -147,11 +155,11 @@ export function Sidebar({
                 <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Organisation</span>
                 <span className="block truncate text-sm font-semibold text-[var(--sidebar-foreground)] group-hover:text-[var(--primary)]">{organizationName}</span>
               </span>
-              <Settings className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition group-hover:text-[var(--sidebar-foreground)]" />
+              {!operator ? <Settings className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition group-hover:text-[var(--sidebar-foreground)]" /> : null}
             </Link>
             <div className="mt-3 flex items-center gap-2 lg:hidden">
               <NotificationDropdown align="left" />
-              <HelpDropdown align="left" fullAccess={fullAccess} />
+              <HelpDropdown align="left" fullAccess={fullAccess && !operator} operator={operator} />
               <span className="text-xs text-[var(--sidebar-muted)]">Notifications et aide</span>
             </div>
           </div>

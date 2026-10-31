@@ -14,6 +14,7 @@ export async function initializeOrganizationDefaults(organizationId: string) {
   // must not leave the only available invitation role as administrator.
   const roleResult = await svc.from("roles").upsert([
     { organization_id: organizationId, name: "viewer", description: "Consultation des données de l’entreprise." },
+    { organization_id: organizationId, name: "operator", description: "Gestion quotidienne des clients, fournisseurs, factures et règlements, sans administration de l’entreprise." },
     { organization_id: organizationId, name: "sales", description: "Gestion des clients, factures de vente et règlements." },
     { organization_id: organizationId, name: "accountant", description: "Suivi des factures, règlements et journaux comptables." },
   ], { onConflict: "organization_id,name", ignoreDuplicates: true });

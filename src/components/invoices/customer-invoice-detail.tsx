@@ -50,7 +50,7 @@ type AccountingEntryInfo = {
   lines: Array<Record<string, unknown>>;
 };
 
-export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow, fullAccess = false }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[]; fullAccess?: boolean }) {
+export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documentFlow, fullAccess = false, canPostAccounting = true }: { invoice: CustomerInvoiceRecord; lines: CustomerInvoiceLineRecord[]; accountingEntry?: AccountingEntryInfo | null; documentFlow?: DocumentFlowStep[]; fullAccess?: boolean; canPostAccounting?: boolean }) {
   const discountPresent = hasDiscount(lines);
   return (
     <div className="space-y-6">
@@ -122,7 +122,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         </CardContent>
       </Card>
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
-        <summary className="cursor-pointer text-sm font-medium">{!accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
+        <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
@@ -152,7 +152,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour cette facture.</p>
-              <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithInvoiceId(postCustomerInvoiceToAccounting, invoice.id)} />
+              {canPostAccounting ? <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithInvoiceId(postCustomerInvoiceToAccounting, invoice.id)} /> : null}
             </div>
           )}
         </CardContent>

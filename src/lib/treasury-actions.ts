@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 import { createClient } from "@/lib/supabase/server";
 import type { TreasuryActionResult, TreasuryAccountType, TreasuryTransactionDirection, TreasuryTransactionType } from "@/lib/treasury-types";
 
@@ -84,6 +85,7 @@ async function applyDefaultAccount(organizationId: string, id: string) {
 export async function createTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const name = text(formData, "name");
   if (!name) return { success: false, error: "Le nom du compte est obligatoire." };
   const opening = num(formData.get("opening_balance"));
@@ -121,6 +123,7 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
 export async function updateTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
   const name = text(formData, "name");
@@ -155,6 +158,7 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
 export async function archiveTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
   const supabase = await createClient();
@@ -167,6 +171,7 @@ export async function archiveTreasuryAccount(prev: TreasuryActionResult, formDat
 export async function setDefaultTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
   const error = await applyDefaultAccount(workspace.organization.id, id);
@@ -178,6 +183,7 @@ export async function setDefaultTreasuryAccount(prev: TreasuryActionResult, form
 export async function createManualTreasuryTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const accountId = text(formData, "treasury_account_id");
   const operationMode = text(formData, "operation_mode") ?? "movement";
   const amount = num(formData.get("amount"));
@@ -237,6 +243,7 @@ export async function createManualTreasuryTransaction(prev: TreasuryActionResult
 export async function archiveTreasuryTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Mouvement introuvable." };
   const supabase = await createClient();
@@ -263,6 +270,7 @@ function parseCsv(textContent: string) {
 export async function importBankStatement(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const accountId = text(formData, "treasury_account_id");
   const file = formData.get("file");
   if (!accountId) return { success: false, error: "Selectionnez un compte bancaire." };
@@ -362,6 +370,7 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
 export async function cancelBankStatementImport(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Import introuvable." };
   const supabase = await createClient();
@@ -374,6 +383,7 @@ export async function cancelBankStatementImport(prev: TreasuryActionResult, form
 export async function reconcileStatementLineWithTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const statementLineId = text(formData, "statement_line_id");
   const transactionId = text(formData, "transaction_id");
   if (!statementLineId || !transactionId) return { success: false, error: "Selection incomplete." };
@@ -401,6 +411,7 @@ export async function reconcileStatementLineWithTransaction(prev: TreasuryAction
 export async function confirmAutomaticReconciliations(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const selected = formData.getAll("suggestions").map((value) => String(value));
   if (selected.length === 0) return { success: false, error: "Selectionnez au moins une suggestion." };
   const supabase = await createClient();
@@ -444,6 +455,7 @@ export async function confirmAutomaticReconciliations(prev: TreasuryActionResult
 export async function ignoreStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };
   const supabase = await createClient();
@@ -459,6 +471,7 @@ export async function ignoreStatementLine(prev: TreasuryActionResult, formData: 
 export async function createTransactionFromStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };
   const supabase = await createClient();

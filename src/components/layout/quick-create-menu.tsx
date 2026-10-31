@@ -19,6 +19,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isOperatorPathAllowed } from "@/lib/auth/operator-access";
 
 const groups = [
   {
@@ -101,9 +102,12 @@ const lightGroups = [
   },
 ];
 
-export function QuickCreateMenu({ fullAccess = false }: { fullAccess?: boolean }) {
+export function QuickCreateMenu({ fullAccess = false, operator = false }: { fullAccess?: boolean; operator?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const visibleGroups = (fullAccess && !operator ? groups : lightGroups)
+    .map((group) => ({ ...group, items: group.items.filter((item) => !operator || isOperatorPathAllowed(item.href)) }))
+    .filter((group) => group.items.length > 0);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -138,7 +142,7 @@ export function QuickCreateMenu({ fullAccess = false }: { fullAccess?: boolean }
             <p className="text-xs text-[var(--muted)]">Une facture, un règlement ou un contact en un clic.</p>
           </div>
           <div className="grid max-h-[70vh] gap-3 overflow-y-auto sm:grid-cols-2">
-            {(fullAccess ? groups : lightGroups).map((group) => (
+            {visibleGroups.map((group) => (
               <div key={group.title} className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/50 p-2">
                 <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-[0.15em] text-[var(--accent)]">{group.title}</p>
                 <div className="space-y-1">

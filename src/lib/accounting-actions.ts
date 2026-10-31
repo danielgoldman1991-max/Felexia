@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 import { createClient } from "@/lib/supabase/server";
 import { getAccountByNumber, getJournalByCode, getExistingEntryBySource, buildCustomerInvoiceLines, buildSupplierInvoiceLines, verifyBalanced, generateEntryNumber, getAccountingSettings as getAccountingSettingsFromLib } from "@/lib/accounting";
 import type { AccountingActionResult, AccountingEntryLineFormValue } from "@/lib/accounting-types";
@@ -224,6 +225,7 @@ export async function getAccountingSettings() {
 export async function createAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const journalId = text(formData, "journal_id");
   const entryDate = text(formData, "entry_date");
   const label = text(formData, "label");
@@ -301,6 +303,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
 export async function postAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Ecriture introuvable." };
   const supabase = await createClient();
@@ -327,6 +330,7 @@ export async function postAccountingEntry(prev: AccountingActionResult, formData
 export async function cancelAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Ecriture introuvable." };
   const supabase = await createClient();
@@ -346,6 +350,7 @@ export async function cancelAccountingEntry(prev: AccountingActionResult, formDa
 export async function archiveAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Ecriture introuvable." };
   const supabase = await createClient();
@@ -426,6 +431,7 @@ async function getTreasuryPostingSetup(organizationId: string, treasuryAccountId
 
 export async function generateCustomerInvoiceAccountingEntry(invoiceId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
 
@@ -555,6 +561,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
 
 export async function generateSupplierInvoiceAccountingEntry(invoiceId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
 
@@ -685,6 +692,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
 
 export async function generateCustomerPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
 
@@ -783,6 +791,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
 
 export async function generateSupplierPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
 
@@ -882,6 +891,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
 export async function updateAccountingSettings(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
   const payload: Record<string, string> = {};
   const fields = [
@@ -907,6 +917,7 @@ export async function updateAccountingSettings(prev: AccountingActionResult, for
 export async function updateAccountingEntryLineAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const lineId = text(formData, "entry_line_id");
   const accountId = text(formData, "account_id");
   if (!lineId) return { success: false, error: "Ligne d'ecriture introuvable." };
@@ -976,6 +987,7 @@ export async function postCustomerInvoiceToAccounting(prev: AccountingActionResu
   if (!invoiceId) return { success: false, error: "Facture client introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
 
   const { data: invoice, error: invoiceError } = await supabase
@@ -1009,6 +1021,7 @@ export async function postSupplierInvoiceToAccounting(prev: AccountingActionResu
   if (!invoiceId) return { success: false, error: "Facture fournisseur introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
 
   const { data: invoice } = await supabase
@@ -1041,6 +1054,7 @@ export async function postCustomerPaymentToAccounting(prev: AccountingActionResu
   if (!paymentId) return { success: false, error: "Paiement client introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
 
   const { data: payment } = await supabase
@@ -1073,6 +1087,7 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
   if (!paymentId) return { success: false, error: "Paiement fournisseur introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
 
   const { data: payment } = await supabase
@@ -1102,6 +1117,7 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
 export async function createChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const code = text(formData, "code");
   const name = text(formData, "name");
   if (!code) return { success: false, error: "Le numero de compte est obligatoire." };
@@ -1153,6 +1169,7 @@ export async function createChartOfAccount(prev: AccountingActionResult, formDat
 export async function updateChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
 
@@ -1235,6 +1252,7 @@ export async function updateChartOfAccount(prev: AccountingActionResult, formDat
 export async function archiveChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
 
@@ -1272,6 +1290,7 @@ export async function archiveChartOfAccount(prev: AccountingActionResult, formDa
 export async function toggleChartOfAccountActive(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
 
@@ -1300,6 +1319,7 @@ export async function ensureDefaultChartOfAccountsAction(prev: AccountingActionR
   void prev;
   void formData;
   const workspace = await requireActiveWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const { ensureDefaultChartOfAccounts } = await import("@/lib/accounting");
   try {
     const result = await ensureDefaultChartOfAccounts(workspace.organization.id);

@@ -11,13 +11,16 @@ import { getTreasuryAccountDetail } from "@/lib/treasury";
 import { TREASURY_ACCOUNT_TYPE_LABELS } from "@/lib/treasury-types";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
 export default async function TreasuryAccountDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const workspace = await requireActiveWorkspace();
-  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const canManage = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
+  const fullAccess = !isOperatorRole(workspace.role) && await hasFullErpAccess(workspace.organization.id);
   const { account, transactions } = await getTreasuryAccountDetail(id);
   if (!account) {
     return <ModulePage><PageHeader title="Compte introuvable" actions={<Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>} /></ModulePage>;
@@ -27,7 +30,7 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
       <PageHeader
         title={account.name}
         description="Fiche compte de tresorerie et derniers mouvements."
-        actions={<><Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button><Button asChild><Link href={`/tresorerie/comptes/${account.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button></>}
+        actions={<><Button variant="secondary" asChild><Link href="/tresorerie/comptes"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>{canManage ? <Button asChild><Link href={`/tresorerie/comptes/${account.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button> : null}</>}
       />
       <div className="grid gap-5 lg:grid-cols-[1fr_2fr]">
         <Card>

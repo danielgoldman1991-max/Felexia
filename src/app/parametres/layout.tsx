@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isOperatorPathAllowed, isOperatorRole } from "@/lib/auth/operator-access";
 
 const navItems = [
   { label: "Mon profil", href: "/parametres/profil", key: "profil" },
@@ -31,12 +32,14 @@ const lightNavItems = [
 export default async function ParametresLayout({ children }: { children: ReactNode }) {
   const workspace = await requireActiveWorkspace();
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const operator = isOperatorRole(workspace.role);
+  const visibleNavItems = operator ? navItems.filter((item) => isOperatorPathAllowed(item.href)) : fullAccess ? navItems : lightNavItems;
   return (
     <ModulePage>
       <div className="flex gap-8">
         <aside className="hidden w-56 shrink-0 lg:block">
-          <nav aria-label="Paramètres de l'entreprise" className="sticky top-8 space-y-1">
-            {(fullAccess ? navItems : lightNavItems).map((item) => (
+          <nav aria-label={operator ? "Mon compte" : "Paramètres de l'entreprise"} className="sticky top-8 space-y-1">
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}

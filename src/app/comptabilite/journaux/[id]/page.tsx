@@ -10,6 +10,9 @@ import { AccountingJournalFilters } from "@/components/accounting/accounting-jou
 import { AccountingJournalSummaryCards } from "@/components/accounting/accounting-journal-summary-cards";
 import { getAccountingJournalDetail, listAccountingJournalEntries, listActiveChartOfAccounts } from "@/lib/accounting";
 import type { AccountingJournalEntryFilters } from "@/lib/accounting-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -50,6 +53,8 @@ function periodLabel(filters: AccountingJournalEntryFilters) {
 }
 
 export default async function AccountingJournalDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: SearchParams }) {
+  const workspace = await requireActiveWorkspace();
+  const canWrite = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
   const { id } = await params;
   const rawParams = await searchParams;
   const filters = filtersFromParams(rawParams);
@@ -69,7 +74,7 @@ export default async function AccountingJournalDetailPage({ params, searchParams
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href="/comptabilite/journaux"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
-            <Button asChild><Link href={`/comptabilite/ecritures/nouveau?journalId=${id}`}>Nouvelle écriture</Link></Button>
+            {canWrite ? <Button asChild><Link href={`/comptabilite/ecritures/nouveau?journalId=${id}`}>Nouvelle écriture</Link></Button> : null}
             <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${id}/print${qs}`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${id}/export${qs}`}><Download className="h-4 w-4" /> Export Excel</Link></Button>
           </>

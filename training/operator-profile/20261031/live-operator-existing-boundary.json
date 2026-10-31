@@ -1,0 +1,171 @@
+{
+  "checkedAt": "2026-10-31T13:59:45.060Z",
+  "publicKeyOnly": true,
+  "organizationId": "c7728100-6e58-46b6-aa07-220b262169ab",
+  "newAuthenticationUsers": 0,
+  "emailsSent": 0,
+  "stripeCalls": 0,
+  "checks": [
+    {
+      "name": "temporary_operator_assignment",
+      "passed": true
+    },
+    {
+      "name": "operator_role_visible_in_public_session",
+      "passed": true
+    },
+    {
+      "name": "operator_reads_own_company",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_organizations",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_third_parties",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_customer_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_supplier_payments",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "cross_tenant_read_denied_accounting_entries",
+      "passed": true
+    },
+    {
+      "name": "operator_daily_write_customer_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_supplier_invoices",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_customer_payments",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_daily_write_supplier_payments",
+      "passed": true,
+      "observed": {
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_treasury_account",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": "42501"
+      }
+    },
+    {
+      "name": "operator_cannot_change_company_settings",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_memberships",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_roles",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_change_company",
+      "passed": true
+    },
+    {
+      "name": "operator_cannot_change_subscription",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_entries",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_journals",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "operator_cannot_administer_accounting_accounts",
+      "passed": true,
+      "observed": {
+        "affectedRows": 0,
+        "errorCode": null
+      }
+    },
+    {
+      "name": "existing_financial_amounts_and_statuses_preserved",
+      "passed": true
+    },
+    {
+      "name": "temporary_business_records_removed",
+      "passed": true
+    },
+    {
+      "name": "original_viewer_role_restored",
+      "passed": true
+    },
+    {
+      "name": "final_financial_snapshot_unchanged",
+      "passed": true
+    }
+  ],
+  "temporaryRecords": [],
+  "skippedNewDocuments": true,
+  "cleanup": [],
+  "success": true,
+  "finishedAt": "2026-10-31T13:59:50.813Z"
+}

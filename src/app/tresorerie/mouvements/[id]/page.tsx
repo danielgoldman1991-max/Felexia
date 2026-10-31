@@ -10,13 +10,14 @@ import { getTreasuryTransactionDetail } from "@/lib/treasury";
 import { RECONCILIATION_STATUS_LABELS, TREASURY_TRANSACTION_TYPE_LABELS } from "@/lib/treasury-types";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isOperatorRole } from "@/lib/auth/operator-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function TreasuryTransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const workspace = await requireActiveWorkspace();
-  const fullAccess = await hasFullErpAccess(workspace.organization.id);
+  const fullAccess = !isOperatorRole(workspace.role) && await hasFullErpAccess(workspace.organization.id);
   const tx = await getTreasuryTransactionDetail(id);
   return (
     <ModulePage>

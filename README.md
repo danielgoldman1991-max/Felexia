@@ -4,6 +4,14 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ## Version légère de lancement — 31 octobre 2026
 
+### Profil Opérateur
+
+Le profil **Opérateur** sert à la saisie quotidienne : clients, fournisseurs, factures de vente et d'achat, avoirs et règlements. Il peut consulter les comptes de trésorerie et les journaux. L'administration de l'entreprise, les utilisateurs, les habilitations, l'abonnement, la numérotation, la gestion des comptes bancaires et les écritures comptables restent hors de ce profil. Un règlement déjà comptabilisé doit être corrigé par l'administrateur.
+
+Les migrations additives `supabase/migrations/095_operator_profile.sql` puis `096_fix_operator_contact_numbering.sql` doivent être appliquées avant de publier ce profil. Elles préparent le rôle pour les entreprises existantes et futures, sans attribuer ce rôle à aucun membre existant, et conservent l'autonumérotation des clients/fournisseurs. Un administrateur peut ensuite sélectionner **Opérateur** lors d'une invitation ou changer le rôle d'un équipier. Les restrictions sont contrôlées dans l'application et dans la base, y compris pour les appels directs.
+
+Le serveur accepte aussi le champ `organizationId` d'un ancien formulaire d'invitation uniquement s'il correspond à l'entreprise issue de la session. Une entreprise différente reste refusée avant toute création ou tout envoi d'email.
+
 Le menu principal propose six entrées : **Accueil, Ventes, Achats, Trésorerie, Journaux, Paramètres**.
 
 - Créer son entreprise et renseigner ses informations de facturation.

@@ -24,8 +24,8 @@ function InlineAction({ label, id, action, icon, variant = "ghost" }: { label: s
   return <form action={formAction}><Button type="submit" variant={variant} className="h-9 w-9 px-0" title={label} disabled={pending}>{icon}</Button></form>;
 }
 
-export function TreasuryAccountsTable({ rows }: { rows: TreasuryAccountRecord[] }) {
-  if (rows.length === 0) return <EmptyState title="Aucun compte de tresorerie." description="Creez une banque, une caisse ou une passerelle de paiement." />;
+export function TreasuryAccountsTable({ rows, canManage = true }: { rows: TreasuryAccountRecord[]; canManage?: boolean }) {
+  if (rows.length === 0) return <EmptyState title="Aucun compte de tresorerie." description={canManage ? "Creez une banque, une caisse ou une passerelle de paiement." : "Votre administrateur peut ajouter un compte de trésorerie."} />;
   return (
     <Table>
       <thead><tr><Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Banque</Th><Th>Devise</Th><Th>Solde actuel</Th><Th>Statut</Th><Th>Par defaut</Th><Th>Actions</Th></tr></thead>
@@ -43,9 +43,11 @@ export function TreasuryAccountsTable({ rows }: { rows: TreasuryAccountRecord[] 
             <Td>
               <div className="flex items-center gap-1">
                 <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/tresorerie/comptes/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
-                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/tresorerie/comptes/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
-                {!row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultTreasuryAccount} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
-                <InlineAction label="Archiver" id={row.id} action={archiveTreasuryAccount} icon={<Archive className="h-4 w-4" />} variant="danger" />
+                {canManage ? <>
+                  <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/tresorerie/comptes/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
+                  {!row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultTreasuryAccount} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
+                  <InlineAction label="Archiver" id={row.id} action={archiveTreasuryAccount} icon={<Archive className="h-4 w-4" />} variant="danger" />
+                </> : null}
               </div>
             </Td>
           </tr>

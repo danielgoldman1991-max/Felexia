@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveWorkspace } from "@/lib/auth";
 import { getAppUrl } from "@/lib/app-url";
 import { isAdminRole } from "@/lib/auth/roles";
+import { matchesInvitationOrganization } from "@/lib/auth/invitation-roles";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -57,10 +58,14 @@ export async function inviteOrganizationUser(input: {
   email: string;
   roleId: string | null;
   fullName: string | null;
+  legacyOrganizationId?: string | null;
 }): Promise<{ invitationId: string; email: string; authUserId: string }> {
   const workspace = await getActiveWorkspace();
   if (!workspace) throw new InvitationError("UNAUTHENTICATED", "Non authentifié.", 401);
   if (!isAdminRole(workspace.role)) throw new InvitationError("FORBIDDEN", "Seul un administrateur peut inviter un utilisateur.", 403);
+  if (!matchesInvitationOrganization(workspace.organization.id, input.legacyOrganizationId)) {
+    throw new InvitationError("FORBIDDEN", "L’entreprise affichée ne correspond plus à votre espace actif. Actualisez la page avant d’inviter un utilisateur.", 403);
+  }
   const email = input.email.trim().toLowerCase();
   if (!EMAIL_PATTERN.test(email)) throw new InvitationError("INVALID_EMAIL", "Format d'email invalide.", 400);
 

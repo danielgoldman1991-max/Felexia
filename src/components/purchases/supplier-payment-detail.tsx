@@ -54,14 +54,17 @@ export function SupplierPaymentDetail({
   allocations,
   accountingEntry,
   fullAccess = false,
+  canPostAccounting = true,
 }: {
   payment: SupplierPaymentRecord;
   allocations: SupplierPaymentAllocationRecord[];
   accountingEntry?: AccountingEntryInfo | null;
   fullAccess?: boolean;
+  canPostAccounting?: boolean;
 }) {
   const canAllocate = payment.available_amount > 0;
-  const canCancel = payment.status !== "cancelled";
+  const lockedAccountingPayment = !canPostAccounting && accountingEntry?.entry?.status === "posted";
+  const canCancel = !lockedAccountingPayment && payment.status !== "cancelled";
 
   return (
     <div className="space-y-6">
@@ -80,6 +83,7 @@ export function SupplierPaymentDetail({
         }
       />
 
+      {lockedAccountingPayment ? <p className="text-sm text-[var(--muted)]">Ce règlement est comptabilisé. Contactez votre administrateur pour le modifier ou l’annuler.</p> : null}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">{SUPPLIER_PAYMENT_STATUS_LABELS[payment.status] ?? payment.status}</span>
@@ -109,7 +113,7 @@ export function SupplierPaymentDetail({
       </div>
 
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
-        <summary className="cursor-pointer text-sm font-medium">{!accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
+        <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
@@ -139,7 +143,7 @@ export function SupplierPaymentDetail({
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour ce paiement.</p>
-              <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postSupplierPaymentToAccounting, payment.id)} />
+              {canPostAccounting ? <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postSupplierPaymentToAccounting, payment.id)} /> : null}
             </div>
           )}
         </CardContent>

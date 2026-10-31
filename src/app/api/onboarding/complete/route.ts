@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 
 export async function POST() {
   try {
@@ -14,7 +15,7 @@ export async function POST() {
 
     const { data: membership } = await supabase
       .from("organization_members")
-      .select("organization_id")
+      .select("organization_id, role:roles(name)")
       .eq("user_id", user.id)
       .eq("status", "active")
       .limit(1)
@@ -22,6 +23,14 @@ export async function POST() {
 
     if (!membership?.organization_id) {
       return NextResponse.json({ error: "Aucune organisation active." }, { status: 400 });
+    }
+
+    const role = Array.isArray(membership.role) ? membership.role[0] : membership.role;
+    if (isOperatorRole(role?.name)) {
+      return NextResponse.json(
+        { error: OPERATOR_ACCESS_ERROR, code: "OPERATOR_ACCESS_DENIED" },
+        { status: 403 },
+      );
     }
 
     const now = new Date().toISOString();

@@ -4,8 +4,13 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
 import { EntriesTable, EntriesSummaryCards } from "@/components/accounting/entries-table";
 import { listAccountingEntries } from "@/lib/accounting-actions";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 export default async function EntriesPage() {
+  const workspace = await requireActiveWorkspace();
+  const canWrite = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
   const result = await listAccountingEntries({ pageSize: 100 });
   const entries = result.success && result.data
     ? (result.data as { entries: Array<import("@/lib/accounting-types").AccountingEntryRecord>; total: number })
@@ -16,7 +21,7 @@ export default async function EntriesPage() {
       <PageHeader
         title="Ecritures comptables"
         description="Ecritures generees ou saisies manuellement."
-        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/journaux">Journaux</Link></Button><Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle écriture</Link></Button></>}
+        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/journaux">Journaux</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle écriture</Link></Button> : null}</>}
       />
       <div className="space-y-6">
         <EntriesSummaryCards entries={entries.entries} />

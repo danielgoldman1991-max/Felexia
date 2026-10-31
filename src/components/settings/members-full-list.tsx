@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getRoleLabel, ADMIN_ROLES } from "@/lib/auth/roles";
+import { getRoleDescription, getRoleLabel, ADMIN_ROLES } from "@/lib/auth/roles";
 import { getInvitationRoleId } from "@/lib/auth/invitation-roles";
 
 type Member = {
@@ -61,6 +61,7 @@ export function MembersFullList({
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string | null>(null);
   const resolvedInviteRole = getInvitationRoleId(roles, inviteRole);
+  const inviteRoleDescription = getRoleDescription(roles.find((role) => role.id === resolvedInviteRole)?.name ?? "viewer");
   const [inviteFullName, setInviteFullName] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
@@ -247,6 +248,7 @@ export function MembersFullList({
                 onChange={(e) => setInviteFullName(e.target.value)}
               />
               <select
+                aria-label="Profil du collaborateur"
                 value={resolvedInviteRole ?? ""}
                 onChange={(e) => setInviteRole(e.target.value || null)}
                 className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--primary)]"
@@ -257,6 +259,7 @@ export function MembersFullList({
                 ))}
               </select>
             </div>
+            {inviteRoleDescription ? <p className="text-sm text-[var(--muted)]">{inviteRoleDescription}</p> : null}
             {inviteError && <p className="text-sm text-red-600">{inviteError}</p>}
             {inviteSuccess && <p className="text-sm text-green-600">{inviteSuccess}</p>}
             <div className="flex gap-2">

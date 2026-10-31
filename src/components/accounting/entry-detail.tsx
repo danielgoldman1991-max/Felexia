@@ -21,9 +21,10 @@ type Props = {
   accounts: ChartOfAccountOption[];
   documentFlow?: DocumentFlowStep[];
   fullAccess?: boolean;
+  canManage?: boolean;
 };
 
-export function EntryDetailView({ detail, postAction, updateLineAccountAction, accounts, documentFlow, fullAccess = false }: Props) {
+export function EntryDetailView({ detail, postAction, updateLineAccountAction, accounts, documentFlow, fullAccess = false, canManage = true }: Props) {
   const { entry } = detail;
   const [editingLineId, setEditingLineId] = useState<string | null>(null);
   if (!entry) {
@@ -40,7 +41,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
   const totalDebit = lines.reduce((s, l) => s + Number(l.debit), 0);
   const totalCredit = lines.reduce((s, l) => s + Number(l.credit), 0);
   const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
-  const canEditLineAccounts = entry.status !== "cancelled";
+  const canEditLineAccounts = canManage && entry.status !== "cancelled";
 
   return (
     <div className="space-y-6">
@@ -52,7 +53,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           <ArrowLeft className="h-4 w-4" /> Retour aux ecritures
         </Link>
         <div className="flex items-center gap-2">
-          {entry.status === "draft" ? (
+          {canManage && entry.status === "draft" ? (
             <ButtonForm action={postAction} entryId={entry.id} variant="secondary">
               <CheckCircle className="mr-1 h-4 w-4" /> Valider l&apos;ecriture
             </ButtonForm>
@@ -92,7 +93,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           <div>
             <h2 className="font-semibold">Lignes d&apos;ecriture</h2>
             {!canEditLineAccounts ? (
-              <p className="mt-1 text-xs text-[var(--muted)]">Cette ecriture est annulee, les lignes ne sont plus modifiables.</p>
+              <p className="mt-1 text-xs text-[var(--muted)]">{canManage ? "Cette ecriture est annulee, les lignes ne sont plus modifiables." : "Consultation des écritures comptables."}</p>
             ) : null}
           </div>
         </CardHeader>

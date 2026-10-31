@@ -7,3 +7,12 @@ export function getInvitationRoleId(
   if (selectedRoleId && roles.some((role) => role.id === selectedRoleId)) return selectedRoleId;
   return roles.find((role) => role.name === "viewer")?.id ?? null;
 }
+
+/** Old clients send this value. It may confirm, never select, the session tenant. */
+export function matchesInvitationOrganization(
+  sessionOrganizationId: string,
+  legacyOrganizationId?: string | null,
+): boolean {
+  return !legacyOrganizationId?.trim()
+    || legacyOrganizationId.trim().toLowerCase() === sessionOrganizationId.toLowerCase();
+}

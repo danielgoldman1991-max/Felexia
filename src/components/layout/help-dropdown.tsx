@@ -17,7 +17,13 @@ const lightHelpLinks = [
   { href: "/parametres/modules", label: "Un besoin supplémentaire ?", description: "Demander l'accès aux modules complémentaires.", icon: Sparkles },
 ];
 
-export function HelpDropdown({ align = "right", fullAccess = false }: { align?: "left" | "right"; fullAccess?: boolean }) {
+const operatorHelpLinks = [
+  { href: "/facturation/factures", label: "Factures de vente", description: "Retrouver et gérer les factures clients.", icon: FileText },
+  { href: "/comptabilite/journaux", label: "Consulter les journaux", description: "Retrouver les écritures comptables de l’entreprise.", icon: BookOpen },
+  { href: "/parametres/profil", label: "Mon compte", description: "Gérer vos informations personnelles.", icon: Settings },
+];
+
+export function HelpDropdown({ align = "right", fullAccess = false, operator = false }: { align?: "left" | "right"; fullAccess?: boolean; operator?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -48,7 +54,7 @@ export function HelpDropdown({ align = "right", fullAccess = false }: { align?: 
             <p className="mt-1 text-xs text-[var(--muted)]">Choisissez une ressource pour continuer.</p>
           </div>
           <div className="p-2">
-            {(fullAccess ? helpLinks : lightHelpLinks).map((item) => {
+            {(operator ? operatorHelpLinks : fullAccess ? helpLinks : lightHelpLinks).map((item) => {
               const Icon = item.icon;
               return <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="flex items-start gap-3 rounded-xl p-3 transition hover:bg-[var(--surface-soft)]"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]"><Icon className="h-4 w-4" /></span><span><span className="block text-sm font-semibold">{item.label}</span><span className="mt-0.5 block text-xs text-[var(--muted)]">{item.description}</span></span></Link>;
             })}

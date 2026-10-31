@@ -6,7 +6,7 @@ import { inviteOrganizationUser, InvitationError } from "@/lib/auth/invite-user"
  *
  * Invitation multi-tenant :
  * - l'organization_id est TOUJOURS dérivé de la session de l'utilisateur
- *   authentifié, jamais accepté depuis le corps de la requête (anti
+ *   authentifié, jamais choisi depuis le corps de la requête (anti
  *   cross-tenant : un admin de Société A ne peut pas inviter pour Société B) ;
  * - l'email d'invitation est envoyé par l'Admin API Supabase
  *   (inviteUserByEmail) avec la clé service_role, exclusivement côté serveur ;
@@ -28,12 +28,13 @@ export async function POST(req: NextRequest) {
       organizationId?: unknown;
     };
 
-    // Rejet explicite de tout organization_id envoyé par le client :
-    // l'organisation est déterminée exclusivement depuis la session serveur.
-    if (typeof organizationId === "string" && organizationId.length > 0) {
+    // Older open tabs still include organizationId. The service checks that
+    // it matches the authenticated workspace before any write/email; it never
+    // uses this client value to select the invitation's organization.
+    if (organizationId != null && typeof organizationId !== "string") {
       return NextResponse.json(
-        { error: "OrganizationId ne peut pas être choisi par le client.", code: "FORBIDDEN" },
-        { status: 403 },
+        { error: "Payload invalide." },
+        { status: 400 },
       );
     }
 
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
       email: typeof email === "string" ? email : "",
       roleId: typeof roleId === "string" && roleId ? roleId : null,
       fullName: typeof fullName === "string" ? fullName : null,
+      legacyOrganizationId: typeof organizationId === "string" ? organizationId : null,
     });
 
     return NextResponse.json(

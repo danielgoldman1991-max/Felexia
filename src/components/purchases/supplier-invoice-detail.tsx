@@ -322,6 +322,7 @@ export function SupplierInvoiceDetail({
   accountingEntry,
   documentFlow,
   fullAccess = false,
+  canPostAccounting = true,
 }: {
   invoice: SupplierInvoiceRecord;
   lines: SupplierInvoiceLineRecord[];
@@ -330,6 +331,7 @@ export function SupplierInvoiceDetail({
   accountingEntry?: AccountingEntryInfo | null;
   documentFlow?: DocumentFlowStep[];
   fullAccess?: boolean;
+  canPostAccounting?: boolean;
 }) {
   const canEdit = invoice.status === "draft";
   const canValidate = invoice.status === "draft";
@@ -457,7 +459,7 @@ export function SupplierInvoiceDetail({
       <PaymentsSection invoice={invoice} payments={payments} summary={paymentSummary} />
 
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
-        <summary className="cursor-pointer text-sm font-medium">{!accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
+        <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
         <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
         <CardContent>
@@ -487,7 +489,7 @@ export function SupplierInvoiceDetail({
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour cette facture.</p>
-              <ComptabiliserForm invoiceId={invoice.id} />
+              {canPostAccounting ? <ComptabiliserForm invoiceId={invoice.id} /> : null}
             </div>
           )}
         </CardContent>
