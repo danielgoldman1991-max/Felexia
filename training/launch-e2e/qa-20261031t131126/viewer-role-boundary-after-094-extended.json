@@ -115,10 +115,21 @@
     {
       "name": "QA_invoice_original_note_preserved",
       "passed": true
+    },
+    {
+      "name": "owner_QA_invoice_write_preserved_after094",
+      "passed": true,
+      "checkedAt": "2026-10-31T13:39:31.250Z",
+      "observed": {
+        "affectedRows": 1,
+        "errorCode": null,
+        "originalNotePreserved": true
+      }
     }
   ],
   "updateAffectedRows": 0,
   "updateErrorCode": null,
   "viewerWriteEffective": false,
-  "originalNoteRestored": true
+  "originalNoteRestored": true,
+  "ownerControlCheckedAt": "2026-10-31T13:39:31.250Z"
 }

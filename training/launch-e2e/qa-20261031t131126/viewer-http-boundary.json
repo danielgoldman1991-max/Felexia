@@ -1,0 +1,59 @@
+{
+  "run": "qa-20261031t131126",
+  "checkedAt": "2026-10-31T13:40:11.142Z",
+  "origin": "https://www.felexia.pro",
+  "publicSsrCookiesOnly": true,
+  "checks": [
+    {
+      "name": "ssr_auth_cookie_jars_created",
+      "passed": true
+    },
+    {
+      "name": "viewer_dashboard_200",
+      "passed": true,
+      "observed": 200
+    },
+    {
+      "name": "viewer_readonly_banner",
+      "passed": true
+    },
+    {
+      "name": "viewer_has_no_quick_creation_button",
+      "passed": true
+    },
+    {
+      "name": "viewer_dashboard_uses_consultation_actions",
+      "passed": true
+    },
+    {
+      "name": "viewer_new_invoice_redirects_to_dashboard",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "path": "/dashboard"
+      }
+    },
+    {
+      "name": "viewer_actionless_POST_denied",
+      "passed": true,
+      "observed": {
+        "status": 403,
+        "code": "READ_ONLY_ACCESS"
+      }
+    },
+    {
+      "name": "owner_quick_creation_still_present",
+      "passed": true
+    },
+    {
+      "name": "owner_new_invoice_still_200",
+      "passed": true,
+      "observed": 200
+    },
+    {
+      "name": "owner_actionless_POST_not_readonly_blocked",
+      "passed": true,
+      "observed": 200
+    }
+  ]
+}

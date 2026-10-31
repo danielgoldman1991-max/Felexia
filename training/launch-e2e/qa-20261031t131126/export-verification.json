@@ -1,0 +1,222 @@
+{
+  "run": "qa-20261031t131126",
+  "checkedAt": "2026-10-31T13:38:33.082Z",
+  "readOnly": true,
+  "source": {
+    "file": "C:/Users/XXX/Downloads/journal-BQ-2026-10.xls",
+    "bytes": 2781,
+    "sha256": "b651d3e94d27647faadf01e3d3ddbb58c8858b90354a85efe81d17ceb5d93f9f",
+    "format": "HTML UTF-8 with .xls extension; not a binary XLS/XLSX workbook"
+  },
+  "before": {
+    "success": false,
+    "checks": [
+      {
+        "name": "html_utf8_excel_compatible_export",
+        "passed": true
+      },
+      {
+        "name": "exactly_two_tables",
+        "passed": true
+      },
+      {
+        "name": "bank_journal_heading",
+        "passed": true
+      },
+      {
+        "name": "company_name_in_header",
+        "passed": false
+      },
+      {
+        "name": "three_unique_expected_entries",
+        "passed": true
+      },
+      {
+        "name": "entry_references_status_amounts",
+        "passed": true
+      },
+      {
+        "name": "only_expected_test_parties_in_business_rows",
+        "passed": true
+      },
+      {
+        "name": "six_posted_account_lines",
+        "passed": true
+      },
+      {
+        "name": "expected_bank_customer_supplier_codes",
+        "passed": true
+      },
+      {
+        "name": "each_entry_lines_balanced_with_header",
+        "passed": true
+      },
+      {
+        "name": "debit_credit_totals360",
+        "passed": true,
+        "observed": {
+          "entryDebit": 360,
+          "entryCredit": 360,
+          "lineDebit": 360,
+          "lineCredit": 360
+        }
+      },
+      {
+        "name": "bank_net120",
+        "passed": true,
+        "observed": 120
+      },
+      {
+        "name": "no_active_embedded_content",
+        "passed": true
+      }
+    ],
+    "totals": {
+      "entryDebit": 360,
+      "entryCredit": 360,
+      "lineDebit": 360,
+      "lineCredit": 360
+    },
+    "accountCodes": [
+      "3421",
+      "4411",
+      "5141"
+    ],
+    "bankNet": 120,
+    "entryReferences": [
+      {
+        "entry": "BQ-2026-00003",
+        "source": "supplier_payment",
+        "reference": "RFO-2610-00001",
+        "debit": 120,
+        "credit": 120
+      },
+      {
+        "entry": "BQ-2026-00002",
+        "source": "customer_payment",
+        "reference": "REG-2610-00002",
+        "debit": 140,
+        "credit": 140
+      },
+      {
+        "entry": "BQ-2026-00001",
+        "source": "customer_payment",
+        "reference": "REG-2610-00001",
+        "debit": 100,
+        "credit": 100
+      }
+    ]
+  },
+  "after": {
+    "status": "verified_actual_download_after_publication",
+    "checkedAt": "2026-10-31T13:41:41.287Z",
+    "success": true,
+    "source": {
+      "file": "C:/Users/XXX/Downloads/journal-BQ-2026-10 (1).xls",
+      "bytes": 2836,
+      "sha256": "b1384ac9d922ad76af61953a740d00c1e4a2ffac1f1a29c0902861040a10841d",
+      "format": "HTML UTF-8 with .xls extension; not a binary XLS/XLSX workbook"
+    },
+    "checks": [
+      {
+        "name": "html_utf8_excel_compatible_export",
+        "passed": true
+      },
+      {
+        "name": "exactly_two_tables",
+        "passed": true
+      },
+      {
+        "name": "bank_journal_heading",
+        "passed": true
+      },
+      {
+        "name": "company_name_in_header",
+        "passed": true
+      },
+      {
+        "name": "three_unique_expected_entries",
+        "passed": true
+      },
+      {
+        "name": "entry_references_status_amounts",
+        "passed": true
+      },
+      {
+        "name": "only_expected_test_parties_in_business_rows",
+        "passed": true
+      },
+      {
+        "name": "six_posted_account_lines",
+        "passed": true
+      },
+      {
+        "name": "expected_bank_customer_supplier_codes",
+        "passed": true
+      },
+      {
+        "name": "each_entry_lines_balanced_with_header",
+        "passed": true
+      },
+      {
+        "name": "debit_credit_totals360",
+        "passed": true,
+        "observed": {
+          "entryDebit": 360,
+          "entryCredit": 360,
+          "lineDebit": 360,
+          "lineCredit": 360
+        }
+      },
+      {
+        "name": "bank_net120",
+        "passed": true,
+        "observed": 120
+      },
+      {
+        "name": "no_active_embedded_content",
+        "passed": true
+      }
+    ],
+    "totals": {
+      "entryDebit": 360,
+      "entryCredit": 360,
+      "lineDebit": 360,
+      "lineCredit": 360
+    },
+    "accountCodes": [
+      "3421",
+      "4411",
+      "5141"
+    ],
+    "bankNet": 120,
+    "companyHeaderPresent": true,
+    "entryReferences": [
+      {
+        "entry": "BQ-2026-00003",
+        "source": "supplier_payment",
+        "reference": "RFO-2610-00001",
+        "debit": 120,
+        "credit": 120
+      },
+      {
+        "entry": "BQ-2026-00002",
+        "source": "customer_payment",
+        "reference": "REG-2610-00002",
+        "debit": 140,
+        "credit": 140
+      },
+      {
+        "entry": "BQ-2026-00001",
+        "source": "customer_payment",
+        "reference": "REG-2610-00001",
+        "debit": 100,
+        "credit": 100
+      }
+    ],
+    "companyName": "FELEXIA TEST LANCEMENT QA-20261031T131126",
+    "companyNameComparison": "NFC, whitespace and case normalized against manifest companyName"
+  },
+  "success": true,
+  "completedAt": "2026-10-31T13:41:41.287Z"
+}
