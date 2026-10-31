@@ -1,8 +1,10 @@
 # Recette finale Felexia Pro — Essentiel
 
-[Synthèse des validations et limites](FINAL-CHECKS.json). La version applicative `3970b91` est publiée ; les deux CI [main](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244615530) et [branche de recette](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030) réussissent, builds compris.
+[Synthèse des validations et limites](FINAL-CHECKS.json). La recette métier a validé `3970b91`. Le complément `a0c1084` est publié en production avec le secret cron configuré et 42 contrôles HTTP supplémentaires réussis. [Déploiement Ready](cron-production-deployment.jpg), [contrôles de production](operations-production.json)
 
-Rapport final — 31 octobre 2026. Les opérations réelles, les vérifications HTTP, les 20 contrôles du navigateur et la préparation Checkout sans paiement ont réussi. Le correctif `3970b91` est publié en production ; les actions externes encore nécessaires sont identifiées en fin de rapport.
+Les CI de ce complément sont vertes, build compris : [main 41246867250](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41246867250), [branche 41246869308](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41246869308).
+
+Rapport final — 31 octobre 2026. Les opérations réelles, les vérifications HTTP, les 20 contrôles du navigateur et la préparation Checkout sans paiement ont réussi. La version publiée comprend le complément `a0c1084` pour les rappels ; les actions externes encore nécessaires sont identifiées en fin de rapport.
 
 ## Résultat obtenu
 
@@ -136,6 +138,7 @@ La configuration Stripe réelle a été lue sans écriture : endpoint activé, A
 | Impression d’avoir fournisseur, données synthétiques | [14 contrôles SSR](supplier-credit-print-tests.json) |
 | Santé réelle DB et cron sans secret/mauvais secret | [4 contrôles](operations.json) |
 | Rappels : abonnement courant, pagination, concurrence et erreurs Auth/DB | [34 contrôles isolés](trial-notification-tests.json) |
+| Configuration Vercel, refus du cron public, notifications des trois profils | [42 contrôles de production](operations-production.json) |
 
 Le déploiement Vercel de `3970b91` a réussi. Les workflows de vérification [main 41244615530](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244615530) et [branche de correction 41244629030](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030) sont verts. Le build, le typage, le lint et les régressions ont réussi. Les dépendances de production ne présentent pas d’alerte dans l’audit npm réalisé ; les outils de développement restent distincts. Le premier passage Linux a corrigé un test de frontière mensuelle lié aux règles IANA de Casablanca, avec Node.js 22 à jour et sans décalage horaire fixe dans l’application.
 
@@ -143,9 +146,9 @@ Le déploiement Vercel de `3970b91` a réussi. Les workflows de vérification [m
 
 - **SMTP public** : réception confirmée sur les alias autorisés, mais transport Gmail non établi. Confirmer le prestataire effectivement utilisé, l’expéditeur et la capacité d’envoi pour le lancement.
 - **Paiement Stripe** : préparation réelle des sessions Checkout et nettoyage vérifiés, compte/prix/configuration webhook lus. Aucun achat, débit bancaire ni cycle de paiement puis webhook signé complet n’a été exécuté. Les cas de paiement du handler restent des fixtures. [Lecture Stripe sans écriture](stripe-readonly.json), [Checkout réel sans paiement](company-billing-checkout.json)
-- **Cron et supervision** : `CRON_SECRET` a été enregistré le 31 octobre à 22:03 UTC dans le projet Vercel `felexia` du propriétaire, en mode Secret et uniquement pour Production. Sa valeur reste hors du dépôt. Le tableau de bord confirme le cron activé et la planification `0 6 * * *` ; le plan Hobby dispose d’une fenêtre d’exécution d’une heure. Le redéploiement et le contrôle HTTP après configuration sont en cours. Aucune exécution globale n’a été forcée. [Variable masquée](cron-secret-production.jpg), [planification active](cron-schedule-production.jpg), [contrôle de production](operations-production.json)
+- **Cron et supervision** : `CRON_SECRET` a été enregistré le 31 octobre à 22:03 UTC dans le projet Vercel `felexia` du propriétaire, en mode Secret et uniquement pour Production. Sa valeur reste hors du dépôt. Le déploiement `a0c1084` est Ready : santé 200, cron sans autorisation ou avec un Bearer invalide 401 et réponses non mises en cache. Les trois profils de recette accèdent au même rappel courant ; un seul rappel QA a été créé, sans email ni écriture financière. Le tableau de bord confirme le cron activé et `0 6 * * *`, avec une fenêtre d’une heure sur Hobby. Aucune exécution globale n’a été forcée ; la première exécution planifiée et sa surveillance restent à observer. [Variable masquée](cron-secret-production.jpg), [planification active](cron-schedule-production.jpg), [42 contrôles de production](operations-production.json)
 - **Sauvegarde hébergée** : la restauration locale de 81 tables synthétiques réussit. Une restauration Supabase cloud et la récupération des octets Storage restent à vérifier.
 - **Identité légale et inscription** : informations réelles de l’éditeur encore à fournir ; aucune identité ou référence légale n’a été inventée. Le projet auto-confirme actuellement les inscriptions ; son réglage doit correspondre au choix de lancement.
 - **Ancien abonnement** : le préflight trouve un abonnement `active` sans échéance. Il n’a pas été réécrit. Sa date réelle doit être régularisée par l’administrateur ; la règle stricte refuse sinon les nouvelles écritures. [Préflight en lecture seule](deployment-preflight.json)
 
-Les opérations essentielles réelles, les trois profils et les parcours d’interface observés sont vérifiés sur la version publiée. Les points externes ci-dessus restent distincts de cette validation ; la configuration du cron est ajoutée, avec vérification du nouveau déploiement en cours.
+Les opérations essentielles réelles, les trois profils et les parcours d’interface observés sont vérifiés sur la version publiée. La configuration et la protection du cron sont également vérifiées en production. Les points externes ci-dessus restent distincts de cette validation.

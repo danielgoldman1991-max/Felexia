@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-31T21:49:20.381Z",
-  "appCommit": "3970b9123b8dbee3e6f031466f2b4b93a6c301cd",
+  "date": "2026-10-31T22:11:06.273258+00:00",
+  "appCommit": "a0c1084c4e3c904898f9852404918b18a2b28ea1",
   "scope": "Essential QA company, all three roles; each suite has overlapping assertions, no grand total",
   "essentialOperationsValidated": true,
   "suites": {
@@ -28,6 +28,11 @@
       "success": true,
       "assertions": 34,
       "proof": "trial-notification-tests.json"
+    },
+    "notificationsProduction": {
+      "success": true,
+      "assertions": 42,
+      "proof": "operations-production.json"
     }
   },
   "financial": {
@@ -47,14 +52,28 @@
     "totalCredit": 1229
   },
   "ci": [
-    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244615530",
-    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030"
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41246867250",
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41246869308"
   ],
   "remainingExternal": [
-    "CRON_SECRET added as Production Secret and Vercel schedule enabled; redeployment and unsigned401 verification in progress",
+    "First scheduled global cron execution and continuing monitoring; configuration, authentication and own-QA reminder generation verified",
     "Public SMTP provider/branding and capacity beyond authorized mailbox aliases",
     "Complete Stripe payment and signed webhook cycle was not executed",
     "Hosted database and Storage backup recovery not verified",
     "Legal publisher identity fields and legacy active subscription without end date"
-  ]
+  ],
+  "operations": {
+    "cronSecretConfigured": true,
+    "cronAuthenticationVerified": true,
+    "cronScheduleEnabled": true,
+    "cronSchedule": "0 6 * * *",
+    "timeZone": "UTC",
+    "hobbyWindowMinutes": 60,
+    "globalCronBatchExecuted": false
+  },
+  "previousCi": [
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244615530",
+    "https://github.com/danielgoldman1991-max/Felexia/actions/runs/41244629030"
+  ],
+  "ciSuccess": true
 }

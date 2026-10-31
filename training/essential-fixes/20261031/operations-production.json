@@ -1,9 +1,243 @@
 {
-  "date": "2026-10-31T21:40:23.630Z",
-  "scope": "Public production health and unsigned cron rejection only",
-  "businessWrites": 0,
+  "date": "2026-10-31T22:10:10.543Z",
+  "scope": "Production health, unsigned/invalid cron rejection and own-QA notifications only",
+  "beforeConfiguration": {
+    "date": "2026-10-31T21:40:23.630Z",
+    "scope": "Public production health and unsigned cron rejection only",
+    "businessWrites": 0,
+    "healthStatus": 200,
+    "databaseReady": true,
+    "unsignedCronStatus": 503,
+    "cronSecretConfigured": false
+  },
+  "financialWrites": 0,
+  "emailSends": 0,
+  "otherOrganizationWrites": 0,
+  "qaNotificationGenerationPermitted": true,
+  "globallyExecuted": false,
+  "validCronCredentialUsed": false,
+  "configuration": {
+    "variable": "CRON_SECRET",
+    "type": "Secret",
+    "environment": "production",
+    "configuredAt": "2026-10-31T22:03:34Z",
+    "source": "Vercel production UI confirmed by coordinating agent",
+    "valueRecorded": false
+  },
+  "scheduleEnabled": true,
+  "schedule": "0 6 * * *",
+  "scheduleTimeZone": "UTC",
+  "scheduleWindowMinutes": 60,
+  "schedulePlan": "Hobby",
+  "checks": [
+    {
+      "name": "production health200 and real database ready",
+      "passed": true
+    },
+    {
+      "name": "health is never cached",
+      "passed": true
+    },
+    {
+      "name": "unsigned cron refused401 before any batch",
+      "passed": true
+    },
+    {
+      "name": "unsigned cron response is never cached",
+      "passed": true
+    },
+    {
+      "name": "invalid bearer refused401 before any batch",
+      "passed": true
+    },
+    {
+      "name": "invalid bearer response is never cached",
+      "passed": true
+    },
+    {
+      "name": "anonymous notifications refused401",
+      "passed": true
+    },
+    {
+      "name": "anonymous notification response is private and never cached",
+      "passed": true
+    },
+    {
+      "name": "admin session belongs to the authorized QA company",
+      "passed": true
+    },
+    {
+      "name": "admin has an independent SSR cookie jar",
+      "passed": true
+    },
+    {
+      "name": "admin has a canonical valid trial reminder state",
+      "passed": true
+    },
+    {
+      "name": "admin notification GET succeeds200",
+      "passed": true
+    },
+    {
+      "name": "admin notification GET is private and never cached",
+      "passed": true
+    },
+    {
+      "name": "admin response exposes notifications and an integer total",
+      "passed": true
+    },
+    {
+      "name": "admin visible notifications remain inside the QA tenant",
+      "passed": true
+    },
+    {
+      "name": "admin sees exactly one current trial reminder",
+      "passed": true
+    },
+    {
+      "name": "admin reminder uses the canonical current subscription state",
+      "passed": true
+    },
+    {
+      "name": "operator session belongs to the authorized QA company",
+      "passed": true
+    },
+    {
+      "name": "operator has an independent SSR cookie jar",
+      "passed": true
+    },
+    {
+      "name": "operator has a canonical valid trial reminder state",
+      "passed": true
+    },
+    {
+      "name": "operator notification GET succeeds200",
+      "passed": true
+    },
+    {
+      "name": "operator notification GET is private and never cached",
+      "passed": true
+    },
+    {
+      "name": "operator response exposes notifications and an integer total",
+      "passed": true
+    },
+    {
+      "name": "operator visible notifications remain inside the QA tenant",
+      "passed": true
+    },
+    {
+      "name": "operator sees exactly one current trial reminder",
+      "passed": true
+    },
+    {
+      "name": "operator reminder uses the canonical current subscription state",
+      "passed": true
+    },
+    {
+      "name": "operator observes the same deduplicated reminder as the administrator",
+      "passed": true
+    },
+    {
+      "name": "viewer session belongs to the authorized QA company",
+      "passed": true
+    },
+    {
+      "name": "viewer has an independent SSR cookie jar",
+      "passed": true
+    },
+    {
+      "name": "viewer has a canonical valid trial reminder state",
+      "passed": true
+    },
+    {
+      "name": "viewer notification GET succeeds200",
+      "passed": true
+    },
+    {
+      "name": "viewer notification GET is private and never cached",
+      "passed": true
+    },
+    {
+      "name": "viewer response exposes notifications and an integer total",
+      "passed": true
+    },
+    {
+      "name": "viewer visible notifications remain inside the QA tenant",
+      "passed": true
+    },
+    {
+      "name": "viewer sees exactly one current trial reminder",
+      "passed": true
+    },
+    {
+      "name": "viewer reminder uses the canonical current subscription state",
+      "passed": true
+    },
+    {
+      "name": "viewer observes the same deduplicated reminder as the administrator",
+      "passed": true
+    },
+    {
+      "name": "three GETs create at most one own-QA notification row",
+      "passed": true
+    },
+    {
+      "name": "new QA reminder rows never overflow tenant scope",
+      "passed": true
+    },
+    {
+      "name": "database retains exactly one current-state reminder after all three GETs",
+      "passed": true
+    },
+    {
+      "name": "existing QA notification history is preserved",
+      "passed": true
+    },
+    {
+      "name": "all three profiles observe the same visible notification total",
+      "passed": true
+    }
+  ],
+  "observations": {
+    "byRole": {
+      "admin": {
+        "status": 200,
+        "total": 1,
+        "visibleCurrentReminders": 1,
+        "currentType": "trial_active",
+        "canonicalDaysRemaining": 30,
+        "tenantOverflow": false
+      },
+      "operator": {
+        "status": 200,
+        "total": 1,
+        "visibleCurrentReminders": 1,
+        "currentType": "trial_active",
+        "canonicalDaysRemaining": 30,
+        "tenantOverflow": false
+      },
+      "viewer": {
+        "status": 200,
+        "total": 1,
+        "visibleCurrentReminders": 1,
+        "currentType": "trial_active",
+        "canonicalDaysRemaining": 30,
+        "tenantOverflow": false
+      }
+    },
+    "qaNotificationRowsAdded": 1,
+    "currentStoredReminders": 1,
+    "historicalRowsPreserved": 0,
+    "noTenantOverflow": true
+  },
   "healthStatus": 200,
   "databaseReady": true,
-  "unsignedCronStatus": 503,
-  "cronSecretConfigured": false
+  "unsignedCronStatus": 401,
+  "invalidBearerCronStatus": 401,
+  "cronSecretConfigured": true,
+  "anonymousNotificationStatus": 401,
+  "success": true,
+  "appCommit": "a0c1084c4e3c904898f9852404918b18a2b28ea1",
+  "deployment": "https://vercel.com/danielgoldman1991-maxs-projects/felexia/6CwTPdV4xkgJgqw4GJfvbQzubJ7q"
 }
