@@ -1,0 +1,164 @@
+{
+  "origin": "https://www.felexia.pro",
+  "checkedAt": "2026-10-31T18:11:37.319Z",
+  "publicKeyOnly": true,
+  "realEmailsSent": 0,
+  "stripeCalls": 0,
+  "businessMutationsRequested": 0,
+  "checks": [
+    {
+      "name": "new_operator_release_detected_before_any_post",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /facturation/factures/new",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /achats/factures/new",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /tiers/new?type=customer",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /tiers/new?type=supplier",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /facturation/paiements/new",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /achats/paiements/new",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /parametres/profil",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "GET /parametres/utilisateurs redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /parametres/entreprise redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /parametres/abonnement redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /parametres/numerotation redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /tresorerie/comptes/new redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /tresorerie/mouvements/new redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "GET /comptabilite/ecritures/nouveau redirected",
+      "passed": true,
+      "observed": {
+        "status": 307,
+        "destination": "/dashboard"
+      }
+    },
+    {
+      "name": "settings_root_opens_own_profile",
+      "passed": true,
+      "observed": {
+        "status": 307
+      }
+    },
+    {
+      "name": "POST /parametres/entreprise denied",
+      "passed": true,
+      "observed": {
+        "status": 403,
+        "code": "OPERATOR_ACCESS_DENIED"
+      }
+    },
+    {
+      "name": "dashboard_own_account_navigation",
+      "passed": true
+    },
+    {
+      "name": "dashboard_operator_label",
+      "passed": true
+    },
+    {
+      "name": "dashboard_without_team_or_subscription_admin_links",
+      "passed": true
+    },
+    {
+      "name": "bank_detail_readable_without_edit_link",
+      "passed": true
+    },
+    {
+      "name": "accounting_entry_consultation_without_modification",
+      "passed": true
+    },
+    {
+      "name": "original_viewer_role_restored",
+      "passed": true
+    }
+  ],
+  "releaseStatus": "NEW_RELEASE",
+  "finishedAt": "2026-10-31T18:12:07.392Z",
+  "success": true
+}

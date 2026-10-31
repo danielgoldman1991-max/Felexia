@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-31T18:15:07.960Z",
+  "success": true,
+  "checks": 43,
+  "kind": "isolated-real-source-functions",
+  "externalAccess": false,
+  "operatorReadsAttemptNoAdministrativeWrites": true,
+  "administratorBootstrapRetained": true,
+  "defaultPlanAndModulesUnchanged": true
+}

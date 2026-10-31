@@ -15,6 +15,7 @@ import {
 } from "@/lib/subscriptions/plan-access";
 import { upsertModulesForPlan } from "@/lib/subscriptions/plan-modules";
 import { canAccessApp } from "@/lib/subscriptions/subscription-access";
+import { isOperatorRole } from "@/lib/auth/operator-access";
 
 export type ModuleInfo = {
   module_key: string;
@@ -201,7 +202,7 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
 
   const { data: membership } = await supabase
     .from("organization_members")
-    .select("organization_id, organization:organizations(onboarding_step, onboarding_completed)")
+    .select("organization_id, organization:organizations(onboarding_step, onboarding_completed), role:roles(name)")
     .eq("user_id", user.id)
     .eq("status", "active")
     .limit(1)
@@ -214,13 +215,15 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
     : membership?.organization;
   const onboardingStep = (organization?.onboarding_step as string | null) ?? null;
   const onboardingCompleted = Boolean(organization?.onboarding_completed);
+  const role = Array.isArray(membership?.role) ? membership.role[0] : membership?.role;
+  const canBootstrap = !isOperatorRole(role?.name);
   let sub = organizationId ? await getSubscription(organizationId) : null;
   let hasValidSubscription = isSubscriptionValid(sub);
 
   // Bootstrap Essentiel : ces écritures ne doivent JAMAIS lever d'erreur en
   // lecture (layout /dashboard, AppShell) — un échec DB est simplement loggé
   // et l'utilisateur reste sur un état safe (onboarding ou dashboard).
-  if (organizationId && !hasValidSubscription) {
+  if (canBootstrap && organizationId && !hasValidSubscription) {
     try {
       await ensureDefaultTrialAndModulesNoRevalidate(supabase, organizationId, user.id);
       sub = await getSubscription(organizationId);
@@ -234,7 +237,7 @@ export async function getUserOnboardingStatus(): Promise<OnboardingStatus> {
         error: e instanceof Error ? e.message : String(e),
       });
     }
-  } else if (organizationId && hasValidSubscription && !onboardingCompleted) {
+  } else if (canBootstrap && organizationId && hasValidSubscription && !onboardingCompleted) {
     try {
       await upsertModulesForPlan(supabase, organizationId, sub!.plan_code);
       await markOrganizationOnboardingCompleted(supabase, organizationId);

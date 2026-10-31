@@ -4,6 +4,7 @@ import { ensureDefaultTrialAndModulesNoRevalidate } from "@/lib/subscriptions/pl
 import { getEnabledModulesForPlan } from "@/lib/subscriptions/plans";
 import { DEFAULT_PLAN_KEY, type PlanKey } from "@/lib/subscriptions/plans-config";
 import { redirect } from "next/navigation";
+import { isOperatorRole } from "@/lib/auth/operator-access";
 
 function withDefaultTrial(workspace: Awaited<ReturnType<typeof requireActiveWorkspace>>) {
   const planKey: PlanKey = DEFAULT_PLAN_KEY;
@@ -33,6 +34,9 @@ export async function requireActiveSubscription() {
   }
 
   if (!workspace.subscription) {
+    // Entitlement fallback stays unchanged; operators never initialize billing
+    // or organization modules while opening their daily work screens.
+    if (isOperatorRole(workspace.role)) return withDefaultTrial(workspace);
     const supabase = await createClient();
     try {
       await ensureDefaultTrialAndModulesNoRevalidate(supabase, workspace.organization.id, workspace.userId);

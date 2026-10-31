@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-31T18:12:18.140Z",
+  "origin": "https://www.felexia.pro",
+  "publicKeyOnly": true,
+  "invitationEmailsSent": 0,
+  "databaseMutationsRequested": 0,
+  "success": true,
+  "checks": [
+    {
+      "name": "current_client_without_organization_context",
+      "passed": true,
+      "status": 400,
+      "code": "INVALID_EMAIL"
+    },
+    {
+      "name": "legacy_same_session_company",
+      "passed": true,
+      "status": 400,
+      "code": "INVALID_EMAIL"
+    },
+    {
+      "name": "legacy_same_company_case_and_whitespace",
+      "passed": true,
+      "status": 400,
+      "code": "INVALID_EMAIL"
+    },
+    {
+      "name": "legacy_other_company_rejected_before_email",
+      "passed": true,
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    {
+      "name": "malformed_organization_context_rejected",
+      "passed": true,
+      "status": 400,
+      "code": null
+    }
+  ]
+}

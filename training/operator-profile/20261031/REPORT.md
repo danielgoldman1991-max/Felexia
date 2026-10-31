@@ -30,7 +30,13 @@ Les migrations 095 et 096 ont été appliquées manuellement et vérifiées avec
 
 Le build de production servi localement passe également **26/26 contrôles HTTP** : formulaires métier accessibles, menu « Mon compte », pages administratives redirigées, API sensibles refusées, banque et écritures consultables sans modification. L'administrateur voit le choix « Opérateur » et sa description dans le formulaire d'invitation. Aucun email n'a été envoyé pendant ces tests.
 
-La création d'un tiers avait révélé un compteur historique supplémentaire bloqué. La première installation de 096 n'était pas active, confirmée par une requête de lecture de la définition SQL. Après exécution de l'intégralité de 096, les trois vérifications SQL sont revenues vraies et le parcours complet a réussi. Les preuves avant/après sont conservées séparément. La publication de l'interface reste à vérifier sur le domaine public.
+La création d'un tiers avait révélé un compteur historique supplémentaire bloqué. La première installation de 096 n'était pas active, confirmée par une requête de lecture de la définition SQL. Après exécution de l'intégralité de 096, les trois vérifications SQL sont revenues vraies et le parcours complet a réussi. Les preuves avant/après sont conservées séparément.
+
+## Publication vérifiée
+
+La publication `7b0af84` est confirmée sur `www.felexia.pro` : **23/23 contrôles HTTP publics réussis**, plus **5/5 contrôles publics des anciens formulaires d'invitation**, sans email ni appel Stripe. Les formulaires métier sont accessibles, les routes administratives redirigées et les mutations administratives refusées. Le choix **Opérateur** et sa description ont aussi été observés dans le formulaire d'invitation du site public, sans envoyer d'invitation. Les rapports sont `operator-production-http.json` et `legacy-invitation-production-http.json`.
+
+Une optimisation finale évite au rôle Opérateur de tenter l'initialisation administrative d'abonnement/modules lors de la lecture de ses pages. Le comportement d'accès de secours reste identique. **43 assertions dédiées** exécutent les véritables fonctions avec dépendances isolées : aucune écriture administrative pour l'Opérateur, initialisation administrateur préservée, même offre et mêmes modules de secours. Preuve : `read-bootstrap-unit.json`.
 
 ## Compatibilité et corrections nécessaires
 
@@ -47,6 +53,7 @@ npm run lint -- src scripts/verify-operator-access.ts scripts/verify-operator-ap
 npx tsx scripts/verify-operator-access.ts
 npx tsx scripts/verify-invitation-roles.ts
 node scripts/verify-operator-api-guards.mjs
+node scripts/verify-operator-read-bootstrap.mjs
 node scripts/verify-operator-profile.mjs --pglite-root="$env:TEMP/felexia-invitation-postgres-tests"
 node scripts/verify-operator-profile.mjs --pglite-root="$env:TEMP/felexia-invitation-postgres-tests" --relaxed-v3
 ```
