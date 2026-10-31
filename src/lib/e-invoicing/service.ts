@@ -10,9 +10,9 @@ import type { EInvoiceLineMetadata, EInvoicePreparationOptions } from "./types";
 import type { EinvoiceAccess, EinvoiceConfigurationView, EinvoiceDashboardFilters, EinvoiceDashboardView, EinvoiceDetailView, EinvoiceEventView, EinvoiceListItem, EinvoiceSourceKind, EinvoiceSupervisionView } from "./view-types";
 
 type SourceIndexRow = { id: string; organization_id: string; source_kind: EinvoiceSourceKind; source_id: string; number: string; issue_date: string; buyer_name: string; currency: string; total_ttc: string; source_status: string; archived_at: string | null };
-const base = (c: EinvoiceContext): EinvoiceAccess => ({ preferredLanguage: c.settings?.configuration.language === "ar" ? "ar" : "fr", enabled: c.enabled, migrationReady: c.migrationReady, canWrite: c.canWrite, canAdmin: c.canAdmin, unavailableReason: c.unavailableReason });
-const mode = (doc?: EinvoiceDocumentRow) => doc && doc.simulation_status !== "not_submitted" ? "simulation" as const : "disabled" as const;
-const state = (doc?: EinvoiceDocumentRow) => !doc ? "unprepared" : doc.simulation_status !== "not_submitted" ? doc.simulation_status : doc.status === "ready_to_submit" ? "ready" : doc.status;
+const base = (c: EinvoiceContext): EinvoiceAccess => ({ activationState: !c.migrationReady || !c.operationsReady || !c.rolloutEnabled ? "deployment_required" : !c.settings?.enabled ? "activation_required" : !c.writableSubscription ? "subscription_readonly" : !c.canWrite ? "role_readonly" : "active", preferredLanguage: c.settings?.configuration.language === "ar" ? "ar" : "fr", enabled: c.enabled, migrationReady: c.migrationReady, canWrite: c.canWrite, canAdmin: c.canAdmin, unavailableReason: c.unavailableReason });
+const state = (doc?: EinvoiceDocumentRow) => doc?.status ?? "unprepared";
+const defaultUnitCode = (configuration: Record<string, unknown> = {}) => typeof configuration.default_unit_code === "string" && ["C62", "HUR", "DAY", "MON", "KGM", "LTR", "MTR"].includes(configuration.default_unit_code) ? configuration.default_unit_code : null;
 
 export function einvoiceEventView(event: EinvoiceEventRow): EinvoiceEventView {
   const labels: Record<string, string> = { "document.prepared": "Préparation enregistrée", "preparation.created": "Nouvelle version préparée", "document.validated": "Contrôles validés", "document.issued": "Document émis et figé", "document.ready_to_submit": "Document prêt à transmettre", "simulation.queued": "Traitement interne mis en attente", "simulation.accepted": "Acceptation interne simulée", "simulation.rejected": "Rejet interne simulé", "simulation.timeout": "Interruption simulée", "simulation.unavailable": "Indisponibilité simulée", "archive.integrity_checked": "Vérification d’intégrité", "regulatory.observed": "Contrôle d’une source officielle", "regulatory.reviewed": "Revue humaine d’une publication", "backup.attested": "Justificatif de sauvegarde déclaré par l’exploitant" };
@@ -30,7 +30,7 @@ async function history(c: EinvoiceContext) { return c.migrationReady ? readEinvo
 function listItem(source: SourceIndexRow, doc?: EinvoiceDocumentRow, issueCount = 0): EinvoiceListItem {
   return { sourceKind: source.source_kind, sourceId: source.source_id, documentId: doc?.id ?? null, latestVersionId: doc?.current_version_id ?? null,
     number: source.number, issueDate: source.issue_date, buyerName: source.buyer_name || "—", currency: source.currency, totalTtc: source.total_ttc,
-    sourceStatus: source.source_status, status: state(doc), mode: mode(doc), issueCount };
+    sourceStatus: source.source_status, status: state(doc), mode: "disabled", simulationStatus: doc?.simulation_status ?? "not_submitted", issueCount };
 }
 
 export async function getEinvoiceDashboard(filters: EinvoiceDashboardFilters = {}): Promise<EinvoiceDashboardView> {
@@ -44,12 +44,13 @@ export async function getEinvoiceDashboard(filters: EinvoiceDashboardFilters = {
   const byVersion = new Map(validations.map(row => [row.version_id, row]));
   const all = sources.filter(source => !source.archived_at).map(source => {
     const doc = bySource.get(`${source.source_kind}:${source.source_id}`);
-    return listItem(source, doc, byVersion.get(doc?.current_version_id ?? "")?.result.issues?.length ?? 0);
+    return listItem(source, doc, byVersion.get(doc?.current_version_id ?? "")?.result.issues?.filter(issue => issue.severity === "error").length ?? 0);
   });
-  const summary = { total: all.length, prepared: all.filter(row => row.documentId).length, attention: all.filter(row => row.issueCount || ["rejected", "unknown"].includes(row.status)).length, ready: all.filter(row => row.status === "ready").length };
+  const isGenerated = (row: EinvoiceListItem) => byVersion.get(row.latestVersionId ?? "")?.valid === true;
+  const summary = { total: all.length, prepared: all.filter(isGenerated).length, attention: all.filter(row => row.issueCount).length, ready: all.filter(row => ["issued", "ready_to_submit"].includes(row.status)).length };
   const query = searchText(filters.query);
   const selected = all.filter(row => (!filters.sourceKind || filters.sourceKind === row.sourceKind) && (!query || [row.number, row.buyerName].some(value => value.toLocaleLowerCase("fr").includes(query)))
-    && (!filters.status || (filters.status === "prepared" ? row.documentId != null : filters.status === "rejected" ? row.issueCount > 0 || ["rejected", "unknown"].includes(row.status) : row.status === filters.status)))
+    && (!filters.status || (filters.status === "prepared" ? isGenerated(row) : filters.status === "rejected" ? row.issueCount > 0 : filters.status === "issued" || filters.status === "ready" ? ["issued", "ready_to_submit"].includes(row.status) : row.status === filters.status)))
     .sort((a, b) => b.issueDate.localeCompare(a.issueDate) || a.sourceKind.localeCompare(b.sourceKind) || a.sourceId.localeCompare(b.sourceId));
   return { ...base(c), summary, ...pageRows(selected, filters.page ?? 1, 20) };
 }
@@ -76,21 +77,23 @@ export async function getEinvoiceDetail(kind: EinvoiceSourceKind, id: string): P
   const buyerType = snapshot && "buyerType" in snapshot ? snapshot.buyerType : c.settings?.configuration.buyer_type === "consumer" ? "consumer" : c.settings?.configuration.buyer_type === "export" ? "export" : "business";
   const metadata: Record<string, EInvoiceLineMetadata> = {};
   if (snapshot && "schemaVersion" in snapshot) for (const line of snapshot.lines) metadata[line.id] = { unitCode: line.unitCode, taxCategory: line.taxCategory, exemptionReason: line.exemptionReason };
+  const confirmedDefaultUnit = defaultUnitCode(capture.configuration ?? c.settings?.configuration);
+  if (confirmedDefaultUnit) for (const line of input.lines) if (!metadata[line.id]?.unitCode) metadata[line.id] = { ...metadata[line.id], unitCode: confirmedDefaultUnit };
   const savedOptions = (latestValidation?.result as unknown as { preparation_options?: EInvoicePreparationOptions } | undefined)?.preparation_options;
   const options: EInvoicePreparationOptions = savedOptions ?? { buyerType, requireSellerRc: c.settings?.configuration.require_seller_rc === true, lineMetadata: metadata };
   const validation = latestValidation?.result ?? validateEInvoiceSnapshot(input, options);
   const sorted = [...events].sort((a, b) => b.sequence - a.sequence);
   const index: SourceIndexRow = { id: `${kind}:${id}`, organization_id: c.workspace.organization.id, source_kind: kind, source_id: id, number: input.number, issue_date: input.issueDate, buyer_name: doc?.issued_at && snapshot ? snapshot.buyer.name : input.buyer.name, currency: input.currency, total_ttc: input.sourceTotals.totalTtc, source_status: capture.source_status, archived_at: null };
   const canPrepare = c.canWrite && capture.eligible && !doc?.issued_at;
-  return { ...base(c), source: listItem(index, doc ?? undefined, validation.issues.length), buyerType: options.buyerType,
+  return { ...base(c), source: listItem(index, doc ?? undefined, validation.issues.filter(issue => issue.severity === "error").length), buyerType: options.buyerType,
     lines: input.lines.map(line => ({ sourceLineId: line.id, description: line.description, quantity: line.quantity, taxRate: line.taxRate,
-      unitCode: options.lineMetadata?.[line.id]?.unitCode ?? null, taxCategory: options.lineMetadata?.[line.id]?.taxCategory ?? (/^0(?:\.0+)?$/.test(line.taxRate) ? null : "S"), exemptionReason: options.lineMetadata?.[line.id]?.exemptionReason ?? null })),
+      unitCode: options.lineMetadata?.[line.id]?.unitCode ?? confirmedDefaultUnit, taxCategory: options.lineMetadata?.[line.id]?.taxCategory ?? (/^0(?:\.0+)?$/.test(line.taxRate) ? null : "S"), exemptionReason: options.lineMetadata?.[line.id]?.exemptionReason ?? null })),
     issues: [...(preparationStale ? [{ code: "SOURCE_CHANGED", message: "La pièce ou ses paramètres fiscaux ont changé depuis la préparation. Préparez une nouvelle version avant de valider ou d’émettre.", messageAr: "تغيرت الوثيقة أو إعداداتها الضريبية منذ الإعداد. أعدوا إعداد نسخة جديدة قبل الاعتماد أو الإصدار.", severity: "error" as const }] : []), ...(!capture.eligible && !doc?.issued_at ? [{ code: "SOURCE_INVALID_STATE", message: "Validez d’abord la facture ou l’avoir dans la facturation habituelle pour préparer sa version électronique.", severity: "error" as const }] : []), ...validation.issues.map(row => ({ code: row.code, message: row.message, severity: row.severity, field: "path" in row ? String(row.path) : undefined }))],
     versions: [...versions].sort((a, b) => b.version_number - a.version_number).map(version => {
       const integrity = sorted.find(event => event.event === "archive.integrity_checked" && event.metadata.version_id === version.id);
       return { id: version.id, sequence: version.version_number, createdAt: version.created_at, status: doc?.issued_at && version.id === doc.current_version_id ? "issued" : "prepared", xmlAvailable: artifacts.some(row => row.version_id === version.id && row.format === "xml"), pdfAvailable: artifacts.some(row => row.version_id === version.id && row.format === "pdf"), snapshotHash: version.snapshot_sha256, integrity: integrity ? integrity.metadata.ok === true ? "verified" as const : "failed" as const : "unchecked" as const };
     }), events: sorted.map(einvoiceEventView),
-    capabilities: { canPrepare, canValidate: c.canWrite && !preparationStale && doc?.status === "draft" && latestValidation?.valid === true, canIssue: c.canWrite && !preparationStale && doc?.status === "validated", canMarkReady: c.canWrite && doc?.status === "issued",
+    capabilities: { canPrepare, canValidate: c.canWrite && !preparationStale && doc?.status === "draft" && latestValidation?.valid === true, canIssue: c.canWrite && !preparationStale && (doc?.status === "draft" || doc?.status === "validated") && latestValidation?.valid === true, canMarkReady: c.canWrite && doc?.status === "issued",
       canSimulate: c.canWrite && c.canAdmin && c.settings?.connector_mode === "simulation" && doc?.status === "ready_to_submit" && !["accepted", "pending", "queued"].includes(doc.simulation_status), canCheckIntegrity: c.canWrite && c.canAdmin && Boolean(artifacts.length) },
   };
 }
@@ -106,9 +109,9 @@ export async function getEinvoiceConfiguration(): Promise<EinvoiceConfigurationV
     !/^\d{15}$/.test(issuer.ice ?? "") ? { code: "ISSUER_ICE", message: "L’ICE de l’émetteur doit comporter quinze chiffres.", severity: "error" as const } : null,
     !issuer.ifNumber ? { code: "ISSUER_IF", message: "Complétez l’identifiant fiscal de l’émetteur.", severity: "error" as const } : null,
     config.require_seller_rc === true && !issuer.rc ? { code: "ISSUER_RC", message: "Le registre de commerce est requis par votre configuration.", severity: "error" as const } : null].filter((row): row is NonNullable<typeof row> => Boolean(row));
-  return { ...base(c), canWrite: c.canAdmin && c.migrationReady && c.rolloutEnabled && c.writableSubscription,
+  return { ...base(c), canWrite: c.canAdmin && c.migrationReady && c.operationsReady && c.rolloutEnabled && c.writableSubscription,
     settings: { connectorMode: c.settings?.connector_mode ?? "disabled", preferredLanguage: config.language === "ar" ? "ar" : "fr", alertsEnabled: config.alerts_enabled !== false,
-      organizationEnabled: c.settings?.enabled === true, rolloutEnabled: c.rolloutEnabled, requireSellerRc: config.require_seller_rc === true, buyerType: config.buyer_type === "consumer" ? "consumer" : config.buyer_type === "export" ? "export" : "business", revision: c.settings?.revision ?? 0 },
+      organizationEnabled: c.settings?.enabled === true, rolloutEnabled: c.rolloutEnabled, requireSellerRc: config.require_seller_rc === true, defaultUnitCode: defaultUnitCode(config), buyerType: config.buyer_type === "consumer" ? "consumer" : config.buyer_type === "export" ? "export" : "business", revision: c.settings?.revision ?? 0 },
     issuerName: issuer.name, issuerIssues, regulatorySources: regulatory.sources, regulatoryChanges: regulatory.changes,
     lastBackupVerification: backup ? { verifiedAt: String(backup.metadata.verified_at), reference: String(backup.metadata.backup_reference), notes: typeof backup.metadata.notes === "string" ? backup.metadata.notes : null } : null };
 }
@@ -127,7 +130,7 @@ export async function getEinvoiceSupervision(): Promise<EinvoiceSupervisionView>
   const validatorAvailable = await xmlRuntimeDiagnostics().then(() => true, () => false);
   const latestValidation = [...validations].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
   const latestDuration = (latestValidation?.result as unknown as { duration_ms?: number } | undefined)?.duration_ms;
-  return { ...base(c), diagnostics: { generated: validations.filter(row => row.valid).length, validated: docs.filter(doc => doc.status !== "draft").length,
+  return { ...base(c), diagnostics: { generated: validations.filter(row => row.valid).length, validated: docs.filter(doc => doc.status !== "draft").length, issued: docs.filter(doc => doc.issued_at != null).length,
     xmlFailures: validations.filter(row => row.result.xsd?.valid === false && !(row.result.xsd as unknown as { notRun?: boolean }).notRun).length,
     duplicateAttempts: events.filter(event => event.event === "operation.failed" && /DUPLICATE|IDEMPOTENCY/.test(String(event.metadata.error_code))).length,
     latestPreparationMs: typeof latestDuration === "number" ? latestDuration : null, validatorAvailable,

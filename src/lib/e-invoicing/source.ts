@@ -48,6 +48,7 @@ export function mapEinvoiceCapture(capture: RawEinvoiceCapture): EInvoiceSnapsho
 }
 
 export function parseEinvoiceOptions(form: FormData, input: EInvoiceSnapshotInput, configuration: Record<string, unknown> = {}): EInvoicePreparationOptions {
+  const configuredUnit = typeof configuration.default_unit_code === "string" && ["C62", "HUR", "DAY", "MON", "KGM", "LTR", "MTR"].includes(configuration.default_unit_code) ? configuration.default_unit_code : undefined;
   const buyer = form.get("buyerType") ?? configuration.buyer_type ?? "business";
   if (buyer !== "business" && buyer !== "consumer" && buyer !== "export") throw new EInvoiceError("INVALID_BUYER_TYPE", "Précisez la catégorie du client.");
   const raw = form.get("lineMetadata");
@@ -64,9 +65,10 @@ export function parseEinvoiceOptions(form: FormData, input: EInvoiceSnapshotInpu
     if (!ids.has(id) || metadata[id]) throw new EInvoiceError("INVALID_LINE_METADATA", "La ligne fiscale ne correspond pas à cette pièce.");
     const category = row.taxCategory;
     if (category && !["S", "Z", "E", "O"].includes(String(category))) throw new EInvoiceError("INVALID_TAX_CATEGORY", "Catégorie de TVA inconnue.");
-    if (typeof row.unitCode !== "string" || !/^[A-Z0-9]{1,3}$/.test(row.unitCode)) throw new EInvoiceError("INVALID_UNIT", "Vérifiez le code d’unité.");
+    const unitCode = row.unitCode === "" || row.unitCode == null ? configuredUnit : row.unitCode;
+    if (typeof unitCode !== "string" || !/^[A-Z0-9]{1,3}$/.test(unitCode)) throw new EInvoiceError("INVALID_UNIT", "Vérifiez le code d’unité.");
     if (row.exemptionReason != null && (typeof row.exemptionReason !== "string" || row.exemptionReason.length > 1000)) throw new EInvoiceError("INVALID_TAX_REASON", "Le motif fiscal est invalide.");
-    metadata[id] = { unitCode: row.unitCode, taxCategory: category ? category as EInvoiceLineMetadata["taxCategory"] : undefined, exemptionReason: str(row.exemptionReason) || null };
+    metadata[id] = { unitCode, taxCategory: category ? category as EInvoiceLineMetadata["taxCategory"] : undefined, exemptionReason: str(row.exemptionReason) || null };
   }
   return { buyerType: buyer, requireSellerRc: configuration.require_seller_rc === true, lineMetadata: metadata };
 }

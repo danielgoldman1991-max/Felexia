@@ -62,6 +62,9 @@ jobs:
           npx tsx training/e-invoicing/20261031/verify-decimal-parity.ts --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/e-invoicing/20261031/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/e-invoicing/20261031/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/e-invoicing/20261031/verify-operations-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/e-invoicing/20261031/verify-operations-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/e-invoicing/20261031/verify-operations-installer.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
       - name: Verify checkout, recovery, exports and histories
         run: |
           node training/essential-fixes/20261031/verify-checkout-fixtures.cjs

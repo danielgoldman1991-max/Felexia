@@ -6,13 +6,18 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createLocalDatabase, repositoryRoot } from "./local-bootstrap.mjs";
 
-const HOST = "127.0.0.1", PORT = 55441, URL_ROOT = `http://${HOST}:${PORT}`;
-const APP_ORIGINS = new Set(["http://localhost:3102", "http://127.0.0.1:3102", "http://localhost:3103", "http://127.0.0.1:3103"]);
+const HOST = "127.0.0.1", PORT = Number(process.argv.find(value => value.startsWith("--port="))?.slice(7) || "55441");
+if (![55441, 55442].includes(PORT)) throw new Error("Only the named loopback fixture ports are permitted");
+const operations = PORT === 55442, URL_ROOT = `http://${HOST}:${PORT}`, APP_URL = operations ? "http://localhost:3104" : "http://localhost:3102";
+const APP_ORIGINS = new Set(["http://localhost:3102", "http://127.0.0.1:3102", "http://localhost:3103", "http://127.0.0.1:3103", "http://localhost:3104", "http://127.0.0.1:3104"]);
 const packageRoot = process.argv.find(value => value.startsWith("--pglite-root="))?.slice(14);
 if (!process.argv.includes("--local-only")) throw new Error("Explicit --local-only is required");
-const {db, users, ids, engine, migrationSha256} = await createLocalDatabase(packageRoot).catch(error => {console.error(JSON.stringify({ready:false,message:error.message,code:error.code,detail:error.detail}));process.exit(1);});
+const {db, users, ids, engine, migrationSha256, operationsMigrationSha256} = await createLocalDatabase(packageRoot, { operations }).catch(error => {console.error(JSON.stringify({ready:false,message:error.message,code:error.code,detail:error.detail}));process.exit(1);});
 const privateDirectory = resolve(repositoryRoot, "../backups");
-const privatePath = join(privateDirectory, "einvoice-local-preprod-private.json");
+const expectedManifest = operations ? "einvoice-operations-local-private.json" : "einvoice-local-preprod-private.json";
+const manifestArgument = process.argv.find(value => value.startsWith("--manifest="))?.slice(11) || expectedManifest;
+const privatePath = resolve(privateDirectory, manifestArgument);
+if (privatePath !== join(privateDirectory, expectedManifest)) throw new Error("The selected port requires its own exact local manifest");
 await mkdir(privateDirectory, {recursive:true});
 let prior;
 if(process.argv.includes("--reuse-local-credentials")){
@@ -53,7 +58,7 @@ function issue(user, oldSession) {
   const payload={iss:`${URL_ROOT}/auth/v1`,sub:user.id,aud:"authenticated",role:"authenticated",email:user.email,iat:now(),exp:now()+3600,session_id:sessionId,aal:"aal1",amr:[{method:"password",timestamp:now()}],is_anonymous:false};
   return {access_token:sign(payload),token_type:"bearer",expires_in:3600,expires_at:payload.exp,refresh_token:refreshToken,user:publicUser(user)};
 }
-const manifest={localOnly:true,authSimulated:true,createdAt:new Date().toISOString(),gatewayUrl:URL_ROOT,appUrl:"http://localhost:3102",engine,migrationSha256,jwtSecret,anonKey,serviceRoleKey,users,ids,environment:{NEXT_PUBLIC_SUPABASE_URL:URL_ROOT,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:anonKey,NEXT_PUBLIC_SUPABASE_ANON_KEY:anonKey,SUPABASE_SERVICE_ROLE_KEY:serviceRoleKey,NEXT_PUBLIC_APP_URL:"http://localhost:3102",FELEXIA_ERP_MODE:"light",FELEXIA_EINVOICING_ENABLED:"false",FELEXIA_EINVOICING_ORGANIZATION_IDS:ids.organizationId,RECOVERY_SIGNING_SECRET:prior?.environment.RECOVERY_SIGNING_SECRET??randomBytes(48).toString("base64url"),STRIPE_SECRET_KEY:"",STRIPE_WEBHOOK_SECRET:"",NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:"",CRON_SECRET:""}};
+const manifest={localOnly:true,authSimulated:true,operations,createdAt:new Date().toISOString(),gatewayUrl:URL_ROOT,appUrl:APP_URL,engine,migrationSha256,operationsMigrationSha256,jwtSecret,anonKey,serviceRoleKey,users,ids,environment:{NEXT_PUBLIC_SUPABASE_URL:URL_ROOT,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:anonKey,NEXT_PUBLIC_SUPABASE_ANON_KEY:anonKey,SUPABASE_SERVICE_ROLE_KEY:serviceRoleKey,NEXT_PUBLIC_APP_URL:APP_URL,FELEXIA_ERP_MODE:"light",FELEXIA_EINVOICING_ENABLED:"false",FELEXIA_EINVOICING_ORGANIZATION_IDS:ids.organizationId,RECOVERY_SIGNING_SECRET:prior?.environment.RECOVERY_SIGNING_SECRET??randomBytes(48).toString("base64url"),STRIPE_SECRET_KEY:"",STRIPE_WEBHOOK_SECRET:"",NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:"",CRON_SECRET:""}};
 await writeFile(privatePath,JSON.stringify(manifest,null,2)+"\n",{mode:0o600});
 
 const ident=value=>{if(!/^[a-z_][a-z0-9_]*$/.test(value))throw Object.assign(new Error("Unsupported SQL identifier"),{status:400});return '"'+value+'"';};

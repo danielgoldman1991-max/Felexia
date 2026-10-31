@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Bell, BookOpenCheck, CheckCircle2, Printer, RotateCcw, Send, WalletCards, XCircle } from "lucide-react";
+import { Bell, BookOpenCheck, CheckCircle2, FileText, Printer, RotateCcw, Send, WalletCards, XCircle } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
@@ -60,6 +60,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer / PDF</Link></Button>
+            {!["draft", "cancelled"].includes(invoice.status) ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/electronique/factures/${invoice.id}`}><FileText className="h-4 w-4" />Documents électroniques</Link></Button> : null}
             {canWrite && !["draft", "cancelled", "paid"].includes(invoice.status) && invoice.remaining_amount > 0 ? (
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/paiement`}><WalletCards className="h-4 w-4" /> Enregistrer paiement</Link></Button>
             ) : null}

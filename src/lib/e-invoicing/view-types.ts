@@ -7,6 +7,7 @@ export type EinvoiceMode = "disabled" | "simulation";
 
 export interface EinvoiceAccess {
   preferredLanguage?: EinvoiceLanguage;
+  activationState?: "active" | "activation_required" | "deployment_required" | "subscription_readonly" | "role_readonly";
   enabled: boolean;
   migrationReady: boolean;
   canWrite: boolean;
@@ -34,6 +35,7 @@ export interface EinvoiceListItem {
   sourceStatus: string;
   status: string;
   mode: EinvoiceMode;
+  simulationStatus?: string;
   issueCount: number;
 }
 
@@ -129,6 +131,7 @@ export interface EinvoiceConfigurationView extends EinvoiceAccess {
     requireSellerRc?: boolean;
     buyerType?: EinvoiceBuyerType;
     revision?: number;
+    defaultUnitCode?: string | null;
   };
   issuerName: string;
   issuerIssues: EinvoiceIssue[];
@@ -150,7 +153,7 @@ export interface EinvoiceJobView {
 }
 
 export interface EinvoiceSupervisionView extends EinvoiceAccess {
-  diagnostics?: { generated: number; validated: number; xmlFailures: number; duplicateAttempts: number; latestPreparationMs: number | null; validatorAvailable: boolean; backupAttestedAt: string | null; sourceChecksFailed: number };
+  diagnostics?: { generated: number; validated: number; issued?: number; xmlFailures: number; duplicateAttempts: number; latestPreparationMs: number | null; validatorAvailable: boolean; backupAttestedAt: string | null; sourceChecksFailed: number };
   summary: { pending: number; failed: number; blocked: number; integrityFailures: number; linkedAccountingEntries?: number; sourcesWithoutAccounting?: number; duplicateAccountingSources?: number };
   jobs: EinvoiceJobView[];
   events: EinvoiceEventView[];

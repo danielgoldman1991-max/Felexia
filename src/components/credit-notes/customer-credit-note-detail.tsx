@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { BookOpen, CheckCircle2, Link2, Pencil, Printer, RotateCcw, XCircle } from "lucide-react";
+import { BookOpen, CheckCircle2, FileText, Link2, Pencil, Printer, RotateCcw, XCircle } from "lucide-react";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ export function CustomerCreditNoteDetail({ creditNote, lines, applications, docu
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/${creditNote.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
+            {!["draft", "cancelled"].includes(creditNote.status) ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/electronique/avoirs/${creditNote.id}`}><FileText className="h-4 w-4" />Documents électroniques</Link></Button> : null}
             {canWrite && creditNote.available_amount > 0 ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/${creditNote.id}/affecter`}><Link2 className="h-4 w-4" /> Affecter</Link></Button> : null}
             {canWrite && creditNote.status === "draft" ? <><Button variant="secondary" asChild><Link href={`/facturation/avoirs/${creditNote.id}/edit`}><Pencil className="h-4 w-4" />Modifier</Link></Button><ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateCustomerCreditNote, creditNote.id)} /></> : null}
             {canPost && !accountingEntry && !["draft", "cancelled"].includes(creditNote.status) ? <ActionForm label="Comptabiliser" icon={<BookOpen className="h-4 w-4" />} action={actionWithId(postCustomerCreditNote, creditNote.id)} /> : null}

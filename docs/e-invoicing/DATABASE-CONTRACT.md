@@ -110,3 +110,16 @@ Vue `einvoice_source_index` : `id`TEXT stable `invoice:<uuid>`/`credit_note:<uui
 Préfixe `EINVOICE_*`. Principales : `AUTH_REQUIRED`, `ACCESS_DENIED`, `ADMIN_REQUIRED`, `WRITE_REQUIRED`, `SOURCE_NOT_AVAILABLE`, `SOURCE_NOT_VALIDATED`, `SOURCE_CHANGED`, `CONFIGURATION_CHANGED`, `CONFLICT`, `MODULE_DISABLED`, `ALREADY_ISSUED`, `CANONICAL_MISMATCH`, `SNAPSHOT_SOURCE_MISMATCH`, `ARTIFACT_HASH_MISMATCH`, `VALID_ARTIFACTS_REQUIRED`, `UNSAFE_XML`, `INVALID_PDF`, `SIMULATION_DISABLED`, `JOB_ALREADY_QUEUED`, `STALE_LEASE`, `IDEMPOTENCY_CONFLICT`, `IMMUTABLE_ARCHIVE`, `ISSUED_SOURCE_READ_ONLY`. L'abonnement réutilise `SUBSCRIPTION_WRITE_REQUIRED`.
 
 Indicateur final de migration : `facturation_electronique_102_active`.
+
+## Parcours opérationnel — migration103
+
+```text
+einvoice_get_capabilities(p_organization_id uuid) → jsonb
+einvoice_issue_and_archive(p_document_id uuid,p_expected_version integer) → jsonb
+```
+
+Le premier RPC est une lecture authentifiée, limitée aux membres actifs de l’entreprise. Il retourne notamment `workflow_version=2` et `atomic_issuance=true`. Ces deux valeurs conditionnent l’activation du nouveau parcours côté serveur ; la présence des tables102 seule ne suffit pas. Les lecteurs et les abonnements expirés peuvent lire cette capacité et télécharger les archives, sans obtenir de droit d’écriture.
+
+Le second vérifie et émet la version attendue dans une transaction, avec les mêmes contrôles de rôle, d’abonnement, d’activation, de source et de configuration que les opérations102. Une source ou une configuration modifiée annule aussi la validation intermédiaire et ses événements. Une émission déjà réalisée reste idempotente ; une version périmée est refusée. L’état de simulation reste séparé de l’émission documentaire. Aucun de ces RPC ne crée une transmission officielle ni une signature.
+
+Les fonctions sont réservées au rôle `authenticated` ; l’accès direct `PUBLIC`, `anon` et `service_role` est révoqué. Indicateur complémentaire : `facturation_operations_103_active`, qui vérifie la présence des deux RPC. L’installateur `supabase/electronic-invoicing-102-103.sql` enveloppe les deux migrations dans une seule transaction. Voir [le rapport de correction](OPERATIONS-UPDATE.md).

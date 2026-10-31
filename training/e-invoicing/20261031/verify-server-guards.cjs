@@ -60,7 +60,7 @@ async function main() {
   const preparedVersion={id:lineId,document_id:id,version_number:1,source_fingerprint:sourceFingerprint,configuration_fingerprint:configurationFingerprint,snapshot:input,created_at:'2026-10-31T12:00:00Z'};
   const tables={einvoice_versions:[preparedVersion],einvoice_artifacts:[],einvoice_validations:[{version_id:lineId,valid:true,result:{valid:true,issues:[],preparation_options:{buyerType:'consumer'}}}],einvoice_events:[]};
   const client={from(){const q={select(){return q;},eq(){return q;},async maybeSingle(){return{data:electronicDocument,error:null};}};return q;}};
-  const context={client,workspace:{organization:{id},userId:id},settings:{configuration:{}},enabled:true,migrationReady:true,canWrite:true,canAdmin:true};
+  const context={client,workspace:{organization:{id},userId:id},settings:{configuration:{}},enabled:true,migrationReady:true,operationsReady:true,rolloutEnabled:true,writableSubscription:true,canWrite:true,canAdmin:true};
   const actualAccess=runner.load('src/lib/e-invoicing/access.ts');
   const serviceRunner=createActionRunner(()=>{throw Error('No live database in service fixture');},[],{modules:{
     './access':{...actualAccess,getEinvoiceContext:async()=>context},
@@ -74,7 +74,9 @@ async function main() {
   sourceFingerprint=preparedVersion.source_fingerprint;configurationFingerprint='d'.repeat(64);electronicDocument.status='validated';detail=await getEinvoiceDetail('invoice',id);check('Changed fiscal configuration blocks issuance in the actual service',!detail.capabilities.canIssue&&detail.issues.some(issue=>issue.code==='SOURCE_CHANGED'));
   configurationFingerprint=preparedVersion.configuration_fingerprint;detail=await getEinvoiceDetail('invoice',id);check('A fresh validated version enables issuance',detail.capabilities.canIssue===true);
   electronicDocument.issued_at='2026-10-31T12:01:00Z';electronicDocument.status='issued';sourceFingerprint='e'.repeat(64);detail=await getEinvoiceDetail('invoice',id);check('Issued copies remain frozen when live identity subsequently changes',!detail.capabilities.canPrepare&&!detail.issues.some(issue=>issue.code==='SOURCE_CHANGED'));
+  electronicDocument.simulation_status='rejected';detail=await getEinvoiceDetail('invoice',id);check('A rejected simulation cannot replace the issued document state',detail.source.status==='issued'&&detail.source.mode==='disabled'&&detail.source.simulationStatus==='rejected');
+  context.settings.configuration.default_unit_code='HUR';capture.configuration.default_unit_code='HUR';detail=await getEinvoiceDetail('invoice',id);check('An explicitly configured usual unit populates the document form',detail.lines.every(line=>line.unitCode==='HUR'));
   const report={passed:true,checks:results.length,results,scope:'Actual source adapters, archive hashes, rollout and public-fetch guards; synthetic fixtures/injected HTTP only; no hosted service access'};
-  writeFileSync(__dirname+'/server-guards.json',JSON.stringify(report,null,2)+'\n'); console.log(JSON.stringify(report));
+  writeFileSync(__dirname+'/server-operations-guards.json',JSON.stringify(report,null,2)+'\n'); console.log(JSON.stringify(report));
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

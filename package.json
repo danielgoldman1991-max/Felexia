@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test:regressions": "tsx scripts/verify-qa-regressions.ts",
     "test:light-launch": "tsx scripts/verify-light-launch.ts",
-    "test:e-invoicing": "tsx training/e-invoicing/20261031/verify-domain.ts && node training/e-invoicing/20261031/verify-ui.cjs && node training/e-invoicing/20261031/verify-server-guards.cjs",
+    "test:e-invoicing": "tsx training/e-invoicing/20261031/verify-domain.ts && node training/e-invoicing/20261031/verify-ui.cjs && node training/e-invoicing/20261031/verify-server-guards.cjs && node training/e-invoicing/20261031/verify-operations-access.cjs",
     "audit:data-integrity": "tsx scripts/audit-data-integrity.ts",
     "repair:data-integrity": "tsx scripts/repair-data-integrity.ts",
     "verify:demo-login": "tsx scripts/verify-demo-login.ts",

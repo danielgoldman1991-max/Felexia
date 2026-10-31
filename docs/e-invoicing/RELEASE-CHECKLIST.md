@@ -4,7 +4,7 @@
 
 - [ ] Autorisation explicite de publication du propriétaire : **non reçue pour ce module**.
 - [ ] Sauvegarde réelle de la base hébergée et test de restauration dans un projet isolé ; relever référence, date, résultat et responsable. Le bundle Git ne sauvegarde pas la base.
-- [ ] Appliquer102 intégralement d’abord dans un projet Supabase de préproduction ; vérifier `facturation_electronique_102_active=true`, les grants/RLS et le parcours réel Auth/REST.
+- [ ] Appliquer l’installateur transactionnel102–103 intégralement d’abord dans un projet Supabase de préproduction ; vérifier les deux indicateurs `facturation_electronique_102_active=true` et `facturation_operations_103_active=true`, les grants/RLS et le parcours réel Auth/REST. La103 ajoute le contrôle de disponibilité et l’émission atomique du parcours simplifié.
 - [ ] Exécuter la recette sur le service Supabase hébergé, avec des comptes synthétiques admin/opérateur/lecture seule et une seconde entreprise. Les tests locaux ne remplacent pas cette étape.
 - [ ] Vérifier politiques de sauvegarde, chiffrement au repos, rétention, accès privilégiés et procédures de restauration chez les hébergeurs ; aucun de ces contrats n’est certifié par le code.
 - [ ] Revue fiscale des mentions, taux, motifs d’exonération, RC et cas métiers effectivement applicables ; compléter la matrice réglementaire.

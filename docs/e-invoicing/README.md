@@ -1,5 +1,7 @@
 # Facturation électronique Maroc — Felexia Pro
 
+Le parcours documentaire a été simplifié et activé dans l’aperçu local : génération PDF/XML, aperçu et téléchargement, puis émission et archivage atomiques. Le bandeau technique répété est retiré ; les connexions avancées restent dans la configuration. Voir [la correction opérationnelle et ses preuves](OPERATIONS-UPDATE.md). Le nouveau parcours nécessite les migrations102 et103, disponibles dans un [installateur transactionnel](../../supabase/electronic-invoicing-102-103.sql). La version en ligne n’a pas été modifiée.
+
 Module préparatoire développé sur `codex/e-invoicing-maroc-20261031`, à partir du socle `c74c2f2c1fe8625d56a39bd8bf010a1b257aec59`. **Aucun déploiement ni migration102 en production n’est autorisé par ce dossier.**
 
 ## Livrables
@@ -33,6 +35,8 @@ Deux conditions : liste serveur `FELEXIA_EINVOICING_ORGANIZATION_IDS` contenant 
 Le mode `official` est refusé côté serveur et en base. Le module ne reçoit aucune clé privée et n’appelle aucune API DGI. **Un XML valide pour le schéma UBL générique, un hash et une acceptation simulée ne constituent aucune certification, signature qualifiée ni acceptation fiscale.**
 
 ## Développement local isolé
+
+Pour la version opérationnelle actuelle, suivre [operations-contract.json](../../training/e-invoicing/20261031/operations-contract.json) : passerelle55442, manifeste `einvoice-operations-local-private.json`, développement3104 et build local3103. L’ancien laboratoire55441 est conservé pour la version initiale102 et ne contient pas103.
 
 Node22 est la version supportée. Installer les dépendances avec `npm ci`, puis utiliser les commandes de tests du rapport. La préproduction locale utilise le vrai serveur Next, les SDK Supabase et une base PostgreSQL isolée ; sa façade Auth/PostgREST est un double de test explicite. Voir [son contrat](../../training/e-invoicing/20261031/local-preprod-contract.json). Elle ne démontre pas la délivrabilité email, OAuth ou le déploiement hébergé.
 

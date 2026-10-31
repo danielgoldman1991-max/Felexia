@@ -1,0 +1,113 @@
+{
+  "verifiedAt": "2026-10-31T23:33:29.814Z",
+  "branch": "codex/e-invoicing-operational-20261031",
+  "baseCommit": "b3544d99e6865cbdf451deb49098ded0a53d8a2b",
+  "optimizedLocalBuild": true,
+  "buildId": "-a0VVVm1OjHTMKw8S9jvb",
+  "nodeVersion": "v22.23.4",
+  "lintSrcAndModuleScripts": true,
+  "typecheckDuringBuild": true,
+  "legacyRegressionSuite": true,
+  "lightNavigationRegression": true,
+  "legacyPrintFixtures": 10,
+  "domainChecks": 55,
+  "browserEvidence": "training/e-invoicing/20261031/operations-browser/browser-check.json",
+  "migrationAppliedInProduction": false,
+  "productionDeployment": false,
+  "officialTaxTransmission": false,
+  "authenticationBoundary": "Explicit isolated local Auth/REST test double; hosted Supabase Auth not verified",
+  "sourceSha256": {
+    "src/app/facturation/electronique/[kind]/[sourceId]/page.tsx": "6a88861bfa9e3a9da666386db4736199ca2d1624f6420b20869fb54480322551",
+    "src/app/facturation/electronique/configuration/page.tsx": "b125c5edda6f2ee9849b9b1ecdad2bc05e58ad65229bf42ff55c69f253c81b0b",
+    "src/app/facturation/electronique/page.tsx": "02be81be668dca9a142986fa9a787c0dd2a77781a6842a14cb85da582da42b31",
+    "src/app/facturation/electronique/supervision/page.tsx": "cd6532b1df17421d2a9c8681e7cc849d640e273da9b8d262eed71f524ab880d9",
+    "src/components/credit-notes/customer-credit-note-detail.tsx": "fe9dfe60bc9032ee8ce8d6f7d144f45af4e7483cf007923ad82de452e1dfecd7",
+    "src/components/e-invoicing/preparation-form.tsx": "c47114694779a7482c94f6c143228656414d00d46254da6471892d315a0c0ab0",
+    "src/components/e-invoicing/presentation.ts": "023bcec6f0a24b0830098e16150b9f11a13b7fbc3e3bd737c5ea2f3d210e1ad1",
+    "src/components/e-invoicing/shared.tsx": "8057ea4111c2dc00878d9552ad874ae6bc69b618ceec9729e32f7ec143c659ac",
+    "src/components/invoices/customer-invoice-detail.tsx": "12ff4f4fa33ab83816f1b1a463b7afe7e2a1579551ceb8e25b919621aecbfb0b",
+    "src/lib/e-invoicing/access.ts": "4845c22818e14f3e78b777e1e4033dab4680517ba22dec102710cb3164ba93c2",
+    "src/lib/e-invoicing/actions.ts": "089ad8faee6843d20d8315769cafbfcb8f21c14fd61151d7cca60e94187073ba",
+    "src/lib/e-invoicing/service.ts": "18ccc0a595aebf24f53ddb171a14d17f501f89736587ad9fdbad5b91378b5e9c",
+    "src/lib/e-invoicing/source.ts": "8b157ad5c21b13572d41fe26149572957367507bb47029b9da6d1f7ea5f60f3d",
+    "src/lib/e-invoicing/view-types.ts": "3d482584fa1fac0b65bdbeec9fc4ca667c9f64c37834a836fbacfc19186c47ac",
+    "supabase/migrations/103_electronic_invoicing_operations.sql": "4000c36cf6461c943129b4193db76bfb808cd60f6c271c22dbd08179e35be771",
+    "supabase/electronic-invoicing-102-103.sql": "f4d59ca530aeb89a10626d9aa4c0f78a14aaf513d56278b17afe72d3f444289d",
+    "supabase/migrations/102_electronic_invoicing_maroc.sql": "b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354"
+  },
+  "checks": {
+    "operations-database-strict": {
+      "passed": true,
+      "checks": 41,
+      "sha256": "4dffa235cf0d57f00ca6b5ee45a8dd0de2ef35e8ef0af1f882516452865bbedf"
+    },
+    "operations-database-relaxed": {
+      "passed": true,
+      "checks": 41,
+      "sha256": "0af385af426137b6ef0c359a5330921d8fb839f16fd9774859503e13ddcbae92"
+    },
+    "operations-database-native": {
+      "passed": true,
+      "checks": 41,
+      "sha256": "af32cc654aae1e49ca2eedd39bba59ef581be9eda9ec5f9a09792c092abb8144"
+    },
+    "operations-gateway-probes": {
+      "passed": true,
+      "checks": 59,
+      "requests": 52,
+      "sha256": "909354bdd2e07d588a988a96ed55757ccc3b23bad7d57d22bc894cdab08f3c0c"
+    },
+    "operations-flow": {
+      "passed": true,
+      "checks": 123,
+      "requests": 118,
+      "sha256": "5519b5f59983fa26317b51129fd6ade1d9d25fced0e1c1df6f1d7fa2e08e11ae"
+    },
+    "operations-build": {
+      "passed": true,
+      "checks": 44,
+      "requests": 33,
+      "sha256": "f53b6fd887993d26340042605abfef2c9a4667e9dacf7e8fc1d2dfc9a1007002"
+    },
+    "ui-operations": {
+      "passed": true,
+      "checks": 48,
+      "sha256": "36ed4fba53b2a31ba08f69f0e1dafe9a4be8967e6e263844f2b5a5640623d6b5"
+    },
+    "server-operations-guards": {
+      "passed": true,
+      "checks": 31,
+      "sha256": "b675680d2f732a55d7af3567dbf35bfe1be0c1913b17a9df3f3a7315b5d4e50b"
+    },
+    "operations-access": {
+      "passed": true,
+      "checks": 12,
+      "sha256": "2a3ee51c9a08f9d01e458895cb9f2461c4413b7c83438200113857af4e22863c"
+    },
+    "operations-installer": {
+      "passed": true,
+      "checks": 5,
+      "sha256": "96fd1f33118bb36880cf6d53de5aaeaa3076b815208084e3c90bf1be921358ce"
+    }
+  },
+  "testedWorkingTreeSha256": {
+    "src/app/facturation/electronique/[kind]/[sourceId]/page.tsx": "81c0791dbc4b853fd023b43a8a6c3e2c6587826039c708a5b1801c38fd14f73d",
+    "src/app/facturation/electronique/configuration/page.tsx": "01814ae8b085568533f0afb13ace225337cf15d48e0f754c20f708be723fc0f7",
+    "src/app/facturation/electronique/page.tsx": "ecc60e1f6691d6c1583710e5e5077de9e017da801255c010958e124fbc5ab7bb",
+    "src/app/facturation/electronique/supervision/page.tsx": "70d10c36543bf15878667ca36f27911a31b051983c8fe7582977c46ba9b4dbf6",
+    "src/components/credit-notes/customer-credit-note-detail.tsx": "e7a68983f2424fa56a5320c665b40b8779701fd483bbaeb62a57dfa4e5814c6d",
+    "src/components/e-invoicing/preparation-form.tsx": "87666122cc2641f5b38a04ce9ba009c825bbcf01ce4b7b97116a60d3df92ad09",
+    "src/components/e-invoicing/presentation.ts": "a9d34753c28a470758aa6aea783737b6bb51c50146860e1788f26f7f0571cdac",
+    "src/components/e-invoicing/shared.tsx": "8057ea4111c2dc00878d9552ad874ae6bc69b618ceec9729e32f7ec143c659ac",
+    "src/components/invoices/customer-invoice-detail.tsx": "87828a7c8cfc65eb558f9cdf090b1864b0f436408eed3af39131d9ee878fb3e1",
+    "src/lib/e-invoicing/access.ts": "4845c22818e14f3e78b777e1e4033dab4680517ba22dec102710cb3164ba93c2",
+    "src/lib/e-invoicing/actions.ts": "089ad8faee6843d20d8315769cafbfcb8f21c14fd61151d7cca60e94187073ba",
+    "src/lib/e-invoicing/service.ts": "0ef96d6119b951fa2f13637c6141914819a5b894f989e114e18dd03afdcd6481",
+    "src/lib/e-invoicing/source.ts": "8b157ad5c21b13572d41fe26149572957367507bb47029b9da6d1f7ea5f60f3d",
+    "src/lib/e-invoicing/view-types.ts": "3d482584fa1fac0b65bdbeec9fc4ca667c9f64c37834a836fbacfc19186c47ac",
+    "supabase/migrations/103_electronic_invoicing_operations.sql": "4000c36cf6461c943129b4193db76bfb808cd60f6c271c22dbd08179e35be771",
+    "supabase/electronic-invoicing-102-103.sql": "f4d59ca530aeb89a10626d9aa4c0f78a14aaf513d56278b17afe72d3f444289d",
+    "supabase/migrations/102_electronic_invoicing_maroc.sql": "b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354"
+  },
+  "sourceHashEncoding": "sourceSha256 hashes Git index bytes; testedWorkingTreeSha256 hashes local test/build input bytes. Differences are limited to CRLF/LF normalization."
+}

@@ -5,8 +5,9 @@ import { createClient } from "@supabase/supabase-js";
 import { repositoryRoot } from "./local-bootstrap.mjs";
 import { resolve } from "node:path";
 
-const manifest=JSON.parse(await readFile(resolve(repositoryRoot,"../backups/einvoice-local-preprod-private.json"),"utf8"));
-assert.equal(manifest.localOnly,true);assert.equal(manifest.authSimulated,true);assert.equal(manifest.gatewayUrl,"http://127.0.0.1:55441");
+const operations=process.argv.includes("--operations");
+const manifest=JSON.parse(await readFile(resolve(repositoryRoot,operations?"../backups/einvoice-operations-local-private.json":"../backups/einvoice-local-preprod-private.json"),"utf8"));
+assert.equal(manifest.localOnly,true);assert.equal(manifest.authSimulated,true);assert.equal(manifest.gatewayUrl,operations?"http://127.0.0.1:55442":"http://127.0.0.1:55441");
 const results=[];let requests=0;
 const check=(actual,expected,name)=>{assert.deepEqual(actual,expected,name);results.push(name);};
 const localFetch=(url,options)=>{assert.equal(new URL(typeof url==="string"?url:url.url).origin,manifest.gatewayUrl,"All SDK traffic remains loopback");requests++;return fetch(url,options);};
@@ -32,6 +33,17 @@ try{
   const lease=await sdk(manifest.serviceRoleKey).rpc("einvoice_claim_jobs",{p_worker:"local-http-probe",p_limit:1,p_organization_id:manifest.ids.organizationId});assert.ifError(lease.error);check(lease.data,[],"Local service JWT invokes the real typed worker RPC without inventing a job");
   const due=await sdk(manifest.serviceRoleKey).rpc("einvoice_due_organizations",{p_organization_ids:[manifest.ids.organizationId],p_limit:10});assert.ifError(due.error);check(due.data,[],"Cron organization discovery binds a real uuid array and returns no fictitious due job");
   const deniedDue=await admin.rpc("einvoice_due_organizations",{p_organization_ids:[manifest.ids.organizationId],p_limit:10});check(deniedDue.error?.code,"42501","A public user cannot invoke service-only due-organization discovery");
+  if(operations){
+    check(/^[a-f0-9]{64}$/.test(manifest.operationsMigrationSha256),true,"Operations gateway records the actual additive103 migration fingerprint");
+    for(const[role,client]of Object.entries({admin,operator,viewer})){
+      const capabilities=await client.rpc("einvoice_get_capabilities",{p_organization_id:manifest.ids.organizationId});assert.ifError(capabilities.error);check(capabilities.data,{workflow_version:2,atomic_issuance:true},`${role} reads the actual installed document-workflow capability`);
+    }
+    for(const[label,client]of Object.entries({other_tenant:outsider,anonymous:sdk(),service_only:sdk(manifest.serviceRoleKey)})){
+      const capabilities=await client.rpc("einvoice_get_capabilities",{p_organization_id:manifest.ids.organizationId});check(capabilities.error?.code,"42501",`${label} cannot invoke the tenant-authenticated capability probe`);
+    }
+    const combined=await operator.rpc("einvoice_issue_and_archive",{p_document_id:manifest.ids.invoiceId,p_expected_version:1});check(combined.error?.message,"EINVOICE_NOT_FOUND","Authenticated SDK reaches the real combined issuance function without inventing a document");
+    const anonCombined=await sdk().rpc("einvoice_issue_and_archive",{p_document_id:manifest.ids.invoiceId,p_expected_version:1});check(anonCombined.error?.code,"42501","Anonymous users cannot invoke the new combined issuance function");
+  }
   const unrelated=await admin.rpc("save_customer_invoice_atomic",{});check(unrelated.status,404,"HTTP harness exposes no unrelated arbitrary RPC");
   const injection=await admin.from("third_parties").select("id").eq("name","' OR true --");assert.ifError(injection.error);check(injection.data,[],"REST filter values remain SQL bound parameters");
   const rawWrite=await localFetch(`${manifest.gatewayUrl}/rest/v1/customer_invoices`,{method:"POST",headers:{authorization:`Bearer ${(await admin.auth.getSession()).data.session.access_token}`,"content-type":"application/json"},body:"{}"});check(rawWrite.status,405,"Harness supplies no raw financial table mutation endpoint");
@@ -41,6 +53,6 @@ try{
   const refresh=await viewer.auth.refreshSession();assert.ifError(refresh.error);check(refresh.data.user.id,manifest.users.find(user=>user.role==="viewer").id,"Local refresh rotates session without changing SQL identity");
   const old=(await operator.auth.getSession()).data.session.access_token;assert.ifError((await operator.auth.signOut({scope:"local"})).error);check((await localFetch(`${manifest.gatewayUrl}/auth/v1/user`,{headers:{authorization:`Bearer ${old}`}})).status,401,"Local signout revokes the simulated session");
   check((await localFetch(`${manifest.gatewayUrl}/health`,{headers:{origin:"https://untrusted.example.test"}})).status,403,"Cross-origin browser requests are refused");
-  const report={passed:true,date:new Date().toISOString(),nodeVersion:process.version,migrationSha256:manifest.migrationSha256,checks:results.length,requests,results,scope:{auth:"Explicit local HS256 test double; not a production Supabase Auth test",database:"Actual migrations and SQL/RLS/RPC on isolated in-memory PostgreSQL/PGlite",productionRead:false,productionWrite:false,externalRequests:0}};
-  await writeFile(new URL("local-gateway-probes.json",import.meta.url),JSON.stringify(report,null,2)+"\n");console.log(JSON.stringify({passed:true,checks:results.length,requests}));
+  const report={passed:true,date:new Date().toISOString(),nodeVersion:process.version,migrationSha256:manifest.migrationSha256,...(operations?{operationsMigrationSha256:manifest.operationsMigrationSha256}:{}),checks:results.length,requests,results,scope:{auth:"Explicit local HS256 test double; not a production Supabase Auth test",database:"Actual migrations and SQL/RLS/RPC on isolated in-memory PostgreSQL/PGlite",productionRead:false,productionWrite:false,externalRequests:0}};
+  await writeFile(new URL(operations?"operations-gateway-probes.json":"local-gateway-probes.json",import.meta.url),JSON.stringify(report,null,2)+"\n");console.log(JSON.stringify({passed:true,checks:results.length,requests}));
 }catch(error){console.error(JSON.stringify({passed:false,message:error.message,checks:results.length,results}));process.exitCode=1;}

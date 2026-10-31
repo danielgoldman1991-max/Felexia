@@ -2,19 +2,19 @@
 
 ## Préparer son entreprise
 
-Un administrateur active le module une fois que l’exploitant l’a autorisé pour son entreprise. Dans **Mon entreprise**, renseigner les informations réelles : raison sociale, adresse, pays, ICE et identifiant fiscal. Le registre de commerce peut être exigé par le paramètre de l’entreprise ; ce réglage ne dispense pas de vérifier les obligations applicables à son activité.
+Un administrateur clique sur **Activer le module** une fois que l’exploitant l’a autorisé pour son entreprise et a terminé son installation. Dans **Mon entreprise**, renseigner les informations réelles : raison sociale, adresse, pays, ICE et identifiant fiscal. Le registre de commerce peut être exigé par le paramètre de l’entreprise ; ce réglage ne dispense pas de vérifier les obligations applicables à son activité.
 
-Dans **Ventes → Facturation électronique → Configuration**, choisir la catégorie habituelle de client, la langue et les alertes. Le connecteur peut rester désactivé : la préparation et l’archivage internes restent utilisables. Le mode simulation ajoute uniquement des essais internes. Aucune connexion officielle DGI n’est disponible.
+Dans **Ventes → Facturation électronique → Configuration**, choisir la catégorie habituelle de client, la langue, l’unité habituelle et les alertes. Le fonctionnement normal est **Documents et archivage**. Les options de connexion et les essais sont regroupés dans les réglages avancés.
 
 ## Facture ou avoir
 
 1. Créer puis valider la facture ou l’avoir dans la facturation habituelle. Le module réutilise son numéro et ses montants ; il ne transforme pas un brouillon commercial en facture validée.
 2. Ouvrir la pièce dans **Facturation électronique**. Vérifier le type du client : professionnel, particulier ou export.
 3. Pour chaque ligne, préciser l’unité. Pour une TVA nulle, choisir explicitement la catégorie et indiquer le motif réel : taux zéro, exonération ou hors champ. Le logiciel ne déduit pas une exonération de la seule présence d’un taux zéro.
-4. Cliquer **Préparer**. Les calculs, données, caractères XML et schémas sont contrôlés. Les erreurs sont conservées et affichées. Une préparation invalide ne produit pas un faux PDF/XML valide.
+4. Cliquer **Générer mes documents**. Les calculs, données, caractères XML et schémas sont contrôlés. Les erreurs sont conservées et affichées. Une préparation invalide ne produit pas un faux PDF/XML valide ni un message de succès.
 5. Si les contrôles réussissent, consulter le PDF et télécharger le XML. Vérifier les noms, adresses, dates, références et montants.
-6. **Valider**, puis **Émettre** après confirmation. L’émission fige cette version. Pour une correction après émission, utiliser la procédure de correction/avoir autorisée au lieu de modifier silencieusement l’original.
-7. Marquer **Prêt à transmettre** si nécessaire. Ce statut est interne et ne vaut pas transmission fiscale.
+6. Cliquer **Émettre et archiver** après vérification et confirmation. Les contrôles et l’émission sont regroupés dans une seule transaction. L’émission fige cette version. Pour une correction après émission, utiliser la procédure de correction/avoir autorisée au lieu de modifier silencieusement l’original.
+7. Utiliser **Télécharger PDF** ou **Télécharger XML** pour récupérer les fichiers. Les versions précédentes restent accessibles dans leur rubrique repliée. Les essais de transmission sont réservés aux outils administrateur ; ils ne font pas partie du parcours courant.
 
 Un avoir client conserve la référence de sa facture d’origine et son motif. Les factures fournisseurs reçues ne sont pas réémises au nom de l’entreprise dans cette première version.
 

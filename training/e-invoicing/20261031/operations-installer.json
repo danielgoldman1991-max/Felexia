@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": 5,
+  "results": [
+    "Installer has one outer transaction and no intermediate commit",
+    "The combined installer upgrades an existing102 database to the complete workflow",
+    "Reinstallation preserves all source invoices, lines and credit notes",
+    "A failed transaction restores the exact previous organization settings",
+    "A failed reinstall leaves all financial source rows unchanged"
+  ],
+  "bundleSha256": "f4d59ca530aeb89a10626d9aa4c0f78a14aaf513d56278b17afe72d3f444289d",
+  "scope": "Real isolated PostgreSQL/PGlite installer and rollback; no production read or write"
+}

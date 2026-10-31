@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
-export async function createLocalDatabase(packageRoot) {
+export async function createLocalDatabase(packageRoot, { operations = false } = {}) {
   if (!packageRoot || process.argv.some(value => /--postgres-url|--pg-root|--relaxed/.test(value))) {
     throw new Error("An explicit isolated PGlite package directory is required; remote/native database arguments are forbidden");
   }
@@ -28,10 +28,11 @@ export async function createLocalDatabase(packageRoot) {
     const { db, sql, one, as, ids } = state;
     await db.exec("alter table accounting_accounts add column if not exists code text,add column if not exists name text;alter table accounting_entries add column if not exists total_debit numeric,add column if not exists total_credit numeric,add column if not exists posted_at timestamptz,add column if not exists posted_by uuid,add column if not exists created_by uuid;alter table accounting_entry_lines add column if not exists account_id uuid references accounting_accounts(id),add column if not exists account_code text,add column if not exists account_label text,add column if not exists line_number integer,add column if not exists debit numeric,add column if not exists credit numeric,add column if not exists label text;");
     await db.exec("do $$begin create role service_role bypassrls;exception when duplicate_object then null;end $$;");
-    let migrationSha256;
-    for (const file of ["024_customer_credit_notes_return_source.sql", "041_create_organization_with_owner_rpc.sql", "097_document_numbering_controls.sql", "098_essential_finance_integrity.sql", "099_essential_subscription_access.sql", "100_essential_credit_note_corrections.sql", "101_essential_supplier_credit_notes.sql", "102_electronic_invoicing_maroc.sql"]) {
+    let migrationSha256, operationsMigrationSha256 = null;
+    for (const file of ["024_customer_credit_notes_return_source.sql", "041_create_organization_with_owner_rpc.sql", "097_document_numbering_controls.sql", "098_essential_finance_integrity.sql", "099_essential_subscription_access.sql", "100_essential_credit_note_corrections.sql", "101_essential_supplier_credit_notes.sql", "102_electronic_invoicing_maroc.sql", ...(operations ? ["103_electronic_invoicing_operations.sql"] : [])]) {
       const content=await sql(file);await db.exec(content);
       if(file==="102_electronic_invoicing_maroc.sql")migrationSha256=createHash("sha256").update(content).digest("hex");
+      if(file==="103_electronic_invoicing_operations.sql")operationsMigrationSha256=createHash("sha256").update(content).digest("hex");
     }
     await db.exec(await sql("047_app_notifications.sql"));
     await db.exec("alter table profiles add column if not exists first_name text,add column if not exists last_name text,add column if not exists avatar_url text;grant usage on schema public,auth,app_private to service_role;grant select on all tables in schema public to service_role;grant select,insert,update on app_notifications to authenticated;grant insert,update on app_notifications to service_role;");
@@ -72,9 +73,9 @@ export async function createLocalDatabase(packageRoot) {
     const draft = await one("select save_customer_invoice_atomic($1,null,$2::jsonb,$3::jsonb) id", [ids.org, JSON.stringify({customer_id:customer.id,invoice_date:"2026-10-31"}), JSON.stringify([lines[0]])]);
     const credit = await one("select save_customer_credit_note_atomic($1,null,$2::jsonb,$3::jsonb) id", [ids.org, JSON.stringify({customer_id:customer.id,source_invoice_id:invoice.id,credit_note_date:"2026-10-31",reason:"Correction partielle fictive de recette locale",notes:"Avoir fictif. Aucun envoi à la DGI."}), JSON.stringify([{...lines[0],quantity:"0.500",source_invoice_line_id:invoiceLines[0].id}])]);
     await db.query("update customer_credit_notes set status='validated',available_amount=total_ttc where id=$1", [credit.id]);
-    await one("select einvoice_update_settings($1,true,'disabled',$2::jsonb,null)", [ids.org, JSON.stringify({alerts_enabled:true})]);
+    await one("select einvoice_update_settings($1,$2,'disabled',$3::jsonb,null)", [ids.org, !operations, JSON.stringify({alerts_enabled:true})]);
     await db.exec("reset role"); await db.query("select set_config('request.jwt.claim.sub','',false)");
-    return { db, users, ids: { organizationId:ids.org, foreignOrganizationId:ids.foreign, customerId:customer.id, invoiceId:invoice.id, invoiceLines, draftInvoiceId:draft.id, creditNoteId:credit.id, foreignInvoiceId:foreignInvoice.id }, migrationSha256, engine:"PostgreSQL via isolated in-memory PGlite" };
+    return { db, users, ids: { organizationId:ids.org, foreignOrganizationId:ids.foreign, customerId:customer.id, invoiceId:invoice.id, invoiceLines, draftInvoiceId:draft.id, creditNoteId:credit.id, foreignInvoiceId:foreignInvoice.id }, migrationSha256, operationsMigrationSha256, engine:"PostgreSQL via isolated in-memory PGlite" };
   } catch (error) {
     await state?.db.close();
     throw error;
