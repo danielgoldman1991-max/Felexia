@@ -28,16 +28,18 @@ function uploaderName(attachment: ThirdPartyAttachment) {
 export function ThirdPartyAttachments({
   thirdPartyId,
   attachments,
+  canWrite = false,
 }: {
   thirdPartyId: string;
   attachments: ThirdPartyAttachment[];
+  canWrite?: boolean;
 }) {
   const [uploadState, uploadAction, uploadPending] = useActionState(uploadThirdPartyAttachment, { success: true });
   const [archiveState, archiveAction, archivePending] = useActionState(archiveThirdPartyAttachment, { success: true });
 
   return (
     <div className="space-y-4">
-      <form
+      {canWrite ? <form
         action={uploadAction}
         className="grid gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 md:grid-cols-[1fr_auto]"
       >
@@ -58,7 +60,7 @@ export function ThirdPartyAttachments({
         {!uploadState.success && uploadState.error ? (
           <p className="text-xs text-red-600 md:col-span-2">{uploadState.error}</p>
         ) : null}
-      </form>
+      </form> : null}
 
       {!archiveState.success && archiveState.error ? (
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{archiveState.error}</p>
@@ -100,7 +102,7 @@ export function ThirdPartyAttachments({
                           <ExternalLink className="h-4 w-4" />
                         </Link></Button>
                     ) : null}
-                    <form action={archiveAction}>
+                    {canWrite ? <form action={archiveAction}>
                       <input type="hidden" name="id" value={attachment.id} />
                       <input type="hidden" name="third_party_id" value={thirdPartyId} />
                       <Button
@@ -112,7 +114,7 @@ export function ThirdPartyAttachments({
                       >
                         <Archive className="h-4 w-4" />
                       </Button>
-                    </form>
+                    </form> : null}
                   </div>
                 </Td>
               </tr>

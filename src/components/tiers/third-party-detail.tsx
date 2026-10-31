@@ -88,6 +88,7 @@ export function ThirdPartyDetail({
   attachments,
   activity,
   fullAccess = false,
+  canWrite = false,
 }: {
   thirdParty: ThirdPartyRecord;
   contacts: ThirdPartyContact[];
@@ -95,6 +96,7 @@ export function ThirdPartyDetail({
   attachments: ThirdPartyAttachment[];
   activity: ThirdPartyActivityItem[];
   fullAccess?: boolean;
+  canWrite?: boolean;
 }) {
   const OptionalPanel = fullAccess ? "div" : "details";
   const isProspect = thirdParty.types?.includes("prospect");
@@ -113,7 +115,7 @@ export function ThirdPartyDetail({
       <PageHeader
         title={thirdParty.name}
         description={thirdParty.code ?? "Code tiers non genere"}
-        actions={
+        actions={canWrite ? (
           <>
             {fullAccess && isProspect && !isCustomer ? (
               <form action={convertAction}>
@@ -128,15 +130,18 @@ export function ThirdPartyDetail({
               </form>
             ) : null}
             <Button variant="secondary" asChild><Link href={`/tiers/${thirdParty.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
-            <form action={archiveAction}>
+            <form action={archiveAction} onSubmit={(event) => {
+              if (!window.confirm(`Archiver ${thirdParty.name} ? Vous pourrez le restaurer depuis le filtre Archivés.`)) event.preventDefault();
+            }}>
               <input type="hidden" name="id" value={thirdParty.id} />
+              <input type="hidden" name="returnTo" value={isSupplier && !isCustomer ? "/tiers/fournisseurs" : "/tiers/clients"} />
               <Button variant="danger"><Archive className="h-4 w-4" /> Archiver</Button>
               {!archiveState.success && archiveState.error ? (
                 <p className="mt-1 text-xs text-red-600">{archiveState.error}</p>
               ) : null}
             </form>
           </>
-        }
+        ) : undefined}
       />
 
       <Card>
@@ -224,7 +229,7 @@ export function ThirdPartyDetail({
         <CardContent className="space-y-4">
           {contacts.length ? (
             <Table>
-              <thead><tr><Th>Nom</Th><Th>Fonction</Th><Th>Telephone</Th><Th>Email</Th><Th>Principal</Th><Th>Actions</Th></tr></thead>
+              <thead><tr><Th>Nom</Th><Th>Fonction</Th><Th>Telephone</Th><Th>Email</Th><Th>Principal</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
               <tbody>
                 {contacts.map((contact) => (
                   <tr key={contact.id}>
@@ -233,13 +238,13 @@ export function ThirdPartyDetail({
                     <Td>{contact.mobile ?? contact.phone ?? "-"}</Td>
                     <Td>{contact.email ?? "-"}</Td>
                     <Td>{contact.is_primary ? "Oui" : "Non"}</Td>
-                    <Td>
+                    {canWrite ? <Td>
                       <form action={deleteContactAction}>
                         <input type="hidden" name="id" value={contact.id} />
                         <input type="hidden" name="third_party_id" value={thirdParty.id} />
                         <Button variant="ghost">Archiver</Button>
                       </form>
-                    </Td>
+                    </Td> : null}
                   </tr>
                 ))}
               </tbody>
@@ -248,7 +253,7 @@ export function ThirdPartyDetail({
           {!deleteContactState.success && deleteContactState.error ? (
             <p className="text-xs text-red-600">{deleteContactState.error}</p>
           ) : null}
-          <form action={createContactAction} className="grid gap-3 rounded-lg border border-[var(--border)] p-4 md:grid-cols-4">
+          {canWrite ? <form action={createContactAction} className="grid gap-3 rounded-lg border border-[var(--border)] p-4 md:grid-cols-4">
             <input type="hidden" name="third_party_id" value={thirdParty.id} />
             <Input name="full_name" placeholder="Nom complet" required />
             <Input name="job_title" placeholder="Fonction" />
@@ -261,7 +266,7 @@ export function ThirdPartyDetail({
             {!createContactState.success && createContactState.error ? (
               <p className="col-span-full text-xs text-red-600">{createContactState.error}</p>
             ) : null}
-          </form>
+          </form> : null}
         </CardContent>
       </Card>
 
@@ -270,7 +275,7 @@ export function ThirdPartyDetail({
         <CardContent className="space-y-4">
           {addresses.length ? (
             <Table>
-              <thead><tr><Th>Libelle</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Defaut</Th><Th>Actions</Th></tr></thead>
+              <thead><tr><Th>Libelle</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Defaut</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
               <tbody>
                 {addresses.map((address) => (
                   <tr key={address.id}>
@@ -279,13 +284,13 @@ export function ThirdPartyDetail({
                     <Td>{address.address}</Td>
                     <Td>{address.city ?? "-"}</Td>
                     <Td>{address.is_default ? "Oui" : "Non"}</Td>
-                    <Td>
+                    {canWrite ? <Td>
                       <form action={deleteAddressAction}>
                         <input type="hidden" name="id" value={address.id} />
                         <input type="hidden" name="third_party_id" value={thirdParty.id} />
                         <Button variant="ghost">Archiver</Button>
                       </form>
-                    </Td>
+                    </Td> : null}
                   </tr>
                 ))}
               </tbody>
@@ -294,7 +299,7 @@ export function ThirdPartyDetail({
           {!deleteAddressState.success && deleteAddressState.error ? (
             <p className="text-xs text-red-600">{deleteAddressState.error}</p>
           ) : null}
-          <form action={createAddressAction} className="grid gap-3 rounded-lg border border-[var(--border)] p-4 md:grid-cols-4">
+          {canWrite ? <form action={createAddressAction} className="grid gap-3 rounded-lg border border-[var(--border)] p-4 md:grid-cols-4">
             <input type="hidden" name="third_party_id" value={thirdParty.id} />
             <Input name="label" placeholder="Libelle" required />
             <Select name="type" defaultValue="billing"><option value="billing">Facturation</option><option value="delivery">Livraison</option><option value="other">Autre</option></Select>
@@ -307,7 +312,7 @@ export function ThirdPartyDetail({
             {!createAddressState.success && createAddressState.error ? (
               <p className="col-span-full text-xs text-red-600">{createAddressState.error}</p>
             ) : null}
-          </form>
+          </form> : null}
         </CardContent>
       </Card>
 
@@ -321,7 +326,7 @@ export function ThirdPartyDetail({
         <Card>
           <CardHeader><h2 className="font-semibold">Pieces jointes</h2></CardHeader>
           <CardContent>
-            <ThirdPartyAttachments thirdPartyId={thirdParty.id} attachments={attachments} />
+            <ThirdPartyAttachments thirdPartyId={thirdParty.id} attachments={attachments} canWrite={canWrite} />
           </CardContent>
         </Card>
       </div>
