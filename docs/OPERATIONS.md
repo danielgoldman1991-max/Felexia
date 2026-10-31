@@ -6,6 +6,8 @@ Le point de contrôle public `/api/health` retourne HTTP 200 uniquement si une l
 
 Le workflow `.github/workflows/essential.yml` installe les dépendances verrouillées, contrôle les vulnérabilités de production, le lint des sources, les régressions essentielles et le build. Les clés de production ne doivent pas être ajoutées à GitHub pour ces tests. Les scénarios qui créent des documents utilisent exclusivement une entreprise de recette explicitement identifiée.
 
+Le runtime du projet est Node.js 22 à jour, aligné avec la CI. Vérifier les données IANA du runtime lors d'une mise à jour : le test de numérotation couvre les anciennes règles de Casablanca et celles applicables depuis septembre 2026. Ne pas résoudre une divergence en ajoutant un décalage fixe d'une heure dans les calculs métier.
+
 ## Notifications d'essai
 
 `vercel.json` programme le traitement quotidien à 06:00 UTC. Définir `CRON_SECRET` dans les variables serveur Vercel, avec une valeur aléatoire forte conservée dans le gestionnaire de secrets de l'exploitant. Vercel transmet ce secret dans l'en-tête Bearer du cron. Sans secret, l'endpoint retourne 503 ; avec un secret incorrect, 401. Ne jamais rendre le cron anonyme.

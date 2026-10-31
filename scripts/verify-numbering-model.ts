@@ -4,7 +4,10 @@ import { currentNumberingPeriod, isNumberingCounterAllowed, isNumberingMigration
 
 for (const period of ["2026-10", "1900-01", "2199-12"]) assert.equal(parseNumberingPeriod(period), period);
 for (const period of ["2026-00", "2026-13", "2026-1", "2026-10-31", "2026-10x", "2200-01", " 2026-10", null]) assert.equal(parseNumberingPeriod(period), null);
-assert.equal(currentNumberingPeriod(new Date("2026-10-31T23:30:00Z")), "2026-11");
+assert.equal(currentNumberingPeriod(new Date("2025-10-31T23:30:00Z")), "2025-11");
+// IANA2026c: Casablanca returns to permanent UTC on 2026-09-20.
+// Keep the deployment runtime current instead of hardcoding an offset in the app.
+assert.equal(currentNumberingPeriod(new Date("2026-10-31T23:30:00Z")), "2026-10");
 assert.equal(isNumberingCounterAllowed("customer_invoice", false), true);
 assert.equal(isNumberingCounterAllowed("supplier_payment", false), true);
 assert.equal(isNumberingCounterAllowed("sales_quote", false), false);

@@ -6,7 +6,7 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ### Correctifs de l'audit Essentiel
 
-La branche `codex/essential-launch-fixes-20261031` corrige les écritures financières partielles, les droits après échéance, les données d'abonnement, les exports incomplets et la récupération de compte. Elle ajoute le parcours des avoirs fournisseurs, avec affectation sans mouvement fictif de trésorerie. Les avoirs clients et fournisseurs comptabilisés peuvent être affectés ou désaffectés par l'administrateur et l'opérateur ; leurs montants et leur annulation sont verrouillés. Les règlements comptabilisés sont également protégés contre les corrections monétaires.
+La branche `codex/essential-launch-fixes-20261031` corrige les écritures financières partielles, les droits après échéance, les données d'abonnement, les exports incomplets et la récupération de compte. Elle ajoute le parcours des avoirs fournisseurs, avec affectation sans mouvement fictif de trésorerie. Les avoirs clients et fournisseurs comptabilisés peuvent être affectés ou désaffectés par l'administrateur et l'opérateur ; leurs montants et leur annulation sont verrouillés. Les règlements comptabilisés sont également protégés contre les corrections monétaires. Le SQL 098–101 a été appliqué manuellement le 31 octobre, quatre indicateurs confirmés et nouveaux contrats PostgREST visibles.
 
 **Avant publication, exécuter intégralement `supabase/essential-launch-098-101.sql` dans le SQL Editor du projet Felexia.** Ce fichier regroupe les migrations 098 à 101 dans une transaction. La dernière requête doit retourner les quatre indicateurs à `true`. Il ne renumérote pas les documents existants et ne réécrit pas leurs montants. Le fichier est reproductible avec `node scripts/prepare-essential-sql.cjs` et son empreinte est consignée dans `training/essential-fixes/20261031/sql-release.json`.
 
@@ -114,6 +114,8 @@ Le parcours financier de test passe 41 contrôles et la seconde inscription 14 c
 - Vercel ready
 
 ## Installation locale
+
+Utiliser Node.js 22 à jour (22.23.4 ou plus récent dans cette branche 22). Le runtime déclaré dans `package.json` aligne le déploiement et la CI. Les données IANA du fuseau Casablanca doivent être à jour : la règle postérieure au 20 septembre 2026 diffère des anciennes versions ([IANA 2026c](https://www.iana.org/time-zones/releases/2026c)). Le modèle utilise `Africa/Casablanca`, sans décalage horaire codé en dur.
 
 ```bash
 npm install

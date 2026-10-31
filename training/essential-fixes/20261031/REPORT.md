@@ -1,6 +1,6 @@
 # Corrections Essentiel et préparation de la recette
 
-État : correctifs préparés et vérifiés localement. **La nouvelle recette réelle à trois utilisateurs n'est pas encore exécutée** : le lot SQL doit d'abord être installé dans le projet Supabase, puis le code publié. Les résultats attendus des scripts ne sont pas des résultats obtenus.
+État : correctifs préparés et vérifiés localement. Le SQL 098–101 est appliqué : quatre indicateurs confirmés par l'utilisateur et nouveaux contrats visibles dans PostgREST. **La nouvelle recette réelle à trois utilisateurs n'est pas encore exécutée** : la publication est en cours de préparation. Les résultats attendus des scripts ne sont pas des résultats obtenus.
 
 ## Corrections livrables
 
@@ -36,12 +36,15 @@ Les fixtures financières utilisent exclusivement des données synthétiques Pos
 | Routes checkout/portail : 24 contrôles ; handler Stripe/récupération : 25 contrôles | `checkout-fixture-tests.json`, `webhook-recovery-tests.json` |
 | Récupération : 26 contrôles des actions/callback ; restauration de l'état de recette : 12 scénarios de panne | `recovery-action-tests.json`, `expiry-harness-tests.json` |
 | Routes de gestion d'équipe : 55 contrôles isolés et aucun appel SMTP | `team-handlers.json` |
+| Middleware : 17 contrôles des accès personnels, financiers et des exports par rôle et échéance | `middleware-access-tests.json` |
 | Services, pagination et historique : 30 contrôles, dont une limite API artificielle de 37 lignes | `workflow-services.json` |
 | Avoir fournisseur imprimable : 14 contrôles SSR | `supplier-credit-print-tests.json` |
 | Santé de la vraie base et refus du cron sans secret/avec mauvais secret | `operations.json` |
 | Restauration locale de 81 tables, droits, données et réapplication du bundle inchangées | `restoration.json` |
 
 Le build de production, le typage, le lint applicatif, les régressions métier, le profil léger, le profil Opérateur et le modèle de numérotation passent. L'audit npm des dépendances de **production** ne signale aucune vulnérabilité ; les alertes des outils de développement restent distinctes.
+
+Le premier passage Linux a révélé un test de fin de mois fondé sur l'ancienne règle horaire de Casablanca. Le runtime est désormais aligné sur Node.js 22 à jour et le test couvre les deux périodes IANA, avant et après septembre 2026. Aucun décalage fixe n'est ajouté à l'application.
 
 Le préflight public effectué en lecture seule trouve 1 086 écritures, aucune source comptable dupliquée, aucune écriture comptabilisée vide ou déséquilibrée, aucun total d'en-tête divergent et aucun compte de trésorerie non MAD. Il identifie un ancien abonnement actif sans date de fin : ses données restent conservées, mais l'écriture sera refusée jusqu'à régularisation de sa véritable échéance.
 
