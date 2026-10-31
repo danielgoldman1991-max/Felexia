@@ -1,13 +1,15 @@
 {
   "passed": true,
-  "date": "2026-10-31T23:21:31.647Z",
+  "date": "2026-10-31T23:38:24.324Z",
   "engine": "PostgreSQL via PGlite",
   "database": null,
-  "migration103Sha256": "4000c36cf6461c943129b4193db76bfb808cd60f6c271c22dbd08179e35be771",
-  "checks": 41,
+  "migration103Sha256": "f82118ea8aaf2b6cf49f94906c1884d2d4ad3ae37d0b7e45ae8f252076ae59b8",
+  "checks": 43,
   "results": [
     "Migration102 installs and reinstalls without modifying legacy facts",
+    "Fixture reproduces an explicit service-role execute default independently of PUBLIC",
     "Additive103 installs and reinstalls safely",
+    "Issuance explicitly removes inherited service-role execute privileges",
     "Document operation is active without a simulation or external connector",
     "Read-only members can inspect the exact operational readiness metadata",
     "Readiness metadata cannot be read across enterprises",

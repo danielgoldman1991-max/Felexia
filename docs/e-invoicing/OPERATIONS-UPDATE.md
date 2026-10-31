@@ -1,5 +1,7 @@
 # Module documentaire actif — correction du parcours
 
+La publication sur le site a été autorisée par l’utilisateur après cette recette. Le suivi de déploiement et les prérequis SQL figurent dans [le rapport de publication](PRODUCTION-RELEASE.md). Le resserrement des privilèges103 reproduit les privilèges par défaut Supabase ; les autres preuves HTTP et le manifeste initial restent les instantanés du commit86c7e48.
+
 Branche `codex/e-invoicing-operational-20261031`, évolution de `b3544d9`. La sauvegarde du code avant correction est `../backups/felexia-before-einvoice-operations-20261031.bundle`. Les données et la passerelle de la recette initiale sur 55441 sont préservées ; la nouvelle recette utilise 55442. Le [manifeste de vérification](../../training/e-invoicing/20261031/operations-release.json) réunit les résultats et les empreintes des sources testées.
 
 ## Ce qui change pour l’utilisateur
@@ -25,8 +27,8 @@ L’[installateur102–103](../../supabase/electronic-invoicing-102-103.sql) reg
 | Fichier | SHA256 |
 |---|---|
 |102|`b652c64a8e1a4e349dcaa61bb9b886bf2cf155ab4c034a42e3074b12df9cb354`|
-|103|`4000c36cf6461c943129b4193db76bfb808cd60f6c271c22dbd08179e35be771`|
-|Installateur102–103|`f4d59ca530aeb89a10626d9aa4c0f78a14aaf513d56278b17afe72d3f444289d`|
+|103|`f82118ea8aaf2b6cf49f94906c1884d2d4ad3ae37d0b7e45ae8f252076ae59b8`|
+|Installateur102–103|`3f589eac13719793dafb5352a287ca71ee6fdad6a2973ff03dec5b105abe7c30`|
 
 L’exploitant autorise l’entreprise via le déploiement serveur ; l’administrateur active ensuite le module dans sa configuration. Les droits d’abonnement et les rôles sont conservés. Les informations fiscales manquantes doivent être complétées avant génération.
 
@@ -34,7 +36,7 @@ L’exploitant autorise l’entreprise via le déploiement serveur ; l’adminis
 
 | Vérification | Résultat et preuve |
 |---|---|
-|RPC atomique, rollback, version, idempotence, droits et readiness|**123 contrôles SQL** :41 sous PGlite strict,41 relâché,41 sous PostgreSQL natif — [strict](../../training/e-invoicing/20261031/operations-database-strict.json), [relâché](../../training/e-invoicing/20261031/operations-database-relaxed.json), [natif](../../training/e-invoicing/20261031/operations-database-native.json)|
+|RPC atomique, rollback, version, idempotence, droits et readiness|**129 contrôles SQL** :43 sous PGlite strict,43 relâché,43 sous PostgreSQL natif — [strict](../../training/e-invoicing/20261031/operations-database-strict.json), [relâché](../../training/e-invoicing/20261031/operations-database-relaxed.json), [natif](../../training/e-invoicing/20261031/operations-database-native.json)|
 |Passerelle et SDK, capacités des trois profils et refus croisés|**59/59**,52 requêtes — [preuve](../../training/e-invoicing/20261031/operations-gateway-probes.json)|
 |Parcours complet sur base isolée neuve|**123/123**,118 requêtes — [preuve](../../training/e-invoicing/20261031/operations-flow.json)|
 |Build optimisé Node22 exécuté sur 3103|**44/44**,33 requêtes — [preuve](../../training/e-invoicing/20261031/operations-build.json)|
@@ -53,4 +55,4 @@ Le contrôle visuel du build optimisé confirme le statut actif, la facture émi
 
 Les régressions de la version légère (23 parcours,21 écrans sur demande et6 menus), les calculs métier existants et les10 fixtures d’impression passent également. Le lint de `src` et du laboratoire ne remonte aucune erreur. Ces contrôles ne remplacent pas une recette hébergée avec les services réels.
 
-**La production n’a pas été modifiée.** L’application SQL en production et la publication attendent une autorisation explicite, conformément à la demande initiale. Les comptes, archives et données réels ne sont pas remplacés par les fixtures locales.
+À la clôture de la recette initiale86c7e48, la production n’avait pas été modifiée. La publication a depuis été autorisée ; consulter le rapport de publication pour son état actuel. Les comptes, archives et données réels ne sont pas remplacés par les fixtures locales.

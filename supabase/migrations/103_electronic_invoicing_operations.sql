@@ -23,7 +23,9 @@ begin
  return result;
 end $$;
 
-revoke all on function public.einvoice_issue_and_archive(uuid,integer) from public,anon,authenticated;
+-- Supabase can grant service_role EXECUTE explicitly through default privileges.
+-- Revoking PUBLIC alone does not remove that inherited-at-creation grant.
+revoke all on function public.einvoice_issue_and_archive(uuid,integer) from public,anon,authenticated,service_role;
 grant execute on function public.einvoice_issue_and_archive(uuid,integer) to authenticated;
 
 -- Readiness metadata is tenant-authenticated and read-only, including for

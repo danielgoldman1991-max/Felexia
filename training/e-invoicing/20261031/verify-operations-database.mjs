@@ -31,10 +31,16 @@ source+='\nconst proofOutput='+JSON.stringify(fileURLToPath(new URL(process.argv
 source+='const nativeDatabase='+JSON.stringify(nativeDatabase)+';\n';
 const fixtureScript=blueprint.slice(testStart+'\ntry{'.length,fixtureEnd);
 assert(fixtureScript.includes(" await db.exec('begin');"),'Review changed fixture transaction boundary');
-source+='try{'+fixtureScript.replace(" await db.exec('begin');"," await db.exec(await sql('103_electronic_invoicing_operations.sql'));await db.exec(await sql('103_electronic_invoicing_operations.sql'));await db.exec('begin');");
+source+='try{'+fixtureScript.replace(" await db.exec('begin');",String.raw`
+ await db.exec("alter default privileges in schema public grant execute on functions to service_role;create function public.einvoice_default_grant_probe() returns boolean language sql as 'select true';revoke all on function public.einvoice_default_grant_probe() from public,anon,authenticated;");
+ equal((await one("select has_function_privilege('service_role','public.einvoice_default_grant_probe()','execute') allowed")).allowed,true,'Fixture reproduces an explicit service-role execute default independently of PUBLIC');
+ await db.exec('drop function public.einvoice_default_grant_probe()');
+ await db.exec(await sql('103_electronic_invoicing_operations.sql'));await db.exec(await sql('103_electronic_invoicing_operations.sql'));await db.exec('begin');
+`);
 source+=String.raw`
  await as(ids.admin);
  equal(Boolean((await one("select to_regprocedure('public.einvoice_issue_and_archive(uuid,integer)') present")).present),true,'Additive103 installs and reinstalls safely');
+ equal((await one("select has_function_privilege('service_role','public.einvoice_issue_and_archive(uuid,integer)','execute') allowed")).allowed,false,'Issuance explicitly removes inherited service-role execute privileges');
  let config=await settings('disabled',true,null,{alerts_enabled:true,default_unit_code:'HUR'});
  equal(config.connector_mode,'disabled','Document operation is active without a simulation or external connector');
  const capabilities=async(org)=>(await one('select einvoice_get_capabilities($1) result',[org])).result;

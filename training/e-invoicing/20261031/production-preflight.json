@@ -1,0 +1,494 @@
+{
+  "checkedAt": "2026-10-31T23:38:41.864Z",
+  "productionReadOnly": true,
+  "targetFingerprint": "0db5b22143dca140",
+  "authentication": "Service credential initial GET/HEAD only; two explicitly authorized existing QA admin password logins (first metadata probe unavailable), then only authenticated GET metadata/capability reads. No business-table writes.",
+  "migration102": {
+    "state": "all_expected_tables_visible",
+    "expectedTables": 8,
+    "visibleTables": 8,
+    "tables": {
+      "einvoice_settings": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_documents": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_versions": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_artifacts": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_validations": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_transmissions": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_jobs": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      },
+      "einvoice_events": {
+        "present": true,
+        "httpStatus": 200,
+        "count": 0,
+        "errorCode": null,
+        "openapiListed": true
+      }
+    },
+    "serviceVisibleContracts": {
+      "einvoice_capture_source": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_source_id",
+          "p_source_kind"
+        ],
+        "argumentTypes": {
+          "p_source_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_source_kind": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_update_settings": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_configuration",
+          "p_enabled",
+          "p_expected_revision",
+          "p_mode",
+          "p_organization_id"
+        ],
+        "argumentTypes": {
+          "p_configuration": {
+            "type": null,
+            "format": "jsonb"
+          },
+          "p_enabled": {
+            "type": "boolean",
+            "format": "boolean"
+          },
+          "p_expected_revision": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_mode": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_organization_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "einvoice_save_preparation": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_actor",
+          "p_artifacts",
+          "p_canonical_snapshot",
+          "p_expected_version",
+          "p_idempotency_key",
+          "p_profile_version",
+          "p_snapshot",
+          "p_source_fingerprint",
+          "p_source_id",
+          "p_source_kind",
+          "p_validation"
+        ],
+        "argumentTypes": {
+          "p_actor": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_artifacts": {
+            "type": null,
+            "format": "jsonb"
+          },
+          "p_canonical_snapshot": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_expected_version": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_idempotency_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_profile_version": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_snapshot": {
+            "type": null,
+            "format": "jsonb"
+          },
+          "p_source_fingerprint": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_source_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_source_kind": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_validation": {
+            "type": null,
+            "format": "jsonb"
+          }
+        }
+      },
+      "einvoice_transition": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_document_id",
+          "p_expected_version",
+          "p_target"
+        ],
+        "argumentTypes": {
+          "p_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_expected_version": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_target": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_get_artifact": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_artifact_id"
+        ],
+        "argumentTypes": {
+          "p_artifact_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "einvoice_enqueue_simulation": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_document_id",
+          "p_expected_version",
+          "p_idempotency_key",
+          "p_scenario"
+        ],
+        "argumentTypes": {
+          "p_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_expected_version": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_idempotency_key": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_scenario": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_claim_jobs": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_job_id",
+          "p_limit",
+          "p_organization_id",
+          "p_worker"
+        ],
+        "argumentTypes": {
+          "p_job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_limit": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_worker": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_finish_job": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_acknowledgement",
+          "p_error_code",
+          "p_job_id",
+          "p_lease_token",
+          "p_outcome"
+        ],
+        "argumentTypes": {
+          "p_acknowledgement": {
+            "type": null,
+            "format": "jsonb"
+          },
+          "p_error_code": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_lease_token": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_outcome": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_audit_append": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_actor",
+          "p_document_id",
+          "p_event",
+          "p_metadata",
+          "p_organization_id",
+          "p_severity"
+        ],
+        "argumentTypes": {
+          "p_actor": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_event": {
+            "type": "string",
+            "format": "text"
+          },
+          "p_metadata": {
+            "type": null,
+            "format": "jsonb"
+          },
+          "p_organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_severity": {
+            "type": "string",
+            "format": "text"
+          }
+        }
+      },
+      "einvoice_due_organizations": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_limit",
+          "p_organization_ids"
+        ],
+        "argumentTypes": {
+          "p_limit": {
+            "type": "integer",
+            "format": "integer"
+          },
+          "p_organization_ids": {
+            "type": "array",
+            "format": "uuid[]"
+          }
+        }
+      }
+    }
+  },
+  "migration103": {
+    "state": "missing_or_outdated_authenticated_readiness_contract",
+    "checkedAs": "existing QA admin authenticated JWT",
+    "jwtRole": "authenticated",
+    "capabilities": {
+      "openapiListed": false,
+      "argumentNames": null,
+      "argumentTypes": null,
+      "readOnlyGetStatus": 404,
+      "errorCode": "PGRST202",
+      "response": null,
+      "requestedArguments": [
+        "p_organization_id"
+      ],
+      "matchingSignatureCached": false
+    },
+    "issueAndArchive": {
+      "openapiListed": false,
+      "argumentNames": null,
+      "argumentTypes": null,
+      "serviceVisibleContract": {
+        "openapiListed": true,
+        "methods": [
+          "post"
+        ],
+        "argumentNames": [
+          "p_document_id",
+          "p_expected_version"
+        ],
+        "argumentTypes": {
+          "p_document_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "p_expected_version": {
+            "type": "integer",
+            "format": "integer"
+          }
+        }
+      }
+    },
+    "completeContract": false,
+    "authenticatedOpenapi": {
+      "httpStatus": 401,
+      "errorCode": null
+    },
+    "officialContentsHashVerified": false,
+    "serviceRoleVisibility": "Service-role visibility was not used to infer absence; this role is deliberately denied get_capabilities.",
+    "notes": "The authorized QA authenticated GET of get_capabilities returned404/PGRST202 for the expected p_organization_id signature: the required readiness contract is missing or outdated in PostgREST. User OpenAPI itself returned401, so no absence was inferred from service_role filtering. The mutating issue_and_archive function was never invoked.",
+    "upgradeRequired": true
+  },
+  "qaPilot": {
+    "identifiedFrom": "essential-fixes-e2e-private.json",
+    "organizationId": "1eabead7-02ca-4d44-b147-2831d8799eaa",
+    "exists": true,
+    "credentialsUsed": true,
+    "personalFieldsRead": false,
+    "activeMembers": 3,
+    "activeRoles": {
+      "admin": 1,
+      "operator": 1,
+      "viewer": 1
+    },
+    "subscription": {
+      "status": "trialing",
+      "planCode": "essentiel",
+      "trialEndsAt": "2026-11-30T21:12:40.263615+00:00",
+      "currentPeriodEnd": "2026-11-30T21:12:40.263615+00:00",
+      "writableNow": true
+    },
+    "moduleSettings": null,
+    "credentialUseScope": "Explicitly authorized existing QA admin Auth login only; no credentials printed or persisted"
+  },
+  "requests": {
+    "total": 21,
+    "methods": [
+      "GET",
+      "HEAD",
+      "POST /auth/v1/token only (authorized QA login)"
+    ],
+    "userAuthenticationRequests": 2,
+    "emailRequests": 0,
+    "authorizedAuthLoginRequests": 2,
+    "businessMutationRequests": 0,
+    "authenticatedFollowup": [
+      {
+        "method": "POST",
+        "path": "/auth/v1/token",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/rest/v1/",
+        "status": 401
+      },
+      {
+        "method": "GET",
+        "path": "/rest/v1/rpc/einvoice_get_capabilities",
+        "status": 404
+      }
+    ]
+  },
+  "limitations": [
+    "Schema availability is observed through PostgREST/OpenAPI cache, not direct PostgreSQL catalog access.",
+    "No business data was created, updated, deleted or migrated. Authorized logins create normal Auth session/audit records.",
+    "No password, token, email address or personal name is included in this report."
+  ],
+  "productionReadOnlyBusiness": true
+}

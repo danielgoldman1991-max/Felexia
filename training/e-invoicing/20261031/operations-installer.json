@@ -8,6 +8,6 @@
     "A failed transaction restores the exact previous organization settings",
     "A failed reinstall leaves all financial source rows unchanged"
   ],
-  "bundleSha256": "f4d59ca530aeb89a10626d9aa4c0f78a14aaf513d56278b17afe72d3f444289d",
+  "bundleSha256": "3f589eac13719793dafb5352a287ca71ee6fdad6a2973ff03dec5b105abe7c30",
   "scope": "Real isolated PostgreSQL/PGlite installer and rollback; no production read or write"
 }

@@ -488,7 +488,7 @@ select to_regprocedure('public.einvoice_capture_source(text,uuid)') is not null 
  and not has_function_privilege('authenticated','public.einvoice_save_preparation(uuid,text,uuid,text,jsonb,text,jsonb,jsonb,text,integer,uuid)','execute') as facturation_electronique_102_active;
 
 -- Source: 103_electronic_invoicing_operations.sql
--- SHA256: 4000c36cf6461c943129b4193db76bfb808cd60f6c271c22dbd08179e35be771
+-- SHA256: f82118ea8aaf2b6cf49f94906c1884d2d4ad3ae37d0b7e45ae8f252076ae59b8
 -- Operational document flow: validate and issue the existing prepared version
 -- atomically. This does not submit to DGI, sign, renumber or account a source.
 
@@ -513,7 +513,9 @@ begin
  return result;
 end $$;
 
-revoke all on function public.einvoice_issue_and_archive(uuid,integer) from public,anon,authenticated;
+-- Supabase can grant service_role EXECUTE explicitly through default privileges.
+-- Revoking PUBLIC alone does not remove that inherited-at-creation grant.
+revoke all on function public.einvoice_issue_and_archive(uuid,integer) from public,anon,authenticated,service_role;
 grant execute on function public.einvoice_issue_and_archive(uuid,integer) to authenticated;
 
 -- Readiness metadata is tenant-authenticated and read-only, including for
