@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 import { createClient } from "@/lib/supabase/server";
-import { getAccountByNumber, getJournalByCode, getExistingEntryBySource, buildCustomerInvoiceLines, buildSupplierInvoiceLines, verifyBalanced, generateEntryNumber, getAccountingSettings as getAccountingSettingsFromLib } from "@/lib/accounting";
+import { getAccountByNumber, getJournalByCode, getExistingEntryBySource, buildCustomerInvoiceLines, buildSupplierInvoiceLines, verifyBalanced, getAccountingSettings as getAccountingSettingsFromLib } from "@/lib/accounting";
 import type { AccountingActionResult, AccountingEntryLineFormValue } from "@/lib/accounting-types";
 
 function text(formData: FormData, key: string) {
@@ -258,13 +258,13 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
     .eq("id", journalId)
     .maybeSingle();
 
-  const entryNumber = await generateEntryNumber(workspace.organization.id, (journal as { code: string })?.code ?? "EC");
+  if (!journal) return { success: false, error: "Sélectionnez un journal de votre entreprise." };
 
   const { data: entry, error: insertError } = await supabase
     .from("accounting_entries")
     .insert({
       organization_id: workspace.organization.id,
-      entry_number: entryNumber,
+      entry_number: null,
       journal_id: journalId,
       entry_date: entryDate,
       reference,
@@ -275,7 +275,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
       total_credit: totalCredit,
       created_by: workspace.userId,
     })
-    .select("id")
+    .select("id, entry_number")
     .single();
 
   if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture." };
@@ -508,7 +508,6 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
   const { totalDebit, totalCredit, balanced } = verifyBalanced(accountLines);
   if (!balanced) return { success: false, error: "Validation impossible : l'ecriture comptable generee n'est pas equilibree." };
 
-  const entryNumber = await generateEntryNumber(orgId, "VE");
   const label = `Facture client ${invoice.invoice_number} - ${customer?.name ?? "Client"}`;
   const accountLabels = new Map([
     [customerAccount.id, { code: customerAccount.code, name: customerAccount.name }],
@@ -521,7 +520,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
     .from("accounting_entries")
     .insert({
       organization_id: orgId,
-      entry_number: entryNumber,
+      entry_number: null,
       journal_id: journal.id,
       entry_date: invoice.invoice_date,
       label,
@@ -534,7 +533,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
     })
-    .select("id")
+    .select("id, entry_number")
     .single();
 
   if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
@@ -556,7 +555,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
   if (linesError) return { success: false, error: linesError.message };
 
   revalidatePath("/comptabilite/ecritures");
-  return { success: true, data: { entry_id: entry.id, entry_number: entryNumber } };
+  return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
 }
 
 export async function generateSupplierInvoiceAccountingEntry(invoiceId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
@@ -637,7 +636,6 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
   const { totalDebit, totalCredit, balanced } = verifyBalanced(accountLines);
   if (!balanced) return { success: false, error: "Validation impossible : l'ecriture comptable generee n'est pas equilibree." };
 
-  const entryNumber = await generateEntryNumber(orgId, "AC");
   const displayNumber = invoice.supplier_invoice_number || invoice.invoice_number;
   const label = `Facture fournisseur ${displayNumber} - ${supplierName ?? "Fournisseur"}`;
   const accountLabels = new Map([
@@ -651,7 +649,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
     .from("accounting_entries")
     .insert({
       organization_id: orgId,
-      entry_number: entryNumber,
+      entry_number: null,
       journal_id: journal.id,
       entry_date: invoice.invoice_date,
       label,
@@ -665,7 +663,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
     })
-    .select("id")
+    .select("id, entry_number")
     .single();
 
   if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
@@ -687,7 +685,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
   if (insertLinesError) return { success: false, error: insertLinesError.message };
 
   revalidatePath("/comptabilite/ecritures");
-  return { success: true, data: { entry_id: entry.id, entry_number: entryNumber } };
+  return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
 }
 
 export async function generateCustomerPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
@@ -743,14 +741,13 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
   const { totalDebit, totalCredit, balanced } = verifyBalanced(lines);
   if (!balanced) return { success: false, error: "L'ecriture generee n'est pas equilibree." };
 
-  const entryNumber = await generateEntryNumber(orgId, journalCode);
   const label = `Encaissement client ${payment.payment_number} - ${customer?.name ?? "Client"}`;
 
   const { data: entry, error: insertError } = await supabase
     .from("accounting_entries")
     .insert({
       organization_id: orgId,
-      entry_number: entryNumber,
+      entry_number: null,
       journal_id: journal.id,
       entry_date: payment.payment_date,
       label,
@@ -764,7 +761,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
     })
-    .select("id")
+    .select("id, entry_number")
     .single();
 
   if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
@@ -786,7 +783,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
   if (linesError) return { success: false, error: linesError.message };
 
   revalidatePath("/comptabilite/ecritures");
-  return { success: true, data: { entry_id: entry.id, entry_number: entryNumber } };
+  return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
 }
 
 export async function generateSupplierPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
@@ -842,14 +839,13 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
   const { totalDebit, totalCredit, balanced } = verifyBalanced(lines);
   if (!balanced) return { success: false, error: "L'ecriture generee n'est pas equilibree." };
 
-  const entryNumber = await generateEntryNumber(orgId, journalCode);
   const label = `Paiement fournisseur ${payment.payment_number} - ${supplier?.name ?? "Fournisseur"}`;
 
   const { data: entry, error: insertError } = await supabase
     .from("accounting_entries")
     .insert({
       organization_id: orgId,
-      entry_number: entryNumber,
+      entry_number: null,
       journal_id: journal.id,
       entry_date: payment.payment_date,
       label,
@@ -863,7 +859,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
       posted_at: new Date().toISOString(),
       created_by: workspace.userId,
     })
-    .select("id")
+    .select("id, entry_number")
     .single();
 
   if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
@@ -885,7 +881,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
   if (linesError) return { success: false, error: linesError.message };
 
   revalidatePath("/comptabilite/ecritures");
-  return { success: true, data: { entry_id: entry.id, entry_number: entryNumber } };
+  return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
 }
 
 export async function updateAccountingSettings(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {

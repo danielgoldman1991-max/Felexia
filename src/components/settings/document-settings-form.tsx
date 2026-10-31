@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { updateDocumentSettingsAction, type DocState } from "@/lib/actions/documents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,33 +35,11 @@ export function DocumentSettingsForm({
     <form action={formAction}>
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Préfixes des documents</h2>
+          <h2 className="font-semibold">Numérotation des documents</h2>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Préfixe devis</label>
-            <Input name="quote_prefix" defaultValue={String(s.quote_prefix ?? "DEV")} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Préfixe facture</label>
-            <Input name="invoice_prefix" defaultValue={String(s.invoice_prefix ?? "FAC")} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Préfixe avoir</label>
-            <Input name="credit_note_prefix" defaultValue={String(s.credit_note_prefix ?? "AV")} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Préfixe bon livraison</label>
-            <Input name="delivery_note_prefix" defaultValue={String(s.delivery_note_prefix ?? "BL")} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Préfixe paiement</label>
-            <Input name="payment_prefix" defaultValue={String(s.payment_prefix ?? "REG")} />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--secondary)]">Format numérotation</label>
-            <Input name="numbering_format" defaultValue={String(s.numbering_format ?? "{PREFIX}-{YEAR}-{NUMBER}")} />
-          </div>
+        <CardContent className="flex flex-wrap items-center justify-between gap-4">
+          <p className="max-w-xl text-sm leading-6 text-[var(--muted)]">Consultez les séries utilisées et corrigez le prochain numéro depuis les réglages de numérotation.</p>
+          <Button variant="secondary" asChild><Link href="/parametres/numerotation">Gérer les compteurs</Link></Button>
         </CardContent>
       </Card>
 

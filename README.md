@@ -4,6 +4,20 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ## Version légère de lancement — 31 octobre 2026
 
+### Compteurs de numérotation
+
+`/parametres/numerotation` affiche les séries réellement utilisées : factures et avoirs clients, règlements clients/fournisseurs, factures fournisseurs, codes clients/fournisseurs et numéros annuels des journaux. Les autres documents commerciaux et les prospects apparaissent dans le profil ERP complet. La période mensuelle peut être sélectionnée ; les écritures suivent l'année de leur date comptable.
+
+Un propriétaire ou administrateur peut saisir un prochain compteur entier, un motif, vérifier l'aperçu avant/après puis confirmer. Le serveur vérifie le rôle et l'entreprise de la session ; PostgreSQL vérifie à nouveau les droits, le dernier numéro utilisé et la révision du compteur. Une création simultanée provoque une demande d'actualisation, plutôt qu'un écrasement silencieux. Les formats existants sont conservés ; la longueur minimale de cinq chiffres peut croître au-delà de 99 999.
+
+**Prérequis de publication : appliquer intégralement `supabase/migrations/097_document_numbering_controls.sql`, puis obtenir `numerotation_097_active = true` avec la requête de vérification finale.** Les cinq chemins de création d'écritures comptables de cette version délèguent leur numéro au nouveau déclencheur PostgreSQL. Ne pas publier ce code avant la migration.
+
+Le 31/10/2026, l'utilisateur a appliqué 097 et confirmé cette vérification. La lecture authentifiée du projet public a ensuite validé 23/23 contrôles : contrat réel, protections des rôles/entreprises et finances QA intactes. L'écran connecté affiche 12 compteurs essentiels dans l'entreprise de test ; une correction 3 → 4 puis sa restauration 4 → 3 ont été enregistrées avec leurs motifs et leur administrateur. Le minimum déjà utilisé est refusé, les filtres et le changement de période fonctionnent, et la vue mobile ne déborde pas.
+
+La migration ne renumérote aucun document et ne remet aucun compteur à zéro. Elle consolide les mécanismes d'attribution dans des transactions verrouillées, journalise les corrections et conserve les numéros connus lors des changements et suppressions. Les documents annulés ou archivés restent dans le calcul du minimum. Le registre peut reprendre les documents encore présents à l'installation ; il ne peut pas reconstituer des numéros dont toute trace avait déjà été supprimée avant cette migration. Les paramètres d'apparence des factures ne modifient plus les compteurs.
+
+Contrôles : `npx tsx scripts/verify-numbering-model.ts` pour le contrat UI et les entrées, puis les tests PostgreSQL fonctionnels et concurrents documentés dans `training/numbering-counters/20261031/QA-POSTGRES.md`. Sauvegarde source antérieure vérifiée : `../backups/felexia-pro-before-numbering-20261031.bundle`, branche `codex/backup-before-numbering-20261031`.
+
 ### États de sortie professionnels
 
 Tous les aperçus imprimables partagent la charte A4 de `src/styles/print.css` : identité de l'entreprise, références, tableaux avec en-têtes répétés, devise explicite, TVA, total puis règlements, notes, signatures et pagination. Le journal utilise le paysage ; les documents commerciaux utilisent le portrait. L'aperçu reste clair quel que soit le thème de l'application. Un logo d'entreprise est utilisé lorsqu'il est renseigné ; sinon un monogramme de l'entreprise le remplace.

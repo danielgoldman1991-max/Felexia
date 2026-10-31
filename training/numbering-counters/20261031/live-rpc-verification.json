@@ -1,0 +1,525 @@
+{
+  "date": "2026-10-31T19:58:10.434Z",
+  "context": "Existing fictitious QA company",
+  "scope": "Public Supabase authenticated read-only verification",
+  "businessWrites": 0,
+  "counterCorrections": 0,
+  "roleChanges": 0,
+  "period": "2026-10-01",
+  "checks": [
+    {
+      "name": "RPC returns an array",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "every counter uses the installed snake_case contract",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "counter numbers and revision are valid",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "counter keys are unique",
+      "passed": true,
+      "expected": 20,
+      "actual": 20
+    },
+    {
+      "name": "all essential document/contact counters are available",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "both parent UI corrections are recorded in the audit",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "parent UI correction records 3 to 4",
+      "passed": true,
+      "expected": [
+        3,
+        4
+      ],
+      "actual": [
+        3,
+        4
+      ]
+    },
+    {
+      "name": "parent UI restoration records 4 to 3",
+      "passed": true,
+      "expected": [
+        4,
+        3
+      ],
+      "actual": [
+        4,
+        3
+      ]
+    },
+    {
+      "name": "parent UI corrections identify the QA administrator",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "customer invoice counter is restored to 3",
+      "passed": true,
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "QA sale remains 240 MAD",
+      "passed": true,
+      "expected": 240,
+      "actual": 240
+    },
+    {
+      "name": "QA sale remains fully paid",
+      "passed": true,
+      "expected": {
+        "paid": 240,
+        "remaining": 0,
+        "status": "paid",
+        "currency": "MAD"
+      },
+      "actual": {
+        "paid": 240,
+        "remaining": 0,
+        "status": "paid",
+        "currency": "MAD"
+      }
+    },
+    {
+      "name": "QA purchase remains 120 MAD",
+      "passed": true,
+      "expected": 120,
+      "actual": 120
+    },
+    {
+      "name": "QA purchase remains fully paid",
+      "passed": true,
+      "expected": {
+        "paid": 120,
+        "remaining": 0,
+        "status": "paid",
+        "currency": "MAD"
+      },
+      "actual": {
+        "paid": 120,
+        "remaining": 0,
+        "status": "paid",
+        "currency": "MAD"
+      }
+    },
+    {
+      "name": "QA bank remains 120 MAD",
+      "passed": true,
+      "expected": {
+        "balance": 120,
+        "currency": "MAD"
+      },
+      "actual": {
+        "balance": 120,
+        "currency": "MAD"
+      }
+    },
+    {
+      "name": "QA retains five posted accounting entries",
+      "passed": true,
+      "expected": 5,
+      "actual": 5
+    },
+    {
+      "name": "all five posted entries remain balanced",
+      "passed": true,
+      "expected": true,
+      "actual": true
+    },
+    {
+      "name": "QA customer payments remain 100 and 140",
+      "passed": true,
+      "expected": [
+        100,
+        140
+      ],
+      "actual": [
+        100,
+        140
+      ]
+    },
+    {
+      "name": "QA supplier payment remains fully allocated",
+      "passed": true,
+      "expected": {
+        "amount": 120,
+        "allocated": 120,
+        "available": 0
+      },
+      "actual": {
+        "amount": 120,
+        "allocated": 120,
+        "available": 0
+      }
+    },
+    {
+      "name": "invited QA account remains viewer",
+      "passed": true,
+      "expected": "viewer",
+      "actual": "viewer"
+    },
+    {
+      "name": "viewer cannot read administrative counters",
+      "passed": true,
+      "expected": {
+        "code": "42501",
+        "message": "NUMBERING_ADMIN_REQUIRED"
+      },
+      "actual": {
+        "code": "42501",
+        "message": "NUMBERING_ADMIN_REQUIRED"
+      }
+    },
+    {
+      "name": "administrator cannot inspect another QA company",
+      "passed": true,
+      "expected": {
+        "code": "42501",
+        "message": "NUMBERING_ADMIN_REQUIRED"
+      },
+      "actual": {
+        "code": "42501",
+        "message": "NUMBERING_ADMIN_REQUIRED"
+      }
+    },
+    {
+      "name": "anonymous counter access is denied",
+      "passed": true,
+      "expected": "42501",
+      "actual": "42501"
+    }
+  ],
+  "errors": [],
+  "migrationReady": true,
+  "counterCount": 20,
+  "counters": [
+    {
+      "key": "customer_invoice",
+      "label": "Factures clients",
+      "period": "2026-10-01",
+      "nextNumber": 3,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "FAC-2610-00003",
+      "lastDocumentNumber": "FAC-2610-00001",
+      "initialized": true,
+      "exhausted": false
+    },
+    {
+      "key": "customer_payment",
+      "label": "Règlements clients",
+      "period": "2026-10-01",
+      "nextNumber": 3,
+      "minimumNextNumber": 3,
+      "maxUsedNumber": 2,
+      "nextDocumentNumber": "REG-2610-00003",
+      "lastDocumentNumber": "REG-2610-00002",
+      "initialized": true,
+      "exhausted": false
+    },
+    {
+      "key": "customer_credit_note",
+      "label": "Avoirs clients",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "AV-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "customer_reminder",
+      "label": "Relances clients",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "REL-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "supplier_invoice",
+      "label": "Factures fournisseurs",
+      "period": "2026-10-01",
+      "nextNumber": 2,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "FF-2610-00002",
+      "lastDocumentNumber": "FF-2610-00001",
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "supplier_payment",
+      "label": "Règlements fournisseurs",
+      "period": "2026-10-01",
+      "nextNumber": 2,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "RFO-2610-00002",
+      "lastDocumentNumber": "RFO-2610-00001",
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "customer",
+      "label": "Codes clients",
+      "period": "2026-10-01",
+      "nextNumber": 3,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "CU2610-00003",
+      "lastDocumentNumber": "CU2610-00001",
+      "initialized": true,
+      "exhausted": false
+    },
+    {
+      "key": "supplier",
+      "label": "Codes fournisseurs",
+      "period": "2026-10-01",
+      "nextNumber": 3,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "SU2610-00003",
+      "lastDocumentNumber": "SU2610-00001",
+      "initialized": true,
+      "exhausted": false
+    },
+    {
+      "key": "sales_quote",
+      "label": "Devis clients",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "DEV-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "sales_order",
+      "label": "Commandes clients",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "CMD-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "sales_delivery",
+      "label": "Bons de livraison",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "BL-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "sales_return",
+      "label": "Bons de retour",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "BR-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "purchase_order",
+      "label": "Commandes fournisseurs",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "CF-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "purchase_receipt",
+      "label": "Bons de réception",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "REC-2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "prospect",
+      "label": "Codes prospects",
+      "period": "2026-10-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "PR2610-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "journal:0ba8770d-9bec-4384-8b13-5700d92eed7e",
+      "label": "Journal AC · Journal des achats",
+      "period": "2026-01-01",
+      "nextNumber": 2,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "AC-2026-00002",
+      "lastDocumentNumber": "AC-2026-00001",
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "journal:73b4b6e4-e075-4e63-a4e4-3954731b4c25",
+      "label": "Journal BQ · Journal banque",
+      "period": "2026-01-01",
+      "nextNumber": 4,
+      "minimumNextNumber": 4,
+      "maxUsedNumber": 3,
+      "nextDocumentNumber": "BQ-2026-00004",
+      "lastDocumentNumber": "BQ-2026-00003",
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "journal:69c39bf7-c47c-4d63-9557-8104cf5e8795",
+      "label": "Journal CA · Journal caisse",
+      "period": "2026-01-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "CA-2026-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "journal:d4268bcb-b0ac-4a95-b764-bf23f858445b",
+      "label": "Journal OD · Operations diverses",
+      "period": "2026-01-01",
+      "nextNumber": 1,
+      "minimumNextNumber": 1,
+      "maxUsedNumber": 0,
+      "nextDocumentNumber": "OD-2026-00001",
+      "lastDocumentNumber": null,
+      "initialized": false,
+      "exhausted": false
+    },
+    {
+      "key": "journal:856d27fc-6f17-4da9-9dfa-56b9bedb6df6",
+      "label": "Journal VE · Journal des ventes",
+      "period": "2026-01-01",
+      "nextNumber": 2,
+      "minimumNextNumber": 2,
+      "maxUsedNumber": 1,
+      "nextDocumentNumber": "VE-2026-00002",
+      "lastDocumentNumber": "VE-2026-00001",
+      "initialized": false,
+      "exhausted": false
+    }
+  ],
+  "uiCorrectionAudit": [
+    {
+      "counterKey": "customer_invoice",
+      "period": "2026-10-01",
+      "previousNextNumber": 3,
+      "nextNumber": 4,
+      "reason": "Test QA de correction avant lancement",
+      "createdAt": "2026-10-31T19:57:49.577226+00:00",
+      "administratorVerified": true
+    },
+    {
+      "counterKey": "customer_invoice",
+      "period": "2026-10-01",
+      "previousNextNumber": 4,
+      "nextNumber": 3,
+      "reason": "Fin du test QA et restauration du compteur initial",
+      "createdAt": "2026-10-31T19:57:56.275368+00:00",
+      "administratorVerified": true
+    }
+  ],
+  "finance": {
+    "sale": {
+      "invoice_number": "FAC-2610-00001",
+      "total_ttc": 240,
+      "paid_amount": 240,
+      "remaining_amount": 0,
+      "status": "paid",
+      "currency": "MAD"
+    },
+    "purchase": {
+      "invoice_number": "FF-2610-00001",
+      "total_ttc": 120,
+      "paid_amount": 120,
+      "remaining_amount": 0,
+      "status": "paid",
+      "currency": "MAD"
+    },
+    "bank": {
+      "current_balance": 120,
+      "currency": "MAD"
+    },
+    "postedEntryCount": 5,
+    "postedDebit": 720,
+    "postedCredit": 720,
+    "customerPayments": [
+      {
+        "amount": 100,
+        "allocated_amount": 100,
+        "available_amount": 0,
+        "status": "allocated"
+      },
+      {
+        "amount": 140,
+        "allocated_amount": 140,
+        "available_amount": 0,
+        "status": "allocated"
+      }
+    ],
+    "supplierPayment": {
+      "amount": 120,
+      "allocated_amount": 120,
+      "available_amount": 0,
+      "status": "allocated"
+    }
+  },
+  "invitedAccountRole": "viewer",
+  "passed": true
+}

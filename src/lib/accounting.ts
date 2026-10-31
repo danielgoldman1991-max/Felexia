@@ -537,30 +537,6 @@ export async function ensureAccountingBaseSetup(organizationId: string) {
   return { accounts, journals, settings };
 }
 
-function padNumber(n: number, width: number) {
-  return String(n).padStart(width, "0");
-}
-
-export async function generateEntryNumber(
-  organizationId: string,
-  journalCode: string,
-): Promise<string> {
-  const supabase = await createClient();
-  const year = new Date().getFullYear();
-  const prefix = `${journalCode}-${year}-`;
-  const { data } = await supabase
-    .from("accounting_entries")
-    .select("entry_number")
-    .eq("organization_id", organizationId)
-    .ilike("entry_number", `${prefix}%`)
-    .order("entry_number", { ascending: false })
-    .limit(1);
-  const last = data?.[0]?.entry_number
-    ? Number(String(data[0].entry_number).split("-").at(-1) ?? 0)
-    : 0;
-  return `${prefix}${padNumber(last + 1, 5)}`;
-}
-
 export function buildCustomerInvoiceLines(
   lines: Array<{
     product_id: string | null;

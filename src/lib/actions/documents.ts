@@ -24,18 +24,8 @@ export async function updateDocumentSettingsAction(
       return typeof v === "string" ? v.trim() || null : null;
     };
     const getBool = (key: string): boolean => formData.get(key) === "on";
-    const getInt = (key: string, def: number): number => {
-      const v = formData.get(key);
-      return typeof v === "string" && v.trim() ? parseInt(v, 10) || def : def;
-    };
-
+    // Numbering is managed by its audited RPC, never by presentation settings.
     const data = {
-      quote_prefix: getVal("quote_prefix") ?? "DEV",
-      invoice_prefix: getVal("invoice_prefix") ?? "FAC",
-      credit_note_prefix: getVal("credit_note_prefix") ?? "AV",
-      delivery_note_prefix: getVal("delivery_note_prefix") ?? "BL",
-      payment_prefix: getVal("payment_prefix") ?? "REG",
-      numbering_format: getVal("numbering_format") ?? "{PREFIX}-{YEAR}-{NUMBER}",
       invoice_terms: getVal("invoice_terms"),
       legal_mentions: getVal("legal_mentions"),
       footer_note: getVal("footer_note"),
@@ -43,18 +33,14 @@ export async function updateDocumentSettingsAction(
       show_ice: getBool("show_ice"),
       show_rc: getBool("show_rc"),
       show_stamp_signature: getBool("show_stamp_signature"),
-      next_quote_number: getInt("next_quote_number", 1),
-      next_invoice_number: getInt("next_invoice_number", 1),
-      next_credit_note_number: getInt("next_credit_note_number", 1),
-      next_delivery_note_number: getInt("next_delivery_note_number", 1),
     };
 
-    const { error } = await supabase
-      .from("document_settings")
-      .upsert({
-        organization_id: workspace.organization.id,
-        ...data,
-      }, { onConflict: "organization_id" });
+    const { data: existing, error: readError } = await supabase.from("document_settings")
+      .select("id").eq("organization_id", workspace.organization.id).maybeSingle();
+    if (readError) return { error: readError.message, success: false };
+    const { error } = existing
+      ? await supabase.from("document_settings").update(data).eq("organization_id", workspace.organization.id)
+      : await supabase.from("document_settings").insert({ organization_id: workspace.organization.id, ...data });
 
     if (error) return { error: error.message, success: false };
 

@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "syntheticOnly": true,
+  "engine": "Native PostgreSQL 18.6",
+  "independentAuthenticatedSessions": 2,
+  "realLockWaitsVerified": true,
+  "fixtureCleanupVerified": true,
+  "checks": 21,
+  "results": [
+    "dedicated QA database contains no business organisations before the test",
+    "concurrent first-use allocation waits on the real database lock",
+    "first concurrent allocation receives serial one",
+    "second concurrent allocation receives serial two",
+    "concurrent first-use creates exactly one sequence row",
+    "correction waits for an in-flight document allocation",
+    "a creation invalidates the stale correction after lock release",
+    "the rejected correction does not overwrite the consumed counter",
+    "two administrators correcting the same preview serialize on the database lock",
+    "only one of two corrections with the same revision commits",
+    "only the successful correction creates an audit row",
+    "a new document waits for a pending correction transaction",
+    "rolled-back correction changes neither allocation nor numbering state",
+    "rolled-back correction leaves no audit row",
+    "a second allocation waits for an uncommitted document insert",
+    "an aborted insert does not burn or duplicate a committed document number",
+    "another tenant allocates independently while the first tenant is locked",
+    "another document type allocates independently in the same tenant",
+    "exactly the five intended invoices committed",
+    "committed invoice numbers are unique across independent sessions",
+    "synthetic concurrency organisations and their counters are removed"
+  ]
+}
