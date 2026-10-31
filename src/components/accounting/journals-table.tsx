@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Download, Eye, Printer } from "lucide-react";
+import { BookOpen, Download, Eye, Printer } from "lucide-react";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Table, Td, Th } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { formatDate } from "@/lib/format";
 
 export function JournalsTable({ rows }: { rows: AccountingJournalWithStats[] }) {
   if (rows.length === 0) {
-    return <EmptyState title="Aucun journal" description="Les journaux comptables apparaitront apres initialisation." />;
+    return <EmptyState title="Vos journaux ne sont pas encore disponibles" description="Les journaux regroupent les écritures de vos ventes, achats et règlements." icon={<BookOpen className="h-6 w-6" />} />;
   }
 
   const typeTone = (type: string) => {
@@ -25,22 +25,23 @@ export function JournalsTable({ rows }: { rows: AccountingJournalWithStats[] }) 
   };
 
   return (
-    <Table>
+    <Table className="[&_th]:px-3 [&_td]:px-3">
       <thead>
         <tr>
-          <Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Ecritures</Th><Th>Total debit</Th><Th>Total credit</Th><Th>Derniere ecriture</Th><Th>Statut</Th><Th>Actions</Th>
+          <Th>Journal</Th><Th className="text-right">Écritures</Th><Th className="text-right">Total débit</Th><Th className="text-right">Total crédit</Th><Th>Dernière écriture</Th><Th>Statut</Th><Th>Actions</Th>
         </tr>
       </thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>
-            <Td><span className="font-mono text-sm font-medium">{row.code}</span></Td>
-            <Td>{row.name}</Td>
-            <Td><Badge tone={typeTone(row.type)}>{JOURNAL_TYPE_LABELS[row.type] ?? row.type}</Badge></Td>
-            <Td>{row.entries_count}</Td>
-            <Td><MoneyDisplay value={row.total_debit} /></Td>
-            <Td><MoneyDisplay value={row.total_credit} /></Td>
-            <Td>{row.last_entry_date ? formatDate(row.last_entry_date) : "-"}</Td>
+            <Td>
+              <Link href={`/comptabilite/journaux/${row.id}`} title={row.name} className="block max-w-52 truncate font-medium hover:text-[var(--primary)]">{row.name}</Link>
+              <div className="mt-1.5 flex items-center gap-2"><span className="font-mono text-xs text-[var(--muted)]">{row.code}</span><Badge tone={typeTone(row.type)}>{JOURNAL_TYPE_LABELS[row.type] ?? row.type}</Badge></div>
+            </Td>
+            <Td className="text-right tabular-nums">{row.entries_count}</Td>
+            <Td className="whitespace-nowrap text-right tabular-nums"><MoneyDisplay value={row.total_debit} /></Td>
+            <Td className="whitespace-nowrap text-right tabular-nums"><MoneyDisplay value={row.total_credit} /></Td>
+            <Td className="whitespace-nowrap">{row.last_entry_date ? formatDate(row.last_entry_date) : "—"}</Td>
             <Td>
               <Badge tone={row.is_active ? "success" : "danger"}>{row.is_active ? "Actif" : "Inactif"}</Badge>
             </Td>

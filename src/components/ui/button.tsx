@@ -8,13 +8,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const variants = {
-  primary:
-    "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,black)] focus-visible:ring-[var(--ring)]",
-  secondary:
-    "border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] shadow-[var(--shadow-sm)] hover:bg-[var(--surface-soft)] hover:border-[var(--border-strong)]",
-  ghost: "text-[var(--muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]",
-  danger:
-    "border border-[color-mix(in_srgb,var(--danger)_22%,transparent)] bg-[var(--danger-soft)] text-[var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger-soft)_80%,var(--danger))]",
+  primary: "",
+  secondary: "border",
+  ghost: "",
+  danger: "border",
   landingPrimary:
     "border border-[#174EA6] bg-[#1456B8] !text-white shadow-[0_10px_24px_rgba(20,86,184,0.24)] hover:bg-[#0F478F] hover:!text-white hover:shadow-[0_14px_30px_rgba(20,86,184,0.30)] focus-visible:ring-[#4A90E2]",
   landingSecondary:
@@ -24,7 +21,7 @@ const variants = {
 type ButtonVariant = keyof typeof variants;
 
 const buttonBase =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] px-4 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50";
+  "ui-button inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md)] text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50";
 
 const landingBase =
   "relative isolate inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50";
@@ -51,12 +48,14 @@ export function Button({
       onClick?: (event: { preventDefault(): void; stopPropagation(): void }) => void;
       tabIndex?: number;
       "aria-disabled"?: boolean;
+      "data-variant"?: ButtonVariant;
     }>;
     const { disabled, ...childCompatibleProps } = props;
     const childButtonOnClick = childCompatibleProps.onClick as unknown as typeof child.props.onClick;
     return cloneElement(child, {
       ...childCompatibleProps,
       className: cn(child.props.className, classes),
+      "data-variant": variant,
       "aria-disabled": disabled || undefined,
       tabIndex: disabled ? -1 : child.props.tabIndex,
       onClick: disabled
@@ -69,7 +68,7 @@ export function Button({
   }
 
   return (
-    <button className={classes} {...props}>
+    <button className={classes} {...props} data-variant={variant}>
       {children}
     </button>
   );

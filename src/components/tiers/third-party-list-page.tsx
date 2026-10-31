@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Star, Store, Truck, Users,
+  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Plus, SearchX, Star, Store, Truck, Users,
 } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
 import { PageHeader } from "@/components/erp/page-header";
@@ -19,26 +19,26 @@ type PageMeta = { title: string; description: string; buttonLabel: string; butto
 const titles: Record<ThirdPartyKind | "all", PageMeta> = {
   all: {
     title: "Tiers",
-    description: "Prospects, clients et fournisseurs filtres par organisation active.",
+    description: "Tous les contacts de votre entreprise, au même endroit.",
     buttonLabel: "Nouveau tiers",
     buttonHref: "/tiers/new",
   },
   prospect: {
     title: "Prospects",
-    description: "Pipeline commercial et relances prospect.",
-    buttonLabel: "Nouveau Prospect",
+    description: "Retrouvez vos prospects et préparez vos prochaines ventes.",
+    buttonLabel: "Nouveau prospect",
     buttonHref: "/tiers/new?type=prospect",
   },
   customer: {
     title: "Clients",
-    description: "Clients actifs, encours et informations fiscales.",
-    buttonLabel: "Nouveau Client",
+    description: "Vos clients et leurs coordonnées, prêts pour la facturation.",
+    buttonLabel: "Nouveau client",
     buttonHref: "/tiers/new?type=customer",
   },
   supplier: {
     title: "Fournisseurs",
-    description: "Fournisseurs, conditions d'achat et evaluations.",
-    buttonLabel: "Nouveau Fournisseur",
+    description: "Vos fournisseurs et leurs coordonnées pour vos achats.",
+    buttonLabel: "Nouveau fournisseur",
     buttonHref: "/tiers/new?type=supplier",
   },
 };
@@ -74,7 +74,7 @@ function PaginationBar({
       <div className="flex items-center gap-2">
         {page > 1 ? (
           <Button variant="secondary" asChild><Link href={href(page - 1)}>
-              <ChevronLeft className="h-4 w-4" /> Precedente
+              <ChevronLeft className="h-4 w-4" /> Précédente
             </Link></Button>
         ) : null}
         {page < totalPages ? (
@@ -101,6 +101,10 @@ export async function ThirdPartyListPage({
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const filters = filtersFromSearchParams(params, forcedType);
   const meta = titles[forcedType ?? "all"];
+  const hasFilters = Boolean(filters.query || filters.city || (filters.status && filters.status !== "active") || (filters.vat && filters.vat !== "all") || (!forcedType && filters.type && filters.type !== "all"));
+  const contactLabel = forcedType === "customer" ? "client" : forcedType === "supplier" ? "fournisseur" : forcedType === "prospect" ? "prospect" : "contact";
+  const ContactIcon = forcedType === "supplier" ? Truck : Users;
+  const createAction = <Button asChild><Link href={meta.buttonHref}><Plus className="h-4 w-4" aria-hidden="true" />{meta.buttonLabel}</Link></Button>;
 
   let rows: ThirdPartyRecord[] = [];
   let counters = {
@@ -133,12 +137,12 @@ export async function ThirdPartyListPage({
         <PageHeader
           title={meta.title}
           description={meta.description}
-          actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
+          actions={createAction}
         />
         <EmptyState
           title="Impossible de charger vos contacts"
           description={fullAccess ? `Appliquez la migration 002_third_parties_complete.sql. Detail: ${errorMessage}` : "Réessayez dans un instant ou contactez l'assistance."}
-          action={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
+          icon={<ContactIcon className="h-6 w-6" />}
         />
       </ModulePage>
     );
@@ -148,8 +152,8 @@ export async function ThirdPartyListPage({
     <ModulePage>
       <PageHeader
         title={meta.title}
-        description={fullAccess ? meta.description : "Les coordonnées de vos contacts pour vos factures et règlements."}
-        actions={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
+        description={meta.description}
+        actions={createAction}
       />
       {showCounters && fullAccess ? (
         <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
@@ -157,9 +161,9 @@ export async function ThirdPartyListPage({
           <StatCard title="Prospects actifs" value={counters.prospects} icon={<Users className="h-5 w-5" />} />
           <StatCard title="Clients actifs" value={counters.customers} icon={<Store className="h-5 w-5" />} />
           <StatCard title="Fournisseurs actifs" value={counters.suppliers} icon={<Truck className="h-5 w-5" />} />
-          <StatCard title="Prospects a relancer" value={counters.followUps} icon={<CalendarClock className="h-5 w-5" />} />
-          <StatCard title="Limites credit" value={counters.creditLimits} icon={<CreditCard className="h-5 w-5" />} />
-          <StatCard title="Fournisseurs evalues" value={counters.ratedSuppliers} icon={<Star className="h-5 w-5" />} />
+          <StatCard title="Prospects à relancer" value={counters.followUps} icon={<CalendarClock className="h-5 w-5" />} />
+          <StatCard title="Limites de crédit" value={counters.creditLimits} icon={<CreditCard className="h-5 w-5" />} />
+          <StatCard title="Fournisseurs évalués" value={counters.ratedSuppliers} icon={<Star className="h-5 w-5" />} />
         </div>
       ) : null}
       <ThirdPartyFilters filters={filters} forcedType={forcedType} fullAccess={fullAccess} />
@@ -170,9 +174,10 @@ export async function ThirdPartyListPage({
         </>
       ) : (
         <EmptyState
-          title="Aucun tiers trouve"
-          description="Ajustez les filtres ou creez un nouveau tiers pour alimenter la base."
-          action={<Button asChild><Link href={meta.buttonHref}>{meta.buttonLabel}</Link></Button>}
+          title={hasFilters ? `Aucun ${contactLabel} ne correspond` : `Aucun ${contactLabel} pour le moment`}
+          description={hasFilters ? "Essayez un autre nom ou réinitialisez les filtres pour retrouver vos contacts." : forcedType === "supplier" ? "Ajoutez un fournisseur pour enregistrer vos factures d’achat et suivre vos paiements." : forcedType === "customer" ? "Ajoutez un client pour créer votre première facture de vente et suivre ses règlements." : "Ajoutez vos contacts pour les retrouver facilement dans vos documents."}
+          icon={hasFilters ? <SearchX className="h-6 w-6" /> : <ContactIcon className="h-6 w-6" />}
+          action={hasFilters ? <Button variant="secondary" asChild><Link href="?">Réinitialiser les filtres</Link></Button> : undefined}
         />
       )}    
     </ModulePage>

@@ -220,16 +220,16 @@ export type OrderBillingGuard = {
 
 export const INVOICE_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  validated: "Validee",
-  sent: "Envoyee",
-  partially_paid: "Partiellement payee",
-  paid: "Payee",
+  validated: "Validée",
+  sent: "Envoyée",
+  partially_paid: "Partiellement payée",
+  paid: "Payée",
   overdue: "En retard",
-  cancelled: "Annulee",
+  cancelled: "Annulée",
 };
 
 export const INVOICE_PAYMENT_STATUS_LABELS: Record<string, string> = {
-  unpaid: "Non payee",
+  unpaid: "Non payée",
   partial: "Partielle",
-  paid: "Payee",
+  paid: "Payée",
 };

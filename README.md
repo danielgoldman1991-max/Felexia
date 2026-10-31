@@ -4,6 +4,14 @@ Felexia Pro est un ERP SaaS pour PME marocaines. La version de lancement se conc
 
 ## Version légère de lancement — 31 octobre 2026
 
+### Interface harmonisée
+
+L’application utilise une palette bleu et bleu nuit, des surfaces blanches et des composants partagés dans `src/styles/interface.css`. La navigation, les boutons, les formulaires, les tableaux, les états vides et le tableau de bord suivent la même hiérarchie visuelle, avec adaptation mobile et mode sombre. Les tableaux de factures et de journaux regroupent les informations secondaires pour conserver les actions visibles sur ordinateur.
+
+Les couleurs des boutons sont portées par `data-variant`, y compris pour les liens rendus avec `asChild`. Les règles de réinitialisation restent dans la couche CSS `base` : ne pas réintroduire un `a { color: inherit }` global hors couche. Les dimensions par défaut des boutons restent dans la couche `components`, afin que les tailles des boutons d’icône puissent les remplacer. Les styles publics et d’impression conservent leurs variantes dédiées.
+
+Sauvegarde préalable : branche `codex/backup-ui-before-premium-20261031` et archive vérifiée `../backups/felexia-pro-before-premium-20261031.bundle`. Cette refonte ne nécessite aucune migration SQL. Contrôles et limites : `training/premium-interface/20261031/REPORT.md`.
+
 ### Profil Opérateur
 
 Le profil **Opérateur** sert à la saisie quotidienne : clients, fournisseurs, factures de vente et d'achat, avoirs et règlements. Il peut consulter les comptes de trésorerie et les journaux. L'administration de l'entreprise, les utilisateurs, les habilitations, l'abonnement, la numérotation, la gestion des comptes bancaires et les écritures comptables restent hors de ce profil. Un règlement déjà comptabilisé doit être corrigé par l'administrateur.

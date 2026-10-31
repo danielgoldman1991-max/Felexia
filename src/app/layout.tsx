@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@/styles/interface.css";
 import "@/styles/print.css";
 import { BRAND } from "@/lib/brand";
 import { getAppUrl } from "@/lib/app-url";

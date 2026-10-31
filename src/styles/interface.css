@@ -1,0 +1,112 @@
+/* Shared interface language. Utilities can still tune spacing and dimensions. */
+@layer components {
+  .ui-button { height: 40px; padding-inline: 16px; }
+  .ui-button > svg { flex-shrink: 0; }
+  .felexia-app {
+    background: var(--background);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .ui-card {
+    border-color: var(--border);
+    background: var(--card);
+    color: var(--card-foreground);
+    box-shadow: var(--shadow-sm);
+  }
+  .ui-card-header { border-color: var(--border-subtle); }
+
+  .ui-input, .ui-select, .ui-textarea {
+    border-color: var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    box-shadow: 0 1px 2px rgb(20 33 61 / 0.025);
+  }
+  .ui-input::placeholder, .ui-textarea::placeholder {
+    color: var(--muted);
+    opacity: 1;
+  }
+  .ui-input:hover:not(:disabled), .ui-select:hover:not(:disabled), .ui-textarea:hover:not(:disabled) {
+    border-color: var(--border-strong);
+  }
+  .ui-input:focus, .ui-select:focus, .ui-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  /* Native fields on older forms follow the same system without an API rewrite. */
+  .felexia-app :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="range"]):not([type="color"]), select, textarea) {
+    border-color: var(--border);
+    border-radius: var(--radius-md);
+    background-color: var(--card);
+    color: var(--foreground);
+    font-size: 14px;
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  .felexia-app :where(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
+  .felexia-app :where(input, select, textarea):focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .felexia-app :where(input[type="checkbox"], input[type="radio"]) { accent-color: var(--primary); }
+  .felexia-app :where(label) { color: var(--foreground); font-size: 13px; font-weight: 500; }
+  .felexia-app :where(summary) { transition: background-color 150ms; }
+  .felexia-app :where(summary):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+  .ui-table-shell { border-color: var(--border); background: var(--card); box-shadow: var(--shadow-sm); }
+  .ui-table { color: var(--foreground); font-variant-numeric: tabular-nums; }
+  .ui-th { background: var(--surface-2); color: var(--muted-strong); }
+  .ui-td { border-color: var(--border-subtle); color: var(--foreground); }
+  .ui-table tbody tr { transition: background-color 120ms; }
+  .ui-table tbody tr:hover { background-color: var(--surface-2); }
+  .ui-table :where(a, button):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+  .ui-badge[data-tone="neutral"] { border-color: var(--border); background: var(--surface-soft); color: var(--muted-strong); }
+  .ui-badge[data-tone="info"] { border-color: color-mix(in srgb, var(--info) 16%, transparent); background: var(--info-soft); color: var(--info); }
+  .ui-badge[data-tone="success"] { border-color: color-mix(in srgb, var(--success) 16%, transparent); background: var(--success-soft); color: var(--success); }
+  .ui-badge[data-tone="warning"] { border-color: color-mix(in srgb, var(--warning) 16%, transparent); background: var(--warning-soft); color: var(--warning); }
+  .ui-badge[data-tone="danger"] { border-color: color-mix(in srgb, var(--danger) 16%, transparent); background: var(--danger-soft); color: var(--danger); }
+  .erp-page-header { min-width: 0; }
+  .erp-page-title { text-wrap: balance; }
+  .erp-page-description { text-wrap: pretty; }
+  .erp-page-actions { row-gap: 8px; }
+  .erp-empty-state { box-shadow: none; }
+  .erp-stat-value { font-variant-numeric: tabular-nums; }
+}
+
+/* Variant colors are authoritative on both <button> and cloned <a>. This
+   prevents a link/reset or an old utility from making a blue CTA black. */
+.ui-button { -webkit-tap-highlight-color: transparent; }
+.ui-button[data-variant="primary"] {
+  border: 1px solid transparent;
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  box-shadow: 0 1px 2px rgb(20 33 61 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+.ui-button[data-variant="primary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: color-mix(in srgb, var(--primary) 88%, #14213d) !important;
+}
+.ui-button[data-variant="primary"] > :where(span, svg) { color: inherit; }
+.ui-button[data-variant="secondary"] {
+  border-color: var(--border);
+  background-color: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+}
+.ui-button[data-variant="secondary"]:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: var(--border-strong);
+  background-color: var(--surface-2);
+}
+.ui-button[data-variant="ghost"] { color: var(--muted-strong); }
+.ui-button[data-variant="ghost"]:hover:not(:disabled):not([aria-disabled="true"]) { background-color: var(--surface-soft); color: var(--foreground); }
+.ui-button[data-variant="danger"] { border-color: color-mix(in srgb, var(--danger) 18%, transparent); background-color: var(--danger-soft); color: var(--danger); }
+.ui-button[data-variant="danger"]:hover:not(:disabled):not([aria-disabled="true"]) { background-color: color-mix(in srgb, var(--danger-soft) 88%, var(--danger)); }
+.ui-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .felexia-app *, .felexia-app *::before, .felexia-app *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
+
+@media print {
+  .ui-card, .ui-table-shell { box-shadow: none; }
+}

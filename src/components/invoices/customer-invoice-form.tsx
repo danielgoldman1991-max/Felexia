@@ -75,7 +75,7 @@ export function CustomerInvoiceForm({
   sourceDocumentId = "",
   sourceOrderId = "",
   sourceDeliveryId = "",
-  submitLabel = "Creer facture",
+  submitLabel = "Créer la facture",
   cancelHref = "/facturation/factures",
   invoiceId,
   fullAccess = false,
@@ -196,19 +196,19 @@ export function CustomerInvoiceForm({
       <input type="hidden" name="custom_payment_method" value={customPaymentMethod} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Client *</span>
-            <CustomerCombobox customers={customers} value={customerId} onChange={handleCustomerChange} placeholder="Rechercher un client..." />
+            <CustomerCombobox customers={customers} value={customerId} onChange={handleCustomerChange} placeholder="Rechercher un client…" />
           </label>
           {customers.length === 0 ? <p className="text-sm lg:col-span-2"><Link href="/tiers/new?type=customer" className="font-medium text-[var(--primary)] underline">Créer mon premier client</Link>, puis revenir à cette facture.</p> : null}
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Date facture</span>
+            <span className="font-medium text-[var(--muted)]">Date de facture</span>
             <DateField name="invoice_date" defaultValue={initialInvoiceDate} />
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Date echeance</span>
+            <span className="font-medium text-[var(--muted)]">Date d’échéance</span>
             <DateField name="due_date" value={dueDate} onChange={(iso) => setDueDate(iso)} />
           </label>
           <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4 lg:col-span-2">
@@ -228,20 +228,20 @@ export function CustomerInvoiceForm({
               }}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">Sélectionner</option>
               {PAYMENT_TERMS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Modalites de paiement</span>
+            <span className="font-medium text-[var(--muted)]">Modalités de paiement</span>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">Sélectionner</option>
               {PAYMENT_METHOD_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -249,14 +249,14 @@ export function CustomerInvoiceForm({
           </label>
           {paymentTerms === "custom" ? (
             <label className="space-y-1.5 text-sm">
-              <span className="font-medium text-[var(--muted)]">Detail condition personnalisee</span>
-              <Input name="custom_payment_terms" value={customPaymentTerms} onChange={(e) => setCustomPaymentTerms(e.target.value)} placeholder="Decrivez la condition..." />
+              <span className="font-medium text-[var(--muted)]">Détail de la condition personnalisée</span>
+              <Input name="custom_payment_terms" value={customPaymentTerms} onChange={(e) => setCustomPaymentTerms(e.target.value)} placeholder="Décrivez la condition…" />
             </label>
           ) : null}
           {paymentMethod === "other" ? (
             <label className="space-y-1.5 text-sm">
-              <span className="font-medium text-[var(--muted)]">Detail modalite personnalisee</span>
-              <Input name="custom_payment_method" value={customPaymentMethod} onChange={(e) => setCustomPaymentMethod(e.target.value)} placeholder="Decrivez la modalite..." />
+              <span className="font-medium text-[var(--muted)]">Détail de la modalité personnalisée</span>
+              <Input name="custom_payment_method" value={customPaymentMethod} onChange={(e) => setCustomPaymentMethod(e.target.value)} placeholder="Décrivez la modalité…" />
             </label>
           ) : null}
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm">
@@ -277,15 +277,15 @@ export function CustomerInvoiceForm({
       </Card>
 
       {fullAccess ? <Card>
-        <CardHeader><h2 className="font-semibold">Bons de livraison a facturer</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Bons de livraison à facturer</h2></CardHeader>
         <CardContent className="space-y-4">
           {!customerId ? (
-            <p className="text-sm text-[var(--muted)]">Selectionnez d&apos;abord un client pour voir ses bons de livraison.</p>
+            <p className="text-sm text-[var(--muted)]">Sélectionnez d’abord un client pour voir ses bons de livraison.</p>
           ) : (
             <div className="flex flex-wrap items-center gap-3">
               <Button type="button" variant="secondary" onClick={openDeliveryNotesModal} disabled={isLoadingDeliveries}>
                 <FileText className="h-4 w-4" />
-                {isLoadingDeliveries ? "Chargement..." : "Selectionner des BL a facturer"}
+                {isLoadingDeliveries ? "Chargement…" : "Sélectionner des BL à facturer"}
               </Button>
               {selectedDeliveryNotes.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
@@ -296,7 +296,7 @@ export function CustomerInvoiceForm({
                   ))}
                 </div>
               ) : (
-              <span className="text-sm text-[var(--muted)]">Aucun BL selectionne.</span>
+              <span className="text-sm text-[var(--muted)]">Aucun BL sélectionné.</span>
             )}
           </div>
           )}
@@ -305,7 +305,7 @@ export function CustomerInvoiceForm({
       </Card> : null}
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Lignes facture</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Lignes de facture</h2></CardHeader>
         <CardContent>
           <InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} fullAccess={fullAccess} />
         </CardContent>

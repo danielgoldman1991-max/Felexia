@@ -143,8 +143,8 @@ export function GlobalSearch({ fullAccess = false, readOnly = false, operator = 
   }
 
   return (
-    <div ref={containerRef} className="relative min-w-0 flex-1">
-      <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
+    <div ref={containerRef} className="relative min-w-0 max-w-[760px] flex-1">
+      <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
       <Input
         ref={inputRef}
         value={query}
@@ -158,21 +158,22 @@ export function GlobalSearch({ fullAccess = false, readOnly = false, operator = 
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleInputKeyDown}
-        className="h-11 rounded-2xl pl-10 pr-20 text-sm"
+        aria-label="Recherche globale"
+        className="h-10 rounded-xl border-transparent bg-[var(--surface-soft)] pl-10 pr-3 text-sm sm:pr-20"
         placeholder={fullAccess ? "Rechercher une fonction, un client, un document..." : "Rechercher une facture, un client..."}
       />
-      <span className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:block">Ctrl K</span>
+      <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 font-sans text-[10px] font-medium text-[var(--muted)] sm:block">Ctrl K</kbd>
 
       {open ? (
-        <div className="fixed left-4 right-4 top-20 z-[100] max-h-[70vh] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)] sm:absolute sm:left-0 sm:right-0 sm:top-14">
-          {loading ? <p className="px-3 py-2 text-sm text-[var(--muted)]">Recherche...</p> : null}
+        <div className="fixed left-4 right-4 top-20 z-[100] max-h-[70vh] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)] sm:absolute sm:left-0 sm:right-0 sm:top-12">
+          {loading ? <p role="status" className="px-3 py-2 text-sm text-[var(--muted)]">Recherche en cours…</p> : null}
           {searchError ? <p className="mx-2 mb-2 rounded-xl bg-[var(--danger-soft)] px-3 py-2 text-sm text-[var(--danger)]">{searchError} Réessayez dans un instant.</p> : null}
-          {!loading && flatResults.length === 0 ? <p className="px-3 py-8 text-center text-sm text-[var(--muted)]">Aucun resultat trouve.</p> : null}
+          {!loading && flatResults.length === 0 ? <p className="px-3 py-8 text-center text-sm text-[var(--muted)]">Aucun résultat trouvé.</p> : null}
           {groups.map((group) => {
             const Icon = categoryIcons[group.category] ?? Building2;
             return (
               <div key={group.category} className="py-1">
-                <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+                <div className="flex items-center gap-2 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">
                   <Icon className="h-3.5 w-3.5" />
                   {group.category}
                 </div>
@@ -184,9 +185,9 @@ export function GlobalSearch({ fullAccess = false, readOnly = false, operator = 
                         key={result.id}
                         type="button"
                         onClick={() => openResult(result)}
-                        className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition", active ? "bg-[var(--surface-soft)]" : "hover:bg-[var(--surface-soft)]/70")}
+                        className={cn("flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-[var(--ring)]", active ? "bg-[var(--primary-soft)]" : "hover:bg-[var(--surface-soft)]")}
                       >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--info-soft)] text-[var(--info)]">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-soft)] text-[var(--muted-strong)]">
                           <Icon className="h-4 w-4" />
                         </span>
                         <span className="min-w-0 flex-1">

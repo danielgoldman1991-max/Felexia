@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Eye, Link2, Pencil } from "lucide-react";
+import { ArrowDownLeft, Eye, Link2, Pencil } from "lucide-react";
+import { EmptyState } from "@/components/erp/empty-state";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -9,23 +10,25 @@ import { formatDate } from "@/lib/format";
 import type { CustomerPaymentRecord } from "@/lib/payment-types";
 
 export function CustomerPaymentsTable({ rows }: { rows: CustomerPaymentRecord[] }) {
+  if (rows.length === 0) {
+    return <EmptyState title="Aucun règlement reçu pour le moment" description="Enregistrez un encaissement client, puis affectez-le à une ou plusieurs factures." icon={<ArrowDownLeft className="h-6 w-6" />} />;
+  }
+
   return (
     <Table>
       <thead>
-        <tr><Th>Numero</Th><Th>Client</Th><Th>Date</Th><Th>Modalite</Th><Th>Montant</Th><Th>Affecte</Th><Th>Disponible</Th><Th>Statut</Th><Th>Reference</Th><Th>Actions</Th></tr>
+        <tr><Th>Numéro</Th><Th>Client</Th><Th>Date</Th><Th>Mode de règlement</Th><Th className="text-right">Montant</Th><Th className="text-right">Affecté</Th><Th className="text-right">Disponible</Th><Th>Statut</Th><Th>Référence</Th><Th>Actions</Th></tr>
       </thead>
       <tbody>
-        {rows.length === 0 ? (
-          <tr><td colSpan={10} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">Aucun paiement client.</td></tr>
-        ) : rows.map((payment) => (
+        {rows.map((payment) => (
           <tr key={payment.id}>
-            <Td className="font-medium">{payment.payment_number}</Td>
+            <Td><Link href={`/facturation/paiements/${payment.id}`} className="font-semibold text-[var(--primary)] hover:underline">{payment.payment_number}</Link></Td>
             <Td>{payment.customer_name}</Td>
             <Td>{formatDate(payment.payment_date)}</Td>
             <Td>{getPaymentMethodLabel(payment.payment_method) ?? payment.payment_method}</Td>
-            <Td><MoneyDisplay value={payment.amount} /></Td>
-            <Td><MoneyDisplay value={payment.allocated_amount} /></Td>
-            <Td><MoneyDisplay value={payment.available_amount} /></Td>
+            <Td className="text-right tabular-nums"><MoneyDisplay value={payment.amount} /></Td>
+            <Td className="text-right tabular-nums"><MoneyDisplay value={payment.allocated_amount} /></Td>
+            <Td className="text-right tabular-nums"><MoneyDisplay value={payment.available_amount} /></Td>
             <Td><PaymentStatusBadge status={payment.status} /></Td>
             <Td>{payment.reference ?? payment.transfer_reference ?? payment.check_number ?? "-"}</Td>
             <Td>

@@ -382,38 +382,38 @@ export type StockMoveForReceipt = {
 
 export const PURCHASE_DOCUMENT_LABELS: Record<PurchaseDocumentType, string> = {
   supplier_order: "Commande fournisseur",
-  supplier_receipt: "Reception fournisseur",
+  supplier_receipt: "Réception fournisseur",
 };
 
 export const SUPPLIER_ORDER_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  sent: "Envoyee",
-  confirmed: "Confirmee",
-  partially_received: "Partiellement recue",
-  received: "Recue",
-  cancelled: "Annulee",
+  sent: "Envoyée",
+  confirmed: "Confirmée",
+  partially_received: "Partiellement reçue",
+  received: "Reçue",
+  cancelled: "Annulée",
 };
 
 export const SUPPLIER_RECEIPT_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  validated: "Validee",
-  cancelled: "Annulee",
+  validated: "Validée",
+  cancelled: "Annulée",
 };
 
 export const SUPPLIER_INVOICE_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  validated: "Validee",
-  partially_paid: "Partiellement payee",
-  paid: "Payee",
-  cancelled: "Annulee",
+  validated: "Validée",
+  partially_paid: "Partiellement payée",
+  paid: "Payée",
+  cancelled: "Annulée",
 };
 
 export const SUPPLIER_PAYMENT_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  confirmed: "Confirme",
-  partially_allocated: "Partiellement affecte",
-  allocated: "Affecte",
-  cancelled: "Annule",
+  confirmed: "Confirmé",
+  partially_allocated: "Partiellement affecté",
+  allocated: "Affecté",
+  cancelled: "Annulé",
 };
 
 export const SUPPLIER_PAYMENT_TYPE_LABELS: Record<string, string> = {

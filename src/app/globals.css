@@ -15,66 +15,66 @@ body {
 :root {
   color-scheme: light;
 
-  --background: #f4f6fa;
-  --foreground: #0f172a;
+  --background: #f5f7fb;
+  --foreground: #14213d;
 
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #14213d;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --popover-foreground: #14213d;
 
   --surface: rgba(15, 23, 42, 0.03);
-  --surface-soft: #e9edf3;
-  --surface-raised: #dfe5ee;
+  --surface-soft: #f0f4fa;
+  --surface-raised: #e8eef7;
   --surface-1: #ffffff;
   --surface-2: #fafbfd;
   --surface-3: #f4f6fa;
 
-  --border: #e4e8ef;
-  --border-subtle: #eef1f6;
-  --border-strong: #ccd4e0;
+  --border: #e2e8f0;
+  --border-subtle: #edf1f7;
+  --border-strong: #c6d2e3;
 
   --muted: #64748b;
-  --muted-2: #94a3b8;
+  --muted-2: #64748b;
   --muted-strong: #475569;
 
-  --primary: #1d4ed8;
+  --primary: #2454d8;
   --primary-foreground: #ffffff;
-  --primary-soft: #e8effd;
-  --secondary: #0ea5e9;
-  --secondary-deep: #0f172a;
+  --primary-soft: #edf2ff;
+  --secondary: #315fcb;
+  --secondary-deep: #14213d;
   --accent: #b08a3e;
   --accent-soft: #f7f3e6;
 
-  --success: #059669;
+  --success: #087b58;
   --success-soft: #eaf7f2;
-  --warning: #d97706;
+  --warning: #a45b08;
   --warning-soft: #fcf4e4;
-  --danger: #dc2626;
+  --danger: #c93243;
   --danger-soft: #fdf0f0;
   --info: #0369a1;
   --info-soft: #eaf4fb;
   --violet: #7c3aed;
   --violet-soft: #f2edfb;
 
-  --ring: rgba(29, 78, 216, 0.35);
+  --ring: rgba(36, 84, 216, 0.2);
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.05), 0 12px 24px -12px rgba(16, 24, 40, 0.12);
-  --shadow-lg: 0 24px 60px -24px rgba(16, 24, 40, 0.28);
+  --shadow-sm: 0 1px 2px rgba(20, 33, 61, 0.035);
+  --shadow-md: 0 4px 18px rgba(20, 33, 61, 0.045);
+  --shadow-lg: 0 12px 36px -8px rgba(20, 33, 61, 0.14);
   --shadow-gold: 0 10px 30px -12px rgba(176, 138, 62, 0.35);
 
   --radius-sm: 8px;
-  --radius-md: 12px;
+  --radius-md: 10px;
   --radius-lg: 16px;
 
   /* Sidebar */
-  --sidebar: #eef1f6;
-  --sidebar-foreground: #1e293b;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #25334f;
   --sidebar-muted: #64748b;
-  --sidebar-accent: #ffffff;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e4e8ef;
+  --sidebar-accent: #edf2ff;
+  --sidebar-accent-foreground: #2454d8;
+  --sidebar-border: #e6ebf3;
 }
 
 .dark {
@@ -100,10 +100,10 @@ body {
   --border-strong: #34445f;
 
   --muted: #94a3b8;
-  --muted-2: #64748b;
+  --muted-2: #9aaac2;
   --muted-strong: #cbd5e1;
 
-  --primary: #3b82f6;
+  --primary: #3965df;
   --primary-foreground: #ffffff;
   --primary-soft: #152b4d;
   --secondary: #38bdf8;
@@ -130,7 +130,7 @@ body {
   --shadow-gold: 0 12px 34px -14px rgba(214, 181, 109, 0.3);
 
   --radius-sm: 8px;
-  --radius-md: 12px;
+  --radius-md: 10px;
   --radius-lg: 16px;
 
   /* Sidebar */
@@ -175,6 +175,7 @@ body {
   --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 }
 
+@layer base {
 * {
   box-sizing: border-box;
 }
@@ -195,10 +196,7 @@ body {
 }
 
 .dark body {
-  background:
-    radial-gradient(circle at 12% -10%, rgba(30, 64, 175, 0.16), transparent 40%),
-    radial-gradient(circle at 90% 8%, rgba(13, 148, 136, 0.08), transparent 34%),
-    linear-gradient(180deg, #0b1220 0%, #0a101d 100%);
+  background: var(--background);
 }
 
 a {
@@ -216,6 +214,7 @@ input,
 select,
 textarea {
   font: inherit;
+}
 }
 
 .glass-panel,
@@ -281,84 +280,23 @@ textarea {
   scrollbar-color: var(--border-strong) transparent;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Adaptive compatibility layer for existing pale Tailwind utilities.
-   Keeps legacy screens readable in BOTH light and dark mode automatically.
-   ───────────────────────────────────────────────────────────────────────────── */
-.bg-white {
-  background-color: var(--card) !important;
-}
-
-.bg-slate-50,
-.bg-slate-100,
-.bg-blue-50,
-.bg-sky-50,
-.bg-cyan-50,
-.bg-amber-50,
-.bg-green-50,
-.bg-emerald-50,
-.bg-rose-50,
-.bg-red-50,
-.bg-indigo-50,
-.bg-violet-50,
-.bg-orange-50,
-.bg-slate-200 {
-  background-color: var(--surface-soft) !important;
-}
-
-.border-slate-100,
-.border-slate-200,
-.border-slate-300,
-.border-blue-100,
-.border-blue-200,
-.border-sky-100,
-.border-cyan-100,
-.border-cyan-200,
-.border-amber-100,
-.border-amber-200,
-.border-green-100,
-.border-green-200,
-.border-emerald-100,
-.border-emerald-200,
-.border-rose-100,
-.border-rose-200,
-.border-red-100,
-.border-red-200,
-.border-indigo-100,
-.border-indigo-200,
-.border-violet-100,
-.border-violet-200 {
-  border-color: var(--border) !important;
-}
-
-.text-slate-950,
-.text-slate-900,
-.text-slate-800,
-.text-gray-900,
-.text-gray-800 {
-  color: var(--foreground) !important;
-}
-
-.text-slate-700,
-.text-slate-600,
-.text-gray-700,
-.text-gray-600,
-.text-slate-500,
-.text-gray-500 {
-  color: var(--muted-strong) !important;
-}
-
-.text-slate-400,
-.text-slate-300,
-.text-gray-400 {
-  color: var(--muted) !important;
-}
-
-.shadow-sm,
-.shadow-md,
-.shadow-xl {
-  box-shadow: var(--shadow-md) !important;
-}
+/* Only legacy app utilities need dark adaptation. Light surfaces and status
+   colors keep their intended values; public pages and print remain separate. */
+.dark .felexia-app :where(.bg-white) { background-color: var(--card) !important; }
+.dark .felexia-app :where(.bg-slate-50, .bg-slate-100, .bg-slate-200) { background-color: var(--surface-soft) !important; }
+.dark .felexia-app :where(.bg-blue-50, .bg-sky-50, .bg-cyan-50, .bg-indigo-50) { background-color: var(--primary-soft) !important; }
+.dark .felexia-app :where(.bg-green-50, .bg-emerald-50) { background-color: var(--success-soft) !important; }
+.dark .felexia-app :where(.bg-amber-50, .bg-orange-50) { background-color: var(--warning-soft) !important; }
+.dark .felexia-app :where(.bg-red-50, .bg-rose-50) { background-color: var(--danger-soft) !important; }
+.dark .felexia-app :where(.bg-violet-50) { background-color: var(--violet-soft) !important; }
+.dark .felexia-app :where(.border-slate-100, .border-slate-200, .border-slate-300) { border-color: var(--border) !important; }
+.dark .felexia-app :where(.text-slate-950, .text-slate-900, .text-slate-800, .text-gray-900, .text-gray-800) { color: var(--foreground) !important; }
+.dark .felexia-app :where(.text-slate-700, .text-slate-600, .text-slate-500, .text-gray-700, .text-gray-600, .text-gray-500) { color: var(--muted-strong) !important; }
+.dark .felexia-app :where(.text-slate-400, .text-slate-300, .text-gray-400) { color: var(--muted) !important; }
+.dark .felexia-app :where(.text-blue-600, .text-blue-700, .text-indigo-600, .text-indigo-700, .text-sky-600, .text-sky-700) { color: #b3c9ff !important; }
+.dark .felexia-app .text-\[var\(--primary\)\] { color: #b3c9ff; }
+.dark .felexia-app :where(.text-green-600, .text-green-700, .text-emerald-600, .text-emerald-700) { color: var(--success) !important; }
+.dark .felexia-app :where(.text-red-600, .text-red-700, .text-rose-600, .text-rose-700) { color: var(--danger) !important; }
 
 @page {
   size: A4;

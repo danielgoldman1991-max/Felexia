@@ -65,11 +65,11 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
 
   function addLine() {
     let prepared = calculateInvoiceLine(draft);
-    if (prepared.mode === "product" && !prepared.product_id) return setError("Selectionnez un article ou service.");
+    if (prepared.mode === "product" && !prepared.product_id) return setError("Sélectionnez un article ou un service.");
     if (!prepared.description.trim()) return setError("Saisissez une description.");
-    if (prepared.quantity <= 0) return setError("La quantite doit etre superieure a zero.");
-    if (isIndivisibleUnit(prepared, units) && !Number.isInteger(prepared.quantity)) return setError("La quantite doit etre entiere pour l'unite U.");
-    if (prepared.unit_price_ht < 0) return setError("Le prix ne peut pas etre negatif.");
+    if (prepared.quantity <= 0) return setError("La quantité doit être supérieure à zéro.");
+    if (isIndivisibleUnit(prepared, units) && !Number.isInteger(prepared.quantity)) return setError("La quantité doit être entière pour l’unité U.");
+    if (prepared.unit_price_ht < 0) return setError("Le prix ne peut pas être négatif.");
     if (!prepared.tax_rate_id && taxRates.length > 0) {
       const fallback =
         taxRates.find((tax) => tax.is_default) ??
@@ -87,7 +87,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
       <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-sm font-semibold">Ajouter une ligne</p>
-          <span className="text-xs text-[var(--muted)]">Total ligne: <MoneyDisplay value={draft.total_ttc} /></span>
+          <span className="text-xs text-[var(--muted)]">Total de la ligne : <MoneyDisplay value={draft.total_ttc} /></span>
         </div>
         {fullAccess ? <div className="mb-3 flex flex-wrap gap-3">
           <label className="flex flex-col gap-1 text-xs">
@@ -114,7 +114,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
             <Input ref={descriptionRef} value={draft.description} onChange={(event) => update({ ...draft, description: event.target.value })} />
           </label>
           {fullAccess ? <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-[var(--muted)]">Unite</span>
+            <span className="font-medium text-[var(--muted)]">Unité</span>
             <Select value={draft.unit_id} onChange={(event) => {
               const unit = units.find((item) => item.id === event.target.value);
               const next = { ...draft, unit_id: event.target.value, unit_name: unit?.symbol ?? unit?.name ?? "" };
@@ -129,7 +129,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
             <Input type="number" min="0" step="0.01" value={draft.unit_price_ht} onChange={(event) => update({ ...draft, unit_price_ht: toNumber(event.target.value) })} />
           </label>
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-[var(--muted)]">Quantite</span>
+            <span className="font-medium text-[var(--muted)]">Quantité</span>
             <Input type="number" min={indivisible ? "1" : "0"} step={indivisible ? "1" : "0.001"} value={draft.quantity} onChange={(event) => {
               const quantity = toNumber(event.target.value);
               update({ ...draft, quantity: indivisible ? normalizeIndivisibleQuantity(quantity) : quantity });
@@ -156,7 +156,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
 
       <Table>
         <thead>
-          <tr><Th>#</Th>{fullAccess ? <><Th>Origine</Th><Th>Produit</Th></> : null}<Th>Description</Th><Th>Quantite</Th>{fullAccess ? <Th>Unite</Th> : null}<Th>Prix HT</Th>{fullAccess ? <Th>Remise</Th> : null}<Th>Total HT</Th><Th>TVA</Th><Th>Total TTC</Th><Th>Actions</Th></tr>
+          <tr><Th>#</Th>{fullAccess ? <><Th>Origine</Th><Th>Produit</Th></> : null}<Th>Description</Th><Th>Quantité</Th>{fullAccess ? <Th>Unité</Th> : null}<Th>Prix HT</Th>{fullAccess ? <Th>Remise</Th> : null}<Th>Total HT</Th><Th>TVA</Th><Th>Total TTC</Th><Th>Actions</Th></tr>
         </thead>
         <tbody>
           {lines.length === 0 ? (
@@ -172,9 +172,9 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
       </Table>
       <div className="flex justify-end">
         <div className="flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
-          <span>Total HT: <MoneyDisplay value={totals.subtotal_ht} /></span>
-          <span>Total TVA: <MoneyDisplay value={totals.tax_total} /></span>
-          <span className="font-semibold">Total TTC: <MoneyDisplay value={totals.total_ttc} /></span>
+          <span>Total HT : <MoneyDisplay value={totals.subtotal_ht} /></span>
+          <span>Total TVA : <MoneyDisplay value={totals.tax_total} /></span>
+          <span className="font-semibold">Total TTC : <MoneyDisplay value={totals.total_ttc} /></span>
         </div>
       </div>
     </div>

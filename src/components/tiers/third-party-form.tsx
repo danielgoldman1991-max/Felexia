@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
+import { ChevronDown, Loader2, Save } from "lucide-react";
 import type { ThirdPartyActionResult } from "@/lib/third-party-actions";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
 import type { CustomerCategory } from "@/lib/customer-categories";
@@ -34,10 +35,10 @@ type Props = {
 
 const initialState: ThirdPartyActionResult = { success: true };
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <label className="space-y-1.5 text-sm">
-      <span className="font-medium text-[var(--muted)]">{label}</span>
+    <label className={`block space-y-2 text-sm ${className}`}>
+      <span className="font-medium text-[var(--foreground)]">{label}</span>
       {children}
     </label>
   );
@@ -45,7 +46,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function OptionalSection({ fullAccess, title, children }: { fullAccess: boolean; title: string; children: React.ReactNode }) {
   if (fullAccess) return <>{children}</>;
-  return <details className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"><summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">{title}</summary><div className="mt-4">{children}</div></details>;
+  return <details className="group rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-[var(--foreground)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--primary)] [&::-webkit-details-marker]:hidden">{title}<ChevronDown className="h-4 w-4 shrink-0 text-[var(--muted)] transition-transform group-open:rotate-180" aria-hidden="true" /></summary><div className="mt-4">{children}</div></details>;
 }
 
 export function ThirdPartyForm({ mode, thirdParty, action, initialType, customerCategories, fullAccess = false }: Props) {
@@ -106,7 +107,8 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       <input type="hidden" name="supplier_product_categories" value={selectedCategories.join(",")} />
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">{fullAccess ? "Type de tiers" : "Client ou fournisseur"}</h2>
+          <h2 className="font-semibold">Informations générales</h2>
+          <p className="mt-1 text-xs leading-5 text-[var(--muted)]">Le nom est le seul champ obligatoire. Complétez les autres informations à votre rythme.</p>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Nom ou raison sociale *">
@@ -118,9 +120,10 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <p className="text-sm font-medium text-[var(--muted)]">Type de contact</p>
             <div className="flex flex-wrap gap-3">
               {(fullAccess ? ["prospect", "customer", "supplier"] as ThirdPartyKind[] : ["customer", "supplier"] as ThirdPartyKind[]).map((type) => (
-                <label key={type} className="flex items-center gap-2 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
+                <label key={type} className={`flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-sm transition-colors ${types.includes(type) ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--foreground)]" : "border-[var(--border)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--border-strong)]"}`}>
                   <input
                     type="checkbox"
+                    className="h-4 w-4 accent-[var(--primary)]"
                     name={`type_${type}`}
                     checked={types.includes(type)}
                     onChange={() => toggle(type)}
@@ -132,14 +135,14 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           </div>
           {!fullAccess && hasProspect ? <input type="hidden" name="type_prospect" value="on" /> : null}
           {fullAccess ? <Field label="Code tiers">
-            <Input name="code" value={thirdParty?.code ?? "Genere automatiquement"} disabled readOnly />
+            <Input name="code" value={thirdParty?.code ?? "Généré automatiquement"} disabled readOnly />
           </Field> : null}
           {fullAccess ? <Field label="Statut">
             <Select name="status" defaultValue={thirdParty?.status ?? "active"}>
               <option value="active">Actif</option>
               <option value="inactive">Inactif</option>
-              <option value="blocked">Bloque</option>
-              <option value="archived">Archive</option>
+              <option value="blocked">Bloqué</option>
+              <option value="archived">Archivé</option>
             </Select>
           </Field> : <input type="hidden" name="status" value={thirdParty?.status ?? "active"} />}
         </CardContent>
@@ -149,9 +152,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         <CardHeader>
           <h2 className="font-semibold">Coordonnées</h2>
         </CardHeader>
-        <CardContent className="grid gap-4 lg:grid-cols-4">
-          <Field label="Adresse">
-            <Textarea name="address" defaultValue={thirdParty?.address ?? ""} className="lg:col-span-4" />
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Field label="Adresse" className="md:col-span-2 lg:col-span-3">
+            <Textarea name="address" defaultValue={thirdParty?.address ?? ""} />
           </Field>
           <Field label="Pays">
             <Select
@@ -170,20 +173,20 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
               defaultValue={thirdParty?.city ?? ""}
               key={country}
             >
-              <option value="">Selectionner une ville...</option>
+              <option value="">Sélectionner une ville…</option>
               {cities.map((city) => (
                 <option key={city} value={city}>{city}</option>
               ))}
             </Select>
           </Field>
-          <Field label="Telephone">
+          <Field label="Téléphone">
             <Input name="phone" defaultValue={thirdParty?.phone ?? ""} />
           </Field>
-          <Field label="Email">
+          <Field label="Email" className="lg:col-span-2">
             <Input name="email" type="email" defaultValue={thirdParty?.email ?? ""} />
           </Field>
           {!fullAccess ? <Field label="ICE"><Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} /></Field> : null}
-          <div className="lg:col-span-4">
+          <div className="md:col-span-2 lg:col-span-3">
             <OptionalSection fullAccess={fullAccess} title="Coordonnées complémentaires (facultatif)">
               <div className="grid gap-4 md:grid-cols-3">
                 <Field label="Code postal"><Input name="postal_code" defaultValue={thirdParty?.postal_code ?? ""} /></Field>
@@ -219,9 +222,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex items-center gap-2 self-end rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
               <input name="vat_subject" type="checkbox" defaultChecked={thirdParty?.vat_subject ?? false} />
-              Assujetti a la TVA
+              Assujetti à la TVA
             </label>
-            <Field label="Numero de TVA">
+            <Field label="Numéro de TVA">
               <Input name="vat_number" defaultValue={thirdParty?.vat_number ?? ""} />
             </Field>
           </div>
@@ -236,7 +239,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <CardContent className="grid gap-4 lg:grid-cols-4">
             <Field label="Source du prospect">
               <Select name="prospect_source" defaultValue={thirdParty?.prospect_source ?? ""}>
-                <option value="">Selectionner une source</option>
+                <option value="">Sélectionner une source</option>
                 {PROSPECT_SOURCES.map((source) => (
                   <option key={source} value={source}>{source}</option>
                 ))}
@@ -249,7 +252,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             </Field>
             <Field label="Valeur potentielle"><Input name="potential_value" type="number" min="0" step="0.01" defaultValue={thirdParty?.potential_value ?? 0} /></Field>
             <Field label="Prochain rappel"><DateField name="next_follow_up_date" defaultValue={thirdParty?.next_follow_up_date ?? ""} /></Field>
-            <Field label="Niveau d'interet"><Input name="interest_level" defaultValue={thirdParty?.interest_level ?? ""} /></Field>
+            <Field label="Niveau d’intérêt"><Input name="interest_level" defaultValue={thirdParty?.interest_level ?? ""} /></Field>
             <Field label="Commercial responsable"><Input name="sales_owner" defaultValue={thirdParty?.sales_owner ?? ""} /></Field>
             <Field label="Notes de prospection"><Textarea name="prospect_notes" defaultValue={thirdParty?.prospect_notes ?? ""} /></Field>
           </CardContent>
@@ -263,21 +266,21 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <CardContent className="grid gap-4 lg:grid-cols-4">
             <Field label="Conditions de paiement">
               <Select name="payment_terms" defaultValue={thirdParty?.payment_terms ?? ""}>
-                <option value="">-- Selectionner --</option>
+                <option value="">Sélectionner</option>
                 {PAYMENT_TERMS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </Select>
             </Field>
-            <Field label="Modalites de paiement">
+            <Field label="Mode de règlement">
               <Select name="payment_method" defaultValue={thirdParty?.payment_method ?? ""}>
-                <option value="">-- Selectionner --</option>
+                <option value="">Sélectionner</option>
                 {PAYMENT_METHOD_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </Select>
             </Field>
-            <Field label="Delai de paiement (jours)">
+            <Field label="Délai de paiement (jours)">
               <Input name="payment_terms_days" type="number" min="0" defaultValue={thirdParty?.payment_terms_days ?? 30} />
             </Field>
             {/* Champs masqués pour simplification PME (données conservées en base) */}
@@ -291,15 +294,15 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <input type="hidden" name="risk_level" value={thirdParty?.risk_level ?? ""} />
             <div className="lg:col-span-4">
             <OptionalSection fullAccess={fullAccess} title="Catégorie client (facultatif)">
-            <Field label="Categorie client">
+            <Field label="Catégorie client">
               <ComboboxCreate
                 options={customerCatList.map((c) => ({ id: c.id, label: c.name }))}
                 value={customerCategoryValue}
                 onChange={(id) => setCustomerCategoryValue(id)}
-                placeholder="Selectionner ou creer une categorie"
-                createLabel="+ Creer une nouvelle categorie"
+                placeholder="Sélectionner ou créer une catégorie"
+                createLabel="+ Créer une catégorie"
                 onCreate={async () => {
-                  const name = window.prompt("Nom de la nouvelle categorie client :");
+                  const name = window.prompt("Nom de la nouvelle catégorie client :");
                   if (!name?.trim()) return;
                   const result = await quickCreateCustomerCategory(name.trim());
                   if ("error" in result) {
@@ -332,15 +335,15 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <CardHeader><h2 className="font-semibold">Informations fournisseur</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-3">
             <div className="space-y-1.5 text-sm lg:col-span-3">
-              <span className="font-medium text-[var(--muted)]">Categories produits/services</span>
+              <span className="font-medium text-[var(--foreground)]">Catégories de produits et services</span>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 {SUPPLIER_CATEGORY_OPTIONS.map((opt) => (
                   <label
                     key={opt.value}
                     className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition-colors ${
                       selectedCategories.includes(opt.value)
-                        ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        ? "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary)]"
+                        : "border-[var(--border)] bg-[var(--card)] text-[var(--muted)] hover:border-[var(--border-strong)]"
                     }`}
                   >
                     <input
@@ -356,16 +359,16 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             </div>
             {fullAccess ? <Field label="Conditions d'achat">
               <Select name="supplier_payment_terms" defaultValue={thirdParty?.supplier_payment_terms ?? ""}>
-                <option value="">-- Selectionner --</option>
+                <option value="">Sélectionner</option>
                 {SUPPLIER_PURCHASE_TERMS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Select>
             </Field> : null}
-            <Field label="Delai moyen livraison (jours)">
+            <Field label="Délai moyen de livraison (jours)">
               <Input name="supplier_delivery_delay_days" type="number" min="0" step="1" defaultValue={thirdParty?.supplier_delivery_delay_days ?? ""} placeholder="Ex : 3" />
             </Field>
-            <Field label="Evaluation fournisseur">
+            <Field label="Évaluation fournisseur">
               <Select name="supplier_rating" defaultValue={thirdParty?.supplier_rating != null ? String(thirdParty.supplier_rating) : ""}>
                 {SUPPLIER_RATING_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -377,14 +380,14 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             </Field>
             {fullAccess ? <Field label="Mode de paiement fournisseur">
               <Select name="supplier_payment_method" defaultValue={thirdParty?.supplier_payment_method ?? ""}>
-                <option value="">-- Selectionner --</option>
+                <option value="">Sélectionner</option>
                 {SUPPLIER_PAYMENT_METHOD_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </Select>
             </Field> : null}
             <Field label="Notes achat">
-              <Textarea name="supplier_notes" defaultValue={thirdParty?.supplier_notes ?? ""} placeholder="Notes internes liees aux achats, conditions particulieres, historique fournisseur..." />
+              <Textarea name="supplier_notes" defaultValue={thirdParty?.supplier_notes ?? ""} placeholder="Conditions particulières, historique fournisseur…" />
             </Field>
           </CardContent>
         </Card>
@@ -400,7 +403,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <Textarea name="notes" defaultValue={thirdParty?.notes ?? ""} />
           </Field>
           {fullAccess ? <div className="mt-4 rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--muted)]">
-            Contacts, adresses secondaires et pieces jointes sont geres depuis la fiche tiers apres creation.
+            Retrouvez les contacts, adresses secondaires et pièces jointes sur la fiche après sa création.
           </div> : null}
         </CardContent>
       </Card>
@@ -410,9 +413,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow-sm)]">
         <Button type="button" variant="secondary" asChild><Link href={thirdParty ? `/tiers/${thirdParty.id}` : hasSupplier && !hasCustomer ? "/achats/fournisseurs" : "/tiers/clients"}>Annuler</Link></Button>
-        <Button disabled={pending}>{pending ? "Enregistrement…" : mode === "create" ? "Créer le contact" : "Enregistrer"}</Button>
+        <Button disabled={pending}>{pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}{pending ? "Enregistrement…" : mode === "create" ? "Créer le contact" : "Enregistrer"}</Button>
       </div>
     </form>
   );

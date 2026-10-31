@@ -44,11 +44,11 @@ export function HelpDropdown({ align = "right", fullAccess = false, operator = f
 
   return (
     <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen((value) => !value)} className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]" aria-label="Aide" aria-expanded={open}>
-        <CircleHelp className="h-5 w-5" />
+      <button type="button" onClick={() => setOpen((value) => !value)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--muted)] transition-colors hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]" aria-label="Aide" aria-expanded={open}>
+        <CircleHelp className="h-[18px] w-[18px]" />
       </button>
       {open ? (
-        <div className={cn("absolute top-full z-50 mt-2 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] shadow-[var(--shadow-lg)]", align === "right" ? "right-0" : "left-0")}>
+        <div className={cn("absolute top-full z-50 mt-2 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] text-[var(--popover-foreground)] shadow-[var(--shadow-lg)]", align === "right" ? "right-0" : "left-0")}>
           <div className="border-b border-[var(--border-subtle)] px-4 py-3">
             <h3 className="text-sm font-semibold">Comment pouvons-nous vous aider ?</h3>
             <p className="mt-1 text-xs text-[var(--muted)]">Choisissez une ressource pour continuer.</p>

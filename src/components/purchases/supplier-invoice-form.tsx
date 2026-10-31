@@ -149,18 +149,18 @@ export function SupplierInvoiceForm({
 
       <form action={handleSubmit}>
         <Card>
-          <CardHeader><h2 className="font-semibold">En-tete</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
               <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
               {suppliers.length === 0 ? <p className="mt-2 text-sm"><Link href="/tiers/new?type=supplier" className="font-medium text-[var(--primary)] underline">Créer mon premier fournisseur</Link></p> : null}
             </div>
-            <DateField label="Date facture" value={invoiceDate} onChange={setInvoiceDate} />
-            <DateField label="Echeance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
+            <DateField label="Date de facture" value={invoiceDate} onChange={setInvoiceDate} />
+            <DateField label="Échéance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
             <div>
-              <label className="text-xs font-medium uppercase text-[var(--muted)]">N Facture fournisseur <span className="text-red-500">*</span></label>
-              <input value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex: FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <label className="text-xs font-medium uppercase text-[var(--muted)]">N° de facture fournisseur <span className="text-red-500">*</span></label>
+              <input value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex. : FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
@@ -185,7 +185,7 @@ export function SupplierInvoiceForm({
           <CardContent>
             {fullAccess && showReceiptsModal && unInvoicedReceipts.length > 0 ? (
               <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <h3 className="text-sm font-semibold mb-2">Receptions a facturer</h3>
+                <h3 className="text-sm font-semibold mb-2">Réceptions à facturer</h3>
                 {unInvoicedReceipts.map((r) => (
                   <div key={r.id} className="mb-2 flex items-center justify-between rounded border bg-white p-2">
                     <span className="text-sm">{r.document_number} - {r.supplier_name} ({r.lines.length} lignes)</span>

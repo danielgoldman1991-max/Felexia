@@ -26,11 +26,11 @@ export function ThirdPartyTable({ rows, fullAccess = false }: { rows: ThirdParty
             {fullAccess ? <Th>Types</Th> : null}
             {fullAccess ? <Th>Code tiers</Th> : null}
             <Th>Ville</Th>
-            <Th>Telephone</Th>
+            <Th>Téléphone</Th>
             <Th>Email</Th>
             <Th>ICE</Th>
             <Th>Statut</Th>
-            {fullAccess ? <Th>Creation</Th> : null}
+            {fullAccess ? <Th>Création</Th> : null}
             <Th>Actions</Th>
           </tr>
         </thead>
@@ -38,7 +38,7 @@ export function ThirdPartyTable({ rows, fullAccess = false }: { rows: ThirdParty
           {rows.map((row) => (
             <tr key={row.id}>
               <Td>
-                <Link href={`/tiers/${row.id}`} className="font-medium hover:text-[var(--primary)]">
+                <Link href={`/tiers/${row.id}`} className="font-semibold text-[var(--foreground)] hover:text-[var(--primary)]">
                   {row.name}
                 </Link>
                 {row.commercial_name ? (

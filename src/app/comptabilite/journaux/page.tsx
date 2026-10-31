@@ -6,6 +6,7 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { isOperatorRole } from "@/lib/auth/operator-access";
 import { isReadOnlyRole } from "@/lib/auth/roles";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default async function JournalsPage() {
@@ -19,8 +20,8 @@ export default async function JournalsPage() {
     <ModulePage>
       <PageHeader
         title="Journaux"
-        description="Journaux comptables de vente, achat, banque et operations diverses."
-        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/ecritures">Toutes les écritures</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle écriture</Link></Button> : null}</>}
+        description="Retrouvez les écritures de vos ventes, achats, banques et caisses."
+        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/ecritures">Toutes les écritures</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau"><Plus className="h-4 w-4" aria-hidden="true" />Nouvelle écriture</Link></Button> : null}</>}
       />
       <JournalsTable rows={journals} />
     </ModulePage>

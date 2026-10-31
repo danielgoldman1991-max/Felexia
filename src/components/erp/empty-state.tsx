@@ -1,20 +1,23 @@
 import type { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Inbox } from "lucide-react";
 
 export function EmptyState({
   title,
   description,
   action,
+  icon,
 }: {
   title: string;
   description: string;
   action?: ReactNode;
+  icon?: ReactNode;
 }) {
   return (
-    <Card className="border-dashed bg-[linear-gradient(180deg,rgba(255,255,255,0.055)_0%,rgba(255,255,255,0.025)_100%)]">
-      <CardContent className="flex min-h-72 flex-col items-center justify-center text-center">
-        <div className="mb-4 h-1.5 w-16 rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] shadow-[0_0_24px_rgba(214,181,109,0.28)]" />
-        <h2 className="text-lg font-semibold text-[var(--foreground)]">{title}</h2>
+    <Card className="erp-empty-state">
+      <CardContent className="flex min-h-60 flex-col items-center justify-center px-6 py-10 text-center sm:py-12">
+        <div aria-hidden="true" className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] text-[var(--primary)] [&_svg]:h-5 [&_svg]:w-5">{icon ?? <Inbox />}</div>
+        <h2 className="text-base font-semibold tracking-[-0.015em] text-[var(--foreground)]">{title}</h2>
         <p className="mt-2 max-w-md text-sm leading-6 text-[var(--muted)]">{description}</p>
         {action ? <div className="mt-5">{action}</div> : null}
       </CardContent>

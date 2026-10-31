@@ -112,28 +112,26 @@ export function Sidebar({
         <button
           type="button"
           aria-label="Fermer le menu"
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm lg:hidden"
           onClick={onCloseMobile}
         />
       ) : null}
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[288px] flex-col border-r border-[var(--sidebar-border)]",
-          "bg-[var(--sidebar)] text-[var(--sidebar-foreground)] shadow-[var(--shadow-lg)] transition-transform duration-300 lg:translate-x-0",
+          "app-sidebar fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-[var(--sidebar-border)]",
+          "bg-[var(--sidebar)] text-[var(--sidebar-foreground)] shadow-[var(--shadow-lg)] transition-transform duration-300 lg:translate-x-0 lg:shadow-none",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="flex items-center justify-between px-5 pt-6 pb-5">
-            <Link href="/dashboard" className="flex min-w-0 items-center gap-3" onClick={onCloseMobile}>
-              <div className="rounded-xl bg-white/95 px-3 py-2 shadow-sm ring-1 ring-black/5">
-                <BrandLogo variant="horizontal" size="sm" priority />
-              </div>
+        <div className="relative z-10 flex h-full flex-col">
+          <div className="flex h-[76px] shrink-0 items-center justify-between px-6">
+            <Link href="/dashboard" className="flex min-w-0 items-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]" onClick={onCloseMobile}>
+              <BrandLogo variant="horizontal" size="sm" priority />
             </Link>
             <button
               type="button"
-              className="rounded-xl p-2 text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)] lg:hidden"
+              className="rounded-lg p-2 text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)] focus-visible:outline-2 focus-visible:outline-[var(--ring)] lg:hidden"
               onClick={onCloseMobile}
               aria-label="Fermer le menu"
             >
@@ -141,19 +139,19 @@ export function Sidebar({
             </button>
           </div>
 
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-5 pt-2">
             <Link
               href={operator ? "/dashboard" : "/parametres/entreprise"}
               onClick={onCloseMobile}
               title={operator ? organizationName : "Paramètres de l’entreprise"}
-              className="group flex items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] px-3 py-3 transition hover:border-[var(--border-strong)]"
+              className="group flex items-center gap-2.5 rounded-xl border border-[var(--sidebar-border)] bg-[var(--card)] px-3 py-3 transition-colors hover:border-[var(--border-strong)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] ring-1 ring-[var(--border)]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)]">
                 <Building2 className="h-4 w-4" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Organisation</span>
-                <span className="block truncate text-sm font-semibold text-[var(--sidebar-foreground)] group-hover:text-[var(--primary)]">{organizationName}</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--sidebar-muted)]">Mon entreprise</span>
+                <span className="mt-0.5 block truncate text-sm font-semibold text-[var(--sidebar-foreground)] group-hover:text-[var(--primary)]">{organizationName}</span>
               </span>
               {!operator ? <Settings className="h-4 w-4 shrink-0 text-[var(--sidebar-muted)] transition group-hover:text-[var(--sidebar-foreground)]" /> : null}
             </Link>
@@ -164,7 +162,7 @@ export function Sidebar({
             </div>
           </div>
 
-          <nav aria-label="Navigation principale" className="relative z-10 flex-1 space-y-0.5 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">
+          <nav aria-label="Navigation principale" className="relative z-10 min-h-0 flex-1 space-y-1 overflow-y-auto border-t border-[var(--sidebar-border)] px-3 py-4 scrollbar-thin">
             {visibleSections.map((section) => {
               const Icon = section.icon;
               const active =
@@ -175,28 +173,25 @@ export function Sidebar({
 
               return (
                 <div key={section.key}>
-                  <div className="flex items-center gap-1">
+                  <div className={cn("flex items-center gap-1 rounded-xl transition-colors", active && "bg-[var(--primary-soft)]")}>
                     <Link
                       href={section.href}
                       onClick={onCloseMobile}
                       className={cn(
-                        "group relative flex min-h-11 flex-1 items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all",
+                        "group relative flex min-h-11 min-w-0 flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
                         active
-                          ? "bg-[var(--sidebar-accent)] text-[var(--sidebar-accent-foreground)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border)]"
+                          ? "font-semibold text-[var(--primary)]"
                           : "text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]",
                       )}
                     >
-                      {active ? (
-                        <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-[var(--primary)]" />
-                      ) : null}
-                      <Icon className={cn("h-4 w-4 shrink-0", active ? "text-[var(--primary)]" : "")} />
+                      <Icon className={cn("h-[18px] w-[18px] shrink-0", active ? "text-[var(--primary)]" : "")} />
                       <span className="min-w-0 flex-1 truncate">{section.label}</span>
                     </Link>
                     {hasItems ? (
                       <button
                         type="button"
                         onClick={() => toggle(section.key)}
-                        className="flex h-10 w-9 items-center justify-center rounded-xl text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]"
+                        className="flex h-9 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--sidebar-muted)] transition-colors hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)] focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
                         aria-label={`Ouvrir ${section.label}`}
                         aria-expanded={expanded}
                       >
@@ -205,7 +200,7 @@ export function Sidebar({
                     ) : null}
                   </div>
                   {expanded && section.items ? (
-                    <div className="ml-2 mt-0.5 space-y-0.5 border-l border-[var(--sidebar-border)] pl-3">
+                    <div className="mb-2 ml-5 mt-1 space-y-0.5 border-l border-[var(--sidebar-border)] pl-3">
                       {section.items.filter((item) => !item.hidden).map((item) => {
                         const ItemIcon = item.icon;
                         const itemActive = pathMatches(pathname, item.href);
@@ -216,9 +211,9 @@ export function Sidebar({
                             aria-current={pathname === item.href.split("?")[0] ? "page" : undefined}
                             onClick={onCloseMobile}
                             className={cn(
-                              "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-all",
+                              "flex min-h-10 items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]",
                               itemActive
-                                ? "bg-[var(--surface-soft)] text-[var(--primary)]"
+                                ? "bg-[var(--primary-soft)] font-semibold text-[var(--primary)]"
                                 : "text-[var(--sidebar-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--sidebar-foreground)]",
                             )}
                           >
@@ -235,11 +230,11 @@ export function Sidebar({
             })}
           </nav>
 
-          <div ref={accountRef} className="relative z-10 border-t border-[var(--sidebar-border)] px-4 py-4">
+          <div ref={accountRef} className="relative z-10 border-t border-[var(--sidebar-border)] p-3">
             {accountOpen ? (
               <div
                 role="menu"
-                className="absolute bottom-[84px] left-4 right-4 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)]"
+                className="absolute bottom-[82px] left-3 right-3 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] p-2 shadow-[var(--shadow-lg)]"
               >
                 <div className="border-b border-[var(--border-subtle)] px-3 py-3">
                   <div className="flex items-center gap-3">
@@ -273,7 +268,7 @@ export function Sidebar({
                   role="menuitem"
                   className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[var(--muted-strong)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground)]"
                 >
-                  <KeyRound className="h-4 w-4 text-[var(--accent)]" />
+                  <KeyRound className="h-4 w-4 text-[var(--muted)]" />
                   Modifier mon mot de passe
                 </Link>
                 <form action={logoutAction}>
@@ -295,9 +290,9 @@ export function Sidebar({
                 aria-haspopup="menu"
                 aria-expanded={accountOpen}
                 onClick={() => setAccountOpen((value) => !value)}
-                className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-[var(--sidebar-border)] bg-[var(--card)] p-2 text-left transition hover:border-[var(--border-strong)]"
+                className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl p-2 text-left transition-colors hover:bg-[var(--card)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] shadow-[var(--shadow-sm)]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)]">
                   {initials(displayName) || "MO"}
                 </span>
                 <span className="min-w-0 flex-1">
