@@ -62,9 +62,11 @@ function browserFixture({ pathname = "/", origin = "https://www.felexia.pro", st
     },
     body: { appendChild(frame) {
       frames.push(frame);
-      const runtime = {};
+      const scripts = [];
+      const childDocument = { createElement(type) { assert.equal(type, "script"); return {}; }, head: { appendChild(script) { scripts.push(script); } } };
+      const runtime = { document: childDocument, location: { origin, pathname: "/api/analytics/runtime" }, parent: browser, localStorage: browser.localStorage, URL, Date, scripts };
       runtime.window = runtime;
-      vm.runInNewContext(frame.srcdoc.match(/<script>([\s\S]+?)<\/script>/)[1], runtime);
+      vm.runInNewContext(analytics.analyticsRuntimeDocument().match(/<script>([\s\S]+?)<\/script>/)[1], runtime);
       frame.contentWindow = runtime;
     } },
   };
@@ -133,8 +135,15 @@ check("Refusal persists and removes only GA cookies across host/apex scopes", ()
 });
 controller.setChoice("accepted");
 const firstFrame = fixture.frames[0];
-check("Opt-in creates one disposable runtime with denied ads, no automatic pageview, safe fixed fields and first-party cookies", () => {
+check("Opt-in creates an inert same-origin HTTPS frame without srcdoc or Google autoload", () => {
   assert.equal(fixture.frames.length, 1); assert.equal(firstFrame.referrerPolicy, "no-referrer");
+  assert.equal(firstFrame.src, "https://www.felexia.pro/api/analytics/runtime");
+  assert.equal(firstFrame.srcdoc, undefined);
+  assert.equal(firstFrame.contentWindow.scripts.length, 0);
+  assert.equal(commands(firstFrame).length, 0);
+});
+firstFrame.onload();
+check("Parent bootstrap rechecks opt-in then creates one Google tag with denied ads and safe first-party cookie configuration", () => {
   const list = commands(firstFrame);
   assert.equal(list[0][0], "consent"); assert.equal(list[0][1], "default");
   assert.equal(list[0][2].analytics_storage, "denied"); assert.equal(list[0][2].ad_user_data, "denied");
@@ -142,10 +151,11 @@ check("Opt-in creates one disposable runtime with denied ads, no automatic pagev
   assert.equal(config.send_page_view, false); assert.equal(config.allow_google_signals, false); assert.equal(config.allow_ad_personalization_signals, false);
   assert.equal(config.page_location, "https://www.felexia.pro/"); assert.equal(config.page_referrer, "");
   assert.equal(config.cookie_domain, "felexia.pro"); assert.equal(config.cookie_path, "/"); assert.equal(config.cookie_expires, 15552000);
-  assert.equal(events(firstFrame).length, 0);
-  assert.ok(!firstFrame.srcdoc.includes("private@example.invalid"));
+  assert.equal(events(firstFrame).length, 1);
+  assert.equal(firstFrame.contentWindow.scripts.length, 1);
+  assert.equal(firstFrame.contentWindow.scripts[0].src, "https://www.googletagmanager.com/gtag/js?id=G-TEST123");
+  assert.equal(firstFrame.contentWindow.scripts[0].referrerPolicy, "no-referrer");
 });
-firstFrame.onload();
 controller.sync();
 fixture.browser.location.href += "?email=private@example.invalid#secret";
 controller.sync();
@@ -228,6 +238,45 @@ check("A pending Google load emits only the latest public page once", () => {
   assert.equal(events(frame)[0][2].page_location, "https://www.felexia.pro/pricing");
   cleanup();
 });
+check("Direct runtime document never starts Google, including an explicit standalone bootstrap call", () => {
+  const f = browserFixture({ stored: consent() });
+  const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
+  const cleanup = c.start(); const frame = f.frames[0]; const runtime = frame.contentWindow;
+  runtime.parent = runtime;
+  assert.equal(runtime.felexiaStartAnalytics("G-TEST123", { page_location: "https://www.felexia.pro/", page_referrer: "" }), false);
+  assert.equal(runtime.scripts.length, 0); assert.equal(commands(frame).length, 0); cleanup();
+});
+check("Child bootstrap rejects missing consent, invalid IDs, private parent paths and unsafe parameter URLs", () => {
+  for (const variant of ["consent", "id", "private", "query", "foreign"]) {
+    const f = browserFixture({ stored: consent() });
+    const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
+    const cleanup = c.start(); const runtime = f.frames[0].contentWindow;
+    if (variant === "consent") f.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused"));
+    if (variant === "private") f.navigate("/dashboard");
+    const location = variant === "query" ? "https://www.felexia.pro/?email=private@example.invalid" : variant === "foreign" ? "https://evil.invalid/" : "https://www.felexia.pro/";
+    assert.equal(runtime.felexiaStartAnalytics(variant === "id" ? "G-TEST123&secret=x" : "G-TEST123", { page_location: location, page_referrer: "" }), false);
+    assert.equal(runtime.scripts.length, 0); cleanup();
+  }
+});
+check("Child ignores supplied title/content, sanitizes referrers, and cannot bootstrap twice", () => {
+  const f = browserFixture({ stored: consent() });
+  const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
+  const cleanup = c.start(); const frame = f.frames[0]; const runtime = frame.contentWindow;
+  const input = { page_location: "https://www.felexia.pro/pro", page_title: "SECRET", page_referrer: "https://www.felexia.pro/dashboard?email=private@example.invalid", email: "private@example.invalid" };
+  assert.equal(runtime.felexiaStartAnalytics("G-TEST123", input), true);
+  assert.equal(runtime.felexiaStartAnalytics("G-TEST123", input), false);
+  assert.equal(runtime.scripts.length, 1);
+  const config = commands(frame).find((command) => command[0] === "config")[2];
+  assert.equal(config.page_referrer, ""); assert.equal(config.page_title, "ERP PRO sur devis — FelexiaERP");
+  assert.ok(!JSON.stringify(commands(frame)).match(/SECRET|private@example/)); cleanup();
+});
+check("Consent withdrawn while the HTTPS frame loads cannot start Google", () => {
+  const f = browserFixture({ stored: consent() });
+  const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
+  const cleanup = c.start(); const frame = f.frames[0];
+  f.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused")); frame.onload();
+  assert.equal(frame.contentWindow.scripts.length, 0); assert.equal(f.removedFrames.length, 1); cleanup();
+});
 check("Storage failure during a consent change stops collection and clears cookies", () => {
   const f = browserFixture({ stored: consent() });
   const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
@@ -281,6 +330,20 @@ pathname = "/dashboard"; uiFixture.navigate(pathname); tree = render();
 check("Consent UI remains absent in the ERP", () => { assert.equal(tree, null); assert.equal(uiFixture.frames.length, 0); });
 for (const slot of slots) slot?.cleanup?.();
 
-const report = { passed: checks.length, failed: 0, scope: "Controller + actual React component under controlled browser/Google boundaries; not a live Google collection check", checks };
-fs.writeFileSync(path.join(__dirname, "verify-analytics-results.json"), JSON.stringify(report, null, 2) + "\n");
-console.log(JSON.stringify(report, null, 2));
+(async () => {
+  const endpoint = load("src/app/api/analytics/runtime/route.ts", { "@/lib/analytics/public-analytics": analytics }, { Response });
+  const response = endpoint.GET();
+  const body = await response.text();
+  check("Actual GET endpoint is inert HTML with noindex/no-store/no-referrer, no cookies and no external script element", () => {
+    assert.equal(response.status, 200); assert.equal(response.headers.get("content-type"), "text/html; charset=utf-8");
+    assert.match(response.headers.get("cache-control"), /no-store/); assert.equal(response.headers.get("cdn-cache-control"), "no-store");
+    assert.equal(response.headers.get("vercel-cdn-cache-control"), "no-store"); assert.match(response.headers.get("x-robots-tag"), /noindex/);
+    assert.equal(response.headers.get("referrer-policy"), "no-referrer"); assert.equal(response.headers.get("set-cookie"), null);
+    assert.equal(response.headers.get("x-frame-options"), "SAMEORIGIN");
+    assert.equal(body, analytics.analyticsRuntimeDocument()); assert.ok(!/<script[^>]+\bsrc=/i.test(body));
+    assert.ok(!/fetch\(|sendBeacon\(|XMLHttpRequest/.test(body));
+  });
+  const report = { passed: checks.length, failed: 0, scope: "Actual GET endpoint + controller + React component under controlled browser/Google boundaries; not a live Google collection check", checks };
+  fs.writeFileSync(path.join(__dirname, "verify-analytics-results.json"), JSON.stringify(report, null, 2) + "\n");
+  console.log(JSON.stringify(report, null, 2));
+})().catch((error) => { console.error(error); process.exitCode = 1; });

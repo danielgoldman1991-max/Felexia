@@ -24,7 +24,12 @@ export type AnalyticsChoice = "accepted" | "refused" | null;
 export type AnalyticsSnapshot = { available: boolean; choice: AnalyticsChoice };
 export type MarketingEvent = "trial_cta_click" | "pro_quote_click" | "whatsapp_click" | "contact_click";
 type Gtag = (...args: unknown[]) => void;
-type AnalyticsWindow = Window & { gtag?: Gtag; dataLayer?: unknown[]; [key: `ga-disable-${string}`]: boolean };
+type AnalyticsWindow = Window & {
+  gtag?: Gtag;
+  dataLayer?: unknown[];
+  felexiaStartAnalytics?: (measurementId: string, parameters: Record<string, string>) => boolean;
+  [key: `ga-disable-${string}`]: boolean;
+};
 
 export function validMeasurementId(value: string | undefined): string | null {
   return value && /^G-[A-Z0-9]+$/.test(value) ? value : null;
@@ -68,6 +73,67 @@ export function marketingEventForHref(href: string, base: string): MarketingEven
     if (PRODUCTION_ORIGINS.includes(url.origin) && publicPath(url.pathname) && url.hash === "#contact") return "contact_click";
     return null;
   } catch { return null; }
+}
+
+/**
+ * Inert HTTPS document: a direct GET only defines a bootstrap function. No Google
+ * script, cookie or event exists before the consenting public parent invokes it.
+ * All interpolated values are fixed application constants, never request input.
+ */
+export function analyticsRuntimeDocument(): string {
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow"><title>FelexiaERP — mesure publique consentie</title></head><body><script>
+(function(){
+  var started = false;
+  var titles = ${JSON.stringify(TITLES)};
+  var origins = ${JSON.stringify(PRODUCTION_ORIGINS)};
+  var searchReferrers = ${JSON.stringify([...SEARCH_REFERRERS])};
+  var canonical = ${JSON.stringify(PUBLIC_SITE_ORIGIN)};
+  function publicPath(value){
+    if(typeof value !== 'string' || value.charAt(0) !== '/' || value.slice(0,2) === '//' || /[\\\\?#]/.test(value)) return null;
+    var path = value.replace(/\\/+$/, '') || '/';
+    return Object.prototype.hasOwnProperty.call(titles,path) ? path : null;
+  }
+  function safeReferrer(value){
+    try {
+      var url = new URL(value);
+      if(origins.indexOf(url.origin) !== -1){ var path = publicPath(url.pathname); return path ? canonical + path : ''; }
+      return searchReferrers.indexOf(url.origin) !== -1 ? url.origin + '/' : '';
+    } catch(error){ return ''; }
+  }
+  window.felexiaStartAnalytics = function(id,parameters){
+    if(started || window.parent === window || typeof id !== 'string' || !/^G-[A-Z0-9]+$/.test(id) || !parameters) return false;
+    try {
+      if(origins.indexOf(window.location.origin) === -1 || window.parent.location.origin !== window.location.origin || !publicPath(window.parent.location.pathname)) return false;
+      var choice = JSON.parse(window.localStorage.getItem(${JSON.stringify(ANALYTICS_CHOICE_KEY)}));
+      var age = Date.now() - choice.updatedAt;
+      if(choice.version !== 1 || choice.analytics !== 'accepted' || typeof choice.updatedAt !== 'number' || !Number.isFinite(age) || age < 0 || age >= ${CHOICE_LIFETIME}) return false;
+      var location = new URL(parameters.page_location);
+      var path = publicPath(location.pathname);
+      if(location.origin !== canonical || !path || parameters.page_location !== canonical + path) return false;
+      var config = {
+        send_to:id,page_location:canonical+path,page_title:titles[path],page_referrer:safeReferrer(parameters.page_referrer),
+        send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,
+        cookie_domain:'felexia.pro',cookie_path:'/',cookie_expires:${COOKIE_LIFETIME},cookie_update:false,cookie_flags:'SameSite=Lax;Secure'
+      };
+      started = true;
+      window['ga-disable-'+id] = false;
+      window.dataLayer = [];
+      window.gtag = function(){ window.dataLayer.push(arguments); };
+      window.gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+      window.gtag('set',{allow_google_signals:false,allow_ad_personalization_signals:false,ads_data_redaction:true,url_passthrough:false});
+      window.gtag('consent','update',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+      window.gtag('js',new Date());
+      window.gtag('config',id,config);
+      var script = document.createElement('script');
+      script.async = true;
+      script.referrerPolicy = 'no-referrer';
+      script.src = 'https://www.googletagmanager.com/gtag/js?id='+id;
+      document.head.appendChild(script);
+      return true;
+    } catch(error){ return false; }
+  };
+})();
+</script></body></html>`;
 }
 
 /**
@@ -137,7 +203,7 @@ export class PublicAnalyticsController {
       this.suspend();
       return;
     }
-    if (!this.frame) this.createFrame(path);
+    if (!this.frame) this.createFrame();
     this.flushPageView(path);
   };
 
@@ -192,7 +258,7 @@ export class PublicAnalyticsController {
     };
   }
 
-  private createFrame(path: string): void {
+  private createFrame(): void {
     if (!this.measurementId) return;
     const frame = this.doc.createElement("iframe");
     frame.title = "Mesure d’audience consentie";
@@ -200,34 +266,21 @@ export class PublicAnalyticsController {
     frame.setAttribute("aria-hidden", "true");
     frame.setAttribute("tabindex", "-1");
     frame.referrerPolicy = "no-referrer";
-    // Both the ID and all strings below are validated constants, never user input.
-    const id = JSON.stringify(this.measurementId);
-    const config = JSON.stringify({
-      ...this.parameters(path),
-      send_page_view: false,
-      allow_google_signals: false,
-      allow_ad_personalization_signals: false,
-      cookie_domain: "felexia.pro",
-      cookie_path: "/",
-      cookie_expires: COOKIE_LIFETIME,
-      cookie_update: false,
-      cookie_flags: "SameSite=Lax;Secure",
-    });
-    frame.srcdoc = `<!doctype html><html lang="fr"><head><meta name="referrer" content="no-referrer"><title>FelexiaERP — site public</title></head><body><script>
-window['ga-disable-' + ${id}] = false;
-window.dataLayer = [];
-function gtag(){dataLayer.push(arguments);}
-gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
-gtag('set',{allow_google_signals:false,allow_ad_personalization_signals:false,ads_data_redaction:true,url_passthrough:false});
-gtag('consent','update',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
-gtag('js',new Date());
-gtag('config',${id},${config});
-</script><script async referrerpolicy="no-referrer" src="https://www.googletagmanager.com/gtag/js?id=${this.measurementId}"></script></body></html>`;
+    // An actual HTTPS document can use first-party cookies; about:srcdoc cannot.
+    frame.src = this.browser.location.origin + "/api/analytics/runtime";
     this.frame = frame;
     frame.onload = () => {
-      if (this.frame !== frame || !this.currentPath() || this.snapshot.choice !== "accepted") return;
-      this.frameReady = true;
-      this.sync();
+      if (this.frame !== frame) return;
+      this.readChoice();
+      const path = this.currentPath();
+      if (!path || !this.snapshot.available || this.snapshot.choice !== "accepted") { this.suspend(); return; }
+      try {
+        const runtime = frame.contentWindow as AnalyticsWindow | null;
+        if (!runtime?.felexiaStartAnalytics?.(this.measurementId!, this.parameters(path))) { this.suspend(); return; }
+        this.frameReady = true;
+        frame.onload = null;
+        this.sync();
+      } catch { this.suspend(); }
     };
     this.doc.body.appendChild(frame);
   }
