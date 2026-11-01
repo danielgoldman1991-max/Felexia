@@ -1,0 +1,11 @@
+# Correctif108 — conflits métier HTTP409
+
+À appliquer manuellement **après105–107**, depuis [108_pro_conflict_http_status.sql](migrations/108_pro_conflict_http_status.sql), dans une seule exécution SQL. Le dernier résultat attendu est **`pro_108_actif = true`**. Aucun DML métier : pas de réécriture de documents, bulletins, montants, dates, abonnements ou compteurs.
+
+Le correctif remplace uniquement trois SQLSTATE métier `40001` par `PT409` dans les deux RPC existants : version de document, taux de TVA changé et version de période de paie. PostgREST documente les codes `PTxyz` pour produire le statut HTTP correspondant : [documentation primaire PostgREST16](https://docs.postgrest.org/en/v16/references/errors.html#raise-errors-with-http-status-codes). Le504 observé auparavant dans Supabase reste un constat hébergé ; PGlite vérifie ici le SQLSTATE et le rollback, pas la réponse HTTP du fournisseur.
+
+Le script vérifie l’empreinte complète des corps attendus, une occurrence exacte de chaque fragment et les propriétés de sécurité. Il utilise `pg_get_functiondef` puis `CREATE OR REPLACE` et compare toutes les métadonnées `pg_proc` sauf le corps modifié : signature, identifiant, propriétaire, ACL, `search_path`, `SECURITY DEFINER` notamment. Une définition inattendue provoque l’annulation de toute l’installation. Une réapplication identique est sans effet ; le cache PostgREST est rechargé.
+
+**Ne pas réappliquer l’ancien bundle105–107 après108 sans repasser108 ensuite** : ce bundle historique contient encore les anciens codes. Les fichiers105,106 et le bundle105–107 restent inchangés. En cas de refus `PRO108_UNEXPECTED_*`, ne pas modifier les gardes ni forcer le remplacement : faire relire la définition installée et l’écart.
+
+Les preuves et l’empreinte SHA256 du fichier exact sont dans `training/launch-fixes/20261101/pro-transactions/conflict-108-manifest.json`, avec les résultats strict/assoupli et les vérifications des messages utilisateur. Après application, la recette QA doit confirmer une réponse SDK/HTTP409 avec `code=PT409`, un message de conflit utile et des données identiques avant/après. Aucun conflit n’est présenté comme un enregistrement réussi ; aucun fallback non atomique n’est ajouté.

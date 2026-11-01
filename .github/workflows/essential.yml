@@ -69,6 +69,8 @@ jobs:
           node training/launch-fixes/20261101/pro-transactions/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/launch-fixes/20261101/pro-transactions/verify-ui.cjs
           node training/launch-fixes/20261101/pro-transactions/verify-hr-navigation.cjs
+          node training/launch-fixes/20261101/pro-transactions/verify-conflict-status.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/launch-fixes/20261101/pro-transactions/verify-conflict-status.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
       - name: Verify electronic invoicing decimal and database boundaries
         run: |
           npx tsx training/e-invoicing/20261031/verify-decimal-parity.ts --pglite-root="$RUNNER_TEMP/felexia-qa"

@@ -1,0 +1,52 @@
+{
+  "frozenAt": "2026-11-01T15:41:28.666323+00:00",
+  "migration": "supabase/migrations/108_pro_conflict_http_status.sql",
+  "sha256": "fff32be4330788ac806f128bd25eb5a329ec0d9a8967dc62789d9eee6c167df6",
+  "scope": "Only three exact business RAISE SQLSTATE40001 toPT409; one transaction, no business DML. No cloud application or publication by this agent.",
+  "expectedFinalIndicator": "pro_108_actif = true",
+  "requires": [
+    105,
+    106,
+    107
+  ],
+  "unchangedAppliedFiles": {
+    "supabase/migrations/105_pro_commercial_transactions.sql": "cc7c5e690766e2355bf3c0c999ece6fc9bef8af9f3d72a2c5afa5557ee0d43cf",
+    "supabase/migrations/106_preparatory_payroll_transactions.sql": "d7c56e0f41eb02a2c142248562b406a36e74365b30d72ced25d69237e33c59f1",
+    "supabase/launch-fixes-105-107.sql": "7967b1409ecd7c91f7e8b32073d7385c43f7558350a19ac7e49d1d5f8ad37394"
+  },
+  "validation": {
+    "strict": {
+      "checks": 132,
+      "file": "conflict-108-strict.json"
+    },
+    "relaxed": {
+      "checks": 132,
+      "file": "conflict-108-relaxed.json",
+      "sameCasesAsStrict": true
+    },
+    "actionsAndHelper": {
+      "checks": 129,
+      "file": "actions.json"
+    },
+    "targetedLint": "passed",
+    "independentReview": [
+      {
+        "configuration": "strict",
+        "checks": 146,
+        "file": "../forecast-security/review-108-strict.json"
+      },
+      {
+        "configuration": "relaxed",
+        "checks": 146,
+        "file": "../forecast-security/review-108-relaxed.json"
+      }
+    ],
+    "independentReviewSameCasesInTwoConfigurations": true
+  },
+  "primaryReference": "https://docs.postgrest.org/en/v16/references/errors.html#raise-errors-with-http-status-codes",
+  "limitations": [
+    "PGlite tests SQLSTATE and rollback, not hosted HTTP mapping or native multi-connection concurrency.",
+    "Hosted QA stale-version request must be replayed after manual application to verify HTTP409/codePT409 and unchanged data.",
+    "Reapplying historical105–107 definitions must be followed by108 again."
+  ]
+}
