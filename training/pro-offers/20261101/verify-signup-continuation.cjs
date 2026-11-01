@@ -36,7 +36,7 @@ const element = (type, props) => ({ type, props });
 const Flow = () => null;
 const fixtures = {
   "next/navigation": { redirect, useRouter: () => ({ replace: destination => state.redirects.push(destination) }) },
-  "next/server": { NextResponse: { redirect: url => ({ location: String(url) }) } },
+  "next/server": { NextResponse: { redirect: (url, init) => ({ location: String(url), headers: new Headers(typeof init === "object" ? init.headers : undefined) }) } },
   "react/jsx-runtime": { jsx: element, jsxs: element, Fragment: "fragment" },
   react: { useState: initial => [initial === "lookup" ? state.lookupStep : initial, () => {}], useRef: () => ({ current: null }), useEffect: () => {}, useActionState: () => [{ error: null }, () => {}, false] },
   "lucide-react": new Proxy({}, { get: (_object, key) => key }),
@@ -69,7 +69,7 @@ function load(filename) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
   vm.runInNewContext(output, { module: loadedModule, exports: loadedModule.exports, URL, FormData: FixtureFormData,
-    window: { location: { origin: "https://www.felexia.pro" } }, console: { error() {}, info() {}, warn() {} },
+    window: { location: { origin: "https://www.felexia.pro", assign: url => state.oauth.push(url) } }, console: { error() {}, info() {}, warn() {} },
     fetch: async () => ({ ok: true }), require: name => {
       if (fixtures[name]) return fixtures[name];
       if (name.startsWith("@/")) {
@@ -134,8 +134,10 @@ async function main() {
     ok(state.rpc.length === 0 && state.trial.length === 0, "Account signup cannot create a company, paid subscription or PRO trial");
   }
   reset(); await google.signInWithGoogle({ next: target, mode: "register" });
-  const oauthCallback = new URL(state.oauth[0].options.redirectTo);
-  ok(oauthCallback.searchParams.get("next") === target, "Google OAuth redirect retains chosen plan/cadence");
+  const oauthStart = new URL(state.oauth[0], "https://www.felexia.pro");
+  ok(oauthStart.origin === "https://www.felexia.pro" && oauthStart.pathname === "/auth/google", "Google login navigates to the same-origin server start route");
+  ok(oauthStart.searchParams.get("next") === target, "Google OAuth server start retains chosen plan/cadence");
+  ok(oauthStart.searchParams.get("mode") === "register", "Google OAuth server start retains registration mode");
   ok((await callback.GET({ url: `https://www.felexia.pro/auth/callback?code=synthetic&next=${encodeURIComponent(target)}` })).location === `https://www.felexia.pro${setup}`, "OAuth callback without company wraps destination for setup");
   ok((await callback.GET({ url: `https://www.felexia.pro/auth/callback?code=synthetic&next=${encodeURIComponent(setup)}` })).location === `https://www.felexia.pro${setup}`, "Email confirmation callback retains nested continuation without double wrapping");
   const failure = await callback.GET({ url: `https://www.felexia.pro/auth/callback?error=access_denied&next=${encodeURIComponent(target)}` });

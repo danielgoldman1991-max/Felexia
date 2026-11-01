@@ -112,6 +112,7 @@ jobs:
           node training/pro-offers/20261101/verify-access.cjs
           node training/pro-offers/20261101/verify-readonly-ui.cjs
           node training/pro-offers/20261101/verify-signup-continuation.cjs
+          node training/google-oauth/20261101/verify-server-pkce.cjs
           node training/pro-offers/20261101/verify-hr-guards.cjs
           node training/essential-fixes/20261031/verify-webhook-recovery.cjs
           node training/essential-fixes/20261031/verify-recovery-actions.cjs

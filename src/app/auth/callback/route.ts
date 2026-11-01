@@ -5,12 +5,24 @@ import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-u
 import { resolveAuthenticatedUserRedirect } from "@/lib/auth/resolve-authenticated-user-redirect";
 import { allowPasswordRecovery } from "@/lib/auth/recovery-session";
 
+function redirectResponse(url: URL) {
+  return NextResponse.redirect(url, {
+    headers: {
+      "Cache-Control": "private, no-store, max-age=0",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  });
+}
+
 function redirectToLogin(requestUrl: URL, errorCode: string) {
   const url = new URL("/login", requestUrl.origin);
   url.searchParams.set("error", errorCode);
   const next = sanitizeInternalPath(requestUrl.searchParams.get("next"));
   if (next !== "/dashboard") url.searchParams.set("next", next);
-  return NextResponse.redirect(url);
+  const mode = requestUrl.searchParams.get("mode");
+  if (mode === "login" || mode === "register") url.searchParams.set("mode", mode);
+  return redirectResponse(url);
 }
 
 export async function GET(request: NextRequest) {
@@ -20,14 +32,14 @@ export async function GET(request: NextRequest) {
   const isRecovery = requestUrl.searchParams.get("recovery") === "1" || requestUrl.searchParams.get("type") === "recovery";
 
   if (isRecovery) {
-    if (requestUrl.searchParams.has("error")) return NextResponse.redirect(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
+    if (requestUrl.searchParams.has("error")) return redirectResponse(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
     const supabase = await createClient();
     const tokenHash = requestUrl.searchParams.get("token_hash");
     const result = tokenHash
       ? await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" })
       : code ? await supabase.auth.exchangeCodeForSession(code) : null;
     if (result && !result.error && result.data.user) await allowPasswordRecovery(result.data.user.id);
-    return NextResponse.redirect(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
+    return redirectResponse(new URL("/reinitialiser-mot-de-passe", requestUrl.origin));
   }
 
   // Erreur remontée par le fournisseur OAuth (annulation, refus, etc.)
@@ -92,7 +104,7 @@ export async function GET(request: NextRequest) {
       destination,
     });
 
-    return NextResponse.redirect(new URL(destination, requestUrl.origin));
+    return redirectResponse(new URL(destination, requestUrl.origin));
   } catch (caught) {
     console.error("[AUTH CALLBACK] post-auth failed", {
       step: "error",
