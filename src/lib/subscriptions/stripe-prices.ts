@@ -2,6 +2,12 @@ import type { PlanCode } from "@/lib/subscriptions/plans";
 
 type BillingCycle = "monthly" | "yearly";
 
+/** Immutable historical production prices remain recognizable by reconciliation. */
+const HISTORICAL_PRICE_TO_PLAN: Readonly<Record<string, PlanCode>> = {
+  price_1TWLMYA1UYDHtMFw7TUgL7dI: "essentiel",
+  price_1TYTQTA1UYDHtMFwCm6bSHuT: "essentiel",
+};
+
 const ENV_KEYS: Record<`${PlanCode}_${BillingCycle}`, string> = {
   essentiel_monthly: "STRIPE_PRICE_ESSENTIEL_MONTHLY",
   essentiel_yearly: "STRIPE_PRICE_ESSENTIEL_YEARLY",
@@ -46,12 +52,17 @@ export function getPlanCodeFromPriceId(priceId: string): PlanCode | null {
       return planCode as PlanCode;
     }
   }
-  return null;
+  return Object.prototype.hasOwnProperty.call(HISTORICAL_PRICE_TO_PLAN, priceId)
+    ? HISTORICAL_PRICE_TO_PLAN[priceId]
+    : null;
 }
 
 /**
  * Returns all configured Stripe Price IDs as a flat array (for lookup loops).
  */
 export function getAllStripePriceIds(): string[] {
-  return Object.values(PLAN_TO_STRIPE_PRICE).flatMap((p) => [p.monthly, p.yearly].filter(Boolean) as string[]);
+  return [...new Set([
+    ...Object.values(PLAN_TO_STRIPE_PRICE).flatMap((p) => [p.monthly, p.yearly].filter(Boolean) as string[]),
+    ...Object.keys(HISTORICAL_PRICE_TO_PLAN),
+  ])];
 }

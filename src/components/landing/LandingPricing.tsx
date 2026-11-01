@@ -49,7 +49,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
           </div>
           <div className="conversion-billing-toggle" data-yearly={yearly} role="group" aria-label="Période de facturation ESSENTIEL">
             <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>Mensuel</button>
-            <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Annuel<span>2 mois offerts</span></button>
+            <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Annuel</button>
           </div>
           <p className="conversion-pricing-aside">Vous hésitez entre les deux offres ? <a href="#contact">Parlons de votre activité <ArrowRight size={15} aria-hidden="true" /></a></p>
         </div>

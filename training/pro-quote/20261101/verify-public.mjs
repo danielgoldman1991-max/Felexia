@@ -19,7 +19,9 @@ for (const path of ['/','/pricing']) {
   check(path + ' has no PRO amount or billing period', !/\b(?:MAD|1290|12900|1[\s\u202f]290|12[\s\u202f]900)\b/.test(text) && !/\/\s*(?:mois|an)\b/.test(text));
   check(path + ' quote action only opens a draft email', /href="mailto:contact@felexia\.pro\?subject=Felexia%20PRO/.test(card));
   check(path + ' no longer offers a PRO checkout link', !/href="\/parametres\/abonnement\?plan=pro/.test(html));
-  check(path + ' keeps Essentiel monthly price', html.includes('290') && html.includes('Période de facturation ESSENTIEL'));
+  const essentialCard = html.match(/<article[^>]*aria-labelledby="conversion-plan-essentiel"[\s\S]*?<\/article>/)?.[0] ?? '';
+  check(path + ' publishes Essentiel monthly price99', essentialCard.includes('<strong>99</strong>') && html.includes('Période de facturation ESSENTIEL'));
+  check(path + ' no longer advertises annual free months', !html.includes('2 mois offerts'));
 }
 const response = await fetch(origin + '/images/felexia-horizon-v1.png', { signal:AbortSignal.timeout(30000) });
 const actual = Buffer.from(await response.arrayBuffer());

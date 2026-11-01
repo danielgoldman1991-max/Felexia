@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { Check, CreditCard, Database, FileText, ShieldCheck, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -164,13 +164,6 @@ export function SubscriptionManage({
     return billingInterval === "yearly" ? "/ an" : "/ mois";
   }
 
-  const yearlySavings = useMemo(() => {
-    return SUBSCRIPTION_PLANS.filter((plan) => !isPlanQuoteOnly(plan.code)).map((plan) => {
-      const monthlyEquivalent = Math.round(plan.yearlyPrice / 12);
-      return { code: plan.code, monthlyEquivalent };
-    });
-  }, []);
-
   return (
     <div className="space-y-6">
       {!hasSubscription ? (
@@ -295,9 +288,6 @@ export function SubscriptionManage({
           )}
         >
           Annuel
-          <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-            Économisez ~2 mois
-          </span>
         </button>
       </div>
 
@@ -305,7 +295,7 @@ export function SubscriptionManage({
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
           const quoteOnly = isPlanQuoteOnly(plan.code);
           const isCurrentPlan = hasSubscription && status === "active" && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
-          const savings = yearlySavings.find((s) => s.code === plan.code);
+          const monthlyEquivalent = plan.yearlyPrice / 12;
 
           return (
             <Card
@@ -321,7 +311,6 @@ export function SubscriptionManage({
                   <h3 className="text-xl font-semibold">{plan.name}</h3>
                   <div className="flex flex-wrap gap-2">
                     {plan.code === selectedPlan ? <Badge tone="info">Votre sélection</Badge> : plan.isRecommended ? <Badge tone="info">ERP complet</Badge> : null}
-                    {!quoteOnly && billingInterval === "yearly" ? <Badge tone="success">2 mois offerts</Badge> : null}
                   </div>
                 </div>
                 <p className="min-h-10 text-sm text-[var(--muted)]">{plan.description}</p>
@@ -329,9 +318,9 @@ export function SubscriptionManage({
                   {quoteOnly ? "Sur devis" : formatPrice(plan)}
                   {!quoteOnly ? <span className="text-sm font-medium text-[var(--muted)]">{formatPeriodLabel()}</span> : null}
                 </p>
-                {!quoteOnly && billingInterval === "yearly" && savings && (
+                {!quoteOnly && billingInterval === "yearly" && (
                   <p className="text-sm text-[var(--muted)]">
-                    Soit environ <span className="font-medium text-[var(--foreground)]">{savings.monthlyEquivalent} MAD</span> / mois
+                    Soit <span className="font-medium text-[var(--foreground)]">{monthlyEquivalent} MAD</span> / mois
                   </p>
                 )}
               </CardHeader>

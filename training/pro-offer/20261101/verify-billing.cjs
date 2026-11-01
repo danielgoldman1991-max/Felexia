@@ -25,9 +25,9 @@ const stripe = {
   prices: { retrieve: async id => {
     state.calls.prices++;
     const [, code, interval] = id.split("_");
-    const monthly = code === "premium" ? 1290 : code === "business" ? 690 : 290;
+    const amounts = { essentiel: { monthly: 99, yearly: 1188 }, business: { monthly: 690, yearly: 6900 }, premium: { monthly: 1290, yearly: 12900 } };
     return { id, active: true, type: "recurring", billing_scheme: "per_unit", currency: "mad",
-      unit_amount: monthly * (interval === "yearly" ? 10 : 1) * 100,
+      unit_amount: amounts[code][interval] * 100,
       recurring: { interval: interval === "yearly" ? "year" : "month", interval_count: 1, usage_type: "licensed" },
       transform_quantity: null, ...state.priceOverride };
   } },

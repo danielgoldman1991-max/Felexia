@@ -30,7 +30,7 @@ function isQuotePortal(configuration, expected) {
     && products[0].adjustable_quantity?.enabled === false;
 }
 async function prepareQuote(stripe, env) {
-  const prices = await Promise.all([["MONTHLY", 29000, "month"], ["YEARLY", 290000, "year"]].map(async ([cycle, amount, interval]) => {
+  const prices = await Promise.all([["MONTHLY", 9900, "month"], ["YEARLY", 118800, "year"]].map(async ([cycle, amount, interval]) => {
     const id = env[`STRIPE_PRICE_ESSENTIEL_${cycle}`];
     if (!id) throw Error("ESSENTIEL_PRICE_MISSING");
     const price = await stripe.prices.retrieve(id);

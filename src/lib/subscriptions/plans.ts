@@ -142,8 +142,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
     code: "essentiel",
     name: "Essentiel",
     description: "Pour démarrer simplement : factures de vente et d’achat, règlements, trésorerie et journaux.",
-    monthlyPrice: 290,
-    yearlyPrice: 2900,
+    monthlyPrice: 99,
+    yearlyPrice: 1188,
     currency: "MAD",
     isRecommended: false,
     limits: {

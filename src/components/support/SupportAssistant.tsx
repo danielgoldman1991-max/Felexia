@@ -1,25 +1,15 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { ArrowUpRight, ChevronRight, Mail, MessageCircle, Plus, RotateCcw, Send, Sparkles, Square, X } from "lucide-react";
-import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
-import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
+import { RotateCcw, Send, Sparkles, Square, X } from "lucide-react";
 import "./support-assistant.css";
 
-type Source = { id: string; title: string; href: string };
-type Message = { id: string; role: "user" | "assistant"; content: string; sources?: Source[]; suggestions?: string[]; mode?: "ai" | "knowledge" };
-type ChatReply = { reply: string; sources: Source[]; suggestions: string[]; mode: "ai" | "knowledge" };
+type Message = { id: string; role: "user" | "assistant"; content: string };
+type ChatReply = { reply: string };
 type ChatError = { message: string };
 
 const MAX_MESSAGE_LENGTH = 2_000;
-const CONTACT_EMAIL = LEGAL_CONFIG.legalEmail.trim() || "contact@felexia.pro";
-const CONTACT_HREF = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Felexia — une question pour votre équipe")}`;
-const STARTERS = [
-  { label: "Découvrir ESSENTIEL", question: "Que puis-je gérer avec ESSENTIEL ?", detail: "Ventes, achats, trésorerie" },
-  { label: "Comprendre PRO", question: "Qu’apporte PRO par rapport à ESSENTIEL ?", detail: "L’ERP pour aller plus loin" },
-  { label: "Faire mes premiers pas", question: "Comment commencer à utiliser Felexia ?", detail: "Un essai, simplement" },
-  { label: "La facture électronique", question: "La facturation électronique est-elle incluse ?", detail: "Ce que Felexia permet" },
-];
+const WHATSAPP_HREF = "https://wa.me/212614505090";
 
 function createMessageId() {
   return typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -43,37 +33,15 @@ function requestMessages(messages: Message[]) {
   return recent;
 }
 
-function safeSourceHref(href: unknown): string | null {
-  if (typeof href !== "string" || /[\u0000-\u001f\\]/.test(href)) return null;
-  if (href.startsWith("/") && !href.startsWith("//")) return href;
-  if (href.startsWith("#")) return href;
-  if (href === CONTACT_HREF || href === getProQuoteHref()) return href;
-  try {
-    const url = new URL(href);
-    if (url.protocol === "https:" && ["felexia.pro", "www.felexia.pro"].includes(url.hostname)) return url.pathname + url.search + url.hash;
-  } catch { /* An invalid source is simply omitted. */ }
-  return null;
-}
-
 function parseReply(value: unknown): ChatReply | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Record<string, unknown>;
   if (typeof candidate.reply !== "string" || !candidate.reply.trim() || candidate.reply.length > 6_000 || !["ai", "knowledge"].includes(String(candidate.mode))) return null;
-  const sources: Source[] = [];
-  if (Array.isArray(candidate.sources)) {
-    for (const source of candidate.sources.slice(0, 6)) {
-      if (!source || typeof source !== "object") continue;
-      const href = safeSourceHref(source.href);
-      if (href && typeof source.title === "string" && source.title.trim() && !sources.some((item) => item.href === href)) sources.push({ id: typeof source.id === "string" ? source.id : href, title: source.title.slice(0, 120), href });
-      if (sources.length === 4) break;
-    }
-  }
-  return {
-    reply: candidate.reply.trim(),
-    sources,
-    suggestions: Array.isArray(candidate.suggestions) ? candidate.suggestions.filter((item): item is string => typeof item === "string" && Boolean(item.trim()) && item.length <= MAX_MESSAGE_LENGTH).slice(0, 3) : [],
-    mode: candidate.mode as ChatReply["mode"],
-  };
+  return { reply: candidate.reply.trim() };
+}
+
+function WhatsAppIcon() {
+  return <svg viewBox="0 0 24 24" width="23" height="23" fill="currentColor" aria-hidden="true"><path d="M20.4 3.6A11.7 11.7 0 0 0 12.1.2C5.6.2.3 5.5.3 12c0 2.1.6 4.1 1.6 5.9L.2 24l6.3-1.6a11.8 11.8 0 0 0 5.6 1.4c6.5 0 11.8-5.3 11.8-11.8a11.7 11.7 0 0 0-3.5-8.4ZM12.1 21.8a9.7 9.7 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4a9.8 9.8 0 1 1 8.4 4.6Zm5.4-7.3c-.3-.1-1.7-.8-2-.9-.2-.1-.4-.1-.6.2s-.7.9-.9 1c-.1.2-.3.2-.6.1a8 8 0 0 1-2.3-1.4 8.6 8.6 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.4.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.3-.7.3-1.2.2-1.3-.1-.2-.3-.2-.6-.4Z" /></svg>;
 }
 
 function InlineText({ children }: { children: string }) {
@@ -96,7 +64,6 @@ export function SupportAssistant() {
   const titleId = useId();
   const inputId = useId();
   const panelId = useId();
-  const privacyId = useId();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
@@ -159,21 +126,21 @@ export function SupportAssistant() {
         if (response.status === 429) {
           const retryAfter = Math.min(300, Math.max(1, Number(response.headers.get("retry-after")) || 30));
           setRetrySeconds(retryAfter);
-          setError({ message: "Vous avez posé plusieurs questions à la suite. Un petit instant, puis nous reprenons." });
+          setError({ message: "Un instant, puis réessayez." });
         } else if (response.status === 400 || response.status === 413) {
-          setError({ message: "Votre demande n’a pas pu être traitée. Essayez de la reformuler en quelques phrases." });
+          setError({ message: "Reformulez votre question, puis réessayez." });
         } else {
-          setError({ message: "L’assistant est momentanément indisponible. Vous pouvez réessayer ou écrire à notre équipe." });
+          setError({ message: "L’assistant est indisponible. Réessayez." });
         }
         return;
       }
       const reply = parseReply(await response.json());
       if (requestRef.current?.id !== id) return;
       if (!reply) throw new Error("Invalid support response");
-      setMessages([...conversation, { id: createMessageId(), role: "assistant", content: reply.reply, sources: reply.sources, suggestions: reply.suggestions, mode: reply.mode }]);
+      setMessages([...conversation, { id: createMessageId(), role: "assistant", content: reply.reply }]);
     } catch {
       if (requestRef.current?.id !== id) return;
-      setError({ message: currentRequest.reason === "stopped" ? "La réponse a été interrompue. Vous pouvez réessayer quand vous le souhaitez." : currentRequest.reason === "timeout" ? "La réponse prend plus de temps que prévu. Vous pouvez réessayer ou contacter notre équipe." : "La connexion a été interrompue. Votre question est conservée : vous pouvez réessayer." });
+      setError({ message: currentRequest.reason === "stopped" ? "La réponse a été interrompue." : currentRequest.reason === "timeout" ? "La réponse tarde. Réessayez." : "Connexion interrompue. Réessayez." });
     } finally {
       window.clearTimeout(timeout);
       if (requestRef.current?.id === id) { requestRef.current = null; setPending(false); }
@@ -200,47 +167,36 @@ export function SupportAssistant() {
 
   return (
     <div className="felexia-support">
-      <button ref={launcherRef} type="button" className="felexia-support__launcher" data-open={open} aria-label="Poser une question à l’assistant Felexia" aria-haspopup="dialog" aria-expanded={open} aria-controls={panelId} tabIndex={open ? -1 : 0} onClick={() => setOpen(true)}>
-        <span className="felexia-support__launcher-icon"><MessageCircle size={21} strokeWidth={1.8} aria-hidden="true" /></span><span>Une question ?</span><span className="felexia-support__launcher-dot" aria-hidden="true" />
-      </button>
+      <div className="felexia-support__dock" data-open={open}>
+        <button ref={launcherRef} type="button" className="felexia-support__launcher felexia-support__launcher--ai" aria-label="Ouvrir IA Felexia" aria-haspopup="dialog" aria-expanded={open} aria-controls={panelId} tabIndex={open ? -1 : 0} onClick={() => setOpen(true)}>
+          <span className="felexia-support__launcher-icon"><Sparkles size={23} strokeWidth={1.7} aria-hidden="true" /></span><span>IA Felexia</span>
+        </button>
+        <a className="felexia-support__launcher felexia-support__launcher--team" href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" aria-label="Felexia Team sur WhatsApp" tabIndex={open ? -1 : 0}>
+          <span className="felexia-support__launcher-icon"><WhatsAppIcon /></span><span>Felexia Team</span>
+        </a>
+      </div>
       <dialog ref={dialogRef} id={panelId} className="felexia-support__panel" aria-labelledby={titleId} aria-modal="true" onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClose={() => setOpen(false)} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) setOpen(false); }}>
         <header className="felexia-support__header">
-          <span className="felexia-support__avatar" aria-hidden="true"><Sparkles size={21} strokeWidth={1.6} /></span>
-          <div className="felexia-support__identity"><h2 id={titleId}>Assistant Felexia</h2><p>Un peu de clarté pour avancer.</p></div>
-          <button type="button" className="felexia-support__icon-button" onClick={startNewConversation} aria-label="Commencer une nouvelle conversation" title="Nouvelle conversation"><Plus size={20} aria-hidden="true" /></button>
-          <button type="button" className="felexia-support__icon-button" onClick={() => setOpen(false)} aria-label="Fermer l’assistant"><X size={20} aria-hidden="true" /></button>
+          <span className="felexia-support__avatar" aria-hidden="true"><Sparkles size={18} strokeWidth={1.7} /></span>
+          <h2 id={titleId}>IA Felexia</h2>
+          {messages.length > 0 || error || pending ? <button type="button" className="felexia-support__icon-button" onClick={startNewConversation} aria-label="Commencer une nouvelle conversation" title="Nouvelle conversation"><RotateCcw size={17} aria-hidden="true" /></button> : null}
+          <button type="button" className="felexia-support__icon-button" onClick={() => setOpen(false)} aria-label="Fermer l’assistant"><X size={19} aria-hidden="true" /></button>
         </header>
-
-        <div ref={historyRef} className="felexia-support__history" tabIndex={0} aria-label="Conversation avec l’assistant">
-          {messages.length === 0 ? <div className="felexia-support__welcome">
-            <div className="felexia-support__welcome-mark" aria-hidden="true"><Sparkles size={30} strokeWidth={1.3} /><span /></div>
-            <p className="felexia-support__eyebrow">BIENVENUE CHEZ FELEXIA</p>
-            <h3>Bonjour,<br />comment vous aider ?</h3>
-            <p className="felexia-support__welcome-copy">Les offres, les fonctionnalités ou vos premiers pas : trouvons ensemble la bonne réponse.</p>
-            <div className="felexia-support__starters">{STARTERS.map((starter) => <button type="button" key={starter.label} disabled={retrySeconds > 0} onClick={() => sendMessage(starter.question)}><span><strong>{starter.label}</strong><small>{starter.detail}</small></span><ChevronRight size={16} aria-hidden="true" /></button>)}</div>
-            <p className="felexia-support__languages">Français, English ou العربية — à vous de choisir.</p>
-          </div> : <div className="felexia-support__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Messages">
-            {messages.map((message) => <article key={message.id} className={`felexia-support__message felexia-support__message--${message.role}`} aria-label={message.role === "user" ? "Votre message" : "Réponse de l’assistant Felexia"}>
-              {message.role === "assistant" ? <div className="felexia-support__message-author"><Sparkles size={13} aria-hidden="true" />Felexia{message.mode === "knowledge" ? <span>Réponse de la base d’aide</span> : <span>Assistant IA</span>}</div> : null}
+        <div ref={historyRef} className="felexia-support__history" tabIndex={messages.length > 0 ? 0 : -1} aria-label="Conversation avec l’assistant">
+          <div className="felexia-support__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Messages">
+            {messages.map((message) => <article key={message.id} className={`felexia-support__message felexia-support__message--${message.role}`} aria-label={message.role === "user" ? "Votre message" : "Réponse de IA Felexia"}>
               <div className="felexia-support__message-text" dir="auto"><ReplyText text={message.content} /></div>
-              {message.sources?.length ? <nav className="felexia-support__sources" aria-label="Liens utiles pour cette réponse">{message.sources.map((source) => <a key={source.href} href={source.href} onClick={() => setOpen(false)}>{source.title}<ArrowUpRight size={12} aria-hidden="true" /></a>)}</nav> : null}
             </article>)}
-          </div>}
-          {pending ? <div className="felexia-support__thinking" role="status"><span aria-hidden="true"><i /><i /><i /></span>Je prépare votre réponse…</div> : null}
+          </div>
+          {pending ? <div className="felexia-support__thinking" role="status" aria-label="Réponse en cours"><span aria-hidden="true"><i /><i /><i /></span></div> : null}
           {error ? <div className="felexia-support__error" role="alert"><p>{error.message}</p>{lastMessage?.role === "user" ? <button type="button" onClick={() => void requestReply(messages)} disabled={retrySeconds > 0}><RotateCcw size={13} aria-hidden="true" />{retrySeconds > 0 ? `Réessayer dans ${retrySeconds} s` : "Réessayer"}</button> : null}</div> : null}
-          {!error && retrySeconds > 0 ? <p className="felexia-support__cooldown" role="status">Vous pourrez poser une nouvelle question dans {retrySeconds} s.</p> : null}
-          {!pending && !error && lastMessage?.role === "assistant" && lastMessage.suggestions?.length ? <div className="felexia-support__follow-ups" aria-label="Poursuivre la conversation">{lastMessage.suggestions.map((suggestion) => <button type="button" key={suggestion} onClick={() => sendMessage(suggestion)}>{suggestion}<ChevronRight size={13} aria-hidden="true" /></button>)}</div> : null}
+          {!error && retrySeconds > 0 ? <p className="felexia-support__cooldown" role="status">Réessayez dans {retrySeconds} s.</p> : null}
         </div>
-
-        <div className="felexia-support__bottom">
-          <div className="felexia-support__human"><a href={CONTACT_HREF}><Mail size={13} aria-hidden="true" />Parler à notre équipe<ArrowUpRight size={12} aria-hidden="true" /></a><a href={getProQuoteHref()}>Un projet PRO ?<ArrowUpRight size={12} aria-hidden="true" /></a></div>
-          <form className="felexia-support__composer" onSubmit={(event) => { event.preventDefault(); sendMessage(draft); }} aria-busy={pending}>
-            <label className="felexia-support__sr-only" htmlFor={inputId}>Votre question à l’assistant Felexia</label>
-            <textarea ref={inputRef} id={inputId} aria-describedby={privacyId} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); sendMessage(draft); } }} placeholder="Posez votre question…" maxLength={MAX_MESSAGE_LENGTH} rows={2} dir="auto" enterKeyHint="send" />
-            {pending ? <button type="button" className="felexia-support__send" aria-label="Interrompre la réponse" title="Interrompre" onClick={() => { if (requestRef.current) { requestRef.current.reason = "stopped"; requestRef.current.controller.abort(); } }}><Square size={15} fill="currentColor" aria-hidden="true" /></button> : <button type="submit" className="felexia-support__send" disabled={!draft.trim() || retrySeconds > 0} aria-label="Envoyer votre question"><Send size={18} strokeWidth={1.8} aria-hidden="true" /></button>}
-          </form>
-          <div className="felexia-support__footnote"><p id={privacyId}>Vos messages peuvent être traités par notre service IA. Évitez les données sensibles. <a href="/confidentialite#assistant" onClick={() => setOpen(false)}>Confidentialité<ArrowUpRight size={10} aria-hidden="true" /></a></p>{draft.length >= 1_700 ? <span>{draft.length}/{MAX_MESSAGE_LENGTH}</span> : null}</div>
-        </div>
+        <form className="felexia-support__composer" onSubmit={(event) => { event.preventDefault(); sendMessage(draft); }} aria-busy={pending}>
+          <label className="felexia-support__sr-only" htmlFor={inputId}>Votre question à IA Felexia</label>
+          <textarea ref={inputRef} id={inputId} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); sendMessage(draft); } }} placeholder="Votre message…" maxLength={MAX_MESSAGE_LENGTH} rows={1} dir="auto" enterKeyHint="send" />
+          {pending ? <button type="button" className="felexia-support__send" aria-label="Interrompre la réponse" title="Interrompre" onClick={() => { if (requestRef.current) { requestRef.current.reason = "stopped"; requestRef.current.controller.abort(); } }}><Square size={14} fill="currentColor" aria-hidden="true" /></button> : <button type="submit" className="felexia-support__send" disabled={!draft.trim() || retrySeconds > 0} aria-label="Envoyer votre question"><Send size={17} strokeWidth={1.8} aria-hidden="true" /></button>}
+        </form>
       </dialog>
     </div>
   );

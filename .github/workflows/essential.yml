@@ -95,6 +95,8 @@ jobs:
           node training/launch-fixes/20261101/pro-transactions/verify-chart-export.cjs
       - name: Verify checkout, recovery, exports and histories
         run: |
+          node training/price-chat/20261101/verify-repricing.cjs
+          node training/price-chat/20261101/verify-legacy-webhook.cjs
           npx tsx training/support-assistant/20261101/verify-knowledge.ts
           npx tsx training/support-assistant/20261101/verify-policy.ts
           npx tsx training/support-assistant/20261101/verify-fallback.ts

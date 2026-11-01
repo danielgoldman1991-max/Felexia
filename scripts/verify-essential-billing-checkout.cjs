@@ -32,7 +32,13 @@ const stripeKey = process.env.STRIPE_SECRET_KEY;
 if (!publicUrl || !publicKey || publicKey.startsWith('sb_secret_') || !stripeKey) throw new Error('Public Auth and local Stripe verification configuration required');
 if (publicKey.split('.').length === 3 && JSON.parse(Buffer.from(publicKey.split('.')[1], 'base64url').toString()).role !== 'anon') throw new Error('Public anonymous Auth key required');
 const stripe = new Stripe(stripeKey, { timeout: 15000, maxNetworkRetries: 1 });
-const origin = 'https://www.felexia.pro';
+const verificationContext = process.argv.find(value => value.startsWith('--verification-context='))?.slice(23);
+const requestedOrigin = process.argv.find(value => value.startsWith('--origin='))?.slice(9);
+if (verificationContext && !['price-chat-local', 'price-chat-production'].includes(verificationContext)) throw new Error('Unsupported QA verification context');
+if (requestedOrigin && verificationContext !== 'price-chat-local') throw new Error('A custom origin requires the exact local QA context');
+const origin = requestedOrigin || 'https://www.felexia.pro';
+const parsedOrigin = new URL(origin);
+if (verificationContext === 'price-chat-local' && (!requestedOrigin || parsedOrigin.origin !== origin || parsedOrigin.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(parsedOrigin.hostname) || Number(parsedOrigin.port) < 1024)) throw new Error('Only an explicit localhost QA origin is supported');
 const returnOrigin = 'https://felexia.pro';
 const jar = new Map();
 const auth = createServerClient(publicUrl, publicKey, {
@@ -42,13 +48,13 @@ const auth = createServerClient(publicUrl, publicKey, {
   },
   auth: { autoRefreshToken: false, detectSessionInUrl: false },
 });
-const report = { date: new Date().toISOString(), run: m.run, companyName: m.companyName, success: false, checks: [], http: [], cleanup: { attempted: false, completed: false }, scope: 'Real production HTTP Checkout preparation and read-only Stripe verification; no Checkout navigation, card, confirmation, paying subscription or charge' };
+const report = { date: new Date().toISOString(), run: m.run, companyName: m.companyName, verificationContext: verificationContext || 'historical-production', origin, success: false, checks: [], http: [], cleanup: { attempted: false, completed: false }, scope: 'Real HTTP Checkout preparation and read-only Stripe verification; no Checkout navigation, card, confirmation, paying subscription or charge' };
 const startedAt = Math.floor(Date.now() / 1000);
 const sessionIds = new Set();
 let customerId = null;
 let originalSubscription = null;
 let canDiscoverNewSessions = false;
-const directory = path.join(root, 'training/essential-fixes/20261031');
+const directory = verificationContext ? path.join(root, 'training/price-chat/20261101', verificationContext === 'price-chat-local' ? 'billing-checkout-local' : 'billing-checkout-production') : path.join(root, 'training/essential-fixes/20261031');
 fs.mkdirSync(directory, { recursive: true });
 try {
   const previous = JSON.parse(fs.readFileSync(path.join(directory, 'company-billing-checkout.json'), 'utf8'));
@@ -152,6 +158,7 @@ async function validateSession(session, interval, amount) {
   const line = lines.data[0]; const price = line?.price;
   check(interval + ' session uses Essentiel and the requested billing cycle', session.metadata.plan_code === 'essentiel' && session.metadata.billing_cycle === interval);
   check(interval + ' session contains one recurring unit at the expected MAD price', !lines.has_more && lines.data.length === 1 && line.quantity === 1 && price.currency === 'mad' && price.unit_amount === amount && price.recurring?.interval === (interval === 'monthly' ? 'month' : 'year') && price.recurring.interval_count === 1);
+  check(interval + ' session uses the current exact configured price ID', price.id === process.env[interval === 'monthly' ? 'STRIPE_PRICE_ESSENTIEL_MONTHLY' : 'STRIPE_PRICE_ESSENTIEL_YEARLY']);
   check(interval + ' total is the exact public tariff', session.currency === 'mad' && session.amount_total === amount);
   check(interval + ' remains open, unpaid and without a subscription or payment', session.status === 'open' && session.payment_status === 'unpaid' && !session.subscription && !session.payment_intent);
   const success = new URL(session.success_url), cancel = new URL(session.cancel_url);
@@ -203,14 +210,14 @@ async function main() {
     check('No pre-existing Checkout is altered by this test', !open.has_more && open.data.length === 0);
   }
   try {
-    const monthly = await prepare('monthly'); await validateSession(monthly, 'monthly', 29000);
+    const monthly = await prepare('monthly'); await validateSession(monthly, 'monthly', 9900);
     const repeated = await prepare('monthly');
     check('A repeated monthly HTTP request reuses exactly the same Checkout', repeated.id === monthly.id);
-    const yearly = await prepare('yearly'); await validateSession(yearly, 'yearly', 290000);
+    const yearly = await prepare('yearly'); await validateSession(yearly, 'yearly', 118800);
     check('Changing the cycle prepares a distinct yearly Checkout', yearly.id !== monthly.id);
     const former = await stripe.checkout.sessions.retrieve(monthly.id);
     check('Production expires the prior monthly Checkout before the cycle change', former.status === 'expired' && !former.subscription);
-    report.monthlyAmountMinor = 29000; report.yearlyAmountMinor = 290000; report.currency = 'MAD'; report.sameMonthlySessionReused = true; report.priorMonthlyExpiredByCycleChange = true;
+    report.monthlyAmountMinor = 9900; report.yearlyAmountMinor = 118800; report.currency = 'MAD'; report.sameMonthlySessionReused = true; report.priorMonthlyExpiredByCycleChange = true;
   } finally { await cleanup(); }
   await verifyNoFunds('After cleanup');
   const finalSubscription = await subscription();

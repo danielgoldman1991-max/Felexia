@@ -79,12 +79,6 @@ export function PlanSelection({
     }
   }
 
-  const yearlyDiscount = plans.map((p) => {
-    if (p.price_monthly === 0) return 0;
-    const monthlyYearly = p.price_monthly * 12;
-    return Math.round((1 - p.price_yearly / monthlyYearly) * 100);
-  })[0] || 0;
-
   function formatPrice(price: number): string {
     if (price === 0) return "Gratuit";
     return new Intl.NumberFormat("fr-FR", {
@@ -126,11 +120,6 @@ export function PlanSelection({
             )}
           >
             Annuel
-            {yearlyDiscount > 0 && (
-              <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-700">
-                -{yearlyDiscount}%
-              </span>
-            )}
           </button>
         </div>
       </div>

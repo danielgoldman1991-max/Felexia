@@ -18,7 +18,7 @@ function reset() {
 }
 const stripe = {
   prices: { retrieve: async id => ({ id, active: true, livemode: false, product: "prod_essentiel", type: "recurring", billing_scheme: "per_unit", currency: "mad",
-    unit_amount: id.endsWith("yearly") ? 290000 : 29000, transform_quantity: null,
+    unit_amount: id.endsWith("yearly") ? 118800 : 9900, transform_quantity: null,
     recurring: { interval: id.endsWith("yearly") ? "year" : "month", interval_count: 1, usage_type: "licensed" }, ...state.priceOverride }) },
   billingPortal: { configurations: {
     retrieve: async id => { assert.equal(id, "bpc_fixture"); return structuredClone(state.configuration); },

@@ -14,7 +14,7 @@ const stripe = {
   prices: { retrieve: async id => {
     const [, code, interval] = id.split("_");
     return { id, product: `prod_${code}`, active: true, livemode: false, type: "recurring", billing_scheme: "per_unit", currency: "mad",
-      unit_amount: (code === "premium" ? 1290 : 290) * (interval === "yearly" ? 10 : 1) * 100,
+      unit_amount: (code === "premium" ? (interval === "yearly" ? 12900 : 1290) : (interval === "yearly" ? 1188 : 99)) * 100,
       transform_quantity: null, recurring: { interval: interval === "yearly" ? "year" : "month", interval_count: 1, usage_type: "licensed" }, ...state.priceOverride };
   } },
   products: {

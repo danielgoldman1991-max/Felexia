@@ -52,7 +52,7 @@ function samePortal(configuration, parameters) {
 }
 async function prepare(stripe, env) {
   const specs = [
-    ["essentiel", "MONTHLY", 29000, "month"], ["essentiel", "YEARLY", 290000, "year"],
+    ["essentiel", "MONTHLY", 9900, "month"], ["essentiel", "YEARLY", 118800, "year"],
     ["premium", "MONTHLY", 129000, "month"], ["premium", "YEARLY", 1290000, "year"],
   ];
   const prices = await Promise.all(specs.map(async ([code, cycle, amount, interval]) => {
