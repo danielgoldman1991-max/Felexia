@@ -7,11 +7,11 @@
 .felexia-support a { text-decoration: none; }
 .felexia-support__dock { position: fixed; z-index: 70; left: max(22px, env(safe-area-inset-left)); right: max(22px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; pointer-events: none; transition: opacity .15s, transform .15s; }
 .felexia-support__dock[data-open="true"] { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(8px); }
-.felexia-support__launcher { display: flex; align-items: center; flex: 0 0 auto; gap: 10px; min-height: 51px; padding: 7px 18px 7px 8px; border: 1px solid #ffffff38; border-radius: 99px; color: #fff; box-shadow: 0 7px 22px #14213d1f, 0 2px 4px #14213d12; font-size: 12px !important; font-weight: 600 !important; letter-spacing: -.01em; pointer-events: auto; transition: transform .18s, box-shadow .18s; }
+.felexia-support__launcher { display: grid; place-items: center; flex: 0 0 auto; width: 58px; height: 58px; min-height: 58px; padding: 0; border: 1px solid #ffffff38; border-radius: 50%; color: #fff; box-shadow: 0 7px 22px #14213d1f, 0 2px 4px #14213d12; pointer-events: auto; transition: transform .18s, box-shadow .18s; }
 .felexia-support__launcher--ai { background: linear-gradient(125deg, #2454d8, #6850d7); }
 .felexia-support__launcher--team { background: linear-gradient(125deg, #12815b, #087752); }
 .felexia-support__launcher:hover { transform: translateY(-2px); box-shadow: 0 10px 26px #14213d2b; }
-.felexia-support__launcher-icon { display: grid; place-items: center; flex: 0 0 auto; width: 35px; height: 35px; border: 1px solid #ffffff2e; border-radius: 50%; background: #ffffff17; color: #fff; }
+.felexia-support__launcher-icon { display: grid; place-items: center; width: 100%; height: 100%; color: #fff; }
 .felexia-support__panel { position: fixed; inset: auto auto max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left)); display: flex; flex-direction: column; width: 380px; height: min(480px, calc(100dvh - 44px)); max-width: calc(100vw - 28px); max-height: calc(100dvh - 44px); padding: 0; margin: 0; overflow: hidden; border: 1px solid #e1e6ef; border-radius: 20px; background: #fff; color: #14213d; box-shadow: 0 24px 75px -14px #14213d3b; font: inherit; }
 .felexia-support__panel:not([open]) { display: none; }
 .felexia-support__panel::backdrop { background: #14213d12; }
@@ -22,6 +22,10 @@
 .felexia-support__icon-button:hover { background: #f1f4f9; color: #14213d; }
 .felexia-support__history { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 16px; scrollbar-width: thin; scrollbar-color: #d7dfec transparent; }
 .felexia-support__history:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px #c2d3f7; }
+.felexia-support__intro { position: relative; display: flex; align-items: flex-start; gap: 6px; padding: 12px 9px 12px 13px; margin: 3px 0 18px; border: 1px solid #dfe5fb; border-radius: 4px 14px 14px 14px; background: #f4f6ff; color: #425477; }
+.felexia-support__intro::before { content: ""; position: absolute; top: -5px; left: 12px; width: 8px; height: 8px; border-top: 1px solid #dfe5fb; border-left: 1px solid #dfe5fb; background: #f4f6ff; transform: rotate(45deg); }
+.felexia-support__intro p { margin: 0; font-size: 12px; line-height: 1.7; }
+.felexia-support__intro .felexia-support__icon-button { width: 24px; height: 24px; margin-top: -3px; color: #7180a3; }
 .felexia-support__messages { display: flex; flex-direction: column; gap: 14px; }
 .felexia-support__message { min-width: 0; max-width: 100%; }
 .felexia-support__message--user { align-self: flex-end; max-width: 89%; padding: 10px 13px; border-radius: 14px 14px 4px 14px; background: #eeeffc; color: #354b79; }
@@ -54,8 +58,7 @@
 @keyframes felexia-support-think { 0%, 80%, 100% { opacity: .35; } 40% { opacity: 1; } }
 @media (max-width: 599px) {
   .felexia-support__dock { left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
-  .felexia-support__launcher { min-height: 47px; padding: 6px 14px 6px 7px; gap: 8px; font-size: 11px !important; }
-  .felexia-support__launcher-icon { width: 33px; height: 33px; }
+  .felexia-support__launcher { width: 52px; height: 52px; min-height: 52px; }
   .felexia-support__panel { inset: auto max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); width: auto; max-width: none; height: min(480px, calc(100dvh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom)))); max-height: none; border-radius: 18px; }
   .felexia-support__composer textarea { font-size: 16px; }
 }

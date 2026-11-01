@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { RotateCcw, Send, Sparkles, Square, X } from "lucide-react";
+import { BotMessageSquare, RotateCcw, Send, Square, X } from "lucide-react";
 import "./support-assistant.css";
 
 type Message = { id: string; role: "user" | "assistant"; content: string };
@@ -41,7 +41,7 @@ function parseReply(value: unknown): ChatReply | null {
 }
 
 function WhatsAppIcon() {
-  return <svg viewBox="0 0 24 24" width="23" height="23" fill="currentColor" aria-hidden="true"><path d="M20.4 3.6A11.7 11.7 0 0 0 12.1.2C5.6.2.3 5.5.3 12c0 2.1.6 4.1 1.6 5.9L.2 24l6.3-1.6a11.8 11.8 0 0 0 5.6 1.4c6.5 0 11.8-5.3 11.8-11.8a11.7 11.7 0 0 0-3.5-8.4ZM12.1 21.8a9.7 9.7 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4a9.8 9.8 0 1 1 8.4 4.6Zm5.4-7.3c-.3-.1-1.7-.8-2-.9-.2-.1-.4-.1-.6.2s-.7.9-.9 1c-.1.2-.3.2-.6.1a8 8 0 0 1-2.3-1.4 8.6 8.6 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.4.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.3-.7.3-1.2.2-1.3-.1-.2-.3-.2-.6-.4Z" /></svg>;
+  return <svg viewBox="0 0 24 24" width="27" height="27" fill="currentColor" aria-hidden="true"><path d="M20.4 3.6A11.7 11.7 0 0 0 12.1.2C5.6.2.3 5.5.3 12c0 2.1.6 4.1 1.6 5.9L.2 24l6.3-1.6a11.8 11.8 0 0 0 5.6 1.4c6.5 0 11.8-5.3 11.8-11.8a11.7 11.7 0 0 0-3.5-8.4ZM12.1 21.8a9.7 9.7 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4a9.8 9.8 0 1 1 8.4 4.6Zm5.4-7.3c-.3-.1-1.7-.8-2-.9-.2-.1-.4-.1-.6.2s-.7.9-.9 1c-.1.2-.3.2-.6.1a8 8 0 0 1-2.3-1.4 8.6 8.6 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.4.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.3-.7.3-1.2.2-1.3-.1-.2-.3-.2-.6-.4Z" /></svg>;
 }
 
 function InlineText({ children }: { children: string }) {
@@ -64,7 +64,9 @@ export function SupportAssistant() {
   const titleId = useId();
   const inputId = useId();
   const panelId = useId();
+  const introId = useId();
   const [open, setOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
@@ -152,6 +154,7 @@ export function SupportAssistant() {
     if (!content || content.length > MAX_MESSAGE_LENGTH || pending || requestRef.current || retrySeconds > 0) return;
     const previous = error && lastMessage?.role === "user" ? messages.slice(0, -1) : messages;
     const conversation: Message[] = [...previous, { id: createMessageId(), role: "user", content }];
+    setShowIntro(false);
     setMessages(conversation);
     setDraft("");
     void requestReply(conversation);
@@ -169,20 +172,24 @@ export function SupportAssistant() {
     <div className="felexia-support">
       <div className="felexia-support__dock" data-open={open}>
         <button ref={launcherRef} type="button" className="felexia-support__launcher felexia-support__launcher--ai" aria-label="Ouvrir Felexia IA" aria-haspopup="dialog" aria-expanded={open} aria-controls={panelId} tabIndex={open ? -1 : 0} onClick={() => setOpen(true)}>
-          <span className="felexia-support__launcher-icon"><Sparkles size={23} strokeWidth={1.7} aria-hidden="true" /></span><span>Felexia IA</span>
+          <span className="felexia-support__launcher-icon"><BotMessageSquare size={28} strokeWidth={1.7} aria-hidden="true" /></span>
         </button>
         <a className="felexia-support__launcher felexia-support__launcher--team" href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" aria-label="Felexia Team sur WhatsApp" tabIndex={open ? -1 : 0}>
-          <span className="felexia-support__launcher-icon"><WhatsAppIcon /></span><span>Felexia Team</span>
+          <span className="felexia-support__launcher-icon"><WhatsAppIcon /></span>
         </a>
       </div>
-      <dialog ref={dialogRef} id={panelId} className="felexia-support__panel" aria-labelledby={titleId} aria-modal="true" onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClose={() => setOpen(false)} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) setOpen(false); }}>
+      <dialog ref={dialogRef} id={panelId} className="felexia-support__panel" aria-labelledby={titleId} aria-describedby={showIntro ? introId : undefined} aria-modal="true" onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClose={() => setOpen(false)} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) setOpen(false); }}>
         <header className="felexia-support__header">
-          <span className="felexia-support__avatar" aria-hidden="true"><Sparkles size={18} strokeWidth={1.7} /></span>
+          <span className="felexia-support__avatar" aria-hidden="true"><BotMessageSquare size={18} strokeWidth={1.7} /></span>
           <h2 id={titleId}>Felexia IA</h2>
           {messages.length > 0 || error || pending ? <button type="button" className="felexia-support__icon-button" onClick={startNewConversation} aria-label="Commencer une nouvelle conversation" title="Nouvelle conversation"><RotateCcw size={17} aria-hidden="true" /></button> : null}
           <button type="button" className="felexia-support__icon-button" onClick={() => setOpen(false)} aria-label="Fermer l’assistant"><X size={19} aria-hidden="true" /></button>
         </header>
         <div ref={historyRef} className="felexia-support__history" tabIndex={messages.length > 0 ? 0 : -1} aria-label="Conversation avec l’assistant">
+          {showIntro ? <div className="felexia-support__intro" role="note">
+            <p id={introId}>Je suis l’assistant IA de Felexia. Je vous aide à découvrir le logiciel, ses offres et ses fonctionnalités.</p>
+            <button type="button" className="felexia-support__icon-button" aria-label="Masquer la présentation de l’assistant" onClick={() => { setShowIntro(false); inputRef.current?.focus({ preventScroll: true }); }}><X size={14} aria-hidden="true" /></button>
+          </div> : null}
           <div className="felexia-support__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Messages">
             {messages.map((message) => <article key={message.id} className={`felexia-support__message felexia-support__message--${message.role}`} aria-label={message.role === "user" ? "Votre message" : "Réponse de Felexia IA"}>
               <div className="felexia-support__message-text" dir="auto"><ReplyText text={message.content} /></div>

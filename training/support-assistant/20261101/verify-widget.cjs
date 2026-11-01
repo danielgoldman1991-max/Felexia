@@ -132,7 +132,7 @@ async function flushRequests() { for (let index = 0; index < 8; index++) await P
 async function main() {
   fetchImplementation = async () => ({ ok: false, status: 429, headers: { get: () => "2" } });
   let tree = render();
-  const teamLink = walk(tree, (node) => node.type === "a" && text(node) === "Felexia Team");
+  const teamLink = walk(tree, (node) => node.type === "a" && node.props["aria-label"] === "Felexia Team sur WhatsApp");
   verify(Boolean(button(tree, "Ouvrir Felexia IA")), "Named AI launcher is available");
   verify(teamLink?.props.href === "https://wa.me/212614505090", "Team launcher points only to the requested WhatsApp number");
   verify(teamLink.props.target === "_blank" && /noopener/.test(teamLink.props.rel) && /noreferrer/.test(teamLink.props.rel), "WhatsApp opens a protected separate tab without any automatic transmission");
