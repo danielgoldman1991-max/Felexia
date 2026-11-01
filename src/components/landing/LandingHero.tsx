@@ -22,11 +22,11 @@ export function LandingHero() {
         </div>
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
-          <h1 id="hero-title">Votre entreprise, simplement.</h1>
-          <p>Ventes, achats, facturation et trésorerie.<br />{" "}ESSENTIEL réunit votre gestion quotidienne dans un seul espace.</p>
+          <h1 id="hero-title">Un nouvel horizon pour votre entreprise.</h1>
+          <p>Ventes, achats, trésorerie : simplifiez votre quotidien avec ESSENTIEL.<br />{" "}Allez plus loin avec PRO, l’ERP complet sur devis.</p>
           <div className="horizon-actions">
             <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
-            <a href="#essentiel" className="horizon-discover">Découvrir ESSENTIEL</a>
+            <a href="#pricing" className="horizon-discover">Découvrir nos offres</a>
           </div>
           <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL · Sans carte bancaire</span>
           <LandingZoomPreference />

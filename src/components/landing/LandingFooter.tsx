@@ -6,7 +6,7 @@ const productLinks = [
   { label: "La gestion avec ESSENTIEL", href: "/#essentiel" },
   { label: "Au quotidien", href: "/#modules" }, { label: "L’ERP complet PRO", href: "/#pro" },
   { label: "Facturation électronique incluse", href: "/#facturation-electronique" },
-  { label: "Tarifs", href: "/#pricing" }, { label: "Questions fréquentes", href: "/#resources" },
+  { label: "Tarifs", href: "/#pricing" }, { label: "FAQ", href: "/#resources" },
 ];
 const accessLinks = [
   { label: "Se connecter", href: "/login" }, { label: "Créer mon espace", href: "/login?mode=register" }, { label: "Nous contacter", href: "/#contact" },

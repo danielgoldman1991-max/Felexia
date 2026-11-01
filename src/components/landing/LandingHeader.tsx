@@ -10,7 +10,7 @@ const navLinks = [
   { href: "/#essentiel", label: "ESSENTIEL" },
   { href: "/#pro", label: "ERP PRO" },
   { href: "/#pricing", label: "Tarifs" },
-  { href: "/#resources", label: "Questions fréquentes" },
+  { href: "/#resources", label: "FAQ" },
 ];
 
 export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
