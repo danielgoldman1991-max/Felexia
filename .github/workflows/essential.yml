@@ -59,6 +59,8 @@ jobs:
           node training/essential-fixes/20261031/verify-finance.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-subscription-access.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/essential-fixes/20261031/verify-subscription-access.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/trial-15-days/20261101/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/trial-15-days/20261101/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
