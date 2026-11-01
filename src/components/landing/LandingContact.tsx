@@ -1,8 +1,26 @@
-import { ArrowRight, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, Mail } from "lucide-react";
 import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 
 export function LandingContact() {
   const email = LEGAL_CONFIG.legalEmail.trim() || "contact@felexia.pro";
-  return <section id="contact" className="scroll-mt-24 bg-[#F8FBFF] py-20"><div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8"><div className="grid gap-8 rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 lg:grid-cols-[1.4fr_1fr] lg:items-center"><div><p className="text-sm font-semibold uppercase tracking-widest text-[#1456B8]">Contact</p><h2 className="mt-3 text-3xl font-bold text-[#0B2A5B]">Un besoin particulier ?</h2><p className="mt-4 text-base leading-7 text-slate-600">Démarrez avec les factures, les règlements et la trésorerie. Pour activer le stock, la comptabilité avancée ou d’autres modules, écrivez à notre équipe en précisant votre entreprise et votre besoin.</p><p className="mt-4 text-sm leading-6 text-slate-500">Les modules complémentaires sont activés sur demande, après échange avec notre équipe.</p></div><div className="rounded-2xl bg-[#F8FBFF] p-6"><Mail className="h-7 w-7 text-[#1456B8]" /><a href={`mailto:${email}`} className="mt-4 block break-all text-lg font-semibold text-[#0B2A5B]">{email}</a><Button asChild variant="landingPrimary" className="mt-6 h-12 px-6"><a href={`mailto:${email}?subject=${encodeURIComponent("Felexia Pro — demande d’information ou de module")}`}><span className="relative z-10 !text-white">Contacter notre équipe</span><ArrowRight className="relative z-10 h-4 w-4 !text-white" /></a></Button><p className="mt-3 text-xs leading-5 text-slate-500">Ouvre votre application de messagerie. Vous pourrez vérifier votre message avant de l’envoyer.</p></div></div></div></section>;
+  return (
+    <section id="contact" aria-labelledby="conversion-contact-title" className="conversion-contact">
+      <div className="marketing-container">
+        <div className="conversion-contact-panel" data-reveal>
+          <div className="conversion-contact-art" aria-hidden="true"><span className="conversion-orbit conversion-orbit-one" /><span className="conversion-orbit conversion-orbit-two" /><span className="conversion-orbit conversion-orbit-three" /><span className="conversion-orbit-center" /></div>
+          <div className="conversion-contact-content">
+            <p className="conversion-contact-eyebrow">Moins de gestion. Plus d’élan.</p>
+            <h2 id="conversion-contact-title">Faites de la place<br />à votre entreprise.</h2>
+            <p>Vos factures, vos règlements, votre trésorerie.<br />Votre nouveau quotidien commence ici.</p>
+            <Link href="/login?mode=register" className="marketing-button conversion-contact-start">Démarrer gratuitement <ArrowRight size={18} aria-hidden="true" /></Link>
+          </div>
+          <div className="conversion-contact-bottom">
+            <div><Mail size={18} aria-hidden="true" /><p>Un besoin particulier ou un module à activer ?<br /><span>Échangeons sur votre activité.</span></p></div>
+            <a href={`mailto:${email}?subject=${encodeURIComponent("Felexia Pro — demande d’information ou de module")}`}>{email} <ArrowUpRight size={18} aria-hidden="true" /></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

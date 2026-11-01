@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import { LandingContact } from "@/components/landing/LandingContact";
-import { LandingComparison } from "@/components/landing/LandingComparison";
-import { LandingFeatures } from "@/components/landing/LandingFeatures";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
-import { LandingModules } from "@/components/landing/LandingModules";
-import { LandingMorocco } from "@/components/landing/LandingMorocco";
 import { LandingPricing } from "@/components/landing/LandingPricing";
-import { LandingProofStrip } from "@/components/landing/LandingProofStrip";
-import { LandingResources } from "@/components/landing/LandingResources";
-import { LandingWhy } from "@/components/landing/LandingWhy";
-import { LandingWorkflow } from "@/components/landing/LandingWorkflow";
+import { LandingStory } from "@/components/landing/LandingStory";
+import { LandingEffects } from "@/components/landing/LandingEffects";
+import "@/styles/landing.css";
 
 export const metadata: Metadata = {
   title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
@@ -28,22 +23,17 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="landing min-h-screen overflow-x-clip bg-white text-slate-950 antialiased">
+    <div id="top" className="landing marketing-site">
+      <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <LandingHero />
-        <LandingProofStrip />
-        <LandingModules />
-        <LandingWorkflow />
-        <LandingWhy />
-        <LandingFeatures />
-        <LandingMorocco />
+        <LandingStory />
         <LandingPricing />
-        <LandingComparison />
-        <LandingResources />
         <LandingContact />
       </main>
       <LandingFooter />
+      <LandingEffects />
     </div>
   );
 }

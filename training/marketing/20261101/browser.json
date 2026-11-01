@@ -1,0 +1,35 @@
+{
+  "responsiveChecks": [
+    {
+      "clientWidth": 306,
+      "documentWidth": 306,
+      "height": 900,
+      "horizontalOverflow": false,
+      "width": 320
+    },
+    {
+      "clientWidth": 754,
+      "documentWidth": 754,
+      "height": 1000,
+      "horizontalOverflow": false,
+      "width": 768
+    },
+    {
+      "clientWidth": 1266,
+      "documentWidth": 1266,
+      "height": 1000,
+      "horizontalOverflow": false,
+      "width": 1280
+    }
+  ],
+  "productionMobile": {
+    "animationState": "paused",
+    "clientWidth": 376,
+    "h1": 1,
+    "height": 960,
+    "paused": "true",
+    "scrollWidth": 376,
+    "width": 390
+  },
+  "console": []
+}

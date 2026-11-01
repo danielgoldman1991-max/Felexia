@@ -1,117 +1,61 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { ArrowRight, Check, CreditCard, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
 import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
-import { Button } from "@/components/ui/button";
+import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
+import "./landing-conversion.css";
 
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
-
 const includedFeatures = [
-  "Votre espace entreprise",
-  "Clients et fournisseurs",
-  "Factures de vente",
-  "Factures d’achat",
-  "Règlements clients et fournisseurs",
-  "Comptes bancaires et caisses",
-  "Mouvements de trésorerie",
-  "Journaux et écritures",
-  "Factures PDF avec votre logo",
-  "Jusqu’à 3 utilisateurs",
+  "Votre espace entreprise", "Clients et fournisseurs", "Factures de vente", "Factures d’achat",
+  "Règlements clients et fournisseurs", "Comptes bancaires et caisses", "Mouvements de trésorerie",
+  "Journaux et écritures", "Factures PDF avec votre logo", "Jusqu’à 3 utilisateurs",
 ];
 
-export function LandingPricing() {
-  const [yearly, setYearly] = useState(true);
+export function LandingPricing({ standalone = false }: { standalone?: boolean }) {
+  const [yearly, setYearly] = useState(false);
   const plans = [...filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS)].sort((a, b) => a.sortOrder - b.sortOrder);
+  const Heading = standalone ? "h1" : "h2";
+  const PlanHeading = standalone ? "h2" : "h3";
 
   return (
-    <section id="pricing" className="scroll-mt-24 bg-[#F8FBFF] py-20 lg:py-28">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#1E66D0]">
-            Tarifs
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#0B2A5B] sm:text-4xl">
-            Une offre simple pour gérer votre PME
-          </h2>
-          <p className="mt-4 text-lg leading-relaxed text-slate-600">
-            Tout ce qu&apos;il vous faut pour démarrer avec FelexiaERP, dans une
-            formule unique et claire.
-          </p>
-          <div className="mt-8 inline-flex items-center rounded-full border border-slate-200 bg-white p-1">
-            <button
-              onClick={() => setYearly(false)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-                !yearly ? "bg-[#1E66D0] text-white shadow-md" : "text-slate-600"
-              }`}
-            >
-              Mensuel
-            </button>
-            <button
-              onClick={() => setYearly(true)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-                yearly ? "bg-[#1E66D0] text-white shadow-md" : "text-slate-600"
-              }`}
-            >
-              Annuel
-              <span className="ml-2 text-xs font-bold text-emerald-500">-2 mois</span>
-            </button>
+    <section id="pricing" aria-labelledby="conversion-pricing-title" className="conversion-pricing">
+      <div className="marketing-container conversion-pricing-grid">
+        <div className="conversion-pricing-intro" data-reveal>
+          <p className="marketing-eyebrow">Simple, jusque dans le prix</p>
+          <Heading id="conversion-pricing-title" className="marketing-section-title">Votre ambition.<br />Un seul abonnement.</Heading>
+          <p className="marketing-copy">Factures, règlements, trésorerie. Tout l’essentiel de votre gestion, dans une formule claire, pensée pour les PME marocaines.</p>
+          <div className="conversion-trial-note">
+            <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
+            <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} pour prendre vos repères.</strong><p>Découvrez Felexia gratuitement, sans carte bancaire.</p></div>
           </div>
+          <p className="conversion-pricing-aside">Votre activité évolue ?<br /><a href="#contact">Parlons de vos besoins en modules complémentaires <ArrowRight size={15} aria-hidden="true" /></a></p>
         </div>
-
-        <div className="mt-12 mx-auto max-w-3xl">
+        <div className="conversion-pricing-cards" data-reveal>
           {plans.map((plan) => {
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const yearlySaving = plan.monthlyPrice * 12 - plan.yearlyPrice;
+            const freeMonths = yearlySaving / plan.monthlyPrice;
             return (
-              <div
-                key={plan.code}
-                className="relative flex flex-col rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl shadow-blue-900/10 transition-all duration-200 ease-out focus:outline-2 focus:outline-[#2F7CF6]/35 sm:p-10"
-              >
-                <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold text-[#0B2A5B]">Essentiel</h3>
-                    <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-600">
-                      {plan.description}
-                    </p>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-extrabold tracking-tight text-[#061B3F]">
-                      {formatPrice(price)}
-                    </span>
-                    <span className="text-sm font-medium text-slate-500">
-                      MAD / {yearly ? "an" : "mois"}
-                    </span>
-                  </div>
+              <article key={plan.code} className="conversion-price-card" aria-labelledby={`conversion-plan-${plan.code}`}>
+                <div className="conversion-plan-topline"><PlanHeading id={`conversion-plan-${plan.code}`}>{plan.name}</PlanHeading><span className="conversion-plan-badge">Votre quotidien, simplifié</span></div>
+                <div className="conversion-billing-toggle" role="group" aria-label="Période de facturation">
+                  <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>Mensuel</button>
+                  <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Annuel{yearlySaving > 0 && <span>{Number.isInteger(freeMonths) ? `${freeMonths} mois offerts` : `−${formatPrice(yearlySaving)} MAD`}</span>}</button>
                 </div>
-                <ul className="mt-8 grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
-                  {includedFeatures.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-600">
-                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                        <Check className="h-3 w-3 text-emerald-600" />
-                      </span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  asChild
-                  variant="landingPrimary"
-                  className="mt-8 h-12 w-full px-7 sm:mt-10"
-                >
-                  <Link href="/login?mode=register">
-                    <span className="relative z-10 !text-white">Démarrer gratuitement</span>
-                  </Link>
-                </Button>
-              </div>
+                <div className="conversion-price-amount" aria-live="polite" aria-atomic="true"><strong>{formatPrice(price)}</strong><span>MAD <span>/ {yearly ? "an" : "mois"}</span></span></div>
+                <p className="conversion-price-caption">{yearly ? "Facturé annuellement." : "Facturé mensuellement."} Commencez par votre essai gratuit.</p>
+                <Link href="/login?mode=register" className="marketing-button marketing-button-primary conversion-price-button">Démarrer gratuitement <ArrowRight size={17} aria-hidden="true" /></Link>
+                <p className="conversion-no-card"><CreditCard size={14} aria-hidden="true" /> Sans carte bancaire · Sans engagement</p>
+                <div className="conversion-included-heading">Inclus dans votre espace</div>
+                <ul className="conversion-included-list">{includedFeatures.map((feature) => <li key={feature}><Check size={16} aria-hidden="true" /><span>{feature}</span></li>)}</ul>
+              </article>
             );
           })}
         </div>
-
-        <p className="mt-8 text-center text-sm text-slate-500">
-          Essai Essentiel gratuit, sans carte bancaire. Modules complémentaires accessibles sur demande.
-        </p>
       </div>
     </section>
   );
