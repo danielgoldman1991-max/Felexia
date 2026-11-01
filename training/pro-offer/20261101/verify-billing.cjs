@@ -18,7 +18,8 @@ function reset() {
     configured: true, proCapabilities: { workflow_version: 104, pro_write_guards: true }, capabilityError: null,
     lease: "lease_fixture", customer: "cus_fixture", customerOrganization: org,
     subscriptions: [], sessions: [], linePrice: "price_essentiel_monthly", priceOverride: {},
-    calls: { prices: 0, customers: 0, checkouts: [], portals: 0, expired: 0, released: 0 } };
+    portalPremium: false,
+    calls: { prices: 0, customers: 0, checkouts: [], portals: 0, expired: 0, released: 0, leases: 0, capabilities: 0 } };
 }
 const stripe = {
   prices: { retrieve: async id => {
@@ -41,11 +42,14 @@ const stripe = {
     expire: async () => { state.calls.expired++; return {}; },
     create: async body => { state.calls.checkouts.push(body); return { url: "https://checkout.stripe.test/fixture" }; },
   } },
-  billingPortal: { sessions: { create: async () => { state.calls.portals++; return { url: "https://billing.stripe.test/fixture" }; } } },
+  billingPortal: {
+    configurations: { list: async () => ({ data: [{ id: "bpc_fixture", active: true, features: { subscription_update: { enabled: true, products: [{ prices: state.portalPremium ? ["price_premium_monthly"] : ["price_essentiel_monthly", "price_essentiel_yearly"] }] } } }] }) },
+    sessions: { create: async () => { state.calls.portals++; return { url: "https://billing.stripe.test/fixture" }; } },
+  },
 };
 const service = {
   async rpc(name) {
-    if (name === "claim_billing_checkout") return { data: state.lease, error: null };
+    if (name === "claim_billing_checkout") { state.calls.leases++; return { data: state.lease, error: null }; }
     if (name === "release_billing_checkout") { state.calls.released++; return { error: null }; }
     throw Error(`Unexpected RPC ${name}`);
   },
@@ -61,6 +65,7 @@ const fixtures = {
   "@/lib/auth": { getActiveWorkspace: async () => state.workspace },
   "@/lib/supabase/service": { createClient: () => service },
   "@/lib/supabase/server": { createClient: async () => ({ rpc: async (name, args) => {
+    state.calls.capabilities++;
     assert.equal(name, "erp_get_capabilities"); assert.equal(args.p_organization_id, org);
     return { data: state.proCapabilities, error: state.capabilityError };
   } }) },
@@ -90,6 +95,7 @@ function moduleAt(relativePath) {
 const offers = moduleAt("src/lib/subscriptions/commercial-offers.ts");
 const plans = moduleAt("src/lib/subscriptions/plans.ts");
 const billing = moduleAt("src/lib/stripe.ts");
+const legacyPrices = moduleAt("src/lib/subscriptions/stripe-prices.ts");
 const checkout = moduleAt("src/app/api/stripe/checkout/route.ts");
 const checks = [];
 function ok(condition, label) { assert.equal(condition, true, label); checks.push(label); }
@@ -102,6 +108,9 @@ async function main() {
   ok(plans.getPlanDefinition("business").name === "Business", "Legacy Business identity is preserved");
   ok(plans.DEFAULT_PLAN_CODE === "essentiel", "New trial/default remains Essentiel");
   ok(plans.getPlanDefinition("premium").moduleKeys.includes("rh"), "PRO includes RH entitlement");
+  ok(offers.resolveSelfServicePlanCode("essentiel") === "essentiel" && offers.resolveSelfServicePlanCode("premium") === null && offers.isPlanQuoteOnly("pro"), "Public PRO visibility never authorizes self-service purchase");
+  ok(legacyPrices.getPlanCodeFromPriceId("price_premium_monthly") === "premium" && legacyPrices.getStripePriceId("premium", "yearly") === "price_premium_yearly", "Legacy PRO contract Price mapping remains available to webhook/billing history");
+  ok(billing.getStripePriceIdForPlan("pro", "monthly") === null && billing.getStripePriceIdForPlan("premium", "yearly") === null, "Public checkout price resolver exposes no quote-only PRO price");
   for (const bad of [null, undefined, "", "business", "unknown", "Premium", {}, 1]) {
     reset(); ok(offers.resolvePublicPlanCode(bad) === null, `Explicit public resolver rejects ${JSON.stringify(bad)}`);
     ok((await checkout.POST(request(bad))).status === 400 && state.calls.prices === 0, "Invalid public input has no billing action");
@@ -111,7 +120,7 @@ async function main() {
     ok((await checkout.POST(request("pro"))).status === (role === null ? 401 : 403), "Checkout enforces authentication/admin role");
     ok(state.calls.checkouts.length === 0 && state.calls.prices === 0, "Unauthorized request has no Stripe calls");
   }
-  for (const code of ["essentiel", "premium", "pro"]) for (const interval of ["monthly", "yearly"]) {
+  for (const code of ["essentiel"]) for (const interval of ["monthly", "yearly"]) {
     reset(); const response = await checkout.POST(request(code, interval));
     const canonical = code === "pro" ? "premium" : code;
     const body = state.calls.checkouts[0];
@@ -120,44 +129,56 @@ async function main() {
     ok(!("trial_period_days" in body.subscription_data) && !("trial_end" in body.subscription_data), "Checkout cannot grant a PRO trial");
     ok(state.calls.released === 1, "Checkout lease released after success");
   }
-  for (const capabilities of [null, {}, { workflow_version: 103, pro_write_guards: true }, { workflow_version: 104, pro_write_guards: false }]) {
-    reset(); state.proCapabilities = capabilities;
-    ok((await checkout.POST(request("pro"))).body.code === "PRO_ACTIVATION_PENDING", "Missing/incomplete SQL capability blocks PRO purchase");
-    ok(state.calls.prices === 0 && state.calls.customers === 0 && state.calls.checkouts.length === 0, "Capability failure has no Stripe calls");
+  for (const code of ["premium", "pro"]) for (const interval of ["monthly", "yearly", "invalid"]) for (const configured of [true, false]) {
+    reset(); state.configured = configured; state.proCapabilities = null; state.capabilityError = { code: "PGRST202" };
+    state.sessions = [openSession("premium", "monthly")];
+    const response = await checkout.POST(request(code, interval));
+    ok(response.status === 400 && response.body.code === "PRO_QUOTE_REQUIRED", `${code} ${interval} requires a quote with or without Stripe configuration`);
+    ok(state.calls.prices === 0 && state.calls.customers === 0 && state.calls.checkouts.length === 0 && state.calls.portals === 0
+      && state.calls.leases === 0 && state.calls.capabilities === 0 && state.calls.expired === 0, "Quoted PRO refusal has no Stripe, lease, capability or existing-session side effect");
   }
-  reset(); state.capabilityError = { code: "PGRST202" };
-  ok((await checkout.POST(request("premium"))).status === 503, "RPC failure blocks PRO purchase");
   reset(); state.proCapabilities = null;
   ok((await checkout.POST(request("essentiel"))).status === 200, "Essentiel checkout remains available without PRO migration");
   for (const priceOverride of [
-    { active: false }, { currency: "eur" }, { unit_amount: 29000 }, { type: "one_time" },
+    { active: false }, { currency: "eur" }, { unit_amount: 129000 }, { type: "one_time" },
     { recurring: { interval: "year", interval_count: 1, usage_type: "licensed" } },
     { recurring: { interval: "month", interval_count: 2, usage_type: "licensed" } },
     { recurring: { interval: "month", interval_count: 1, usage_type: "metered" } },
     { billing_scheme: "tiered" }, { transform_quantity: { divide_by: 10, round: "up" } },
   ]) {
     reset(); state.priceOverride = priceOverride;
-    ok((await checkout.POST(request("pro"))).status === 503, `Mismatched Price refused: ${JSON.stringify(priceOverride)}`);
+    ok((await checkout.POST(request("essentiel"))).status === 503, `Mismatched Price refused: ${JSON.stringify(priceOverride)}`);
     ok(state.calls.checkouts.length === 0 && state.calls.customers === 0 && state.calls.expired === 0, "Price mismatch has no customer/session mutation");
   }
-  reset(); ok((await checkout.POST(request("pro", "invalid"))).status === 400, "Invalid billing cadence rejected");
+  reset(); ok((await checkout.POST(request("essentiel", "invalid"))).status === 400, "Invalid billing cadence rejected");
   reset(); state.subscriptions = [{ status: "active" }];
-  ok((await checkout.POST(request("pro"))).body.destination === "portal", "Existing paid subscription changes through portal");
+  ok((await checkout.POST(request("essentiel"))).body.destination === "portal", "Existing paid subscription changes through portal");
   ok(state.calls.checkouts.length === 0 && state.calls.portals === 1, "Upgrade cannot start duplicate recurring charge");
-  reset(); state.sessions = [openSession("premium", "monthly")]; state.linePrice = "price_premium_monthly";
-  ok((await checkout.POST(request("pro"))).body.url.endsWith("/open") && state.calls.checkouts.length === 0, "PRO alias reuses matching canonical checkout");
-  reset(); state.sessions = [openSession("premium", "monthly")]; state.linePrice = "price_essentiel_monthly";
-  await checkout.POST(request("pro"));
-  ok(state.calls.expired === 1 && state.calls.checkouts[0].line_items[0].price === "price_premium_monthly", "Stale open session with wrong Price is replaced");
-  reset(); state.sessions = [openSession("essentiel", "monthly")];
-  await checkout.POST(request("pro", "yearly"));
-  ok(state.calls.expired === 1 && state.calls.checkouts[0].line_items[0].price === "price_premium_yearly", "Changing plan and cadence expires earlier unpaid checkout");
+  reset(); state.sessions = [openSession("essentiel", "monthly")]; state.linePrice = "price_essentiel_monthly";
+  ok((await checkout.POST(request("essentiel"))).body.url.endsWith("/open") && state.calls.checkouts.length === 0, "Essentiel reuses matching canonical checkout");
+  reset(); state.sessions = [openSession("essentiel", "monthly")]; state.linePrice = "price_premium_monthly";
+  await checkout.POST(request("essentiel"));
+  ok(state.calls.expired === 1 && state.calls.checkouts[0].line_items[0].price === "price_essentiel_monthly", "Stale open session with wrong Price is replaced");
+  reset(); state.sessions = [openSession("premium", "monthly")];
+  await checkout.POST(request("essentiel", "yearly"));
+  ok(state.calls.expired === 1 && state.calls.checkouts[0].line_items[0].price === "price_essentiel_yearly", "Choosing Essentiel expires earlier unpaid checkout");
   reset(); state.customerOrganization = "foreign_org";
-  ok((await checkout.POST(request("pro"))).status === 503 && state.calls.checkouts.length === 0, "Cross-company customer mapping rejected");
+  ok((await checkout.POST(request("essentiel"))).status === 503 && state.calls.checkouts.length === 0, "Cross-company customer mapping rejected");
   reset(); await assert.rejects(() => billing.createPlanCheckoutSession("cus_fixture", "business", "price_business_monthly", org, "monthly"), /PLAN_NOT_AVAILABLE/);
   ok(state.calls.checkouts.length === 0, "Direct helper cannot purchase hidden Business");
-  reset(); await assert.rejects(() => billing.createPlanCheckoutSession("cus_fixture", "premium", "price_essentiel_monthly", org, "monthly"), /BILLING_PRICE_MISMATCH/);
-  ok(state.calls.checkouts.length === 0, "Direct helper rejects wrong plan Price");
+  reset(); await assert.rejects(() => billing.createPlanCheckoutSession("cus_fixture", "premium", "price_premium_monthly", org, "monthly"), /PRO_QUOTE_REQUIRED/);
+  ok(state.calls.checkouts.length === 0 && state.calls.prices === 0, "Direct plan helper rejects quote-only PRO before Stripe calls");
+  for (const code of ["premium", "pro"]) for (const interval of ["monthly", "yearly"]) {
+    reset();
+    await assert.rejects(() => billing.createPlanCheckoutSession("cus_fixture", code, `price_premium_${interval}`, org, interval), /PRO_QUOTE_REQUIRED/);
+    await assert.rejects(() => billing.assertStripePriceMatchesPlan(`price_premium_${interval}`, code, interval), /PRO_QUOTE_REQUIRED/);
+    ok(state.calls.checkouts.length === 0 && state.calls.prices === 0 && state.calls.portals === 0, `Direct ${code}/${interval} helper and price validator both require a quote before Stripe calls`);
+  }
+  reset(); await assert.rejects(() => billing.createCheckoutSession("cus_fixture", "price_premium_yearly", org, "yearly"), /PRO_QUOTE_REQUIRED/);
+  ok(state.calls.checkouts.length === 0 && state.calls.prices === 0, "Legacy raw-price helper cannot purchase quote-only PRO");
+  reset(); state.portalPremium = true;
+  await assert.rejects(() => billing.createPortalSession("cus_fixture"), /PRO_QUOTE_REQUIRED/);
+  ok(state.calls.portals === 0, "Misconfigured portal exposing direct PRO prices cannot open a session");
   const result = { success: true, checks: checks.length, scope: "Real modules with synthetic boundaries; no network, customer, session or charge", results: checks };
   fs.writeFileSync(path.join(__dirname, "billing-fixtures.json"), JSON.stringify(result, null, 2) + "\n");
   console.log(JSON.stringify({ success: true, checks: checks.length }));

@@ -1,6 +1,6 @@
 {
   "success": true,
-  "checks": 34,
+  "checks": 58,
   "scope": "Real cron, API, generator and canonical subscription loader; deterministic API fixture cap37; zero network or production data",
   "results": [
     "Missing server secret fails closed before any service access",
@@ -36,6 +36,30 @@
     "Real SDK missing/invalid/expired session error returns401: AuthApiError/user_not_found",
     "Real SDK Auth service failure remains503: AuthRetryableFetchError/0",
     "Real SDK Auth service failure remains503: AuthApiError/503",
-    "Real SDK Auth service failure remains503: AuthApiError/429"
+    "Real SDK Auth service failure remains503: AuthApiError/429",
+    "PRO access reminder uses quote contact for pro/0 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for pro/2 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for pro/6 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for pro/14 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for premium/0 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for premium/2 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for premium/6 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "PRO access reminder uses quote contact for premium/14 days",
+    "PRO access reminder never advertises self-service payment or a public free trial",
+    "Inactive PRO contract uses quote contact: canceled",
+    "Inactive PRO contract uses quote contact: past_due",
+    "Inactive PRO contract uses quote contact: unpaid",
+    "Active PRO contract never receives an access-expiry reminder",
+    "Existing four-argument Essentiel reminder signature and payment action remain compatible",
+    "Same-day Essentiel-to-PRO activation creates a distinct quote reminder without overwriting history",
+    "Stale payment CTA is excluded after PRO activation and only current quote CTA remains visible",
+    "Notification API exposes quote CTA and creates no duplicate on read"
   ]
 }

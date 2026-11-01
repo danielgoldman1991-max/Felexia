@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "checks": 14,
+  "scope": "Real harness helpers; synthetic state only; no env/network/database/credentials",
+  "results": [
+    "Only the explicit existing synthetic QA marker is accepted",
+    "Changed company/run/alias scope is rejected before any audit action",
+    "Changed company/run/alias scope is rejected before any audit action",
+    "Changed company/run/alias scope is rejected before any audit action",
+    "Changed company/run/alias scope is rejected before any audit action",
+    "Restoration writes exactly the two temporary plan fields",
+    "Restoration uses company scope and audit timestamp CAS",
+    "All contract/date/Stripe fields restored while audit updated_at may advance",
+    "Recovery journal closes only after verified restoration",
+    "Already restored subscription is not modified again",
+    "Concurrent contract change is preserved and recovery remains pending",
+    "Audit requests are bounded to three concurrent operations and preserve results",
+    "Invoice edit audit respects the actual draft-only page guard",
+    "Payment edit audit respects the actual allocated-payment page guard"
+  ]
+}

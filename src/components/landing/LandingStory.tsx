@@ -22,7 +22,7 @@ const questions = [
   },
   {
     question: "Comment fonctionne l’essai gratuit ?",
-    answer: `Créez votre compte et votre espace entreprise pour découvrir l’offre Essentiel pendant ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. Vous retrouvez ensuite les tarifs mensuels et annuels ci-dessous.`,
+    answer: `Créez votre compte et votre espace entreprise pour découvrir l’offre Essentiel pendant ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. Retrouvez ci-dessous les tarifs mensuels et annuels ESSENTIEL et l’offre PRO sur devis.`,
   },
   {
     question: "Que comprend l’offre Essentiel ?",
@@ -45,9 +45,9 @@ const questions = [
       "PRO comprend tout ESSENTIEL et ouvre l’ERP complet : prospects, devis, commandes, livraisons, achats et réceptions, stock, comptabilité avec grand livre et balance, préparation TVA, prévisions de trésorerie et gestion RH. Vous pouvez travailler jusqu’à 25 utilisateurs. La TVA et la paie restent des fonctions préparatoires à valider avec vos conseils.",
   },
   {
-    question: "Comment passer d’ESSENTIEL à PRO ?",
+    question: "Comment obtenir une proposition PRO ?",
     answer:
-      "Votre administrateur choisit PRO dans Paramètres → Abonnement, avec une facturation mensuelle ou annuelle. Votre entreprise conserve son espace et ses données. L’essai gratuit concerne ESSENTIEL ; les fonctions PRO sont accessibles avec l’abonnement correspondant.",
+      "PRO est proposé uniquement sur devis. Contactez notre équipe pour présenter votre activité et vos besoins ; nous vous préparons une proposition. L’essai gratuit concerne ESSENTIEL. Votre entreprise conserve son espace et ses données lors de l’activation de PRO.",
   },
 ];
 

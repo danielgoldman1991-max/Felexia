@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Boxes, FileText, Users } from "lucide-react";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
 
@@ -39,7 +40,7 @@ export default async function ProModulesPage() {
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button asChild><Link href="/parametres/abonnement?plan=pro">{fullAccess ? "Gérer mon abonnement" : "Découvrir l’offre PRO"}<ArrowRight className="h-4 w-4" /></Link></Button>
+        <Button asChild><a href={getProQuoteHref({ organizationId: workspace.organization.id, organizationName: workspace.organization.name })}>Demander un devis PRO<ArrowRight className="h-4 w-4" /></a></Button>
         <Button asChild variant="secondary"><Link href="/dashboard">Retour à l’accueil</Link></Button>
       </div>
       <p className="text-xs text-[var(--muted)]">Les outils TVA et paie préparent vos données et documents ; leur validation reste à votre charge.</p>

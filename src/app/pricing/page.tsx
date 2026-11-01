@@ -8,7 +8,7 @@ import "@/styles/landing-motion.css";
 
 export const metadata = {
   title: "Tarifs ESSENTIEL et PRO - Felexia",
-  description: "Comparez ESSENTIEL pour la facturation électronique et la gestion quotidienne, et PRO pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et RH.",
+  description: "ESSENTIEL pour la facturation électronique et la gestion quotidienne. PRO sur devis pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et RH.",
 };
 
 export default function PricingPage() {

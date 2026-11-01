@@ -3,10 +3,9 @@ import { getActiveWorkspace } from "@/lib/auth";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 import { assertStripePriceMatchesPlan, createPlanCheckoutSession, createStripeCustomer, createPortalSession, getStripePriceIdForPlan, getStripe } from "@/lib/stripe";
 import { hasStripeEnv } from "@/lib/env";
-import { resolvePublicPlanCode } from "@/lib/subscriptions/commercial-offers";
+import { isPlanQuoteOnly, PRO_QUOTE_REQUIRED, PRO_QUOTE_REQUIRED_MESSAGE, resolveSelfServicePlanCode } from "@/lib/subscriptions/commercial-offers";
 import { isAdminRole, isOperatorRole } from "@/lib/auth/roles";
 import { OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
-import { hasProWriteCapabilities } from "@/lib/pro-capabilities";
 
 export async function POST(req: NextRequest) {
   let lease: string | null = null;
@@ -15,15 +14,13 @@ export async function POST(req: NextRequest) {
     const workspace = await getActiveWorkspace();
     if (!workspace) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
     if (!isAdminRole(workspace.role)) return NextResponse.json({ error: isOperatorRole(workspace.role) ? OPERATOR_ACCESS_ERROR : "Seul un administrateur peut gérer l'abonnement.", code: isOperatorRole(workspace.role) ? "OPERATOR_ACCESS_DENIED" : "BILLING_ADMIN_REQUIRED" }, { status: 403 });
-    if (!hasStripeEnv()) return NextResponse.json({ error: "La souscription est momentanément indisponible. Contactez l'assistance." }, { status: 503 });
     const body = await req.json().catch(() => null);
-    const planCode = resolvePublicPlanCode(body?.planCode);
+    if (isPlanQuoteOnly(body?.planCode)) return NextResponse.json({ error: PRO_QUOTE_REQUIRED_MESSAGE, code: PRO_QUOTE_REQUIRED }, { status: 400 });
+    const planCode = resolveSelfServicePlanCode(body?.planCode);
     if (!planCode) return NextResponse.json({ error: "PLAN_NOT_AVAILABLE" }, { status: 400 });
+    if (!hasStripeEnv()) return NextResponse.json({ error: "La souscription est momentanément indisponible. Contactez l'assistance." }, { status: 503 });
     if (body.billingInterval !== "monthly" && body.billingInterval !== "yearly") return NextResponse.json({ error: "Choisissez une périodicité valide." }, { status: 400 });
     const interval = body.billingInterval as "monthly" | "yearly";
-    if (planCode === "premium" && !(await hasProWriteCapabilities(workspace.organization.id))) {
-      return NextResponse.json({ error: "Activation PRO en cours. L’offre sera disponible dès la fin de sa préparation. Aucun paiement n’a été lancé.", code: "PRO_ACTIVATION_PENDING" }, { status: 503 });
-    }
     const priceId = getStripePriceIdForPlan(planCode, interval);
     if (!priceId) return NextResponse.json({ error: "Ce tarif est momentanément indisponible. Contactez l'assistance." }, { status: 503 });
     await assertStripePriceMatchesPlan(priceId, planCode, interval);

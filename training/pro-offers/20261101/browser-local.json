@@ -1,0 +1,12 @@
+{
+  "method": "Brave connected browser through CUA, local Next build; screenshots inspected and DOM geometry read",
+  "viewportOverride": true,
+  "observations": [
+    { "page": "pricing", "viewport": [1280, 900], "documentWidth": 1265, "cardWidths": [588.5714721679688, 588.5714721679688], "annualAmountsMAD": [2900, 12900], "proHref": "/parametres/abonnement?plan=pro&billing=yearly" },
+    { "page": "pricing", "viewport": [390, 844], "documentWidth": 375, "cardWidths": [331.4285888671875, 331.4285888671875], "cardX": 22 },
+    { "page": "pricing", "viewport": [320, 760], "documentWidth": 305, "cardWidths": [269.14288330078125, 269.14288330078125], "cardX": 18, "monthlyAmountsMAD": [290, 1290] },
+    { "page": "home#pro", "viewport": [1280, 900], "documentWidth": 1265, "modules": 6, "proTopAfterNavigation": 99.89286041259766, "heroProgressAfterScroll": "1.0000", "allModuleOpacities": "1" },
+    { "page": "login", "requested": "/parametres/abonnement?plan=pro&billing=yearly", "nextPreserved": true, "registerLinkPreservesNext": true }
+  ],
+  "limits": "Viewport overrides do not establish cross-engine certification. These are public pages; authenticated business flows have separate fixture and hosted checks."
+}

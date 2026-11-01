@@ -1,7 +1,7 @@
-import Link from "next/link";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import { Layers } from "lucide-react";
 
-// Subscription changes are prepared from the administrator's billing page.
+// PRO is proposed through a quote request.
 export function ModuleUpgradePage() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-12">
@@ -14,14 +14,14 @@ export function ModuleUpgradePage() {
         </h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           Retrouvez les ventes avancées, le stock, la comptabilité, la TVA
-          et les ressources humaines dans l’offre PRO.
+          et les ressources humaines dans l’offre PRO, proposée uniquement sur devis.
         </p>
-        <Link
-          href="/parametres/abonnement?plan=pro"
+        <a
+          href={getProQuoteHref()}
           className="mt-6 inline-flex h-10 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] px-6 text-sm font-medium text-[var(--primary-foreground)] shadow-[var(--shadow-sm)] transition hover:brightness-110"
         >
-          Découvrir PRO
-        </Link>
+          Demander un devis PRO
+        </a>
       </div>
     </div>
   );

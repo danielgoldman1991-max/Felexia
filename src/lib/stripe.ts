@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { getEnv, hasStripeEnv } from "@/lib/env";
 import { getPlanDefinition, type PlanCode } from "@/lib/subscriptions/plans";
-import { getStripePriceId } from "@/lib/subscriptions/stripe-prices";
-import { isPlanPubliclyAvailable, PLAN_NOT_AVAILABLE_MESSAGE, resolvePublicPlanCode } from "@/lib/subscriptions/commercial-offers";
+import { getPlanCodeFromPriceId, getStripePriceId } from "@/lib/subscriptions/stripe-prices";
+import { isPlanQuoteOnly, PLAN_NOT_AVAILABLE_MESSAGE, PRO_QUOTE_REQUIRED, resolveSelfServicePlanCode } from "@/lib/subscriptions/commercial-offers";
 
 let stripeInstance: Stripe | null = null;
 
@@ -38,26 +38,18 @@ export async function createCheckoutSession(
   successUrl?: string,
   cancelUrl?: string,
 ): Promise<Stripe.Checkout.Session> {
-  const stripe = getStripe();
+  const planCode = getPlanCodeFromPriceId(priceId);
+  if (isPlanQuoteOnly(planCode)) throw new Error(PRO_QUOTE_REQUIRED);
+  if (!planCode || !resolveSelfServicePlanCode(planCode)) throw new Error(PLAN_NOT_AVAILABLE_MESSAGE);
   const env = getEnv();
-
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "subscription",
-    line_items: [{ price: priceId, quantity: 1 }],
-    metadata: { organization_id: organizationId },
-    subscription_data: {
-      metadata: { organization_id: organizationId },
-    },
-    success_url: successUrl || `${env.appUrl}/onboarding/paiement?success=true&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`,
-  });
-  return session;
+  return createPlanCheckoutSession(customerId, planCode, priceId, organizationId, billingInterval,
+    successUrl || `${env.appUrl}/onboarding/paiement?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl || `${env.appUrl}/parametres/abonnement?canceled=true`);
 }
 
 export function getStripePriceIdForPlan(planCode: string, billingCycle: "monthly" | "yearly"): string | null {
-  const publicPlan = resolvePublicPlanCode(planCode);
-  return publicPlan ? getStripePriceId(publicPlan, billingCycle) : null;
+  const selfServicePlan = resolveSelfServicePlanCode(planCode);
+  return selfServicePlan ? getStripePriceId(selfServicePlan, billingCycle) : null;
 }
 
 /** A configured Price must charge exactly the advertised offer and cadence. */
@@ -66,7 +58,8 @@ export async function assertStripePriceMatchesPlan(
   planCode: PlanCode,
   billingInterval: "monthly" | "yearly",
 ): Promise<void> {
-  if (!isPlanPubliclyAvailable(planCode) || getStripePriceIdForPlan(planCode, billingInterval) !== priceId) {
+  if (isPlanQuoteOnly(planCode)) throw new Error(PRO_QUOTE_REQUIRED);
+  if (!resolveSelfServicePlanCode(planCode) || getStripePriceIdForPlan(planCode, billingInterval) !== priceId) {
     throw new Error("BILLING_PRICE_MISMATCH");
   }
   const plan = getPlanDefinition(planCode);
@@ -91,8 +84,9 @@ export async function createPlanCheckoutSession(
   cancelUrl?: string,
   idempotencyKey?: string,
 ): Promise<Stripe.Checkout.Session> {
-  // Public offers only; durable legacy codes stay unchanged in Stripe metadata.
-  if (!isPlanPubliclyAvailable(planCode)) {
+  // Quoted PRO contracts keep their durable legacy codes outside self-service.
+  if (isPlanQuoteOnly(planCode)) throw new Error(PRO_QUOTE_REQUIRED);
+  if (!resolveSelfServicePlanCode(planCode)) {
     throw new Error(PLAN_NOT_AVAILABLE_MESSAGE);
   }
   await assertStripePriceMatchesPlan(priceId, planCode, billingInterval);
@@ -133,9 +127,19 @@ export async function createPortalSession(
 ): Promise<Stripe.BillingPortal.Session> {
   const stripe = getStripe();
   const env = getEnv();
+  const configuredId = process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID;
+  const configuration = configuredId
+    ? await stripe.billingPortal.configurations.retrieve(configuredId, { expand: ["features.subscription_update.products"] })
+    : (await stripe.billingPortal.configurations.list({ active: true, is_default: true, limit: 1, expand: ["data.features.subscription_update.products"] })).data[0];
+  if (!configuration?.active) throw new Error("BILLING_PORTAL_UNAVAILABLE");
+  const allowedPrices = new Set([getStripePriceId("essentiel", "monthly"), getStripePriceId("essentiel", "yearly")].filter(Boolean));
+  const update = configuration.features.subscription_update;
+  if (update.enabled && (!update.products?.length || update.products.some(product => product.prices.some(price => !allowedPrices.has(price))))) {
+    throw new Error(PRO_QUOTE_REQUIRED);
+  }
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    ...(process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID ? { configuration: process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID } : {}),
+    configuration: configuration.id,
     return_url: returnUrl || `${env.appUrl}/parametres/abonnement`,
   });
   return session;

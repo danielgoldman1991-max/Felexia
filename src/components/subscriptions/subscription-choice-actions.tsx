@@ -15,9 +15,9 @@ const trialBenefits = [
 ];
 
 const subscriptionBenefits = [
-  "Deux offres : ESSENTIEL et PRO",
-  "Paiement mensuel ou annuel",
-  "Activation immédiate après paiement",
+  "ESSENTIEL en ligne et PRO sur devis",
+  "ESSENTIEL : paiement mensuel ou annuel",
+  "PRO : accompagnement pour votre proposition",
   "Facturation sécurisée par Stripe",
   "Accès à la gestion de l'abonnement",
 ];

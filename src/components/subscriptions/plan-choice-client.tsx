@@ -5,7 +5,8 @@ import { Check, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
-import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
+import { filterPubliclyAvailablePlans, isPlanQuoteOnly, PRO_QUOTE_REQUIRED_MESSAGE } from "@/lib/subscriptions/commercial-offers";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 
 export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
@@ -13,6 +14,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
   const [error, setError] = useState<string | null>(null);
 
   async function choosePlan(planCode: PlanCode) {
+    if (isPlanQuoteOnly(planCode)) { setError(PRO_QUOTE_REQUIRED_MESSAGE); return; }
     if (!hasStripe || loadingPlan) return;
     setLoadingPlan(planCode);
     setError(null);
@@ -56,6 +58,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
+          const quoteOnly = isPlanQuoteOnly(plan.code);
           const price = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
           return (
             <article
@@ -65,8 +68,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
               <h2 className="text-xl font-semibold text-slate-950">{plan.name}</h2>
               <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{plan.description}</p>
               <p className="mt-5 text-3xl font-bold text-slate-950">
-                {price} MAD
-                <span className="text-sm font-medium text-slate-500"> / {billingCycle === "monthly" ? "mois" : "an"}</span>
+                {quoteOnly ? "Sur devis" : <>{price} MAD<span className="text-sm font-medium text-slate-500"> / {billingCycle === "monthly" ? "mois" : "an"}</span></>}
               </p>
               <ul className="mt-5 flex-1 space-y-2">
                 {plan.featureHighlights.map((feature) => (
@@ -76,7 +78,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
                   </li>
                 ))}
               </ul>
-              <Button
+              {quoteOnly ? <Button asChild className="mt-6 w-full"><a href={getProQuoteHref()}>Demander un devis</a></Button> : <Button
                 className="mt-6 w-full"
                 variant="primary"
                 disabled={!hasStripe || loadingPlan !== null}
@@ -90,7 +92,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
                 ) : (
                   `Souscrire à ${plan.name}`
                 )}
-              </Button>
+              </Button>}
             </article>
           );
         })}
@@ -98,7 +100,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
 
       {!hasStripe && (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-800">
-          Le paiement Stripe n&apos;est pas encore configuré. Vous pouvez démarrer l&apos;essai Essentiel ou configurer Stripe.
+          La souscription ESSENTIEL est momentanément indisponible. Vous pouvez démarrer l&apos;essai ESSENTIEL ou demander un devis PRO.
         </p>
       )}
 

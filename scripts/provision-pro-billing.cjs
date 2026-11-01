@@ -24,7 +24,7 @@ async function managedConfigurations(stripe) {
 function portalParameters(products) {
   return {
     name: "Felexia ESSENTIEL / PRO",
-    metadata: { [MARKER]: "true", public_plans: "essentiel,premium" },
+    metadata: { [MARKER]: "true", public_plans: "essentiel,premium", self_service_plans: "essentiel" },
     business_profile: { headline: "Gérez votre abonnement Felexia", privacy_policy_url: `${ORIGIN}/confidentialite`, terms_of_service_url: `${ORIGIN}/conditions` },
     default_return_url: `${ORIGIN}/parametres/abonnement`,
     login_page: { enabled: false },
@@ -34,7 +34,7 @@ function portalParameters(products) {
       subscription_cancel: { enabled: true, mode: "at_period_end", proration_behavior: "none" },
       subscription_update: { enabled: true, default_allowed_updates: ["price"],
         proration_behavior: "create_prorations", billing_cycle_anchor: "unchanged",
-        products: products.map(item => ({ product: item.id, prices: item.prices, adjustable_quantity: { enabled: false } })),
+        products: products.filter(item => item.code === "essentiel").map(item => ({ product: item.id, prices: item.prices, adjustable_quantity: { enabled: false } })),
       },
     },
   };

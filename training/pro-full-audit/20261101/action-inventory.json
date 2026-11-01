@@ -1,0 +1,2627 @@
+{
+  "date": "2026-11-01T09:41:16.040Z",
+  "scope": "Exported functions in use-server source modules. Tables, RPC and guard names are lexical observations only; inherited guards and external effects require functional tests.",
+  "actions": 223,
+  "files": 41,
+  "rows": [
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingJournals",
+      "line": 62,
+      "tables": [
+        "accounting_journals"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingAccounts",
+      "line": 74,
+      "tables": [
+        "accounting_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "getAccountingAccount",
+      "line": 95,
+      "tables": [
+        "accounting_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingAuxiliaries",
+      "line": 109,
+      "tables": [
+        "accounting_auxiliaries"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingFiscalYears",
+      "line": 127,
+      "tables": [
+        "accounting_fiscal_years"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingPeriods",
+      "line": 139,
+      "tables": [
+        "accounting_periods"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "listAccountingEntries",
+      "line": 154,
+      "tables": [
+        "accounting_entries"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "getAccountingEntry",
+      "line": 192,
+      "tables": [
+        "accounting_entries",
+        "accounting_entry_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "getAccountingSettings",
+      "line": 226,
+      "tables": [
+        "accounting_settings"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "createAccountingEntry",
+      "line": 238,
+      "tables": [
+        "accounting_journals"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "postAccountingEntry",
+      "line": 306,
+      "tables": [
+        "accounting_entries"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "cancelAccountingEntry",
+      "line": 333,
+      "tables": [
+        "accounting_entries"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "archiveAccountingEntry",
+      "line": 353,
+      "tables": [
+        "accounting_entries"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "generateCustomerInvoiceAccountingEntry",
+      "line": 435,
+      "tables": [
+        "customer_invoices",
+        "third_parties",
+        "customer_invoice_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "ensureAccounts"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "generateSupplierInvoiceAccountingEntry",
+      "line": 554,
+      "tables": [
+        "supplier_invoices",
+        "supplier_invoice_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "ensureAccounts"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "generateCustomerPaymentAccountingEntry",
+      "line": 674,
+      "tables": [
+        "customer_payments",
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "ensureAccounts"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "generateSupplierPaymentAccountingEntry",
+      "line": 762,
+      "tables": [
+        "supplier_payments",
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "ensureAccounts"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "updateAccountingSettings",
+      "line": 850,
+      "tables": [
+        "accounting_settings"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "updateAccountingEntryLineAccount",
+      "line": 876,
+      "tables": [
+        "accounting_entry_lines",
+        "accounting_entries",
+        "accounting_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "postCustomerInvoiceToAccounting",
+      "line": 943,
+      "tables": [
+        "customer_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "postSupplierInvoiceToAccounting",
+      "line": 977,
+      "tables": [
+        "supplier_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "postCustomerPaymentToAccounting",
+      "line": 1010,
+      "tables": [
+        "customer_payments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "postSupplierPaymentToAccounting",
+      "line": 1043,
+      "tables": [
+        "supplier_payments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "createChartOfAccount",
+      "line": 1076,
+      "tables": [
+        "accounting_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "updateChartOfAccount",
+      "line": 1128,
+      "tables": [
+        "accounting_accounts",
+        "accounting_entry_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "archiveChartOfAccount",
+      "line": 1211,
+      "tables": [
+        "accounting_accounts",
+        "accounting_entry_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "toggleChartOfAccountActive",
+      "line": 1249,
+      "tables": [
+        "accounting_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/accounting-actions.ts",
+      "name": "ensureDefaultChartOfAccountsAction",
+      "line": 1277,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "ensureDefaultChartOfAccountsAction",
+        "requireProWorkspace",
+        "ensureDefaultChartOfAccounts"
+      ]
+    },
+    {
+      "file": "src/lib/actions/activate-plan.ts",
+      "name": "activatePlanAction",
+      "line": 13,
+      "tables": [
+        "subscription_plans",
+        "organization_subscriptions"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/company.ts",
+      "name": "updateCompanyAction",
+      "line": 28,
+      "tables": [
+        "organizations",
+        "organization-logos",
+        "company_settings"
+      ],
+      "rpc": [
+        "set_organization_logo"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/complete-invitation.ts",
+      "name": "completeInvitationAction",
+      "line": 20,
+      "tables": [
+        "invitations",
+        "organization_members",
+        "profiles"
+      ],
+      "rpc": [
+        "accept_invitation_for_user"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/create-entreprise.ts",
+      "name": "createEntrepriseAction",
+      "line": 21,
+      "tables": [
+        "profiles",
+        "organizations",
+        "company_settings"
+      ],
+      "rpc": [
+        "create_organization_with_owner",
+        "finalize_organization_onboarding"
+      ],
+      "guards": [
+        "ensureAccountingBaseSetup"
+      ]
+    },
+    {
+      "file": "src/lib/actions/documents.ts",
+      "name": "updateDocumentSettingsAction",
+      "line": 10,
+      "tables": [
+        "document_settings"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/ensure-reference-data.ts",
+      "name": "ensureCustomerCategories",
+      "line": 7,
+      "tables": [
+        "customer_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "ensureCustomerCategories",
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/ensure-reference-data.ts",
+      "name": "ensureProductCategories",
+      "line": 35,
+      "tables": [
+        "product_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "ensureProductCategories",
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/ensure-reference-data.ts",
+      "name": "ensureUnits",
+      "line": 66,
+      "tables": [
+        "units"
+      ],
+      "rpc": [],
+      "guards": [
+        "ensureUnits",
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/ensure-reference-data.ts",
+      "name": "ensureAllReferenceData",
+      "line": 96,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "ensureAllReferenceData",
+        "ensureCustomerCategories",
+        "ensureProductCategories",
+        "ensureUnits"
+      ]
+    },
+    {
+      "file": "src/lib/actions/numbering.ts",
+      "name": "correctNumberingCounterAction",
+      "line": 11,
+      "tables": [],
+      "rpc": [
+        "correct_numbering_counter"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/password-recovery.ts",
+      "name": "requestPasswordRecovery",
+      "line": 10,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/password-recovery.ts",
+      "name": "completePasswordRecovery",
+      "line": 27,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/preferences.ts",
+      "name": "updatePreferencesAction",
+      "line": 9,
+      "tables": [
+        "user_preferences"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/quick-create.ts",
+      "name": "quickCreateCustomerCategory",
+      "line": 9,
+      "tables": [
+        "customer_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/quick-create.ts",
+      "name": "quickCreateProductCategory",
+      "line": 21,
+      "tables": [
+        "product_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/quick-create.ts",
+      "name": "quickCreateUnit",
+      "line": 40,
+      "tables": [
+        "units"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/quick-create.ts",
+      "name": "quickCreateProduct",
+      "line": 58,
+      "tables": [
+        "tax_rates",
+        "products"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/register-admin.ts",
+      "name": "registerAdminAction",
+      "line": 15,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "ensureProfileFromAuthUser"
+      ]
+    },
+    {
+      "file": "src/lib/actions/register-company.ts",
+      "name": "registerCompanyAction",
+      "line": 25,
+      "tables": [
+        "profiles",
+        "organizations",
+        "roles",
+        "organization_members",
+        "company_settings",
+        "organization-logos"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/roles.ts",
+      "name": "createRoleAction",
+      "line": 8,
+      "tables": [
+        "roles"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/roles.ts",
+      "name": "deleteRoleAction",
+      "line": 41,
+      "tables": [
+        "roles"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/roles.ts",
+      "name": "updateRolePermissionsAction",
+      "line": 78,
+      "tables": [
+        "role_permissions"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/actions/start-trial.ts",
+      "name": "startTrialAction",
+      "line": 6,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/actions/supplier-open-invoices.ts",
+      "name": "getSupplierOpenInvoicesAction",
+      "line": 5,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/auth-actions.ts",
+      "name": "loginAction",
+      "line": 13,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/auth-actions.ts",
+      "name": "logoutAction",
+      "line": 82,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/auth-actions/company.ts",
+      "name": "createCompanyAction",
+      "line": 12,
+      "tables": [],
+      "rpc": [
+        "create_organization_with_owner"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/auth-actions/signup.ts",
+      "name": "signUpAction",
+      "line": 13,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "createSalesQuote",
+      "line": 93,
+      "tables": [
+        "sales_quotes",
+        "sales_quote_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "updateSalesQuote",
+      "line": 174,
+      "tables": [
+        "sales_quotes",
+        "sales_quote_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "archiveSalesQuote",
+      "line": 274,
+      "tables": [
+        "sales_quotes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "sendSalesQuote",
+      "line": 297,
+      "tables": [
+        "sales_quotes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "acceptSalesQuote",
+      "line": 331,
+      "tables": [
+        "sales_quotes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "rejectSalesQuote",
+      "line": 365,
+      "tables": [
+        "sales_quotes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "convertQuoteToOrder",
+      "line": 399,
+      "tables": [
+        "sales_quotes",
+        "sales_quote_lines",
+        "sales_orders",
+        "sales_order_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "createSalesOrder",
+      "line": 506,
+      "tables": [
+        "sales_orders",
+        "sales_order_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "updateSalesOrder",
+      "line": 606,
+      "tables": [
+        "sales_orders",
+        "sales_order_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "archiveSalesOrder",
+      "line": 721,
+      "tables": [
+        "sales_orders"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "confirmSalesOrder",
+      "line": 744,
+      "tables": [
+        "sales_orders"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "createDeliveryFromOrder",
+      "line": 778,
+      "tables": [
+        "sales_orders",
+        "delivery_notes",
+        "delivery_note_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "createDeliveryNote",
+      "line": 849,
+      "tables": [
+        "delivery_notes",
+        "delivery_note_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "updateDeliveryNote",
+      "line": 907,
+      "tables": [
+        "delivery_notes",
+        "delivery_note_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "archiveDeliveryNote",
+      "line": 977,
+      "tables": [
+        "delivery_notes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "validateDeliveryNote",
+      "line": 1000,
+      "tables": [
+        "delivery_notes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/commerce-actions.ts",
+      "name": "markDeliveryAsDelivered",
+      "line": 1034,
+      "tables": [
+        "delivery_notes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "createCustomerCreditNote",
+      "line": 103,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "updateCustomerCreditNote",
+      "line": 110,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "createCreditNoteFromReturn",
+      "line": 122,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "validateCustomerCreditNote",
+      "line": 133,
+      "tables": [
+        "customer_credit_notes",
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "cancelCustomerCreditNote",
+      "line": 161,
+      "tables": [
+        "customer_credit_notes"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "applyCreditNoteToInvoices",
+      "line": 186,
+      "tables": [],
+      "rpc": [
+        "apply_customer_credit_note_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "unapplyCreditNoteFromInvoice",
+      "line": 200,
+      "tables": [],
+      "rpc": [
+        "unapply_customer_credit_note_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/credit-note-actions.ts",
+      "name": "postCustomerCreditNote",
+      "line": 212,
+      "tables": [],
+      "rpc": [
+        "save_accounting_entry_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/dashboard-data.ts",
+      "name": "getLightDashboardData",
+      "line": 15,
+      "tables": [
+        "treasury_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/dashboard-data.ts",
+      "name": "getDashboardData",
+      "line": 92,
+      "tables": [
+        "customer_invoices",
+        "customer_payments",
+        "treasury_accounts",
+        "sales_documents",
+        "products",
+        "stock_levels",
+        "customer_invoice_lines",
+        "product_categories",
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/document-actions.ts",
+      "name": "uploadDocumentAction",
+      "line": 65,
+      "tables": [
+        "documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/document-actions.ts",
+      "name": "archiveDocumentAction",
+      "line": 147,
+      "tables": [
+        "documents"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/document-actions.ts",
+      "name": "deleteDocumentAction",
+      "line": 167,
+      "tables": [
+        "documents"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "prepareEinvoiceAction",
+      "line": 57,
+      "tables": [
+        "einvoice_versions",
+        "einvoice_validations"
+      ],
+      "rpc": [
+        "einvoice_save_preparation"
+      ],
+      "guards": [
+        "assertEinvoiceWrite"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "validateEinvoiceAction",
+      "line": 121,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "issueEinvoiceAction",
+      "line": 122,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "readyEinvoiceAction",
+      "line": 123,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "issueAndArchiveEinvoiceAction",
+      "line": 126,
+      "tables": [],
+      "rpc": [
+        "einvoice_issue_and_archive"
+      ],
+      "guards": [
+        "assertEinvoiceWrite"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "simulateEinvoiceAction",
+      "line": 137,
+      "tables": [],
+      "rpc": [
+        "einvoice_enqueue_simulation"
+      ],
+      "guards": [
+        "assertEinvoiceWrite"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "processEinvoiceJobsAction",
+      "line": 148,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "assertEinvoiceWrite"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "saveEinvoiceSettingsAction",
+      "line": 152,
+      "tables": [],
+      "rpc": [
+        "einvoice_update_settings"
+      ],
+      "guards": [
+        "assertEinvoiceConfiguration"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "checkEinvoiceIntegrityAction",
+      "line": 173,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "assertEinvoiceWrite"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "checkRegulatorySourcesAction",
+      "line": 176,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "assertEinvoiceConfiguration"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "reviewRegulatoryChangeAction",
+      "line": 179,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "assertEinvoiceConfiguration"
+      ]
+    },
+    {
+      "file": "src/lib/e-invoicing/actions.ts",
+      "name": "recordBackupVerificationAction",
+      "line": 182,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "assertEinvoiceConfiguration"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "createHrEmployeeAction",
+      "line": 11,
+      "tables": [
+        "hr_employees"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace",
+        "ensureHrReferenceData"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "updateHrEmployeeAction",
+      "line": 42,
+      "tables": [
+        "hr_employees"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "createHrContractAction",
+      "line": 70,
+      "tables": [
+        "hr_contracts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "createHrLeaveRequestAction",
+      "line": 94,
+      "tables": [
+        "hr_leave_requests"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "createHrPayrollPeriodAction",
+      "line": 113,
+      "tables": [
+        "hr_payroll_periods"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/hr/actions.ts",
+      "name": "calculateHrPayrollPeriodAction",
+      "line": 153,
+      "tables": [
+        "hr_payroll_periods",
+        "hr_employees",
+        "hr_settings",
+        "hr_payslips"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireWritableHrWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "prepareInvoiceLinesFromDeliveryNotes",
+      "line": 221,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "listBillableDeliveryNotesForInvoice",
+      "line": 230,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "createCustomerInvoice",
+      "line": 239,
+      "tables": [],
+      "rpc": [
+        "save_customer_invoice_atomic"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "updateCustomerInvoice",
+      "line": 256,
+      "tables": [
+        "customer_invoices"
+      ],
+      "rpc": [
+        "save_customer_invoice_atomic"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "validateCustomerInvoice",
+      "line": 308,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "markInvoiceAsSent",
+      "line": 313,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "cancelCustomerInvoice",
+      "line": 318,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "archiveCustomerInvoice",
+      "line": 323,
+      "tables": [
+        "customer_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/invoice-actions.ts",
+      "name": "createInvoiceFromOrder",
+      "line": 339,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/organization-actions.ts",
+      "name": "uploadOrganizationLogoForOrganization",
+      "line": 84,
+      "tables": [
+        "organizations"
+      ],
+      "rpc": [
+        "set_organization_logo"
+      ],
+      "guards": [
+        "assertCanUpdateOrganizationLogo"
+      ]
+    },
+    {
+      "file": "src/lib/organization-actions.ts",
+      "name": "uploadOrganizationLogo",
+      "line": 183,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "getCustomerOpenItemsAction",
+      "line": 38,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "createCustomerPayment",
+      "line": 83,
+      "tables": [],
+      "rpc": [
+        "create_customer_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "updateCustomerPayment",
+      "line": 147,
+      "tables": [
+        "customer_payments"
+      ],
+      "rpc": [
+        "update_customer_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "allocatePaymentToInvoices",
+      "line": 190,
+      "tables": [
+        "customer_payments"
+      ],
+      "rpc": [
+        "allocate_customer_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "unallocatePaymentFromInvoice",
+      "line": 230,
+      "tables": [
+        "customer_payment_allocations"
+      ],
+      "rpc": [
+        "unallocate_customer_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "cancelCustomerPayment",
+      "line": 265,
+      "tables": [],
+      "rpc": [
+        "cancel_customer_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "confirmCustomerPayment",
+      "line": 292,
+      "tables": [
+        "customer_payments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/payment-actions.ts",
+      "name": "archiveCustomerPayment",
+      "line": 304,
+      "tables": [
+        "customer_payments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "createProduct",
+      "line": 115,
+      "tables": [
+        "tax_rates",
+        "products"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "updateProduct",
+      "line": 227,
+      "tables": [
+        "tax_rates",
+        "products"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace",
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "archiveProduct",
+      "line": 337,
+      "tables": [
+        "products"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "createProductCategory",
+      "line": 363,
+      "tables": [
+        "product_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "updateProductCategory",
+      "line": 388,
+      "tables": [
+        "product_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "archiveProductCategory",
+      "line": 417,
+      "tables": [
+        "product_categories"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "createUnit",
+      "line": 443,
+      "tables": [
+        "units"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "updateUnit",
+      "line": 470,
+      "tables": [
+        "units"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "archiveUnit",
+      "line": 498,
+      "tables": [
+        "units"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "createTaxRate",
+      "line": 524,
+      "tables": [
+        "tax_rates"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "updateTaxRate",
+      "line": 566,
+      "tables": [
+        "tax_rates"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "archiveTaxRate",
+      "line": 609,
+      "tables": [
+        "tax_rates"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/product-actions.ts",
+      "name": "setDefaultTaxRate",
+      "line": 631,
+      "tables": [
+        "tax_rates"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "createSupplierOrder",
+      "line": 139,
+      "tables": [
+        "third_parties",
+        "purchase_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "updateSupplierOrder",
+      "line": 182,
+      "tables": [
+        "purchase_documents",
+        "purchase_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "confirmSupplierOrder",
+      "line": 219,
+      "tables": [
+        "purchase_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "cancelSupplierOrder",
+      "line": 236,
+      "tables": [
+        "purchase_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "createSupplierReceipt",
+      "line": 257,
+      "tables": [
+        "purchase_documents",
+        "purchase_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "validateSupplierReceipt",
+      "line": 379,
+      "tables": [
+        "purchase_documents",
+        "purchase_document_lines",
+        "products"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "cancelSupplierReceipt",
+      "line": 456,
+      "tables": [
+        "purchase_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "createSupplierInvoice",
+      "line": 490,
+      "tables": [
+        "supplier_invoices"
+      ],
+      "rpc": [
+        "save_supplier_invoice_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "updateSupplierInvoice",
+      "line": 571,
+      "tables": [
+        "supplier_invoices"
+      ],
+      "rpc": [
+        "save_supplier_invoice_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "validateSupplierInvoice",
+      "line": 623,
+      "tables": [
+        "supplier_invoices",
+        "third_parties",
+        "supplier_invoice_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "cancelSupplierInvoice",
+      "line": 752,
+      "tables": [
+        "supplier_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "archiveSupplierInvoice",
+      "line": 767,
+      "tables": [
+        "supplier_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "recalculateSupplierInvoicePaymentStatusAction",
+      "line": 794,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "createSupplierPayment",
+      "line": 864,
+      "tables": [],
+      "rpc": [
+        "create_supplier_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "allocateSupplierPaymentToInvoices",
+      "line": 940,
+      "tables": [
+        "supplier_payments"
+      ],
+      "rpc": [
+        "allocate_supplier_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "cancelSupplierPayment",
+      "line": 980,
+      "tables": [
+        "supplier_payments"
+      ],
+      "rpc": [
+        "cancel_supplier_payment_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/purchase-actions.ts",
+      "name": "archivePurchaseDocument",
+      "line": 1032,
+      "tables": [
+        "purchase_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/reminder-actions.ts",
+      "name": "createCustomerReminder",
+      "line": 24,
+      "tables": [
+        "customer_reminders",
+        "customer_reminder_invoices"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/reminder-actions.ts",
+      "name": "markReminderAsSent",
+      "line": 92,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/reminder-actions.ts",
+      "name": "cancelCustomerReminder",
+      "line": 97,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/reminder-actions.ts",
+      "name": "archiveCustomerReminder",
+      "line": 102,
+      "tables": [
+        "customer_reminders"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createSalesQuote",
+      "line": 439,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "updateSalesQuote",
+      "line": 494,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createSalesOrder",
+      "line": 564,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "updateSalesOrder",
+      "line": 619,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "archiveSalesDocument",
+      "line": 689,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "markQuoteAsSent",
+      "line": 745,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "acceptQuote",
+      "line": 754,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "rejectQuote",
+      "line": 763,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "convertQuoteToOrder",
+      "line": 772,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "confirmOrder",
+      "line": 840,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createDeliveryFromOrder",
+      "line": 854,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createDeliveryNoteFromOrder",
+      "line": 876,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createManualDeliveryNote",
+      "line": 1001,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "validateDeliveryNote",
+      "line": 1008,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "markDeliveryAsDelivered",
+      "line": 1074,
+      "tables": [
+        "sales_documents"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "createReturnFromDelivery",
+      "line": 1092,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/sales-actions.ts",
+      "name": "validateReturnNote",
+      "line": 1205,
+      "tables": [
+        "sales_documents",
+        "sales_document_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/stock-actions.ts",
+      "name": "createManualStockEntry",
+      "line": 85,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/stock-actions.ts",
+      "name": "createStockAdjustment",
+      "line": 93,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/stock-location-actions.ts",
+      "name": "createStockLocation",
+      "line": 59,
+      "tables": [
+        "warehouses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace",
+        "ensureCodeIsUnique"
+      ]
+    },
+    {
+      "file": "src/lib/stock-location-actions.ts",
+      "name": "updateStockLocation",
+      "line": 83,
+      "tables": [
+        "warehouses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace",
+        "ensureCodeIsUnique"
+      ]
+    },
+    {
+      "file": "src/lib/stock-location-actions.ts",
+      "name": "archiveStockLocation",
+      "line": 106,
+      "tables": [
+        "warehouses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/stock-location-actions.ts",
+      "name": "setDefaultStockLocation",
+      "line": 124,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "createSupplierCreditNote",
+      "line": 54,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "updateSupplierCreditNote",
+      "line": 58,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "validateSupplierCreditNote",
+      "line": 62,
+      "tables": [
+        "supplier_credit_notes"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "cancelSupplierCreditNote",
+      "line": 73,
+      "tables": [
+        "supplier_credit_notes"
+      ],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "applySupplierCreditNote",
+      "line": 85,
+      "tables": [],
+      "rpc": [
+        "apply_supplier_credit_note_atomic"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "unapplySupplierCreditNote",
+      "line": 95,
+      "tables": [],
+      "rpc": [
+        "unapply_supplier_credit_note_atomic"
+      ],
+      "guards": []
+    },
+    {
+      "file": "src/lib/supplier-credit-note-actions.ts",
+      "name": "postSupplierCreditNoteToAccounting",
+      "line": 103,
+      "tables": [],
+      "rpc": [
+        "save_accounting_entry_atomic"
+      ],
+      "guards": [
+        "ensureAccountingBaseSetup"
+      ]
+    },
+    {
+      "file": "src/lib/tax/dgi-vat-export-actions.ts",
+      "name": "generateDgiVatXmlAction",
+      "line": 108,
+      "tables": [
+        "tax_export_batches"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/tax/vat-declaration-actions.ts",
+      "name": "createVatDeclarationAction",
+      "line": 34,
+      "tables": [
+        "vat_declarations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/tax/vat-declaration-actions.ts",
+      "name": "validateVatDeclarationAction",
+      "line": 172,
+      "tables": [
+        "vat_declarations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/tax/vat-declaration-actions.ts",
+      "name": "archiveVatDeclarationAction",
+      "line": 222,
+      "tables": [
+        "vat_declarations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/tax/vat-declaration-actions.ts",
+      "name": "autoFixVatDeclarationAnomaliesAction",
+      "line": 264,
+      "tables": [
+        "vat_declarations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "createThirdParty",
+      "line": 276,
+      "tables": [
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "updateThirdParty",
+      "line": 307,
+      "tables": [
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "archiveThirdParty",
+      "line": 348,
+      "tables": [
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "restoreThirdParty",
+      "line": 385,
+      "tables": [
+        "third_parties"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "convertProspectToCustomer",
+      "line": 399,
+      "tables": [
+        "third_parties",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "createThirdPartyContact",
+      "line": 454,
+      "tables": [
+        "third_party_contacts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "updateThirdPartyContact",
+      "line": 496,
+      "tables": [
+        "third_party_contacts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "deleteThirdPartyContact",
+      "line": 540,
+      "tables": [
+        "third_party_contacts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "createThirdPartyAddress",
+      "line": 576,
+      "tables": [
+        "third_party_addresses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "updateThirdPartyAddress",
+      "line": 619,
+      "tables": [
+        "third_party_addresses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "deleteThirdPartyAddress",
+      "line": 664,
+      "tables": [
+        "third_party_addresses"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "uploadThirdPartyAttachment",
+      "line": 700,
+      "tables": [
+        "third_parties",
+        "third_party_attachments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/third-party-actions.ts",
+      "name": "archiveThirdPartyAttachment",
+      "line": 777,
+      "tables": [
+        "third_party_attachments"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "createTreasuryAccount",
+      "line": 90,
+      "tables": [
+        "treasury_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "updateTreasuryAccount",
+      "line": 130,
+      "tables": [
+        "treasury_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "archiveTreasuryAccount",
+      "line": 167,
+      "tables": [
+        "treasury_accounts"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "setDefaultTreasuryAccount",
+      "line": 180,
+      "tables": [],
+      "rpc": [],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "createManualTreasuryTransaction",
+      "line": 192,
+      "tables": [
+        "treasury_accounts"
+      ],
+      "rpc": [
+        "create_treasury_transfer",
+        "create_treasury_transaction_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "archiveTreasuryTransaction",
+      "line": 259,
+      "tables": [],
+      "rpc": [
+        "archive_treasury_transaction_atomic"
+      ],
+      "guards": [
+        "requireActiveWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "importBankStatement",
+      "line": 286,
+      "tables": [
+        "bank_statement_imports",
+        "bank_statement_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "cancelBankStatementImport",
+      "line": 386,
+      "tables": [
+        "bank_statement_imports"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "reconcileStatementLineWithTransaction",
+      "line": 399,
+      "tables": [
+        "bank_statement_lines",
+        "treasury_transactions",
+        "bank_reconciliations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "confirmAutomaticReconciliations",
+      "line": 427,
+      "tables": [
+        "bank_statement_lines",
+        "treasury_transactions",
+        "bank_reconciliations"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "ignoreStatementLine",
+      "line": 471,
+      "tables": [
+        "bank_statement_lines"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "createTransactionFromStatementLine",
+      "line": 487,
+      "tables": [
+        "bank_statement_lines"
+      ],
+      "rpc": [
+        "create_treasury_transaction_from_statement_line_atomic"
+      ],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-actions.ts",
+      "name": "unreconcileStatementLine",
+      "line": 510,
+      "tables": [],
+      "rpc": [],
+      "guards": []
+    },
+    {
+      "file": "src/lib/treasury-forecast-actions.ts",
+      "name": "createTreasuryForecastItem",
+      "line": 24,
+      "tables": [
+        "treasury_forecast_items"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-forecast-actions.ts",
+      "name": "updateTreasuryForecastItem",
+      "line": 68,
+      "tables": [
+        "treasury_forecast_items"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-forecast-actions.ts",
+      "name": "setTreasuryForecastItemStatus",
+      "line": 118,
+      "tables": [
+        "treasury_forecast_items"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/treasury-forecast-actions.ts",
+      "name": "archiveTreasuryForecastItem",
+      "line": 141,
+      "tables": [
+        "treasury_forecast_items"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    },
+    {
+      "file": "src/lib/tva-actions.ts",
+      "name": "generateDgiVatPreparationAction",
+      "line": 30,
+      "tables": [
+        "tax_export_batches"
+      ],
+      "rpc": [],
+      "guards": [
+        "requireProWorkspace"
+      ]
+    }
+  ]
+}

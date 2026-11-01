@@ -14,13 +14,13 @@ import "@/styles/landing-motion.css";
 export const metadata: Metadata = {
   title: "Felexia — ESSENTIEL et PRO, votre ERP au Maroc",
   description:
-    "ESSENTIEL pour facturer et suivre votre trésorerie. PRO pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et ressources humaines au Maroc.",
+    "ESSENTIEL pour facturer et suivre votre trésorerie. PRO sur devis pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et ressources humaines au Maroc.",
   openGraph: {
     type: "website",
     locale: "fr_MA",
     title: "Felexia — ESSENTIEL et PRO, votre ERP au Maroc",
     description:
-      "Deux offres pour votre PME : la gestion quotidienne avec ESSENTIEL, toutes les fonctions de l’ERP avec PRO. Facturation électronique PDF/XML incluse.",
+      "Deux offres pour votre PME : la gestion quotidienne avec ESSENTIEL, l’ERP complet avec PRO sur devis. Facturation électronique PDF/XML incluse.",
   },
 };
 

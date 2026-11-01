@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Sparkles, X } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/subscriptions/plans-config";
+import { isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
 
 export function TrialStartedBanner({
   forceOpen = false,
@@ -14,6 +15,7 @@ export function TrialStartedBanner({
 }) {
   const [isHidden, setIsHidden] = useState(false);
   const planLabel = PLAN_LABELS[planCode as keyof typeof PLAN_LABELS] ?? PLAN_LABELS.essentiel;
+  const proAccess = isPlanQuoteOnly(planCode);
 
   function hideBanner() {
     setIsHidden(true);
@@ -27,7 +29,7 @@ export function TrialStartedBanner({
         type="button"
         onClick={hideBanner}
         className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-        aria-label="Masquer le message d'essai"
+        aria-label={proAccess ? "Masquer le message d’accès PRO" : "Masquer le message d'essai"}
       >
         <X className="h-4 w-4" />
       </button>
@@ -43,13 +45,13 @@ export function TrialStartedBanner({
               Pack {planLabel} activé
             </div>
             <h2 className="mt-3 text-xl font-semibold text-slate-950">
-              Votre essai {planLabel} a démarré.
+              {proAccess ? "Votre accès PRO est activé." : <>Votre essai {planLabel} a démarré.</>}
             </h2>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez d&apos;un essai {planLabel}, sans carte bancaire et sans engagement.
+              {proAccess ? "Votre entreprise dispose de l’ERP complet pour découvrir ses modules. Retrouvez les conditions et la durée de votre accès dans Paramètres > Abonnement." : <>Bienvenue sur Felexia. Votre entreprise est prête et vous bénéficiez d&apos;un essai {planLabel}, sans carte bancaire et sans engagement.</>}
             </p>
             <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
-              Créez vos factures de vente et d’achat, enregistrez leurs règlements et suivez votre trésorerie. Vos journaux restent accessibles. Vous pourrez gérer votre abonnement depuis Paramètres &gt; Abonnement.
+              {proAccess ? "Explorez les ventes, les achats, le stock, la comptabilité, la TVA et les ressources humaines. PRO est proposé uniquement sur devis." : "Créez vos factures de vente et d’achat, enregistrez leurs règlements et suivez votre trésorerie. Vos journaux restent accessibles. Vous pourrez gérer votre abonnement depuis Paramètres > Abonnement."}
             </p>
           </div>
         </div>
@@ -65,7 +67,7 @@ export function TrialStartedBanner({
             href="/parametres/abonnement"
             className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
-            Voir mon abonnement
+            {proAccess ? "Voir mon accès PRO" : "Voir mon abonnement"}
           </Link>
         </div>
       </div>

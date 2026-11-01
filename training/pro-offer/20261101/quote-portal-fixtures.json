@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "checks": 16,
+  "scope": "Synthetic Stripe only; no environment/network/product/price/customer/session/subscription/payment mutation",
+  "results": [
+    "Read-only plan identifies direct PRO choice without mutating Stripe",
+    "Plan exposes only Essentiel product",
+    "Both existing Essentiel billing cycles are preserved",
+    "Original portal choice journaled before any write",
+    "Apply mutates only managed portal update feature and release metadata",
+    "PRO direct choice removed and quote release marked",
+    "Essentiel quantity remains fixed",
+    "Invoice history, payment methods and cancellation are unchanged",
+    "Existing proration and trial-update policy preserved",
+    "Unrelated metadata preserved and final state verified",
+    "Matching quote portal is idempotent",
+    "Rollback restores exact earlier subscription-update configuration",
+    "Rollback restores original metadata without touching other keys",
+    "Wrong Essentiel price cannot change portal",
+    "Unmanaged portal cannot be altered",
+    "Unique managed release can be selected without environment ID"
+  ]
+}

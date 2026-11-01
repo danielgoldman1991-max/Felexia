@@ -4,8 +4,21 @@
 // Business reste disponible uniquement pour les abonnements existants.
 
 export const PUBLICLY_AVAILABLE_PLANS = ["essentiel", "premium"] as const;
+export const SELF_SERVICE_PLANS = ["essentiel"] as const;
+export const PRO_QUOTE_REQUIRED = "PRO_QUOTE_REQUIRED";
+export const PRO_QUOTE_REQUIRED_MESSAGE = "L’offre PRO est disponible sur devis. Contactez l’équipe Felexia pour préparer votre abonnement.";
 
 export type PubliclyAvailablePlan = (typeof PUBLICLY_AVAILABLE_PLANS)[number];
+export type SelfServicePlan = (typeof SELF_SERVICE_PLANS)[number];
+
+export function isPlanQuoteOnly(planKey: unknown): boolean {
+  return planKey === "pro" || planKey === "premium";
+}
+
+/** Display availability never authorizes a self-service subscription. */
+export function resolveSelfServicePlanCode(planKey: unknown): SelfServicePlan | null {
+  return planKey === "essentiel" ? "essentiel" : null;
+}
 
 /** Explicit public input mapping; unknown values must never fall back to Essentiel. */
 export function resolvePublicPlanCode(planKey: unknown): PubliclyAvailablePlan | null {

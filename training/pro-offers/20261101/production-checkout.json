@@ -1,0 +1,465 @@
+{
+  "offer": "PRO",
+  "date": "2026-11-01T09:26:53.381Z",
+  "run": "essential-final-20261031202921",
+  "companyName": "FELEXIA RECETTE ESSENTIELLE 20261031202921",
+  "success": true,
+  "checks": [
+    {
+      "name": "Public SSR authentication is the exact prepared QA administrator",
+      "passed": true
+    },
+    {
+      "name": "Real SSR authentication issued session cookies",
+      "passed": true
+    },
+    {
+      "name": "QA membership can be read",
+      "passed": true
+    },
+    {
+      "name": "Only the exact three prepared users belong to this QA company",
+      "passed": true
+    },
+    {
+      "name": "QA admin membership retains its required role",
+      "passed": true
+    },
+    {
+      "name": "QA operator membership retains its required role",
+      "passed": true
+    },
+    {
+      "name": "QA viewer membership retains its required role",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the QA subscription",
+      "passed": true
+    },
+    {
+      "name": "Company has exactly one local subscription",
+      "passed": true
+    },
+    {
+      "name": "Local subscription is the original free Essentiel trial",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Before preparation: no Stripe subscription was created",
+      "passed": true
+    },
+    {
+      "name": "Before preparation: no charge or payment intent exists",
+      "passed": true
+    },
+    {
+      "name": "Before preparation: no card was attached",
+      "passed": true
+    },
+    {
+      "name": "No pre-existing Checkout is altered by this test",
+      "passed": true
+    },
+    {
+      "name": "Existing QA operator authenticates for billing rejection",
+      "passed": true
+    },
+    {
+      "name": "PRO checkout is forbidden for operator",
+      "passed": true
+    },
+    {
+      "name": "Existing QA viewer authenticates for billing rejection",
+      "passed": true
+    },
+    {
+      "name": "PRO checkout is forbidden for viewer",
+      "passed": true
+    },
+    {
+      "name": "Hidden Business plan remains unavailable to administrator",
+      "passed": true
+    },
+    {
+      "name": "monthly production HTTP prepares a Checkout rather than a portal",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL is a secure Stripe URL and is never opened",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL contains a session reference",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "QA Stripe customer reference remains stable",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production stores a customer for the new QA company",
+      "passed": true
+    },
+    {
+      "name": "Discovered Checkout session belongs to this QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production URL matches the Stripe session URL",
+      "passed": true
+    },
+    {
+      "name": "monthly session uses PRO on its durable Premium code and the requested billing cycle",
+      "passed": true
+    },
+    {
+      "name": "monthly session contains one recurring unit at the expected MAD price",
+      "passed": true
+    },
+    {
+      "name": "monthly total is the exact public tariff",
+      "passed": true
+    },
+    {
+      "name": "monthly remains open, unpaid and without a subscription or payment",
+      "passed": true
+    },
+    {
+      "name": "monthly returns only to canonical production billing settings",
+      "passed": true
+    },
+    {
+      "name": "monthly production HTTP prepares a Checkout rather than a portal",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL is a secure Stripe URL and is never opened",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL contains a session reference",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "QA Stripe customer reference remains stable",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production stores a customer for the new QA company",
+      "passed": true
+    },
+    {
+      "name": "Discovered Checkout session belongs to this QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production URL matches the Stripe session URL",
+      "passed": true
+    },
+    {
+      "name": "A repeated monthly HTTP request reuses exactly the same Checkout",
+      "passed": true
+    },
+    {
+      "name": "yearly production HTTP prepares a Checkout rather than a portal",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL is a secure Stripe URL and is never opened",
+      "passed": true
+    },
+    {
+      "name": "Returned Checkout URL contains a session reference",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "QA Stripe customer reference remains stable",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production stores a customer for the new QA company",
+      "passed": true
+    },
+    {
+      "name": "Discovered Checkout session belongs to this QA organization",
+      "passed": true
+    },
+    {
+      "name": "Production URL matches the Stripe session URL",
+      "passed": true
+    },
+    {
+      "name": "yearly session uses PRO on its durable Premium code and the requested billing cycle",
+      "passed": true
+    },
+    {
+      "name": "yearly session contains one recurring unit at the expected MAD price",
+      "passed": true
+    },
+    {
+      "name": "yearly total is the exact public tariff",
+      "passed": true
+    },
+    {
+      "name": "yearly remains open, unpaid and without a subscription or payment",
+      "passed": true
+    },
+    {
+      "name": "yearly returns only to canonical production billing settings",
+      "passed": true
+    },
+    {
+      "name": "Changing the cycle prepares a distinct yearly Checkout",
+      "passed": true
+    },
+    {
+      "name": "Production expires the prior monthly Checkout before the cycle change",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the exact QA company",
+      "passed": true
+    },
+    {
+      "name": "Checkout targets the manifest company name and identifier",
+      "passed": true
+    },
+    {
+      "name": "Company is newly created for this QA run",
+      "passed": true
+    },
+    {
+      "name": "QA Stripe customer reference remains stable",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Cleanup discovery is bounded to this QA customer",
+      "passed": true
+    },
+    {
+      "name": "Discovered Checkout session belongs to this QA organization",
+      "passed": true
+    },
+    {
+      "name": "Cleanup verifies every session tenant before expiring it",
+      "passed": true
+    },
+    {
+      "name": "Every prepared QA Checkout is expired without completion",
+      "passed": true
+    },
+    {
+      "name": "Cleanup verifies every session tenant before expiring it",
+      "passed": true
+    },
+    {
+      "name": "Every prepared QA Checkout is expired without completion",
+      "passed": true
+    },
+    {
+      "name": "No Checkout from this QA run remains open",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "After cleanup: no Stripe subscription was created",
+      "passed": true
+    },
+    {
+      "name": "After cleanup: no charge or payment intent exists",
+      "passed": true
+    },
+    {
+      "name": "After cleanup: no card was attached",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the QA subscription",
+      "passed": true
+    },
+    {
+      "name": "Company has exactly one local subscription",
+      "passed": true
+    },
+    {
+      "name": "The exact local free trial dates and all subscription fields remain unchanged",
+      "passed": true
+    },
+    {
+      "name": "All scoped financial records remain identical",
+      "passed": true
+    },
+    {
+      "name": "Public administrator can read the QA subscription",
+      "passed": true
+    },
+    {
+      "name": "Company has exactly one local subscription",
+      "passed": true
+    },
+    {
+      "name": "Final safeguard confirms the original local trial is unchanged",
+      "passed": true
+    },
+    {
+      "name": "Stripe customer belongs only to this fictitious QA organization",
+      "passed": true
+    },
+    {
+      "name": "Final safeguard: no Stripe subscription was created",
+      "passed": true
+    },
+    {
+      "name": "Final safeguard: no charge or payment intent exists",
+      "passed": true
+    },
+    {
+      "name": "Final safeguard: no card was attached",
+      "passed": true
+    }
+  ],
+  "http": [
+    {
+      "role": "operator",
+      "status": 403,
+      "plan": "pro"
+    },
+    {
+      "role": "viewer",
+      "status": 403,
+      "plan": "pro"
+    },
+    {
+      "interval": "monthly",
+      "status": 200,
+      "destination": "checkout"
+    },
+    {
+      "interval": "monthly",
+      "status": 200,
+      "destination": "checkout"
+    },
+    {
+      "interval": "yearly",
+      "status": 200,
+      "destination": "checkout"
+    }
+  ],
+  "cleanup": {
+    "attempted": true,
+    "completed": true,
+    "sessionsExpired": 1,
+    "sessionsPrepared": 2
+  },
+  "scope": "Real production HTTP Checkout preparation and read-only Stripe verification; no Checkout navigation, card, confirmation, paying subscription or charge",
+  "monthlyAmountMinor": 129000,
+  "yearlyAmountMinor": 1290000,
+  "currency": "MAD",
+  "sameMonthlySessionReused": true,
+  "priorMonthlyExpiredByCycleChange": true,
+  "financeUnchanged": true,
+  "financialSnapshot": {
+    "hash": "e7a3fe8357d4f57e1f704447e2a05dbc4e1533f9054450b0887210d7f1f51c77",
+    "rowCounts": {
+      "customer_invoices": 30,
+      "supplier_invoices": 2,
+      "customer_payments": 2,
+      "supplier_payments": 2,
+      "treasury_accounts": 2,
+      "treasury_transactions": 9,
+      "accounting_entries": 11,
+      "accounting_entry_lines": 28
+    }
+  },
+  "noFunds": true,
+  "localTrialUnchanged": true,
+  "completedAt": "2026-11-01T09:27:15.330Z"
+}

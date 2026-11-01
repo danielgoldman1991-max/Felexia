@@ -34,8 +34,17 @@ Références utilisées : [objet Price Stripe](https://docs.stripe.com/api/price
 - Build local optimisé3112 : 23 contrôles HTTP publics (`local-public.json`), deux offres, liens PRO, retour connexion avec période, anonyme401 et image SHA identique.
 - Navigateur local : cartes lisibles en1280×900 et390×844, aucun débordement horizontal observé, tarifs annuels2 900/12 900 et lienPRO annuel correct, connexion avec choix conservé. L’émulation de viewport ne certifie pas tous les moteurs.
 
-## Publication
+## Publication et recette réelle
 
-Publication et vérifications du domaine à consigner après reconstruction Git avec l’environnement Production. Ne jamais envoyer le build local ni ses variables de recette.
+Code `ef63a4899f08ff3982fc55adef1675153842a2c4` publié en fast-forward sur `main`. Le connecteur GitHub a été utilisé car le terminal ne disposait pas d’identifiants Git. L’arbre distant a été comparé à l’index local avant synchronisation : contenu identique. La CI de branche [41292828139](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41292828139) est entièrement réussie. Un ancien test isolé de déconnexion a été adapté au nouveau helper de continuation après sa première détection en CI ; les assertions de déconnexion restent inchangées.
+
+Production Git `dpl_Hyw5kkWEvccCDJV967UDpf13g3nb` READY, reconstruction avec l’environnement Production, domaines `www.felexia.pro` et `felexia.pro` assignés, construction58 661ms. Aucun build local ni variable publique de recette envoyé. Le déploiement manuel identique `dpl_J6e6MJykLPRfCqwGyEH3gcPqw1xi`, resté en file derrière le déploiement Git automatique, a été annulé pour éviter une reconstruction redondante. Ancienne production `dpl_6jVzFNVVo3TPgEAV1Mp5uAW99mRH` conservée ; branche distante `codex/backup-production-before-pro-20261101` à `b078654`.
+
+- Domaine public : 23 contrôles HTTP réussis (`production-public.json`), deux offres, six familles PRO, pages légales, image conservée, choix annuel préservé vers connexion, anonyme401.
+- Navigateur public : tarifs annuels2 900/12 900MAD, lien PRO avec `billing=yearly`, absence de débordement observée en1280×900. Les observations locales sont dans `browser-local.json`.
+- Checkout réel de l’entreprise synthétique autorisée : 100/100 contrôles (`production-checkout.json`). PRO mensuel1290 et annuel12900MAD, métadonnée durablepremium, réutilisation de la session mensuelle, ancienne session expirée lors du changement de cycle ; deux sessions préparées et toutes expirées à la fin. Opérateur/lecteur403, Business400.
+- Aucun Checkout ouvert dans un navigateur, aucune carte, aucun paiement, aucun abonnement Stripe créé. Les échéances et champs de l’essai ESSENTIEL de recette restent identiques ; empreintes des données financières également identiques. Identifiants privés et URLs Checkout conservés uniquement dans le journal privé hors dépôt.
+
+L’aperçu optimisé local reste disponible sur3112 ; le serveur de développement3111 a été arrêté. La [CI main41293088732](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41293088732) est également entièrement réussie, y compris build et tracing. État final dans `release.json`.
 
 Les fonctions TVA et paie restent préparatoires. Ce lot ne configure aucune transmission DGI, signature qualifiée ou paie certifiée.

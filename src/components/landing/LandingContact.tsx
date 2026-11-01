@@ -23,7 +23,7 @@ export function LandingContact() {
           <div className="conversion-contact-content">
             <p className="conversion-contact-eyebrow">Moins de gestion. Plus d’élan.</p>
             <h2 id="conversion-contact-title">Faites de la place<br />à votre entreprise.</h2>
-            <p>ESSENTIEL pour votre quotidien, PRO pour tout piloter.<br />Votre nouveau départ commence ici.</p>
+            <p>ESSENTIEL pour votre quotidien, PRO sur devis pour tout piloter.<br />Votre nouveau départ commence ici.</p>
             <Link href="/login?mode=register" className="marketing-button conversion-contact-start">Démarrer gratuitement <ArrowRight size={18} aria-hidden="true" /></Link>
           </div>
           <div className="conversion-contact-bottom">

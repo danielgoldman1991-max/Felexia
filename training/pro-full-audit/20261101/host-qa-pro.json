@@ -1,0 +1,3103 @@
+{
+  "date": "2026-11-01T09:40:38.325Z",
+  "origin": "http://localhost:3112",
+  "scope": "Existing synthetic QA company only; public Auth admin; real GET pages/forms/details/prints/exports; max concurrency3",
+  "success": true,
+  "maxConcurrency": 3,
+  "productPosts": 0,
+  "emailsPaymentsDgiCron": 0,
+  "routes": [
+    {
+      "route": "/achats",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 57244,
+      "sha256": "c6857677baa3b66e75d0741a850b995d6f429d2a2980a03dabe804f62f2831a2",
+      "ms": 1164,
+      "redirects": []
+    },
+    {
+      "route": "/achats/avoirs",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/avoirs",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 64310,
+      "sha256": "f8f6cb8f3cc9c14a8dc78f46c0bbf5a2ac3980e687278463221145f258482ee2",
+      "ms": 1240,
+      "redirects": []
+    },
+    {
+      "route": "/achats/avoirs/new",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/avoirs/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68496,
+      "sha256": "9c0023df5e3ab7f5bd2dfe84ceb818ddecdcc2081ec6f7cba363882154be6ca5",
+      "ms": 1063,
+      "redirects": []
+    },
+    {
+      "route": "/achats/commandes",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/commandes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56340,
+      "sha256": "76fb70f48d60018775e3fb870a9d9707fa4f3d521fdbfb92ae86c01016f1cb77",
+      "ms": 1068,
+      "redirects": []
+    },
+    {
+      "route": "/achats/commandes/new",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/commandes/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 58754,
+      "sha256": "188c4735ab5bc8a853f1acdeb386f5859ee09fb5f1993b7b7ec3323270145f30",
+      "ms": 1315,
+      "redirects": []
+    },
+    {
+      "route": "/achats/factures",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/factures",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 76365,
+      "sha256": "57802d005a2c7d4774043c2565442eb32fa6d5c1a1d3e8fade2fd7f90f85aea9",
+      "ms": 1096,
+      "redirects": []
+    },
+    {
+      "route": "/achats/factures/new",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/factures/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 60496,
+      "sha256": "833689dc75b93bb9006b088aa169dc9000f9aed02d75f4c7d359e75cc8d28c63",
+      "ms": 1134,
+      "redirects": []
+    },
+    {
+      "route": "/achats/fournisseurs",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/fournisseurs",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 60121,
+      "sha256": "957d73f774aa75d04d4f7fd1e3081bfcf53ae1fe4b185c97edf82a4f319f185c",
+      "ms": 982,
+      "redirects": []
+    },
+    {
+      "route": "/achats/paiements",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/paiements",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 63271,
+      "sha256": "99c4c1aa77dd54920f7c37523774a6ff8a8182ba59bd421e1c3e9fca9ef538d8",
+      "ms": 1376,
+      "redirects": []
+    },
+    {
+      "route": "/achats/paiements/new",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/paiements/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 61738,
+      "sha256": "3ca390bf6c6242d2865cf36be29b6532d3908872616f2e7abf869faa94f911f5",
+      "ms": 1352,
+      "redirects": []
+    },
+    {
+      "route": "/achats/receptions",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/receptions",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65785,
+      "sha256": "9a84cfbece1374f759ad693bed8b8e2d69da29b6a48bd0e9a8d2748e40f81f3d",
+      "ms": 1363,
+      "redirects": []
+    },
+    {
+      "route": "/achats/receptions/new",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/receptions/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 51328,
+      "sha256": "f7aa18f30476e602d8201e754f229b4e58cfc2b1adfca8d01d6e5410a385423e",
+      "ms": 1085,
+      "redirects": []
+    },
+    {
+      "route": "/agenda",
+      "module": "Agenda",
+      "state": "Écran réservé",
+      "finalPath": "/agenda",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48232,
+      "sha256": "e17c4812eb1bb17bbfa7a7da64e26cdb3e158035ff6a78be317438cfe3ba5870",
+      "ms": 832,
+      "redirects": []
+    },
+    {
+      "route": "/agenda/echeances",
+      "module": "Agenda",
+      "state": "Écran réservé",
+      "finalPath": "/agenda/echeances",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48747,
+      "sha256": "a3a6a082da90caec989814cccb4b855dd3dc7c010f9662c1f6ef4f659527e2f7",
+      "ms": 957,
+      "redirects": []
+    },
+    {
+      "route": "/agenda/rappels",
+      "module": "Agenda",
+      "state": "Écran réservé",
+      "finalPath": "/agenda/rappels",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48715,
+      "sha256": "ed342612300de4466f8904e738c75f6126d7bbd60552cfe7ca4798db797da334",
+      "ms": 802,
+      "redirects": []
+    },
+    {
+      "route": "/agenda/relances",
+      "module": "Agenda",
+      "state": "Écran réservé",
+      "finalPath": "/agenda/relances",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48757,
+      "sha256": "46dcaade048af1b3be95859c1099ec63159b0d5ca33696b56376eda4522b8ced",
+      "ms": 873,
+      "redirects": []
+    },
+    {
+      "route": "/agenda/taches",
+      "module": "Agenda",
+      "state": "Écran réservé",
+      "finalPath": "/agenda/taches",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48701,
+      "sha256": "55e90f524025851e91616338ee2c36058e18bea96e5843337676689e56020bcf",
+      "ms": 847,
+      "redirects": []
+    },
+    {
+      "route": "/articles",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 52256,
+      "sha256": "dd6ad143b678faccd1c0eab54013eb70e789dad23e73ad5b7d106e119f3d434f",
+      "ms": 1031,
+      "redirects": []
+    },
+    {
+      "route": "/articles/categories",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/categories",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 102213,
+      "sha256": "321c13ab2db28763ef90712d81a18c0d91636c9f01ffbf39849547ea33598c6f",
+      "ms": 954,
+      "redirects": []
+    },
+    {
+      "route": "/articles/categories/new",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/categories/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54169,
+      "sha256": "496bf4c01c8ee8a55927ec48c87b168bf2aaa96a1251f90d0fec6834d127f9d2",
+      "ms": 839,
+      "redirects": []
+    },
+    {
+      "route": "/articles/new",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 73742,
+      "sha256": "33de588e10ebb1415cc6c2367cc886019314cabdf17a7cf4ada7778d78a5800f",
+      "ms": 1158,
+      "redirects": []
+    },
+    {
+      "route": "/articles/produits",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/produits",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55191,
+      "sha256": "f3f12a837bc11b6356c05be639ad13e004ef38ee1bd84a4b8da1350afe8e6ded",
+      "ms": 979,
+      "redirects": []
+    },
+    {
+      "route": "/articles/services",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/services",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 57190,
+      "sha256": "ebf5ba09029f241e65854842f293d52aba58a8ecdcce1447ca796275b5857095",
+      "ms": 1002,
+      "redirects": []
+    },
+    {
+      "route": "/articles/tva",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/tva",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 81535,
+      "sha256": "f4ffe4eef7b86243dcb699868ed2336a8fcdff34b12d495c5c78598f2df7257a",
+      "ms": 725,
+      "redirects": []
+    },
+    {
+      "route": "/articles/tva/new",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/tva/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54249,
+      "sha256": "c06c349ffa8147f55ffdcee33919f8e641a9e8d61d05984e3331ac556f0a0faa",
+      "ms": 848,
+      "redirects": []
+    },
+    {
+      "route": "/articles/unites",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/unites",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 107689,
+      "sha256": "967797ca2d4a84c520730365730ec2a192aaa2993a697e36aa768a077d8910ea",
+      "ms": 888,
+      "redirects": []
+    },
+    {
+      "route": "/articles/unites/new",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/unites/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54031,
+      "sha256": "535671342398666c547ac0eee1a3b46960340993c21fc55cf69ef2ec6a1eded0",
+      "ms": 819,
+      "redirects": []
+    },
+    {
+      "route": "/bienvenue",
+      "module": "Guide",
+      "state": "Implémentation présente",
+      "finalPath": "/bienvenue",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 31759,
+      "sha256": "c725c80a479b507b5dee65db31d8cfe78d21318b30d8f4026cb41c249bcf27c6",
+      "ms": 651,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 61901,
+      "sha256": "25445426b0bccc6ca88787f05ef3d70f420947bde3b4b0af5306c08f534d4f56",
+      "ms": 1050,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/auxiliaires",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/auxiliaires",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53902,
+      "sha256": "bafb2f10c6d17a2a867c666ea75393b57ccdda98c00f58629e7e300370c1ea60",
+      "ms": 975,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/balance",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/balance",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 74393,
+      "sha256": "3f453abe34b73516bde4863c0d1ae968660d34a25b04810442280fc2c99a0645",
+      "ms": 1019,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/comptes",
+      "module": "Comptabilité et TVA",
+      "state": "Redirection",
+      "finalPath": "/comptabilite/plan-comptable",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 202903,
+      "sha256": "38d6c0768b75832c3aface62d62c7b530869ad7c42712fc6e7963820934a9e97",
+      "ms": 1794,
+      "redirects": [
+        {
+          "status": 307,
+          "path": "/comptabilite/plan-comptable"
+        }
+      ]
+    },
+    {
+      "route": "/comptabilite/ecritures",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/ecritures",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 102613,
+      "sha256": "26b22d524918ad0724f42801c894d98b2e6ed264cd2684696efd5895554caaa7",
+      "ms": 936,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/ecritures/nouveau",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/ecritures/nouveau",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 79917,
+      "sha256": "ac92b40d0b8e4170fce3d20977df375b448feedf984c191d368089375a3dfb3d",
+      "ms": 1039,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/exercices",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/exercices",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53938,
+      "sha256": "30b4b412f2512fc55b4a91fee5fdbcf58d78e292d43372a491ad4d3bccec2659",
+      "ms": 1063,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/exports",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/exports",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68485,
+      "sha256": "2df021d82365388ed93a14402fec0433f3152ffef44ec9f623cb9f7f3af0c596",
+      "ms": 899,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/grand-livre",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/grand-livre",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 143041,
+      "sha256": "c5c9bf391e11b1787aae824e23559387f157468735645601c3b0d583ba6e6423",
+      "ms": 1178,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journal-general",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/journal-general",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 114709,
+      "sha256": "0c7dda262d6df3d807a04bde5f9855cf688bd38f065197a85bc0ca90870a5940",
+      "ms": 981,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/journaux",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 91396,
+      "sha256": "fc6882c1f521d77e50c69d901df65c9443e7670d2fc2c2b2613b048c8d9ab24b",
+      "ms": 1067,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/parametres",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/parametres",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 59704,
+      "sha256": "ae8c78448faa7f460dee462bff98e1a1853fca4dc73624774c0d5edcf6f6b032",
+      "ms": 1035,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/plan-comptable",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/plan-comptable",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 202903,
+      "sha256": "38d6c0768b75832c3aface62d62c7b530869ad7c42712fc6e7963820934a9e97",
+      "ms": 1068,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/plan-comptable/new",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/plan-comptable/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 64357,
+      "sha256": "d6e194bcc504151b3d857e97e6dd5c59cda6433829fbf5d7d3cda389a374842d",
+      "ms": 1126,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/tva",
+      "module": "Comptabilité et TVA",
+      "state": "Préparatoire",
+      "finalPath": "/comptabilite/tva",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 71560,
+      "sha256": "b039e47689381a01ee72af4ec925fc9ba719f33a6f47358253d5141df95c0b53",
+      "ms": 1118,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/tva/controle",
+      "module": "Comptabilité et TVA",
+      "state": "Préparatoire",
+      "finalPath": "/comptabilite/tva/controle",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 73092,
+      "sha256": "6080c5774942c4b8c49d64950b3a2d6c15c459501d08f32a6228725a54ade6b5",
+      "ms": 801,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/tva/declarations",
+      "module": "Comptabilité et TVA",
+      "state": "Préparatoire",
+      "finalPath": "/comptabilite/tva/declarations",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67874,
+      "sha256": "9ab74eefc8af323c91eeee9d2b199273ffecf5fb2d2624d4e999b57df3c9ef85",
+      "ms": 1055,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/tva/declarations/new",
+      "module": "Comptabilité et TVA",
+      "state": "Préparatoire",
+      "finalPath": "/comptabilite/tva/declarations/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 62341,
+      "sha256": "d77007fd893c7fc80de294e89392f7205414c88631d139f7a1cfac16c216ead7",
+      "ms": 1045,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/tva/exports",
+      "module": "Comptabilité et TVA",
+      "state": "Préparatoire",
+      "finalPath": "/comptabilite/tva/exports",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 179029,
+      "sha256": "ca4e3e57f33215c4eb2e89629491c144f6ba54d236602f75fa1fca4d9516fe5d",
+      "ms": 1277,
+      "redirects": []
+    },
+    {
+      "route": "/dashboard",
+      "module": "Dashboard",
+      "state": "Implémentation présente",
+      "finalPath": "/dashboard",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 109365,
+      "sha256": "556b97cdda0824933d9939e97bb9f0f4b546dffa0c878a1f5ea94b4cc8d42b03",
+      "ms": 2769,
+      "redirects": []
+    },
+    {
+      "route": "/documents",
+      "module": "GED",
+      "state": "Implémentation présente",
+      "finalPath": "/documents",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 230231,
+      "sha256": "9ab9a582764c87056c5f54dcc3333534dc343e22a89d3d9825c82806de81cd32",
+      "ms": 1289,
+      "redirects": []
+    },
+    {
+      "route": "/documents/archives",
+      "module": "GED",
+      "state": "Écran réservé",
+      "finalPath": "/documents/archives",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 50431,
+      "sha256": "20a8b76515809c9bd2cec9083fd12ae881800ab1e849e406feb89c7d5bab4211",
+      "ms": 830,
+      "redirects": []
+    },
+    {
+      "route": "/documents/import-export",
+      "module": "GED",
+      "state": "Implémentation présente",
+      "finalPath": "/documents/import-export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 82046,
+      "sha256": "ca76897eaefccca76bf10de6f3559b1f306ebe46de7284e747ef5fa30c880ac5",
+      "ms": 817,
+      "redirects": []
+    },
+    {
+      "route": "/documents/modeles",
+      "module": "GED",
+      "state": "Écran réservé",
+      "finalPath": "/documents/modeles",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 50449,
+      "sha256": "dfc1f5f4839cae964957e79a124cfe78fda448adccd0b829cf9eb4489add5a31",
+      "ms": 811,
+      "redirects": []
+    },
+    {
+      "route": "/documents/pieces-jointes",
+      "module": "GED",
+      "state": "Écran réservé",
+      "finalPath": "/documents/pieces-jointes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 50485,
+      "sha256": "5da584e7f37467053380126a8e07db299f7fca534c17f73a46f13cea33658580",
+      "ms": 747,
+      "redirects": []
+    },
+    {
+      "route": "/facturation",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66716,
+      "sha256": "2c12d102bc0e8cd7bcc61d63d67d985c91b600e4b088ab501a827fff6859e488",
+      "ms": 1054,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68482,
+      "sha256": "e14f6383f81e1b55c11c8fd216707abecb29fe3a35b2391c616d3cb155420fae",
+      "ms": 1052,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs/new",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 69475,
+      "sha256": "8ae94d712b8389a14935a75ef2303392bf2e6ad1ad319ce826259363bbe97d0f",
+      "ms": 1018,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/electronique",
+      "module": "Facturation",
+      "state": "Préparatoire",
+      "finalPath": "/facturation/electronique",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 151013,
+      "sha256": "2d73eb8b4f5102e65b7be885e2efa2052d7197d1ccf7973d7b9d0adcf7485e4b",
+      "ms": 1306,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/electronique/configuration",
+      "module": "Facturation",
+      "state": "Préparatoire",
+      "finalPath": "/facturation/electronique/configuration",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 86236,
+      "sha256": "8b03f99222ff088280dfa01e4dd464bea32fc1db743e96d4a7ef4c69b2e97359",
+      "ms": 1296,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/electronique/supervision",
+      "module": "Facturation",
+      "state": "Préparatoire",
+      "finalPath": "/facturation/electronique/supervision",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 74257,
+      "sha256": "35b700426983327f9fe3d3e46dc950f53c801545630abb2ea15faecb771d7480",
+      "ms": 1206,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/factures",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/factures",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 248395,
+      "sha256": "3de7f3165d6960df3bd969f9d3224eac305ad59570f51e36f4752ad82f0f4aa5",
+      "ms": 1067,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/factures/new",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/factures/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 74990,
+      "sha256": "8e6ce4918a3b02caeca7f89e561a30ebae0c9e3e51dbf386130e4ac80af401f4",
+      "ms": 1152,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/paiements",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67133,
+      "sha256": "225a2ff1ab4d9c96b0fe7cad3bfc5356b6720fca289a789e3a9a367111a9c862",
+      "ms": 880,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/paiements/affectation",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/affectation",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54587,
+      "sha256": "ab9e7e53f6ddee0924c4b6211ca5d8f75ed3c18b36efc5f956cdc423a3c14448",
+      "ms": 1219,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/paiements/new",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66421,
+      "sha256": "fd94e85b126abde3db858b8f770e2902d5cdfa48ebe96bf71a4c8ccdcac249ca",
+      "ms": 1176,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/relances",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/relances",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55512,
+      "sha256": "c56e1281f9cd1c53c77c16d8d0e1a077422626ca307e3cf61e6b2007303262ee",
+      "ms": 1012,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/relances/new",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/relances/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 58502,
+      "sha256": "6b79914c85789d41748e580d2a6a21c6772a19ce06c1cfb73aaaa6f857d2b5a6",
+      "ms": 1096,
+      "redirects": []
+    },
+    {
+      "route": "/outils",
+      "module": "Outils",
+      "state": "Écran réservé",
+      "finalPath": "/outils",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48227,
+      "sha256": "6c1c5902877e2bfddc1401ef468ee3bcab7707ceb06087d60bdc2ba292c7b3c9",
+      "ms": 819,
+      "redirects": []
+    },
+    {
+      "route": "/outils/audit-log",
+      "module": "Outils",
+      "state": "Écran réservé",
+      "finalPath": "/outils/audit-log",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48747,
+      "sha256": "bce989d2ba53c7403d2d243c1b833e0ef074d6a1fda00edffca539c7f1ae0dd3",
+      "ms": 799,
+      "redirects": []
+    },
+    {
+      "route": "/outils/import-export",
+      "module": "Outils",
+      "state": "Écran réservé",
+      "finalPath": "/outils/import-export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48731,
+      "sha256": "b1c740645dd0e8210e1b32fe2405ca96fd662a66b705b33df14dd6329eaeb67a",
+      "ms": 855,
+      "redirects": []
+    },
+    {
+      "route": "/parametres",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 76226,
+      "sha256": "08b0b92dce280980db4a2bd13cda4781c827429026c97f8bc501b2acc2eeca3a",
+      "ms": 969,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/abonnement",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/abonnement",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 69930,
+      "sha256": "c4fb4368ea31df120928e01cf856b0930dadd0d21122dca7dc19aaf10cccc90e",
+      "ms": 813,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/documents",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/documents",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56450,
+      "sha256": "78118682661ba55a40f98347ee2adaa3746909112b12f9bec3524b48f8755b59",
+      "ms": 937,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/entreprise",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/entreprise",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 62650,
+      "sha256": "1f13b1d37003e86e2614d46d0315f807cb01e48635a4417834c4311f51ae8118",
+      "ms": 923,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/facturation",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/facturation",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 84637,
+      "sha256": "158ed8a106fb63aec67f0864aa0304bdf3db9d6ba8a663c20ede41eac0a56cc5",
+      "ms": 853,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/modules",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/modules",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 64594,
+      "sha256": "1290c77ea8e231d710c390e1190dadd55548d78f8319255f9ee5e7b72c25e838",
+      "ms": 969,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/numerotation",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/numerotation",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 134024,
+      "sha256": "81a09ebc986176b9428cddc88a6d3891c52fc9a31e9ae25dce9e9766b0142a88",
+      "ms": 1023,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/preferences",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/preferences",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56332,
+      "sha256": "22cc3b2d3cce49e86fca3b3c3b5611797f0c01af924c6862fe69617870bb507e",
+      "ms": 969,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/profil",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/profil",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 59872,
+      "sha256": "6d70ef8a8967b01b14e5bba0158ad1133ba2ba798ac7f9d0d1de489a919d4036",
+      "ms": 944,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/roles",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/roles",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 80120,
+      "sha256": "62321ce0a1b3ff19e19b351f78eadc83d35cfc6a930698d41243945d7767cf37",
+      "ms": 1056,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/securite",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/securite",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65252,
+      "sha256": "b9260218144fed60b1462343df18a3a4d3fb5c53a4f6f8f0986af877c5091197",
+      "ms": 927,
+      "redirects": []
+    },
+    {
+      "route": "/parametres/utilisateurs",
+      "module": "Paramètres",
+      "state": "Implémentation présente",
+      "finalPath": "/parametres/utilisateurs",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 64938,
+      "sha256": "9850199027ad98b929fd860b599f1ff2b07f471d3f8a0e78012bfed28d91fd6e",
+      "ms": 942,
+      "redirects": []
+    },
+    {
+      "route": "/rapports",
+      "module": "Rapports",
+      "state": "Écran réservé",
+      "finalPath": "/rapports",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 48200,
+      "sha256": "b7f35b0aa84ffa624fe6f9f278046d31f091dbf7e63b0630daa6861d361c568f",
+      "ms": 877,
+      "redirects": []
+    },
+    {
+      "route": "/rh",
+      "module": "RH",
+      "state": "Redirection",
+      "finalPath": "/rh/dashboard",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 93767,
+      "sha256": "aa6e3853920e6233a8318b56135069b1560595278d32206bdc017b893ad04ac2",
+      "ms": 2609,
+      "redirects": [
+        {
+          "status": 307,
+          "path": "/rh/dashboard"
+        }
+      ]
+    },
+    {
+      "route": "/rh/absences",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/absences",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65222,
+      "sha256": "b4ca8112445ce7497b0018a1e8f7650edb228d260ce21f2a2e93eb1950189180",
+      "ms": 1855,
+      "redirects": []
+    },
+    {
+      "route": "/rh/attestations",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/attestations",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67207,
+      "sha256": "258c1aaf99c293ac71ba2c7526bd7ee3a7004ed373c6564dade7b0214aaea6e9",
+      "ms": 859,
+      "redirects": []
+    },
+    {
+      "route": "/rh/avances",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/avances",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65216,
+      "sha256": "b7de9c936f02c624e6511f2b4a2e4e7b194826bf8dd4a16406c0e3ddc9c94ebb",
+      "ms": 1538,
+      "redirects": []
+    },
+    {
+      "route": "/rh/cnss",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/cnss",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65867,
+      "sha256": "9842668108543958d56745654d1d5906c0a327674800d0353989c3654143b8b1",
+      "ms": 1760,
+      "redirects": []
+    },
+    {
+      "route": "/rh/conges",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/conges",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65160,
+      "sha256": "d1b59f0118e9cea0c2f5c30712fdf1e80061bea369cd273971788663da78bcc3",
+      "ms": 1721,
+      "redirects": []
+    },
+    {
+      "route": "/rh/contrats",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/contrats",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66609,
+      "sha256": "39833d8d8df9e9df283a1e384ffd384682d28391e00a244f3c6bd3696f6c2e7a",
+      "ms": 1611,
+      "redirects": []
+    },
+    {
+      "route": "/rh/contrats/new",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/contrats/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 73286,
+      "sha256": "2642e94d3e48afb3390901c4a6a04a4aeb8cf6c27a873ce0a663ec77ce34112c",
+      "ms": 1925,
+      "redirects": []
+    },
+    {
+      "route": "/rh/dashboard",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/dashboard",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 93767,
+      "sha256": "aa6e3853920e6233a8318b56135069b1560595278d32206bdc017b893ad04ac2",
+      "ms": 1664,
+      "redirects": []
+    },
+    {
+      "route": "/rh/discipline",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/discipline",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65238,
+      "sha256": "25340622ba8e98d908c7a704d7f10d44929c0c7f154c4ea1ca7adf9472717191",
+      "ms": 1612,
+      "redirects": []
+    },
+    {
+      "route": "/rh/documents",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/documents",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65228,
+      "sha256": "e837f98d3eacb2da98d1125ebb58028542552b4a091266a1b907e1428fd82730",
+      "ms": 1586,
+      "redirects": []
+    },
+    {
+      "route": "/rh/employes",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/employes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 69111,
+      "sha256": "4340e6bf5cadceef2ce2beb201753d45b10f72c05b434db8af87dc98c2177a44",
+      "ms": 1777,
+      "redirects": []
+    },
+    {
+      "route": "/rh/employes/new",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/employes/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 85006,
+      "sha256": "9b96a1908540197c4bdb2a72899b03db075ec52f8bfa309dbf6a2d89f7620cb9",
+      "ms": 1768,
+      "redirects": []
+    },
+    {
+      "route": "/rh/evaluations",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/evaluations",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65197,
+      "sha256": "2e9ad3f6f81a1101972a9424cfef28842ee071946404036ccf8d868979849bb8",
+      "ms": 1880,
+      "redirects": []
+    },
+    {
+      "route": "/rh/ir",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/ir",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65831,
+      "sha256": "1022cd32d7ef20acc62cd8ecd8fca8f881de14255f90598d6fa6dad9b2527a98",
+      "ms": 2191,
+      "redirects": []
+    },
+    {
+      "route": "/rh/notes-de-frais",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/notes-de-frais",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65232,
+      "sha256": "b808e05a24a124b2af119c0e618e8b89dc6808e6c617beb8685e33e9d0a43e1f",
+      "ms": 1938,
+      "redirects": []
+    },
+    {
+      "route": "/rh/offboarding",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/offboarding",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68064,
+      "sha256": "3509ca69dabcdd96a89ef512e72bf85ee4027244ce395c8994a7d4b73d9d83b2",
+      "ms": 971,
+      "redirects": []
+    },
+    {
+      "route": "/rh/onboarding",
+      "module": "RH",
+      "state": "Implémentation présente",
+      "finalPath": "/rh/onboarding",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67614,
+      "sha256": "e4d5d3fd8c52d6376d860952ec88d68e2f81cb8a63c388407de9ed5321caaa64",
+      "ms": 1017,
+      "redirects": []
+    },
+    {
+      "route": "/rh/paie",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/paie",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68277,
+      "sha256": "4510cbd16d1e96384fcf1f89ecfa777a3c311ff90588da6b49dac9fb9c595a60",
+      "ms": 2076,
+      "redirects": []
+    },
+    {
+      "route": "/rh/paie/bulletins",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/paie/bulletins",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66281,
+      "sha256": "5b9e77c309a3511775e028f389c332ffbb3afbc831ac69df268ca69713a6c8a4",
+      "ms": 2018,
+      "redirects": []
+    },
+    {
+      "route": "/rh/paie/periodes",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/paie/periodes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67655,
+      "sha256": "7b83265f6baf242d1f17728a518abab06dd19b70a52a2dba048d826e6482e346",
+      "ms": 1766,
+      "redirects": []
+    },
+    {
+      "route": "/rh/paie/periodes/new",
+      "module": "RH",
+      "state": "Préparatoire",
+      "finalPath": "/rh/paie/periodes/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68180,
+      "sha256": "7e5628f68409357fea51951fc95454e148ffde63590c3498888201147d02cdc5",
+      "ms": 893,
+      "redirects": []
+    },
+    {
+      "route": "/rh/parametres",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/parametres",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68103,
+      "sha256": "4f52a5c720eb26297b1bdfcf8ce23a979dc4fdc289e2ed5d0be9266d6b144f14",
+      "ms": 1686,
+      "redirects": []
+    },
+    {
+      "route": "/rh/presences",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/presences",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65232,
+      "sha256": "e89286411e71d534d9cb81d97c00b5c9138c2cf8123467c68dae95ded7c4fb66",
+      "ms": 1751,
+      "redirects": []
+    },
+    {
+      "route": "/rh/prets",
+      "module": "RH",
+      "state": "Consultation RH",
+      "finalPath": "/rh/prets",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65180,
+      "sha256": "fb50346e473ebd7b2090b5f154c340f478b889c08411d032f80d934c2854ca10",
+      "ms": 1598,
+      "redirects": []
+    },
+    {
+      "route": "/stock",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 58707,
+      "sha256": "59afb1f15caeb88b31b6fd4902a5ad97d3002efa585e228b36c5485af0d59177",
+      "ms": 983,
+      "redirects": []
+    },
+    {
+      "route": "/stock/ajustements/new",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock/ajustements/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56547,
+      "sha256": "6e54c0c8385132e3a94ac88295394d916b568829d791efba19a49d25d18d78c9",
+      "ms": 1110,
+      "redirects": []
+    },
+    {
+      "route": "/stock/emplacements",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock/emplacements",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 57341,
+      "sha256": "1c412cfd005fa2543bf36dfdd3beacc1bc6fb11bf396f133d6a784d64f8e0c20",
+      "ms": 1005,
+      "redirects": []
+    },
+    {
+      "route": "/stock/emplacements/new",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock/emplacements/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 57561,
+      "sha256": "6f622c19e36d93ecabc75faa2640f8591fe371fdb4ee0fe6e3748f23eb116630",
+      "ms": 1116,
+      "redirects": []
+    },
+    {
+      "route": "/stock/entrees/new",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock/entrees/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56050,
+      "sha256": "fb85d5f2e07eeb2f1a5ab6757224d8e95b8efbc93c3144c3fca89b064a1f61cc",
+      "ms": 1086,
+      "redirects": []
+    },
+    {
+      "route": "/stock/inventaire",
+      "module": "Stock",
+      "state": "Écran réservé",
+      "finalPath": "/stock/inventaire",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53027,
+      "sha256": "8ab540b31d89cf5767d15dbfafc9b28de25ef181456fc17a58913813c951ff2b",
+      "ms": 920,
+      "redirects": []
+    },
+    {
+      "route": "/stock/mouvements",
+      "module": "Stock",
+      "state": "Implémentation présente",
+      "finalPath": "/stock/mouvements",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54200,
+      "sha256": "d4e54b45fd1d1e4228239b51407ee5dca5e3c8b68a3fb6a147c18361a1ec0409",
+      "ms": 1029,
+      "redirects": []
+    },
+    {
+      "route": "/tiers",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 101799,
+      "sha256": "91d78b50778d3e96535ad97a00b9b1fe7777fd2a7af4e828e43d62148c120482",
+      "ms": 1191,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/clients",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/clients",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 83136,
+      "sha256": "6bc92edb70f46f03acdf4ff707c079f526212997ccc0df941f0ae4698ec9f275",
+      "ms": 1072,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/fournisseurs",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/fournisseurs",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 65525,
+      "sha256": "98a588ad837989eaac1ce78c442418a4f13cd922065ec61ee17b12d87590aa78",
+      "ms": 1028,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/new",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 72308,
+      "sha256": "9e0293ea1acff41c2f27825fc8d2c588c5454c09e6f3a9bb91fcca642565d16b",
+      "ms": 1240,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/prospects",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/prospects",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 64529,
+      "sha256": "ce02a8a0fa6059b2a1be0a35d4897638dc8d8766ad10eaa18a3174a35f8fa278",
+      "ms": 1118,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 78651,
+      "sha256": "4d558b4fdf6172cf77cae7014cfa41d133669f1e6a0e071355e261f475c2ce3d",
+      "ms": 1026,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/comptes",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/comptes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 63072,
+      "sha256": "f32dba8cce8af79272ae69554f29f5896eb8153fadca7dd96156e553ff07d741",
+      "ms": 933,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/comptes/new",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/comptes/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 59280,
+      "sha256": "1226c38d15197057d1c0e63881866da1dadee9bccb23665920fec1e6cb6e92bb",
+      "ms": 1021,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/consultation",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/consultation",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 119566,
+      "sha256": "9f234ecdd83ed6c70315c7b22fe5cc59ca86fc8764173b5515b4f6aa9310df20",
+      "ms": 1710,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/mouvements",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/mouvements",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 89854,
+      "sha256": "b823d1859ba51dbf237bb058ae6f6c66a89b7cb6a3b5e280d5f2e9652c348c22",
+      "ms": 1530,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/mouvements/new",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/mouvements/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 58226,
+      "sha256": "032cce0ffd1f4786c78570d6146aafbd85f780f6ac7569e101d5d45980ecb650",
+      "ms": 1335,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/previsions",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/previsions",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 118973,
+      "sha256": "38d509deced5deb2a3e52be0158f1696dad42d3b0dee4de2ff9a9a250e351e24",
+      "ms": 1154,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/previsions/nouveau",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/previsions/nouveau",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 57885,
+      "sha256": "6d75b2088756ae5853842e24e0b943b68117a634ecdc8ed1b09a4007211747b8",
+      "ms": 1111,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/rapprochement",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/rapprochement",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66264,
+      "sha256": "40e12fda55ccabb76071c8da4b69fdc36f098ea4bc278da4f3560f05577af350",
+      "ms": 1232,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/releves",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/releves",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55384,
+      "sha256": "e9d8346c24cdc56eb80623e936a28d1628e29da766dc7dc02f10636c33615cbf",
+      "ms": 853,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/releves/import",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/releves/import",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55447,
+      "sha256": "9a70633530b181e03b9710118f8a3a3723946d28cf96a571bc8ee4c13444947e",
+      "ms": 1076,
+      "redirects": []
+    },
+    {
+      "route": "/vente",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 56889,
+      "sha256": "dc398227efc181b1938482c17a8d320eaddc6e3716b80fee18fa096198ec265c",
+      "ms": 1038,
+      "redirects": []
+    },
+    {
+      "route": "/vente/commandes",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/commandes",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55757,
+      "sha256": "d0cb75fdabbe081eafe8d464519e69efd5a74c7e9f156ed4d4b0dc50c93c1841",
+      "ms": 1016,
+      "redirects": []
+    },
+    {
+      "route": "/vente/commandes/new",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/commandes/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 74926,
+      "sha256": "f5392f92e3aecf764a57917a16acfadfafa9dcad39abbb1e03313ba652ae9a5a",
+      "ms": 1202,
+      "redirects": []
+    },
+    {
+      "route": "/vente/devis",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/devis",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55160,
+      "sha256": "3acae4af4953657511b977e17d7a063aff939e2b8401acb072d72f23be72fc43",
+      "ms": 1058,
+      "redirects": []
+    },
+    {
+      "route": "/vente/devis/new",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/devis/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 89906,
+      "sha256": "5831e7ea034775d3ae8ef9ddc6135e0610bf4e9e7b190c6be7ac236a290477e1",
+      "ms": 1095,
+      "redirects": []
+    },
+    {
+      "route": "/vente/livraisons",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/livraisons",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55771,
+      "sha256": "7bc6982251dc8804b52cbf796e6dcfd8f6ae9e0d09d2155bce9a0698cc8f907d",
+      "ms": 1047,
+      "redirects": []
+    },
+    {
+      "route": "/vente/livraisons/new",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/livraisons/new",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 54136,
+      "sha256": "ab13afaadcf45dc07d3e9af039a40ad587d8373193f8608dd5f05666a55859e5",
+      "ms": 1087,
+      "redirects": []
+    },
+    {
+      "route": "/vente/retours",
+      "module": "Ventes",
+      "state": "Implémentation présente",
+      "finalPath": "/vente/retours",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 53934,
+      "sha256": "746afe895ecda26c153300700e84071e283f438c667a2d1397d54567b2d74c83",
+      "ms": 999,
+      "redirects": []
+    },
+    {
+      "route": "/achats/avoirs/[id]",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/avoirs/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67308,
+      "sha256": "d05dc1a1392f8dd3701db396121585582ec6969dfcb73e7e09fa353c22610ace",
+      "ms": 1216,
+      "redirects": []
+    },
+    {
+      "route": "/achats/avoirs/[id]/edit",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/avoirs/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67308,
+      "sha256": "d05dc1a1392f8dd3701db396121585582ec6969dfcb73e7e09fa353c22610ace",
+      "ms": 2212,
+      "redirects": [
+        {
+          "status": 307,
+          "path": "/achats/avoirs/[qa-id]"
+        }
+      ]
+    },
+    {
+      "route": "/achats/avoirs/[id]/print",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/avoirs/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 28174,
+      "sha256": "8cf0f24fbce0d84da273d53212a59601dd10340e0188738f068121b6c59fb245",
+      "ms": 1130,
+      "redirects": []
+    },
+    {
+      "route": "/achats/factures/[id]",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/factures/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 77281,
+      "sha256": "e27dd79fac2417a82c241fed55a7592c6ebd478c3a4acf38c8cafd0a25067679",
+      "ms": 1535,
+      "redirects": []
+    },
+    {
+      "route": "/achats/factures/[id]/edit",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/factures/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 66097,
+      "sha256": "acf956d319ea4c3a50a3084462fffd876680e7281b4baa462bcf73fb62f83c79",
+      "ms": 1543,
+      "redirects": []
+    },
+    {
+      "route": "/achats/factures/[id]/print",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/factures/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 28203,
+      "sha256": "1efb74d18bb2c671e1bdb0056b5e59d19ab61991146dbe3168d985bf19023e56",
+      "ms": 1221,
+      "redirects": []
+    },
+    {
+      "route": "/achats/paiements/[id]",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/paiements/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 61541,
+      "sha256": "665cd678db7284cab9a27541dfa4afeb3762c15779a77d5135563eef19d65a8a",
+      "ms": 1584,
+      "redirects": []
+    },
+    {
+      "route": "/achats/paiements/[id]/affecter",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/paiements/[qa-id]/affecter",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55231,
+      "sha256": "6ba1d3a9091711ee09f1622c5b37d5c44ec8c754400ad0c6cb8f9ba145d209e3",
+      "ms": 1123,
+      "redirects": []
+    },
+    {
+      "route": "/achats/paiements/[id]/print",
+      "module": "Achats",
+      "state": "Implémentation présente",
+      "finalPath": "/achats/paiements/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 25604,
+      "sha256": "e25c123e6b07060cbebef8e5455232ef67b68be4eca2facbd78177a6915182af",
+      "ms": 1014,
+      "redirects": []
+    },
+    {
+      "route": "/articles/[id]",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55383,
+      "sha256": "736ca7b07665ef5260729072134047171fa099cdf2b5df1a9fbac0d81f6b34ac",
+      "ms": 1167,
+      "redirects": []
+    },
+    {
+      "route": "/articles/[id]/edit",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 74446,
+      "sha256": "1454bce51a340d4b4abdb32015b5ddd57d6a7444ad758303da7d3bc295471310",
+      "ms": 1272,
+      "redirects": []
+    },
+    {
+      "route": "/articles/categories/[id]/edit",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/categories/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55646,
+      "sha256": "2b2d2d4d3d06b7301c40bf1eefd859f31085101e8f899b08be6cc8d65e93c6eb",
+      "ms": 1068,
+      "redirects": []
+    },
+    {
+      "route": "/articles/unites/[id]/edit",
+      "module": "Articles",
+      "state": "Implémentation présente",
+      "finalPath": "/articles/unites/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55456,
+      "sha256": "dd9b8d4553b089652081ae39adeecc2f9ea70652f4f1f346a83466af1f287d12",
+      "ms": 1033,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/comptes/[id]",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/comptes/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 72147,
+      "sha256": "d61396874339f5f58aa5280df5464044d68e5ec9b029bef160cbfd2654ef6d27",
+      "ms": 1165,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/ecritures/[id]",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/ecritures/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67045,
+      "sha256": "94b6ea0910d1844cf4235d5327a10f3503ec0f0f811d717d62976154376782f7",
+      "ms": 1356,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/journaux/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 82239,
+      "sha256": "1ac16970bc172f94c012c66a296499ee33235b4cd5d91c656b15d361ca06f192",
+      "ms": 976,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/print",
+      "module": "Comptabilité et TVA",
+      "state": "Implémentation présente",
+      "finalPath": "/comptabilite/journaux/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 24957,
+      "sha256": "0cdc1405c7370a2783270aaa3c8d09f4524ba2a79f7572e960deff067a41302b",
+      "ms": 1016,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs/[id]",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 63677,
+      "sha256": "85f53666f98f636ba754d96f5af5a17cd79e2f58a20ac042a5ad7f52810ca91a",
+      "ms": 1186,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs/[id]/affecter",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs/[qa-id]/affecter",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 59703,
+      "sha256": "adf90109a87370336591f49cd01b343030eb93dd5cb4f3d96c40abd82ddb8125",
+      "ms": 1190,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs/[id]/edit",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 55349,
+      "sha256": "b71b7f829924cdeabfe29158db6aceea112831202d8fdf2f7767be8e272ef030",
+      "ms": 1049,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/avoirs/[id]/print",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/avoirs/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 27653,
+      "sha256": "a3b320a24cd910b773c246938a296ef2fb65417ea9aeb08d7ba7cdfc1cb6293e",
+      "ms": 917,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/factures/[id]",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/factures/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 68070,
+      "sha256": "f54ad0f60cbd94cc1a0c26c5329bc2a7072d0e0c850f09703706037a2b41ff40",
+      "ms": 1047,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/factures/[id]/edit",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/factures/[qa-id]/edit",
+      "status": 404,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 13541,
+      "sha256": "2af0e2ccbadebc557d417a5be4f678a2c5ae5cc065d3a75c34e0894cbafca17a",
+      "ms": 866,
+      "redirects": [],
+      "excerpt": " Felexia — Votre ERP au Maroc ",
+      "expectedStatus": 404,
+      "expectedRestriction": "Existing QA record is rejected by the explicit business-state edit guard",
+      "classificationEvidence": {
+        "guardSource": "src/app/facturation/factures/[id]/edit/page.tsx",
+        "selectedQaRecordEditable": false,
+        "scope": "Expected refusal only; this observation does not prove that an edit form rendered"
+      }
+    },
+    {
+      "route": "/facturation/factures/[id]/paiement",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/factures/[qa-id]/paiement",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 72834,
+      "sha256": "0e9f2ff618eb06450c513f1d2843504c27fe64f159f4e021dd65c96d503f7ffa",
+      "ms": 1255,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/factures/[id]/print",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/electronique/factures/[qa-id]/download?format=pdf&inline=1&version=[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/pdf",
+      "bytes": 16082,
+      "sha256": "0fa9e59fe59584ad30c78e3b36741853272113828b3cb7322e2c1537a99d7c71",
+      "ms": 1834,
+      "redirects": [
+        {
+          "status": 307,
+          "path": "/facturation/electronique/factures/[qa-id]/download"
+        }
+      ]
+    },
+    {
+      "route": "/facturation/paiements/[id]",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 62760,
+      "sha256": "9be403fa0911ee1cdfd987451e136ce48e8f0735a7144b3277cc17d993e787f8",
+      "ms": 1219,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/paiements/[id]/affecter",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/[qa-id]/affecter",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 59416,
+      "sha256": "5c373222b94ed1e3504d9ab92fedcc0c22cdc9b45cd1cdd463379f34668ecc00",
+      "ms": 1111,
+      "redirects": []
+    },
+    {
+      "route": "/facturation/paiements/[id]/edit",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/[qa-id]/edit",
+      "status": 404,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 13559,
+      "sha256": "a37bde4429f12a1027685c0431d8187857b8b4e6d2bd8cf6a085f80d8ed511da",
+      "ms": 807,
+      "redirects": [],
+      "excerpt": " Felexia — Votre ERP au Maroc ",
+      "expectedStatus": 404,
+      "expectedRestriction": "Existing QA record is rejected by the explicit business-state edit guard",
+      "classificationEvidence": {
+        "guardSource": "src/app/facturation/paiements/[id]/edit/page.tsx",
+        "selectedQaRecordEditable": false,
+        "scope": "Expected refusal only; this observation does not prove that an edit form rendered"
+      }
+    },
+    {
+      "route": "/facturation/paiements/[id]/print",
+      "module": "Facturation",
+      "state": "Implémentation présente",
+      "finalPath": "/facturation/paiements/[qa-id]/print",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 25554,
+      "sha256": "0ab933c1c39d829ed25f6fe59a9bf74232bdf3adb7c94e44bf5ff980ec64500a",
+      "ms": 879,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/[id]",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 67673,
+      "sha256": "d239cd7f0a09534287f5404d2e6cb5de2e6463ad402b4d9974f00d55568ed964",
+      "ms": 1176,
+      "redirects": []
+    },
+    {
+      "route": "/tiers/[id]/edit",
+      "module": "Tiers",
+      "state": "Implémentation présente",
+      "finalPath": "/tiers/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 69687,
+      "sha256": "6ff49be2b834e0dbbc6bf813f8b36766076de977703f7ae337090f65e78c460f",
+      "ms": 1179,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/comptes/[id]",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/comptes/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 81374,
+      "sha256": "6d2afd5abb801274ea85082552f4bc195874f36d2632e80eb2ef24f8bfbd90de",
+      "ms": 1154,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/comptes/[id]/edit",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/comptes/[qa-id]/edit",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 60693,
+      "sha256": "32e22edc018810a572ada324d26c93cd80cd0c94a6218806c35bfc68cac5cb1a",
+      "ms": 1144,
+      "redirects": []
+    },
+    {
+      "route": "/tresorerie/mouvements/[id]",
+      "module": "Trésorerie",
+      "state": "Implémentation présente",
+      "finalPath": "/tresorerie/mouvements/[qa-id]",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 58220,
+      "sha256": "860432b78f9f9d6ebb290ce35f2f52d166900eb50da46b2695fce0530b60be59",
+      "ms": 1096,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/sales",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/sales",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 3367,
+      "sha256": "2ed3dd58284fdcf602016e97a8b4034103824c9141e57ac9a3cb56167daccf19",
+      "ms": 1094,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/purchases",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/purchases",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 455,
+      "sha256": "f76391bbe738ecb8478e90ea88c9f67d33f17db3c182ba346af0c95027bf9709",
+      "ms": 1086,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/supplier-credits",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/supplier-credits",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 270,
+      "sha256": "9864f0fd5bf07ab2eb4a97cc5caea48441bd9da425f73f1b25f68648b74aa45f",
+      "ms": 998,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/contacts",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/contacts",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 520,
+      "sha256": "425eb9b98a57051bdfc835ee8eb45ac116a4f892421c6f20dcef05dc9c67c028",
+      "ms": 1097,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/treasury",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/treasury",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 1145,
+      "sha256": "026c1f39a8b2f5fd3645e4ca3941a943b53709a96922618bfbbf5da44f98af32",
+      "ms": 1100,
+      "redirects": []
+    },
+    {
+      "route": "/api/exports/treasury-ledger",
+      "module": "Export CSV",
+      "state": "Existing export",
+      "finalPath": "/api/exports/treasury-ledger",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "text/csv; charset=utf-8",
+      "bytes": 1338,
+      "sha256": "d17a38f6815add1b5a1d54bd5ac71b93f7061bd4b2303e74b9755a746bcfc722",
+      "ms": 2139,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/export",
+      "module": "Export Excel",
+      "state": "Existing export",
+      "finalPath": "/comptabilite/journaux/[qa-id]/export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/vnd.ms-excel; charset=utf-8",
+      "bytes": 2111,
+      "sha256": "ee65cac4a1694f5c3d805bbbf13ea8d308674d14f2b8d96829e2f9c92ec34fe3",
+      "ms": 719,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/export",
+      "module": "Export Excel",
+      "state": "Existing export",
+      "finalPath": "/comptabilite/journaux/[qa-id]/export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/vnd.ms-excel; charset=utf-8",
+      "bytes": 2872,
+      "sha256": "bfa359516ed45ffb061b2398cfa13173a46ff58ac322cbb944afb9b6d3acb28d",
+      "ms": 877,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/export",
+      "module": "Export Excel",
+      "state": "Existing export",
+      "finalPath": "/comptabilite/journaux/[qa-id]/export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/vnd.ms-excel; charset=utf-8",
+      "bytes": 5319,
+      "sha256": "4692a01455ea07d49e6ef5ba300776f4af9acc02bd0981ff08c9b2e5de5d4f9c",
+      "ms": 901,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/export",
+      "module": "Export Excel",
+      "state": "Existing export",
+      "finalPath": "/comptabilite/journaux/[qa-id]/export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/vnd.ms-excel; charset=utf-8",
+      "bytes": 5408,
+      "sha256": "92990216df6b6a0802402b1c3631ec4748a4920e3d162fb69cbe7cea1d1db10e",
+      "ms": 865,
+      "redirects": []
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/export",
+      "module": "Export Excel",
+      "state": "Existing export",
+      "finalPath": "/comptabilite/journaux/[qa-id]/export",
+      "status": 200,
+      "passed": true,
+      "appError": false,
+      "contentType": "application/vnd.ms-excel; charset=utf-8",
+      "bytes": 5245,
+      "sha256": "e1a2b9b3acecae61b330d64610af02a35b74fa4a759f4838a8880b56c4d337a6",
+      "ms": 883,
+      "redirects": []
+    }
+  ],
+  "skipped": [
+    {
+      "route": "/achats/commandes/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/achats/commandes/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/achats/commandes/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/achats/receptions/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/achats/receptions/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/articles/tva/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/comptabilite/plan-comptable/[id]",
+      "reason": "Dynamic source not mapped; no invented record"
+    },
+    {
+      "route": "/comptabilite/plan-comptable/[id]/edit",
+      "reason": "Dynamic source not mapped; no invented record"
+    },
+    {
+      "route": "/comptabilite/tva/declarations/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/facturation/electronique/[kind]/[sourceId]",
+      "reason": "Dynamic source not mapped; no invented record"
+    },
+    {
+      "route": "/facturation/relances/[id]",
+      "reason": "Dynamic source not mapped; no invented record"
+    },
+    {
+      "route": "/facturation/relances/[id]/print",
+      "reason": "Dynamic source not mapped; no invented record"
+    },
+    {
+      "route": "/rh/contrats/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/rh/employes/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/rh/employes/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/rh/paie/bulletins/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/rh/paie/bulletins/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/rh/paie/periodes/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/stock/emplacements/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/stock/emplacements/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/tresorerie/previsions/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/tresorerie/releves/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/commandes/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/commandes/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/commandes/[id]/livrer",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/commandes/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/devis/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/devis/[id]/edit",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/devis/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/livraisons/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/livraisons/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/livraisons/[id]/retour",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/retours/[id]",
+      "reason": "No suitable existing scoped QA row"
+    },
+    {
+      "route": "/vente/retours/[id]/print",
+      "reason": "No suitable existing scoped QA row"
+    }
+  ],
+  "referenceInitialization": [
+    {
+      "table": "hr_departments",
+      "before": 0,
+      "after": 10,
+      "changed": true
+    },
+    {
+      "table": "hr_positions",
+      "before": 0,
+      "after": 9,
+      "changed": true
+    },
+    {
+      "table": "hr_leave_types",
+      "before": 0,
+      "after": 8,
+      "changed": true
+    },
+    {
+      "table": "hr_salary_items",
+      "before": 0,
+      "after": 11,
+      "changed": true
+    },
+    {
+      "table": "hr_settings",
+      "before": 0,
+      "after": 1,
+      "changed": true
+    }
+  ],
+  "limitations": [
+    "HTTP GET verifies loading/rendering only; no form submission or complete financial workflow is inferred.",
+    "Reserved/preparatory routes retain their inventory classification.",
+    "Only existing QA details are tested; empty modules have no invented records.",
+    "Reference initialization is allowed solely inside this synthetic QA company.",
+    "Two HTTP404 edit observations are expected business-state refusals, not successful edit-form renders.",
+    "The original run captured34 financial/business tables; stock_levels had no id column and is explicitly excluded from its before/after equality claim."
+  ],
+  "restored": true,
+  "financesBefore": {
+    "customer_invoices": {
+      "count": 30,
+      "sha256": "4f0dbf9a6d39f085101009c48f823c866555605589d62e36404c5c4317393f2e"
+    },
+    "customer_invoice_lines": {
+      "count": 30,
+      "sha256": "9fa811b24c288b20f31f465a00ca089e556d123ecad4d16deb54043916a92dd7"
+    },
+    "supplier_invoices": {
+      "count": 2,
+      "sha256": "7e6b060eca31124230becc480739a2a5a76f28e58dd85f0272996927985d2946"
+    },
+    "supplier_invoice_lines": {
+      "count": 2,
+      "sha256": "3b4180c5e9868581fff58c86f4056963f0e2ce043ae97f8e597e94f3acaf842e"
+    },
+    "customer_credit_notes": {
+      "count": 1,
+      "sha256": "56c63dbf3a05c7d7c011569f59cd1032cf194d63090f08bada88bcd1f50ca5db"
+    },
+    "customer_credit_note_lines": {
+      "count": 1,
+      "sha256": "6fc518a6ea65deabdf53f17c04a80430c837653e5ea60ebd6bb605b707afb3fc"
+    },
+    "customer_credit_note_applications": {
+      "count": 2,
+      "sha256": "8d35a1219019def8075d839049bfd2de06d9a7c1d67165a1ff3ca688153f62c6"
+    },
+    "supplier_credit_notes": {
+      "count": 1,
+      "sha256": "ab0e7206775c3c05fdc6381b48263c6c29f0c941d016ffe87ff6b9409a93fea9"
+    },
+    "supplier_credit_note_lines": {
+      "count": 1,
+      "sha256": "3a85b61d41b63d3bf1f9f3e18faa5bee232a21d558c276a1a2eae7bd43a1fa06"
+    },
+    "supplier_credit_note_applications": {
+      "count": 3,
+      "sha256": "fae24f09c45768e285264d206dd50d69b3094d6433f78000ca3f172a07fa0fb9"
+    },
+    "customer_payments": {
+      "count": 2,
+      "sha256": "4540d45a6b0f56403684c600366527a1f7973dd7e346098e2e699e4065e83c31"
+    },
+    "customer_payment_allocations": {
+      "count": 2,
+      "sha256": "dbd7f87a5d1a6ae35eefae476e6386b1c4781c949d292c03f83fb7543d7a8d5f"
+    },
+    "supplier_payments": {
+      "count": 2,
+      "sha256": "30a13d16d483fe0abf02959a44b7fb92acdf713b564cda3199ea87129374705e"
+    },
+    "supplier_payment_allocations": {
+      "count": 2,
+      "sha256": "460801b2a6a7612418e2c63051ccbbff46619e4e3b1c6cc06b0f183692494d70"
+    },
+    "treasury_accounts": {
+      "count": 2,
+      "sha256": "8d3719a3e9e7e4f61a26d086acca31aceed3b02c4d6f07024920a09b9c9993a7"
+    },
+    "treasury_transactions": {
+      "count": 9,
+      "sha256": "dfcbd526ed50cb1f932647e144cb971362b5e5219d79fc0fe46dcead1269bd36"
+    },
+    "accounting_entries": {
+      "count": 11,
+      "sha256": "f17d8b7637c8f68dcfaa241b98ae8fc2cbe2793d064301ae11c8676a6fb35beb"
+    },
+    "accounting_entry_lines": {
+      "count": 28,
+      "sha256": "830a24962fc32cb3ce5644079b5d3e7fe311bb75f126d1c618900a4edc8aec68"
+    },
+    "sales_documents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "sales_document_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "purchase_documents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "purchase_document_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stock_moves": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stock_levels": {
+      "unavailable": true,
+      "code": "42703"
+    },
+    "bank_statement_imports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "bank_statement_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "treasury_forecast_items": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "vat_declarations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "vat_declaration_lines": {
+      "unavailable": true,
+      "code": "PGRST205"
+    },
+    "hr_employees": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_contracts": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_payroll_periods": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_payslips": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_advances": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_loans": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_expense_reports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "financesAfter": {
+    "customer_invoices": {
+      "count": 30,
+      "sha256": "4f0dbf9a6d39f085101009c48f823c866555605589d62e36404c5c4317393f2e"
+    },
+    "customer_invoice_lines": {
+      "count": 30,
+      "sha256": "9fa811b24c288b20f31f465a00ca089e556d123ecad4d16deb54043916a92dd7"
+    },
+    "supplier_invoices": {
+      "count": 2,
+      "sha256": "7e6b060eca31124230becc480739a2a5a76f28e58dd85f0272996927985d2946"
+    },
+    "supplier_invoice_lines": {
+      "count": 2,
+      "sha256": "3b4180c5e9868581fff58c86f4056963f0e2ce043ae97f8e597e94f3acaf842e"
+    },
+    "customer_credit_notes": {
+      "count": 1,
+      "sha256": "56c63dbf3a05c7d7c011569f59cd1032cf194d63090f08bada88bcd1f50ca5db"
+    },
+    "customer_credit_note_lines": {
+      "count": 1,
+      "sha256": "6fc518a6ea65deabdf53f17c04a80430c837653e5ea60ebd6bb605b707afb3fc"
+    },
+    "customer_credit_note_applications": {
+      "count": 2,
+      "sha256": "8d35a1219019def8075d839049bfd2de06d9a7c1d67165a1ff3ca688153f62c6"
+    },
+    "supplier_credit_notes": {
+      "count": 1,
+      "sha256": "ab0e7206775c3c05fdc6381b48263c6c29f0c941d016ffe87ff6b9409a93fea9"
+    },
+    "supplier_credit_note_lines": {
+      "count": 1,
+      "sha256": "3a85b61d41b63d3bf1f9f3e18faa5bee232a21d558c276a1a2eae7bd43a1fa06"
+    },
+    "supplier_credit_note_applications": {
+      "count": 3,
+      "sha256": "fae24f09c45768e285264d206dd50d69b3094d6433f78000ca3f172a07fa0fb9"
+    },
+    "customer_payments": {
+      "count": 2,
+      "sha256": "4540d45a6b0f56403684c600366527a1f7973dd7e346098e2e699e4065e83c31"
+    },
+    "customer_payment_allocations": {
+      "count": 2,
+      "sha256": "dbd7f87a5d1a6ae35eefae476e6386b1c4781c949d292c03f83fb7543d7a8d5f"
+    },
+    "supplier_payments": {
+      "count": 2,
+      "sha256": "30a13d16d483fe0abf02959a44b7fb92acdf713b564cda3199ea87129374705e"
+    },
+    "supplier_payment_allocations": {
+      "count": 2,
+      "sha256": "460801b2a6a7612418e2c63051ccbbff46619e4e3b1c6cc06b0f183692494d70"
+    },
+    "treasury_accounts": {
+      "count": 2,
+      "sha256": "8d3719a3e9e7e4f61a26d086acca31aceed3b02c4d6f07024920a09b9c9993a7"
+    },
+    "treasury_transactions": {
+      "count": 9,
+      "sha256": "dfcbd526ed50cb1f932647e144cb971362b5e5219d79fc0fe46dcead1269bd36"
+    },
+    "accounting_entries": {
+      "count": 11,
+      "sha256": "f17d8b7637c8f68dcfaa241b98ae8fc2cbe2793d064301ae11c8676a6fb35beb"
+    },
+    "accounting_entry_lines": {
+      "count": 28,
+      "sha256": "830a24962fc32cb3ce5644079b5d3e7fe311bb75f126d1c618900a4edc8aec68"
+    },
+    "sales_documents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "sales_document_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "purchase_documents": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "purchase_document_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stock_moves": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "stock_levels": {
+      "unavailable": true,
+      "code": "42703"
+    },
+    "bank_statement_imports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "bank_statement_lines": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "treasury_forecast_items": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "vat_declarations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "vat_declaration_lines": {
+      "unavailable": true,
+      "code": "PGRST205"
+    },
+    "hr_employees": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_contracts": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_payroll_periods": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_payslips": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_advances": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_loans": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "hr_expense_reports": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "financesUnchanged": true,
+  "failed": [],
+  "qaAuthSessionSignedOut": true,
+  "contractFieldsRestored": true,
+  "auditUpdatedAtMayAdvance": true,
+  "restorationPending": false,
+  "completedAt": "2026-11-01T09:41:54.940Z",
+  "expectedRestrictions": 2,
+  "positiveHttpLoads": 181,
+  "financialTablesCaptured": 34,
+  "financialSnapshotLimitations": [
+    {
+      "table": "stock_levels",
+      "code": "42703",
+      "interpretation": "Composite key ordering corrected in harness after this run; this table was not covered by the original before/after digest"
+    },
+    {
+      "table": "vat_declaration_lines",
+      "code": "PGRST205",
+      "interpretation": "Table is not part of the current application schema; no absence-of-feature claim is inferred"
+    }
+  ],
+  "classificationReviewedAt": "2026-11-01T09:43:15.078Z"
+}

@@ -143,8 +143,8 @@ function round2(value: number): number {
 }
 
 export function addDays(dateString: string, days: number): string {
-  const date = new Date(`${dateString}T00:00:00`);
-  date.setDate(date.getDate() + days);
+  const date = new Date(`${dateString}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 }
 
@@ -154,11 +154,11 @@ export function formatForecastDate(date: Date): string {
 
 function eachDay(from: string, to: string): string[] {
   const days: string[] = [];
-  const cursor = new Date(`${from}T00:00:00`);
-  const end = new Date(`${to}T00:00:00`);
+  const cursor = new Date(`${from}T00:00:00Z`);
+  const end = new Date(`${to}T00:00:00Z`);
   while (cursor <= end) {
     days.push(formatForecastDate(cursor));
-    cursor.setDate(cursor.getDate() + 1);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   return days;
 }
@@ -201,7 +201,8 @@ export async function getTreasuryForecast(
     .eq("status", "active")
     .is("archived_at", null);
   if (treasuryAccountId) accountQuery = accountQuery.eq("id", treasuryAccountId);
-  const { data: accounts } = await accountQuery;
+  const { data: accounts, error: accountError } = await accountQuery;
+  if (accountError) throw new Error("Impossible de charger les soldes de trésorerie. Actualisez avant de consulter la prévision.");
   const accountRows = (accounts ?? []) as Array<{ id: string; name: string; current_balance: number | string | null; status: string }>;
   const openingBalance = round2(accountRows.reduce((sum, account) => sum + toNumber(account.current_balance), 0));
   const accountName = treasuryAccountId ? (accountRows[0]?.name ?? null) : null;

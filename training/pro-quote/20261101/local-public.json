@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-01T09:44:14.921Z",
+  "origin": "http://localhost:3112",
+  "passed": true,
+  "checks": [
+    {
+      "name": "/ is available",
+      "passed": true
+    },
+    {
+      "name": "/pricing is available",
+      "passed": true
+    },
+    {
+      "name": "/conditions is available",
+      "passed": true
+    },
+    {
+      "name": "/mentions-legales is available",
+      "passed": true
+    },
+    {
+      "name": "/confidentialite is available",
+      "passed": true
+    },
+    {
+      "name": "/api/health is available",
+      "passed": true
+    },
+    {
+      "name": "/robots.txt is available",
+      "passed": true
+    },
+    {
+      "name": "/sitemap.xml is available",
+      "passed": true
+    },
+    {
+      "name": "/ retains two offers",
+      "passed": true
+    },
+    {
+      "name": "/ has PRO exclusively on quotation",
+      "passed": true
+    },
+    {
+      "name": "/ has no PRO amount or billing period",
+      "passed": true
+    },
+    {
+      "name": "/ quote action only opens a draft email",
+      "passed": true
+    },
+    {
+      "name": "/ no longer offers a PRO checkout link",
+      "passed": true
+    },
+    {
+      "name": "/ keeps Essentiel monthly price",
+      "passed": true
+    },
+    {
+      "name": "/pricing retains two offers",
+      "passed": true
+    },
+    {
+      "name": "/pricing has PRO exclusively on quotation",
+      "passed": true
+    },
+    {
+      "name": "/pricing has no PRO amount or billing period",
+      "passed": true
+    },
+    {
+      "name": "/pricing quote action only opens a draft email",
+      "passed": true
+    },
+    {
+      "name": "/pricing no longer offers a PRO checkout link",
+      "passed": true
+    },
+    {
+      "name": "/pricing keeps Essentiel monthly price",
+      "passed": true
+    },
+    {
+      "name": "Landscape remains unchanged",
+      "passed": true
+    },
+    {
+      "name": "Anonymous billing request remains forbidden",
+      "passed": true
+    }
+  ],
+  "imageSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+  "scope": "Public GETs and an anonymous rejected billing request; no authenticated mutation or email"
+}

@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getPlanDefinition, SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
-import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
+import { filterPubliclyAvailablePlans, isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import { DEFAULT_TRIAL_DURATION_LABEL, DEFAULT_TRIAL_MARKETING_MESSAGE, BUSINESS_TRIAL_DURATION_LABEL, BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
 
 type BillingInterval = "monthly" | "yearly";
@@ -27,6 +28,7 @@ type CurrentSubscription = Record<string, unknown> & {
 
 export function SubscriptionManage({
   currentSubscription,
+  organizationId,
   memberCount,
   documentsThisMonth,
   storageUsedMb,
@@ -59,6 +61,7 @@ export function SubscriptionManage({
   const hasSubscription = Boolean(currentSubscription);
   const currentPlan = getPlanDefinition(currentSubscription?.plan_code);
   const currentPlanCode = currentPlan.code;
+  const currentPlanQuoteOnly = isPlanQuoteOnly(currentPlanCode);
   const currentBillingCycle: BillingInterval = (
     currentSubscription?.billing_cycle ||
     currentSubscription?.billing_interval ||
@@ -106,6 +109,7 @@ export function SubscriptionManage({
   }
 
   async function choosePlan(planCode: PlanCode) {
+    if (isPlanQuoteOnly(planCode)) return;
     if (!hasStripe || !canManageBilling) return;
     setLoadingPlan(planCode);
     setError(null);
@@ -161,7 +165,7 @@ export function SubscriptionManage({
   }
 
   const yearlySavings = useMemo(() => {
-    return SUBSCRIPTION_PLANS.map((plan) => {
+    return SUBSCRIPTION_PLANS.filter((plan) => !isPlanQuoteOnly(plan.code)).map((plan) => {
       const monthlyEquivalent = Math.round(plan.yearlyPrice / 12);
       return { code: plan.code, monthlyEquivalent };
     });
@@ -177,7 +181,7 @@ export function SubscriptionManage({
               <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai ni choisi d&apos;abonnement.</h2>
             </div>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Démarrez l&apos;essai Essentiel sans carte bancaire ou souscrivez directement à ESSENTIEL ou PRO.
+              Démarrez l&apos;essai Essentiel sans carte bancaire, souscrivez à ESSENTIEL ou demandez un devis pour PRO.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
@@ -199,13 +203,13 @@ export function SubscriptionManage({
                   Votre offre et ses limites restent visibles à tout moment.
                 </p>
               </div>
-              <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{isTrial && daysRemaining === 0 ? "Essai terminé" : statusBadge[status]?.label ?? status}</Badge>
+              <Badge tone={statusBadge[status]?.tone ?? "neutral"}>{currentPlanQuoteOnly && isTrial ? daysRemaining === 0 ? "Accès de test terminé" : "Accès de test" : isTrial && daysRemaining === 0 ? "Essai terminé" : statusBadge[status]?.label ?? status}</Badge>
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-6">
             <Metric label="Pack" value={currentPlan.name} icon={<ShieldCheck className="h-4 w-4" />} />
-            <Metric label="Cycle" value={currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
-            {isTrial ? (
+            <Metric label={currentPlanQuoteOnly ? "Modalité" : "Cycle"} value={currentPlanQuoteOnly ? "Sur devis" : currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
+            {isTrial && !currentPlanQuoteOnly ? (
               <Metric
                 label="Durée"
                 value={currentPlanCode === "business" ? BUSINESS_TRIAL_DURATION_LABEL : DEFAULT_TRIAL_DURATION_LABEL}
@@ -228,7 +232,7 @@ export function SubscriptionManage({
               <p className="md:col-span-6 text-sm text-[var(--muted)]">
                 {isTrial ? (
                   <>
-                    {currentPlanCode === "business" ? BUSINESS_TRIAL_MARKETING_MESSAGE : DEFAULT_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
+                    {currentPlanQuoteOnly ? "Votre accès PRO de test." : currentPlanCode === "business" ? BUSINESS_TRIAL_MARKETING_MESSAGE : DEFAULT_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
                     <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
                     {daysRemaining !== null ? (
                       <>
@@ -252,7 +256,7 @@ export function SubscriptionManage({
         <div className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
       ) : null}
 
-      {selectedPlan ? <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">Votre sélection : <strong>{getPlanDefinition(selectedPlan).name}</strong>. Choisissez votre périodicité puis confirmez pour ouvrir le paiement sécurisé. L’essai gratuit porte sur ESSENTIEL.</p> : null}
+      {selectedPlan ? <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">Votre sélection : <strong>{getPlanDefinition(selectedPlan).name}</strong>. {isPlanQuoteOnly(selectedPlan) ? "PRO est proposé uniquement sur devis. Présentez-nous votre activité et vos besoins pour recevoir une proposition." : "Choisissez votre périodicité puis confirmez pour ouvrir le paiement sécurisé. L’essai gratuit porte sur ESSENTIEL."}</p> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-lg font-semibold">ESSENTIEL ou PRO</h2>
@@ -265,7 +269,7 @@ export function SubscriptionManage({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-1 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-1">
+      <div role="group" aria-label="Période de facturation ESSENTIEL" className="flex items-center justify-center gap-1 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-1">
         <button
           type="button"
           onClick={() => setBillingInterval("monthly")}
@@ -299,6 +303,7 @@ export function SubscriptionManage({
 
       <div className="grid gap-4 lg:grid-cols-2">
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
+          const quoteOnly = isPlanQuoteOnly(plan.code);
           const isCurrentPlan = hasSubscription && status === "active" && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
           const savings = yearlySavings.find((s) => s.code === plan.code);
 
@@ -316,15 +321,15 @@ export function SubscriptionManage({
                   <h3 className="text-xl font-semibold">{plan.name}</h3>
                   <div className="flex flex-wrap gap-2">
                     {plan.code === selectedPlan ? <Badge tone="info">Votre sélection</Badge> : plan.isRecommended ? <Badge tone="info">ERP complet</Badge> : null}
-                    {billingInterval === "yearly" ? <Badge tone="success">2 mois offerts</Badge> : null}
+                    {!quoteOnly && billingInterval === "yearly" ? <Badge tone="success">2 mois offerts</Badge> : null}
                   </div>
                 </div>
                 <p className="min-h-10 text-sm text-[var(--muted)]">{plan.description}</p>
                 <p className="pt-2 text-3xl font-bold">
-                  {formatPrice(plan)}
-                  <span className="text-sm font-medium text-[var(--muted)]">{formatPeriodLabel()}</span>
+                  {quoteOnly ? "Sur devis" : formatPrice(plan)}
+                  {!quoteOnly ? <span className="text-sm font-medium text-[var(--muted)]">{formatPeriodLabel()}</span> : null}
                 </p>
-                {billingInterval === "yearly" && savings && (
+                {!quoteOnly && billingInterval === "yearly" && savings && (
                   <p className="text-sm text-[var(--muted)]">
                     Soit environ <span className="font-medium text-[var(--foreground)]">{savings.monthlyEquivalent} MAD</span> / mois
                   </p>
@@ -343,7 +348,11 @@ export function SubscriptionManage({
                   <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3 text-xs text-[var(--muted)]">
                     {plan.limitHighlights.join(" · ")}
                   </div>
-                  <Button
+                  {quoteOnly ? (
+                    <Button className="w-full" asChild disabled={!canManageBilling}>
+                      <a href={getProQuoteHref({ organizationId })}>{canManageBilling ? "Demander un devis PRO" : "Géré par l’administrateur"}</a>
+                    </Button>
+                  ) : <Button
                     className="w-full"
                     variant={isCurrentPlan ? "secondary" : "primary"}
                     disabled={!canManageBilling || !hasStripe || loadingPlan !== null || loadingPortal}
@@ -356,14 +365,14 @@ export function SubscriptionManage({
                         : billingInterval === "yearly"
                           ? `Choisir ${plan.name} annuel`
                           : `Choisir ${plan.name}`}
-                  </Button>
+                  </Button>}
                 </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
-      <p className="text-xs leading-5 text-[var(--muted)]">PRO donne accès aux modules complets selon le rôle de chaque utilisateur. Les outils TVA et de paie sont préparatoires. Les abonnements déjà payants se modifient depuis le portail de facturation.</p>
+      <p className="text-xs leading-5 text-[var(--muted)]">PRO est proposé uniquement sur devis et donne accès aux modules complets selon le rôle de chaque utilisateur. Les outils TVA et de paie sont préparatoires. Vos factures et abonnements déjà payants restent consultables dans le portail de facturation.</p>
     </div>
   );
 }

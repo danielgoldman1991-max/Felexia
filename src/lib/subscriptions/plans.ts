@@ -211,6 +211,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
     code: "premium",
     name: "PRO",
     description: "L’ERP complet pour relier ventes, achats, stock, comptabilité, TVA et ressources humaines.",
+    // Historical contract amounts only; public PRO pricing is quote-only.
+    // Renderers must use isPlanQuoteOnly() before displaying prices or savings.
     monthlyPrice: 1290,
     yearlyPrice: 12900,
     currency: "MAD",
@@ -230,8 +232,9 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlanDefinition[] = [
       "Plan comptable, grand livre et balance",
       "Préparation et suivi des déclarations TVA",
       "Personnel, congés et paie préparatoire",
-      "Gestion documentaire et exports",
-      "Tableaux de bord et rapports",
+      "Gestion documentaire",
+      "Exports CSV et journaux Excel",
+      "Tableaux de bord de gestion",
     ],
     limitHighlights: [
       "25 utilisateurs maximum",

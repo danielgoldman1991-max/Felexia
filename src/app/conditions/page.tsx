@@ -113,12 +113,13 @@ export default function ConditionsPage() {
           {LEGAL_CONFIG.productName} propose deux offres publiques :{" "}
           <strong>ESSENTIEL</strong> pour la gestion quotidienne et <strong>PRO</strong> pour
           les fonctions de l&apos;ERP complet. Le détail des fonctionnalités et des limites
-          de chaque offre est présenté sur la page des tarifs.
+          de chaque offre est présenté sur la page des tarifs. L&apos;offre PRO est
+          proposée uniquement sur devis, selon les conditions convenues avec l&apos;entreprise.
         </LegalParagraph>
         <LegalList
           items={[
-            <>Le tarif applicable est celui affiché sur le site {LEGAL_CONFIG.productName} au moment de la souscription,</>,
-            <>L&apos;abonnement peut être proposé en formule mensuelle ou annuelle selon l&apos;offre en vigueur,</>,
+            <>Pour ESSENTIEL, le tarif applicable est celui affiché sur le site {LEGAL_CONFIG.productName} au moment de la souscription ; pour PRO, le tarif est défini dans le devis accepté,</>,
+            <>ESSENTIEL est proposé en formule mensuelle ou annuelle ; les modalités PRO sont précisées dans le devis,</>,
             <>L&apos;abonnement est renouvelé selon la formule choisie,</>,
             <>La facturation est effectuée par l&apos;éditeur ou son prestataire de paiement,</>,
             <>Les taxes applicables peuvent s&apos;ajouter au tarif selon la réglementation en vigueur,</>,

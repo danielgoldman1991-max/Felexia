@@ -170,6 +170,28 @@ async function main() {
     reset({ authError }); response = await api.GET();
     check(response.status === 503 && fixture.inserts === 0, 'Real SDK Auth service failure remains503: ' + authError.name + '/' + authError.status);
   }
+  const quoteNow = new Date('2026-11-01T12:00:00.000Z');
+  for (const code of ['pro', 'premium']) for (const days of [0, 2, 6, 14]) {
+    const end = new Date(quoteNow.getTime() + days * 86400000).toISOString();
+    const notification = reminders.buildTrialNotification('trialing', end, days, quoteNow, code);
+    check(notification.action_label === 'Demander un devis' && notification.action_url.startsWith('mailto:') && notification.metadata.offer_mode === 'quote', 'PRO access reminder uses quote contact for ' + code + '/' + days + ' days');
+    check(!/payer|essai gratuit/i.test(notification.title + ' ' + notification.message + ' ' + notification.action_label), 'PRO access reminder never advertises self-service payment or a public free trial');
+  }
+  for (const status of ['canceled', 'past_due', 'unpaid']) {
+    const notification = reminders.buildTrialNotification(status, null, 0, quoteNow, 'premium');
+    check(notification.action_label === 'Demander un devis' && notification.action_url.startsWith('mailto:'), 'Inactive PRO contract uses quote contact: ' + status);
+  }
+  check(reminders.buildTrialNotification('active', null, 0, quoteNow, 'premium') === null, 'Active PRO contract never receives an access-expiry reminder');
+  check(reminders.buildTrialNotification('trialing', '2026-11-03T12:00:00.000Z', 2, quoteNow).action_label === 'Payer maintenant', 'Existing four-argument Essentiel reminder signature and payment action remain compatible');
+  reset({ subscriptions: [subscription()] });
+  await reminders.generateTrialNotificationForOrg('company', { client: db });
+  const oldEssential = fixture.notifications[0];
+  fixture.subscriptions[0].plan_code = 'premium';
+  check(await reminders.generateTrialNotificationForOrg('company', { client: db }) === 'created' && fixture.inserts === 2, 'Same-day Essentiel-to-PRO activation creates a distinct quote reminder without overwriting history');
+  const proCanonical = await load('src/lib/subscriptions/plan-access.ts').getOrganizationSubscription('company', { client: db });
+  check(!reminders.isCurrentTrialNotification(oldEssential, proCanonical) && reminders.isCurrentTrialNotification(fixture.notifications[1], proCanonical), 'Stale payment CTA is excluded after PRO activation and only current quote CTA remains visible');
+  response = await api.GET(); body = await response.json();
+  check(body.notifications.length === 1 && body.notifications[0].action_label === 'Demander un devis' && fixture.inserts === 2, 'Notification API exposes quote CTA and creates no duplicate on read');
   fs.writeFileSync(path.join(__dirname, 'trial-notification-tests.json'), JSON.stringify({ success: true, checks: results.length, scope: 'Real cron, API, generator and canonical subscription loader; deterministic API fixture cap37; zero network or production data', results }, null, 2) + '\n');
   console.log(JSON.stringify({ success: true, checks: results.length }));
 }

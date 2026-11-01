@@ -115,15 +115,20 @@ export async function createHrPayrollPeriodAction(formData: FormData) {
   const supabase = await createClient();
   const month = numberValue(formData, "month", new Date().getMonth() + 1);
   const year = numberValue(formData, "year", new Date().getFullYear());
+  if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 2200) {
+    throw new Error("Choisissez un mois et une année de paie valides.");
+  }
 
   // Check if period already exists for this org/month/year
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("hr_payroll_periods")
     .select("id")
     .eq("organization_id", workspace.organization.id)
     .eq("month", month)
     .eq("year", year)
     .maybeSingle();
+
+  if (existingError) throw new Error("Impossible de vérifier la période de paie existante.");
 
   if (existing) {
     redirect(`/rh/paie/periodes/${existing.id}`);
@@ -149,25 +154,43 @@ export async function calculateHrPayrollPeriodAction(periodId: string) {
   const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
-  const [{ data: period }, { data: employees }, { data: settings }] = await Promise.all([
+  const [periodResult, employeesResult, settingsResult, payslipsResult] = await Promise.all([
     supabase.from("hr_payroll_periods").select("*").eq("organization_id", workspace.organization.id).eq("id", periodId).maybeSingle(),
-    supabase.from("hr_employees").select("id, full_name, base_salary").eq("organization_id", workspace.organization.id).in("employment_status", ["active", "trial_period", "on_leave"]),
+    supabase.from("hr_employees").select("id, full_name, base_salary").eq("organization_id", workspace.organization.id).is("archived_at", null).in("employment_status", ["active", "trial_period", "on_leave"]),
     supabase.from("hr_settings").select("*").eq("organization_id", workspace.organization.id).maybeSingle(),
+    supabase.from("hr_payslips").select("employee_id,status").eq("organization_id", workspace.organization.id).eq("payroll_period_id", periodId),
   ]);
 
+  if (periodResult.error || employeesResult.error || settingsResult.error || payslipsResult.error) {
+    throw new Error("Impossible de charger toutes les données de paie. Aucun calcul n’a été enregistré.");
+  }
+  const period = periodResult.data;
+  const employees = employeesResult.data ?? [];
+  const settings = settingsResult.data;
   if (!period) throw new Error("Période de paie introuvable.");
+  if (!["draft", "calculated"].includes(period.status)) {
+    throw new Error("Une période validée, payée ou archivée ne peut pas être recalculée.");
+  }
+  const employeeIds = new Set(employees.map(employee => employee.id));
+  if ((payslipsResult.data ?? []).some(payslip => !employeeIds.has(payslip.employee_id) || !["draft", "calculated"].includes(payslip.status))) {
+    throw new Error("La période contient des bulletins finalisés ou des salariés sortis du calcul. Vérifiez ses bulletins avant de recalculer.");
+  }
+  if (employees.some(employee => !Number.isFinite(Number(employee.base_salary)) || Number(employee.base_salary) < 0)) {
+    throw new Error("Un salaire de base est invalide. Corrigez le dossier salarié avant de calculer la paie.");
+  }
 
   let totalGross = 0;
   let totalNet = 0;
   let totalEmployerCost = 0;
+  const payslips = [];
 
-  for (const employee of employees ?? []) {
+  for (const employee of employees) {
     const result = calculatePayslip(employee, settings as HrSettings | null);
     totalGross += result.grossSalary;
     totalNet += result.netToPay;
     totalEmployerCost += result.employerCost;
 
-    await supabase.from("hr_payslips").upsert({
+    payslips.push({
       organization_id: workspace.organization.id,
       payroll_period_id: periodId,
       employee_id: employee.id,
@@ -188,20 +211,34 @@ export async function calculateHrPayrollPeriodAction(periodId: string) {
       employer_contributions: result.employerContributions,
       calculation_details: result.calculationDetails,
       status: "calculated",
-    }, { onConflict: "payroll_period_id,employee_id" });
+    });
   }
 
-  await supabase
+  if (payslips.length > 0) {
+    // One database statement: an invalid payslip cannot persist only part of
+    // this batch. The final period update remains a separate request.
+    const { error } = await supabase.from("hr_payslips").upsert(payslips, { onConflict: "payroll_period_id,employee_id" });
+    if (error) throw new Error("Les bulletins n’ont pas pu être enregistrés. La période n’a pas été finalisée.");
+  }
+
+  const { data: savedPeriod, error: periodError } = await supabase
     .from("hr_payroll_periods")
     .update({
       status: "calculated",
       total_gross: totalGross,
       total_net: totalNet,
       total_employer_cost: totalEmployerCost,
-      employees_count: employees?.length ?? 0,
+      employees_count: employees.length,
     })
     .eq("organization_id", workspace.organization.id)
-    .eq("id", periodId);
+    .eq("id", periodId)
+    .in("status", ["draft", "calculated"])
+    .select("id")
+    .maybeSingle();
+
+  if (periodError || !savedPeriod) {
+    throw new Error("Les bulletins ont été calculés, mais la période n’a pas pu être finalisée. Actualisez et vérifiez ses totaux avant de continuer.");
+  }
 
   revalidatePath(`/rh/paie/periodes/${periodId}`);
 }

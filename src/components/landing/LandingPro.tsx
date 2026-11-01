@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import { ArrowUpRight, BookOpen, Boxes, ChartNoAxesCombined, ClipboardList, ShoppingCart, UsersRound } from "lucide-react";
 import "./landing-pro.css";
 
@@ -7,7 +7,7 @@ const modules = [
   { icon: ShoppingCart, title: "Des achats reliés au terrain", description: "Préparez vos commandes fournisseurs, réceptionnez les marchandises et retrouvez vos factures et règlements." },
   { icon: Boxes, title: "Une vue sur votre stock", description: "Retrouvez vos emplacements et vos mouvements d’entrée et de sortie pour suivre les articles de votre entreprise." },
   { icon: BookOpen, title: "Vos chiffres, jusqu’au détail", description: "Plan comptable, journaux, grand livre, balance et préparation des déclarations TVA pour travailler avec vos conseils." },
-  { icon: ChartNoAxesCombined, title: "Un pilotage plus large", description: "Rapprochement bancaire, prévisions de trésorerie, documents et rapports pour prendre du recul sur votre activité." },
+  { icon: ChartNoAxesCombined, title: "Un pilotage plus large", description: "Rapprochement bancaire, prévisions de trésorerie et indicateurs de gestion pour prendre du recul sur votre activité." },
   { icon: UsersRound, title: "Votre équipe dans la boucle", description: "Dossiers du personnel, contrats, congés et préparation de la paie : rassemblez aussi votre gestion RH." },
 ];
 
@@ -36,7 +36,7 @@ export function LandingPro() {
         </div>
         <div className="pro-bottom" data-reveal>
           <p><strong>Tout ESSENTIEL est inclus.</strong> Gardez votre facturation électronique PDF/XML et votre gestion quotidienne, avec les fonctions de l’ERP complet et jusqu’à 25 utilisateurs.</p>
-          <Link href="/parametres/abonnement?plan=pro" className="marketing-button marketing-button-primary">Choisir PRO <ArrowUpRight size={18} aria-hidden="true" /></Link>
+          <a href={getProQuoteHref()} className="marketing-button marketing-button-primary">Demander un devis PRO <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
         <p className="pro-scope-note">Les fonctions de comptabilité, de TVA et de paie sont des outils de préparation et de suivi. Vos documents et déclarations restent à valider avec vos conseils.</p>
       </div>

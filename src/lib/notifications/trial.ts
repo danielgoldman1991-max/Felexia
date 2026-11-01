@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getOrganizationSubscription, type OrganizationSubscription } from "@/lib/subscriptions/plan-access";
+import { isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
+import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 
 export type TrialNotification = {
   id: string;
@@ -25,10 +27,35 @@ export function buildTrialNotification(
   trialEnd: string | null,
   daysLeft: number,
   now = new Date(),
+  planCode?: string | null,
 ): { type: string; title: string; message: string; action_label: string; action_url: string; severity: string; metadata: Record<string, unknown> } | null {
   const today = now.toISOString().slice(0, 10);
 
   if (status === "active") {
+    return null;
+  }
+
+  if (isPlanQuoteOnly(planCode)) {
+    const metadata = { kind: "trial_reminder", days_left: 0, date: today, offer_mode: "quote", plan_code: "premium" };
+    if (status === "trialing" || status === "trial") {
+      if (!trialEnd || !Number.isFinite(Date.parse(trialEnd)) || !Number.isFinite(daysLeft)) return null;
+      const days = Math.max(0, daysLeft);
+      return {
+        type: days <= 0 ? "trial_expired" : days <= 3 ? "trial_ending_soon" : days <= 7 ? "trial_ending" : "trial_active",
+        title: days <= 0 ? "Accès PRO terminé" : days <= 7 ? "Accès PRO — échéance proche" : "Accès PRO",
+        message: days <= 0
+          ? "Votre accès de test PRO est terminé. Vos données restent consultables et exportables. Demandez un devis pour poursuivre avec PRO."
+          : `Votre accès de test PRO est actif pour encore ${days} jour${days > 1 ? "s" : ""}. PRO est disponible sur devis : contactez l’équipe Felexia pour préparer la suite.`,
+        action_label: "Demander un devis", action_url: getProQuoteHref(),
+        severity: days <= 0 ? "error" : days <= 3 ? "urgent" : days <= 7 ? "warning" : "info",
+        metadata: { ...metadata, days_left: days },
+      };
+    }
+    if (["canceled", "past_due", "unpaid"].includes(status)) return {
+      type: "subscription_inactive", title: "Accès PRO",
+      message: "Votre accès PRO nécessite une action. Vos données restent consultables et exportables. Contactez l’équipe Felexia pour faire le point sur votre contrat PRO.",
+      action_label: "Demander un devis", action_url: getProQuoteHref(), severity: "urgent", metadata,
+    };
     return null;
   }
 
@@ -100,7 +127,7 @@ export function buildCurrentTrialNotification(sub: OrganizationSubscription | nu
   if (!sub) return null;
   const end = sub.trialEndsAt;
   const daysLeft = end ? Math.max(0, Math.ceil((Date.parse(end) - now.getTime()) / 86400000)) : NaN;
-  return buildTrialNotification(sub.status, end, daysLeft, now);
+  return buildTrialNotification(sub.status, end, daysLeft, now, sub.planCode);
 }
 
 const TRIAL_TYPES = new Set(["trial_expired", "trial_ending_soon", "trial_ending", "trial_active", "subscription_inactive"]);
@@ -112,6 +139,7 @@ export function isCurrentTrialNotification(notification: Pick<TrialNotification,
   return Boolean(expected && notification.type === expected.type
     && notification.metadata?.date === expected.metadata.date
     && notification.metadata.days_left === expected.metadata.days_left
+    && notification.metadata.offer_mode === expected.metadata.offer_mode
     && notification.metadata.subscription_id === sub?.id
     && notification.metadata.subscription_status === sub?.status
     && notification.metadata.trial_end === sub?.trialEndsAt);
@@ -121,6 +149,7 @@ function reminderId(organizationId: string, sub: OrganizationSubscription, notif
   const bytes = createHash("sha256").update(JSON.stringify([
     "felexia-trial-reminder-v1", organizationId, sub.id, sub.status, sub.trialEndsAt,
     notification.type, notification.metadata.date, notification.metadata.days_left,
+    ...(isPlanQuoteOnly(sub.planCode) ? ["quote"] : []),
   ])).digest().subarray(0, 16);
   bytes[6] = (bytes[6] & 0x0f) | 0x80;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;

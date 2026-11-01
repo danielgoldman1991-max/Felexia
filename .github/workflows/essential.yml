@@ -51,6 +51,8 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/felexia-qa" --no-save --ignore-scripts @electric-sql/pglite@0.5.14
       - name: Verify database boundaries and transactions
         run: |
+          node training/pro-full-audit/20261101/verify-advanced-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/pro-full-audit/20261101/verify-advanced-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/pro-offers/20261101/verify-pro-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/pro-offers/20261101/verify-pro-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-finance.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
@@ -74,6 +76,10 @@ jobs:
           node training/essential-fixes/20261031/verify-checkout-fixtures.cjs
           node training/pro-offer/20261101/verify-billing.cjs
           node training/pro-offer/20261101/verify-provisioning.cjs
+          node training/pro-offer/20261101/verify-quote-portal.cjs
+          node training/pro-quote/20261101/verify-commercial-ui.cjs
+          node training/pro-full-audit/20261101/verify-payroll.cjs
+          node training/pro-full-audit/20261101/verify-domain.cjs
           node training/pro-offers/20261101/verify-access.cjs
           node training/pro-offers/20261101/verify-readonly-ui.cjs
           node training/pro-offers/20261101/verify-signup-continuation.cjs
