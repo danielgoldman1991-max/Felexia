@@ -39,7 +39,12 @@ if (requestedOrigin && verificationContext !== 'price-chat-local') throw new Err
 const origin = requestedOrigin || 'https://www.felexia.pro';
 const parsedOrigin = new URL(origin);
 if (verificationContext === 'price-chat-local' && (!requestedOrigin || parsedOrigin.origin !== origin || parsedOrigin.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(parsedOrigin.hostname) || Number(parsedOrigin.port) < 1024)) throw new Error('Only an explicit localhost QA origin is supported');
-const returnOrigin = 'https://felexia.pro';
+const requestedReturnOrigin = process.argv.find(value => value.startsWith('--expected-return-origin='))?.slice('--expected-return-origin='.length);
+const returnOrigin = requestedReturnOrigin || 'https://felexia.pro';
+if (requestedReturnOrigin) {
+  const parsedReturnOrigin = new URL(requestedReturnOrigin);
+  if (verificationContext !== 'price-chat-local' || parsedReturnOrigin.origin !== requestedReturnOrigin || parsedReturnOrigin.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(parsedReturnOrigin.hostname) || Number(parsedReturnOrigin.port) < 1024) throw new Error('Only the local QA context accepts an explicit localhost return origin');
+}
 const jar = new Map();
 const auth = createServerClient(publicUrl, publicKey, {
   cookies: {
@@ -48,7 +53,7 @@ const auth = createServerClient(publicUrl, publicKey, {
   },
   auth: { autoRefreshToken: false, detectSessionInUrl: false },
 });
-const report = { date: new Date().toISOString(), run: m.run, companyName: m.companyName, verificationContext: verificationContext || 'historical-production', origin, success: false, checks: [], http: [], cleanup: { attempted: false, completed: false }, scope: 'Real HTTP Checkout preparation and read-only Stripe verification; no Checkout navigation, card, confirmation, paying subscription or charge' };
+const report = { date: new Date().toISOString(), run: m.run, companyName: m.companyName, verificationContext: verificationContext || 'historical-production', origin, expectedReturnOrigin: returnOrigin, success: false, checks: [], http: [], cleanup: { attempted: false, completed: false }, scope: 'Real HTTP Checkout preparation and read-only Stripe verification; no Checkout navigation, card, confirmation, paying subscription or charge' };
 const startedAt = Math.floor(Date.now() / 1000);
 const sessionIds = new Set();
 let customerId = null;
@@ -162,7 +167,7 @@ async function validateSession(session, interval, amount) {
   check(interval + ' total is the exact public tariff', session.currency === 'mad' && session.amount_total === amount);
   check(interval + ' remains open, unpaid and without a subscription or payment', session.status === 'open' && session.payment_status === 'unpaid' && !session.subscription && !session.payment_intent);
   const success = new URL(session.success_url), cancel = new URL(session.cancel_url);
-  check(interval + ' returns only to canonical production billing settings', success.origin === returnOrigin && success.pathname === '/parametres/abonnement' && success.searchParams.get('success') === 'true' && success.searchParams.has('session_id') && cancel.origin === returnOrigin && cancel.pathname === '/parametres/abonnement' && cancel.searchParams.get('canceled') === 'true');
+  check(interval + ' returns only to the exact expected billing origin', success.origin === returnOrigin && success.pathname === '/parametres/abonnement' && success.searchParams.get('success') === 'true' && success.searchParams.has('session_id') && cancel.origin === returnOrigin && cancel.pathname === '/parametres/abonnement' && cancel.searchParams.get('canceled') === 'true');
 }
 async function cleanup() {
   report.cleanup.attempted = true;

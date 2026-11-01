@@ -11,7 +11,7 @@ export type SupportKnowledgeArticle = {
   href: string;
 };
 
-export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.2";
+export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.3";
 export const SUPPORT_KNOWLEDGE_UPDATED_AT = "2026-11-01";
 
 const essential = getPlanDefinition("essentiel");
@@ -268,7 +268,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "contact", title: "Parler à l’équipe Felexia et demander un devis",
     keywords: ["contact", "humain", "conseiller", "équipe", "support", "assistance", "aide", "commercial", "démo", "demo", "rendez-vous", "téléphone", "telephone", "help", "human", "agent", "talk", "email", "تواصل", "مساعدة", "إنسان", "بغيت نهضر", "bghit nhder"],
-    content: `Pour parler à une personne, poser une question spécifique ou demander PRO sur devis, contactez ${contact} ou utilisez la section Contact du site. Vous pouvez préciser votre activité, la taille de votre équipe et les fonctions souhaitées, sans données sensibles. Aucun numéro de téléphone, horaire de support, délai garanti de réponse ou rendez-vous confirmé n’est publié dans cette base : ne rien inventer. Un lien de contact ouvre votre messagerie ; il ne signifie pas qu’un message ou ticket a déjà été envoyé.`,
+    content: `Pour parler à une personne, utilisez le bouton Felexia Team sur WhatsApp au +212 614 505 090 (https://wa.me/212614505090), ou écrivez à ${contact}. Pour une question spécifique ou PRO sur devis, précisez votre activité, la taille de votre équipe et les fonctions souhaitées, sans données sensibles. Aucun horaire de support, délai garanti de réponse ou rendez-vous confirmé n’est publié : ne rien inventer. Les boutons ouvrent WhatsApp ou votre messagerie ; aucun message ou ticket n’a été envoyé à votre place.`,
     href: "/#contact",
   },
   {

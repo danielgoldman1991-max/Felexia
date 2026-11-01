@@ -33,6 +33,10 @@ answer = knowledgeSupportReply([{ role: "user", content: "Please answer in Engli
 check("The visitor’s explicit language choice survives a short later turn", answer.sources[0]?.id === "pro" && answer.reply.includes("quotation only"));
 answer = reply("Je veux parler à un humain", "Qui gère les utilisateurs ?");
 check("Human hand-off is direct instead of repeating user-role documentation", answer.sources[0]?.id === "contact" && answer.reply.length < 600 && !answer.reply.includes("L’administrateur"));
+for (const question of ["Je veux parler à un humain", "I want to contact a human", "بغيت نهضر مع إنسان"]) {
+  answer = reply(question);
+  check("Human hand-off provides Felexia Team WhatsApp: " + question, answer.sources[0]?.id === "contact" && answer.reply.includes("Felexia Team") && answer.reply.includes("+212 614 505 090"));
+}
 answer = reply("Does it send invoices by email?");
 check("The English email answer does not invent delivery", answer.sources[0]?.id === "invoice-email" && answer.reply.includes("does not send an email"));
 answer = reply("الفوترة الإلكترونية واش مطابقة DGI؟");

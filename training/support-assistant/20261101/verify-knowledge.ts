@@ -34,6 +34,7 @@ check("Inventory is accurately marked reserved", byId("stock").content.includes(
 check("Payroll is accurately marked preparatory", byId("payroll").content.includes("paie de PRO est préparatoire"));
 check("RH forms are not advertised as complete", byId("hr").content.includes("consultation sans tous les formulaires"));
 check("Visitor bot cannot see private tenant data", byId("support-scope").content.includes("Il ne voit pas les comptes ou données d’entreprise"));
+check("Human support uses the published Felexia Team WhatsApp", byId("contact").content.includes("Felexia Team") && byId("contact").content.includes("https://wa.me/212614505090") && !byId("contact").content.includes("Aucun numéro de téléphone"));
 check("Accents and punctuation normalize consistently", normalizeSupportQuery("TRÉSORERIE / D’ACHAT") === "tresorerie d achat");
 check("Arabic diacritics and alif variants normalize consistently", normalizeSupportQuery("إِلَى أَمَان") === "الي امان");
 
