@@ -91,12 +91,12 @@ export function LandingProductScene() {
         <div className="product-floating-invoice" aria-hidden="true"><span><FileText size={19} /></span><div>Votre prochaine facture ?<strong>Déjà une longueur d’avance.</strong></div></div>
         <span className="product-spark product-spark-one" aria-hidden="true">✳</span><span className="product-spark product-spark-two" aria-hidden="true">+</span>
       </div>
-      <figcaption className="product-caption"><span><i />Aperçu illustratif · données fictives</span><button type="button" aria-pressed={paused} aria-label={paused ? "Reprendre l’animation 3D" : "Mettre l’animation 3D en pause"} onClick={() => {
+      <button className="product-motion-toggle" type="button" aria-pressed={paused} aria-label={paused ? "Reprendre les animations" : "Mettre les animations en pause"} title={paused ? "Reprendre" : "Mettre en pause"} onClick={() => {
         const nextPaused = !paused;
         setPaused(nextPaused);
         sceneRef.current?.closest(".marketing-site")?.setAttribute("data-motion-paused", String(nextPaused));
         sceneRef.current?.style.setProperty("--pointer-x", "0deg"); sceneRef.current?.style.setProperty("--pointer-y", "0deg");
-      }}>{paused ? <Play size={11} aria-hidden="true" /> : <Pause size={11} aria-hidden="true" />}Animation 3D</button></figcaption>
+      }}>{paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}</button>
     </figure>
   );
 }

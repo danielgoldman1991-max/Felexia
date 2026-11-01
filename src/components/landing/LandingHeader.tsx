@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import "./landing-header-overlay.css";
 
 const navLinks = [
   { href: "/#modules", label: "La solution" },
@@ -12,7 +13,7 @@ const navLinks = [
   { href: "/#resources", label: "Questions fréquentes" },
 ];
 
-export function LandingHeader() {
+export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -38,7 +39,7 @@ export function LandingHeader() {
   }, [open]);
 
   return (
-    <header className="marketing-header" ref={headerRef}>
+    <header className={`marketing-header${overlay ? " marketing-header-overlay" : ""}`} ref={headerRef}>
       <div className="marketing-reading-progress" aria-hidden="true"><span /></div>
       <div className="marketing-container marketing-header-inner">
         <Link href="/" aria-label="FelexiaERP — accueil" className="marketing-brand"><BrandLogo variant="horizontal" height={46} priority /></Link>

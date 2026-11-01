@@ -24,9 +24,9 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div id="top" className="landing marketing-site">
+    <div id="top" className="landing marketing-site marketing-horizon-site">
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
-      <LandingHeader />
+      <LandingHeader overlay />
       <main id="main-content" tabIndex={-1}>
         <LandingHero />
         <LandingStory />

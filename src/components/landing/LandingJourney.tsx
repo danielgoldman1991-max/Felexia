@@ -7,7 +7,7 @@ import "./landing-journey.css";
 const chapters = [
   {
     name: "Facturer",
-    eyebrow: "01 / DONNEZ FORME À VOTRE TRAVAIL",
+    eyebrow: "DONNEZ FORME À VOTRE TRAVAIL",
     title: "Une belle facture.\nUn bon départ.",
     description: "Créez vos factures de vente avec votre identité, vos lignes et votre TVA. Retrouvez vos clients et les montants restant à régler sans disperser vos informations.",
     features: ["Votre logo et votre ICE", "Factures PDF personnalisées", "Clients et fournisseurs centralisés"],
@@ -15,7 +15,7 @@ const chapters = [
   },
   {
     name: "Encaisser",
-    eyebrow: "02 / SUIVEZ CE QUI SE CONCRÉTISE",
+    eyebrow: "SUIVEZ CE QUI SE CONCRÉTISE",
     title: "Le règlement arrive.\nTout se relie.",
     description: "Enregistrez les règlements de vos clients et les paiements de vos fournisseurs. La facture, le montant réglé et le solde à recevoir restent à portée de main.",
     features: ["Encaissements et paiements", "Soldes des factures", "Banques et caisses"],
@@ -23,7 +23,7 @@ const chapters = [
   },
   {
     name: "Piloter",
-    eyebrow: "03 / PRENEZ UN PEU DE HAUTEUR",
+    eyebrow: "PRENEZ UN PEU DE HAUTEUR",
     title: "Les bons repères.\nLes idées plus claires.",
     description: "Consultez votre trésorerie, vos mouvements et les écritures associées à vos opérations. Vos ventes, vos achats et vos journaux racontent enfin la même histoire.",
     features: ["Mouvements et soldes", "Journaux de vente et d’achat", "Écritures liées aux opérations"],
@@ -80,7 +80,7 @@ function PilotVisual() {
       <div className="journey-pilot-wrap">
         <div className="journey-pilot-kpis"><div><span>Encaissements</span><strong>12 400<small>MAD</small></strong><i>Entrées</i></div><div><span>Décaissements</span><strong>8 200<small>MAD</small></strong><i>Sorties</i></div></div>
         <div className="journey-chart-card">
-          <div className="journey-chart-title"><span>Mouvements de trésorerie</span><b>Vue illustrative</b></div>
+          <div className="journey-chart-title"><span>Mouvements de trésorerie</span><b>Cette période</b></div>
           <div className="journey-chart">
             <svg viewBox="0 0 420 118" preserveAspectRatio="none"><path className="journey-chart-grid" d="M0 15H420M0 49H420M0 83H420M0 117H420" /><path className="journey-chart-area" d="M0 104L35 99L70 103L105 77L140 85L175 59L210 68L245 40L280 49L315 21L350 28L385 13L420 3V118H0Z" /><path className="journey-chart-line" d="M0 104L35 99L70 103L105 77L140 85L175 59L210 68L245 40L280 49L315 21L350 28L385 13L420 3" /></svg>
           </div>
@@ -146,7 +146,8 @@ export function LandingJourney() {
   }
 
   return (
-    <section id="modules" className="journey-section" aria-labelledby="journey-title">
+    <section id="modules" className="journey-section" aria-labelledby="journey-title" aria-describedby="journey-description">
+      <p id="journey-description" hidden>Démonstration d’un parcours de gestion, avec des montants et entreprises fictifs.</p>
       <div className="marketing-container">
         <div className="journey-heading" data-reveal>
           <p className="marketing-eyebrow">VOTRE ACTIVITÉ, SANS LES DÉTOURS.</p>
@@ -160,13 +161,15 @@ export function LandingJourney() {
               return (
                 <article key={chapter.name} id={`parcours-${chapter.name.toLowerCase()}`} className="journey-chapter" data-chapter={index} aria-labelledby={`journey-chapter-title-${index}`}>
                   <div className="journey-chapter-copy" data-reveal>
+                    <span className="journey-chapter-number" aria-hidden="true">0{index + 1}</span>
+                    <span className="journey-chapter-pin" aria-hidden="true"><i /></span>
                     <span className="journey-chapter-eyebrow">{chapter.eyebrow}</span>
                     <h3 id={`journey-chapter-title-${index}`}>{chapter.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3>
                     <p>{chapter.description}</p>
                     <ul>{chapter.features.map((feature) => <li key={feature}><Check size={14} aria-hidden="true" />{feature}</li>)}</ul>
                     <span className="journey-chapter-name"><chapter.icon size={17} aria-hidden="true" />{chapter.name}<ArrowRight size={15} aria-hidden="true" /></span>
                   </div>
-                  <div className="journey-inline-visual" aria-hidden="true"><Scene /><p className="journey-illustration-note">Aperçu illustratif · Données fictives</p></div>
+                  <div className="journey-inline-visual" aria-hidden="true"><Scene /></div>
                 </article>
               );
             })}
@@ -178,7 +181,6 @@ export function LandingJourney() {
             <div className="journey-stage-scenes" aria-hidden="true">
               {scenes.map((Scene, index) => <div key={chapters[index].name} className="journey-stage-layer" data-current={index === activeIndex}><Scene /></div>)}
             </div>
-            <p className="journey-illustration-note">Aperçus illustratifs · Données fictives</p>
           </div>
         </div>
       </div>

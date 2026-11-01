@@ -8,12 +8,14 @@ export function LandingContact() {
     <section id="contact" aria-labelledby="conversion-contact-title" className="conversion-contact">
       <div className="marketing-container">
         <div className="conversion-contact-panel" data-reveal>
+          <span className="conversion-contact-watermark" aria-hidden="true">felexia.</span>
           <div className="conversion-contact-art" aria-hidden="true">
             <span className="conversion-orbit-ground" />
             <span className="conversion-orbit conversion-orbit-one" />
             <span className="conversion-orbit conversion-orbit-two" />
             <span className="conversion-orbit conversion-orbit-three" />
             <span className="conversion-orbit-center" />
+            <span className="conversion-orbit conversion-orbit-front" />
             <span className="conversion-orbit-satellite conversion-orbit-satellite-mint" />
             <span className="conversion-orbit-satellite conversion-orbit-satellite-blue" />
             <span className="conversion-orbit-caption">L’essentiel, connecté.</span>

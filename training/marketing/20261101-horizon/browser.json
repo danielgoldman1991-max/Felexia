@@ -1,0 +1,69 @@
+{
+  "zoom": [
+    {
+      "at": "start",
+      "captionVisible": false,
+      "progress": "0.0000",
+      "scrollY": 0,
+      "transform": "matrix(1.015, 0, 0, 1.015, 0, 0)",
+      "windowTop": 0
+    },
+    {
+      "at": "zoom",
+      "progress": "0.5882",
+      "scrollY": 450,
+      "transform": "matrix(1.13264, 0, 0, 1.13264, 0, 0)",
+      "windowTop": 0
+    }
+  ],
+  "responsive": [
+    {
+      "actionsBottom": 381.0625,
+      "clientWidth": 305,
+      "height": 480,
+      "heroBottom": 480,
+      "scrollWidth": 305,
+      "width": 320,
+      "windowHeight": 480,
+      "windowPosition": "relative"
+    },
+    {
+      "actionsBottom": 270.25000762939453,
+      "clientWidth": 725,
+      "height": 360,
+      "heroBottom": 360,
+      "scrollWidth": 725,
+      "width": 740,
+      "windowHeight": 360,
+      "windowPosition": "relative"
+    },
+    {
+      "actionsBottom": 339.45833587646484,
+      "clientWidth": 753,
+      "height": 1024,
+      "heroBottom": 1024,
+      "scrollWidth": 753,
+      "width": 768,
+      "windowHeight": 1024,
+      "windowPosition": "sticky"
+    },
+    {
+      "actionsBottom": 399.0000228881836,
+      "clientWidth": 1425,
+      "height": 900,
+      "heroBottom": 900,
+      "scrollWidth": 1425,
+      "width": 1440,
+      "windowHeight": 900,
+      "windowPosition": "sticky"
+    }
+  ],
+  "production": {
+    "h1": 1,
+    "height": 720,
+    "imageLoaded": true,
+    "progress": "0.0000",
+    "removedLabels": true,
+    "width": 1280
+  }
+}

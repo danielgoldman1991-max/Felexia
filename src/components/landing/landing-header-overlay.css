@@ -1,0 +1,148 @@
+/* The horizon header follows the image boundary, independently of page scroll. */
+.landing.marketing-site.marketing-horizon-site .marketing-header.marketing-header-overlay {
+  position: absolute;
+  inset: 0 0 auto;
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  transition: background 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+}
+
+.landing.marketing-site.marketing-horizon-site[data-horizon-enhanced="true"] .marketing-header.marketing-header-overlay {
+  position: fixed;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-header-inner {
+  width: 100%;
+  max-width: 1600px;
+  height: 88px;
+  padding-inline: clamp(22px, 4vw, 64px);
+  gap: 30px;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-brand img {
+  filter: brightness(0) invert(1);
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login) {
+  color: #f7f9fc;
+  transition: color 200ms ease, opacity 200ms ease;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login):hover {
+  color: #fff;
+  opacity: .75;
+}
+
+.landing.marketing-site.marketing-horizon-site .marketing-header-overlay .marketing-header-cta {
+  min-height: 44px;
+  padding: 11px 20px;
+  gap: 12px;
+  border: 1px solid #7393ff38;
+  border-radius: 999px;
+  background: #315efb;
+  color: #fff;
+  box-shadow: none;
+}
+
+.landing.marketing-site.marketing-horizon-site .marketing-header-overlay .marketing-header-cta:hover {
+  background: #254ee0;
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-menu-toggle {
+  background: #ffffff12;
+  border-color: #ffffff40;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-menu-toggle:hover {
+  background: #ffffff24;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-reading-progress {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay :is(a, button):focus-visible {
+  outline-color: #fff;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-mobile-nav {
+  background: #fff;
+  border-bottom-color: #e4e9f1;
+  color: #081b33;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-mobile-nav > a:not(.marketing-button) {
+  color: #344054;
+}
+
+.landing.marketing-horizon-site .marketing-header-overlay .marketing-mobile-nav :is(a, button):focus-visible {
+  outline-color: #315efb;
+}
+
+.landing.marketing-site.marketing-horizon-site[data-hero-visible="false"] .marketing-header.marketing-header-overlay {
+  background: #fffffff5;
+  border-bottom-color: #e7ebf1;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 5px 20px #081b3308;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay .marketing-brand img {
+  filter: none;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login) {
+  color: #43516a;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login):hover {
+  color: #315efb;
+  opacity: 1;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay .marketing-menu-toggle {
+  background: #f5f7fb;
+  border-color: #e1e7f0;
+  color: #081b33;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay .marketing-menu-toggle:hover {
+  background: #ebeff6;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay .marketing-reading-progress {
+  opacity: 1;
+}
+
+.landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay :is(a, button):focus-visible {
+  outline-color: #315efb;
+}
+
+@media (max-width: 1099px) {
+  .landing.marketing-horizon-site .marketing-header-overlay .marketing-header-inner {
+    height: 76px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 599px) {
+  .landing.marketing-horizon-site .marketing-header-overlay .marketing-header-inner {
+    height: 70px;
+    padding-inline: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing.marketing-site.marketing-horizon-site .marketing-header.marketing-header-overlay,
+  .landing.marketing-horizon-site .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login),
+  .landing.marketing-horizon-site .marketing-header-overlay .marketing-reading-progress {
+    transition: none;
+  }
+}
