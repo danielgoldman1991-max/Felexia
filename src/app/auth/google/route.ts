@@ -8,7 +8,13 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const next = sanitizeInternalPath(requestUrl.searchParams.get("next"));
   const mode = requestUrl.searchParams.get("mode");
-  const callbackUrl = new URL("/auth/callback", requestUrl.origin);
+  // Supabase currently allows the historical apex callback. Its hosting308
+  // returns to www before Node handles the code, where this host-only cookie
+  // is available. Keep this compatibility exception to the exact HTTPS pair.
+  const callbackOrigin = requestUrl.origin === "https://www.felexia.pro"
+    ? "https://felexia.pro"
+    : requestUrl.origin;
+  const callbackUrl = new URL("/auth/callback", callbackOrigin);
   callbackUrl.searchParams.set("next", next);
   if (mode === "login" || mode === "register") callbackUrl.searchParams.set("mode", mode);
 

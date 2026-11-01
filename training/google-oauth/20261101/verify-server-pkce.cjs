@@ -80,13 +80,32 @@ class Jar {
   request(url){const origin=new URL(url).origin;return new NextRequest(url,{headers:{cookie:this.cookieHeader(origin),'x-forwarded-host':'evil.invalid'}});}
 }
 async function open(jar, origin='https://www.felexia.pro', query='?next='+encodeURIComponent(target)+'&mode=register') {
-  const response=await start.GET(jar.request(origin+'/auth/google'+query));
+  const requestedOrigin=origin;
+  let entryUrl=new URL(origin+'/auth/google'+query);
+  if(origin==='https://felexia.pro'){
+    const entryRedirect=NextResponse.redirect(new URL(entryUrl.pathname+entryUrl.search,'https://www.felexia.pro'),308);
+    const reached=new URL(entryRedirect.headers.get('location'));
+    check('Apex entry is redirected to www before the application creates any verifier',entryRedirect.status===308&&reached.origin==='https://www.felexia.pro'&&reached.pathname==='/auth/google');
+    check('Apex entry308 preserves continuation and mode',reached.searchParams.get('next')===entryUrl.searchParams.get('next')&&reached.searchParams.get('mode')===entryUrl.searchParams.get('mode'));
+    entryUrl=reached;
+    origin=reached.origin;
+  }
+  const response=await start.GET(jar.request(entryUrl.toString()));
   const to=new URL(response.headers.get('location'));
   jar.apply(response,origin);
-  return {response,to,origin};
+  return {response,to,origin,requestedOrigin};
 }
-async function complete(jar, origin, code) {
-  const request=jar.request(origin+'/auth/callback?code='+encodeURIComponent(code));
+async function complete(jar, origin, code, flow) {
+  let callbackUrl=new URL(flow ? flow.to.searchParams.get('redirect_to') : origin+'/auth/callback');
+  callbackUrl.searchParams.set('code',code);
+  if(callbackUrl.origin!==origin){
+    check('Only the exact owned HTTPS pair uses the hosting alias',origin==='https://www.felexia.pro'&&callbackUrl.origin==='https://felexia.pro');
+    const hostingRedirect=NextResponse.redirect(new URL(callbackUrl.pathname+callbackUrl.search,origin),308);
+    const reached=new URL(hostingRedirect.headers.get('location'));
+    check('Modeled hosting308 preserves code, next and mode before callback Node',hostingRedirect.status===308&&reached.searchParams.get('code')===code&&reached.searchParams.get('next')===callbackUrl.searchParams.get('next')&&reached.searchParams.get('mode')===callbackUrl.searchParams.get('mode'));
+    callbackUrl=reached;
+  }
+  const request=jar.request(callbackUrl.toString());
   const values=new Map(request.cookies.getAll().map(c=>[c.name,c.value]));
   writtenCallbackCookies=[];
   callbackCookieStore={getAll:()=>[...values].map(([name,value])=>({name,value})),set:(name,value,options)=>{
@@ -109,20 +128,25 @@ async function main(){
     const jar=new Jar(),flow=await open(jar,origin);
     const redirect=new URL(flow.to.searchParams.get('redirect_to'));
     check('Server returns a temporary redirect on '+origin,flow.response.status===307);
-    check('Server callback uses exact reached origin, ignoring forwarded host: '+origin,redirect.origin===origin&&redirect.pathname==='/auth/callback');
+    const expectedOrigin=flow.origin==='https://www.felexia.pro'?'https://felexia.pro':flow.origin;
+    check('Server callback uses only the bounded public alias exception: '+origin,redirect.origin===expectedOrigin&&redirect.pathname==='/auth/callback');
     check('Server callback preserves offer and mode: '+origin,redirect.searchParams.get('next')===target&&redirect.searchParams.get('mode')==='register');
     check('Real SDK produces S256: '+origin,flow.to.searchParams.get('code_challenge_method')==='s256'&&Boolean(flow.to.searchParams.get('code_challenge')));
     const written=flow.response.cookies.getAll();
     check('Verifier is in effective Set-Cookie before leaving: '+origin,written.some(c=>c.name.endsWith('-code-verifier')&&c.value)&&flow.response.headers.has('set-cookie'));
     check('Verifier cookie is host-only, path root and SameSite lax: '+origin,written.every(c=>!c.domain&&c.path==='/'&&c.sameSite==='lax'));
+    if(flow.origin==='https://www.felexia.pro'){
+      check('The apex alias receives no www verifier cookie',jar.cookieHeader('https://felexia.pro')==='');
+      check('The www callback retains the server-written verifier cookie',jar.cookieHeader(flow.origin).includes('-code-verifier='));
+    }
     check('OAuth start is explicitly private and never cached: '+origin,/private.*no-store/.test(flow.response.headers.get('cache-control')));
     grant(flow,'isolated-valid-'+origin);
-    const success=await complete(jar,origin,'isolated-valid-'+origin);
-    check('Real SDK exchanges matching verifier and reaches dashboard: '+origin,success.headers.get('location')===origin+'/dashboard');
+    const success=await complete(jar,flow.origin,'isolated-valid-'+origin,flow);
+    check('Real SDK exchanges matching verifier and reaches dashboard: '+origin,success.headers.get('location')===flow.origin+'/dashboard');
     check('Successful OAuth callback is private and never cached: '+origin,noStore(success));
     check('Session cookie is emitted after token exchange: '+origin,success.cookies.getAll().some(c=>c.name.includes('auth-token')&&!c.name.endsWith('code-verifier')&&c.value));
     const before=profileCalls,requests=tokenRequests;
-    const replay=await complete(jar,origin,'isolated-valid-'+origin);
+    const replay=await complete(jar,flow.origin,'isolated-valid-'+origin,flow);
     check('Replayed callback cannot reuse an existing authenticated session: '+origin,new URL(replay.headers.get('location')).searchParams.get('error')==='google_auth_failed'&&profileCalls===before);
     check('Failed/replayed OAuth callback is private and never cached: '+origin,noStore(replay));
     check('Missing verifier is rejected before token transport: '+origin,tokenRequests===requests);
@@ -133,10 +157,16 @@ async function main(){
   const double=new Jar(),first=await open(double),second=await open(double);
   check('Two starts create different PKCE challenges',first.to.searchParams.get('code_challenge')!==second.to.searchParams.get('code_challenge'));
   grant(first,'isolated-older-flow');
-  const mismatch=await complete(double,first.origin,'isolated-older-flow');
+  const mismatch=await complete(double,first.origin,'isolated-older-flow',first);
   check('An older flow with the overwritten verifier fails closed',new URL(mismatch.headers.get('location')).searchParams.get('error')==='google_auth_failed'&&profileCalls===before);
   const restarted=await open(double);grant(restarted,'isolated-fresh-flow');
-  check('A fresh attempt recovers after concurrent starts',(await complete(double,restarted.origin,'isolated-fresh-flow')).headers.get('location')===restarted.origin+'/dashboard');
+  check('A fresh attempt recovers after concurrent starts',(await complete(double,restarted.origin,'isolated-fresh-flow',restarted)).headers.get('location')===restarted.origin+'/dashboard');
+  for(const origin of ['http://www.felexia.pro','https://www.felexia.pro.evil.invalid','https://felexia.pro.evil.invalid','https://www.felexia.pro:4443','https://felexia-git-preview.vercel.app']){
+    const excluded=await open(new Jar(),origin);
+    const location=new URL(excluded.to.searchParams.get('redirect_to'));
+    check('No alias rewrite for HTTP, lookalike host, nonstandard port or preview: '+origin,location.origin===origin);
+    check('Excluded-origin verifier is still host-only: '+origin,excluded.response.cookies.getAll().every(c=>!c.domain));
+  }
   for(const bad of ['provider-error','foreign-provider']){
     behavior=bad;const result=await open(new Jar());
     check('Provider failure/foreign URL returns only to local login: '+bad,result.to.origin===result.origin&&result.to.pathname==='/login'&&result.to.searchParams.get('error')==='google_auth_failed');
@@ -160,7 +190,7 @@ async function main(){
   }
   const logs=JSON.stringify(safeLogs);
   check('Logs never contain auth codes, verifier, refresh token or provider URL',!logs.includes('isolated-valid-')&&!logs.includes('isolated-older-flow')&&!logs.includes('isolated-fixture-refresh-token')&&!logs.includes('/authorize?'));
-  fs.writeFileSync(path.join(__dirname,'server-pkce-fixtures.json'),JSON.stringify({success:true,checks:checks.length,scope:'Real Supabase SSR/Auth SDK and Next request/response cookies; isolated fake token transport and profile/destination boundaries. No external network/account/Google consent/payment.',concurrency:'SDK retains one verifier per browser cookie. Overlapping flows fail closed; a fresh attempt is required.',results:checks},null,2)+'\n');
+  fs.writeFileSync(path.join(__dirname,'server-pkce-fixtures.json'),JSON.stringify({success:true,checks:checks.length,scope:'Real Supabase SSR/Auth SDK and Next request/response cookies; isolated fake token transport and profile/destination boundaries. Exact HTTPS apex-to-www hosting308 modeled offline. No external network/account/Google consent/payment.',alias:'Only https://www.felexia.pro requests use the historical allowed https://felexia.pro callback; host-only verifier remains on www and is read after the hosting308. Other origins are unchanged; this fixture does not prove their Supabase allowlist.',concurrency:'SDK retains one verifier per browser cookie. Overlapping flows fail closed; a fresh attempt is required.',results:checks},null,2)+'\n');
   console.log(JSON.stringify({success:true,checks:checks.length}));
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});
