@@ -22,8 +22,8 @@ export function LandingHero() {
         </div>
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
-          <h1 id="hero-title">Un nouvel horizon pour votre entreprise.</h1>
-          <p>Ventes, achats, trésorerie : simplifiez votre quotidien avec ESSENTIEL.<br />{" "}Allez plus loin avec PRO, l’ERP complet sur devis.</p>
+          <h1 id="hero-title">Prenez de la hauteur. Pilotez en toute liberté.</h1>
+          <p>ESSENTIEL au quotidien. PRO pour une vue d’ensemble.</p>
           <div className="horizon-actions">
             <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
             <a href="#pricing" className="horizon-discover">Découvrir nos offres</a>
