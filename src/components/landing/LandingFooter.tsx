@@ -3,8 +3,9 @@ import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const productLinks = [
-  { label: "Facture électronique", href: "/#facturation-electronique" },
+  { label: "La gestion avec ESSENTIEL", href: "/#essentiel" },
   { label: "Au quotidien", href: "/#modules" }, { label: "L’ERP complet PRO", href: "/#pro" },
+  { label: "Facturation électronique incluse", href: "/#facturation-electronique" },
   { label: "Tarifs", href: "/#pricing" }, { label: "Questions fréquentes", href: "/#resources" },
 ];
 const accessLinks = [

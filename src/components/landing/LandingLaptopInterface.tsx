@@ -18,7 +18,7 @@ export function LandingLaptopInterface() {
         <div className="laptop-ui-nav-label">VOTRE ESPACE</div>
         <div className="laptop-ui-nav-item"><Home size={17} /><span>Accueil</span></div>
         <div className="laptop-ui-nav-item laptop-ui-nav-parent"><FileText size={17} /><span>Ventes</span><ChevronDown size={13} /></div>
-        <div className="laptop-ui-subnav"><span>Factures clients</span><span>Règlements reçus</span><span className="laptop-ui-nav-active"><i />Facturation électronique</span></div>
+        <div className="laptop-ui-subnav"><span className="laptop-ui-nav-active"><i />Factures clients</span><span>Règlements reçus</span><span>Facturation électronique</span></div>
         <div className="laptop-ui-nav-item"><ShoppingBag size={17} /><span>Achats</span></div>
         <div className="laptop-ui-nav-item"><Landmark size={17} /><span>Trésorerie</span></div>
         <div className="laptop-ui-nav-item"><BookOpen size={17} /><span>Journaux</span></div>
@@ -26,16 +26,16 @@ export function LandingLaptopInterface() {
       </aside>
 
       <div className="laptop-ui-main">
-        <div className="laptop-ui-topbar"><div><span>Ventes</span><i>/</i><strong>Facturation électronique</strong></div><div className="laptop-ui-search"><Search size={14} /><span>Rechercher dans votre espace</span><small>⌘ K</small></div><Bell size={17} /><span className="laptop-ui-avatar">FE</span></div>
+        <div className="laptop-ui-topbar"><div><span>Ventes</span><i>/</i><strong>Factures clients</strong></div><div className="laptop-ui-search"><Search size={14} /><span>Rechercher dans votre espace</span><small>⌘ K</small></div><Bell size={17} /><span className="laptop-ui-avatar">FE</span></div>
         <div className="laptop-ui-body">
-          <div className="laptop-ui-page-heading"><div><div className="laptop-ui-page-eyebrow">DOCUMENTS ET ARCHIVAGE</div><h2>Facturation électronique</h2><p>De la préparation à l’archive, chaque document à sa place.</p></div><div className="laptop-ui-new-document"><Plus size={15} />Préparer une facture</div></div>
+          <div className="laptop-ui-page-heading"><div><div className="laptop-ui-page-eyebrow">VOTRE GESTION AU QUOTIDIEN</div><h2>Ventes et facturation</h2><p>Vos clients, vos factures et vos règlements, au même endroit.</p></div><div className="laptop-ui-new-document"><Plus size={15} />Créer une facture</div></div>
 
           <div className="laptop-ui-mobile-document"><div className="laptop-ui-mobile-summary"><strong>FAC-2611-00001</strong><span>Client professionnel</span><div><Check size={24} />Émise et archivée</div><small>Total TTC</small><b>1 200,00<em>MAD</em></b></div><div className="laptop-ui-mobile-formats"><div><FileText size={48} /><span><strong>Facture PDF</strong><small>Votre document</small></span><ArrowDownToLine size={30} /></div><div><FileCode2 size={48} /><span><strong>Fichier XML</strong><small>Données structurées</small></span><ArrowDownToLine size={30} /></div></div></div>
 
           <div className="laptop-ui-kpis">
             <div><span className="laptop-ui-kpi-icon"><Wallet size={17} /></span><span><small>Ventes du mois</small><strong>24 800<em>MAD</em></strong></span><ArrowUpRight size={15} /></div>
             <div><span className="laptop-ui-kpi-icon"><Users size={17} /></span><span><small>À encaisser</small><strong>8 400<em>MAD</em></strong></span><span className="laptop-ui-kpi-caption">Clients</span></div>
-            <div><span className="laptop-ui-kpi-icon laptop-ui-kpi-icon-mint"><Archive size={17} /></span><span><small>Documents émis</small><strong>12<em>archivés</em></strong></span><span className="laptop-ui-kpi-dot" /></div>
+            <div><span className="laptop-ui-kpi-icon laptop-ui-kpi-icon-mint"><ShoppingBag size={17} /></span><span><small>Achats du mois</small><strong>16 600<em>MAD</em></strong></span><span className="laptop-ui-kpi-dot" /></div>
           </div>
 
           <div className="laptop-ui-documents-grid">

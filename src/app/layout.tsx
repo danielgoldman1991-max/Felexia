@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
   title: "Felexia — Votre ERP au Maroc",
   description:
-    "ESSENTIEL pour votre gestion quotidienne, PRO pour l’ERP complet : ventes, achats, stock, comptabilité et ressources humaines au Maroc.",
+    "ESSENTIEL pour gérer vos ventes, achats, clients, fournisseurs et trésorerie. PRO sur devis pour l’ERP complet au Maroc. Facturation électronique incluse.",
   icons: {
     icon: [
       { url: BRAND.favicon },
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     locale: "fr_MA",
     title: "Felexia — Votre ERP au Maroc",
     description:
-      "ESSENTIEL pour votre gestion quotidienne, PRO pour l’ERP complet : ventes, achats, stock, comptabilité et ressources humaines au Maroc.",
+      "ESSENTIEL pour gérer vos ventes, achats, clients, fournisseurs et trésorerie. PRO sur devis pour l’ERP complet au Maroc. Facturation électronique incluse.",
     images: [{ url: BRAND.logoHorizontal, width: 1783, height: 592, alt: BRAND.name }],
   },
 };

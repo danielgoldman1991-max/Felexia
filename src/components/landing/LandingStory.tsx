@@ -6,28 +6,13 @@ import "./landing-story.css";
 
 const questions = [
   {
-    question: "Que permet la facturation électronique ?",
+    question: "Que comprend l’offre Essentiel ?",
     answer:
-      "À partir de vos factures et avoirs clients validés, générez un PDF lisible et un XML structuré. Vérifiez les documents, puis émettez et archivez la version retenue. Retrouvez ensuite vos fichiers et leur historique dans votre espace.",
-  },
-  {
-    question: "Comment activer la facturation électronique ?",
-    answer:
-      "Votre administrateur active le module dans Ventes → Facturation électronique → Configuration et complète les informations de l’entreprise. Un essai ou abonnement valide est nécessaire pour préparer et émettre de nouveaux documents.",
-  },
-  {
-    question: "Les factures sont-elles transmises à la DGI ?",
-    answer:
-      "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
+      "ESSENTIEL est votre outil de gestion d’entreprise au quotidien : clients et fournisseurs, factures de vente et d’achat, règlements, comptes bancaires et caisses, trésorerie et journaux. La facturation électronique PDF/XML et l’archivage sont aussi inclus. Vous pouvez travailler jusqu’à 3 utilisateurs dans votre espace entreprise.",
   },
   {
     question: "Comment fonctionne l’essai gratuit ?",
     answer: `Créez votre compte et votre espace entreprise pour découvrir l’offre Essentiel pendant ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. Retrouvez ci-dessous les tarifs mensuels et annuels ESSENTIEL et l’offre PRO sur devis.`,
-  },
-  {
-    question: "Que comprend l’offre Essentiel ?",
-    answer:
-      "La facturation électronique PDF/XML et l’archivage, vos clients et fournisseurs, les factures de vente et d’achat, les règlements, les comptes bancaires et caisses, la trésorerie et les journaux. Vous pouvez travailler jusqu’à 3 utilisateurs dans votre espace entreprise.",
   },
   {
     question: "Puis-je personnaliser mes factures ?",
@@ -48,6 +33,16 @@ const questions = [
     question: "Comment obtenir une proposition PRO ?",
     answer:
       "PRO est proposé uniquement sur devis. Contactez notre équipe pour présenter votre activité et vos besoins ; nous vous préparons une proposition. L’essai gratuit concerne ESSENTIEL. Votre entreprise conserve son espace et ses données lors de l’activation de PRO.",
+  },
+  {
+    question: "La facturation électronique est-elle incluse ?",
+    answer:
+      "Oui, dans ESSENTIEL comme dans PRO. À partir de vos factures et avoirs clients validés, générez les documents PDF/XML, puis émettez et archivez la version retenue. Votre administrateur active cette fonctionnalité depuis Ventes → Facturation électronique → Configuration.",
+  },
+  {
+    question: "Les factures sont-elles transmises à la DGI ?",
+    answer:
+      "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
   },
 ];
 

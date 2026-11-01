@@ -35,7 +35,7 @@ export function LandingPro() {
           ))}
         </div>
         <div className="pro-bottom" data-reveal>
-          <p><strong>Tout ESSENTIEL est inclus.</strong> Gardez votre facturation électronique PDF/XML et votre gestion quotidienne, avec les fonctions de l’ERP complet et jusqu’à 25 utilisateurs.</p>
+          <p><strong>Tout ESSENTIEL est inclus.</strong> Retrouvez vos ventes, vos achats, votre trésorerie et la facturation électronique, avec les fonctions de l’ERP complet et jusqu’à 25 utilisateurs.</p>
           <a href={getProQuoteHref()} className="marketing-button marketing-button-primary">Demander un devis PRO <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
         <p className="pro-scope-note">Les fonctions de comptabilité, de TVA et de paie sont des outils de préparation et de suivi. Vos documents et déclarations restent à valider avec vos conseils.</p>

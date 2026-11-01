@@ -11,10 +11,10 @@ import "./landing-conversion.css";
 
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
 const essentialFeatures = [
-  "Facturation électronique PDF/XML et archivage",
   "Votre espace entreprise", "Clients et fournisseurs", "Factures de vente", "Factures d’achat",
   "Règlements clients et fournisseurs", "Comptes bancaires et caisses", "Mouvements de trésorerie",
-  "Journaux et écritures", "Factures PDF avec votre logo", "Jusqu’à 3 utilisateurs",
+  "Journaux et écritures", "Factures PDF avec votre logo", "Facturation électronique PDF/XML et archivage",
+  "Jusqu’à 3 utilisateurs",
 ];
 const proFeatures = [
   "Tout ESSENTIEL, avec l’ERP complet",
@@ -41,8 +41,8 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
       <div className="marketing-container conversion-pricing-grid">
         <div className="conversion-pricing-intro" data-reveal>
           <p className="marketing-eyebrow">Deux offres, la même ambition</p>
-          <Heading id="conversion-pricing-title" className="marketing-section-title">L’essentiel pour démarrer.<br />PRO pour tout piloter.</Heading>
-          <p className="marketing-copy">Choisissez une gestion simple pour votre quotidien ou l’ERP complet pour relier toutes les fonctions de votre entreprise.</p>
+          <Heading id="conversion-pricing-title" className="marketing-section-title">ESSENTIEL pour gérer.<br />PRO pour tout piloter.</Heading>
+          <p className="marketing-copy">Gérez vos ventes, vos achats et votre trésorerie avec ESSENTIEL. Avec PRO, reliez aussi votre stock, votre comptabilité et vos ressources humaines.</p>
           <div className="conversion-trial-note">
             <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
             <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL.</strong><p>Découvrez votre espace gratuitement, sans carte bancaire. Pour PRO, échangeons sur votre projet.</p></div>
@@ -60,7 +60,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
             return (
               <article key={plan.code} className={`conversion-price-card${isPro ? " conversion-price-card-pro" : ""}`} aria-labelledby={`conversion-plan-${plan.code}`}>
                 <div className="conversion-plan-topline"><PlanHeading id={`conversion-plan-${plan.code}`}>{plan.name}</PlanHeading><span className="conversion-plan-badge">{isPro ? "L’ERP complet" : "Votre gestion quotidienne"}</span></div>
-                <p className="conversion-plan-description">{isPro ? "Une vue d’ensemble, du premier devis à la comptabilité et aux RH." : "Facturer, encaisser et suivre votre activité dans un espace simple."}</p>
+                <p className="conversion-plan-description">{isPro ? "Une vue d’ensemble, du premier devis à la comptabilité et aux RH." : "Ventes, achats, clients, fournisseurs et trésorerie : votre entreprise au quotidien."}</p>
                 <div className="conversion-price-amount" aria-live="polite" aria-atomic="true">{isPro ? <strong>Sur devis</strong> : <><strong>{formatPrice(yearly ? plan.yearlyPrice : plan.monthlyPrice)}</strong><span>MAD <span>/ {yearly ? "an" : "mois"}</span></span></>}</div>
                 <p className="conversion-price-caption">{isPro ? "Un projet ERP complet, une proposition adaptée à votre entreprise." : `${yearly ? "Facturé annuellement." : "Facturé mensuellement."} Commencez par votre essai gratuit.`}</p>
                 <Link href={isPro ? getProQuoteHref() : "/login?mode=register"} className={`marketing-button ${isPro ? "conversion-pro-button" : "marketing-button-primary"} conversion-price-button`}>{isPro ? "Demander un devis" : "Essayer ESSENTIEL gratuitement"} <ArrowRight size={17} aria-hidden="true" /></Link>
