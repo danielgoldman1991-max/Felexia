@@ -6,5 +6,5 @@ export const dynamic = "force-dynamic";
 
 export default async function HrPayslipsPage() {
   const rows = await listHrTable("hr_payslips");
-  return <ModulePage><HrSectionPage title="Bulletins de paie" description="Bulletins préparatoires avec brut, retenues, net à payer et détails CNSS/AMO/IR paramétrables." rows={rows} notice columns={[{ key: "payslip_number", label: "Bulletin" }, { key: "base_salary", label: "Base", money: true }, { key: "gross_salary", label: "Brut", money: true }, { key: "net_to_pay", label: "Net", money: true }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
+  return <ModulePage><HrSectionPage title="Bulletins préparatoires" description="Préparation du salaire de base selon les paramètres enregistrés. Variables, validation finale et paiement exclus." rows={rows} detailBasePath="/rh/paie/bulletins" notice columns={[{ key: "payslip_number", label: "Bulletin" }, { key: "base_salary", label: "Base", money: true }, { key: "gross_salary", label: "Brut", money: true }, { key: "net_to_pay", label: "Net", money: true }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
 }

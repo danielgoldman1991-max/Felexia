@@ -13,6 +13,7 @@ export default async function HrPayrollPeriodsPage() {
         description="Préparation du salaire de base uniquement. Variables, validation finale et paiement non disponibles."
         rows={rows}
         newHref="/rh/paie/periodes/new"
+        detailBasePath="/rh/paie/periodes"
         notice
         columns={[
           { key: "period_number", label: "Période" },

@@ -1,0 +1,66 @@
+{
+  "at": "2026-11-01T15:31:02.917496+00:00",
+  "scope": "Navigation RH et libellés préparatoires seulement. Aucun SQL ni accès réseau/donnée modifié ; pas de build lancé par cet agent. Résultats des commandes effectivement exécutées et observées par outils.",
+  "commands": [
+    {
+      "command": "node training/launch-fixes/20261101/pro-transactions/verify-hr-navigation.cjs",
+      "exitCode": 0,
+      "assertions": 27,
+      "report": "hr-navigation.json"
+    },
+    {
+      "command": "node training/launch-fixes/20261101/verify-contract.cjs",
+      "exitCode": 0,
+      "assertions": 7,
+      "report": "../contract-tests.json"
+    },
+    {
+      "command": "node training/launch-fixes/20261101/pro-transactions/verify-ui.cjs",
+      "exitCode": 0,
+      "assertions": 9,
+      "report": "ui.json"
+    },
+    {
+      "command": "eslint src/components/hr/hr-section-page.tsx src/app/rh/contrats/page.tsx src/app/rh/paie/page.tsx src/app/rh/paie/periodes/page.tsx src/app/rh/paie/bulletins/page.tsx training/launch-fixes/20261101/pro-transactions/verify-hr-navigation.cjs",
+      "exitCode": 0,
+      "stdout": "",
+      "warnings": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exitCode": 0,
+      "result": "tsc --noEmit réussi ; notice npm de nouvelle version uniquement"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "src/components/hr/hr-section-page.tsx",
+      "sha256": "6cbb0a2f2c7cd64d87a5a42191d61f1415647d5d8e3ea70526ddeeb5216f40d6"
+    },
+    {
+      "path": "src/app/rh/contrats/page.tsx",
+      "sha256": "156572f6f03af857fea4f2d85e13674b14444695be297e1b18fc48dad286c24b"
+    },
+    {
+      "path": "src/app/rh/paie/page.tsx",
+      "sha256": "6c3072ae220264a29262d22cc5ee9fe76f3b5cd2e1bbb2fa4256d24f665a2af3"
+    },
+    {
+      "path": "src/app/rh/paie/periodes/page.tsx",
+      "sha256": "ba3489226ec1e11770a5a1640af600123feb948f7e561392a2f930fd9a2a78a6"
+    },
+    {
+      "path": "src/app/rh/paie/bulletins/page.tsx",
+      "sha256": "9242f6f2de1963bb9f2f76bbab1f8635e837b39a61805c32880d53979069b5d5"
+    }
+  ],
+  "ci": {
+    "file": ".github/workflows/essential.yml",
+    "addedCommand": "node training/launch-fixes/20261101/pro-transactions/verify-hr-navigation.cjs"
+  },
+  "limitations": [
+    "Rendu SSR avec lectures et frontière management contrôlées, pas une navigation navigateur publiée.",
+    "Les liens de consultation ne confèrent aucun droit de mutation ; les contrôles de tenant/RLS restent dans les services/routes existants.",
+    "Les trois suites SSR se recoupent ; leurs nombres ne représentent pas autant de parcours distincts."
+  ]
+}

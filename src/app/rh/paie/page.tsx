@@ -13,7 +13,7 @@ export default async function HrPaiePage() {
         <Link className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]" href="/rh/paie/periodes">Périodes</Link>
         <Link className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]" href="/rh/paie/bulletins">Bulletins</Link>
       </div>
-      <HrSectionPage title="Paie préparatoire" description="Créez, calculez et validez des périodes de paie avec paramètres CNSS/AMO/IR configurables." rows={rows} newHref="/rh/paie/periodes/new" notice columns={[{ key: "period_number", label: "Période" }, { key: "month", label: "Mois" }, { key: "year", label: "Année" }, { key: "total_gross", label: "Brut", money: true }, { key: "total_net", label: "Net", money: true }, { key: "status", label: "Statut", status: true }]} />
+      <HrSectionPage title="Paie préparatoire" description="Préparez le salaire de base uniquement. Les paramètres RH sont en consultation ; variables, validation finale et paiement ne sont pas disponibles." rows={rows} newHref="/rh/paie/periodes/new" detailBasePath="/rh/paie/periodes" notice columns={[{ key: "period_number", label: "Période" }, { key: "month", label: "Mois" }, { key: "year", label: "Année" }, { key: "total_gross", label: "Brut", money: true }, { key: "total_net", label: "Net", money: true }, { key: "status", label: "Statut", status: true }]} />
     </ModulePage>
   );
 }

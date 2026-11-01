@@ -8,6 +8,9 @@ import { HrPreparatoryNotice } from "@/components/hr/hr-notice";
 import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 type Row = Record<string, string | number | boolean | null>;
+type DetailBasePath = "/rh/contrats" | "/rh/paie/periodes" | "/rh/paie/bulletins";
+const detailBases = new Set<DetailBasePath>(["/rh/contrats", "/rh/paie/periodes", "/rh/paie/bulletins"]);
+const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function HrSectionPage({
   title,
@@ -15,6 +18,7 @@ export function HrSectionPage({
   rows,
   columns,
   newHref,
+  detailBasePath,
   notice = false,
 }: {
   title: string;
@@ -22,6 +26,7 @@ export function HrSectionPage({
   rows: Row[];
   columns: Array<{ key: string; label: string; money?: boolean; status?: boolean }>;
   newHref?: string;
+  detailBasePath?: DetailBasePath;
   notice?: boolean;
 }) {
   return (
@@ -52,21 +57,26 @@ export function HrSectionPage({
               <tr>{columns.map((column) => <Th key={column.key}>{column.label}</Th>)}</tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row) => {
+                const detailHref = detailBasePath && detailBases.has(detailBasePath) && uuid.test(String(row.id)) ? `${detailBasePath}/${row.id}` : null;
+                return (
                 <tr key={String(row.id)}>
-                  {columns.map((column) => (
+                  {columns.map((column, index) => (
                     <Td key={column.key}>
                       {column.money ? (
                         <MoneyDisplay value={Number(row[column.key] ?? 0)} />
                       ) : column.status ? (
                         <StatusBadge status={String(row[column.key] ?? "draft")} />
+                      ) : index === 0 && detailHref ? (
+                        <Link href={detailHref} className="font-medium text-[var(--primary)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]">{String(row[column.key] ?? "Voir le détail")}</Link>
                       ) : (
                         String(row[column.key] ?? "-")
                       )}
                     </Td>
                   ))}
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </Table>
         )}

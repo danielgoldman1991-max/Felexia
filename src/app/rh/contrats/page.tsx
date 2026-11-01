@@ -13,6 +13,7 @@ export default async function HrContratsPage() {
         description="Contrats CDI, CDD, ANAPEC, stage et alertes de période d'essai ou d'expiration."
         rows={rows}
         newHref="/rh/contrats/new"
+        detailBasePath="/rh/contrats"
         columns={[
           { key: "contract_number", label: "Contrat" },
           { key: "contract_type", label: "Type" },
