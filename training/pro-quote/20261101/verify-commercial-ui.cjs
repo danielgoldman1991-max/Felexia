@@ -98,6 +98,10 @@ function main() {
       check(label + ': private test access has accurate label', html.includes('Accès de test') && html.includes('Votre accès PRO de test.'));
       check(label + ': no public PRO trial promise', !html.includes('essai PRO') && !html.includes('Essai PRO'));
     }
+    if (state.name === 'ESSENTIEL trial') {
+      check(label + ': existing trial shows its stored end date', html.includes('Fin d’essai') && html.includes('01/12/2026'));
+      check(label + ': existing trial is not relabelled with the new duration', !html.includes('15 jours') && !html.includes('actif pendant'));
+    }
   }
   const banner = render('src/components/dashboard/trial-started-banner.tsx', 'TrialStartedBanner', { planCode: 'premium' });
   check('PRO dashboard banner describes granted access', banner.includes('Votre accès PRO est activé.') && !banner.includes('essai PRO'));

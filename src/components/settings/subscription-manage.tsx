@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { getPlanDefinition, SUBSCRIPTION_PLANS, type PlanCode } from "@/lib/subscriptions/plans";
 import { filterPubliclyAvailablePlans, isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
-import { DEFAULT_TRIAL_DURATION_LABEL, DEFAULT_TRIAL_MARKETING_MESSAGE, BUSINESS_TRIAL_DURATION_LABEL, BUSINESS_TRIAL_MARKETING_MESSAGE } from "@/lib/subscriptions/trial-config";
 
 type BillingInterval = "monthly" | "yearly";
 
@@ -205,8 +204,8 @@ export function SubscriptionManage({
             <Metric label={currentPlanQuoteOnly ? "Modalité" : "Cycle"} value={currentPlanQuoteOnly ? "Sur devis" : currentBillingCycle === "yearly" ? "Annuel" : "Mensuel"} icon={<CreditCard className="h-4 w-4" />} />
             {isTrial && !currentPlanQuoteOnly ? (
               <Metric
-                label="Durée"
-                value={currentPlanCode === "business" ? BUSINESS_TRIAL_DURATION_LABEL : DEFAULT_TRIAL_DURATION_LABEL}
+                label="Fin d’essai"
+                value={periodEnd ? new Date(periodEnd).toLocaleDateString("fr-FR") : "Non renseignée"}
                 icon={<CreditCard className="h-4 w-4" />}
               />
             ) : null}
@@ -226,7 +225,7 @@ export function SubscriptionManage({
               <p className="md:col-span-6 text-sm text-[var(--muted)]">
                 {isTrial ? (
                   <>
-                    {currentPlanQuoteOnly ? "Votre accès PRO de test." : currentPlanCode === "business" ? BUSINESS_TRIAL_MARKETING_MESSAGE : DEFAULT_TRIAL_MARKETING_MESSAGE} Fin prévue :{" "}
+                    {currentPlanQuoteOnly ? "Votre accès PRO de test." : `Votre essai ${currentPlan.name}.`} Fin prévue :{" "}
                     <span className="font-medium text-[var(--foreground)]">{new Date(periodEnd).toLocaleDateString("fr-FR")}</span>
                     {daysRemaining !== null ? (
                       <>

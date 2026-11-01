@@ -200,13 +200,14 @@ assert.equal(
   "La référence technique de seed ne doit jamais être envoyée à Supabase.",
 );
 
-// Calendar-month trials must stop at the last valid day of the target month.
+// ESSENTIEL lasts exactly15days; legacy Business retains calendar-month clamping.
 const trialDateCases: Array<{ start: string; expected: string; business?: boolean }> = [
-  { start: "2026-10-31T12:34:56.000Z", expected: "2026-11-30T12:34:56.000Z" },
-  { start: "2026-01-31T08:00:00.000Z", expected: "2026-02-28T08:00:00.000Z" },
-  { start: "2028-01-31T08:00:00.000Z", expected: "2028-02-29T08:00:00.000Z" },
-  { start: "2026-12-31T08:00:00.000Z", expected: "2027-01-31T08:00:00.000Z" },
-  { start: "2026-05-15T23:59:00.000Z", expected: "2026-06-15T23:59:00.000Z" },
+  { start: "2026-10-31T12:34:56.000Z", expected: "2026-11-15T12:34:56.000Z" },
+  { start: "2026-01-31T08:00:00.000Z", expected: "2026-02-15T08:00:00.000Z" },
+  { start: "2028-01-31T08:00:00.000Z", expected: "2028-02-15T08:00:00.000Z" },
+  { start: "2026-12-31T08:00:00.000Z", expected: "2027-01-15T08:00:00.000Z" },
+  { start: "2026-05-15T23:59:00.000Z", expected: "2026-05-30T23:59:00.000Z" },
+  { start: "2028-02-28T08:00:00.000Z", expected: "2028-03-14T08:00:00.000Z" },
   { start: "2026-11-30T08:00:00.000Z", expected: "2027-02-28T08:00:00.000Z", business: true },
 ];
 for (const { start, expected, business } of trialDateCases) {

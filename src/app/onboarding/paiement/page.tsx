@@ -58,7 +58,7 @@ export default async function TrialConfirmationPage() {
             </div>
           </div>
           <p className="text-sm text-[var(--muted)]">
-            Votre essai {planLabel} est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd || "1 mois"}</strong>.
+            {trialEnd ? <>Votre essai {planLabel} est actif jusqu&apos;au <strong className="text-[var(--foreground)]">{trialEnd}</strong>.</> : <>Consultez la date de fin de votre essai {planLabel} dans les paramètres d’abonnement.</>}
           </p>
           <p className="mt-2 text-sm text-[var(--muted)]">
             Profitez de toutes les fonctionnalités sélectionnées. Aucune carte bancaire requise.

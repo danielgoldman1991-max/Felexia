@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { SUPPORT_KNOWLEDGE_ARTICLES } from "../../../src/lib/support/knowledge";
 import { knowledgeSupportReply } from "../../../src/lib/support/knowledge-reply";
+import { DEFAULT_TRIAL_DAYS, DEFAULT_TRIAL_DURATION_LABEL } from "../../../src/lib/subscriptions/trial-config";
 
 type Message = { role: "user" | "assistant"; content: string };
 const results: Array<{ name: string; passed: boolean }> = [];
@@ -22,13 +23,21 @@ check("A short but explicit PRO follow-up answers PRO first", answer.sources[0]?
 answer = reply("Et son prix ?", "Que comprend PRO ?");
 check("An elliptical price follow-up can reuse the last explicit PRO entity", answer.sources[0]?.id === "pro" && !answer.reply.includes("999"));
 answer = reply("Et son prix ?", "Que comprend ESSENTIEL ?");
-check("An elliptical ESSENTIEL price uses its approved HT price", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("99 HT MAD /mois") && answer.reply.includes("1 188 HT MAD /an") && answer.reply.includes("sans remise annuelle"));
+check("An elliptical ESSENTIEL price uses its approved HT price and trial duration", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("99 HT MAD /mois") && answer.reply.includes("1 188 HT MAD /an") && answer.reply.includes("sans remise annuelle") && answer.reply.includes(DEFAULT_TRIAL_DURATION_LABEL));
 answer = reply("Can you answer in English?", "Que comprend ESSENTIEL ?");
 check("An explicit English language request restates the last topic in English", answer.sources[0]?.id === "essential" && answer.reply.includes("includes sales") && !answer.reply.includes("est l’offre"));
 answer = reply("What is the ESSENTIEL monthly and annual price?");
-check("English pricing uses99/1188 excluding tax with no annual discount", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("99 HT MAD") && answer.reply.includes("1 188 HT MAD") && answer.reply.includes("excluding tax") && answer.reply.includes("no annual discount"));
+check("English pricing uses99/1188 and the approved trial duration", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("99 HT MAD") && answer.reply.includes("1 188 HT MAD") && answer.reply.includes("excluding tax") && answer.reply.includes("no annual discount") && answer.reply.includes(`${DEFAULT_TRIAL_DAYS} days`));
 answer = reply("بالعربية من فضلك", "Quel est le prix ESSENTIEL ?");
-check("An explicit Arabic language request restates verified HT pricing in Arabic", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("درهم") && answer.reply.includes("99 HT MAD") && answer.reply.includes("1 188 HT MAD") && answer.reply.includes("غير شامل للضريبة") && answer.reply.includes("بلا تخفيض سنوي") && !answer.reply.includes("ESSENTIEL coûte"));
+check("An explicit Arabic language request restates verified pricing and trial duration", answer.sources[0]?.id === "essential-pricing" && answer.reply.includes("درهم") && answer.reply.includes("99 HT MAD") && answer.reply.includes("1 188 HT MAD") && answer.reply.includes("غير شامل للضريبة") && answer.reply.includes("بلا تخفيض سنوي") && answer.reply.includes(`${DEFAULT_TRIAL_DAYS} يومًا`) && !answer.reply.includes("ESSENTIEL coûte"));
+for (const [question, duration] of [
+  ["Comment fonctionne l’essai gratuit ?", DEFAULT_TRIAL_DURATION_LABEL],
+  ["How long is the free trial?", `${DEFAULT_TRIAL_DAYS} days`],
+  ["شنو مدة التجربة المجانية؟", `${DEFAULT_TRIAL_DAYS} يومًا`],
+]) {
+  const trialReply = reply(question).reply;
+  check("Trial answer follows the current duration: " + question, trialReply.includes(duration) && !/one month|شهر واحد|1 mois/.test(trialReply));
+}
 answer = knowledgeSupportReply([{ role: "user", content: "Please answer in English" }, { role: "assistant", content: "Of course." }, { role: "user", content: "Et PRO ?" }]);
 check("The visitor’s explicit language choice survives a short later turn", answer.sources[0]?.id === "pro" && answer.reply.includes("quotation only"));
 answer = reply("Je veux parler à un humain", "Qui gère les utilisateurs ?");

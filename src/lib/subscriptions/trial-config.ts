@@ -1,8 +1,8 @@
-export const DEFAULT_TRIAL_MONTHS = 1;
+export const DEFAULT_TRIAL_DAYS = 15;
 export const DEFAULT_TRIAL_LABEL = "Essai Essentiel";
-export const DEFAULT_TRIAL_DURATION_LABEL = "1 mois";
+export const DEFAULT_TRIAL_DURATION_LABEL = `${DEFAULT_TRIAL_DAYS} jours`;
 export const DEFAULT_TRIAL_MARKETING_MESSAGE =
-  "Votre essai Essentiel est actif pendant 1 mois.";
+  `Votre essai Essentiel est actif pendant ${DEFAULT_TRIAL_DURATION_LABEL}.`;
 
 function addTrialMonths(startDate: Date, months: number): Date {
   const trialEnd = new Date(startDate);
@@ -16,7 +16,7 @@ function addTrialMonths(startDate: Date, months: number): Date {
 }
 
 export function getDefaultTrialEndDate(startDate = new Date()): Date {
-  return addTrialMonths(startDate, DEFAULT_TRIAL_MONTHS);
+  return new Date(startDate.getTime() + DEFAULT_TRIAL_DAYS * 24 * 60 * 60 * 1_000);
 }
 
 export const BUSINESS_TRIAL_MONTHS = 3;

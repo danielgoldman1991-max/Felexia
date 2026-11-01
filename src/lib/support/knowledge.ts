@@ -11,7 +11,7 @@ export type SupportKnowledgeArticle = {
   href: string;
 };
 
-export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.4";
+export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.5";
 export const SUPPORT_KNOWLEDGE_UPDATED_AT = "2026-11-01";
 
 const essential = getPlanDefinition("essentiel");
@@ -63,7 +63,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   },
   {
     id: "trial", title: "Essai gratuit et inscription",
-    keywords: ["essai", "gratuit", "tester", "test", "carte bancaire", "trial", "free", "register", "signup", "inscription", "تجربة", "مجانا", "نجرب", "njereb", "njarab"],
+    keywords: ["essai", "gratuit", "tester", "test", "carte bancaire", "trial", "free", "register", "signup", "inscription", "تجربة", "التجربة", "المجانية", "مجانا", "نجرب", "njereb", "njarab"],
     content: `L’essai standard porte sur ESSENTIEL pendant ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. Cliquez sur Démarrer gratuitement ou ouvrez la page d’inscription, créez votre compte administrateur puis votre espace entreprise. Une inscription par email ou Google est proposée. Le choix PRO conduit à une demande de devis ; il n’existe pas d’essai PRO public automatiquement garanti. Ne pas promettre d’extension d’essai : demander à l’équipe si une exception est nécessaire.`,
     href: "/login?mode=register",
   },
