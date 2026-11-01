@@ -12,6 +12,7 @@ export type SupportReply = {
   sources: { id: string; title: string; href: string }[];
   suggestions: string[];
   mode: "ai" | "knowledge";
+  diagnostic?: { stage: "catalog" | "generation"; code: string; status?: number };
 };
 
 // These identifiers were checked against the live Gateway catalog on 2026-11-01.
@@ -115,7 +116,7 @@ export async function answerSupportQuestion(request: SupportRequest, signal?: Ab
     // Fail closed if the catalog no longer guarantees a zero-price endpoint. No balance/top-up API is called.
     if (!await verifySupportModelIsFree(signal)) {
       unavailableUntil = Date.now() + 60_000;
-      return fallback();
+      return { ...fallback(), diagnostic: { stage: "catalog", code: "FREE_MODEL_NOT_VERIFIED" } };
     }
     const query = request.messages.filter(message => message.role === "user").slice(-3).map(message => redactSupportText(message.content)).join(" ");
     const initial = [...new Map([...searchSupportKnowledge(last, 6), ...searchSupportKnowledge(query, 5), ...searchSupportKnowledge("offres ESSENTIEL PRO tarifs essai", 3)].map(article => [article.id, article])).values()].slice(0, 10);
@@ -141,7 +142,7 @@ export async function answerSupportQuestion(request: SupportRequest, signal?: Ab
     const result = await agent.generate({ messages: request.messages.map(message => ({ role: message.role, content: redactSupportText(message.content) })), abortSignal: signal, timeout: 32_000 });
     const output = result.output;
     // Historical PRO amounts may never be reintroduced by model prior knowledge.
-    if (!output || /\b(?:1[\s\u202f.,]?290|12[\s\u202f.,]?900)\b/.test(output.reply)) return fallback();
+    if (!output || /\b(?:1[\s\u202f.,]?290|12[\s\u202f.,]?900)\b/.test(output.reply)) return { ...fallback(), diagnostic: { stage: "generation", code: "ANSWER_NOT_VERIFIED" } };
     const used = output.sourceIds.flatMap(id => available.has(id) ? [available.get(id)!] : []);
     return { reply: output.reply, sources: [...new Map(used.map(article => [article.id, sourceFor(article)])).values()], suggestions: output.suggestions, mode: "ai" };
   } catch (error) {
@@ -149,7 +150,9 @@ export async function answerSupportQuestion(request: SupportRequest, signal?: Ab
     unavailableUntil = Date.now() + 60_000;
     // Do not log prompts, provider error bodies, contact information, keys or tokens.
     const status = typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number" ? error.statusCode : undefined;
+    const name = typeof error === "object" && error !== null && "name" in error && typeof error.name === "string" ? error.name : "ProviderUnavailable";
+    const code = /^[A-Za-z_]{1,80}$/.test(name) ? name : "ProviderUnavailable";
     console.warn("[support] AI unavailable; help guide retained", { status: status ?? "unavailable" });
-    return fallback();
+    return { ...fallback(), diagnostic: { stage: "generation", code, ...(status === undefined ? {} : { status }) } };
   }
 }
