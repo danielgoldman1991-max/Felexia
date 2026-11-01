@@ -91,7 +91,7 @@
 @media (max-width: 599px) {
   .felexia-support__launcher { right: max(17px, env(safe-area-inset-right)); bottom: max(17px, env(safe-area-inset-bottom)); min-height: 51px; padding-right: 15px; font-size: 12px !important; }
   .felexia-support__launcher-icon { width: 33px; height: 33px; }
-  .felexia-support__panel { inset: max(8px, env(safe-area-inset-top)) 8px auto; width: calc(100vw - 16px); max-width: none; height: calc(100dvh - max(16px, env(safe-area-inset-top) + env(safe-area-inset-bottom))); max-height: none; border-radius: 18px; }
+  .felexia-support__panel { inset: max(8px, env(safe-area-inset-top)) 8px auto; width: auto; max-width: none; height: calc(100dvh - max(16px, env(safe-area-inset-top) + env(safe-area-inset-bottom))); max-height: none; border-radius: 18px; }
   .felexia-support__panel::backdrop { background: #14213d45; backdrop-filter: blur(3px); }
   .felexia-support__header { padding: 17px 15px 16px 19px; }
   .felexia-support__history { padding: 25px 22px 25px; }

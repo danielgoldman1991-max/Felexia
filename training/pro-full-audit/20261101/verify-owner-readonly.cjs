@@ -136,6 +136,8 @@ async function requests() {
   for (const kind of ['sales', 'purchases', 'contacts', 'treasury', 'treasury-ledger', 'supplier-credits']) {
     list.push({ route: '/api/exports/' + kind, concreteRoute: '/api/exports/' + kind, module: 'Scoped exports', state: 'CSV read', csv: true });
   }
+  // New implementation is read-only and no longer initializes reference data.
+  if (process.argv.includes('--include-chart-export')) list.push({ route: '/comptabilite/plan-comptable/export', concreteRoute: '/comptabilite/plan-comptable/export', module: 'Complete chart CSV', state: 'CSV read', csv: true });
   return list;
 }
 async function requestPage(page) {

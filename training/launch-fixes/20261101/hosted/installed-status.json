@@ -1,0 +1,42 @@
+{
+  "at": "2026-11-01T13:19:57.028Z",
+  "mode": "check-installed",
+  "target": "Exact guarded synthetic QA only",
+  "passed": true,
+  "checks": [
+    {
+      "name": "admin public Auth exact identity",
+      "passed": true
+    },
+    {
+      "name": "admin unique membership and role",
+      "passed": true
+    },
+    {
+      "name": "admin action workspace exact QA",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "OpenAPI visibility is checked with authenticated public-key QA, not service_role. Missing or inaccessible metadata is distinguished from a successful installed capability."
+  ],
+  "restored": true,
+  "cleanupComplete": true,
+  "emailsPaymentsDgiCron": 0,
+  "subscriptionExpiryChanged": false,
+  "installation": {
+    "auth": "Existing QA admin, public-key Auth, no service-role OpenAPI",
+    "capabilityStatus": 404,
+    "capabilityErrorCode": "PGRST202",
+    "commercial105": false,
+    "atomicConversion": false,
+    "payroll106": false,
+    "authenticatedOpenApiStatus": 401,
+    "authenticatedOpenApiAvailable": false,
+    "treasury107SetVisible": false,
+    "treasury107SaveVisible": false
+  },
+  "readyForExecution": false,
+  "actionDiagnosticsCount": 0,
+  "limitation": "Real authenticated SDK actions with Next request/cache/navigation supplied, not browser forms. No payment/email/DGI/cron. Incomplete-settings payroll only; no settings reset. All detailed backups private."
+}

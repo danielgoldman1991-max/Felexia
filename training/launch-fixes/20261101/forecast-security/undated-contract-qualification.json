@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-01T13:03:31.764Z",
+  "scope": "Only the uniquely anomalous contract and its organization Stripe reference are queried. No names, IDs, emails or secrets are saved. No mutations.",
+  "anomalyRows": 1,
+  "uniqueCanonical": true,
+  "classification": "undetermined",
+  "stripe": {
+    "configured": true,
+    "readAttempted": false,
+    "reason": "No Stripe subscription or customer reference in the contract or company. No Stripe-wide lookup attempted."
+  },
+  "repairExecuted": false,
+  "contract": {
+    "status": "active",
+    "planCode": "starter",
+    "hasCurrentPeriodStart": true,
+    "hasCurrentPeriodEnd": false,
+    "hasTrialEnd": false,
+    "hasStripeSubscriptionReference": false,
+    "hasStripeCustomerReference": false
+  },
+  "companyHasStripeCustomerReference": false,
+  "repairPlan": "No automatic repair is justified. Qualify the original contract privately with the owner, obtain its real dates/status or establish QA/historical provenance. Preserve read access and do not invent an expiry."
+}

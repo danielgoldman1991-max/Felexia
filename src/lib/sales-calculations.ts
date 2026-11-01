@@ -15,8 +15,8 @@ export function calculateSalesLine(line: SalesLineFormValue): SalesLineFormValue
   const unitPrice = Number(line.unit_price_ht || 0);
   const discountRate = Number(line.discount_rate || 0);
   const taxRate = Number(line.tax_rate || 0);
-  const subtotalHt = quantity * unitPrice * (1 - discountRate / 100);
-  const taxAmount = subtotalHt * taxRate / 100;
+  const subtotalHt = round2(quantity * unitPrice * (1 - discountRate / 100));
+  const taxAmount = round2(subtotalHt * taxRate / 100);
 
   return {
     ...line,

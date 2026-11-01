@@ -8,7 +8,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { StatCard } from "@/components/erp/stat-card";
 import { PurchaseDocumentsTable } from "@/components/purchases/purchase-documents-table";
-import { listPurchaseDocuments, getPurchaseCounters } from "@/lib/purchases";
+import { listPurchaseDocuments, getPurchaseCountersForDisplay } from "@/lib/purchases";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export default async function SupplierReceiptsPage() {
   const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const [{ rows }, counters] = await Promise.all([
     listPurchaseDocuments("supplier_receipt"),
-    getPurchaseCounters(),
+    getPurchaseCountersForDisplay(),
   ]);
 
   const validatedCount = rows.filter((r) => r.status === "validated").length;
@@ -30,11 +30,12 @@ export default async function SupplierReceiptsPage() {
         actions={canWrite ? <Button asChild><Link href="/achats/receptions/new"><Truck className="h-4 w-4" /> Nouvelle réception</Link></Button> : null}
       />
 
+      {!counters && <p role="status" className="text-sm text-[var(--muted)]">Les indicateurs d’achats sont momentanément indisponibles. Actualisez la page pour réessayer.</p>}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard title="Brouillons" value={counters.draftReceipts} icon={<Package className="h-4 w-4" />} />
+        <StatCard title="Brouillons" value={counters?.draftReceipts ?? "—"} icon={<Package className="h-4 w-4" />} />
         <StatCard title="Validés" value={validatedCount} icon={<CheckCircle2 className="h-4 w-4" />} />
         <StatCard title="Stock mis à jour" value={stockUpdatedCount} icon={<Package className="h-4 w-4" />} />
-        <StatCard title="Archivés" value={rows.length - counters.draftReceipts - validatedCount} icon={<Archive className="h-4 w-4" />} />
+        <StatCard title="Archivés" value={counters ? rows.length - counters.draftReceipts - validatedCount : "—"} icon={<Archive className="h-4 w-4" />} />
       </div>
 
       <Card><CardContent className="pt-6"><PurchaseDocumentsTable canWrite={canWrite} rows={rows} type="supplier_receipt" /></CardContent></Card>

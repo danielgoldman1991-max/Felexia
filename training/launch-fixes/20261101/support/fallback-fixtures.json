@@ -1,0 +1,79 @@
+{
+  "passed": true,
+  "assertions": 18,
+  "scope": "Local public knowledge only. No model, network call, email or tenant data.",
+  "results": [
+    {
+      "name": "A clear new PRO price question overrides the older electronic topic",
+      "passed": true
+    },
+    {
+      "name": "A short but explicit PRO follow-up answers PRO first",
+      "passed": true
+    },
+    {
+      "name": "An elliptical price follow-up can reuse the last explicit PRO entity",
+      "passed": true
+    },
+    {
+      "name": "An elliptical ESSENTIEL price uses its real price",
+      "passed": true
+    },
+    {
+      "name": "An explicit English language request restates the last topic in English",
+      "passed": true
+    },
+    {
+      "name": "An explicit Arabic language request restates verified pricing in Arabic",
+      "passed": true
+    },
+    {
+      "name": "The visitor’s explicit language choice survives a short later turn",
+      "passed": true
+    },
+    {
+      "name": "Human hand-off is direct instead of repeating user-role documentation",
+      "passed": true
+    },
+    {
+      "name": "The English email answer does not invent delivery",
+      "passed": true
+    },
+    {
+      "name": "The Arabic DGI answer preserves the actual official-connection limitation",
+      "passed": true
+    },
+    {
+      "name": "A product price question is not mistaken for subscription pricing",
+      "passed": true
+    },
+    {
+      "name": "An unrelated request receives an honest product-scope response",
+      "passed": true
+    },
+    {
+      "name": "Simple greeting is identified as virtual help: Bonjour",
+      "passed": true
+    },
+    {
+      "name": "Simple greeting is identified as virtual help: Hello",
+      "passed": true
+    },
+    {
+      "name": "Simple greeting is identified as virtual help: السلام عليكم",
+      "passed": true
+    },
+    {
+      "name": "Every response source is an actual public-catalog article",
+      "passed": true
+    },
+    {
+      "name": "PRO price replies never expose an old amount in any supported language",
+      "passed": true
+    },
+    {
+      "name": "Fallback answers remain within the route/UI size boundary",
+      "passed": true
+    }
+  ]
+}

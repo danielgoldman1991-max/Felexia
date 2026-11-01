@@ -1,0 +1,295 @@
+{
+  "success": true,
+  "assertions": 72,
+  "scope": "Real assistant, help retrieval, request policy and API modules; AI SDK generation, the exact public free-model catalog GET and NextResponse are synthetic boundaries. No live model quality, live pricing, payment, email, private ERP data or distributed quota is certified.",
+  "results": [
+    {
+      "label": "Disabled AI uses the verified guide without a provider or catalog call",
+      "passed": true
+    },
+    {
+      "label": "Knowledge replies cite actual public help articles",
+      "passed": true
+    },
+    {
+      "label": "Free-model flag without authentication cannot call a provider",
+      "passed": true
+    },
+    {
+      "label": "Simple greetings need no model or catalog call",
+      "passed": true
+    },
+    {
+      "label": "Greeting supports English",
+      "passed": true
+    },
+    {
+      "label": "Greeting supports Arabic",
+      "passed": true
+    },
+    {
+      "label": "Enabled AI passes through the structured response boundary",
+      "passed": true
+    },
+    {
+      "label": "Model and maximum generation work are bounded",
+      "passed": true
+    },
+    {
+      "label": "Only Beam free on Reflection with all required free capabilities can be routed",
+      "passed": true
+    },
+    {
+      "label": "The preflight is an exact anonymous uncached public catalog GET, never a credit API",
+      "passed": true
+    },
+    {
+      "label": "Second model step cannot trigger another knowledge lookup",
+      "passed": true
+    },
+    {
+      "label": "Prompt distinguishes product facts from untrusted user and prior-assistant messages",
+      "passed": true
+    },
+    {
+      "label": "Prompt excludes account access and actual business actions",
+      "passed": true
+    },
+    {
+      "label": "Reply and prompt never expose the server authentication secret",
+      "passed": true
+    },
+    {
+      "label": "Only the approved public-knowledge tool is exposed",
+      "passed": true
+    },
+    {
+      "label": "Contact details, Stripe-shaped keys and JWTs are masked",
+      "passed": true
+    },
+    {
+      "label": "Recognizable provider, Gateway, database and GitHub tokens are masked",
+      "passed": true
+    },
+    {
+      "label": "Explicit API-key, secret and Bearer assignments are masked",
+      "passed": true
+    },
+    {
+      "label": "Current recognizable tokens and credential assignments stop before the provider",
+      "passed": true
+    },
+    {
+      "label": "An explicit password in the current message never reaches the model",
+      "passed": true
+    },
+    {
+      "label": "Previous contact details remain masked on later conversation turns",
+      "passed": true
+    },
+    {
+      "label": "Previous passwords never cross the external-model boundary",
+      "passed": true
+    },
+    {
+      "label": "Passwords after is: and est: stay masked in later model turns",
+      "passed": true
+    },
+    {
+      "label": "Prior assistant messages cannot carry raw credentials back to the provider",
+      "passed": true
+    },
+    {
+      "label": "Only retrieved IDs can become response sources, with duplicates removed",
+      "passed": true
+    },
+    {
+      "label": "Citation titles and URLs are constructed from the server catalog",
+      "passed": true
+    },
+    {
+      "label": "An additional public lookup can supply an approved citation",
+      "passed": true
+    },
+    {
+      "label": "Historical PRO price is rejected: 1 290",
+      "passed": true
+    },
+    {
+      "label": "Historical PRO price is rejected: 1290",
+      "passed": true
+    },
+    {
+      "label": "Historical PRO price is rejected: 12 900",
+      "passed": true
+    },
+    {
+      "label": "Historical PRO price is rejected: 1.290",
+      "passed": true
+    },
+    {
+      "label": "Historical PRO price is rejected: 1,290",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for positive token price",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for positive request fee",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for missing required price",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for null price",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for empty price",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for boolean price",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for unknown nonzero fee",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for missing free tag",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for missing structured output",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for missing tool capability",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for unapproved provider",
+      "passed": true
+    },
+    {
+      "label": "Free-model verification fails closed for another model ID",
+      "passed": true
+    },
+    {
+      "label": "Unavailable catalog falls back without an AI or billing call",
+      "passed": true
+    },
+    {
+      "label": "Unavailable catalog falls back without an AI or billing call",
+      "passed": true
+    },
+    {
+      "label": "A zero-price verification is cached for at most60 seconds",
+      "passed": true
+    },
+    {
+      "label": "A newly paid endpoint is refused when the60-second catalog proof expires",
+      "passed": true
+    },
+    {
+      "label": "Failed free-model verification has a short circuit without repeated catalog or model calls",
+      "passed": true
+    },
+    {
+      "label": "Provider 402 falls back to the guide",
+      "passed": true
+    },
+    {
+      "label": "Provider failure details are not returned or logged",
+      "passed": true
+    },
+    {
+      "label": "An unavailable provider has a short circuit instead of retries",
+      "passed": true
+    },
+    {
+      "label": "Provider timeout falls back to the guide",
+      "passed": true
+    },
+    {
+      "label": "Provider failure details are not returned or logged",
+      "passed": true
+    },
+    {
+      "label": "An unavailable provider has a short circuit instead of retries",
+      "passed": true
+    },
+    {
+      "label": "Public GET exposes availability without private configuration",
+      "passed": true
+    },
+    {
+      "label": "Availability is not cached or MIME-sniffable",
+      "passed": true
+    },
+    {
+      "label": "Anonymous same-origin POST returns a usable public answer",
+      "passed": true
+    },
+    {
+      "label": "Conversation replies have private no-store headers",
+      "passed": true
+    },
+    {
+      "label": "Cross-site requests are rejected before provider work",
+      "passed": true
+    },
+    {
+      "label": "Requests without a browser origin are rejected",
+      "passed": true
+    },
+    {
+      "label": "Client-supplied system role is rejected",
+      "passed": true
+    },
+    {
+      "label": "Oversized message text is rejected",
+      "passed": true
+    },
+    {
+      "label": "Malformed JSON is returned as a safe client error",
+      "passed": true
+    },
+    {
+      "label": "Actual streamed body size wins over a false Content-Length",
+      "passed": true
+    },
+    {
+      "label": "Rejected requests also retain no-store headers",
+      "passed": true
+    },
+    {
+      "label": "Completed duplicate request IDs reuse the answer without a second generation",
+      "passed": true
+    },
+    {
+      "label": "A request ID cannot be reused for different conversation content",
+      "passed": true
+    },
+    {
+      "label": "Completed idempotency entries expire and permit a later new answer",
+      "passed": true
+    },
+    {
+      "label": "A different overlapping request from one visitor is throttled",
+      "passed": true
+    },
+    {
+      "label": "An overlapping duplicate awaits the same single generation",
+      "passed": true
+    },
+    {
+      "label": "Visitor rate limits stop further responses with Retry-After",
+      "passed": true
+    }
+  ]
+}

@@ -10,7 +10,7 @@ export default async function HrPayrollPeriodsPage() {
     <ModulePage>
       <HrSectionPage
         title="Périodes de paie"
-        description="Périodes mensuelles, calculs préparatoires, validation et paiement."
+        description="Préparation du salaire de base uniquement. Variables, validation finale et paiement non disponibles."
         rows={rows}
         newHref="/rh/paie/periodes/new"
         notice

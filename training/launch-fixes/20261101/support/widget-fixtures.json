@@ -1,0 +1,106 @@
+{
+  "date": "2026-11-01T13:03:14.974Z",
+  "passed": true,
+  "source": "src/components/support/SupportAssistant.tsx",
+  "assertions": 24,
+  "method": "Actual widget TSX transpiled with TypeScript and executed in node:vm with React state/effect, fetch, and timer boundaries controlled.",
+  "limits": "No browser is emulated. Native dialog focus, visual layout, keyboard integration, and actual network/model behavior require separate verification.",
+  "checks": [
+    {
+      "name": "Initial question submitted",
+      "passed": true
+    },
+    {
+      "name": "429 response exposes retry countdown",
+      "passed": true
+    },
+    {
+      "name": "New conversation clears previous error",
+      "passed": true
+    },
+    {
+      "name": "New conversation has no retry for empty history",
+      "passed": true
+    },
+    {
+      "name": "Cooldown remains visible after reset",
+      "passed": true
+    },
+    {
+      "name": "Starter questions remain disabled during cooldown",
+      "passed": true
+    },
+    {
+      "name": "Cooldown timer exists at step 1",
+      "passed": true
+    },
+    {
+      "name": "Cooldown timer exists at step 2",
+      "passed": true
+    },
+    {
+      "name": "Cooldown completion does not recreate empty-history retry",
+      "passed": true
+    },
+    {
+      "name": "Reset and cooldown never submit a request",
+      "passed": true
+    },
+    {
+      "name": "Starter questions are re-enabled after cooldown",
+      "passed": true
+    },
+    {
+      "name": "A fresh question is submitted after cooldown",
+      "passed": true
+    },
+    {
+      "name": "Fresh conversation contains one user question",
+      "passed": true
+    },
+    {
+      "name": "Successful answer appears in conversation",
+      "passed": true
+    },
+    {
+      "name": "Empty context is rejected",
+      "passed": true
+    },
+    {
+      "name": "Context ending with assistant is rejected",
+      "passed": true
+    },
+    {
+      "name": "Large history retains a complete recent turn within budget",
+      "passed": true
+    },
+    {
+      "name": "Current question is preserved",
+      "passed": true
+    },
+    {
+      "name": "Context stays within 16000 characters",
+      "passed": true
+    },
+    {
+      "name": "Previous conversation turn keeps user/assistant ordering",
+      "passed": true
+    },
+    {
+      "name": "Context stays within eleven messages",
+      "passed": true
+    },
+    {
+      "name": "Greeting remains after reset during pending request",
+      "passed": true
+    },
+    {
+      "name": "Response from previous conversation is discarded",
+      "passed": true
+    },
+    {
+      "name": "No empty context is ever sent",
+      "passed": true
+    }
+  ]
+}

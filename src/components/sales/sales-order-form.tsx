@@ -102,7 +102,7 @@ export function SalesOrderForm({
 
   return (
     <form action={formAction} className="space-y-5">
-      {document ? <input type="hidden" name="id" value={document.id} /> : null}
+      {document ? <><input type="hidden" name="id" value={document.id} /><input type="hidden" name="expected_updated_at" value={document.updated_at} /></> : null}
       <input type="hidden" name="customer_id" value={selectedCustomerId} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <input type="hidden" name="subtotal_ht" value={totals.subtotal_ht} />

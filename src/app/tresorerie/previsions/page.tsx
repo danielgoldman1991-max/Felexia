@@ -14,12 +14,11 @@ import { TreasuryForecastManualItem } from "@/components/treasury/treasury-forec
 import { TreasuryPrintButton } from "@/components/treasury/treasury-print-button";
 import { TreasuryForecastPrintView } from "@/components/treasury/treasury-forecast-print-view";
 import { PrintActions } from "@/components/sales/print-actions";
-import { listTreasuryAccounts } from "@/lib/treasury";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { formatMoney, formatDate } from "@/lib/format";
-import { getTreasuryForecast, type TreasuryForecastItem, type TreasuryForecastScenario } from "@/lib/treasury/treasury-forecast";
+import { addDays, FORECAST_CURRENCY_SCOPE, getTreasuryForecast, type TreasuryForecastItem, type TreasuryForecastScenario } from "@/lib/treasury/treasury-forecast";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +29,7 @@ const SCENARIO_LABELS: Record<TreasuryForecastScenario, string> = {
 };
 
 function toLocalIso(daysAgo: number) {
-  const date = new Date();
-  date.setDate(date.getDate() + daysAgo);
-  return date.toISOString().slice(0, 10);
+  return addDays(new Date().toISOString().slice(0, 10), daysAgo);
 }
 
 function statusLabel(status: string) {
@@ -84,21 +81,30 @@ export default async function TreasuryForecastPage({
   const includeOverdue = get("overdue") !== "0";
   const direction = (get("type") ?? "all") as "inflow" | "outflow" | "all";
   const from = get("from") || toLocalIso(0);
-  const to = get("to") || toLocalIso(Number.parseInt(periode, 10) || 30);
+  const periodDays = Number.parseInt(periode, 10);
+  const to = get("to") || toLocalIso(Number.isSafeInteger(periodDays) && periodDays >= 0 && periodDays <= 366 ? periodDays : 30);
 
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
-  const [accounts, forecast] = await Promise.all([
-    listTreasuryAccounts(),
-    getTreasuryForecast(supabase, workspace.organization.id, {
+  const forecast = await getTreasuryForecast(supabase, workspace.organization.id, {
       from,
       to,
       scenario,
       includeOverdue,
       treasuryAccountId: accountId,
       direction,
-    }),
-  ]);
+    }).catch(() => null);
+  if (!forecast) {
+    return (
+      <ModulePage>
+        <PageHeader title="Prévisions de trésorerie" description={FORECAST_CURRENCY_SCOPE} />
+        <p role="alert" className="rounded-xl border border-[var(--border)] p-4">
+          Impossible de charger une prévision complète. Vérifiez la période (367 jours maximum), le compte actif en MAD et la disponibilité des données, puis actualisez. Aucun total partiel n’est affiché.
+        </p>
+        <Button variant="secondary" asChild><Link href="/tresorerie/previsions">Réessayer avec la période par défaut</Link></Button>
+      </ModulePage>
+    );
+  }
 
   const hasItems = forecast.inflows.length > 0 || forecast.outflows.length > 0 || forecast.hypothesis.manualItemCount > 0;
   const isNegative = forecast.lowestForecastBalance < 0;
@@ -137,7 +143,8 @@ export default async function TreasuryForecastPage({
         }
       />
 
-      <TreasuryForecastFilters accounts={accounts} />
+      <p className="mb-4 text-sm text-[var(--muted)]">{FORECAST_CURRENCY_SCOPE}</p>
+      <TreasuryForecastFilters accounts={forecast.availableAccounts} />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <PremiumKpiCard

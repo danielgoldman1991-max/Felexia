@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { calculateInvoiceLine } from "@/lib/invoice-calculations";
+import { isIssuedCustomerInvoiceStatus } from "@/lib/invoice-status";
 import type {
   BillableDeliveryOption,
   BillableOrderOption,
@@ -1066,21 +1067,22 @@ export async function getDeliveryInvoicePreparation(deliveryId: string) {
 export async function getInvoiceCounters(): Promise<InvoiceCounters> {
   const organizationId = await activeOrganizationId();
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const rows = await readAllPages((from, to) => supabase
     .from("customer_invoices")
     .select("status, total_ttc, paid_amount, remaining_amount, due_date")
     .eq("organization_id", organizationId)
-    .is("archived_at", null);
-  if (error) throw new Error(error.message);
-  const rows = data ?? [];
+    .is("archived_at", null)
+    .order("id")
+    .range(from, to));
+  const issued = rows.filter((row) => isIssuedCustomerInvoiceStatus(row.status));
   const today = new Date().toISOString().split("T")[0];
   return {
     draft: rows.filter((row) => row.status === "draft").length,
     validated: rows.filter((row) => row.status === "validated").length,
     sent: rows.filter((row) => row.status === "sent").length,
-    overdue: rows.filter((row) => row.due_date && row.due_date < today && !["paid", "cancelled"].includes(row.status as string)).length,
-    invoicedTotal: rows.reduce((sum, row) => sum + Number(row.total_ttc ?? 0), 0),
-    paidTotal: rows.reduce((sum, row) => sum + Number(row.paid_amount ?? 0), 0),
-    remainingTotal: rows.reduce((sum, row) => sum + Number(row.remaining_amount ?? 0), 0),
+    overdue: issued.filter((row) => row.due_date && row.due_date < today && row.status !== "paid" && Number(row.remaining_amount ?? 0) > 0).length,
+    invoicedTotal: issued.reduce((sum, row) => sum + Number(row.total_ttc ?? 0), 0),
+    paidTotal: issued.reduce((sum, row) => sum + Number(row.paid_amount ?? 0), 0),
+    remainingTotal: issued.reduce((sum, row) => sum + Number(row.remaining_amount ?? 0), 0),
   };
 }

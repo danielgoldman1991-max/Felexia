@@ -73,7 +73,7 @@ function load(file) {
   if (moduleCache.has(absolute)) return moduleCache.get(absolute).exports;
   const state = { exports: {} }; moduleCache.set(absolute, state);
   const code = ts.transpileModule(fs.readFileSync(absolute, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { module: state, exports: state.exports, process: fakeProcess, Date, URL, Response, console: { error() {} }, require(name) {
+  vm.runInNewContext(code, { module: state, exports: state.exports, process: fakeProcess, Date, URL, Response, console: { error() {}, info() {} }, require(name) {
     if (name === '@/lib/supabase/server') return { createClient: async () => db };
     if (name === '@/lib/supabase/service') return { createClient: () => { fixture.serviceCalls++; return db; } };
     if (name === '@/lib/auth') return { requireActiveWorkspace: async () => { throw Error('Notifications never need an invented workspace'); } };

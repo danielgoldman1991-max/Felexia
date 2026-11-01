@@ -62,7 +62,7 @@ export function HrEmployeeForm({
           { value: "terminated", label: "Sorti" },
         ]}
       />
-      <Field name="base_salary" label="Salaire de base" type="number" step="0.01" defaultValue={employee?.base_salary ?? 0} />
+      <Field name="base_salary" label="Salaire de base" type="number" step="0.01" required min="0" defaultValue={employee?.base_salary ?? 0} />
       <div className="md:col-span-2 flex justify-end">
         <Button type="submit">{employee?.id ? "Enregistrer" : "Créer l'employé"}</Button>
       </div>
@@ -77,6 +77,7 @@ function Field({
   defaultValue,
   required,
   step,
+  min,
 }: {
   name: string;
   label: string;
@@ -84,6 +85,7 @@ function Field({
   defaultValue?: string | number | null;
   required?: boolean;
   step?: string;
+  min?: string;
 }) {
   return (
     <label className="space-y-2 text-sm">
@@ -92,6 +94,7 @@ function Field({
         name={name}
         type={type}
         step={step}
+        min={min}
         required={required}
         defaultValue={defaultValue ?? ""}
         className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_15%,transparent)]"

@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "scenarios": 4,
+  "scope": "Actual checker, synthetic public URL/keys only, no environment file loading, no network.",
+  "results": [
+    {
+      "scenario": "modern only",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "scenario": "legacy only",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "scenario": "both formats",
+      "exitCode": 0,
+      "passed": true
+    },
+    {
+      "scenario": "neither",
+      "exitCode": 1,
+      "passed": true
+    }
+  ]
+}

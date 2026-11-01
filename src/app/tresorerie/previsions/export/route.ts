@@ -1,13 +1,9 @@
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { getTreasuryForecast, type TreasuryForecastScenario } from "@/lib/treasury/treasury-forecast";
+import { FORECAST_CURRENCY_SCOPE, getTreasuryForecast, type TreasuryForecastScenario } from "@/lib/treasury/treasury-forecast";
+import { csvResponse } from "@/lib/listing";
 
 export const dynamic = "force-dynamic";
-
-function csvCell(value: unknown) {
-  const text = value === null || value === undefined ? "" : String(value);
-  return `"${text.replace(/"/g, '""')}"`;
-}
 
 function sourceLabel(sourceType: string) {
   if (sourceType === "customer_invoice") return "Facture client";
@@ -35,7 +31,8 @@ export async function GET(request: Request) {
     includeOverdue,
     treasuryAccountId: accountId,
     direction,
-  });
+  }).catch(() => null);
+  if (!forecast) return Response.json({ error: "Impossible d’exporter une prévision complète. Vérifiez la période (367 jours maximum), le compte actif en MAD et les données, puis réessayez. Aucun total partiel n’a été exporté." }, { status: 503, headers: { "Cache-Control": "private, no-store" } });
 
   const rows = [...forecast.inflows, ...forecast.outflows].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
@@ -48,11 +45,12 @@ export async function GET(request: Request) {
     "Tiers",
     "Document",
     "Libelle",
-    "Montant",
+    "Montant (MAD)",
     "Probabilite (%)",
-    "Montant pondere",
+    "Montant pondere (MAD)",
     "Statut",
-    "Solde previsionnel",
+    "Solde previsionnel (MAD)",
+    "Perimetre du calcul",
   ];
 
   const csvRows = rows.map((item) => {
@@ -69,16 +67,9 @@ export async function GET(request: Request) {
       item.weightedAmount.toFixed(2),
       item.status,
       balance === undefined ? "" : balance.toFixed(2),
+      `${FORECAST_CURRENCY_SCOPE} Exclusions : ${forecast.hypothesis.excludedAccountCount} compte(s), ${forecast.hypothesis.excludedInvoiceCount} facture(s), ${forecast.hypothesis.excludedManualItemCount} prévision(s) manuelle(s).`,
     ];
   });
 
-  const csv = [header, ...csvRows].map((row) => row.map(csvCell).join(",")).join("\n");
-  const filename = `previsions-tresorerie-${new Date().toISOString().slice(0, 10)}.csv`;
-
-  return new Response(`\uFEFF${csv}`, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-    },
-  });
+  return csvResponse(`previsions-tresorerie-MAD-${new Date().toISOString().slice(0, 10)}`, header, csvRows);
 }

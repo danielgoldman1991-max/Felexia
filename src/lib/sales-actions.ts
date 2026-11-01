@@ -1,5 +1,6 @@
 "use server";
 
+import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -143,64 +144,6 @@ async function validateIndivisibleLineQuantities(organizationId: string, lines: 
   }
 
   return {};
-}
-
-async function insertLines(documentId: string, organizationId: string, lines: SalesLineFormValue[]) {
-  const supabase = await createClient();
-  const payload = lines.map((line, index) => ({
-    organization_id: organizationId,
-    document_id: documentId,
-    line_order: index + 1,
-    product_id: line.product_id || null,
-    product_name: line.product_name || null,
-    description: line.description,
-    quantity: line.quantity,
-    unit_id: line.unit_id || null,
-    unit_name: line.unit_name || null,
-    unit_price_ht: line.unit_price_ht,
-    discount_rate: line.discount_rate,
-    tax_rate_id: line.tax_rate_id || null,
-    tax_rate: line.tax_rate,
-    subtotal_ht: line.subtotal_ht,
-    tax_amount: line.tax_amount,
-    total_ttc: line.total_ttc,
-  }));
-
-  return supabase.from("sales_document_lines").insert(payload);
-}
-
-async function copyLinesToDocument(sourceDocumentId: string, targetDocumentId: string, organizationId: string) {
-  const supabase = await createClient();
-  const { data: lines, error } = await supabase
-    .from("sales_document_lines")
-    .select("*")
-    .eq("organization_id", organizationId)
-    .eq("document_id", sourceDocumentId)
-    .order("line_order", { ascending: true });
-
-  if (error) return { error };
-  if (!lines || lines.length === 0) return { error: { message: "Le document source ne contient aucune ligne." } };
-
-  const payload = lines.map((line) => ({
-    organization_id: organizationId,
-    document_id: targetDocumentId,
-    line_order: line.line_order,
-    product_id: line.product_id,
-    product_name: line.product_name,
-    description: line.description,
-    quantity: line.quantity,
-    unit_id: line.unit_id,
-    unit_name: line.unit_name,
-    unit_price_ht: line.unit_price_ht,
-    discount_rate: line.discount_rate,
-    tax_rate_id: line.tax_rate_id,
-    tax_rate: line.tax_rate,
-    subtotal_ht: line.subtotal_ht,
-    tax_amount: line.tax_amount,
-    total_ttc: line.total_ttc,
-  }));
-
-  return supabase.from("sales_document_lines").insert(payload);
 }
 
 function lineToPayload(
@@ -436,254 +379,48 @@ async function applyStockMovesForDocument(
   return {};
 }
 
-export async function createSalesQuote(
-  previousState: SalesActionResult,
-  formData: FormData,
-): Promise<SalesActionResult> {
-  void previousState;
+async function saveSalesDraft(formData: FormData, kind: "quote" | "order", editing: boolean): Promise<SalesActionResult> {
   const workspace = await requireProWorkspace();
+  const id = editing ? text(formData, "id") : null;
+  const expected = editing ? text(formData, "expected_updated_at") : null;
+  if (editing && (!id || !expected)) return { success: false, error: "Actualisez le document avant de l’enregistrer : sa version est manquante." };
   const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
-
+  if (!customerId) return { success: false, error: "Sélectionnez un client ou un prospect." };
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
   const lines = await resolveLineTaxRates(normalized.lines);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
-
-  const totals = calculateSalesTotals(lines);
+  const header = Object.fromEntries(["document_date", "valid_until", "expected_delivery_date", "notes", "internal_notes", "payment_terms", "payment_method", "payment_terms_days", "custom_payment_terms", "custom_payment_method"].map(key => [key, text(formData, key)]));
   const supabase = await createClient();
-
-  const { data: document, error } = await supabase
-    .from("sales_documents")
-    .insert({
-      organization_id: workspace.organization.id,
-      document_type: "quote",
-      document_number: "",
-      customer_id: customerId,
-      document_date: text(formData, "document_date") ?? new Date().toISOString().split("T")[0],
-      valid_until: text(formData, "valid_until"),
-      status: "draft",
-      subtotal_ht: totals.subtotal_ht,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      payment_terms: text(formData, "payment_terms"),
-      payment_method: text(formData, "payment_method"),
-      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
-      custom_payment_terms: text(formData, "custom_payment_terms"),
-      custom_payment_method: text(formData, "custom_payment_method"),
-      created_by: workspace.userId,
-    })
-    .select("id, document_number")
-    .single();
-
-  if (error || !document) {
-    return { success: false, error: error?.message ?? "Impossible de creer le devis." };
-  }
-
-  const { error: lineError } = await insertLines(document.id, workspace.organization.id, lines);
-  if (lineError) return { success: false, error: lineError.message };
-
-  revalidatePath("/vente");
-  revalidatePath("/vente/devis");
-  redirect(`/vente/devis/${document.id}`);
+  const { data, error } = await supabase.rpc("save_pro_commercial_document_atomic", {
+    p_organization_id: workspace.organization.id, p_document_id: id, p_kind: kind,
+    p_expected_updated_at: expected, p_header: { ...header, customer_id: customerId }, p_lines: lines,
+  });
+  if (error || typeof data !== "string") return { success: false, error: proTransactionError(error) };
+  const route = kind === "quote" ? "/vente/devis" : "/vente/commandes";
+  revalidatePath("/vente"); revalidatePath(route); revalidatePath(`${route}/${data}`);
+  redirect(`${route}/${data}`);
 }
 
-export async function updateSalesQuote(
-  previousState: SalesActionResult,
-  formData: FormData,
-): Promise<SalesActionResult> {
+export async function createSalesQuote(previousState: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireProWorkspace();
-  const id = text(formData, "id");
-  if (!id) return { success: false, error: "Identifiant devis manquant." };
-
-  const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
-
-  const normalized = normalizeLines(parseLines(formData));
-  if (normalized.error) return { success: false, error: normalized.error };
-  const lines = await resolveLineTaxRates(normalized.lines);
-  const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
-  if (unitValidation.error) return { success: false, error: unitValidation.error };
-
-  const totals = calculateSalesTotals(lines);
-  const supabase = await createClient();
-
-  const { data: existing, error: existingError } = await supabase
-    .from("sales_documents")
-    .select("status, document_type")
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id)
-    .maybeSingle();
-
-  if (existingError || !existing) return { success: false, error: "Devis introuvable." };
-  if (existing.document_type !== "quote") return { success: false, error: "Ce document n'est pas un devis." };
-  if (existing.status !== "draft") return { success: false, error: "Seul un devis brouillon peut etre modifie." };
-
-  const { error: updateError } = await supabase
-    .from("sales_documents")
-    .update({
-      customer_id: customerId,
-      document_date: text(formData, "document_date"),
-      valid_until: text(formData, "valid_until"),
-      subtotal_ht: totals.subtotal_ht,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      payment_terms: text(formData, "payment_terms"),
-      payment_method: text(formData, "payment_method"),
-      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
-      custom_payment_terms: text(formData, "custom_payment_terms"),
-      custom_payment_method: text(formData, "custom_payment_method"),
-    })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id);
-
-  if (updateError) return { success: false, error: updateError.message };
-
-  const { error: deleteError } = await supabase
-    .from("sales_document_lines")
-    .delete()
-    .eq("organization_id", workspace.organization.id)
-    .eq("document_id", id);
-
-  if (deleteError) return { success: false, error: deleteError.message };
-
-  const { error: lineError } = await insertLines(id, workspace.organization.id, lines);
-  if (lineError) return { success: false, error: lineError.message };
-
-  revalidatePath("/vente/devis");
-  revalidatePath(`/vente/devis/${id}`);
-  redirect(`/vente/devis/${id}`);
+  return saveSalesDraft(formData, "quote", false);
 }
 
-export async function createSalesOrder(
-  previousState: SalesActionResult,
-  formData: FormData,
-): Promise<SalesActionResult> {
+export async function updateSalesQuote(previousState: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireProWorkspace();
-  const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
-
-  const normalized = normalizeLines(parseLines(formData));
-  if (normalized.error) return { success: false, error: normalized.error };
-  const lines = await resolveLineTaxRates(normalized.lines);
-  const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
-  if (unitValidation.error) return { success: false, error: unitValidation.error };
-
-  const totals = calculateSalesTotals(lines);
-  const supabase = await createClient();
-
-  const { data: document, error } = await supabase
-    .from("sales_documents")
-    .insert({
-      organization_id: workspace.organization.id,
-      document_type: "order",
-      document_number: "",
-      customer_id: customerId,
-      document_date: text(formData, "document_date") ?? new Date().toISOString().split("T")[0],
-      expected_delivery_date: text(formData, "expected_delivery_date"),
-      status: "draft",
-      subtotal_ht: totals.subtotal_ht,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      payment_terms: text(formData, "payment_terms"),
-      payment_method: text(formData, "payment_method"),
-      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
-      custom_payment_terms: text(formData, "custom_payment_terms"),
-      custom_payment_method: text(formData, "custom_payment_method"),
-      created_by: workspace.userId,
-    })
-    .select("id, document_number")
-    .single();
-
-  if (error || !document) {
-    return { success: false, error: error?.message ?? "Impossible de creer la commande." };
-  }
-
-  const { error: lineError } = await insertLines(document.id, workspace.organization.id, lines);
-  if (lineError) return { success: false, error: lineError.message };
-
-  revalidatePath("/vente");
-  revalidatePath("/vente/commandes");
-  redirect(`/vente/commandes/${document.id}`);
+  return saveSalesDraft(formData, "quote", true);
 }
 
-export async function updateSalesOrder(
-  previousState: SalesActionResult,
-  formData: FormData,
-): Promise<SalesActionResult> {
+export async function createSalesOrder(previousState: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireProWorkspace();
-  const id = text(formData, "id");
-  if (!id) return { success: false, error: "Identifiant commande manquant." };
+  return saveSalesDraft(formData, "order", false);
+}
 
-  const customerId = text(formData, "customer_id");
-  if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
-
-  const normalized = normalizeLines(parseLines(formData));
-  if (normalized.error) return { success: false, error: normalized.error };
-  const lines = await resolveLineTaxRates(normalized.lines);
-  const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
-  if (unitValidation.error) return { success: false, error: unitValidation.error };
-
-  const totals = calculateSalesTotals(lines);
-  const supabase = await createClient();
-
-  const { data: existing, error: existingError } = await supabase
-    .from("sales_documents")
-    .select("status, document_type")
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id)
-    .maybeSingle();
-
-  if (existingError || !existing) return { success: false, error: "Commande introuvable." };
-  if (existing.document_type !== "order") return { success: false, error: "Ce document n'est pas une commande." };
-  if (existing.status !== "draft") return { success: false, error: "Seule une commande brouillon peut etre modifiee." };
-
-  const { error: updateError } = await supabase
-    .from("sales_documents")
-    .update({
-      customer_id: customerId,
-      document_date: text(formData, "document_date"),
-      expected_delivery_date: text(formData, "expected_delivery_date"),
-      subtotal_ht: totals.subtotal_ht,
-      tax_total: totals.tax_total,
-      total_ttc: totals.total_ttc,
-      notes: text(formData, "notes"),
-      internal_notes: text(formData, "internal_notes"),
-      payment_terms: text(formData, "payment_terms"),
-      payment_method: text(formData, "payment_method"),
-      payment_terms_days: text(formData, "payment_terms_days") ? Number(text(formData, "payment_terms_days")) : null,
-      custom_payment_terms: text(formData, "custom_payment_terms"),
-      custom_payment_method: text(formData, "custom_payment_method"),
-    })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id);
-
-  if (updateError) return { success: false, error: updateError.message };
-
-  const { error: deleteError } = await supabase
-    .from("sales_document_lines")
-    .delete()
-    .eq("organization_id", workspace.organization.id)
-    .eq("document_id", id);
-
-  if (deleteError) return { success: false, error: deleteError.message };
-
-  const { error: lineError } = await insertLines(id, workspace.organization.id, lines);
-  if (lineError) return { success: false, error: lineError.message };
-
-  revalidatePath("/vente/commandes");
-  revalidatePath(`/vente/commandes/${id}`);
-  redirect(`/vente/commandes/${id}`);
+export async function updateSalesOrder(previousState: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
+  void previousState;
+  return saveSalesDraft(formData, "order", true);
 }
 
 export async function archiveSalesDocument(
@@ -775,66 +512,10 @@ export async function convertQuoteToOrder(prev: SalesActionResult, formData: For
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Devis introuvable." };
   const supabase = await createClient();
-
-  const { data: quote, error: quoteError } = await supabase
-    .from("sales_documents")
-    .select("*")
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", id)
-    .maybeSingle();
-
-  if (quoteError || !quote) return { success: false, error: "Devis introuvable." };
-  if (quote.document_type !== "quote") return { success: false, error: "Ce document n'est pas un devis." };
-  if (!["draft", "sent", "accepted"].includes(quote.status)) {
-    return { success: false, error: "Ce devis ne peut pas etre converti." };
-  }
-
-  const { data: order, error: orderError } = await supabase
-    .from("sales_documents")
-    .insert({
-      organization_id: workspace.organization.id,
-      document_type: "order",
-      document_number: "",
-      customer_id: quote.customer_id,
-      source_document_id: quote.id,
-      document_date: new Date().toISOString().split("T")[0],
-      status: "draft",
-      subtotal_ht: quote.subtotal_ht,
-      tax_total: quote.tax_total,
-      total_ttc: quote.total_ttc,
-      notes: quote.notes,
-      internal_notes: quote.internal_notes,
-      payment_terms: quote.payment_terms,
-      payment_method: quote.payment_method,
-      payment_terms_days: quote.payment_terms_days,
-      custom_payment_terms: quote.custom_payment_terms,
-      custom_payment_method: quote.custom_payment_method,
-      created_by: workspace.userId,
-    })
-    .select("id")
-    .single();
-
-  if (orderError || !order) return { success: false, error: orderError?.message ?? "Impossible de creer la commande." };
-
-  const { error: lineError } = await copyLinesToDocument(quote.id, order.id, workspace.organization.id);
-  if (lineError) {
-    await supabase.from("sales_documents").delete().eq("organization_id", workspace.organization.id).eq("id", order.id);
-    return { success: false, error: lineError.message };
-  }
-
-  const { error: quoteUpdateError } = await supabase
-    .from("sales_documents")
-    .update({ status: "converted", related_order_id: order.id })
-    .eq("organization_id", workspace.organization.id)
-    .eq("id", quote.id);
-  if (quoteUpdateError) {
-    await supabase.from("sales_documents").delete().eq("organization_id", workspace.organization.id).eq("id", order.id);
-    return { success: false, error: quoteUpdateError.message };
-  }
-
-  revalidatePath("/vente/devis");
-  revalidatePath("/vente/commandes");
-  redirect(`/vente/commandes/${order.id}`);
+  const { data, error } = await supabase.rpc("convert_pro_quote_to_order_atomic", { p_organization_id: workspace.organization.id, p_quote_id: id });
+  if (error || typeof data !== "string") return { success: false, error: proTransactionError(error) };
+  revalidatePath("/vente/devis"); revalidatePath("/vente/commandes"); revalidatePath(`/vente/devis/${id}`);
+  redirect(`/vente/commandes/${data}`);
 }
 
 export async function confirmOrder(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {

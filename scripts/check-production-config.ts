@@ -1,4 +1,5 @@
 import { getAppUrl } from "../src/lib/app-url";
+import { getSupabasePublicKey } from "../src/lib/env";
 
 const CANONICAL_APP_URL = "https://felexia.pro";
 
@@ -28,9 +29,8 @@ const checks: Check[] = [
     ok: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()),
   },
   {
-    label: "NEXT_PUBLIC_SUPABASE_ANON_KEY present",
-    ok: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()),
-    detail: "NEXT_PUBLIC_SUPABASE_ANON_KEY=PRESENT",
+    label: "Supabase public key present (PUBLISHABLE_KEY or ANON_KEY)",
+    ok: Boolean(getSupabasePublicKey().trim()),
   },
   {
     label: "production app URL uses HTTPS",

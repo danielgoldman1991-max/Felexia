@@ -68,7 +68,7 @@ export function SupplierOrderForm({
   }, []);
 
   function handleSubmit(formData: FormData) {
-    if (isEdit) formData.set("id", document!.id);
+    if (isEdit) { formData.set("id", document!.id); formData.set("expected_updated_at", document!.updated_at); }
     formData.set("supplier_id", supplierId);
     formData.set("document_date", documentDate);
     if (expectedReceiptDate) formData.set("expected_receipt_date", expectedReceiptDate);

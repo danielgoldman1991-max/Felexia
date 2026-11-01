@@ -29,6 +29,10 @@ function redirectWithSession(
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+  // The public home must not initialize Auth: an expired cookie can otherwise
+  // start a background token refresh even without calling getUser().
+  const pathname = request.nextUrl.pathname;
+  if (pathname === "/") return supabaseResponse;
   const env = getEnv();
 
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
@@ -56,14 +60,6 @@ export async function updateSession(request: NextRequest) {
       },
     },
   );
-
-  const pathname = request.nextUrl.pathname;
-
-  // Public landing page: `/` is always accessible, for logged-in AND anonymous
-  // visitors. Never redirect `/` to /login or /dashboard.
-  if (pathname === "/") {
-    return supabaseResponse;
-  }
 
   try {
     const { data: { user } } = await supabase.auth.getUser();

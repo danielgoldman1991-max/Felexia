@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "assertions": 7,
+  "checks": [
+    "Invalid ID rejected before data access",
+    "Full ERP access required before lookup",
+    "Cross-company contract absent, no employee read",
+    "Read outage gives explicit non-private error",
+    "Real contract and employee displayed with both queries company-scoped",
+    "Foreign employee cannot leak through contract link",
+    "Employee outage is not presented as an empty successful record"
+  ],
+  "scope": "Actual async page and React SSR with controlled workspace/SDK; no cloud data or browser layout tested."
+}

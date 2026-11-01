@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checks": 17,
+  "results": [
+    "Export exceeds100 account list cap and simulated37 response cap",
+    "No duplicate or missing account IDs across44+pages",
+    "Every page constrained to session organization",
+    "Code and ID give deterministic paging order",
+    "Foreign and archived accounts excluded by default",
+    "Exact filtered export {\"q\":\"needle\"}",
+    "Exact filtered export {\"account_class\":\"6\",\"account_type\":\"expense\",\"is_auxiliary\":false,\"is_active\":\"inactive\"}",
+    "Exact filtered export {\"is_active\":\"active\"}",
+    "Denied workspace cannot create client/read another tenant",
+    "CSV has header and all1601 records, URL page parameters cannot cap it",
+    "Hostile semicolon/quotes/newline stay within exactly7 columns",
+    "Spreadsheet formula prefix neutralized and hostile text preserved",
+    "Account export cannot be cached publicly",
+    "Dated CSV filename retained",
+    "Route preserves all existing list filters in CSV",
+    "Intermediate read failure refuses instead of returning a partial/empty CSV",
+    "First-page read failure refuses instead of returning a successful empty CSV"
+  ],
+  "scope": "Real accounting service, GET handler and shared CSV serializer;1601 synthetic own accounts, foreign/archived rows and37-row SDK cap. Session/SDK controlled; no hosted read, seed, mutation or browser."
+}

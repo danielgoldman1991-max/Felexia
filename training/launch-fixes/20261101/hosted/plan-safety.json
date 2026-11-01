@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "checks": 4,
+  "scope": "Only plan and intentionally incomplete execution flags, with env/SDK/network loading forbidden. The valid execution combination is never tested here.",
+  "results": [
+    {
+      "label": "default is a no-env no-SDK no-network plan",
+      "passed": true,
+      "exitCode": 0
+    },
+    {
+      "label": "execute alone is refused",
+      "passed": true,
+      "exitCode": 1
+    },
+    {
+      "label": "missing temporary-PRO permission is refused",
+      "passed": true,
+      "exitCode": 1
+    },
+    {
+      "label": "missing SQL confirmation is refused",
+      "passed": true,
+      "exitCode": 1
+    }
+  ]
+}

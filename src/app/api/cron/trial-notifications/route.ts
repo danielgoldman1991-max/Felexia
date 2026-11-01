@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   let generated = 0;
+  const startedAt = Date.now();
   try {
     const { createClient: createServiceClient } = await import("@/lib/supabase/service");
     const supabase = createServiceClient();
@@ -29,10 +30,12 @@ export async function GET(req: NextRequest) {
       .order("organization_id", { ascending: true })
       .range(from, to));
     const now = new Date();
-    for (const organizationId of new Set(candidates.map(row => row.organization_id))) {
+    const organizationIds = new Set(candidates.map(row => row.organization_id));
+    for (const organizationId of organizationIds) {
       const result = await generateTrialNotificationForOrg(organizationId, { client: supabase, now });
       if (result === "created") generated++;
     }
+    console.info("[TRIAL_CRON] notification batch completed", { scanned: organizationIds.size, generated, durationMs: Date.now() - startedAt });
     return NextResponse.json({ generated }, { headers: NO_STORE });
   } catch {
     console.error("[TRIAL_CRON] notification batch failed", { generated });

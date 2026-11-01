@@ -25,7 +25,7 @@ const proFeatures = [
   "Plan comptable, grand livre et balance",
   "Préparation et suivi des déclarations TVA",
   "Prévisions et rapprochement de trésorerie",
-  "Personnel, congés et paie préparatoire",
+  "Dossiers du personnel et paie préparatoire",
   "Gestion documentaire et tableaux de bord",
   "Jusqu’à 25 utilisateurs",
 ];
@@ -68,6 +68,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
                 <div className="conversion-included-heading">{isPro ? "Tout ESSENTIEL, et plus loin" : "Inclus dans ESSENTIEL"}</div>
                 <ul className="conversion-included-list">{features.map((feature) => <li key={feature}><Check size={16} aria-hidden="true" /><span>{feature}</span></li>)}</ul>
                 <p className="conversion-plan-limits">{isPro ? "1 entreprise · Documents commerciaux sans plafond mensuel · 20 Go de stockage" : "1 entreprise · 500 documents commerciaux / mois · 1 Go de stockage"}</p>
+                {isPro ? <p className="conversion-plan-limits">Mise en place accompagnée : le devis précise les fonctions utilisables. Certaines vues RH sont en consultation ; l’inventaire physique, l’agenda et les fonctions signalées « à venir » ne sont pas encore opérationnels.</p> : null}
               </article>
             );
           })}

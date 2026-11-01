@@ -1,0 +1,326 @@
+
+> felexia@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.mjs took 17ms
+- Experiments (use with caution):
+  · serverActions
+
+  Creating an optimized production build ...
+(node:30748) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:30904) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✓ Compiled successfully in 5.5s
+  Running TypeScript ...
+  Finished TypeScript in 9.7s ...
+  Collecting page data using 21 workers ...
+  Generating static pages using 21 workers (0/122) ...
+  Generating static pages using 21 workers (30/122) 
+  Generating static pages using 21 workers (60/122) 
+  Generating static pages using 21 workers (91/122) 
+✓ Generating static pages using 21 workers (122/122) in 698ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /abonnement/choisir
+├ ƒ /achats
+├ ƒ /achats/avoirs
+├ ƒ /achats/avoirs/[id]
+├ ƒ /achats/avoirs/[id]/edit
+├ ƒ /achats/avoirs/[id]/print
+├ ƒ /achats/avoirs/new
+├ ƒ /achats/commandes
+├ ƒ /achats/commandes/[id]
+├ ƒ /achats/commandes/[id]/edit
+├ ƒ /achats/commandes/[id]/print
+├ ƒ /achats/commandes/new
+├ ƒ /achats/factures
+├ ƒ /achats/factures/[id]
+├ ƒ /achats/factures/[id]/edit
+├ ƒ /achats/factures/[id]/print
+├ ƒ /achats/factures/new
+├ ƒ /achats/fournisseurs
+├ ƒ /achats/paiements
+├ ƒ /achats/paiements/[id]
+├ ƒ /achats/paiements/[id]/affecter
+├ ƒ /achats/paiements/[id]/print
+├ ƒ /achats/paiements/new
+├ ƒ /achats/receptions
+├ ƒ /achats/receptions/[id]
+├ ƒ /achats/receptions/[id]/print
+├ ƒ /achats/receptions/new
+├ ƒ /agenda
+├ ƒ /agenda/echeances
+├ ƒ /agenda/rappels
+├ ƒ /agenda/relances
+├ ƒ /agenda/taches
+├ ƒ /api/auth/create-profile
+├ ƒ /api/company/search
+├ ƒ /api/cron/e-invoicing
+├ ƒ /api/cron/trial-notifications
+├ ƒ /api/exports/[kind]
+├ ƒ /api/global-search
+├ ƒ /api/health
+├ ƒ /api/invitations
+├ ƒ /api/invitations/[id]
+├ ƒ /api/invitations/accept
+├ ƒ /api/modules/toggle
+├ ƒ /api/notifications
+├ ƒ /api/notifications/read
+├ ƒ /api/notifications/read-all
+├ ƒ /api/onboarding/complete
+├ ƒ /api/organization-members/[id]
+├ ƒ /api/organization-members/[id]/role
+├ ƒ /api/roles/permissions
+├ ƒ /api/stripe/checkout
+├ ƒ /api/stripe/portal
+├ ƒ /api/stripe/webhook
+├ ƒ /api/subscriptions/start-trial
+├ ƒ /api/support/chat
+├ ƒ /articles
+├ ƒ /articles/[id]
+├ ƒ /articles/[id]/edit
+├ ƒ /articles/categories
+├ ƒ /articles/categories/[id]/edit
+├ ƒ /articles/categories/new
+├ ƒ /articles/new
+├ ƒ /articles/produits
+├ ƒ /articles/services
+├ ƒ /articles/tva
+├ ƒ /articles/tva/[id]/edit
+├ ƒ /articles/tva/new
+├ ƒ /articles/unites
+├ ƒ /articles/unites/[id]/edit
+├ ƒ /articles/unites/new
+├ ƒ /auth/callback
+├ ƒ /auth/logout
+├ ƒ /avoirs
+├ ƒ /banques
+├ ƒ /bienvenue
+├ ƒ /caisses
+├ ƒ /clients
+├ ƒ /commandes
+├ ƒ /commandes/[id]
+├ ƒ /commandes/[id]/edit
+├ ƒ /commandes/new
+├ ƒ /commerce
+├ ƒ /comptabilite
+├ ƒ /comptabilite/auxiliaires
+├ ƒ /comptabilite/balance
+├ ƒ /comptabilite/comptes
+├ ƒ /comptabilite/comptes/[id]
+├ ƒ /comptabilite/ecritures
+├ ƒ /comptabilite/ecritures/[id]
+├ ƒ /comptabilite/ecritures/nouveau
+├ ƒ /comptabilite/exercices
+├ ƒ /comptabilite/exports
+├ ƒ /comptabilite/grand-livre
+├ ƒ /comptabilite/journal-general
+├ ƒ /comptabilite/journaux
+├ ƒ /comptabilite/journaux/[id]
+├ ƒ /comptabilite/journaux/[id]/export
+├ ƒ /comptabilite/journaux/[id]/print
+├ ƒ /comptabilite/parametres
+├ ƒ /comptabilite/plan-comptable
+├ ƒ /comptabilite/plan-comptable/[id]
+├ ƒ /comptabilite/plan-comptable/[id]/edit
+├ ƒ /comptabilite/plan-comptable/export
+├ ƒ /comptabilite/plan-comptable/init
+├ ƒ /comptabilite/plan-comptable/new
+├ ƒ /comptabilite/tva
+├ ƒ /comptabilite/tva/controle
+├ ƒ /comptabilite/tva/declarations
+├ ƒ /comptabilite/tva/declarations/[id]
+├ ƒ /comptabilite/tva/declarations/new
+├ ƒ /comptabilite/tva/exports
+├ ƒ /comptabilite/tva/exports/[id]/download
+├ ƒ /comptabilite/tva/exports/export
+├ ○ /conditions
+├ ○ /confidentialite
+├ ƒ /dashboard
+├ ƒ /decaissements
+├ ƒ /devis
+├ ƒ /devis/[id]
+├ ƒ /devis/[id]/edit
+├ ƒ /devis/new
+├ ƒ /documents
+├ ƒ /documents/[id]/download
+├ ƒ /documents/archives
+├ ƒ /documents/export
+├ ƒ /documents/import-export
+├ ƒ /documents/modeles
+├ ƒ /documents/pieces-jointes
+├ ƒ /encaissements
+├ ƒ /facturation
+├ ƒ /facturation/avoirs
+├ ƒ /facturation/avoirs/[id]
+├ ƒ /facturation/avoirs/[id]/affecter
+├ ƒ /facturation/avoirs/[id]/edit
+├ ƒ /facturation/avoirs/[id]/print
+├ ƒ /facturation/avoirs/new
+├ ƒ /facturation/electronique
+├ ƒ /facturation/electronique/[kind]/[sourceId]
+├ ƒ /facturation/electronique/[kind]/[sourceId]/download
+├ ƒ /facturation/electronique/configuration
+├ ƒ /facturation/electronique/supervision
+├ ƒ /facturation/factures
+├ ƒ /facturation/factures/[id]
+├ ƒ /facturation/factures/[id]/edit
+├ ƒ /facturation/factures/[id]/paiement
+├ ƒ /facturation/factures/[id]/print
+├ ƒ /facturation/factures/new
+├ ƒ /facturation/paiements
+├ ƒ /facturation/paiements/[id]
+├ ƒ /facturation/paiements/[id]/affecter
+├ ƒ /facturation/paiements/[id]/edit
+├ ƒ /facturation/paiements/[id]/print
+├ ƒ /facturation/paiements/affectation
+├ ƒ /facturation/paiements/new
+├ ƒ /facturation/relances
+├ ƒ /facturation/relances/[id]
+├ ƒ /facturation/relances/[id]/print
+├ ƒ /facturation/relances/new
+├ ƒ /factures
+├ ƒ /factures/[id]
+├ ƒ /factures/new
+├ ƒ /fournisseurs
+├ ƒ /invitation
+├ ƒ /invitation/complete
+├ ƒ /livraisons
+├ ƒ /livraisons/[id]
+├ ƒ /livraisons/[id]/edit
+├ ƒ /livraisons/new
+├ ƒ /login
+├ ○ /mentions-legales
+├ ○ /mot-de-passe-oublie
+├ ƒ /onboarding/choix-abonnement
+├ ƒ /onboarding/demarrage
+├ ƒ /onboarding/entreprise
+├ ○ /onboarding/formule
+├ ○ /onboarding/inscription
+├ ○ /onboarding/modules
+├ ƒ /onboarding/paiement
+├ ƒ /onboarding/societe
+├ ƒ /outils
+├ ƒ /outils/audit-log
+├ ƒ /outils/import-export
+├ ƒ /paiements
+├ ƒ /parametres
+├ ƒ /parametres/abonnement
+├ ƒ /parametres/documents
+├ ƒ /parametres/entreprise
+├ ƒ /parametres/facturation
+├ ƒ /parametres/modules
+├ ƒ /parametres/numerotation
+├ ƒ /parametres/preferences
+├ ƒ /parametres/profil
+├ ƒ /parametres/roles
+├ ƒ /parametres/securite
+├ ƒ /parametres/utilisateurs
+├ ○ /pricing
+├ ƒ /rapports
+├ ƒ /reinitialiser-mot-de-passe
+├ ƒ /relances
+├ ƒ /rh
+├ ƒ /rh/absences
+├ ƒ /rh/attestations
+├ ƒ /rh/avances
+├ ƒ /rh/cnss
+├ ƒ /rh/conges
+├ ƒ /rh/contrats
+├ ƒ /rh/contrats/[id]
+├ ƒ /rh/contrats/new
+├ ƒ /rh/dashboard
+├ ƒ /rh/discipline
+├ ƒ /rh/documents
+├ ƒ /rh/employes
+├ ƒ /rh/employes/[id]
+├ ƒ /rh/employes/[id]/edit
+├ ƒ /rh/employes/new
+├ ƒ /rh/evaluations
+├ ƒ /rh/ir
+├ ƒ /rh/notes-de-frais
+├ ƒ /rh/offboarding
+├ ƒ /rh/onboarding
+├ ƒ /rh/paie
+├ ƒ /rh/paie/bulletins
+├ ƒ /rh/paie/bulletins/[id]
+├ ƒ /rh/paie/bulletins/[id]/print
+├ ƒ /rh/paie/periodes
+├ ƒ /rh/paie/periodes/[id]
+├ ƒ /rh/paie/periodes/new
+├ ƒ /rh/parametres
+├ ƒ /rh/presences
+├ ƒ /rh/prets
+├ ○ /robots.txt
+├ ○ /sitemap.xml
+├ ƒ /stock
+├ ƒ /stock/ajustements/new
+├ ƒ /stock/emplacements
+├ ƒ /stock/emplacements/[id]
+├ ƒ /stock/emplacements/[id]/edit
+├ ƒ /stock/emplacements/new
+├ ƒ /stock/entrees/new
+├ ƒ /stock/inventaire
+├ ƒ /stock/mouvements
+├ ƒ /tiers
+├ ƒ /tiers/[id]
+├ ƒ /tiers/[id]/edit
+├ ƒ /tiers/clients
+├ ƒ /tiers/fournisseurs
+├ ƒ /tiers/new
+├ ƒ /tiers/prospects
+├ ƒ /tresorerie
+├ ƒ /tresorerie/comptes
+├ ƒ /tresorerie/comptes/[id]
+├ ƒ /tresorerie/comptes/[id]/edit
+├ ƒ /tresorerie/comptes/new
+├ ƒ /tresorerie/consultation
+├ ƒ /tresorerie/mouvements
+├ ƒ /tresorerie/mouvements/[id]
+├ ƒ /tresorerie/mouvements/new
+├ ƒ /tresorerie/previsions
+├ ƒ /tresorerie/previsions/[id]/edit
+├ ƒ /tresorerie/previsions/export
+├ ƒ /tresorerie/previsions/nouveau
+├ ƒ /tresorerie/rapprochement
+├ ƒ /tresorerie/releves
+├ ƒ /tresorerie/releves/[id]
+├ ƒ /tresorerie/releves/import
+├ ƒ /vente
+├ ƒ /vente/commandes
+├ ƒ /vente/commandes/[id]
+├ ƒ /vente/commandes/[id]/edit
+├ ƒ /vente/commandes/[id]/livrer
+├ ƒ /vente/commandes/[id]/print
+├ ƒ /vente/commandes/new
+├ ƒ /vente/devis
+├ ƒ /vente/devis/[id]
+├ ƒ /vente/devis/[id]/edit
+├ ƒ /vente/devis/[id]/print
+├ ƒ /vente/devis/new
+├ ƒ /vente/livraisons
+├ ƒ /vente/livraisons/[id]
+├ ƒ /vente/livraisons/[id]/print
+├ ƒ /vente/livraisons/[id]/retour
+├ ƒ /vente/livraisons/new
+├ ƒ /vente/retours
+├ ƒ /vente/retours/[id]
+└ ƒ /vente/retours/[id]/print
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+npm notice
+npm notice New major version of npm available! 11.13.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

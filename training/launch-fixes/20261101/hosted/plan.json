@@ -1,0 +1,40 @@
+{
+  "mode": "plan-only",
+  "target": "Exact existing synthetic QA company and its three authorized aliases, checked privately",
+  "authenticatedSdk": "Actual TS server actions through essential-action-runner; only Next request/cache/navigation boundaries supplied",
+  "requiredFlags": [
+    "--execute-qa-actions",
+    "--confirm-sql-105-107",
+    "--allow-temporary-qa-pro"
+  ],
+  "scenarios": [
+    "Create/edit quote with current version and reject stale edit",
+    "Convert quote twice to the same order",
+    "Create/edit supplier order with current version and reject stale edit",
+    "Operator/viewer refuse commercial saves and conversion",
+    "Missing treasury target refuses through action and RPC while the existing bank stays identical",
+    "If payroll settings are already incomplete, create one disposable period and reject base-only preparation without a payslip"
+  ],
+  "temporaryContractFields": [
+    "plan_code",
+    "plan_id"
+  ],
+  "expiryChanged": false,
+  "restoration": "Private full baseline before changes; compare-and-swap plan restore; all original business contract fields verified except monotone updated_at audit timestamp",
+  "cleanup": "Only IDs created by this run in exact QA, exact marker/creator, verified against private baseline. No existing row is deleted.",
+  "expectedAuditChanges": [
+    "QA document sequence counters",
+    "QA numbering issuance/deletion ledger",
+    "QA subscription updated_at audit timestamp"
+  ],
+  "prohibited": [
+    "Stripe Checkout or payment",
+    "Email/invitation/recovery",
+    "DGI transmission",
+    "Cron execution",
+    "Changing payroll settings",
+    "Extending any expiry",
+    "Other company writes"
+  ],
+  "limitation": "No browser forms or multi-connection concurrency are certified. Auth session timestamps can advance. Read-only mode never upgrades QA."
+}

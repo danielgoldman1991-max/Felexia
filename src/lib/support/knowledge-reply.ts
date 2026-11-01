@@ -143,8 +143,9 @@ function explicitLanguage(value: string): Language | null {
 
 function inferLanguage(value: string): Language | null {
   if (/[\u0600-\u06ff]/.test(value)) return "ar";
-  if (/\b(?:hello|hi|what|how|can|could|does|which|price|pricing|please|thanks|thank you|tell me|i want|i need)\b/i.test(value)) return "en";
-  if (/\b(?:bonjour|bonsoir|salut|quel|quelle|comment|combien|prix|merci|je|peux|pourquoi)\b/i.test(value)) return "fr";
+  const text = normalizeSupportQuery(value);
+  if (/\b(?:bonjour|bonsoir|salut|quel|quelle|comment|combien|prix|merci|je|peux|pourquoi|essai|gratuit|gratuite|bancaire|demande|faut|sans|commencer|demarrer)\b/.test(text)) return "fr";
+  if (/\b(?:hello|hi|what|how|can|could|does|which|price|pricing|please|thanks|thank you|tell me|i want|i need|trial|without|start|bank card)\b/.test(text)) return "en";
   return null;
 }
 
@@ -153,8 +154,6 @@ function conversationLanguage(messages: Message[]): Language {
   for (const message of [...users].reverse()) {
     const explicit = explicitLanguage(message.content);
     if (explicit) return explicit;
-  }
-  for (const message of [...users].reverse()) {
     const language = inferLanguage(message.content);
     if (language) return language;
   }
@@ -179,9 +178,12 @@ function selectArticles(messages: Message[]): SupportKnowledgeArticle[] {
   const hasEssential = /\b(?:essentiel|essential)\b/.test(text);
   const priceQuestion = /\b(?:prix|tarif|cout|coute|combien|price|pricing|cost|how much|taman|ch7al|chhal|bchhal)\b|بشحال|شحال|ثمن|سعر/.test(text);
   const comparison = /\b(?:difference|comparer|comparaison|compare|versus|vs|apporte|choisir|choose|which plan)\b|الفرق|نختار/.test(text);
+  const cardQuestion = /\b(?:bank card|credit card|debit card|carte bancaire|carte de credit|carte de debit)\b|بطاقه/.test(text);
+  const startingOrTrial = /\b(?:essai|trial|try|free|gratuit|gratuite|start|begin|signup|sign up|register|inscrire|inscription|commencer|demarrer|sans|without)\b|تجربه|نجرب|نبدا|بلا/.test(text);
   let preferred: string | null = null;
   if (/\b(?:joindre|contacter|contact|humain|human|conseiller|equipe|team)\b|تواصل|نهضر|انسان/.test(text) && !/\b(?:langue|language|english|french|arabic)\b/.test(text)) preferred = "contact";
   else if (/\b(?:dgi|conformite|conforme|certification|certifie|signature|compliance|certified)\b|مطابق|توقيع/.test(text)) preferred = "dgi-signature";
+  else if (cardQuestion && startingOrTrial) preferred = "trial";
   else if (hasPro && priceQuestion) preferred = "pro";
   else if (comparison && (hasPro || hasEssential)) preferred = "choose-plan";
   else if (hasPro && !hasEssential && text.split(" ").length <= 5) preferred = "pro";
@@ -224,7 +226,7 @@ export function knowledgeSupportReply(messages: Message[]): KnowledgeSupportRepl
   const primary = articles[0] ?? SUPPORT_KNOWLEDGE_ARTICLES.find(article => article.id === "support-scope")!;
   const translated = answers[language][primary.id];
   const reply = translated ?? (language === "fr" ? primary.content : language === "en" ? `This precise detail is currently available in Felexia’s verified French guide:\n\n${primary.content}\n\nFor help with your specific case, contact ${contact}.` : `هذا التفصيل متاح حالياً في دليل Felexia المراجع بالفرنسية:\n\n${primary.content}\n\nللمساعدة في حالتك، تواصل مع ${contact}.`);
-  const sourceArticles = primary.id === "choose-plan" ? [primary, ...SUPPORT_KNOWLEDGE_ARTICLES.filter(article => ["essential", "pro"].includes(article.id))] : primary.id === "pro" ? [primary] : [primary, ...articles.slice(1, 2)];
+  const sourceArticles = primary.id === "choose-plan" ? [primary, ...SUPPORT_KNOWLEDGE_ARTICLES.filter(article => ["essential", "pro"].includes(article.id))] : ["pro", "trial"].includes(primary.id) ? [primary] : [primary, ...articles.slice(1, 2)];
   return {
     reply: reply.slice(0, 5_800),
     sources: sourceArticles.map(({ id, title, href }) => ({ id, title, href })),

@@ -6,7 +6,7 @@ export default function HrOffboardingPage() {
   const steps = ["Date de départ", "Motif", "Solde de tout compte préparatoire", "Matériel récupéré", "Documents remis", "Accès désactivés"];
   return (
     <ModulePage>
-      <PageHeader title="Offboarding salarié" description="Checklist de sortie et préparation des documents de départ." />
+      <PageHeader title="Départ du salarié · Guide" description="Liste indicative sans suivi enregistré. Cet écran ne clôture pas le dossier, ne génère aucun document et ne désactive aucun accès." />
       <HrPreparatoryNotice />
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {steps.map((step) => <div key={step} className="premium-card p-5"><p className="font-semibold">{step}</p><p className="mt-2 text-sm text-[var(--muted)]">Contrôle à effectuer avant clôture du dossier.</p></div>)}

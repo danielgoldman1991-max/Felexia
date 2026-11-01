@@ -39,11 +39,12 @@ export function HrSectionPage({
         ) : null}
       />
       {notice ? <HrPreparatoryNotice /> : null}
+      {!newHref ? <p className="text-sm text-[var(--muted)]">Vue de consultation. Les actions de création et d’approbation ne sont pas proposées sur cet écran.</p> : null}
       <div className="premium-card p-5">
         {rows.length === 0 ? (
           <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-soft)] p-8 text-center">
             <p className="text-lg font-medium">Aucune donnée RH pour le moment.</p>
-            <p className="mt-2 text-sm text-[var(--muted)]">Le module est prêt à recevoir vos informations.</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">{newHref ? "Utilisez le bouton Nouveau pour compléter votre dossier." : "Les informations enregistrées apparaîtront dans cette vue de consultation."}</p>
           </div>
         ) : (
           <Table>

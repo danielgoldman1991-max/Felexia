@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-01",
+  "source": "Authenticated Vercel AI Gateway onboarding page in the existing browser session",
+  "creditShownUsd": "0.00",
+  "freeCreditOffer": "5 USD each month for a limited set of models, with rate limits",
+  "freeCreditRequiresCardVerification": true,
+  "cardDialogReviewed": true,
+  "dialogRequiresNewCard": true,
+  "dialogMentionsAuthorizationForFuturePayments": true,
+  "cardSubmitted": false,
+  "paidCreditsPurchased": false,
+  "autoTopUpStateVerified": false,
+  "settingsChanged": false,
+  "outcome": "Cancelled card dialog; documented support remains usable. Generative AI remains blocked pending owner-controlled verification consistent with free-only preference.",
+  "screenshot": "ai-gateway-onboarding.png"
+}

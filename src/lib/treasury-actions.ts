@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { requireWritableSubscription } from "@/lib/auth/require-subscription";
 import { requireProWorkspace } from "@/lib/pro-access";
 import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 import { isReadOnlyRole } from "@/lib/auth/roles";
@@ -34,6 +35,8 @@ function isMissingTreasuryImportColumn(error: { message?: string } | null | unde
 }
 
 function financialIntegrityError(error: { code?: string; message?: string } | null | undefined) {
+  if (error?.message?.includes("TREASURY_ACCOUNT_NOT_FOUND")) return "Compte introuvable. Le compte préféré précédent a été conservé.";
+  if (error?.message?.includes("TREASURY_ACCOUNT_WRITE_REQUIRED")) return "Votre rôle ne permet pas de modifier les comptes de trésorerie.";
   if (error?.message?.includes("FINANCE_MAD_ONLY")) return "Cette version utilise le MAD. Choisissez un compte en MAD ; aucun montant ni solde n’a été converti.";
   if (error?.message?.includes("POSTED") || error?.message?.includes("ACCOUNTED")) return "Cette opération est déjà comptabilisée. Contactez votre administrateur pour une correction avec contrepassation.";
   if (error?.code === "PGRST202" || error?.code === "42883" || error?.message?.includes("schema cache")) {
@@ -81,15 +84,14 @@ async function recalculateBankStatementImportStatus(importId: string, organizati
 
 async function applyDefaultAccount(organizationId: string, id: string) {
   const supabase = await createClient();
-  const reset = await supabase.from("treasury_accounts").update({ is_default: false }).eq("organization_id", organizationId);
-  if (reset.error) return reset.error.message;
-  const set = await supabase.from("treasury_accounts").update({ is_default: true, status: "active", archived_at: null }).eq("organization_id", organizationId).eq("id", id);
-  return set.error?.message ?? null;
+  const { data, error } = await supabase.rpc("set_default_treasury_account_atomic", { p_organization_id: organizationId, p_account_id: id });
+  if (error) return financialIntegrityError(error);
+  return data && String(data).toLowerCase() === id.toLowerCase() ? null : "Le changement de compte préféré n’a pas pu être confirmé. Actualisez la page.";
 }
 
 export async function createTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireWritableSubscription();
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const name = text(formData, "name");
   if (!name) return { success: false, error: "Le nom du compte est obligatoire." };
@@ -98,7 +100,7 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
   if (currency !== "MAD") return { success: false, error: financialIntegrityError({ message: "FINANCE_MAD_ONLY" }) };
   const isDefault = formData.get("is_default") === "on";
   const supabase = await createClient();
-  const { data, error } = await supabase.from("treasury_accounts").insert({
+  const payload = {
     organization_id: workspace.organization.id,
     name,
     code: text(formData, "code"),
@@ -113,23 +115,23 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
     opening_balance: opening,
     current_balance: opening,
     opening_balance_date: text(formData, "opening_balance_date"),
-    is_default: isDefault,
+    is_default: false,
     status: text(formData, "status") ?? "active",
     notes: text(formData, "notes"),
     created_by: workspace.userId,
-  }).select("id").single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer le compte." };
-  if (isDefault) {
-    const defaultError = await applyDefaultAccount(workspace.organization.id, data.id);
-    if (defaultError) return { success: false, error: defaultError };
-  }
+  };
+  const { data, error } = isDefault
+    ? await supabase.rpc("save_default_treasury_account_atomic", { p_organization_id: workspace.organization.id, p_account_id: null, p_header: payload })
+    : await supabase.from("treasury_accounts").insert(payload).select("id").single();
+  if (error || !data) return { success: false, error: financialIntegrityError(error) };
+  const accountId = isDefault ? String(data) : data.id;
   revalidatePath("/tresorerie/comptes");
-  redirect(`/tresorerie/comptes/${data.id}`);
+  redirect(`/tresorerie/comptes/${accountId}`);
 }
 
 export async function updateTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireWritableSubscription();
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -139,7 +141,7 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
   if (currency !== "MAD") return { success: false, error: financialIntegrityError({ message: "FINANCE_MAD_ONLY" }) };
   const isDefault = formData.get("is_default") === "on";
   const supabase = await createClient();
-  const { error } = await supabase.from("treasury_accounts").update({
+  const payload = {
     name,
     code: text(formData, "code"),
     account_type: text(formData, "account_type") ?? "bank",
@@ -154,12 +156,12 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
     is_default: isDefault,
     status: text(formData, "status") ?? "active",
     notes: text(formData, "notes"),
-  }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (error) return { success: false, error: error.message };
-  if (isDefault) {
-    const defaultError = await applyDefaultAccount(workspace.organization.id, id);
-    if (defaultError) return { success: false, error: defaultError };
-  }
+  };
+  const { data, error } = isDefault
+    ? await supabase.rpc("save_default_treasury_account_atomic", { p_organization_id: workspace.organization.id, p_account_id: id, p_header: payload })
+    : await supabase.from("treasury_accounts").update(payload).eq("organization_id", workspace.organization.id).eq("id", id).select("id").maybeSingle();
+  if (error) return { success: false, error: financialIntegrityError(error) };
+  if (!data) return { success: false, error: "Compte introuvable." };
   revalidatePath(`/tresorerie/comptes/${id}`);
   redirect(`/tresorerie/comptes/${id}`);
 }
@@ -179,7 +181,7 @@ export async function archiveTreasuryAccount(prev: TreasuryActionResult, formDat
 
 export async function setDefaultTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireWritableSubscription();
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };

@@ -1,0 +1,289 @@
+{
+  "date": "2026-11-01T13:18:30.969Z",
+  "origin": "http://localhost:3112",
+  "success": true,
+  "scope": "Real forbidden checkout POST probes on the existing synthetic QA company, three independent public Auth sessions; no Checkout navigation or Stripe mutation",
+  "checks": [
+    {
+      "name": "quote_only_pricing_is_published_before_POST_probes",
+      "passed": true
+    },
+    {
+      "name": "admin_public_Auth_is_exact_prepared_QA_account",
+      "passed": true
+    },
+    {
+      "name": "admin_membership_and_company_match_QA",
+      "passed": true
+    },
+    {
+      "name": "operator_public_Auth_is_exact_prepared_QA_account",
+      "passed": true
+    },
+    {
+      "name": "operator_membership_and_company_match_QA",
+      "passed": true
+    },
+    {
+      "name": "viewer_public_Auth_is_exact_prepared_QA_account",
+      "passed": true
+    },
+    {
+      "name": "viewer_membership_and_company_match_QA",
+      "passed": true
+    },
+    {
+      "name": "all_forbidden_payloads_are_refused_without_redirect",
+      "passed": true
+    },
+    {
+      "name": "exact_QA_contract_and_customer_mapping_unchanged",
+      "passed": true
+    },
+    {
+      "name": "Stripe_open_sessions_and_subscriptions_unchanged",
+      "passed": true
+    }
+  ],
+  "probes": [
+    {
+      "role": "admin",
+      "planCode": "pro",
+      "billingInterval": "monthly",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "pro",
+      "billingInterval": "yearly",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "pro",
+      "billingInterval": "invalid",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "premium",
+      "billingInterval": "monthly",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "premium",
+      "billingInterval": "yearly",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "premium",
+      "billingInterval": "invalid",
+      "expectedStatus": 400,
+      "expectedCode": "PRO_QUOTE_REQUIRED",
+      "status": 400,
+      "code": "PRO_QUOTE_REQUIRED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "pro",
+      "billingInterval": "monthly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "pro",
+      "billingInterval": "yearly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "pro",
+      "billingInterval": "invalid",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "premium",
+      "billingInterval": "monthly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "premium",
+      "billingInterval": "yearly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "operator",
+      "planCode": "premium",
+      "billingInterval": "invalid",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "OPERATOR_ACCESS_DENIED",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "pro",
+      "billingInterval": "monthly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "pro",
+      "billingInterval": "yearly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "pro",
+      "billingInterval": "invalid",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "premium",
+      "billingInterval": "monthly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "premium",
+      "billingInterval": "yearly",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "viewer",
+      "planCode": "premium",
+      "billingInterval": "invalid",
+      "expectedStatus": 403,
+      "status": 403,
+      "code": "READ_ONLY_ACCESS",
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "business",
+      "billingInterval": "monthly",
+      "expectedStatus": 400,
+      "expectedError": "PLAN_NOT_AVAILABLE",
+      "status": 400,
+      "code": null,
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "business",
+      "billingInterval": "yearly",
+      "expectedStatus": 400,
+      "expectedError": "PLAN_NOT_AVAILABLE",
+      "status": 400,
+      "code": null,
+      "returnedUrl": false,
+      "passed": true
+    },
+    {
+      "role": "admin",
+      "planCode": "business",
+      "billingInterval": "invalid",
+      "expectedStatus": 400,
+      "expectedError": "PLAN_NOT_AVAILABLE",
+      "status": 400,
+      "code": null,
+      "returnedUrl": false,
+      "passed": true
+    }
+  ],
+  "stripeMutations": 0,
+  "planChanges": 0,
+  "paymentsEmailsCronDgi": 0,
+  "authSessionsSignedOut": {
+    "admin": true,
+    "operator": true,
+    "viewer": true
+  },
+  "contractShaBefore": "e8d7b8020e412076b53d5fe537f006850467fa79a6671a60e2ef4d66a789c608",
+  "contractShaAfter": "e8d7b8020e412076b53d5fe537f006850467fa79a6671a60e2ef4d66a789c608",
+  "stripeReadVerification": {
+    "available": true,
+    "openSessionsBefore": 0,
+    "openSessionsAfter": 0,
+    "subscriptionsBefore": 0,
+    "subscriptionsAfter": 0,
+    "shaBefore": "da896ea8c86d920b4f84870173d8a17cf87d6cad698e603e1d8159c214c1c7e3",
+    "shaAfter": "da896ea8c86d920b4f84870173d8a17cf87d6cad698e603e1d8159c214c1c7e3"
+  },
+  "completedAt": "2026-11-01T13:18:42.936Z"
+}

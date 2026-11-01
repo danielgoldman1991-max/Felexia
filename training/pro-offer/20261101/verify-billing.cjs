@@ -73,6 +73,8 @@ const fixtures = {
   "@/lib/env": { hasStripeEnv: () => state.configured, getEnv: () => ({ stripeSecretKey: "fixture", appUrl: "https://felexia.test" }) },
   "@/lib/auth/roles": { isAdminRole: role => ["admin", "owner"].includes(role), isOperatorRole: role => role === "operator" },
   "@/lib/auth/operator-access": { OPERATOR_ACCESS_ERROR: "operator denied" },
+  // Origin/rate policy has its own real-handler integration suite in launch-fixes.
+  "@/lib/billing-request-policy": { getBillingRequestRejection: () => null },
   stripe: { __esModule: true, default: class { constructor() { return stripe; } } },
 };
 const cache = new Map();

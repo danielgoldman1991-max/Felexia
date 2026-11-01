@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": 12,
+  "results": [
+    "A missing schema never appears active",
+    "Missing tables do not trigger a capability operation",
+    "Migration102 alone preserves the read client but disables new writes",
+    "An administrator cannot advertise activation before atomic issuance is installed",
+    "Documents mode is genuinely active with both installed capabilities",
+    "A disabled enterprise remains inactive",
+    "A ready administrator can activate a disabled enterprise",
+    "A reader can use the installed document service without write access",
+    "Expired subscriptions retain the read boundary and lose mutations",
+    "An outdated capability cannot activate the new workflow",
+    "Incomplete atomic issuance never produces a false active state",
+    "Every readiness call is read-only and scoped to the session workspace"
+  ],
+  "scope": "Actual server access logic with controlled session/SDK boundaries; no network, production or database mutation"
+}

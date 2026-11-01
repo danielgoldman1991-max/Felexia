@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-01T13:12:44.296Z",
+  "checks": 30,
+  "passed": true,
+  "apiFixtureCap": 37,
+  "networkRequests": 0,
+  "databaseMutations": 0,
+  "apiFixtureReads": 382,
+  "scope": "Real service code, deterministic API fixtures; no credentials or production data"
+}

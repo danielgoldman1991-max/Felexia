@@ -1,5 +1,6 @@
 "use server";
 
+import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { financialErrorMessage } from "@/lib/financial-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -85,42 +86,6 @@ function validateUnits(lines: Record<string, unknown>[]): string | null {
 // ============================================================================
 // Helper to create/update purchase document lines
 // ============================================================================
-async function insertPurchaseLines(
-  supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
-  documentId: string,
-  orgId: string,
-  lines: Record<string, unknown>[],
-) {
-  const calculated = lines.map((line, index) => {
-    const calc = calculatePurchaseLine(line);
-    return {
-      organization_id: orgId,
-      document_id: documentId,
-      line_order: index + 1,
-      product_id: (calc.product_id as string) || null,
-      product_name: (calc.product_name as string) || null,
-      description: (calc.description as string) || "",
-      quantity: calc.quantity as number,
-      unit_id: (calc.unit_id as string) || null,
-      unit_name: (calc.unit_name as string) || null,
-      unit_price_ht: calc.unit_price_ht as number,
-      discount_rate: calc.discount_rate as number,
-      tax_rate_id: (calc.tax_rate_id as string) || null,
-      tax_rate: calc.tax_rate as number,
-      subtotal_ht: calc.subtotal_ht as number,
-      discount_amount: calc.discount_amount as number,
-      tax_amount: calc.tax_amount as number,
-      total_ttc: calc.total_ttc as number,
-      ordered_quantity: (calc.ordered_quantity as number) ?? (calc.quantity as number),
-      received_quantity: (calc.received_quantity as number) ?? 0,
-      remaining_quantity: (calc.remaining_quantity as number) ?? null,
-    };
-  });
-  const { error } = await supabase.from("purchase_document_lines").insert(calculated);
-  if (error) throw new Error(error.message);
-  return calculated;
-}
-
 async function updatePurchaseTotals(supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never, documentId: string) {
   const { data: lines, error: linesError } = await supabase.from("purchase_document_lines").select("subtotal_ht, discount_amount, tax_amount, total_ttc").eq("document_id", documentId);
   if (linesError) throw new Error(linesError.message);
@@ -136,84 +101,35 @@ async function updatePurchaseTotals(supabase: ReturnType<typeof createClient> ex
 // ============================================================================
 // Supplier Orders
 // ============================================================================
-export async function createSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
-  void prev;
-  const supabase = await createClient();
+async function saveSupplierOrderDraft(formData: FormData, editing: boolean): Promise<PurchaseActionResult> {
   const workspace = await requireProWorkspace();
-  const orgId = workspace.organization.id;
-
+  const documentId = editing ? text(formData, "id") : null;
+  const expected = editing ? text(formData, "expected_updated_at") : null;
+  if (editing && (!documentId || !expected)) return { success: false, error: "Actualisez la commande avant de l’enregistrer : sa version est manquante." };
   const supplierId = text(formData, "supplier_id");
-  if (!supplierId) return { success: false, error: "Veuillez selectionner un fournisseur." };
-  const { data: supplier, error: supplierError } = await supabase.from("third_parties")
-    .select("id").eq("organization_id", orgId).eq("id", supplierId).is("archived_at", null).maybeSingle();
-  if (supplierError || !supplier) return { success: false, error: "Sélectionnez un fournisseur actif de votre entreprise." };
-
-  const documentDate = text(formData, "document_date") ?? new Date().toISOString().slice(0, 10);
-  const expectedReceiptDate = text(formData, "expected_receipt_date");
-  const notes = text(formData, "notes");
-  const internalNotes = text(formData, "internal_notes");
-
+  if (!supplierId) return { success: false, error: "Sélectionnez un fournisseur." };
   const lines = parseJsonLines(formData, "lines");
-  if (lines.length === 0) return { success: false, error: "Ajoutez au moins une ligne." };
-
+  if (!Array.isArray(lines) || lines.length < 1 || lines.length > 500) return { success: false, error: "Ajoutez entre 1 et 500 lignes." };
   const unitError = validateUnits(lines);
   if (unitError) return { success: false, error: unitError };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("save_pro_commercial_document_atomic", {
+    p_organization_id: workspace.organization.id, p_document_id: documentId, p_kind: "supplier_order", p_expected_updated_at: expected,
+    p_header: { supplier_id: supplierId, document_date: text(formData, "document_date"), expected_receipt_date: text(formData, "expected_receipt_date"), notes: text(formData, "notes"), internal_notes: text(formData, "internal_notes") }, p_lines: lines,
+  });
+  if (error || typeof data !== "string") return { success: false, error: proTransactionError(error) };
+  revalidatePath("/achats/commandes"); revalidatePath(`/achats/commandes/${data}`);
+  redirect(`/achats/commandes/${data}`);
+}
 
-  const { data: doc, error: docError } = await supabase
-    .from("purchase_documents")
-    .insert({ organization_id: orgId, document_type: "supplier_order", document_number: "", supplier_id: supplierId, document_date: documentDate, expected_receipt_date: expectedReceiptDate, notes, internal_notes: internalNotes, status: "draft" })
-    .select("id, document_number")
-    .single();
-  if (docError) return { success: false, error: docError.message };
-  if (!doc) return { success: false, error: "Erreur creation commande." };
-
-  try {
-    await insertPurchaseLines(supabase as never, doc.id, orgId, lines);
-    await updatePurchaseTotals(supabase as never, doc.id);
-  } catch (e) {
-    await supabase.from("purchase_documents").delete().eq("id", doc.id);
-    return { success: false, error: e instanceof Error ? e.message : "Erreur insertion lignes." };
-  }
-
-  revalidatePath("/achats/commandes");
-  redirect(`/achats/commandes/${doc.id}`);
+export async function createSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
+  void prev;
+  return saveSupplierOrderDraft(formData, false);
 }
 
 export async function updateSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
-  const supabase = await createClient();
-  const workspace = await requireProWorkspace();
-  const orgId = workspace.organization.id;
-
-  const documentId = text(formData, "id");
-  if (!documentId) return { success: false, error: "ID document manquant." };
-
-  const { data: existing } = await supabase.from("purchase_documents").select("status").eq("id", documentId).eq("organization_id", orgId).single();
-  if (!existing || existing.status !== "draft") return { success: false, error: "Seules les commandes brouillon peuvent etre modifiees." };
-
-  const documentDate = text(formData, "document_date") ?? new Date().toISOString().slice(0, 10);
-  const expectedReceiptDate = text(formData, "expected_receipt_date");
-  const notes = text(formData, "notes");
-  const internalNotes = text(formData, "internal_notes");
-
-  const lines = parseJsonLines(formData, "lines");
-  if (lines.length === 0) return { success: false, error: "Ajoutez au moins une ligne." };
-
-  const unitError = validateUnits(lines);
-  if (unitError) return { success: false, error: unitError };
-
-  await supabase.from("purchase_documents").update({ document_date: documentDate, expected_receipt_date: expectedReceiptDate, notes, internal_notes: internalNotes }).eq("id", documentId);
-  await supabase.from("purchase_document_lines").delete().eq("document_id", documentId);
-
-  try {
-    await insertPurchaseLines(supabase as never, documentId, orgId, lines);
-    await updatePurchaseTotals(supabase as never, documentId);
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : "Erreur mise a jour lignes." };
-  }
-
-  revalidatePath("/achats/commandes");
-  redirect(`/achats/commandes/${documentId}`);
+  return saveSupplierOrderDraft(formData, true);
 }
 
 export async function confirmSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {

@@ -7,8 +7,8 @@ export function PlaceholderPage({ title, description }: { title: string; descrip
     <ModulePage>
       <PageHeader title={title} description={description} />
       <EmptyState
-        title="Module pret a etendre"
-        description="La route existe deja avec le layout ERP. Les tables, statuts et relations sont prevus dans la migration initiale."
+        title="Fonctionnalité à venir"
+        description="Cet écran n’est pas encore disponible pour vos opérations. Pour votre projet PRO, notre équipe confirme avec vous les fonctions utilisables et les étapes de mise en place."
       />
     </ModulePage>
   );

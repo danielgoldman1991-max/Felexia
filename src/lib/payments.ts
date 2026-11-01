@@ -1,5 +1,7 @@
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { readAllPages } from "@/lib/listing";
+import { ISSUED_CUSTOMER_INVOICE_STATUSES } from "@/lib/invoice-status";
 import type { InvoiceCustomerOption } from "@/lib/invoice-types";
 import type {
   CustomerOutstandingBalance,
@@ -278,13 +280,11 @@ export async function getPaymentCounters(): Promise<PaymentCounters> {
   const organizationId = await activeOrganizationId();
   const supabase = await createClient();
   const [payments, invoices] = await Promise.all([
-    supabase.from("customer_payments").select("amount, available_amount, status").eq("organization_id", organizationId).is("archived_at", null),
-    supabase.from("customer_invoices").select("remaining_amount, payment_status, status").eq("organization_id", organizationId).is("archived_at", null),
+    readAllPages((from, to) => supabase.from("customer_payments").select("amount, available_amount, status").eq("organization_id", organizationId).is("archived_at", null).order("id").range(from, to)),
+    readAllPages((from, to) => supabase.from("customer_invoices").select("remaining_amount, payment_status, status").eq("organization_id", organizationId).is("archived_at", null).in("status", [...ISSUED_CUSTOMER_INVOICE_STATUSES]).order("id").range(from, to)),
   ]);
-  if (payments.error) throw new Error(payments.error.message);
-  if (invoices.error) throw new Error(invoices.error.message);
-  const paymentRows = payments.data ?? [];
-  const invoiceRows = invoices.data ?? [];
+  const paymentRows = payments;
+  const invoiceRows = invoices;
   return {
     receivedTotal: paymentRows.filter((row) => row.status !== "cancelled").reduce((sum, row) => sum + Number(row.amount ?? 0), 0),
     unallocatedCount: paymentRows.filter((row) => Number(row.available_amount ?? 0) > 0 && row.status !== "cancelled").length,

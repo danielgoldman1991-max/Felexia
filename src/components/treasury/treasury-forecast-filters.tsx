@@ -13,7 +13,7 @@ const SCENARIO_LABELS: Record<TreasuryForecastScenario, string> = {
   optimistic: "Optimiste",
 };
 
-export function TreasuryForecastFilters({ accounts }: { accounts: TreasuryAccountRecord[] }) {
+export function TreasuryForecastFilters({ accounts }: { accounts: Array<Pick<TreasuryAccountRecord, "id" | "name">> }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();

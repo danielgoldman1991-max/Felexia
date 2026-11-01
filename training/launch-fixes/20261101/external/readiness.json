@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-01T13:05:08.080Z",
+  "scope": "Read-only local credential capabilities and hosted API schema names; no business mutation, email or payment.",
+  "stripe": {
+    "productionKeyPresent": true,
+    "testKeyAvailable": false,
+    "paidLifecycleExecuted": false
+  },
+  "database": {
+    "directConnectionConfigured": false,
+    "managementTokenConfigured": false,
+    "restoreExecuted": false
+  },
+  "schema": {
+    "status": 200,
+    "save_pro_commercial_document_atomic": false,
+    "prepare_hr_payroll_atomic": false,
+    "set_default_treasury_account_atomic": false,
+    "save_treasury_account_atomic": false,
+    "pro_transaction_capabilities": false
+  }
+}

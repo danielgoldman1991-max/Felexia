@@ -40,7 +40,7 @@ function Field({ name, label, type = "text", defaultValue, required, step }: { n
   return (
     <label className="space-y-2 text-sm">
       <span className="section-title">{label}</span>
-      <input name={name} type={type} step={step} required={required} defaultValue={defaultValue ?? ""} className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)]" />
+      <input name={name} type={type} min={type === "number" ? "0" : undefined} step={step} required={required} defaultValue={defaultValue ?? ""} className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-sm text-[var(--foreground)]" />
     </label>
   );
 }

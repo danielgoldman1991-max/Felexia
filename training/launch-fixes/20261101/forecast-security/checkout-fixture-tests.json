@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "checks": 24,
+  "scope": "Real routes; fixture-only identity, database and Stripe; no network or charges",
+  "results": [
+    "Anonymous checkout denied",
+    "No checkout before authentication",
+    "Viewer checkout denied",
+    "Viewer portal denied",
+    "Operator checkout denied explicitly",
+    "Non-public plan cannot be purchased",
+    "Invalid cycle rejected",
+    "Missing Stripe configuration is explicit",
+    "Missing price is explicit",
+    "Concurrent company checkout cannot start twice",
+    "Busy lease has no checkout side effect",
+    "Existing paid cycle changes use portal",
+    "Existing subscription cannot create a second checkout",
+    "An unfinished paid subscription is recovered through portal",
+    "Canceled subscription can subscribe again",
+    "Checkout lease released after success",
+    "Existing open checkout is reused",
+    "Reusing checkout does not create another",
+    "Changing an unpaid checkout expires the earlier cycle",
+    "Foreign Stripe customer mapping rejected",
+    "Foreign customer never opens checkout or portal",
+    "Checkout lease released after failure",
+    "Portal also checks customer ownership",
+    "Customer persistence failure cannot continue to checkout"
+  ]
+}

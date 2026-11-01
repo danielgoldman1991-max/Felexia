@@ -1,4 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { readAllPages } from "@/lib/listing";
+
+export const FORECAST_CURRENCY = "MAD";
+export const FORECAST_CURRENCY_SCOPE = "Prévision en MAD uniquement. Les comptes et factures dans une autre devise sont exclus, sans conversion. Les prévisions manuelles sans compte sont exprimées en MAD.";
 
 export type TreasuryForecastScenario = "prudent" | "realistic" | "optimistic";
 export type TreasuryForecastDirection = "inflow" | "outflow" | "all";
@@ -47,6 +51,7 @@ export type TreasuryForecastAlert = {
 };
 
 export type TreasuryForecastResult = {
+  availableAccounts: Array<{ id: string; name: string }>;
   openingBalance: number;
   closingForecastBalance: number;
   totalExpectedInflows: number;
@@ -72,6 +77,10 @@ export type TreasuryForecastResult = {
     supplierInvoiceCount: number;
     manualItemCount: number;
     invoiceWithoutDueDateCount: number;
+    currency: "MAD";
+    excludedAccountCount: number;
+    excludedInvoiceCount: number;
+    excludedManualItemCount: number;
   };
 };
 
@@ -95,6 +104,7 @@ type CustomerInvoiceRow = {
   total_ttc: number | string | null;
   currency: string;
   customer_name?: string | null;
+  customer?: { name?: string | null } | Array<{ name?: string | null }> | null;
 };
 
 type SupplierInvoiceRow = {
@@ -108,6 +118,7 @@ type SupplierInvoiceRow = {
   total_ttc: number | string | null;
   currency: string;
   supplier_name?: string | null;
+  supplier?: { name?: string | null } | Array<{ name?: string | null }> | null;
 };
 
 type ManualForecastRow = {
@@ -134,8 +145,33 @@ const SUPPLIER_OPEN_STATUSES = ["validated", "partially_paid"];
 
 function toNumber(value: number | string | null | undefined): number {
   if (value === null || value === undefined) return 0;
-  const parsed = typeof value === "number" ? value : Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : 0;
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) throw new Error("Un montant de la prévision est invalide. Vérifiez les données avant de poursuivre.");
+  return parsed;
+}
+
+function relatedName(relation: { name?: string | null } | Array<{ name?: string | null }> | null | undefined): string | null {
+  return (Array.isArray(relation) ? relation[0]?.name : relation?.name) ?? null;
+}
+
+function validateForecastOptions(options: TreasuryForecastOptions) {
+  const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value)
+    && Number.isFinite(Date.parse(`${value}T00:00:00Z`))
+    && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+  if (!validDate(options.from) || !validDate(options.to) || options.from > options.to
+    || (Date.parse(options.to) - Date.parse(options.from)) / 86_400_000 > 366) {
+    throw new Error("Choisissez une période valide de 367 jours maximum pour la prévision.");
+  }
+  if (options.scenario && !["prudent", "realistic", "optimistic"].includes(options.scenario)) throw new Error("Le scénario de prévision est invalide.");
+  if (options.direction && !["all", "inflow", "outflow"].includes(options.direction)) throw new Error("Le sens des flux est invalide.");
+}
+
+async function readForecastRows<T>(label: string, page: Parameters<typeof readAllPages<T>>[0]): Promise<T[]> {
+  try {
+    return await readAllPages<T>(page);
+  } catch {
+    throw new Error(`Impossible de charger ${label}. Aucune prévision partielle ne peut être affichée. Actualisez avant de poursuivre.`);
+  }
 }
 
 function round2(value: number): number {
@@ -184,6 +220,7 @@ export async function getTreasuryForecast(
   organizationId: string,
   options: TreasuryForecastOptions,
 ): Promise<TreasuryForecastResult> {
+  validateForecastOptions(options);
   const {
     from,
     to,
@@ -194,36 +231,41 @@ export async function getTreasuryForecast(
     direction = "all",
   } = options;
 
-  let accountQuery = supabase
+  type AccountRow = { id: string; name: string; current_balance: number | string | null; status: string; currency: string; archived_at: string | null };
+  const allAccountRows = await readForecastRows<AccountRow>("les soldes de trésorerie", (start, end) => supabase
     .from("treasury_accounts")
-    .select("id, name, current_balance, status")
+    .select("id, name, current_balance, status, currency, archived_at")
     .eq("organization_id", organizationId)
-    .eq("status", "active")
-    .is("archived_at", null);
-  if (treasuryAccountId) accountQuery = accountQuery.eq("id", treasuryAccountId);
-  const { data: accounts, error: accountError } = await accountQuery;
-  if (accountError) throw new Error("Impossible de charger les soldes de trésorerie. Actualisez avant de consulter la prévision.");
-  const accountRows = (accounts ?? []) as Array<{ id: string; name: string; current_balance: number | string | null; status: string }>;
+    .order("id", { ascending: true }).range(start, end));
+  const activeAccounts = allAccountRows.filter(account => account.status === "active" && !account.archived_at);
+  if (treasuryAccountId && !activeAccounts.some(account => account.id === treasuryAccountId && account.currency === FORECAST_CURRENCY)) {
+    throw new Error("Sélectionnez un compte actif en MAD pour consulter cette prévision.");
+  }
+  const accountRows = activeAccounts.filter(account => account.currency === FORECAST_CURRENCY && (!treasuryAccountId || account.id === treasuryAccountId));
+  const excludedAccountCount = activeAccounts.filter(account => account.currency !== FORECAST_CURRENCY).length;
+  const accountCurrencyById = new Map(allAccountRows.map(account => [account.id, account.currency]));
   const openingBalance = round2(accountRows.reduce((sum, account) => sum + toNumber(account.current_balance), 0));
   const accountName = treasuryAccountId ? (accountRows[0]?.name ?? null) : null;
 
-  const [customerResult, supplierResult, manualResult] = await Promise.all([
-    supabase
+  const [customerRows, supplierRows, manualRows] = await Promise.all([
+    readForecastRows<CustomerInvoiceRow>("les factures clients", (start, end) => supabase
       .from("customer_invoices")
       .select("id, invoice_number, status, due_date, invoice_date, remaining_amount, total_ttc, currency, customer:customer_id (name)")
       .eq("organization_id", organizationId)
       .is("archived_at", null)
       .in("status", CUSTOMER_OPEN_STATUSES)
-      .gt("remaining_amount", 0),
-    supabase
+      .gt("remaining_amount", 0)
+      .order("id", { ascending: true }).range(start, end)),
+    readForecastRows<SupplierInvoiceRow>("les factures fournisseurs", (start, end) => supabase
       .from("supplier_invoices")
       .select("id, invoice_number, supplier_invoice_number, status, due_date, invoice_date, remaining_amount, total_ttc, currency, supplier:supplier_id (name)")
       .eq("organization_id", organizationId)
       .is("archived_at", null)
       .in("status", SUPPLIER_OPEN_STATUSES)
-      .gt("remaining_amount", 0),
+      .gt("remaining_amount", 0)
+      .order("id", { ascending: true }).range(start, end)),
     includeManualItems
-      ? supabase
+      ? readForecastRows<ManualForecastRow>("les prévisions manuelles", (start, end) => supabase
           .from("treasury_forecast_items")
           .select("*")
           .eq("organization_id", organizationId)
@@ -231,38 +273,24 @@ export async function getTreasuryForecast(
           .not("status", "in", '("cancelled","ignored")')
           .gte("forecast_date", from)
           .lte("forecast_date", to)
-      : Promise.resolve({ data: null, error: null }),
+          .order("id", { ascending: true }).range(start, end))
+      : Promise.resolve([] as ManualForecastRow[]),
   ]);
 
-  if (customerResult.error) throw new Error(customerResult.error.message);
-  if (supplierResult.error) throw new Error(supplierResult.error.message);
-
-  // The forecast_items table may not exist yet in some environments (migration pending):
-  // degrade gracefully to zero manual items instead of crashing the whole forecast.
-  let manualRows: ManualForecastRow[] = [];
-  if (manualResult.error) {
-    if (manualResult.error.message.includes("does not exist") || manualResult.error.message.includes("schema cache")) {
-      console.warn("[treasury-forecast] treasury_forecast_items table missing, manual items skipped");
-    } else {
-      throw new Error(manualResult.error.message);
-    }
-  } else {
-    manualRows = (manualResult.data ?? []) as ManualForecastRow[];
-  }
-
-  const customerRows = (customerResult.data ?? []) as CustomerInvoiceRow[];
-  const supplierRows = (supplierResult.data ?? []) as SupplierInvoiceRow[];
-
   let invoiceWithoutDueDateCount = 0;
+  let excludedInvoiceCount = 0;
+  let excludedManualItemCount = 0;
   const items: TreasuryForecastItem[] = [];
 
   for (const row of customerRows) {
     const remaining = toNumber(row.remaining_amount);
     if (remaining <= 0) continue;
     const dueDate = row.due_date ?? addDays(row.invoice_date, 30);
-    if (!row.due_date) invoiceWithoutDueDateCount += 1;
-    const isOverdue = row.due_date ? row.due_date < from : false;
+    if (dueDate > to) continue;
+    const isOverdue = dueDate < from;
     if (isOverdue && !includeOverdue) continue;
+    if (row.currency !== FORECAST_CURRENCY) { excludedInvoiceCount += 1; continue; }
+    if (!row.due_date) invoiceWithoutDueDateCount += 1;
     const probability = isOverdue ? 70 : 100;
     const item: TreasuryForecastItem = {
       id: `customer_invoice:${row.id}`,
@@ -270,7 +298,7 @@ export async function getTreasuryForecast(
       sourceId: row.id,
       direction: "inflow",
       label: `Facture ${row.invoice_number}`,
-      thirdPartyName: row.customer_name ?? null,
+      thirdPartyName: relatedName(row.customer) ?? row.customer_name ?? null,
       documentNumber: row.invoice_number,
       dueDate,
       amount: round2(remaining),
@@ -289,16 +317,18 @@ export async function getTreasuryForecast(
     const remaining = toNumber(row.remaining_amount);
     if (remaining <= 0) continue;
     const dueDate = row.due_date ?? addDays(row.invoice_date, 30);
-    if (!row.due_date) invoiceWithoutDueDateCount += 1;
-    const isOverdue = row.due_date ? row.due_date < from : false;
+    if (dueDate > to) continue;
+    const isOverdue = dueDate < from;
     if (isOverdue && !includeOverdue) continue;
+    if (row.currency !== FORECAST_CURRENCY) { excludedInvoiceCount += 1; continue; }
+    if (!row.due_date) invoiceWithoutDueDateCount += 1;
     const item: TreasuryForecastItem = {
       id: `supplier_invoice:${row.id}`,
       sourceType: "supplier_invoice",
       sourceId: row.id,
       direction: "outflow",
       label: `Facture ${row.invoice_number}`,
-      thirdPartyName: row.supplier_name ?? null,
+      thirdPartyName: relatedName(row.supplier) ?? row.supplier_name ?? null,
       documentNumber: row.supplier_invoice_number ?? row.invoice_number,
       dueDate,
       amount: round2(remaining),
@@ -315,6 +345,7 @@ export async function getTreasuryForecast(
 
   for (const row of manualRows) {
     if (treasuryAccountId && row.treasury_account_id && row.treasury_account_id !== treasuryAccountId) continue;
+    if (row.treasury_account_id && accountCurrencyById.get(row.treasury_account_id) !== FORECAST_CURRENCY) { excludedManualItemCount += 1; continue; }
     const amount = toNumber(row.amount);
     if (amount <= 0) continue;
     const probability = toNumber(row.probability);
@@ -356,17 +387,19 @@ export async function getTreasuryForecast(
 
   const placeDay = (dueDate: string): string => (dueDate < from ? from : dueDate);
 
-  const itemsOnDay = (day: string) =>
-    items.filter((item) => placeDay(item.dueDate) === day && (direction === "all" || item.direction === direction));
+  const flowsByDay = new Map<string, { inflows: number; outflows: number }>();
+  for (const item of items) {
+    if (direction !== "all" && item.direction !== direction) continue;
+    const date = placeDay(item.dueDate);
+    const flow = flowsByDay.get(date) ?? { inflows: 0, outflows: 0 };
+    if (item.direction === "inflow") flow.inflows += item.weightedAmount;
+    else flow.outflows += item.weightedAmount;
+    flowsByDay.set(date, flow);
+  }
 
   for (const day of days) {
-    const dayItems = itemsOnDay(day);
-    const dayInflows = dayItems
-      .filter((item) => item.direction === "inflow")
-      .reduce((sum, item) => sum + item.weightedAmount, 0);
-    const dayOutflows = dayItems
-      .filter((item) => item.direction === "outflow")
-      .reduce((sum, item) => sum + item.weightedAmount, 0);
+    const dayInflows = flowsByDay.get(day)?.inflows ?? 0;
+    const dayOutflows = flowsByDay.get(day)?.outflows ?? 0;
     totalInflows += dayInflows;
     totalOutflows += dayOutflows;
     const netFlow = round2(dayInflows - dayOutflows);
@@ -402,8 +435,14 @@ export async function getTreasuryForecast(
     from,
     to,
   });
+  if (excludedAccountCount + excludedInvoiceCount + excludedManualItemCount > 0) alerts.unshift({
+    severity: "warning",
+    title: "Périmètre limité au MAD",
+    message: `${excludedAccountCount} compte(s), ${excludedInvoiceCount} facture(s) et ${excludedManualItemCount} prévision(s) manuelle(s) hors périmètre MAD exclus. Aucun taux de change n'est appliqué.`,
+  });
 
   return {
+    availableAccounts: activeAccounts.filter(account => account.currency === FORECAST_CURRENCY).map(account => ({ id: account.id, name: account.name })),
     openingBalance,
     closingForecastBalance,
     totalExpectedInflows: round2(totalInflows),
@@ -429,6 +468,10 @@ export async function getTreasuryForecast(
       supplierInvoiceCount: outflows.filter((item) => item.sourceType === "supplier_invoice").length,
       manualItemCount: items.filter((item) => item.sourceType === "manual" || item.sourceType === "scheduled_payment").length,
       invoiceWithoutDueDateCount,
+      currency: FORECAST_CURRENCY,
+      excludedAccountCount,
+      excludedInvoiceCount,
+      excludedManualItemCount,
     },
   };
 }

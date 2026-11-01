@@ -145,6 +145,7 @@ export function SupportAssistant() {
     const id = createMessageId();
     const currentRequest = { id, controller: new AbortController(), reason: undefined as "timeout" | "stopped" | undefined };
     requestRef.current = currentRequest;
+    inputRef.current?.focus({ preventScroll: true });
     setPending(true);
     setError(null);
     const timeout = window.setTimeout(() => { currentRequest.reason = "timeout"; currentRequest.controller.abort(); }, 45_000);

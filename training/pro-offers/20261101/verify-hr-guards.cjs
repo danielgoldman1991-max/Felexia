@@ -71,6 +71,8 @@ async function denied(run, pattern, label) { await assert.rejects(run, pattern, 
     '@/lib/supabase/server': { createClient: async () => { actionDatabaseCalls++; return {}; } },
     '@/lib/hr/payroll-engine': { calculatePayslip() { throw Error('Unexpected payroll'); } },
     '@/lib/hr/reference-data': { ensureHrReferenceData() { throw Error('Unexpected initialization'); } },
+    '@/lib/hr/validation': compile('src/lib/hr/validation.ts', {}),
+    '@/lib/pro-transaction-errors': compile('src/lib/pro-transaction-errors.ts', {}),
   });
   for (const name of ['createHrEmployeeAction','updateHrEmployeeAction','createHrContractAction','createHrLeaveRequestAction','createHrPayrollPeriodAction','calculateHrPayrollPeriodAction']) await denied(() => actions[name](new FormData(), new FormData()), /RH_ACCESS_DENIED/, `${name} checks access before any side effect`);
   check(actionDatabaseCalls === 0, 'Rejected RH actions create no database client');

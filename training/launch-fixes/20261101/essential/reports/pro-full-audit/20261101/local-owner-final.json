@@ -1,0 +1,2090 @@
+{
+  "date": "2026-11-01T13:18:30.914Z",
+  "origin": "http://localhost:3112",
+  "companyLabel": "Authorized owner company",
+  "scope": "Real authenticated owner GET requests against canonical pages; no submitted forms, business RPC, payment, invitation, email or fiscal transmission",
+  "businessWrites": 0,
+  "emailsSent": 0,
+  "stripeWrites": 0,
+  "fiscalTransmissions": 0,
+  "auth": {
+    "privateMailboxVerified": true,
+    "activeCompanyVerified": true,
+    "newSessionCreated": true,
+    "localSessionSignedOut": true
+  },
+  "exclusions": [
+    {
+      "route": "/abonnement/choisir",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/achats/paiements/new",
+      "reason": "GET may create the default treasury account"
+    },
+    {
+      "route": "/articles/new",
+      "reason": "GET may initialize product categories and units"
+    },
+    {
+      "route": "/avoirs",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/banques",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/caisses",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/clients",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/commandes",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/commandes/[id]",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/commandes/[id]/edit",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/commandes/new",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/commerce",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/comptabilite",
+      "reason": "GET calls ensureAccountingBaseSetup"
+    },
+    {
+      "route": "/comptabilite/comptes",
+      "reason": "Alias/redirect; no additional canonical screen"
+    },
+    {
+      "route": "/comptabilite/journaux",
+      "reason": "Administrator GET calls ensureAccountingBaseSetup"
+    },
+    {
+      "route": "/comptabilite/plan-comptable",
+      "reason": "GET calls ensureAccountingBaseSetup"
+    },
+    {
+      "route": "/decaissements",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/devis",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/devis/[id]",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/devis/[id]/edit",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/devis/new",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/encaissements",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/facturation/factures/[id]/paiement",
+      "reason": "GET may create the default treasury account"
+    },
+    {
+      "route": "/facturation/paiements/new",
+      "reason": "GET may create the default treasury account"
+    },
+    {
+      "route": "/factures",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/factures/[id]",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/factures/new",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/fournisseurs",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/invitation",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/invitation/complete",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/livraisons",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/livraisons/[id]",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/livraisons/[id]/edit",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/livraisons/new",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/login",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/mot-de-passe-oublie",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/onboarding/choix-abonnement",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/demarrage",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/entreprise",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/formule",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/inscription",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/modules",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/paiement",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/onboarding/societe",
+      "reason": "Identity/onboarding flow excluded from business read audit"
+    },
+    {
+      "route": "/paiements",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/reinitialiser-mot-de-passe",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/relances",
+      "reason": "Legacy alias or account recovery flow; canonical page audited instead"
+    },
+    {
+      "route": "/rh",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/absences",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/attestations",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/avances",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/cnss",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/conges",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/contrats",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/contrats/[id]",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/contrats/new",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/dashboard",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/discipline",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/documents",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/employes",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/employes/[id]/edit",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/employes/new",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/evaluations",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/ir",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/notes-de-frais",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/offboarding",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/onboarding",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/bulletins",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/bulletins/[id]",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/bulletins/[id]/print",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/periodes",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/periodes/[id]",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/paie/periodes/new",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/parametres",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/presences",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/rh/prets",
+      "reason": "RH read path may upsert reference data for an administrator; covered separately in synthetic QA"
+    },
+    {
+      "route": "/tiers/new",
+      "reason": "GET may initialize customer categories"
+    },
+    {
+      "route": "/tresorerie/mouvements/new",
+      "reason": "GET may create the default treasury account"
+    },
+    {
+      "route": "/tresorerie/releves/import",
+      "reason": "GET may create the default treasury account"
+    }
+  ],
+  "handlerExclusions": [
+    {
+      "route": "/api/notifications",
+      "reason": "GET can generate a trial notification"
+    },
+    {
+      "route": "/comptabilite/tva/exports/[id]/download",
+      "reason": "GET updates download counters, status and an audit row"
+    },
+    {
+      "route": "/api/cron/*",
+      "reason": "Cron handlers can execute business work"
+    },
+    {
+      "route": "/auth/*",
+      "reason": "Identity callbacks and logout are outside the GET business audit"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Exact owner identity matches the privately authorized mailbox before session minting",
+      "passed": true
+    },
+    {
+      "name": "The exact authorized company membership is active administrator access",
+      "passed": true
+    },
+    {
+      "name": "The authorized owner company already has the granted valid PRO evaluation",
+      "passed": true
+    },
+    {
+      "name": "An owner session token is generated without dispatching email",
+      "passed": true
+    },
+    {
+      "name": "The new SSR session belongs only to the exact authorized owner",
+      "passed": true
+    },
+    {
+      "name": "The application-selected active membership is the expected company",
+      "passed": true
+    }
+  ],
+  "pages": [
+    {
+      "route": "/",
+      "template": "/",
+      "module": "Public ou alias",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 47,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/avoirs",
+      "template": "/achats/avoirs",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1335,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats",
+      "template": "/achats",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1584,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/avoirs/new",
+      "template": "/achats/avoirs/new",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1058,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/commandes",
+      "template": "/achats/commandes",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1218,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/commandes/new",
+      "template": "/achats/commandes/new",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1229,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/factures",
+      "template": "/achats/factures",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1217,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/factures/new",
+      "template": "/achats/factures/new",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1103,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/fournisseurs",
+      "template": "/achats/fournisseurs",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 957,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/paiements",
+      "template": "/achats/paiements",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 953,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/receptions",
+      "template": "/achats/receptions",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1150,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/achats/receptions/new",
+      "template": "/achats/receptions/new",
+      "module": "Achats",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1273,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/agenda",
+      "template": "/agenda",
+      "module": "Agenda",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 872,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/agenda/echeances",
+      "template": "/agenda/echeances",
+      "module": "Agenda",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 875,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/agenda/rappels",
+      "template": "/agenda/rappels",
+      "module": "Agenda",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 877,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/agenda/taches",
+      "template": "/agenda/taches",
+      "module": "Agenda",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 853,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/agenda/relances",
+      "template": "/agenda/relances",
+      "module": "Agenda",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 879,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/categories",
+      "template": "/articles/categories",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1056,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles",
+      "template": "/articles",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1084,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/categories/new",
+      "template": "/articles/categories/new",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 866,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/produits",
+      "template": "/articles/produits",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1039,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/tva",
+      "template": "/articles/tva",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 737,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/services",
+      "template": "/articles/services",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1049,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/tva/new",
+      "template": "/articles/tva/new",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 818,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/unites",
+      "template": "/articles/unites",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 980,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/unites/new",
+      "template": "/articles/unites/new",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 806,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/bienvenue",
+      "template": "/bienvenue",
+      "module": "Guide",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 735,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/auxiliaires",
+      "template": "/comptabilite/auxiliaires",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1033,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/balance",
+      "template": "/comptabilite/balance",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1052,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/ecritures",
+      "template": "/comptabilite/ecritures",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 957,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/ecritures/nouveau",
+      "template": "/comptabilite/ecritures/nouveau",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1066,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/exercices",
+      "template": "/comptabilite/exercices",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1061,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/exports",
+      "template": "/comptabilite/exports",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Écran descriptif",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 804,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/grand-livre",
+      "template": "/comptabilite/grand-livre",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1060,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/journal-general",
+      "template": "/comptabilite/journal-general",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1061,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/parametres",
+      "template": "/comptabilite/parametres",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1045,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/plan-comptable/new",
+      "template": "/comptabilite/plan-comptable/new",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1101,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/tva/controle",
+      "template": "/comptabilite/tva/controle",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 839,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/tva",
+      "template": "/comptabilite/tva",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1163,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/tva/declarations",
+      "template": "/comptabilite/tva/declarations",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 977,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/tva/declarations/new",
+      "template": "/comptabilite/tva/declarations/new",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1051,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/conditions",
+      "template": "/conditions",
+      "module": "Public ou alias",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 43,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/confidentialite",
+      "template": "/confidentialite",
+      "module": "Public ou alias",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 13,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/tva/exports",
+      "template": "/comptabilite/tva/exports",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1167,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/documents",
+      "template": "/documents",
+      "module": "GED",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1211,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/dashboard",
+      "template": "/dashboard",
+      "module": "Dashboard",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 2817,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/documents/archives",
+      "template": "/documents/archives",
+      "module": "GED",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 801,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/documents/import-export",
+      "template": "/documents/import-export",
+      "module": "GED",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 895,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/documents/modeles",
+      "template": "/documents/modeles",
+      "module": "GED",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 853,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/documents/pieces-jointes",
+      "template": "/documents/pieces-jointes",
+      "module": "GED",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 884,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation",
+      "template": "/facturation",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1140,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/avoirs",
+      "template": "/facturation/avoirs",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1015,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/avoirs/new",
+      "template": "/facturation/avoirs/new",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1092,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/electronique",
+      "template": "/facturation/electronique",
+      "module": "Facturation",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1212,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/electronique/configuration",
+      "template": "/facturation/electronique/configuration",
+      "module": "Facturation",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1329,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/electronique/supervision",
+      "template": "/facturation/electronique/supervision",
+      "module": "Facturation",
+      "inventoryState": "Préparatoire",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1456,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/factures",
+      "template": "/facturation/factures",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1031,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/paiements",
+      "template": "/facturation/paiements",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1023,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/factures/new",
+      "template": "/facturation/factures/new",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1135,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/relances",
+      "template": "/facturation/relances",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1077,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/paiements/affectation",
+      "template": "/facturation/paiements/affectation",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1269,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/mentions-legales",
+      "template": "/mentions-legales",
+      "module": "Public ou alias",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 34,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/outils",
+      "template": "/outils",
+      "module": "Outils",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 828,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/facturation/relances/new",
+      "template": "/facturation/relances/new",
+      "module": "Facturation",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1159,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/outils/audit-log",
+      "template": "/outils/audit-log",
+      "module": "Outils",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 838,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/outils/import-export",
+      "template": "/outils/import-export",
+      "module": "Outils",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 791,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres",
+      "template": "/parametres",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 917,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/abonnement",
+      "template": "/parametres/abonnement",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 811,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false,
+      "quoteOnlyVisible": true
+    },
+    {
+      "route": "/parametres/documents",
+      "template": "/parametres/documents",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 912,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/entreprise",
+      "template": "/parametres/entreprise",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 938,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/facturation",
+      "template": "/parametres/facturation",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 946,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/modules",
+      "template": "/parametres/modules",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1036,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/numerotation",
+      "template": "/parametres/numerotation",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 872,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/preferences",
+      "template": "/parametres/preferences",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 962,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/profil",
+      "template": "/parametres/profil",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 872,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/roles",
+      "template": "/parametres/roles",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 899,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/securite",
+      "template": "/parametres/securite",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 975,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/pricing",
+      "template": "/pricing",
+      "module": "Public ou alias",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 4,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/parametres/utilisateurs",
+      "template": "/parametres/utilisateurs",
+      "module": "Paramètres",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 849,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/rapports",
+      "template": "/rapports",
+      "module": "Rapports",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 849,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock",
+      "template": "/stock",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1019,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/ajustements/new",
+      "template": "/stock/ajustements/new",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1180,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/emplacements",
+      "template": "/stock/emplacements",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1024,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/emplacements/new",
+      "template": "/stock/emplacements/new",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1134,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/entrees/new",
+      "template": "/stock/entrees/new",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1148,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/inventaire",
+      "template": "/stock/inventaire",
+      "module": "Stock",
+      "inventoryState": "Écran réservé",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 951,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/stock/mouvements",
+      "template": "/stock/mouvements",
+      "module": "Stock",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1115,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tiers",
+      "template": "/tiers",
+      "module": "Tiers",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1184,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tiers/clients",
+      "template": "/tiers/clients",
+      "module": "Tiers",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1061,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tiers/fournisseurs",
+      "template": "/tiers/fournisseurs",
+      "module": "Tiers",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1039,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tiers/prospects",
+      "template": "/tiers/prospects",
+      "module": "Tiers",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1848,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie",
+      "template": "/tresorerie",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1667,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/comptes",
+      "template": "/tresorerie/comptes",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 943,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/comptes/new",
+      "template": "/tresorerie/comptes/new",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1019,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/consultation",
+      "template": "/tresorerie/consultation",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 949,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/mouvements",
+      "template": "/tresorerie/mouvements",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1012,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/previsions",
+      "template": "/tresorerie/previsions",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1188,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/previsions/nouveau",
+      "template": "/tresorerie/previsions/nouveau",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1107,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/rapprochement",
+      "template": "/tresorerie/rapprochement",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1024,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/tresorerie/releves",
+      "template": "/tresorerie/releves",
+      "module": "Trésorerie",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 878,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente",
+      "template": "/vente",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1072,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/commandes",
+      "template": "/vente/commandes",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1053,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/commandes/new",
+      "template": "/vente/commandes/new",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1136,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/devis",
+      "template": "/vente/devis",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1004,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/devis/new",
+      "template": "/vente/devis/new",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1169,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/livraisons",
+      "template": "/vente/livraisons",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1019,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/livraisons/new",
+      "template": "/vente/livraisons/new",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1228,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/vente/retours",
+      "template": "/vente/retours",
+      "module": "Ventes",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1060,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/categories/[id]/edit",
+      "template": "/articles/categories/[id]/edit",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1008,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/articles/unites/[id]/edit",
+      "template": "/articles/unites/[id]/edit",
+      "module": "Articles",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1102,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/journaux/[id]",
+      "template": "/comptabilite/journaux/[id]",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 968,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/journaux/[id]/print",
+      "template": "/comptabilite/journaux/[id]/print",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 792,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/plan-comptable/[id]",
+      "template": "/comptabilite/plan-comptable/[id]",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1136,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/comptabilite/plan-comptable/[id]/edit",
+      "template": "/comptabilite/plan-comptable/[id]/edit",
+      "module": "Comptabilité et TVA",
+      "inventoryState": "Implémentation présente",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1114,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": false
+    },
+    {
+      "route": "/api/exports/purchases",
+      "template": "/api/exports/purchases",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 956,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/api/exports/sales",
+      "template": "/api/exports/sales",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1033,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/api/exports/treasury",
+      "template": "/api/exports/treasury",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 982,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/api/exports/contacts",
+      "template": "/api/exports/contacts",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1164,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/api/exports/treasury-ledger",
+      "template": "/api/exports/treasury-ledger",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 978,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/api/exports/supplier-credits",
+      "template": "/api/exports/supplier-credits",
+      "module": "Scoped exports",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 1027,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    },
+    {
+      "route": "/comptabilite/plan-comptable/export",
+      "template": "/comptabilite/plan-comptable/export",
+      "module": "Complete chart CSV",
+      "inventoryState": "CSV read",
+      "status": 200,
+      "passed": true,
+      "elapsedMs": 789,
+      "serverError": false,
+      "forbiddenRedirect": false,
+      "csv": true
+    }
+  ],
+  "missingRecords": [
+    {
+      "route": "/achats/avoirs/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/avoirs/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/avoirs/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/commandes/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/commandes/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/commandes/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/factures/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/factures/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/factures/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/paiements/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/paiements/[id]/affecter",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/paiements/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/receptions/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/achats/receptions/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/articles/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/articles/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/articles/tva/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/comptabilite/comptes/[id]",
+      "reason": "No safe canonical entity mapping"
+    },
+    {
+      "route": "/comptabilite/ecritures/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/comptabilite/tva/declarations/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/avoirs/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/avoirs/[id]/affecter",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/avoirs/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/avoirs/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/electronique/factures/[sourceId]",
+      "reason": "No existing scoped source; no data was seeded"
+    },
+    {
+      "route": "/facturation/electronique/avoirs/[sourceId]",
+      "reason": "No existing scoped source; no data was seeded"
+    },
+    {
+      "route": "/facturation/factures/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/factures/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/factures/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/paiements/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/paiements/[id]/affecter",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/paiements/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/paiements/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/relances/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/facturation/relances/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/rh/employes/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/stock/emplacements/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/stock/emplacements/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tiers/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tiers/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tresorerie/comptes/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tresorerie/comptes/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tresorerie/mouvements/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tresorerie/previsions/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/tresorerie/releves/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/commandes/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/commandes/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/commandes/[id]/livrer",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/commandes/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/devis/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/devis/[id]/edit",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/devis/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/livraisons/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/livraisons/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/livraisons/[id]/retour",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/retours/[id]",
+      "reason": "No existing scoped record; no data was seeded"
+    },
+    {
+      "route": "/vente/retours/[id]/print",
+      "reason": "No existing scoped record; no data was seeded"
+    }
+  ],
+  "limitations": [
+    "HTTP status and SSR content checks do not exercise client-side interactions or submit forms.",
+    "Reserved screens remain reserved; a successful GET does not certify a complete feature.",
+    "Owner routes with automatic initialization are intentionally excluded to preserve real data."
+  ],
+  "plannedRequests": 121,
+  "financialIntegrity": {
+    "tablesCompared": 21,
+    "beforeDigest": "8453114da55f9a5c6678bfa5d71a2cc78fbde2499e78e3d662099c2c2b1c04c3",
+    "afterDigest": "8453114da55f9a5c6678bfa5d71a2cc78fbde2499e78e3d662099c2c2b1c04c3",
+    "unchanged": true,
+    "changedTables": []
+  },
+  "inProgress": false,
+  "completedAt": "2026-11-01T13:19:41.342Z",
+  "success": true,
+  "summary": {
+    "requested": 121,
+    "passed": 121,
+    "failed": 0,
+    "excludedAutoInitOrAlias": 80,
+    "unavailableDetails": 57
+  }
+}

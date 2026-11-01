@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-01T13:11:29.933455+00:00",
+  "status": "Local only; not applied to cloud",
+  "prerequisites": [
+    "104_pro_erp_write_access.sql already applied"
+  ],
+  "files": [
+    {
+      "path": "supabase/migrations/105_pro_commercial_transactions.sql",
+      "sha256": "cc7c5e690766e2355bf3c0c999ece6fc9bef8af9f3d72a2c5afa5557ee0d43cf"
+    },
+    {
+      "path": "supabase/migrations/106_preparatory_payroll_transactions.sql",
+      "sha256": "d7c56e0f41eb02a2c142248562b406a36e74365b30d72ced25d69237e33c59f1"
+    },
+    {
+      "path": "supabase/pro-transactions-105-106.sql",
+      "sha256": "0834386cd37dfb0e2a3bb80b1725381be554147177cd32438684a9c2c57283e3"
+    }
+  ]
+}

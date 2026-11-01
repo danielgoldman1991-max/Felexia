@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": 9,
+  "results": [
+    "Period detail renders fetched period",
+    "Original version survives SSR to form",
+    "Explicit scope acknowledgement required",
+    "Variables exclusion visible",
+    "Final payroll excluded visibly",
+    "Safe preparation error displayed",
+    "Atomic success explained without final-payroll claim",
+    "Existing finalized period read only",
+    "Missing/foreign scoped period is not presented as a valid record"
+  ],
+  "scope": "Actual page/form/notice SSR. Controlled period access, React useActionState and management boundary. No browser submission, hosted RPC or mobile certification."
+}

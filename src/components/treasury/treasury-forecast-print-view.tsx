@@ -1,7 +1,7 @@
 import type { OrganizationIdentity } from "@/lib/company-identity";
 import { formatDate, formatMoney } from "@/lib/format";
 import { documentIdentityContact, documentIdentityInfoLines } from "@/lib/print-format";
-import type { TreasuryForecastItem, TreasuryForecastResult } from "@/lib/treasury/treasury-forecast";
+import { FORECAST_CURRENCY_SCOPE, type TreasuryForecastItem, type TreasuryForecastResult } from "@/lib/treasury/treasury-forecast";
 import { PrintPage } from "@/components/print/PrintPage";
 import { PrintHeader } from "@/components/print/PrintHeader";
 import { PrintOrganizationIdentity } from "@/components/print/PrintOrganizationIdentity";
@@ -24,6 +24,7 @@ export function TreasuryForecastPrintView({ identity, forecast }: { identity: Or
   const { hypothesis } = forecast;
   const companyContact = documentIdentityContact(identity);
   const items = [...forecast.inflows, ...forecast.outflows].sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+  const dailyByDate = new Map(forecast.daily.map(day => [day.date, day]));
   const summary = [
     { label: "Solde de départ", value: formatMoney(forecast.openingBalance) },
     { label: "Encaissements attendus", value: formatMoney(forecast.totalExpectedInflows) },
@@ -41,6 +42,7 @@ export function TreasuryForecastPrintView({ identity, forecast }: { identity: Or
           <p><strong>Période :</strong> {formatDate(hypothesis.from)} au {formatDate(hypothesis.to)}</p>
           <p><strong>Scénario :</strong> {scenarioLabels[hypothesis.scenario]}</p>
           <p><strong>Périmètre :</strong> {hypothesis.accountName || `${hypothesis.activeAccountCount} compte(s) actif(s)`}</p>
+          <p><strong>Devise :</strong> MAD, sans conversion</p>
           <p><strong>Édité le :</strong> {formatDate(new Date())}</p>
         </PrintDocumentTitle>
       </PrintHeader>
@@ -52,7 +54,7 @@ export function TreasuryForecastPrintView({ identity, forecast }: { identity: Or
       <h2 className="print-report-section-title">Calendrier des flux attendus</h2>
       <PrintLineTable variant="report" head={<><th>Date</th><th>Source / document</th><th>Tiers / libellé</th><th className="right">Entrée pondérée</th><th className="right">Sortie pondérée</th><th className="right">Prob. de base</th><th className="right">Solde du jour</th><th>Statut</th></>}>
         {items.map((item) => {
-          const day = forecast.daily.find((point) => point.date === (item.dueDate < hypothesis.from ? hypothesis.from : item.dueDate));
+          const day = dailyByDate.get(item.dueDate < hypothesis.from ? hypothesis.from : item.dueDate);
           return <tr key={item.id}>
             <td>{formatDate(item.dueDate)}{item.hasFallbackDate ? <p className="muted">Échéance estimée</p> : null}</td>
             <td>{sourceLabel(item)}{item.documentNumber ? <p className="muted">{item.documentNumber}</p> : null}</td>
@@ -74,6 +76,7 @@ export function TreasuryForecastPrintView({ identity, forecast }: { identity: Or
       </PrintLineTable>
 
       {forecast.alerts.length > 0 ? <PrintTerms title="Points d’attention">{forecast.alerts.map((alert) => `${alert.title} : ${alert.message}`).join("\n\n")}</PrintTerms> : null}
+      <PrintTerms title="Périmètre monétaire">{FORECAST_CURRENCY_SCOPE}</PrintTerms>
       <PrintTerms title="Hypothèses de prévision">
         {`${hypothesis.invoiceCount} facture(s) client, ${hypothesis.supplierInvoiceCount} facture(s) fournisseur, ${hypothesis.manualItemCount} prévision(s) manuelle(s). Les montants correspondent aux soldes restant à encaisser ou à payer.\n${hypothesis.scenario === "prudent" ? "Les probabilités d’encaissement sont réduites de 30 % ; les décaissements sont pris à 100 %." : hypothesis.scenario === "optimistic" ? "Encaissements pris à 100 % ; décaissements pondérés selon leur probabilité de base." : "Probabilités de base ; factures clients échues pondérées à 70 %."}\n${hypothesis.includeOverdue ? "Les échéances en retard sont incluses." : "Les échéances en retard sont exclues."} ${hypothesis.invoiceWithoutDueDateCount} facture(s) sans échéance estimée à 30 jours.\nLes prévisions constituent une aide au pilotage ; elles ne représentent pas des règlements réalisés.`}
       </PrintTerms>

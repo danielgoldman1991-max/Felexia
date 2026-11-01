@@ -16,7 +16,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export function PurchaseDashboard({ counters }: { counters: PurchaseCounters }) {
+export function PurchaseDashboard({ counters }: { counters: PurchaseCounters | null }) {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -24,14 +24,14 @@ export function PurchaseDashboard({ counters }: { counters: PurchaseCounters }) 
         description="Gestion des achats et fournisseurs."
         actions={<Button asChild><Link href="/achats/commandes/new">Nouvelle commande</Link></Button>}
       />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {counters ? <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Stat label="Commandes brouillon" value={counters.draftOrders} />
         <Stat label="Commandes confirmees" value={counters.confirmedOrders} />
         <Stat label="Receptions brouillon" value={counters.draftReceipts} />
         <Stat label="Factures impayees" value={counters.unpaidInvoices} />
         <Stat label="Montant a payer" value={<MoneyDisplay value={counters.totalToPay} />} />
         <Stat label="Paiements non affectes" value={<MoneyDisplay value={counters.unallocatedPayments} />} />
-      </div>
+      </div> : <p role="status" className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4 text-sm text-[var(--muted)]">Les indicateurs d’achats sont momentanément indisponibles. Actualisez la page pour réessayer.</p>}
     </div>
   );
 }

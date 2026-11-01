@@ -1,0 +1,79 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: Can I start without a bank card?",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: Can I start without a bank card?",
+      "passed": true
+    },
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: Can I begin without a credit card?",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: Can I begin without a credit card?",
+      "passed": true
+    },
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: Is a debit card required for the free trial?",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: Is a debit card required for the free trial?",
+      "passed": true
+    },
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: L’essai gratuit demande-t-il une carte bancaire ?",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: L’essai gratuit demande-t-il une carte bancaire ?",
+      "passed": true
+    },
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: Peut-on commencer sans carte bancaire ?",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: Peut-on commencer sans carte bancaire ?",
+      "passed": true
+    },
+    {
+      "name": "Trial/card intent wins over earlier PRO and treasury: واش نقدر نجرب بلا بطاقة بنكية؟",
+      "passed": true
+    },
+    {
+      "name": "Trial answer does not promise automatic PRO activation: واش نقدر نجرب بلا بطاقة بنكية؟",
+      "passed": true
+    },
+    {
+      "name": "Clear French question overrides earlier English",
+      "passed": true
+    },
+    {
+      "name": "Explicit language survives an ambiguous short turn",
+      "passed": true
+    },
+    {
+      "name": "Clear later French question overrides the earlier language choice",
+      "passed": true
+    },
+    {
+      "name": "Bank-account management is not a trial question: Comment enregistrer un compte bancaire ?",
+      "passed": true
+    },
+    {
+      "name": "Bank-account management is not a trial question: How do I manage bank accounts?",
+      "passed": true
+    },
+    {
+      "name": "Bank-account management is not a trial question: Quels comptes pour ma trésorerie ?",
+      "passed": true
+    }
+  ],
+  "assertions": 18,
+  "scope": "Actual knowledge reply module, synthetic conversation, no network or private company data."
+}

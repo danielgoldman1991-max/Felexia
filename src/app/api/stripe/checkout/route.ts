@@ -6,6 +6,7 @@ import { hasStripeEnv } from "@/lib/env";
 import { isPlanQuoteOnly, PRO_QUOTE_REQUIRED, PRO_QUOTE_REQUIRED_MESSAGE, resolveSelfServicePlanCode } from "@/lib/subscriptions/commercial-offers";
 import { isAdminRole, isOperatorRole } from "@/lib/auth/roles";
 import { OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { getBillingRequestRejection } from "@/lib/billing-request-policy";
 
 export async function POST(req: NextRequest) {
   let lease: string | null = null;
@@ -14,6 +15,8 @@ export async function POST(req: NextRequest) {
     const workspace = await getActiveWorkspace();
     if (!workspace) return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
     if (!isAdminRole(workspace.role)) return NextResponse.json({ error: isOperatorRole(workspace.role) ? OPERATOR_ACCESS_ERROR : "Seul un administrateur peut gérer l'abonnement.", code: isOperatorRole(workspace.role) ? "OPERATOR_ACCESS_DENIED" : "BILLING_ADMIN_REQUIRED" }, { status: 403 });
+    const rejected = getBillingRequestRejection(req, workspace.organization.id);
+    if (rejected) return NextResponse.json({ error: rejected.error, code: rejected.code }, { status: rejected.status, headers: { "Cache-Control": "private, no-store", ...(rejected.retryAfter ? { "Retry-After": String(rejected.retryAfter) } : {}) } });
     const body = await req.json().catch(() => null);
     if (isPlanQuoteOnly(body?.planCode)) return NextResponse.json({ error: PRO_QUOTE_REQUIRED_MESSAGE, code: PRO_QUOTE_REQUIRED }, { status: 400 });
     const planCode = resolveSelfServicePlanCode(body?.planCode);

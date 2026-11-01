@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-01",
+  "scope": "Read-only owner Vercel browser and aggregate database metadata; no job forced",
+  "runtimeBrowserAccess": true,
+  "runtimeMaxAvailableWindow": "Last hour; longer windows require a plan upgrade in this account",
+  "runtimeObserved": {
+    "aiFallbackWarning": "CUSTOMER_VERIFICATION_REQUIRED / 403 corroborated by provider onboarding",
+    "authTimeoutIncidentUtc": "2026-11-01T12:32:26Z",
+    "authTimeoutLogEntries": 3,
+    "authTimeoutNature": "Two retryable Auth error records and underlying write ETIMEDOUT trace; not three proven distinct incidents",
+    "publicHomeFix": "Return before Auth client construction. Local tests ensure public home never touches unavailable Auth or expired-cookie refresh.",
+    "allRuntimeErrorsResolved": false
+  },
+  "cron": {
+    "enabled": true,
+    "path": "/api/cron/trial-notifications",
+    "scheduleUtc": "0 6 * * *",
+    "hobbyExecutionWindow": "06:00-07:00 UTC",
+    "appNotificationsObservedInWindow": 97,
+    "scheduledTriggerProvenByInvocationLog": false,
+    "notificationEmailDeliveryProven": false,
+    "newSafeCompletionLog": "scanned count, generated count and duration only",
+    "forcedGlobalExecution": false
+  },
+  "note": "Notifications are in-app records. Their timestamps corroborate the cron window, but dashboard visits can also generate them. No actual email delivery is inferred."
+}

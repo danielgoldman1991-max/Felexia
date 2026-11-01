@@ -1,0 +1,204 @@
+{
+  "passed": true,
+  "version": "2026-11-01.1",
+  "articles": 43,
+  "assertions": 49,
+  "checks": [
+    {
+      "name": "Curated product coverage spans at least thirty public topics",
+      "passed": true
+    },
+    {
+      "name": "Knowledge IDs are unique",
+      "passed": true
+    },
+    {
+      "name": "Every article has content, keywords and an internal reference",
+      "passed": true
+    },
+    {
+      "name": "No tenant, user or QA UUID enters public knowledge",
+      "passed": true
+    },
+    {
+      "name": "No private bearer or API credentials enter public knowledge",
+      "passed": true
+    },
+    {
+      "name": "No historic PRO price is exposed",
+      "passed": true
+    },
+    {
+      "name": "Monthly price follows the plan configuration",
+      "passed": true
+    },
+    {
+      "name": "Annual price follows the plan configuration",
+      "passed": true
+    },
+    {
+      "name": "Trial duration follows the actual trial config",
+      "passed": true
+    },
+    {
+      "name": "PRO user quota follows the actual plan config",
+      "passed": true
+    },
+    {
+      "name": "PRO quotation-only policy is explicit",
+      "passed": true
+    },
+    {
+      "name": "DGI acceptance is never inferred from an XML export",
+      "passed": true
+    },
+    {
+      "name": "Email status action does not pretend to send email",
+      "passed": true
+    },
+    {
+      "name": "Inventory is accurately marked reserved",
+      "passed": true
+    },
+    {
+      "name": "Payroll is accurately marked preparatory",
+      "passed": true
+    },
+    {
+      "name": "RH forms are not advertised as complete",
+      "passed": true
+    },
+    {
+      "name": "Visitor bot cannot see private tenant data",
+      "passed": true
+    },
+    {
+      "name": "Accents and punctuation normalize consistently",
+      "passed": true
+    },
+    {
+      "name": "Arabic diacritics and alif variants normalize consistently",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: Combien coûte Essentiel ?",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: prix PRO",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: ch7al taman essentiel",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: بشحال الثمن ديال البرنامج",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: How much is the monthly plan?",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: prx essntiel",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: facturre client",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: factrue client",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: Can I send invoices by email?",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: نسيت كلمة السر",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: الفاتورة الإلكترونية واش مطابقة DGI",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: gestion des congés",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: inventory stock",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: Je veux parler à un humain",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: بغيت نهضر مع إنسان",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: عرض السعر ديال pro",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: devis commercial client",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: What about payroll and salary slips?",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: عندي مشكل فالكونيكسيون",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: privacy and security of customer data",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: reconciliation forecast cashflow",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: numérotation compteur référence",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: abonnement expiré renouvellement",
+      "passed": true
+    },
+    {
+      "name": "Retrieval: Business ancienne offre",
+      "passed": true
+    },
+    {
+      "name": "Unknown topics return scope and human help",
+      "passed": true
+    },
+    {
+      "name": "Empty prompt has a useful product introduction",
+      "passed": true
+    },
+    {
+      "name": "Limit never exceeds eight articles",
+      "passed": true
+    },
+    {
+      "name": "Invalid numeric limit is bounded",
+      "passed": true
+    },
+    {
+      "name": "Large untrusted text remains bounded to curated results",
+      "passed": true
+    },
+    {
+      "name": "Retrieval never returns content outside the curated corpus",
+      "passed": true
+    }
+  ]
+}

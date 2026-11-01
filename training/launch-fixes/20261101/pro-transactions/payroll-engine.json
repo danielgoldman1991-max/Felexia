@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "assertions": 13,
+  "results": [
+    "Independent synthetic net 10000",
+    "Independent employer cost 10000",
+    "Engine preserves preparatory scope 10000",
+    "Independent synthetic net 20000",
+    "Independent employer cost 20000",
+    "Engine preserves preparatory scope 20000",
+    "Standalone preview signals missing settings; persistence now refuses in SQL106",
+    "Invalid month/year refuses before insertion 0/2026",
+    "Invalid month/year refuses before insertion 13/2026",
+    "Invalid month/year refuses before insertion 1.5/2026",
+    "Invalid month/year refuses before insertion 1/1999",
+    "Invalid month/year refuses before insertion 1/2201",
+    "Failed existing-period read cannot create duplicate"
+  ],
+  "scope": "Actual standalone engine and period creation actions. Atomic persistence is tested separately by verify-actions.cjs and SQL105/106; no legal-rate validation, env or network."
+}

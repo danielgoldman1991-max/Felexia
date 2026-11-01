@@ -227,30 +227,52 @@ function computeSupplierInvoicePaymentSummary(
   };
 }
 
+export class PurchaseCountersUnavailableError extends Error {
+  constructor() {
+    super("Les indicateurs d’achats sont momentanément indisponibles. Actualisez la page pour réessayer.");
+    this.name = "PurchaseCountersUnavailableError";
+  }
+}
+
 export async function getPurchaseCounters(): Promise<PurchaseCounters> {
   const supabase = await createClient();
   const workspace = await requireActiveWorkspace();
   const orgId = workspace.organization.id;
 
-  const [draftOrders, confirmedOrders, draftReceipts, unpaidInvoices, payments] = await Promise.all([
-    supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_order").eq("status", "draft").is("archived_at", null),
-    supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_order").in("status", ["confirmed", "partially_received"]).is("archived_at", null),
-    supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_receipt").eq("status", "draft").is("archived_at", null),
-    supabase.from("supplier_invoices").select("id, total_ttc, remaining_amount", { count: "exact", head: false }).eq("organization_id", orgId).in("status", ["validated", "partially_paid"]).is("archived_at", null),
-    supabase.from("supplier_payments").select("id, available_amount", { count: "exact", head: false }).eq("organization_id", orgId).eq("status", "confirmed").is("archived_at", null),
-  ]);
+  try {
+    const [draftOrders, confirmedOrders, draftReceipts, unpaidInvoices, payments] = await Promise.all([
+      supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_order").eq("status", "draft").is("archived_at", null),
+      supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_order").in("status", ["confirmed", "partially_received"]).is("archived_at", null),
+      supabase.from("purchase_documents").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("document_type", "supplier_receipt").eq("status", "draft").is("archived_at", null),
+      readAllPages((from, to) => supabase.from("supplier_invoices").select("id, remaining_amount").eq("organization_id", orgId).in("status", ["validated", "partially_paid"]).is("archived_at", null).order("id").range(from, to)),
+      readAllPages((from, to) => supabase.from("supplier_payments").select("id, available_amount").eq("organization_id", orgId).in("status", ["confirmed", "partially_allocated", "allocated"]).is("archived_at", null).order("id").range(from, to)),
+    ]);
+    if (draftOrders.error || confirmedOrders.error || draftReceipts.error) throw new PurchaseCountersUnavailableError();
 
-  const totalToPay = (unpaidInvoices.data ?? []).reduce((sum, inv) => sum + Number(inv.remaining_amount), 0);
-  const unallocatedAmount = (payments.data ?? []).reduce((sum, p) => sum + Number(p.available_amount), 0);
+    const totalToPay = unpaidInvoices.reduce((sum, inv) => sum + Number(inv.remaining_amount), 0);
+    const unallocatedAmount = payments.reduce((sum, p) => sum + Number(p.available_amount), 0);
 
-  return {
-    draftOrders: draftOrders.count ?? 0,
-    confirmedOrders: confirmedOrders.count ?? 0,
-    draftReceipts: draftReceipts.count ?? 0,
-    unpaidInvoices: unpaidInvoices.count ?? 0,
-    totalToPay,
-    unallocatedPayments: unallocatedAmount,
-  };
+    return {
+      draftOrders: draftOrders.count ?? 0,
+      confirmedOrders: confirmedOrders.count ?? 0,
+      draftReceipts: draftReceipts.count ?? 0,
+      unpaidInvoices: unpaidInvoices.length,
+      totalToPay,
+      unallocatedPayments: unallocatedAmount,
+    };
+  } catch {
+    throw new PurchaseCountersUnavailableError();
+  }
+}
+
+/** Preserve authentication redirects, but let pages show unavailable indicators. */
+export async function getPurchaseCountersForDisplay(): Promise<PurchaseCounters | null> {
+  try {
+    return await getPurchaseCounters();
+  } catch (error) {
+    if (!(error instanceof PurchaseCountersUnavailableError)) throw error;
+    return null;
+  }
 }
 
 export async function listPurchaseSuppliers() {

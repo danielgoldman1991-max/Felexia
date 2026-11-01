@@ -11,6 +11,8 @@
  * numéro CNDP ou téléphone.
  */
 
+const legalEmail = process.env.NEXT_PUBLIC_LEGAL_EMAIL?.trim() || "contact@felexia.pro";
+
 export const LEGAL_CONFIG = {
   /** Société éditrice / exploitante du service. */
   companyName: process.env.NEXT_PUBLIC_LEGAL_COMPANY_NAME ?? "Felexia Conseils",
@@ -45,13 +47,13 @@ export const LEGAL_CONFIG = {
   country: "Maroc",
 
   /** Email légal / contact éditeur (réel : utilisé dans l'User-Agent API synta-iq). */
-  legalEmail: process.env.NEXT_PUBLIC_LEGAL_EMAIL ?? "contact@felexia.pro",
+  legalEmail,
 
-  /** Email support — placeholder à valider. */
-  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@felexia.pro",
+  /** Use the configured publisher contact until a dedicated mailbox is confirmed. */
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || legalEmail,
 
-  /** Email vie privée / DPO — placeholder à valider. */
-  privacyEmail: process.env.NEXT_PUBLIC_PRIVACY_EMAIL ?? "privacy@felexia.pro",
+  /** No unverified dedicated privacy mailbox is invented. */
+  privacyEmail: process.env.NEXT_PUBLIC_PRIVACY_EMAIL?.trim() || legalEmail,
 
   /** Nom du responsable de publication — null tant que non configuré. */
   publisherName: process.env.NEXT_PUBLIC_LEGAL_PUBLISHER_NAME ?? null,

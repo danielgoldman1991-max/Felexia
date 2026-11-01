@@ -701,22 +701,11 @@ function asAccountRecord(row: Record<string, unknown>): AccountingAccountRecord 
   };
 }
 
-export async function listChartOfAccounts(filters: ChartOfAccountFilters = {}): Promise<{
-  rows: AccountingAccountRecord[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}> {
-  const workspace = await requireActiveWorkspace();
-  const supabase = await createClient();
-  const page = Math.max(1, filters.page ?? 1);
-  const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 50));
-
+function chartOfAccountsQuery(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, filters: ChartOfAccountFilters, countExact: boolean) {
   let query = supabase
     .from("accounting_accounts")
-    .select("*", { count: "exact" })
-    .eq("organization_id", workspace.organization.id);
+    .select("*", countExact ? { count: "exact" } : undefined)
+    .eq("organization_id", organizationId);
 
   if (!filters.include_archived) {
     query = query.is("archived_at", null);
@@ -744,7 +733,33 @@ export async function listChartOfAccounts(filters: ChartOfAccountFilters = {}): 
     query = query.eq("parent_account_id", filters.parent_account_id);
   }
 
-  query = query.order("code", { ascending: true }).range((page - 1) * pageSize, page * pageSize - 1);
+  return query;
+}
+
+/** Export every matching account; list pagination must not cap this result. */
+export async function listChartOfAccountExportRows(filters: ChartOfAccountFilters = {}): Promise<AccountingAccountRecord[]> {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  const rows = await readAllPages((from, to) => chartOfAccountsQuery(supabase, workspace.organization.id, filters, false)
+    .order("code", { ascending: true }).order("id", { ascending: true }).range(from, to));
+  return rows.map(row => asAccountRecord(row as Record<string, unknown>));
+}
+
+export async function listChartOfAccounts(filters: ChartOfAccountFilters = {}): Promise<{
+  rows: AccountingAccountRecord[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}> {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  const page = Math.max(1, filters.page ?? 1);
+  const pageSize = Math.min(100, Math.max(1, filters.pageSize ?? 50));
+
+  let query = chartOfAccountsQuery(supabase, workspace.organization.id, filters, true);
+
+  query = query.order("code", { ascending: true }).order("id", { ascending: true }).range((page - 1) * pageSize, page * pageSize - 1);
 
   const { data, error, count } = await query;
   if (error) throw new Error(error.message);
@@ -873,18 +888,18 @@ export async function getAccountingReportLines(filters: { dateFrom?: string; dat
   const organizationId = workspace.organization.id;
   const supabase = await createClient();
 
-  let query = supabase
-    .from("accounting_entry_lines")
-    .select("id, line_number, account_id, account_code, account_label, debit, credit, label, entry:accounting_entries!inner(id, entry_number, entry_date, reference, label, status, journal:accounting_journals(code, name))")
-    .eq("organization_id", organizationId)
-    .eq("entry.status", "posted")
-    .limit(10000);
+  const data = await readAllPages((from, to) => {
+    let query = supabase
+      .from("accounting_entry_lines")
+      .select("id, line_number, account_id, account_code, account_label, debit, credit, label, entry:accounting_entries!inner(id, entry_number, entry_date, reference, label, status, journal:accounting_journals(code, name))")
+      .eq("organization_id", organizationId)
+      .eq("entry.status", "posted");
 
-  if (filters.dateFrom) query = query.gte("entry.entry_date", filters.dateFrom);
-  if (filters.dateTo) query = query.lte("entry.entry_date", filters.dateTo);
+    if (filters.dateFrom) query = query.gte("entry.entry_date", filters.dateFrom);
+    if (filters.dateTo) query = query.lte("entry.entry_date", filters.dateTo);
 
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
+    return query.order("id").range(from, to);
+  });
 
   return (data ?? []).map((row) => {
     const entryValue = (row as Record<string, unknown>).entry;

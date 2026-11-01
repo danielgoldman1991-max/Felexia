@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "assertions": 2,
+  "checks": [
+    "Anonymous public home does not initialize Auth or depend on its configuration",
+    "Expired session does not initialize Auth or delay public home"
+  ],
+  "scope": "Actual middleware and Next response; Auth constructor and environment deliberately fail if reached. No network."
+}

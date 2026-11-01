@@ -63,6 +63,11 @@ jobs:
           node training/essential-fixes/20261031/verify-credit-notes.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/essential-fixes/20261031/verify-supplier-credit-notes-isolated.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+      - name: Verify PRO commercial and preparatory payroll transactions
+        run: |
+          node training/launch-fixes/20261101/pro-transactions/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/launch-fixes/20261101/pro-transactions/verify-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/launch-fixes/20261101/pro-transactions/verify-ui.cjs
       - name: Verify electronic invoicing decimal and database boundaries
         run: |
           npx tsx training/e-invoicing/20261031/verify-decimal-parity.ts --pglite-root="$RUNNER_TEMP/felexia-qa"
@@ -71,6 +76,20 @@ jobs:
           node training/e-invoicing/20261031/verify-operations-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
           node training/e-invoicing/20261031/verify-operations-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
           node training/e-invoicing/20261031/verify-operations-installer.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+      - name: Verify launch financial, forecast and support corrections
+        run: |
+          node training/launch-fixes/20261101/essential/verify-financial-indicators.cjs
+          node training/launch-fixes/20261101/essential/verify-treasury-default.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
+          node training/launch-fixes/20261101/essential/verify-treasury-default.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --relaxed-v3
+          node training/launch-fixes/20261101/essential/verify-integrated-105-107.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --installer
+          node training/launch-fixes/20261101/essential/verify-integrated-105-107.mjs --pglite-root="$RUNNER_TEMP/felexia-qa" --installer --relaxed-v3
+          node training/launch-fixes/20261101/forecast-security/verify-forecast-security.cjs
+          node training/launch-fixes/20261101/forecast-security/verify-billing-security.cjs
+          node training/launch-fixes/20261101/forecast-security/verify-public-config.cjs
+          npx tsx training/launch-fixes/20261101/support/verify-regressions.ts
+          node training/launch-fixes/20261101/verify-contract.cjs
+          node training/launch-fixes/20261101/verify-public-home.cjs
+          node training/launch-fixes/20261101/pro-transactions/verify-chart-export.cjs
       - name: Verify checkout, recovery, exports and histories
         run: |
           npx tsx training/support-assistant/20261101/verify-knowledge.ts

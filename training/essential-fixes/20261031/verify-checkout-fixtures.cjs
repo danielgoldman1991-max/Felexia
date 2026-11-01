@@ -17,6 +17,8 @@ const fixtures={
   '@/lib/env':{hasStripeEnv:()=>configured},
   '@/lib/auth/roles':{isAdminRole:r=>['admin','owner'].includes(r),isOperatorRole:r=>r==='operator'},
   '@/lib/auth/operator-access':{OPERATOR_ACCESS_ERROR:'operator denied'},
+  // Origin/rate policy is exercised with real requests by the launch-fixes suite.
+  '@/lib/billing-request-policy':{getBillingRequestRejection:()=>null},
   '@/lib/pro-capabilities':{hasProWriteCapabilities:async()=>true},
 };
 function route(filename){const target={exports:{}};const source=ts.transpileModule(fs.readFileSync(path.join(root,filename),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;vm.runInNewContext(source,{module:target,exports:target.exports,console:{error(){}},require:name=>{if(fixtures[name])return fixtures[name];throw Error('Unexpected dependency '+name)}});return target.exports;}

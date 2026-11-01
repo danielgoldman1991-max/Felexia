@@ -31,7 +31,7 @@ export default async function BillingDashboardPage() {
         <CardHeader><h2 className="font-semibold">Synthese financiere</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
-            <p className="text-sm font-medium text-[var(--muted)]">Total facture</p>
+            <p className="text-sm font-medium text-[var(--muted)]">Factures émises</p>
             <p className="mt-2 text-xl font-semibold"><MoneyDisplay value={counters.invoicedTotal} /></p>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] p-4">
