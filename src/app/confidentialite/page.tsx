@@ -31,6 +31,7 @@ const toc = [
   { id: "cookies", title: "9. Cookies" },
   { id: "securite", title: "10. Sécurité" },
   { id: "modifications", title: "11. Modifications" },
+  { id: "assistant", title: "12. Assistant du site" },
 ];
 
 export default function ConfidentialitePage() {
@@ -271,6 +272,34 @@ export default function ConfidentialitePage() {
           <Link href="/conditions" className="font-medium text-[#1456B8] hover:underline">
             Conditions générales
           </Link>
+        </LegalParagraph>
+      </LegalSection>
+      <LegalSection id="assistant" title="12. Assistant du site">
+        <LegalParagraph>
+          L’assistant vous aide à comprendre les offres et les fonctionnalités de Felexia. Il
+          s’appuie sur une documentation publique vérifiée et ne consulte pas les données de
+          votre entreprise. Ses réponses peuvent être inexactes ; une demande particulière peut
+          nécessiter l’intervention de notre équipe.
+        </LegalParagraph>
+        <LegalParagraph>
+          Lorsque vous envoyez une question et que le service IA est disponible, votre message
+          et les échanges récents nécessaires à la réponse peuvent être transmis à Vercel AI
+          Gateway et au fournisseur du modèle gratuit utilisé, Reflection AI. Ces prestataires peuvent traiter
+          les données en dehors du Maroc. N’envoyez pas de mot de passe, de données bancaires ou
+          de document confidentiel dans cette discussion.
+        </LegalParagraph>
+        <LegalParagraph>
+          Le fournisseur du modèle gratuit peut conserver les requêtes et les réponses et les
+          utiliser pour améliorer ses services. Ce canal est destiné aux questions sur le produit,
+          et non au partage d’informations personnelles ou confidentielles. Pour une demande
+          concernant votre compte ou vos données, contactez directement notre équipe.
+        </LegalParagraph>
+        <LegalParagraph>
+          L’historique est conservé dans la mémoire de la page pendant votre visite. Felexia
+          n’enregistre pas ces conversations dans la base de données de l’ERP. Le traitement par
+          les prestataires IA reste soumis à leurs règles de conservation. Vous pouvez effacer
+          l’historique affiché avec le bouton de nouvelle conversation ; cette action n’efface
+          pas les éventuels journaux techniques des prestataires.
         </LegalParagraph>
       </LegalSection>
     </LegalPageLayout>

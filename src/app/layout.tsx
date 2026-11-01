@@ -6,6 +6,7 @@ import "@/styles/print.css";
 import { BRAND } from "@/lib/brand";
 import { getAppUrl } from "@/lib/app-url";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { PublicSupportAssistant } from "@/components/support/PublicSupportAssistant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>{children}<PublicSupportAssistant /></ThemeProvider>
       </body>
     </html>
   );

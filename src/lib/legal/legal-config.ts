@@ -73,7 +73,7 @@ export const LEGAL_CONFIG = {
   },
 
   /** Date de dernière mise à jour des pages légales. */
-  lastUpdated: "2026-08-11",
+  lastUpdated: "2026-11-01",
 } as const;
 
 /** Retourne la valeur si elle est renseignée, sinon `null` (ligne masquée). */

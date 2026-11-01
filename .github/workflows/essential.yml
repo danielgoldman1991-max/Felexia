@@ -73,6 +73,11 @@ jobs:
           node training/e-invoicing/20261031/verify-operations-installer.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
       - name: Verify checkout, recovery, exports and histories
         run: |
+          npx tsx training/support-assistant/20261101/verify-knowledge.ts
+          npx tsx training/support-assistant/20261101/verify-policy.ts
+          npx tsx training/support-assistant/20261101/verify-fallback.ts
+          node training/support-assistant/20261101/verify-assistant.cjs
+          node training/support-assistant/20261101/verify-widget.cjs
           node training/essential-fixes/20261031/verify-checkout-fixtures.cjs
           node training/pro-offer/20261101/verify-billing.cjs
           node training/pro-offer/20261101/verify-provisioning.cjs
