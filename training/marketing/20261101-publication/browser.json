@@ -1,0 +1,57 @@
+[
+  {
+    "imageComplete": true,
+    "imageWidth": 752,
+    "overflow": false,
+    "progress": "0.0000",
+    "step": "opening",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      901,
+      971
+    ]
+  },
+  {
+    "copyInert": true,
+    "nextSectionTop": 1383.674072265625,
+    "overflow": false,
+    "progress": "0.8481",
+    "screen": {
+      "bottom": 745.3543395996094,
+      "height": 460.0001831054687,
+      "left": 61.66990661621094,
+      "right": 819.3273773193359,
+      "top": 285.3541564941406,
+      "width": 757.657470703125,
+      "x": 61.66990661621094,
+      "y": 285.3541564941406
+    },
+    "step": "laptop-screen",
+    "viewport": [
+      901,
+      971
+    ],
+    "y": 2305.09765625
+  },
+  {
+    "heroWindow": {
+      "bottom": 593.5985412597656,
+      "height": 970.730712890625,
+      "left": 0,
+      "right": 880.790771484375,
+      "top": -377.1321716308594,
+      "width": 880.790771484375,
+      "x": 0,
+      "y": -377.1321716308594
+    },
+    "nextSectionTop": 593.5985107421875,
+    "overflow": false,
+    "progress": "1.0000",
+    "step": "release-to-content",
+    "viewport": [
+      901,
+      971
+    ],
+    "y": 3095.17333984375
+  }
+]

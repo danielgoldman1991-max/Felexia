@@ -1,0 +1,220 @@
+{
+  "startedAt": "2026-11-01T08:33:09.926621+00:00",
+  "baseUrl": "https://www.felexia.pro",
+  "expectedSourceCommit": "7a66547a0154ffdc7af12944e50622e9f14b4c32",
+  "scope": "Read-only anonymous public GET requests; no login, cookies, POST, business-data mutation or stored binary copy.",
+  "polling": {
+    "intervalSeconds": 20,
+    "maximumSeconds": 120,
+    "requiredIndexMarkers": [
+      "horizon-laptop",
+      "laptop-ui"
+    ],
+    "attempts": [
+      {
+        "checkedAt": "2026-11-01T08:33:10.932151+00:00",
+        "status": 200,
+        "markers": {
+          "horizon-laptop": true,
+          "laptop-ui": true
+        },
+        "newLandingDetected": true
+      }
+    ],
+    "newLandingDetected": true,
+    "elapsedSeconds": 1.0
+  },
+  "routes": [
+    {
+      "path": "/",
+      "url": "https://www.felexia.pro/",
+      "finalUrl": "https://www.felexia.pro/",
+      "status": 200,
+      "checkedAt": "2026-11-01T08:33:10.932151+00:00",
+      "elapsedMs": 1000,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 143098,
+      "cache": "PRERENDER",
+      "age": "0",
+      "ok": true
+    },
+    {
+      "path": "/pricing",
+      "url": "https://www.felexia.pro/pricing",
+      "finalUrl": "https://www.felexia.pro/pricing",
+      "status": 200,
+      "checkedAt": "2026-11-01T08:33:11.625223+00:00",
+      "elapsedMs": 656,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 34932,
+      "cache": "PRERENDER",
+      "age": "0",
+      "ok": true
+    },
+    {
+      "path": "/mentions-legales",
+      "url": "https://www.felexia.pro/mentions-legales",
+      "finalUrl": "https://www.felexia.pro/mentions-legales",
+      "status": 200,
+      "checkedAt": "2026-11-01T08:33:11.525107+00:00",
+      "elapsedMs": 563,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 42139,
+      "cache": "PRERENDER",
+      "age": "0",
+      "ok": true
+    },
+    {
+      "path": "/confidentialite",
+      "url": "https://www.felexia.pro/confidentialite",
+      "finalUrl": "https://www.felexia.pro/confidentialite",
+      "status": 200,
+      "checkedAt": "2026-11-01T08:33:11.525107+00:00",
+      "elapsedMs": 563,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 77114,
+      "cache": "PRERENDER",
+      "age": "0",
+      "ok": true
+    },
+    {
+      "path": "/conditions",
+      "url": "https://www.felexia.pro/conditions",
+      "finalUrl": "https://www.felexia.pro/conditions",
+      "status": 200,
+      "checkedAt": "2026-11-01T08:33:11.660752+00:00",
+      "elapsedMs": 703,
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 75874,
+      "cache": "PRERENDER",
+      "age": "0",
+      "ok": true
+    }
+  ],
+  "health": {
+    "path": "/api/health",
+    "url": "https://www.felexia.pro/api/health",
+    "finalUrl": "https://www.felexia.pro/api/health",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:33:12.146884+00:00",
+    "elapsedMs": 1188,
+    "contentType": "application/json",
+    "bytes": 88,
+    "cache": "MISS",
+    "age": "0",
+    "ok": true,
+    "sourceRouteExists": true,
+    "reportedStatus": "ok"
+  },
+  "image": {
+    "path": "/images/felexia-horizon-v1.png",
+    "url": "https://www.felexia.pro/images/felexia-horizon-v1.png",
+    "finalUrl": "https://www.felexia.pro/images/felexia-horizon-v1.png",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:33:11.824281+00:00",
+    "elapsedMs": 860,
+    "contentType": "image/png",
+    "bytes": 2506435,
+    "cache": "MISS",
+    "age": "0",
+    "ok": true,
+    "localSourcePath": "public\\images\\felexia-horizon-v1.png",
+    "localSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+    "remoteSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+    "hashMatches": true,
+    "binarySaved": false
+  },
+  "contentVerification": {
+    "method": "HTMLParser over anonymous server HTML. Excludes head/script/style/template/noscript/svg and subtrees marked hidden, aria-hidden=true or inline display:none/visibility:hidden. RSC/script serialization and attributes are not counted as visible prose. Includes FAQ answer text even if collapsed. Does not compute external CSS or prove final browser visibility; browser QA is separate.",
+    "pages": [
+      {
+        "path": "/",
+        "h1": [
+          "La facturation électronique, simplement."
+        ],
+        "candidateVisibleTextCharacters": 6769,
+        "forbiddenMentions": {
+          "businessOffer": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "premiumOffer": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "illustrativePreviewLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "threeDAnimationLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "requestDemoLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "fictitiousAmountsLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "fictitiousDataLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "officialDgiCertificationClaim": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          }
+        },
+        "forbiddenCandidateMentionsAbsent": true,
+        "dgiMentionIsNotItselfAClaim": true
+      },
+      {
+        "path": "/pricing",
+        "h1": [
+          "Votre ambition. Un seul abonnement."
+        ],
+        "candidateVisibleTextCharacters": 1865,
+        "forbiddenMentions": {
+          "businessOffer": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "premiumOffer": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "illustrativePreviewLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "threeDAnimationLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "requestDemoLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "fictitiousAmountsLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "fictitiousDataLabel": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          },
+          "officialDgiCertificationClaim": {
+            "candidateVisibleMatches": 0,
+            "rawHtmlMatches": 0
+          }
+        },
+        "forbiddenCandidateMentionsAbsent": true,
+        "dgiMentionIsNotItselfAClaim": true
+      }
+    ]
+  },
+  "allChecksPassed": true,
+  "completedAt": "2026-11-01T08:33:12.186843+00:00"
+}
