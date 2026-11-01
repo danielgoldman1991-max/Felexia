@@ -90,6 +90,9 @@ async function main() {
     'next/navigation': { redirect(destination) { throw new Error('REDIRECT:' + destination); } },
     '@/lib/supabase/server': { createClient: async () => ({ auth: { signOut: async input => { legacyScope = input.scope; return { error: null }; } } }) },
     '@/lib/auth': {}, '@/lib/saas': {},
+    '@/lib/auth/onboarding-continuation': load('src/lib/auth/onboarding-continuation.ts', {
+      '@/lib/auth/sanitize-internal-path': load('src/lib/auth/sanitize-internal-path.ts', {}),
+    }),
   });
   await assert.rejects(legacy.logoutAction, /REDIRECT:\/login/);
   check(legacyScope === 'local', 'Legacy action also signs out only the current session');
