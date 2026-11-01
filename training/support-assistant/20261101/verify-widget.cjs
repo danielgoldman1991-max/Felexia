@@ -133,12 +133,12 @@ async function main() {
   fetchImplementation = async () => ({ ok: false, status: 429, headers: { get: () => "2" } });
   let tree = render();
   const teamLink = walk(tree, (node) => node.type === "a" && text(node) === "Felexia Team");
-  verify(Boolean(button(tree, "Ouvrir IA Felexia")), "Named AI launcher is available");
+  verify(Boolean(button(tree, "Ouvrir Felexia IA")), "Named AI launcher is available");
   verify(teamLink?.props.href === "https://wa.me/212614505090", "Team launcher points only to the requested WhatsApp number");
   verify(teamLink.props.target === "_blank" && /noopener/.test(teamLink.props.rel) && /noreferrer/.test(teamLink.props.rel), "WhatsApp opens a protected separate tab without any automatic transmission");
   verify(text(messages(tree)) === "", "Conversation starts completely empty");
   verify(!walk(walk(tree, (node) => node.type === "dialog"), (node) => node.type === "a"), "Chat panel contains no secondary information links");
-  button(tree, "Ouvrir IA Felexia").props.onClick();
+  button(tree, "Ouvrir Felexia IA").props.onClick();
   tree = draft(render(), "What can ESSENTIEL do?");
   submit(tree);
   await flushRequests();
@@ -238,7 +238,7 @@ async function main() {
     limits: "No browser is emulated. Native dialog focus, visual layout, keyboard integration, and actual network/model behavior require separate verification.",
     checks,
   };
-  const output = path.join(repositoryRoot, "training/price-chat/20261101/widget-fixtures.json");
+  const output = path.join(repositoryRoot, "training/ht-chat-sides/20261101/widget-fixtures.json");
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify({ passed: true, assertions: checks.length, source: sourcePath }));

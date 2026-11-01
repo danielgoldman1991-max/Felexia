@@ -157,11 +157,12 @@ export function SubscriptionManage({
   }
 
   function formatPrice(plan: typeof SUBSCRIPTION_PLANS[number]): string {
-    return billingInterval === "yearly" ? `${plan.yearlyPrice} MAD` : `${plan.monthlyPrice} MAD`;
+    const price = billingInterval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
+    return `${price.toLocaleString("fr-FR")} HT MAD`;
   }
 
   function formatPeriodLabel(): string {
-    return billingInterval === "yearly" ? "/ an" : "/ mois";
+    return billingInterval === "yearly" ? " /an" : " /mois";
   }
 
   return (
@@ -320,7 +321,7 @@ export function SubscriptionManage({
                 </p>
                 {!quoteOnly && billingInterval === "yearly" && (
                   <p className="text-sm text-[var(--muted)]">
-                    Soit <span className="font-medium text-[var(--foreground)]">{monthlyEquivalent} MAD</span> / mois
+                    Soit <span className="font-medium text-[var(--foreground)]">{monthlyEquivalent.toLocaleString("fr-FR")} HT MAD</span> /mois
                   </p>
                 )}
               </CardHeader>

@@ -168,8 +168,8 @@ export function SupportAssistant() {
   return (
     <div className="felexia-support">
       <div className="felexia-support__dock" data-open={open}>
-        <button ref={launcherRef} type="button" className="felexia-support__launcher felexia-support__launcher--ai" aria-label="Ouvrir IA Felexia" aria-haspopup="dialog" aria-expanded={open} aria-controls={panelId} tabIndex={open ? -1 : 0} onClick={() => setOpen(true)}>
-          <span className="felexia-support__launcher-icon"><Sparkles size={23} strokeWidth={1.7} aria-hidden="true" /></span><span>IA Felexia</span>
+        <button ref={launcherRef} type="button" className="felexia-support__launcher felexia-support__launcher--ai" aria-label="Ouvrir Felexia IA" aria-haspopup="dialog" aria-expanded={open} aria-controls={panelId} tabIndex={open ? -1 : 0} onClick={() => setOpen(true)}>
+          <span className="felexia-support__launcher-icon"><Sparkles size={23} strokeWidth={1.7} aria-hidden="true" /></span><span>Felexia IA</span>
         </button>
         <a className="felexia-support__launcher felexia-support__launcher--team" href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer" aria-label="Felexia Team sur WhatsApp" tabIndex={open ? -1 : 0}>
           <span className="felexia-support__launcher-icon"><WhatsAppIcon /></span><span>Felexia Team</span>
@@ -178,13 +178,13 @@ export function SupportAssistant() {
       <dialog ref={dialogRef} id={panelId} className="felexia-support__panel" aria-labelledby={titleId} aria-modal="true" onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClose={() => setOpen(false)} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); if (event.target === event.currentTarget && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) setOpen(false); }}>
         <header className="felexia-support__header">
           <span className="felexia-support__avatar" aria-hidden="true"><Sparkles size={18} strokeWidth={1.7} /></span>
-          <h2 id={titleId}>IA Felexia</h2>
+          <h2 id={titleId}>Felexia IA</h2>
           {messages.length > 0 || error || pending ? <button type="button" className="felexia-support__icon-button" onClick={startNewConversation} aria-label="Commencer une nouvelle conversation" title="Nouvelle conversation"><RotateCcw size={17} aria-hidden="true" /></button> : null}
           <button type="button" className="felexia-support__icon-button" onClick={() => setOpen(false)} aria-label="Fermer l’assistant"><X size={19} aria-hidden="true" /></button>
         </header>
         <div ref={historyRef} className="felexia-support__history" tabIndex={messages.length > 0 ? 0 : -1} aria-label="Conversation avec l’assistant">
           <div className="felexia-support__messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Messages">
-            {messages.map((message) => <article key={message.id} className={`felexia-support__message felexia-support__message--${message.role}`} aria-label={message.role === "user" ? "Votre message" : "Réponse de IA Felexia"}>
+            {messages.map((message) => <article key={message.id} className={`felexia-support__message felexia-support__message--${message.role}`} aria-label={message.role === "user" ? "Votre message" : "Réponse de Felexia IA"}>
               <div className="felexia-support__message-text" dir="auto"><ReplyText text={message.content} /></div>
             </article>)}
           </div>
@@ -193,7 +193,7 @@ export function SupportAssistant() {
           {!error && retrySeconds > 0 ? <p className="felexia-support__cooldown" role="status">Réessayez dans {retrySeconds} s.</p> : null}
         </div>
         <form className="felexia-support__composer" onSubmit={(event) => { event.preventDefault(); sendMessage(draft); }} aria-busy={pending}>
-          <label className="felexia-support__sr-only" htmlFor={inputId}>Votre question à IA Felexia</label>
+          <label className="felexia-support__sr-only" htmlFor={inputId}>Votre question à Felexia IA</label>
           <textarea ref={inputRef} id={inputId} value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); sendMessage(draft); } }} placeholder="Votre message…" maxLength={MAX_MESSAGE_LENGTH} rows={1} dir="auto" enterKeyHint="send" />
           {pending ? <button type="button" className="felexia-support__send" aria-label="Interrompre la réponse" title="Interrompre" onClick={() => { if (requestRef.current) { requestRef.current.reason = "stopped"; requestRef.current.controller.abort(); } }}><Square size={14} fill="currentColor" aria-hidden="true" /></button> : <button type="submit" className="felexia-support__send" disabled={!draft.trim() || retrySeconds > 0} aria-label="Envoyer votre question"><Send size={17} strokeWidth={1.8} aria-hidden="true" /></button>}
         </form>

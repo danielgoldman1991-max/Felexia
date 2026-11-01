@@ -11,7 +11,7 @@ export type SupportKnowledgeArticle = {
   href: string;
 };
 
-export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.3";
+export const SUPPORT_KNOWLEDGE_VERSION = "2026-11-01.4";
 export const SUPPORT_KNOWLEDGE_UPDATED_AT = "2026-11-01";
 
 const essential = getPlanDefinition("essentiel");
@@ -40,7 +40,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "essential-pricing", title: "Prix ESSENTIEL, mensuel et annuel",
     keywords: ["prix", "tarif", "combien", "coût", "cout", "mad", "dirham", "mensuel", "annuel", "price", "pricing", "cost", "monthly", "yearly", "how much", "ثمن", "سعر", "بشحال", "taman", "ch7al", "chhal", "bchhal", "flous"],
-    content: `ESSENTIEL est proposé à ${price(essential.monthlyPrice)} MAD par mois ou ${price(essential.yearlyPrice)} MAD par an. La facturation annuelle correspond à douze mensualités, sans remise. L’essai gratuit dure ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. PRO est uniquement sur devis : aucun prix fixe PRO public ni souscription PRO directe. Les tarifs applicables sont ceux affichés sur le site au moment de la souscription. Ne pas inventer de remise, régime de TVA du prix, moyen de paiement ou tarif négocié.`,
+    content: `ESSENTIEL est proposé à ${price(essential.monthlyPrice)} HT MAD /mois ou ${price(essential.yearlyPrice)} HT MAD /an. HT signifie hors taxes. La facturation annuelle correspond à douze mensualités, sans remise. L’essai gratuit dure ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. PRO est uniquement sur devis : aucun prix fixe PRO public ni souscription PRO directe. Les tarifs applicables sont ceux affichés sur le site au moment de la souscription. Ne pas inventer de remise, taux de TVA, moyen de paiement ou tarif négocié.`,
     href: "/pricing",
   },
   {

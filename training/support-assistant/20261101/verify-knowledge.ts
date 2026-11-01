@@ -22,8 +22,8 @@ check("No historic PRO price is exposed", !/1[\s\u202f]*290|12[\s\u202f]*900/.te
 const essential = getPlanDefinition("essentiel");
 check("Approved ESSENTIEL monthly tariff is99 MAD", essential.monthlyPrice === 99 && essential.currency === "MAD");
 check("Approved annual tariff is1188 MAD without a discount", essential.yearlyPrice === 1188 && essential.yearlyPrice === essential.monthlyPrice * 12);
-check("Monthly price follows the plan configuration", byId("essential-pricing").content.includes(essential.monthlyPrice.toLocaleString("fr-FR") + " MAD"));
-check("Annual price follows the plan configuration", byId("essential-pricing").content.includes(essential.yearlyPrice.toLocaleString("fr-FR") + " MAD"));
+check("Monthly HT price follows the plan configuration", byId("essential-pricing").content.includes(essential.monthlyPrice.toLocaleString("fr-FR") + " HT MAD /mois"));
+check("Annual HT price follows the plan configuration", byId("essential-pricing").content.includes(essential.yearlyPrice.toLocaleString("fr-FR") + " HT MAD /an"));
 check("Knowledge explicitly excludes annual savings", byId("essential-pricing").content.includes("sans remise") && !/deux mois offerts|two monthly payments|شهرين/.test(byId("essential-pricing").content));
 check("Trial duration follows the actual trial config", byId("trial").content.includes(DEFAULT_TRIAL_DURATION_LABEL));
 check("PRO user quota follows the actual plan config", byId("pro").content.includes(String(getPlanDefinition("premium").limits.users) + " utilisateurs"));

@@ -68,7 +68,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
               <h2 className="text-xl font-semibold text-slate-950">{plan.name}</h2>
               <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{plan.description}</p>
               <p className="mt-5 text-3xl font-bold text-slate-950">
-                {quoteOnly ? "Sur devis" : <>{price} MAD<span className="text-sm font-medium text-slate-500"> / {billingCycle === "monthly" ? "mois" : "an"}</span></>}
+                {quoteOnly ? "Sur devis" : <>{price.toLocaleString("fr-FR")} HT MAD<span className="text-sm font-medium text-slate-500"> /{billingCycle === "monthly" ? "mois" : "an"}</span></>}
               </p>
               <ul className="mt-5 flex-1 space-y-2">
                 {plan.featureHighlights.map((feature) => (

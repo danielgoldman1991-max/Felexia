@@ -61,14 +61,14 @@ function main() {
     check('Landing PRO says Sur devis, annual=' + yearly, card.includes('Sur devis') && card.includes('Demander un devis'));
     check('Landing PRO opens a quote draft, annual=' + yearly, card.includes('href="mailto:') && card.includes(encodeURIComponent('demande de devis')));
     check('Landing PRO shows no cadence or discounts, annual=' + yearly, !card.includes('MAD') && !card.includes('Facturé') && !card.includes('mois offerts'));
-    check('ESSENTIEL approved price renders, annual=' + yearly, html.includes(`<strong>${yearly ? '1 188' : '99'}</strong>`));
+    check('ESSENTIEL approved HT price renders, annual=' + yearly, html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').includes(`${yearly ? '1 188' : '99'} HT MAD /${yearly ? 'an' : 'mois'}`));
     check('ESSENTIEL advertises no annual free months or discount', !/mois offerts|économis|remise de|-[0-9]+%/i.test(html.replace(/<[^>]*>/g, ' ')));
     check('Public cadence explicitly applies to ESSENTIEL', html.includes('aria-label="Période de facturation ESSENTIEL"'));
     noProPrice('Landing annual=' + yearly, html);
   }
   for (const billing of ['monthly', 'yearly']) {
     const html = render('src/components/subscriptions/plan-choice-client.tsx', 'PlanChoiceClient', { hasStripe: false }, billing);
-    check('Plan selection approved ESSENTIEL amount, cycle=' + billing, html.includes(billing === 'yearly' ? '1188 MAD' : '99 MAD'));
+    check('Plan selection approved ESSENTIEL HT amount, cycle=' + billing, html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').includes(billing === 'yearly' ? '1 188 HT MAD /an' : '99 HT MAD /mois'));
     check('Plan selection has no annual savings promise, cycle=' + billing, !/mois offerts|économis|remise de|-[0-9]+%/i.test(html.replace(/<[^>]*>/g, ' ')));
     check('Plan selection PRO remains quote only, cycle=' + billing, html.includes('Sur devis') && html.includes('Demander un devis'));
     noProPrice('Plan selection / ' + billing, html);
@@ -92,7 +92,7 @@ function main() {
     check(label + ': PRO amount and cadence absent', !card.includes('MAD') && !card.includes('/ mois') && !card.includes('/ an') && !card.includes('2 mois offerts'));
     check(label + ': selected PRO banner asks for a quote', html.includes('PRO est proposé uniquement sur devis. Présentez-nous votre activité'));
     noProPrice(label, html);
-    check(label + ': approved ESSENTIEL amount renders', html.includes(billing === 'yearly' ? '1188 MAD' : '99 MAD'));
+    check(label + ': approved ESSENTIEL HT amount renders', html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').includes(billing === 'yearly' ? '1 188 HT MAD /an' : '99 HT MAD /mois'));
     check(label + ': no annual savings badge remains', !/mois offerts|économis|remise de|-[0-9]+%/i.test(html.replace(/<[^>]*>/g, ' ')));
     if (state.name === 'PRO manual test access') {
       check(label + ': private test access has accurate label', html.includes('Accès de test') && html.includes('Votre accès PRO de test.'));
