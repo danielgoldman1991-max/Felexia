@@ -10,6 +10,7 @@ import "./landing-conversion.css";
 
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
 const includedFeatures = [
+  "Facturation électronique PDF/XML et archivage",
   "Votre espace entreprise", "Clients et fournisseurs", "Factures de vente", "Factures d’achat",
   "Règlements clients et fournisseurs", "Comptes bancaires et caisses", "Mouvements de trésorerie",
   "Journaux et écritures", "Factures PDF avec votre logo", "Jusqu’à 3 utilisateurs",
@@ -27,7 +28,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
         <div className="conversion-pricing-intro" data-reveal>
           <p className="marketing-eyebrow">Simple, jusque dans le prix</p>
           <Heading id="conversion-pricing-title" className="marketing-section-title">Votre ambition.<br />Un seul abonnement.</Heading>
-          <p className="marketing-copy">Factures, règlements, trésorerie. Tout l’essentiel de votre gestion, dans une formule claire, pensée pour les PME marocaines.</p>
+          <p className="marketing-copy">Facturation électronique, règlements, trésorerie. Tout l’essentiel de votre gestion, dans une formule claire, pensée pour les PME marocaines.</p>
           <div className="conversion-trial-note">
             <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
             <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} pour prendre vos repères.</strong><p>Découvrez Felexia gratuitement, sans carte bancaire.</p></div>

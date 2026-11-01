@@ -3,6 +3,7 @@ import { LandingContact } from "@/components/landing/LandingContact";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
+import { LandingEinvoicing } from "@/components/landing/LandingEinvoicing";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 import { LandingStory } from "@/components/landing/LandingStory";
 import { LandingEffects } from "@/components/landing/LandingEffects";
@@ -10,15 +11,15 @@ import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
 export const metadata: Metadata = {
-  title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
+  title: "Felexia Pro — Facturation électronique au Maroc",
   description:
-    "Créez votre entreprise, vos factures de vente et d’achat, enregistrez vos règlements et suivez votre trésorerie et vos journaux avec Felexia Pro.",
+    "Générez vos factures électroniques en PDF et XML, émettez-les et archivez-les avec Felexia Pro. Suivez aussi vos règlements et votre trésorerie.",
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    title: "Felexia Pro — Factures, achats et trésorerie au Maroc",
+    title: "Felexia Pro — Facturation électronique au Maroc",
     description:
-      "Factures de vente et d’achat, règlements, trésorerie et journaux : l’essentiel pour démarrer simplement.",
+      "Factures électroniques PDF/XML, émission et archivage : vos documents et votre gestion réunis dans un seul espace.",
   },
 };
 
@@ -29,6 +30,7 @@ export default function LandingPage() {
       <LandingHeader overlay />
       <main id="main-content" tabIndex={-1}>
         <LandingHero />
+        <LandingEinvoicing />
         <LandingStory />
         <LandingPricing />
         <LandingContact />

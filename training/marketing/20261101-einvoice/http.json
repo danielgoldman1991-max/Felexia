@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "electronic_invoicing": true
+  },
+  {
+    "path": "/pricing",
+    "status": 200,
+    "electronic_invoicing": true
+  }
+]

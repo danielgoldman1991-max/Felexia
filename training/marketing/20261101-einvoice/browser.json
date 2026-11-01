@@ -1,0 +1,58 @@
+{
+  "responsive": [
+    {
+      "clientWidth": 305,
+      "hasFeature": true,
+      "height": 780,
+      "scrollWidth": 305,
+      "sectionWidth": 304.66668701171875,
+      "width": 320
+    },
+    {
+      "clientWidth": 375,
+      "hasFeature": true,
+      "height": 844,
+      "scrollWidth": 375,
+      "sectionWidth": 374.6666870117187,
+      "width": 390
+    },
+    {
+      "clientWidth": 753,
+      "hasFeature": true,
+      "height": 1000,
+      "scrollWidth": 753,
+      "sectionWidth": 752.6666870117188,
+      "width": 768
+    },
+    {
+      "clientWidth": 1085,
+      "hasFeature": true,
+      "height": 800,
+      "scrollWidth": 1085,
+      "sectionWidth": 1084.666748046875,
+      "width": 1100
+    },
+    {
+      "clientWidth": 1265,
+      "hasFeature": true,
+      "height": 900,
+      "scrollWidth": 1265,
+      "sectionWidth": 1264.666748046875,
+      "width": 1280
+    }
+  ],
+  "sourceCopyScope": "PDF/XML, émission documentaire, archivage; activation administrateur; connexion DGI et signature non activées",
+  "production": {
+    "h1": "La facturation électronique, simplement.",
+    "included": true,
+    "links": [
+      "/#facturation-electronique",
+      "#facturation-electronique",
+      "/#facturation-electronique"
+    ],
+    "removedLabels": true,
+    "section": true,
+    "title": "Felexia Pro — Facturation électronique au Maroc"
+  },
+  "console": []
+}

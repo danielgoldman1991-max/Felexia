@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const productLinks = [
+  { label: "Facture électronique", href: "/#facturation-electronique" },
   { label: "Au quotidien", href: "/#modules" }, { label: "Fonctionnalités", href: "/#features" },
   { label: "Tarifs", href: "/#pricing" }, { label: "Questions fréquentes", href: "/#resources" },
 ];

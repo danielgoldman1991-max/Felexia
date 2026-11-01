@@ -12,11 +12,11 @@ export function LandingHero() {
         </div>
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
-          <h1 id="hero-title">Votre entreprise, l’esprit libre.</h1>
-          <p>Vos factures, vos règlements, votre trésorerie.<br />{" "}Tout simplement, au même endroit.</p>
+          <h1 id="hero-title">La facturation électronique, simplement.</h1>
+          <p>Du PDF au XML, jusqu’à l’archivage.<br />{" "}Vos factures et leur suivi, dans un seul espace.</p>
           <div className="horizon-actions">
             <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
-            <a href="#modules" className="horizon-discover">Découvrir Felexia</a>
+            <a href="#facturation-electronique" className="horizon-discover" aria-label="En savoir plus sur la facturation électronique">En savoir plus</a>
           </div>
           <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai gratuit · Sans carte bancaire</span>
         </div>

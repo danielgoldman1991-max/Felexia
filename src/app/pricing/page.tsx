@@ -8,7 +8,7 @@ import "@/styles/landing-motion.css";
 
 export const metadata = {
   title: "Tarifs - Felexia",
-  description: "Une offre Essentiel pour vos factures de vente et d’achat, leurs règlements, votre trésorerie et vos journaux.",
+  description: "L’offre Essentiel réunit facturation électronique PDF/XML, archivage, règlements, trésorerie et journaux.",
 };
 
 export default function PricingPage() {

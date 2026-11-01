@@ -7,8 +7,8 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import "./landing-header-overlay.css";
 
 const navLinks = [
+  { href: "/#facturation-electronique", label: "Facture électronique" },
   { href: "/#modules", label: "La solution" },
-  { href: "/#why", label: "Pourquoi Felexia" },
   { href: "/#pricing", label: "Tarifs" },
   { href: "/#resources", label: "Questions fréquentes" },
 ];
