@@ -1,9 +1,19 @@
-.landing .horizon-hero { position: relative; height: 185vh; height: 185svh; background: #314252; }
+.landing .horizon-hero { position: relative; height: 100vh; height: 100svh; background: #314252; }
+/* Reserve the complete journey before hydration, including scroll restoration. */
+@media (scripting: enabled) { .landing .horizon-hero { height: 380vh; height: 380svh; } }
 .landing .horizon-window { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate; }
 .landing .horizon-landscape { position: absolute; inset: 0; z-index: -2; overflow: hidden; background: #314252; }
-.landing .horizon-image { object-fit: cover; object-position: 50% 68%; transform: scale(calc(1.015 + var(--hero-progress, 0) * .2)); transform-origin: 50% 65%; will-change: transform; }
-.landing .horizon-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, #0b192d80 0%, #1320364a 26%, #17203413 52%, transparent 72%, #0b172426 100%); pointer-events: none; }
-.landing .horizon-copy { position: relative; max-width: 1100px; padding: clamp(150px, 20vh, 205px) 24px 32px; margin-inline: auto; text-align: center; color: #fff; opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 1.25), 1); transform: translate3d(0, calc(var(--hero-progress, 0) * -38px), 0); }
+.landing .horizon-world { position: absolute; inset: 0; transform-origin: 0 0; }
+.landing .horizon-image { object-fit: cover; object-position: 50% 68%; }
+.landing[data-horizon-enhanced="true"] .horizon-world { inset: auto; top: 0; left: 0; width: 1672px; height: 941px; will-change: transform; }
+.landing[data-horizon-enhanced="true"] .horizon-image { object-fit: fill; }
+.landing .horizon-immersion { position: absolute; inset: 0; background: #081b33; opacity: clamp(0, calc((var(--hero-progress, 0) - .55) * 3.2), .92); pointer-events: none; }
+.landing .horizon-laptop { display: none; position: absolute; left: 0; top: 0; width: 1241.667px; height: 825px; border-radius: 38px 38px 17px 17px; background: linear-gradient(135deg, #30363c, #11151a 40%, #252b31); box-shadow: 0 0 5px 3px #080b0d; transform-origin: 0 0; opacity: 0; }
+.landing[data-horizon-enhanced="true"] .horizon-laptop { display: block; }
+.landing .horizon-laptop::before { content: ""; position: absolute; top: 25px; left: 50%; width: 11px; height: 11px; border-radius: 50%; background: #525b65; }
+.landing .horizon-screen { position: absolute; left: 58.333px; top: 66.667px; width: 1120px; height: 680px; overflow: hidden; border-radius: 7.5px; background: #f5f7fc; }
+.landing .horizon-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, #0b192d80 0%, #1320364a 26%, #17203413 52%, transparent 72%, #0b172426 100%); opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 2.5), 1); pointer-events: none; }
+.landing .horizon-copy { position: relative; max-width: 1100px; padding: clamp(150px, 20vh, 205px) 24px 32px; margin-inline: auto; text-align: center; color: #fff; opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 4), 1); transform: translate3d(0, calc(var(--hero-progress, 0) * -100px), 0); }
 .landing .horizon-copy h1 { margin: 0; color: #fff; font-size: clamp(35px, 3.6vw, 56px); line-height: 1.13; font-weight: 540; letter-spacing: -.045em; text-wrap: balance; }
 .landing .horizon-copy > p { margin: 20px auto 0; max-width: 620px; color: #f5f7fb; font-size: clamp(16px, 1.55vw, 21px); font-weight: 400; line-height: 1.55; letter-spacing: -.025em; text-shadow: 0 1px 12px #071a2d15; }
 .landing .horizon-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 29px; }
@@ -16,10 +26,16 @@
 .landing .horizon-trial { display: block; margin-top: 15px; color: #f2f5fb; font-size: 11px; line-height: 1.5; }
 .landing[data-horizon-away="true"] .horizon-copy { pointer-events: none; }
 .landing .horizon-copy:focus-within { opacity: 1; transform: none; pointer-events: auto; }
+.landing .horizon-scroll-cue { position: absolute; left: 50%; bottom: 25px; z-index: 2; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 13px; transform: translateX(-50%); color: #fff; padding: 8px 14px; border: 1px solid #ffffff28; border-radius: 999px; background: #12233756; backdrop-filter: blur(8px); font-size: 10px; line-height: 1.4; letter-spacing: .04em; white-space: nowrap; }
+.landing .horizon-scroll-cue:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.landing .horizon-cue-enter, .landing .horizon-cue-next { grid-area: 1 / 1; }
+.landing .horizon-scroll-cue svg { grid-area: 1 / 2; }
+.landing .horizon-cue-enter { opacity: clamp(0, calc(1 - (var(--hero-progress, 0) - .6) * 8), 1); }
+.landing .horizon-cue-next { opacity: clamp(0, calc((var(--hero-progress, 0) - .6) * 8), 1); }
 .landing .product-motion-toggle { position: absolute; right: 10px; bottom: 0; z-index: 6; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #aec4e340; border-radius: 50%; color: #e2ebf8; background: #122744cf; cursor: pointer; }
-@media (max-width: 859px) { .landing .horizon-hero { height: 155vh; height: 155svh; }.landing .horizon-image { object-position: 50% 70%; transform: scale(calc(1.015 + var(--hero-progress, 0) * .13)); }.landing .horizon-copy { padding-top: 155px; } }
+@media (max-width: 859px) and (scripting: enabled) { .landing .horizon-hero { height: 340vh; height: 340svh; } }
+@media (max-width: 859px) { .landing .horizon-image { object-position: 50% 70%; }.landing .horizon-copy { padding-top: 155px; } }
 @media (max-width: 599px) {
-  .landing .horizon-hero { height: 145vh; height: 145svh; }
   .landing .horizon-copy { padding: 127px 23px 26px; }
   .landing .horizon-copy h1 { max-width: 360px; margin-inline: auto; font-size: 38px; line-height: 1.06; letter-spacing: -.05em; }
   .landing .horizon-copy > p { margin-top: 18px; font-size: 15px; line-height: 1.6; max-width: 335px; }
@@ -32,19 +48,24 @@
 @media (max-width: 359px) { .landing .horizon-copy { padding-inline: 18px; }.landing .horizon-copy h1 { font-size: 34px; }.landing .horizon-actions { gap: 8px; }.landing .horizon-actions > a { padding-inline: 14px; font-size: 11px; } }
 @media (max-height: 650px) and (min-width: 600px) { .landing .horizon-copy { padding-top: 112px; }.landing .horizon-copy h1 { font-size: 40px; }.landing .horizon-copy > p { font-size: 17px; margin-top: 14px; }.landing .horizon-actions { margin-top: 20px; } }
 @media (prefers-reduced-motion: reduce) {
-  .landing .horizon-hero { height: 100vh; height: 100svh; }
-  .landing .horizon-image { transform: none; will-change: auto; }
+  .landing .horizon-hero, .landing[data-horizon-enhanced="true"] .horizon-hero { height: 100vh; height: 100svh; }
+  .landing[data-horizon-enhanced="true"] .horizon-world { width: 100%; height: 100%; transform: none !important; will-change: auto; }
+  .landing[data-horizon-enhanced="true"] .horizon-image { object-fit: cover; }
+  .landing[data-horizon-enhanced="true"] .horizon-laptop { display: none; }
   .landing .horizon-copy { opacity: 1; transform: none; }
   .landing .horizon-actions > a { transition: none; }
   .landing .product-motion-toggle { display: none; }
 }
 /* Let the document grow on short screens so the actions stay reachable. */
 @media (max-height: 600px) {
-  .landing .horizon-hero { height: auto; min-height: 100svh; }
+  .landing .horizon-hero, .landing[data-horizon-enhanced="true"] .horizon-hero { height: auto; min-height: 100svh; }
   .landing .horizon-window { position: relative; height: auto; min-height: 100svh; }
   .landing .horizon-copy { padding-top: 105px; padding-bottom: 46px; opacity: 1; transform: none; }
   .landing .horizon-copy h1 { font-size: 34px; }
   .landing .horizon-copy > p { font-size: 15px; margin-top: 14px; }
   .landing .horizon-actions { margin-top: 20px; }
-  .landing .horizon-image { transform: none; will-change: auto; }
+  .landing[data-horizon-enhanced="true"] .horizon-world { width: 100%; height: 100%; transform: none !important; will-change: auto; }
+  .landing[data-horizon-enhanced="true"] .horizon-image { object-fit: cover; }
+  .landing[data-horizon-enhanced="true"] .horizon-laptop { display: none; }
+  .landing .horizon-scroll-cue { display: none; }
 }
