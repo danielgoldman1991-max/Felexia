@@ -29,6 +29,7 @@ function load(relative) {
       if (name === 'react') return { ...React, useState(initial) { return React.useState(stateIndex++ === 0 && firstState !== undefined ? firstState : initial); } };
       if (['react/jsx-runtime', 'lucide-react'].includes(name)) return require(name);
       if (name === 'next/link') return { __esModule: true, default: ({ children, ...props }) => React.createElement('a', props, children) };
+      if (name === 'next/navigation') return { usePathname: forbidden };
       if (name.endsWith('.css')) return {};
       if (name === './LandingJourney') return { LandingJourney: () => null };
       if (name === '@/components/brand/BrandLogo') return { BrandLogo: () => React.createElement('span', null, 'Felexia') };

@@ -10,13 +10,14 @@ import {
   LegalSection,
 } from "@/components/legal/LegalPageLayout";
 import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
+import { createPublicMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPublicMetadata({
   title: "Mentions légales | FelexiaERP",
   description:
     "Informations légales relatives à l'édition et à l'exploitation de FelexiaERP par Felexia Conseils.",
-  alternates: { canonical: "/mentions-legales" },
-};
+  path: "/mentions-legales",
+});
 
 const toc = [
   { id: "editeur", title: "Éditeur du site" },

@@ -1,0 +1,43 @@
+.banner {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  width: min(660px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  padding: 20px;
+  border: 1px solid #dce3ed;
+  border-radius: 18px;
+  background: #fff;
+  color: #203249;
+  box-shadow: 0 14px 42px rgb(11 42 91 / 16%);
+  font: 14px/1.5 Arial, sans-serif;
+}
+.copy h2 { margin: 0 0 7px; color: #0b2a5b; font-size: 16px; font-weight: 700; }
+.copy p { margin: 0; }
+.copy a { display: inline-block; margin-top: 5px; color: #0b2a5b; text-decoration: underline; text-underline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+.actions button {
+  flex: 1 1 180px;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #0b2a5b;
+  border-radius: 9px;
+  background: #fff;
+  color: #0b2a5b;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.actions button:hover { background: #edf2f8; }
+.actions button:focus-visible, .copy a:focus-visible, .settings:focus-visible { outline: 3px solid #3567b3; outline-offset: 3px; }
+.actions .close { flex: 0 1 auto; border-color: #a3b2c6; }
+.settings { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 480px) {
+  .banner { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); padding: 16px; font-size: 13px; }
+  .actions { gap: 8px; margin-top: 12px; }
+  .actions button { flex-basis: calc(50% - 4px); padding: 9px; }
+}
+@media (max-height: 440px) {
+  .banner { top: 10px; bottom: auto; max-height: calc(100dvh - 96px); overflow-y: auto; }
+}

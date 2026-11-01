@@ -11,13 +11,14 @@ import {
 } from "@/components/legal/LegalPageLayout";
 import { LEGAL_CONFIG, legalValue } from "@/lib/legal/legal-config";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
+import { createPublicMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPublicMetadata({
   title: "Conditions générales | FelexiaERP",
   description:
     "Conditions générales d'utilisation du service FelexiaERP, édité par Felexia Conseils.",
-  alternates: { canonical: "/conditions" },
-};
+  path: "/conditions",
+});
 
 const toc = [
   { id: "objet", title: "1. Objet" },

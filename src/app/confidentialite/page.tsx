@@ -11,13 +11,14 @@ import {
   LegalSubSection,
 } from "@/components/legal/LegalPageLayout";
 import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
+import { createPublicMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPublicMetadata({
   title: "Politique de confidentialité | FelexiaERP",
   description:
-    "Politique de protection des données personnelles de FelexiaERP, conforme au cadre légal marocain, notamment la loi n° 09-08.",
-  alternates: { canonical: "/confidentialite" },
-};
+    "Découvrez comment FelexiaERP traite vos données, utilise les cookies et respecte vos choix de mesure d’audience sur le site public.",
+  path: "/confidentialite",
+});
 
 const toc = [
   { id: "responsable", title: "1. Responsable du traitement" },
@@ -229,8 +230,27 @@ export default function ConfidentialitePage() {
           ]}
         />
         <LegalParagraph>
-          Ces cookies sont utilisés pour le fonctionnement technique du service. Aucun outil de
-          mesure d&apos;audience tiers n&apos;est utilisé pour l&apos;instant.
+          Ces cookies permettent le fonctionnement technique du service. La mesure d’audience
+          Google Analytics du site public est facultative : aucun script de mesure Google n’est
+          chargé avant votre acceptation. Refuser cette mesure permet de continuer à utiliser le
+          site et l’ERP normalement.
+        </LegalParagraph>
+        <LegalParagraph>
+          Si vous acceptez, Google Analytics mesure les visites des pages publiques et les clics
+          sur les boutons d’essai, de devis et de contact. Des identifiants de mesure, des
+          informations sur le navigateur et le terminal, ainsi que la provenance depuis certains
+          moteurs de recherche peuvent être traités par Google, y compris hors du Maroc. Les
+          paramètres d’URL, vos messages, coordonnées saisies et données de l’espace ERP ne
+          sont pas inclus dans les événements transmis. Les clics d’essai ou de contact mesurent
+          une intention, sans attester une inscription ou une vente réalisée.
+        </LegalParagraph>
+        <LegalParagraph>
+          Votre choix est mémorisé dans votre navigateur pendant 180 jours. Les cookies de mesure
+          sont également configurés pour une durée maximale de 180 jours. Vous pouvez retirer
+          votre accord depuis « Paramètres des cookies », en bas des pages publiques : la mesure
+          s’arrête et les cookies Google Analytics du site sont supprimés de ce navigateur. Ce
+          retrait ne supprime pas rétroactivement les événements déjà reçus par Google. Les
+          cookies d’authentification et de sécurité de l’ERP restent nécessaires à son fonctionnement.
         </LegalParagraph>
       </LegalSection>
 

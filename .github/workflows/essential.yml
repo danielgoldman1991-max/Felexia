@@ -99,6 +99,10 @@ jobs:
           node training/launch-fixes/20261101/verify-contract.cjs
           node training/launch-fixes/20261101/verify-public-home.cjs
           node training/launch-fixes/20261101/pro-transactions/verify-chart-export.cjs
+      - name: Verify public SEO and consent boundaries
+        run: |
+          node --import tsx training/seo/20261101/verify-seo.ts
+          node training/seo/20261101/verify-analytics.cjs
       - name: Verify checkout, recovery, exports and histories
         run: |
           node training/price-chat/20261101/verify-repricing.cjs

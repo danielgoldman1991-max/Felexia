@@ -33,7 +33,7 @@ export function LandingEssentiel() {
         </div>
         <div className="essentiel-actions" data-reveal>
           <Link href="/login?mode=register" className="marketing-button marketing-button-primary">Essayer ESSENTIEL gratuitement<ArrowUpRight size={17} aria-hidden="true" /></Link>
-          <a href="#pricing">Comparer ESSENTIEL et PRO<ArrowUpRight size={17} aria-hidden="true" /></a>
+          <Link href="/essentiel">Découvrir les fonctions ESSENTIEL<ArrowUpRight size={17} aria-hidden="true" /></Link>
         </div>
       </div>
     </section>

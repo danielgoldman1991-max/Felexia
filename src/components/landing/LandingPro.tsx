@@ -1,4 +1,5 @@
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
+import Link from "next/link";
 import { ArrowUpRight, BookOpen, Boxes, ChartNoAxesCombined, ClipboardList, ShoppingCart, UsersRound } from "lucide-react";
 import "./landing-pro.css";
 
@@ -22,7 +23,7 @@ export function LandingPro() {
           </div>
           <div className="pro-intro-copy">
             <p className="marketing-copy">Vos ventes ne s’arrêtent pas à la facture. Avec PRO, reliez votre gestion commerciale, vos achats, votre stock, votre comptabilité et vos ressources humaines.</p>
-            <a href="#pricing" className="pro-link">Comparer ESSENTIEL et PRO <ArrowUpRight size={18} aria-hidden="true" /></a>
+            <Link href="/pro" className="pro-link">Découvrir PRO et son périmètre <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </div>
         </div>
         <div className="pro-modules" data-reveal>

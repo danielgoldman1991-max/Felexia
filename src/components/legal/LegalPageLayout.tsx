@@ -3,6 +3,7 @@ import { ArrowLeft, Info, Mail } from "lucide-react";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LEGAL_CONFIG, legalValue } from "@/lib/legal/legal-config";
+import { AnalyticsSettingsButton } from "@/components/analytics/PublicAnalytics";
 
 export type LegalTocItem = { id: string; title: string };
 
@@ -214,6 +215,7 @@ export function LegalPageLayout({
               >
                 Retour à l&apos;accueil
               </Link>
+              <AnalyticsSettingsButton className="text-sm text-slate-600 underline underline-offset-4 hover:text-[#1456B8]" />
             </nav>
           </div>
           <div className="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
