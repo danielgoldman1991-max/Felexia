@@ -19,6 +19,7 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
       <Input
         name="email"
         type="email"
+        aria-label="Adresse email"
         placeholder="email@entreprise.ma"
         autoComplete="email"
         required
@@ -26,6 +27,7 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
       <Input
         name="password"
         type="password"
+        aria-label="Mot de passe"
         placeholder="Mot de passe"
         autoComplete="current-password"
         required
