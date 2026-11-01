@@ -39,6 +39,7 @@ export function LandingHeader() {
 
   return (
     <header className="marketing-header" ref={headerRef}>
+      <div className="marketing-reading-progress" aria-hidden="true"><span /></div>
       <div className="marketing-container marketing-header-inner">
         <Link href="/" aria-label="FelexiaERP — accueil" className="marketing-brand"><BrandLogo variant="horizontal" height={46} priority /></Link>
         <nav className="marketing-desktop-nav" aria-label="Navigation principale">{navLinks.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>

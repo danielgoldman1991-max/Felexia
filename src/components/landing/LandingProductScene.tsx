@@ -56,6 +56,7 @@ export function LandingProductScene() {
     document.addEventListener("visibilitychange", visibility);
     return () => {
       cancelAnimationFrame(frame); observer?.disconnect();
+      scene.closest(".marketing-site")?.removeAttribute("data-motion-paused");
       scene.removeEventListener("pointermove", move); scene.removeEventListener("pointerleave", reset);
       finePointer.removeEventListener("change", syncMotion); document.removeEventListener("visibilitychange", visibility);
     };
@@ -91,7 +92,9 @@ export function LandingProductScene() {
         <span className="product-spark product-spark-one" aria-hidden="true">✳</span><span className="product-spark product-spark-two" aria-hidden="true">+</span>
       </div>
       <figcaption className="product-caption"><span><i />Aperçu illustratif · données fictives</span><button type="button" aria-pressed={paused} aria-label={paused ? "Reprendre l’animation 3D" : "Mettre l’animation 3D en pause"} onClick={() => {
-        setPaused((value) => !value);
+        const nextPaused = !paused;
+        setPaused(nextPaused);
+        sceneRef.current?.closest(".marketing-site")?.setAttribute("data-motion-paused", String(nextPaused));
         sceneRef.current?.style.setProperty("--pointer-x", "0deg"); sceneRef.current?.style.setProperty("--pointer-y", "0deg");
       }}>{paused ? <Play size={11} aria-hidden="true" /> : <Pause size={11} aria-hidden="true" />}Animation 3D</button></figcaption>
     </figure>

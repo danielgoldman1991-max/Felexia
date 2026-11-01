@@ -7,6 +7,7 @@ import { LandingPricing } from "@/components/landing/LandingPricing";
 import { LandingStory } from "@/components/landing/LandingStory";
 import { LandingEffects } from "@/components/landing/LandingEffects";
 import "@/styles/landing.css";
+import "@/styles/landing-motion.css";
 
 export const metadata: Metadata = {
   title: "Felexia Pro — Factures, achats et trésorerie au Maroc",

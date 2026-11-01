@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check, CreditCard, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
 import { filterPubliclyAvailablePlans } from "@/lib/subscriptions/commercial-offers";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
@@ -34,7 +34,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
           </div>
           <p className="conversion-pricing-aside">Votre activité évolue ?<br /><a href="#contact">Parlons de vos besoins en modules complémentaires <ArrowRight size={15} aria-hidden="true" /></a></p>
         </div>
-        <div className="conversion-pricing-cards" data-reveal>
+        <div className="conversion-pricing-cards" data-reveal style={{ "--reveal-delay": "120ms" } as CSSProperties}>
           {plans.map((plan) => {
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
             const yearlySaving = plan.monthlyPrice * 12 - plan.yearlyPrice;
@@ -42,7 +42,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
             return (
               <article key={plan.code} className="conversion-price-card" aria-labelledby={`conversion-plan-${plan.code}`}>
                 <div className="conversion-plan-topline"><PlanHeading id={`conversion-plan-${plan.code}`}>{plan.name}</PlanHeading><span className="conversion-plan-badge">Votre quotidien, simplifié</span></div>
-                <div className="conversion-billing-toggle" role="group" aria-label="Période de facturation">
+                <div className="conversion-billing-toggle" data-yearly={yearly} role="group" aria-label="Période de facturation">
                   <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>Mensuel</button>
                   <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>Annuel{yearlySaving > 0 && <span>{Number.isInteger(freeMonths) ? `${freeMonths} mois offerts` : `−${formatPrice(yearlySaving)} MAD`}</span>}</button>
                 </div>

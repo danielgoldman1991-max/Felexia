@@ -6,11 +6,12 @@ import { LandingProductScene } from "./LandingProductScene";
 export function LandingHero() {
   return (
     <section className="marketing-hero" aria-labelledby="hero-title">
+      <div className="marketing-hero-atmosphere" aria-hidden="true"><span /><span /><span /></div>
       <div className="marketing-container">
         <div className="marketing-hero-grid">
           <div className="marketing-hero-copy">
             <p className="marketing-hero-label"><span />La gestion des PME marocaines, simplement.</p>
-            <h1 id="hero-title">L’esprit libre.<br />Les affaires<br /><span>bien en main.</span></h1>
+            <h1 id="hero-title"><span className="marketing-title-line">L’esprit libre.</span><span className="marketing-title-line">Les affaires</span><span className="marketing-title-line marketing-title-accent">bien en main.</span></h1>
             <p className="marketing-hero-description">Vos factures, vos achats et votre trésorerie se retrouvent enfin. Un seul espace pour avancer, avec une vision claire de votre activité.</p>
             <div className="marketing-hero-actions">
               <Link href="/login?mode=register" className="marketing-button marketing-button-primary">Démarrer gratuitement<ArrowRight size={17} aria-hidden="true" /></Link>
@@ -21,7 +22,7 @@ export function LandingHero() {
               <span><Check size={14} aria-hidden="true" />Sans carte bancaire</span>
             </div>
           </div>
-          <LandingProductScene />
+          <div className="marketing-hero-stage"><LandingProductScene /></div>
         </div>
         <div className="marketing-hero-baseline">
           <p>Moins de dispersion.<br /><strong>Plus de perspectives.</strong></p>

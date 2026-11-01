@@ -1,0 +1,59 @@
+{
+  "responsive": [
+    {
+      "clientWidth": 305,
+      "enhanced": "false",
+      "height": 900,
+      "scrollWidth": 305,
+      "width": 320
+    },
+    {
+      "clientWidth": 753,
+      "enhanced": "false",
+      "height": 1000,
+      "scrollWidth": 753,
+      "width": 768
+    },
+    {
+      "clientWidth": 1265,
+      "enhanced": "true",
+      "height": 800,
+      "scrollWidth": 1265,
+      "width": 1280
+    }
+  ],
+  "journeyScroll": [
+    {
+      "at": "encaisser",
+      "chapter": "1",
+      "progress": "0.2813",
+      "top": 157.5
+    },
+    {
+      "at": "piloter",
+      "chapter": "2",
+      "progress": "0.3869",
+      "top": 157.5
+    },
+    {
+      "at": "retour-encaisser",
+      "chapter": "1",
+      "progress": "0.2813",
+      "top": 157.5
+    }
+  ],
+  "shortViewport": {
+    "width": 1280,
+    "height": 650,
+    "enhanced": false,
+    "inlineVisuals": 3
+  },
+  "productionChapterButton": 1,
+  "openingAnimations": [
+    "marketing-title-enter",
+    "marketing-product-enter"
+  ],
+  "monthlyMAD": 290,
+  "yearlyMAD": 2900,
+  "localConsole": []
+}

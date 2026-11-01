@@ -1,0 +1,98 @@
+/* Public marketing only. Entry, scroll and pointer transforms use separate layers. */
+.landing.marketing-site {
+  --marketing-blue: #315efb;
+  --marketing-ink: #10233f;
+  --marketing-mint: #9de8cf;
+  --marketing-paper: #f7f8fa;
+  --hero-progress: 0;
+  --reading-progress: 0;
+  background: var(--marketing-paper);
+}
+.landing.marketing-site .marketing-header { background: #f9fafbef; border-bottom-color: #dfe6ef; transition: background .3s, box-shadow .3s; }
+.landing.marketing-site[data-scrolled="true"] .marketing-header { background: #fffffff2; box-shadow: 0 6px 26px #081b330b; }
+.landing .marketing-reading-progress { position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; pointer-events: none; overflow: hidden; }
+.landing .marketing-reading-progress > span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, #315efb, #59bfc3, #9de8cf); transform-origin: left; transform: scaleX(var(--reading-progress)); }
+.landing.marketing-site .marketing-button-primary { background: #315efb; border-color: #6688ff44; box-shadow: inset 0 1px 0 #ffffff24, 0 5px 15px #315efb1f; }
+.landing.marketing-site .marketing-button-primary:hover { background: #214bda; box-shadow: 0 9px 24px #315efb35; }
+.landing.marketing-site .marketing-button > svg { transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+.landing.marketing-site .marketing-button:hover > svg { transform: translateX(3px); }
+.landing.marketing-site .marketing-hero { isolation: isolate; color: #fff; background: #081b33; }
+.landing .marketing-hero-atmosphere { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+.landing .marketing-hero-atmosphere > span { position: absolute; border-radius: 50%; }
+.landing .marketing-hero-atmosphere > span:nth-child(1) { width: 1050px; height: 1000px; right: -270px; top: -230px; background: radial-gradient(ellipse, #214d9e70, #10356038 43%, transparent 68%); transform: translate3d(0, calc(var(--hero-progress) * -90px), 0); }
+.landing .marketing-hero-atmosphere > span:nth-child(2) { width: 580px; height: 580px; right: 10%; top: 250px; background: radial-gradient(circle, #62cfaf14, transparent 65%); transform: translate3d(0, calc(var(--hero-progress) * -45px), 0); }
+.landing .marketing-hero-atmosphere > span:nth-child(3) { width: 900px; height: 900px; right: -440px; top: -620px; border: 1px solid #7bade21a; box-shadow: 0 0 0 100px #7bade204, 0 0 0 200px #7bade203; }
+.landing.marketing-site .marketing-hero-grid { min-height: 720px; padding-block: 62px 42px; }
+.landing.marketing-site .marketing-hero-label { color: #a9bed6; font-size: 12px; }
+.landing.marketing-site .marketing-hero-label > span { background: #9de8cf; box-shadow: 0 0 0 4px #9de8cf12; }
+.landing.marketing-site .marketing-hero h1 { color: #f3f7ff; font-weight: 520; }
+.landing.marketing-site .marketing-hero h1 > .marketing-title-line { display: block; color: #f3f7ff; }
+.landing.marketing-site .marketing-hero h1 > .marketing-title-accent { color: #9de8cf; background: linear-gradient(105deg, #acedd6 5%, #b7e4fb 70%, #83bdff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.landing.marketing-site .marketing-hero-description { color: #acbdd3; max-width: 415px; }
+.landing.marketing-site .marketing-hero-explore { color: #e0eaf6; }
+.landing.marketing-site .marketing-hero-explore:hover { color: #9de8cf; }
+.landing.marketing-site .marketing-hero-reassurance { color: #9db1ca; }
+.landing.marketing-site .marketing-hero-reassurance svg { color: #9de8cf; }
+.landing.marketing-site .marketing-hero-baseline { border-top-color: #92b2db22; }
+.landing.marketing-site .marketing-hero-baseline > p { color: #96a9c2; }
+.landing.marketing-site .marketing-hero-baseline strong { color: #c2d1e4; }
+.landing.marketing-site .marketing-hero-capabilities > span { color: #c8d8ec; }
+.landing.marketing-site .marketing-hero-capabilities i { color: #6988ab; }
+.landing.marketing-site .marketing-scroll-cue { color: #9de8cf; border-color: #91add43d; }
+.landing .marketing-hero-stage { position: relative; min-width: 0; perspective: 1400px; transform: translate3d(0, calc(var(--hero-progress) * -32px), 0); }
+.landing.marketing-site .product-scene::before { inset: 3% -4% 0 0; background: radial-gradient(ellipse, #4175d53b, #3262b51a 50%, transparent 73%); }
+.landing.marketing-site .product-scene-grid { opacity: .3; background-image: radial-gradient(#b6d0efb3 .8px, transparent .8px); }
+.landing.marketing-site .product-orbit { border-color: #6e9fdf24; }
+.landing.marketing-site .product-dashboard { box-shadow: 3px 5px 0 #a2b7d5, 7px 10px 0 -2px #385a89, 15px 35px 55px -20px #0007; border-color: #9cb9db; }
+.landing.marketing-site .product-floating-payment { box-shadow: 0 20px 40px -15px #0006; border-color: #d2ece3; }
+.landing.marketing-site .product-caption { color: #9cb1cb; }
+.landing.marketing-site .product-caption i { background: #8caed4; }
+.landing.marketing-site .product-caption button { border-color: #9ab8de35; color: #c6d6eb; background: #ffffff05; }
+.landing.marketing-site .product-caption button:hover { background: #ffffff0e; }
+.landing.marketing-site .product-spark-one { color: #9de8cf; }
+.landing.marketing-site .product-spark-two { color: #709ed5; }
+.landing.marketing-site .product-cube-front { background: #477af5; }
+.landing.marketing-site .product-cube-top { background: #94befb; }
+.landing.marketing-site .product-cube-right { background: #2c54bc; }
+.landing.marketing-site [data-reveal] { transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); transition-delay: var(--reveal-delay, 0ms); }
+.landing.marketing-site [data-revealed="false"] { opacity: 0; transform: translate3d(0, 28px, 0); }
+.landing.marketing-site [data-reveal="left"][data-revealed="false"] { transform: translate3d(-24px, 14px, 0); }
+.landing.marketing-site [data-reveal="right"][data-revealed="false"] { transform: translate3d(24px, 14px, 0); }
+.landing.marketing-site [data-revealed="true"] { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.marketing-site) { scroll-behavior: smooth; }
+  .landing .marketing-hero-label { animation: marketing-enter 650ms cubic-bezier(.22,1,.36,1) both; }
+  .landing .marketing-title-line { animation: marketing-title-enter 800ms cubic-bezier(.22,1,.36,1) both; }
+  .landing .marketing-title-line:nth-child(2) { animation-delay: 80ms; }
+  .landing .marketing-title-line:nth-child(3) { animation-delay: 160ms; }
+  .landing .marketing-hero-description { animation: marketing-enter 800ms 180ms cubic-bezier(.22,1,.36,1) both; }
+  .landing .marketing-hero-actions { animation: marketing-enter 800ms 260ms cubic-bezier(.22,1,.36,1) both; }
+  .landing .marketing-hero-reassurance { animation: marketing-enter 800ms 330ms cubic-bezier(.22,1,.36,1) both; }
+  .landing .marketing-hero-stage > .product-figure { animation: marketing-product-enter 1100ms 180ms cubic-bezier(.16,1,.3,1) both; }
+  .landing .marketing-hero-baseline { animation: marketing-enter 800ms 400ms cubic-bezier(.22,1,.36,1) both; }
+  .landing[data-motion-paused="true"] .marketing-hero-stage,
+  .landing[data-motion-paused="true"] .marketing-hero-stage > .product-figure { animation-play-state: paused; }
+}
+@keyframes marketing-enter { from { opacity: 0; transform: translate3d(0, 16px, 0); } to { opacity: 1; transform: none; } }
+@keyframes marketing-title-enter { from { transform: translate3d(0, 20px, 0); } to { transform: none; } }
+@keyframes marketing-product-enter { from { opacity: 0; transform: translate3d(14px, 35px, 0) rotateY(-9deg) rotateX(5deg); } to { opacity: 1; transform: none; } }
+@media (min-width: 1600px) { .landing.marketing-site .marketing-hero-grid { min-height: 760px; } }
+@media (max-width: 1199px) { .landing.marketing-site .marketing-hero-grid { min-height: 670px; } }
+@media (max-width: 859px) {
+  .landing.marketing-site .marketing-hero-grid { min-height: auto; padding-top: 55px; padding-bottom: 25px; }
+  .landing .marketing-hero-stage { transform: none; }
+  .landing .marketing-hero-atmosphere > span:nth-child(1) { right: -360px; top: 0; }
+}
+@media (max-width: 599px) {
+  .landing.marketing-site .marketing-hero-label { font-size: 10px; }
+  .landing.marketing-site .marketing-hero-grid { padding-top: 44px; padding-bottom: 16px; }
+  .landing.marketing-site .marketing-hero-description { max-width: 340px; }
+  .landing.marketing-site .marketing-hero h1 { font-size: clamp(47px, 12vw, 64px); }
+  .landing .marketing-hero-stage > .product-figure { animation-duration: 850ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has(.marketing-site) { scroll-behavior: auto; }
+  .landing.marketing-site [data-revealed="false"] { opacity: 1; transform: none; }
+  .landing .marketing-hero-stage, .landing .marketing-hero-atmosphere > span { transform: none; }
+}

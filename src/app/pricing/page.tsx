@@ -4,6 +4,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingPricing } from "@/components/landing/LandingPricing";
 import "@/styles/landing.css";
+import "@/styles/landing-motion.css";
 
 export const metadata = {
   title: "Tarifs - Felexia",

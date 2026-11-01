@@ -1,18 +1,7 @@
 import Link from "next/link";
-import {
-  ArrowDownLeft,
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  Check,
-  CheckCheck,
-  FileText,
-  Globe2,
-  Landmark,
-  Plus,
-  ShoppingBag,
-} from "lucide-react";
+import { ArrowUpRight, Globe2, Plus } from "lucide-react";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
+import { LandingJourney } from "./LandingJourney";
 import "./landing-story.css";
 
 const questions = [
@@ -45,92 +34,7 @@ const questions = [
 export function LandingStory() {
   return (
     <>
-      <section id="modules" className="story-product-section" aria-labelledby="story-product-title">
-        <div className="marketing-container">
-          <div className="story-heading-row" data-reveal>
-            <div>
-              <p className="marketing-eyebrow">MOINS DE DISPERSION. PLUS DE CLARTÉ.</p>
-              <h2 id="story-product-title" className="marketing-section-title">
-                Toute votre activité.<br />Un seul fil conducteur.
-              </h2>
-            </div>
-            <p className="marketing-copy story-heading-copy">
-              De votre première facture au dernier règlement, chaque opération trouve sa place.
-              Et vous, vous gardez la vue d’ensemble.
-            </p>
-          </div>
-
-          <div className="story-bento" id="features">
-            <article className="story-card story-sales" data-reveal>
-              <div className="story-card-heading">
-                <span className="story-module-icon"><FileText size={20} aria-hidden="true" /></span>
-                <span className="story-card-index">01 / VENTES</span>
-              </div>
-              <h3>Des factures à votre image.</h3>
-              <p>Vos clients, vos factures PDF personnalisées et les montants à encaisser, au même endroit.</p>
-              <div className="story-invoice-scene" aria-hidden="true">
-                <div className="story-invoice-paper">
-                  <div className="story-paper-top"><span className="story-paper-monogram">F.</span><span>FACTURE<br /><b>FAC-001</b></span></div>
-                  <div className="story-paper-rule" />
-                  <div className="story-paper-party"><span>Votre entreprise</span><span>Votre client</span></div>
-                  <div className="story-paper-line"><span>Prestation de services</span><span>1 000,00</span></div>
-                  <div className="story-paper-line"><span>TVA</span><span>200,00</span></div>
-                  <div className="story-paper-total"><span>Total TTC</span><strong>1 200,00 <small>MAD</small></strong></div>
-                </div>
-                <div className="story-paid-stamp"><CheckCheck size={17} />Règlement enregistré</div>
-              </div>
-            </article>
-
-            <article className="story-card story-treasury" data-reveal>
-              <div className="story-card-heading">
-                <span className="story-module-icon"><Landmark size={20} aria-hidden="true" /></span>
-                <span className="story-card-index">02 / TRÉSORERIE</span>
-              </div>
-              <h3>Votre argent, en perspective.</h3>
-              <p>Comptes bancaires, caisses, entrées et sorties : retrouvez vos mouvements et vos soldes.</p>
-              <div className="story-cash-visual" aria-hidden="true">
-                <div className="story-cash-caption"><span>Une vision claire des mouvements</span><Landmark size={16} /></div>
-                <div className="story-cash-bars">
-                  {[42, 62, 48, 76, 66, 91, 79, 100, 88, 116, 105, 134].map((height, index) => (
-                    <span key={index} style={{ height }}><i /></span>
-                  ))}
-                </div>
-                <div className="story-cash-legend"><span><i />Encaissements</span><span><i />Décaissements</span></div>
-              </div>
-            </article>
-
-            <article className="story-card story-purchases" data-reveal>
-              <div className="story-card-heading">
-                <span className="story-module-icon"><ShoppingBag size={20} aria-hidden="true" /></span>
-                <span className="story-card-index">03 / ACHATS</span>
-              </div>
-              <h3>Les bons repères pour payer.</h3>
-              <p>Centralisez vos fournisseurs, saisissez leurs factures et suivez les règlements à effectuer.</p>
-              <div className="story-purchase-list" aria-hidden="true">
-                <div><span className="story-supplier-avatar">A</span><span><b>Fournisseur Atelier</b><small>Facture d’achat</small></span><span className="story-status story-status-pending">À régler</span></div>
-                <div><span className="story-supplier-avatar">S</span><span><b>Fournisseur Studio</b><small>Règlement fournisseur</small></span><span className="story-status story-status-paid"><Check size={12} />Réglée</span></div>
-              </div>
-            </article>
-
-            <article className="story-card story-journals" data-reveal>
-              <div className="story-card-heading">
-                <span className="story-module-icon"><BookOpen size={20} aria-hidden="true" /></span>
-                <span className="story-card-index">04 / JOURNAUX</span>
-              </div>
-              <h3>Chaque mouvement a une histoire.</h3>
-              <p>Retrouvez les journaux et les écritures associés à vos ventes, achats et règlements.</p>
-              <div className="story-journal-flow" aria-hidden="true">
-                <span><FileText size={22} /><b>Facture</b></span>
-                <ArrowRight className="story-flow-arrow" size={19} />
-                <span><ArrowDownLeft size={22} /><b>Règlement</b></span>
-                <ArrowRight className="story-flow-arrow" size={19} />
-                <span><BookOpen size={22} /><b>Journal</b></span>
-              </div>
-            </article>
-          </div>
-          <p className="story-illustration-note">Aperçus illustratifs · Données fictives</p>
-        </div>
-      </section>
+      <LandingJourney />
 
       <section id="why" className="story-context-section" aria-labelledby="story-context-title">
         <div className="marketing-container story-context-grid">

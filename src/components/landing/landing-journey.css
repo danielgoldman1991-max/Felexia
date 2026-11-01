@@ -1,0 +1,166 @@
+.landing .journey-section { padding: 110px 0 85px; background: #f7f8fa; scroll-margin-top: 94px; }
+.landing .journey-heading { margin-bottom: 44px; }
+.landing .journey-heading-copy { max-width: 570px; margin-top: 22px; }
+.landing .journey-grid { scroll-margin-top: 100px; }
+.landing .journey-chapter { display: grid; grid-template-columns: .85fr 1.15fr; align-items: center; gap: 85px; padding: 36px 0; scroll-margin-top: 100px; }
+.landing .journey-chapter-eyebrow { display: block; color: #71809a; font-size: 11px; font-weight: 600; line-height: 1.6; letter-spacing: .08em; }
+.landing .journey-chapter h3 { margin: 20px 0 21px; font-size: clamp(29px, 3vw, 38px); line-height: 1.16; font-weight: 530; letter-spacing: -.055em; color: #081b33; }
+.landing .journey-chapter h3 > span { display: block; }
+.landing .journey-chapter-copy > p { max-width: 385px; margin: 0; color: #68778c; font-size: 14px; line-height: 1.85; }
+.landing .journey-chapter-copy ul { display: grid; gap: 10px; padding: 0; margin: 23px 0 0; list-style: none; }
+.landing .journey-chapter-copy li { display: flex; align-items: center; gap: 9px; color: #53647b; font-size: 12px; line-height: 1.5; }
+.landing .journey-chapter-copy li svg { color: #315efb; }
+.landing .journey-chapter-name { display: flex; align-items: center; gap: 10px; margin-top: 27px; color: #315efb; font-size: 12px; font-weight: 550; }
+.landing .journey-chapter-name > svg:last-child { margin-left: 4px; }
+.landing .journey-stage { display: none; }
+.landing .journey-visual { position: relative; overflow: hidden; width: 100%; border: 1px solid #dce2ec; border-radius: 18px; background: #edf1fa; box-shadow: 0 20px 50px -40px #081b336b; }
+.landing .journey-appbar { display: flex; align-items: center; gap: 12px; height: 49px; padding: 0 21px; border-bottom: 1px solid #e1e6ef; color: #7a879b; background: #ffffffc4; font-size: 9px; }
+.landing .journey-appmark { color: #315efb; font-size: 21px; font-weight: 700; line-height: 1; letter-spacing: -.09em; }
+.landing .journey-appbar-dot { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: #9de8cf; }
+.landing .journey-invoice-wrap { position: relative; padding: 29px 25px 24px; perspective: 1000px; }
+.landing .journey-invoice { max-width: 326px; padding: 26px 27px 20px; margin: 0 auto; border: 1px solid #e1e6f0; border-radius: 6px; background: #fff; box-shadow: 0 9px 30px #24376718; transform: rotate(-3deg) rotateY(-5deg); }
+.landing .journey-invoice-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.landing .journey-invoice-monogram { color: #315efb; font-size: 9px; line-height: 1.2; letter-spacing: -.025em; }
+.landing .journey-invoice-monogram strong { font-size: 14px; font-weight: 650; }
+.landing .journey-invoice-head > span:last-child { color: #8290a5; font-size: 8px; text-align: right; letter-spacing: .05em; }
+.landing .journey-invoice-head b { display: block; margin-top: 5px; font-size: 10px; font-weight: 550; color: #081b33; }
+.landing .journey-invoice-parties { display: flex; justify-content: space-between; gap: 20px; padding: 22px 0 20px; margin-top: 16px; border-top: 1px solid #edf0f5; }
+.landing .journey-invoice-parties > span { font-size: 6px; line-height: 1.8; letter-spacing: .08em; color: #8a97ab; }
+.landing .journey-invoice-parties b { display: block; color: #41516b; font-size: 9px; letter-spacing: 0; font-weight: 550; }
+.landing .journey-invoice-parties small { display: block; font-size: 7px; letter-spacing: 0; }
+.landing .journey-invoice-table-head { display: flex; justify-content: space-between; padding: 10px 9px; border-radius: 4px; background: #f2f5fb; color: #6c7a90; font-size: 7px; }
+.landing .journey-invoice-line { display: flex; justify-content: space-between; gap: 10px; padding: 15px 9px; border-bottom: 1px solid #edf0f5; color: #57677f; font-size: 8px; }
+.landing .journey-invoice-vat { padding-top: 11px; padding-bottom: 11px; }
+.landing .journey-invoice-total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 9px; font-size: 8px; color: #43536d; }
+.landing .journey-invoice-total strong { font-size: 20px; font-weight: 550; letter-spacing: -.045em; color: #081b33; }
+.landing .journey-invoice-total small { font-size: 8px; font-weight: 500; letter-spacing: 0; }
+.landing .journey-invoice-footer { padding-top: 6px; text-align: center; color: #a0aab9; font-size: 6px; }
+.landing .journey-invoice-chip { position: absolute; right: 22px; bottom: 44px; display: flex; align-items: center; gap: 8px; padding: 13px 15px; border: 1px solid #c9d6ff; border-radius: 8px; background: #f6f8ff; box-shadow: 0 5px 14px #081b3312; color: #315efb; font-size: 9px; transform: rotate(3deg); }
+.landing .journey-scene-footer { display: flex; align-items: center; gap: 8px; min-height: 43px; padding: 11px 20px; border-top: 1px solid #dfe6ef; background: #ffffffa3; color: #6b7a91; font-size: 9px; line-height: 1.5; }
+.landing .journey-scene-footer > svg { margin-left: auto; flex-shrink: 0; color: #9ca8bb; }
+.landing .journey-scene-dot { flex-shrink: 0; width: 5px; height: 5px; border-radius: 50%; background: #315efb; }
+.landing .journey-payment-visual { background: #eaf6f1; }
+.landing .journey-payment-wrap { display: flex; align-items: center; flex-direction: column; padding: 28px 26px 25px; }
+.landing .journey-payment-check { display: grid; place-items: center; width: 62px; height: 62px; border: 1px solid #abdfc9; border-radius: 20px; color: #1e7250; background: #b6ecd7; box-shadow: 0 0 0 9px #fff5; }
+.landing .journey-payment-label { margin-top: 19px; color: #658171; font-size: 10px; }
+.landing .journey-payment-amount { display: flex; align-items: baseline; gap: 0; margin-top: 4px; font-size: 42px; font-weight: 520; line-height: 1.2; letter-spacing: -.06em; color: #153e32; }
+.landing .journey-payment-amount > span { font-size: 26px; }
+.landing .journey-payment-amount small { margin-left: 7px; color: #708d7c; font-size: 10px; font-weight: 550; letter-spacing: 0; }
+.landing .journey-payment-receipt { width: 100%; max-width: 330px; padding: 6px 19px; margin-top: 21px; border: 1px solid #d8e8df; border-radius: 10px; background: #ffffffc7; }
+.landing .journey-payment-receipt > div { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 11px 0; border-bottom: 1px solid #e8eee9; font-size: 9px; color: #809188; }
+.landing .journey-payment-receipt > div:last-child { border-bottom: 0; }
+.landing .journey-payment-receipt strong { font-weight: 550; color: #3a594a; }
+.landing .journey-payment-receipt-status b { display: flex; align-items: center; gap: 4px; color: #247552; font-size: 9px; font-weight: 550; }
+.landing .journey-payment-link { display: flex; align-items: center; gap: 7px; width: 100%; max-width: 330px; margin-top: 23px; color: #6f9581; font-size: 8px; }
+.landing .journey-payment-link > i { flex: 1; height: 1px; min-width: 8px; margin: 0 4px; background: #b3d3c2; }
+.landing .journey-payment-visual .journey-scene-dot { background: #6db193; }
+.landing .journey-pilot-visual { background: #f1f3fa; }
+.landing .journey-pilot-wrap { padding: 24px 25px; }
+.landing .journey-pilot-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.landing .journey-pilot-kpis > div { position: relative; padding: 16px; border: 1px solid #e0e5ef; border-radius: 9px; background: #fff; }
+.landing .journey-pilot-kpis > div > span { display: block; color: #8490a2; font-size: 8px; }
+.landing .journey-pilot-kpis strong { display: block; margin-top: 6px; color: #081b33; font-size: 25px; line-height: 1.1; font-weight: 550; letter-spacing: -.05em; }
+.landing .journey-pilot-kpis small { margin-left: 4px; color: #8794a8; font-size: 7px; font-weight: 550; letter-spacing: 0; }
+.landing .journey-pilot-kpis i { display: block; margin-top: 8px; color: #469176; font-size: 7px; font-style: normal; }
+.landing .journey-pilot-kpis > div:last-child i { color: #8b90ac; }
+.landing .journey-chart-card { margin-top: 14px; padding: 17px 17px 11px; border: 1px solid #e0e5ef; border-radius: 9px; background: #fff; }
+.landing .journey-chart-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #53647e; font-size: 9px; }
+.landing .journey-chart-title b { color: #93a0b3; font-size: 7px; font-weight: 500; }
+.landing .journey-chart { height: 112px; margin-top: 21px; }
+.landing .journey-chart > svg { width: 100%; height: 100%; overflow: visible; }
+.landing .journey-chart-grid { fill: none; stroke: #eef1f7; stroke-width: 1; }
+.landing .journey-chart-area { fill: #315efb0c; }
+.landing .journey-chart-line { fill: none; stroke: #315efb; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.landing .journey-chart-period { display: flex; justify-content: space-between; margin-top: 8px; color: #a2abbd; font-size: 6px; }
+.landing .journey-journal { overflow: hidden; padding: 0 13px; margin-top: 13px; border: 1px solid #e0e5ef; border-radius: 8px; background: #fff; }
+.landing .journey-journal > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid #edf0f5; color: #8490a4; font-size: 8px; }
+.landing .journey-journal > div:first-child { justify-content: flex-start; padding: 10px 0; color: #496086; font-size: 8px; }
+.landing .journey-journal > div:first-child svg { color: #315efb; }
+.landing .journey-journal > div:last-child { border-bottom: 0; }
+.landing .journey-journal b { color: #66768e; font-size: 8px; font-weight: 500; }
+.landing .journey-illustration-note { margin: 14px 0 0; text-align: right; color: #8e99ab; font-size: 9px; }
+@media (min-width: 901px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  .landing .journey-grid[data-enhanced="true"] { display: grid; grid-template-columns: .85fr 1.15fr; align-items: start; gap: 85px; }
+  .landing .journey-grid[data-enhanced="true"] .journey-chapter { display: flex; align-items: center; min-height: 490px; padding: 45px 0; }
+  .landing .journey-grid[data-enhanced="true"] .journey-inline-visual { display: none; }
+  .landing .journey-grid[data-enhanced="true"] .journey-stage { position: sticky; top: max(105px, calc((100vh - 585px) / 2)); display: block; padding-top: 12px; }
+  .landing .journey-stage-nav { display: flex; gap: 6px; padding: 4px; margin-bottom: 15px; border: 1px solid #e0e5ee; border-radius: 11px; background: #ebeef3; }
+  .landing .journey-stage-nav button { display: flex; align-items: center; justify-content: center; flex: 1; gap: 7px; padding: 11px 9px; border: 0; border-radius: 7px; background: transparent; color: #8490a4; font-size: 12px; font-weight: 550; cursor: pointer; transition: color .3s, background .3s, box-shadow .3s; }
+  .landing .journey-stage-nav button > span { font-size: 10px; font-weight: 500; opacity: .6; }
+  .landing .journey-stage-nav button[aria-current="step"] { background: #fff; color: #315efb; box-shadow: 0 2px 5px #081b3307; }
+  .landing .journey-stage-nav button:hover { color: #315efb; }
+  .landing .journey-stage-nav button:focus-visible { outline: 2px solid #315efb; outline-offset: 3px; }
+  .landing .journey-stage-scenes { position: relative; display: grid; perspective: 1400px; }
+  .landing .journey-stage-layer { grid-area: 1 / 1; opacity: 0; pointer-events: none; transform: translateY(23px) rotateX(4deg) scale(.97); transition: opacity .6s ease, transform .75s cubic-bezier(.22,.68,.15,1); }
+  .landing .journey-stage-layer[data-current="true"] { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+  .landing .journey-stage-layer .journey-visual { display: flex; flex-direction: column; height: 478px; }
+  .landing .journey-stage-layer .journey-appbar { flex-shrink: 0; }
+  .landing .journey-stage-layer .journey-scene-footer { flex-shrink: 0; margin-top: auto; }
+  .landing .journey-stage-layer .journey-invoice-wrap { padding-top: 16px; padding-bottom: 16px; }
+  .landing .journey-stage-layer .journey-invoice { padding-top: 20px; padding-bottom: 14px; line-height: 1.3; }
+  .landing .journey-stage-layer .journey-invoice-parties { padding: 12px 0; margin-top: 10px; }
+  .landing .journey-stage-layer .journey-invoice-parties > span { line-height: 1.5; }
+  .landing .journey-stage-layer .journey-invoice-table-head { padding-top: 6px; padding-bottom: 6px; }
+  .landing .journey-stage-layer .journey-invoice-line { padding-top: 9px; padding-bottom: 9px; }
+  .landing .journey-stage-layer .journey-invoice-vat { padding-top: 7px; padding-bottom: 7px; }
+  .landing .journey-stage-layer .journey-invoice-total { padding-top: 11px; padding-bottom: 11px; }
+  .landing .journey-stage-layer .journey-invoice-footer { display: none; }
+  .landing .journey-stage-layer .journey-invoice-chip { bottom: 31px; }
+  .landing .journey-stage-layer .journey-payment-wrap { padding-top: 20px; padding-bottom: 20px; }
+  .landing .journey-stage-layer .journey-payment-check { width: 44px; height: 44px; border-radius: 14px; }
+  .landing .journey-stage-layer .journey-payment-check > svg { width: 25px; height: 25px; }
+  .landing .journey-stage-layer .journey-payment-label { margin-top: 13px; }
+  .landing .journey-stage-layer .journey-payment-amount { font-size: 35px; }
+  .landing .journey-stage-layer .journey-payment-amount > span { font-size: 23px; }
+  .landing .journey-stage-layer .journey-payment-receipt { margin-top: 15px; }
+  .landing .journey-stage-layer .journey-payment-receipt > div { padding-top: 6px; padding-bottom: 6px; }
+  .landing .journey-stage-layer .journey-payment-link { margin-top: 18px; }
+  .landing .journey-stage-layer .journey-pilot-wrap { padding-top: 20px; padding-bottom: 20px; }
+  .landing .journey-stage-layer .journey-pilot-kpis > div { padding-top: 12px; padding-bottom: 12px; }
+  .landing .journey-stage-layer .journey-chart-card { padding-top: 13px; padding-bottom: 9px; margin-top: 12px; }
+  .landing .journey-stage-layer .journey-chart { height: 84px; margin-top: 15px; }
+  .landing .journey-stage-layer .journey-journal { margin-top: 10px; }
+  .landing .journey-stage-layer .journey-journal > div { padding-top: 7px; padding-bottom: 7px; }
+  .landing .journey-stage-layer[data-current="true"] .journey-payment-check { animation: journey-check-arrive .7s .15s both cubic-bezier(.22,.68,.15,1); }
+  .landing .journey-stage-layer[data-current="true"] .journey-chart-line { stroke-dasharray: 520; stroke-dashoffset: 520; animation: journey-chart-draw 1.4s .2s both cubic-bezier(.2,.65,.25,1); }
+  @keyframes journey-check-arrive { from { opacity: 0; transform: translateY(12px) scale(.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes journey-chart-draw { to { stroke-dashoffset: 0; } }
+}
+@media (max-width: 1100px) {
+  .landing .journey-chapter { gap: 45px; }
+  .landing .journey-grid[data-enhanced="true"] { gap: 45px; }
+}
+@media (max-width: 900px) {
+  .landing .journey-section { padding: 85px 0 70px; }
+  .landing .journey-chapter { gap: 35px; padding: 30px 0; }
+  .landing .journey-chapter h3 { font-size: 30px; }
+  .landing .journey-chapter-copy > p { font-size: 12px; }
+  .landing .journey-invoice-wrap { padding: 25px 22px 27px; }
+  .landing .journey-invoice { padding: 21px; }
+  .landing .journey-invoice-chip { right: 11px; bottom: 28px; padding: 11px; font-size: 8px; }
+  .landing .journey-payment-amount { font-size: 37px; }
+  .landing .journey-payment-wrap { padding-right: 19px; padding-left: 19px; }
+  .landing .journey-pilot-wrap { padding: 20px 17px; }
+  .landing .journey-pilot-kpis > div { padding: 13px; }
+}
+@media (max-width: 640px) {
+  .landing .journey-section { padding: 70px 0 53px; }
+  .landing .journey-heading { margin-bottom: 22px; }
+  .landing .journey-heading-copy { margin-top: 20px; }
+  .landing .journey-chapter { grid-template-columns: 1fr; gap: 26px; padding: 28px 0 25px; }
+  .landing .journey-chapter + .journey-chapter { border-top: 1px solid #e4e8ef; margin-top: 16px; padding-top: 40px; }
+  .landing .journey-chapter h3 { font-size: 32px; margin-top: 16px; }
+  .landing .journey-chapter-copy > p { max-width: 100%; font-size: 13px; }
+  .landing .journey-chapter-copy ul { gap: 9px; margin-top: 19px; }
+  .landing .journey-chapter-name { margin-top: 20px; }
+  .landing .journey-inline-visual { width: 100%; max-width: 480px; margin: 0 auto; }
+  .landing .journey-invoice-wrap { padding: 24px 23px 30px; }
+  .landing .journey-invoice { max-width: 270px; }
+  .landing .journey-invoice-chip { bottom: 32px; font-size: 8px; }
+  .landing .journey-appbar { height: 45px; padding: 0 17px; }
+  .landing .journey-scene-footer { padding: 11px 16px; font-size: 8px; }
+  .landing .journey-payment-wrap { padding: 28px 23px 27px; }
+  .landing .journey-payment-amount { font-size: 40px; }
+  .landing .journey-payment-link { gap: 5px; font-size: 7px; }
+  .landing .journey-pilot-wrap { padding: 20px; }
+}
