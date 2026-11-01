@@ -54,15 +54,26 @@ export function PublicAnalytics() {
 
   return (
     <section className={styles.banner} role="region" aria-label="Préférences de cookies" onKeyDown={(event) => { if (event.key === "Escape" && snapshot.choice !== null) closeSettings(); }}>
-      <div className={styles.copy}>
+      <div className={styles.heading}>
+        <span className={styles.icon} aria-hidden="true">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12a9 9 0 1 1-9-9 4 4 0 0 0 4 4 4 4 0 0 0 5 5Z" />
+            <path d="M8 8h.01M7 14h.01M12 17h.01M15 12h.01" strokeWidth="2.8" />
+          </svg>
+        </span>
         <h2>Votre choix pour les cookies</h2>
-        <p>Avec votre accord, Google Analytics mesure les visites et les clics du site public. Aucun suivi dans votre espace ERP. Vous pouvez changer d’avis à tout moment.</p>
-        <a href="/confidentialite#cookies">En savoir plus</a>
+      </div>
+      <div className={styles.copy}>
+        <p>Google Analytics mesure les visites et les clics du site public uniquement avec votre accord. Aucun suivi dans votre espace ERP.</p>
       </div>
       <div className={styles.actions}>
-        <button ref={acceptButton} type="button" onClick={() => choose("accepted")}>Accepter la mesure</button>
-        <button type="button" onClick={() => choose("refused")}>Refuser la mesure</button>
+        <button ref={acceptButton} type="button" onClick={() => choose("accepted")}>Accepter<span className={styles.srOnly}> la mesure</span></button>
+        <button type="button" onClick={() => choose("refused")}>Refuser<span className={styles.srOnly}> la mesure</span></button>
         {snapshot.choice !== null ? <button type="button" className={styles.close} onClick={closeSettings}>Fermer</button> : null}
+      </div>
+      <div className={styles.details}>
+        <span>Changez d’avis à tout moment.</span>
+        <a href="/confidentialite#cookies">En savoir plus<span aria-hidden="true"> ↗</span></a>
       </div>
     </section>
   );
