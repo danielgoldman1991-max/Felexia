@@ -1,0 +1,6 @@
+{
+  "passed": 100,
+  "source": "src/components/landing/LandingEffects.tsx",
+  "method": "Actual LandingEffects transpiled with TypeScript and executed in node:vm; DOM/effect/RAF/observer doubles.",
+  "limits": "CSS compatibility and layout are not emulated; this does not replace native-browser verification of zoom, focus, image alignment or reduced-motion rendering."
+}

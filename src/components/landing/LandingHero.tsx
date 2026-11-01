@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import { LandingLaptopInterface } from "./LandingLaptopInterface";
+import { LandingZoomPreference } from "./LandingZoomPreference";
 import "./landing-horizon.css";
 
 export function LandingHero() {
@@ -28,6 +29,7 @@ export function LandingHero() {
             <a href="#facturation-electronique" className="horizon-discover" aria-label="En savoir plus sur la facturation électronique">En savoir plus</a>
           </div>
           <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai gratuit · Sans carte bancaire</span>
+          <LandingZoomPreference />
         </div>
         <a className="horizon-scroll-cue" href="#facturation-electronique" aria-label="Découvrir la facturation électronique">
           <span className="horizon-cue-enter">Défiler pour découvrir</span>

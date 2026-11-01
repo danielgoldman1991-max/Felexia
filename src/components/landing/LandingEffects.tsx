@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const smoothstep = (value: number) => { const t = clamp(value); return t * t * (3 - 2 * t); };
+const getScrollY = () => document.scrollingElement?.scrollTop ?? window.scrollY;
 
 // Coordinates of the laptop display in the generated 1672 × 941 landscape.
 const LANDSCAPE = { width: 1672, height: 941, screenX: 831.6, screenY: 562.4, screenWidth: 67.2, screenHeight: 40.8 };
@@ -14,7 +15,6 @@ export function LandingEffects() {
     if (!root) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const mobile = window.matchMedia("(max-width: 859px)");
-    const shortViewport = window.matchMedia("(max-height: 600px)");
     const hero = root.querySelector<HTMLElement>(".horizon-hero, .marketing-hero");
     const heroWindow = root.querySelector<HTMLElement>(".horizon-window");
     const world = root.querySelector<HTMLElement>(".horizon-world");
@@ -43,7 +43,7 @@ export function LandingEffects() {
     const measure = () => {
       if (hero) {
         const rect = hero.getBoundingClientRect();
-        heroTop = rect.top + window.scrollY;
+        heroTop = rect.top + getScrollY();
         heroHeight = Math.max(1, rect.height);
         heroWindowHeight = heroWindow?.getBoundingClientRect().height ?? window.innerHeight;
         viewportWidth = heroWindow?.clientWidth ?? window.innerWidth;
@@ -62,12 +62,13 @@ export function LandingEffects() {
 
     const update = () => {
       frame = 0;
-      const y = window.scrollY;
+      const y = getScrollY();
       const scrolled = String(y > 20);
       if (scrolled !== previousScrolled) { root.dataset.scrolled = scrolled; previousScrolled = scrolled; }
       root.style.setProperty("--reading-progress", clamp(y / pageRange).toFixed(4));
       const heroRange = horizon ? Math.max(1, heroHeight - heroWindowHeight) : heroHeight;
-      const heroProgress = reduced.matches || (horizon && (shortViewport.matches || heroHeight <= heroWindowHeight + 1)) || (!horizon && mobile.matches) || root.dataset.motionPaused === "true"
+      const reduceHeroMotion = reduced.matches && root.dataset.horizonMotion !== "enabled";
+      const heroProgress = reduceHeroMotion || (horizon && heroHeight <= heroWindowHeight + 1) || (!horizon && mobile.matches) || root.dataset.motionPaused === "true"
         ? 0 : clamp((y - heroTop) / heroRange);
       if (heroProgress !== previousHeroProgress) {
         root.style.setProperty("--hero-progress", heroProgress.toFixed(4));
@@ -137,25 +138,24 @@ export function LandingEffects() {
     setupReveals(); measure(); update();
     const resizeObserver = "ResizeObserver" in window ? new ResizeObserver(resize) : undefined;
     resizeObserver?.observe(root);
-    const pauseObserver = new MutationObserver(schedule);
-    pauseObserver.observe(root, { attributes: true, attributeFilter: ["data-motion-paused"] });
+    const pauseObserver = new MutationObserver(resize);
+    pauseObserver.observe(root, { attributes: true, attributeFilter: ["data-motion-paused", "data-horizon-motion"] });
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", resize, { passive: true });
     document.addEventListener("visibilitychange", visibility);
     reduced.addEventListener("change", preferences);
-    shortViewport.addEventListener("change", resize);
     mobile.addEventListener("change", resize);
     return () => {
       cancelAnimationFrame(frame); observer?.disconnect(); resizeObserver?.disconnect(); pauseObserver.disconnect();
       window.removeEventListener("scroll", schedule); window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", visibility);
       reduced.removeEventListener("change", preferences); mobile.removeEventListener("change", resize);
-      shortViewport.removeEventListener("change", resize);
       for (const element of elements) element.removeAttribute("data-revealed");
       root.style.removeProperty("--reading-progress"); root.style.removeProperty("--hero-progress");
       delete root.dataset.scrolled;
       delete root.dataset.heroVisible; delete root.dataset.horizonAway;
       delete root.dataset.horizonEnhanced;
+      delete root.dataset.horizonMotion;
       if (heroCopy) heroCopy.inert = false;
       world?.style.removeProperty("transform"); laptop?.style.removeProperty("opacity"); laptop?.style.removeProperty("transform");
     };

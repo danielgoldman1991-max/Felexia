@@ -38,6 +38,8 @@ jobs:
           node --check scripts/verify-essential-expiry.cjs
       - run: npm run test:regressions
       - run: npm run test:light-launch
+      - name: Verify marketing scroll zoom compatibility
+        run: node training/marketing/20261101-zoom-compatibility/verify-controller.cjs
       - run: npm run test:e-invoicing
       - run: npx tsx training/e-invoicing/20261031/verify-pdf.ts
       - run: npx tsx scripts/verify-operator-access.ts

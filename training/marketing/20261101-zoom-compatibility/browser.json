@@ -1,0 +1,64 @@
+[
+  {
+    "heroHeight": 2039.1639404296875,
+    "step": "fixed-short-opening",
+    "url": "http://127.0.0.1:3110/",
+    "viewport": [
+      1163,
+      536
+    ],
+    "windowHeight": 536.6234130859375
+  },
+  {
+    "heroHeight": 3043.528076171875,
+    "laptopDisplay": "block",
+    "position": "sticky",
+    "step": "published-bug-opening",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      1737,
+      801
+    ],
+    "windowHeight": 800.9303588867188
+  },
+  {
+    "progress": "0.7703",
+    "step": "published-bug-scroll",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      1737,
+      801
+    ],
+    "world": "matrix(14.6002, 0, 0, 14.6002, -11283, -7780.65)",
+    "y": 1727.4664306640625
+  },
+  {
+    "heroHeight": 2039.1639404296875,
+    "laptopDisplay": "block",
+    "overflow": false,
+    "progress": "1.0000",
+    "step": "fixed-short-scroll",
+    "url": "http://127.0.0.1:3110/",
+    "viewport": [
+      1163,
+      536
+    ],
+    "windowHeight": 536.6234130859375,
+    "world": "matrix(8.98587, 0, 0, 8.98587, -6897.65, -4755.34)",
+    "y": 1661.818115234375
+  },
+  {
+    "heroHeight": 475.285888671875,
+    "laptopDisplay": "none",
+    "progress": "0.0000",
+    "step": "published-short-bug-confirmed",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      1492,
+      475
+    ],
+    "windowHeight": 475.285888671875,
+    "world": "none",
+    "y": 880.790771484375
+  }
+]
