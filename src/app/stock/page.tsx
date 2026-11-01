@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +13,7 @@ import { formatNumber } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function StockPage() {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const [products, locationCounters] = await Promise.all([listStockProductsForSelect(), getStockLocationCounters()]);
   const stockable = products.filter((product) => product.track_stock);
   const lowStock = stockable.filter((product) => product.current_stock <= product.min_stock);
@@ -25,7 +28,7 @@ export default async function StockPage() {
           <>
             <Button type="button" variant="secondary" asChild><Link href="/stock/emplacements">Emplacements stock</Link></Button>
             <Button type="button" variant="secondary" asChild><Link href="/stock/mouvements">Mouvements par article</Link></Button>
-            <Button type="button" asChild><Link href="/stock/entrees/new">Entree manuelle</Link></Button>
+            {canWrite ? <Button type="button" asChild><Link href="/stock/entrees/new">Entree manuelle</Link></Button> : null}
           </>
         )}
       />

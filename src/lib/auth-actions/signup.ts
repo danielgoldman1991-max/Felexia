@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/auth";
+import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
+import { getAppUrl } from "@/lib/app-url";
 
 export type SignUpState = {
   error: string | null;
@@ -35,15 +37,18 @@ export async function signUpAction(
     return { error: "Impossible d'initialiser la connexion." };
   }
 
-  const { error } = await supabase.auth.signUp({
+  const onboardingPath = getCompanyOnboardingPath(String(formData.get("next") ?? ""));
+  const callback = new URL("/auth/callback", getAppUrl());
+  callback.searchParams.set("next", onboardingPath);
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options: { emailRedirectTo: callback.toString(), data: { full_name: fullName } },
   });
 
   if (error) {
     return { error: error.message };
   }
 
-  redirect("/onboarding/entreprise");
+  redirect(data?.session ? onboardingPath : `/login?notice=confirm_email&next=${encodeURIComponent(onboardingPath)}`);
 }

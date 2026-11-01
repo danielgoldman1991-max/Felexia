@@ -44,7 +44,7 @@ const points = [
     icon: Rocket,
     title: "Évolutif avec vous",
     description:
-      "Démarrez avec l’essentiel. Les modules complémentaires peuvent être activés sur demande par notre équipe.",
+      "Démarrez avec ESSENTIEL. Passez à PRO pour retrouver les fonctions de l’ERP complet dans votre espace entreprise.",
   },
 ];
 

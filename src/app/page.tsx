@@ -5,21 +5,22 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { LandingEinvoicing } from "@/components/landing/LandingEinvoicing";
 import { LandingPricing } from "@/components/landing/LandingPricing";
+import { LandingPro } from "@/components/landing/LandingPro";
 import { LandingStory } from "@/components/landing/LandingStory";
 import { LandingEffects } from "@/components/landing/LandingEffects";
 import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
 export const metadata: Metadata = {
-  title: "Felexia Pro — Facturation électronique au Maroc",
+  title: "Felexia — ESSENTIEL et PRO, votre ERP au Maroc",
   description:
-    "Générez vos factures électroniques en PDF et XML, émettez-les et archivez-les avec Felexia Pro. Suivez aussi vos règlements et votre trésorerie.",
+    "ESSENTIEL pour facturer et suivre votre trésorerie. PRO pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et ressources humaines au Maroc.",
   openGraph: {
     type: "website",
     locale: "fr_MA",
-    title: "Felexia Pro — Facturation électronique au Maroc",
+    title: "Felexia — ESSENTIEL et PRO, votre ERP au Maroc",
     description:
-      "Factures électroniques PDF/XML, émission et archivage : vos documents et votre gestion réunis dans un seul espace.",
+      "Deux offres pour votre PME : la gestion quotidienne avec ESSENTIEL, toutes les fonctions de l’ERP avec PRO. Facturation électronique PDF/XML incluse.",
   },
 };
 
@@ -31,6 +32,7 @@ export default function LandingPage() {
       <main id="main-content" tabIndex={-1}>
         <LandingHero />
         <LandingEinvoicing />
+        <LandingPro />
         <LandingStory />
         <LandingPricing />
         <LandingContact />

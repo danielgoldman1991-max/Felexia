@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '../../..');
 const ts = require(root + '/node_modules/typescript');
 const compile = filename => ts.transpileModule(fs.readFileSync(path.join(root, filename), 'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 let currentEvent, failAt = null, retrieveCount = 0, writes = [];
+let mappedPlan = 'essentiel';
 const records = new Map();
 const subscription = {id:'sub_fixture',status:'active',customer:'cus_fixture',metadata:{organization_id:'10000000-0000-4000-8000-000000000001',plan_code:'essentiel'},items:{data:[{price:{id:'price_fixture',recurring:{interval:'month'}},current_period_start:1793404800,current_period_end:1796083200}]}};
 const service = {
@@ -51,7 +52,7 @@ function load(source, requireFixture, extra={}) {
 const webhook=load(compile('src/lib/stripe-webhook.ts'),name=>{
   if(name==='@/lib/stripe')return {getStripe:()=>stripe};
   if(name==='@/lib/subscriptions/plans')return {normalizePlanCode:v=>v};
-  if(name==='@/lib/subscriptions/stripe-prices')return {getPlanCodeFromPriceId:()=> 'essentiel'};
+  if(name==='@/lib/subscriptions/stripe-prices')return {getPlanCodeFromPriceId:()=> mappedPlan};
   if(name==='@/lib/supabase/service')return {createClient:()=>service};
   throw Error('Unexpected dependency '+name);
 });
@@ -73,6 +74,11 @@ async function main(){
   let beforeConfiguredPaid=writes.length;event('invoice.payment_succeeded',{subscription:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.length===beforeConfiguredPaid+1&&writes.at(-1).p_payload.status==='active','Configured legacy payment_succeeded event updates subscription');
   beforeConfiguredPaid=writes.length;event('invoice.payment_succeeded',{parent:{subscription_details:{subscription:subscription.id}}});await webhook.handleStripeWebhook('{}','valid');ok(writes.length===beforeConfiguredPaid+1&&Boolean(writes.at(-1).p_payload.current_period_end),'Modern payment_succeeded event retains billing dates');
   subscription.status='canceled';event('customer.subscription.deleted',{id:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.at(-1).p_payload.status==='canceled','Deleted subscription maps canceled state');subscription.status='active';
+  mappedPlan='premium';event('customer.subscription.updated',{id:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.at(-1).p_payload.plan_code==='premium','Portal upgrade uses new PRO Price before stale Essentiel metadata');
+  mappedPlan='essentiel';subscription.metadata.plan_code='premium';event('customer.subscription.updated',{id:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.at(-1).p_payload.plan_code==='essentiel','Portal downgrade uses new Essentiel Price before stale PRO metadata');
+  mappedPlan='business';event('customer.subscription.updated',{id:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.at(-1).p_payload.plan_code==='business','Legacy Business Price keeps its entitlement');
+  mappedPlan=null;event('customer.subscription.updated',{id:subscription.id});await webhook.handleStripeWebhook('{}','valid');ok(writes.at(-1).p_payload.plan_code==='premium','Legacy unmapped Price retains known subscription metadata');
+  mappedPlan='essentiel';subscription.metadata.plan_code='essentiel';
   failAt='apply_stripe_subscription';id=event('customer.subscription.updated',{id:subscription.id});await rejects(()=>webhook.handleStripeWebhook('{}','valid'),'Persistence failure is rejected for Stripe retry');ok(!records.get(id).processed,'Failed persistence never marks processed');failAt=null;await webhook.handleStripeWebhook('{}','valid');ok(records.get(id).processed,'Failed event can be retried successfully');
   failAt='complete';id=event('customer.subscription.updated',{id:subscription.id});await rejects(()=>webhook.handleStripeWebhook('{}','valid'),'Completion-marker failure is not acknowledged');ok(!records.get(id).processed,'Completion failure retains retry state');failAt=null;await webhook.handleStripeWebhook('{}','valid');ok(records.get(id).processed,'Completion retry succeeds');
   failAt='claim_stripe_event';event('customer.subscription.updated',{id:subscription.id});count=retrieveCount;await rejects(()=>webhook.handleStripeWebhook('{}','valid'),'Claim failure rejects before Stripe side effects');ok(retrieveCount===count,'No retrieve when event claim fails');failAt=null;

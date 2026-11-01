@@ -8,6 +8,8 @@ import { allowPasswordRecovery } from "@/lib/auth/recovery-session";
 function redirectToLogin(requestUrl: URL, errorCode: string) {
   const url = new URL("/login", requestUrl.origin);
   url.searchParams.set("error", errorCode);
+  const next = sanitizeInternalPath(requestUrl.searchParams.get("next"));
+  if (next !== "/dashboard") url.searchParams.set("next", next);
   return NextResponse.redirect(url);
 }
 

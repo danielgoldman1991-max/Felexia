@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import Link from "next/link";
 import { Archive, CheckCircle2, Package, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { listPurchaseDocuments, getPurchaseCounters } from "@/lib/purchases";
 export const dynamic = "force-dynamic";
 
 export default async function SupplierReceiptsPage() {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const [{ rows }, counters] = await Promise.all([
     listPurchaseDocuments("supplier_receipt"),
     getPurchaseCounters(),
@@ -24,7 +27,7 @@ export default async function SupplierReceiptsPage() {
       <PageHeader
         title="Réceptions fournisseurs"
         description="Suivez les bons de réception, l'impact stock et la facturation associée."
-        actions={<Button asChild><Link href="/achats/receptions/new"><Truck className="h-4 w-4" /> Nouvelle réception</Link></Button>}
+        actions={canWrite ? <Button asChild><Link href="/achats/receptions/new"><Truck className="h-4 w-4" /> Nouvelle réception</Link></Button> : null}
       />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -34,7 +37,7 @@ export default async function SupplierReceiptsPage() {
         <StatCard title="Archivés" value={rows.length - counters.draftReceipts - validatedCount} icon={<Archive className="h-4 w-4" />} />
       </div>
 
-      <Card><CardContent className="pt-6"><PurchaseDocumentsTable rows={rows} type="supplier_receipt" /></CardContent></Card>
+      <Card><CardContent className="pt-6"><PurchaseDocumentsTable canWrite={canWrite} rows={rows} type="supplier_receipt" /></CardContent></Card>
     </ModulePage>
   );
 }

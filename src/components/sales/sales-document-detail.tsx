@@ -109,12 +109,14 @@ export function SalesDocumentDetail({
   returnCreditNote,
   documentFlow,
   billingGuard,
+  canWrite = false,
 }: {
   document: SalesDocumentRecord;
   lines: SalesDocumentLineRecord[];
   returnCreditNote?: CustomerCreditNoteRecord | null;
   documentFlow?: DocumentFlowStep[];
   billingGuard?: OrderBillingGuard | null;
+  canWrite?: boolean;
 }) {
   const isQuote = document.document_type === "quote";
   const isOrder = document.document_type === "order";
@@ -167,53 +169,53 @@ export function SalesDocumentDetail({
                   Imprimer / PDF
                 </Link></Button>
             ) : null}
-            {isQuote && document.status === "draft" ? (
+            {canWrite && isQuote && document.status === "draft" ? (
               <>
                 <Button variant="secondary" asChild><Link href={`/vente/devis/${document.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <ActionForm label="Marquer envoye" icon={<Send className="h-4 w-4" />} action={actionWithId(markQuoteAsSent, document.id)} />
               </>
             ) : null}
-            {isQuote && ["draft", "sent"].includes(document.status) ? (
+            {canWrite && isQuote && ["draft", "sent"].includes(document.status) ? (
               <>
                 <ActionForm label="Accepter" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(acceptQuote, document.id)} />
                 <ActionForm label="Rejeter" icon={<XCircle className="h-4 w-4" />} action={actionWithId(rejectQuote, document.id)} variant="danger" />
               </>
             ) : null}
-            {isQuote && ["draft", "sent", "accepted"].includes(document.status) ? (
+            {canWrite && isQuote && ["draft", "sent", "accepted"].includes(document.status) ? (
               <ActionForm label="Convertir en commande" action={actionWithId(convertQuoteToOrder, document.id)} />
             ) : null}
-            {isOrder && document.status === "draft" ? (
+            {canWrite && isOrder && document.status === "draft" ? (
               <>
                 <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>
                 <ActionForm label="Confirmer commande" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmOrder, document.id)} />
               </>
             ) : null}
-            {isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
+            {canWrite && isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
               <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/livrer`}><Truck className="h-4 w-4" /> Creer une livraison</Link></Button>
             ) : null}
-            {isDelivery && document.status === "draft" ? (
+            {canWrite && isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
-            {isDelivery && document.status === "validated" ? (
+            {canWrite && isDelivery && document.status === "validated" ? (
               <ActionForm label="Marquer livre" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
             ) : null}
-            {isDelivery && ["validated", "delivered"].includes(document.status) ? (
+            {canWrite && isDelivery && ["validated", "delivered"].includes(document.status) ? (
               <Button variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/retour`}><Truck className="h-4 w-4" /> Creer un retour</Link></Button>
             ) : null}
-            {isDelivery && ["validated", "delivered"].includes(document.status) && !deliveryBillingBlocked ? (
+            {canWrite && isDelivery && ["validated", "delivered"].includes(document.status) && !deliveryBillingBlocked ? (
               <Button variant="secondary" asChild><Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}><Receipt className="h-4 w-4" /> Facturer</Link></Button>
             ) : null}
-            {isReturn && document.status === "draft" ? (
+            {canWrite && isReturn && document.status === "draft" ? (
               <ActionForm label="Valider retour" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateReturnNote, document.id)} />
             ) : null}
             {isReturn && document.status === "validated" ? (
               returnCreditNote ? (
                 <Button variant="secondary" asChild><Link href={`/facturation/avoirs/${returnCreditNote.id}`}><Receipt className="h-4 w-4" /> Voir avoir</Link></Button>
-              ) : (
+              ) : canWrite ? (
                 <Button variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button>
-              )
+              ) : null
             ) : null}
-            {document.status !== "cancelled" && document.status !== "converted" ? (
+            {canWrite && document.status !== "cancelled" && document.status !== "converted" ? (
               <ActionForm
                 label="Archiver"
                 icon={<Archive className="h-4 w-4" />}
@@ -466,7 +468,7 @@ export function SalesDocumentDetail({
             ) : document.status === "validated" ? (
               <>
                 <p className="text-[var(--muted)]">Aucun avoir financier n&apos;est encore rattache a ce bon de retour.</p>
-                <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button>
+                {canWrite ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button> : null}
               </>
             ) : (
               <p className="text-[var(--muted)]">Validez d&apos;abord le bon de retour avant de creer un avoir.</p>

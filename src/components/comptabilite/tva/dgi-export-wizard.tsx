@@ -11,11 +11,31 @@ export function DgiExportWizard({
   periodStart,
   periodEnd,
   frequency,
+  canWrite = false,
 }: {
   periodStart: string;
   periodEnd: string;
   frequency: "monthly" | "quarterly";
+  canWrite?: boolean;
 }) {
+  if (!canWrite) {
+    return (
+      <Card>
+        <CardHeader>
+          <h2 className="font-semibold text-[var(--foreground)]">Période consultée</h2>
+          <p className="mt-1 text-sm text-[var(--muted)]">Consultez les contrôles et retrouvez les fichiers déjà générés dans l’historique.</p>
+        </CardHeader>
+        <CardContent>
+          <form action="/comptabilite/tva/exports" method="get" className="grid items-end gap-4 md:grid-cols-4">
+            <label className="grid gap-2 text-sm"><span>Date début</span><Input name="from" type="date" defaultValue={periodStart} required /></label>
+            <label className="grid gap-2 text-sm"><span>Date fin</span><Input name="to" type="date" defaultValue={periodEnd} required /></label>
+            <label className="grid gap-2 text-sm"><span>Fréquence</span><Select name="frequency" defaultValue={frequency}><option value="monthly">Mensuelle</option><option value="quarterly">Trimestrielle</option></Select></label>
+            <Button type="submit" variant="secondary">Afficher la période</Button>
+          </form>
+        </CardContent>
+      </Card>
+    );
+  }
   return (
     <Card>
       <CardHeader>

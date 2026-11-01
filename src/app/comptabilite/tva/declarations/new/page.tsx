@@ -5,10 +5,15 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { NewVatDeclarationForm } from "@/components/comptabilite/tva/new-vat-declaration-form";
+import { redirect } from "next/navigation";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteVatWorkspace } from "@/app/comptabilite/tva/access";
 
 export const dynamic = "force-dynamic";
 
-export default function NewVatDeclarationPage() {
+export default async function NewVatDeclarationPage() {
+  const workspace = await requireActiveWorkspace();
+  if (!canWriteVatWorkspace(workspace)) redirect("/comptabilite/tva/declarations");
   return (
     <ModulePage>
       <PageHeader
@@ -24,7 +29,7 @@ export default function NewVatDeclarationPage() {
           <h2 className="font-semibold">Paramètres de la déclaration</h2>
         </CardHeader>
         <CardContent>
-          <NewVatDeclarationForm />
+          <NewVatDeclarationForm canWrite />
         </CardContent>
       </Card>
 

@@ -1,6 +1,4 @@
-// Route orpheline conservée pour compatibilité. Il n'existe plus de choix de
-// plan : seule l'offre Essentiel est commercialisée. Un utilisateur connecté
-// est redirigé vers son abonnement ; sinon vers la connexion.
+// Legacy entry point: manage ESSENTIEL and PRO from the subscription settings.
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 

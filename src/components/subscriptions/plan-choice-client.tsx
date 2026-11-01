@@ -54,7 +54,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-1">
+      <div className="grid gap-4 lg:grid-cols-2">
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
           const price = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
           return (
@@ -69,7 +69,7 @@ export function PlanChoiceClient({ hasStripe }: { hasStripe: boolean }) {
                 <span className="text-sm font-medium text-slate-500"> / {billingCycle === "monthly" ? "mois" : "an"}</span>
               </p>
               <ul className="mt-5 flex-1 space-y-2">
-                {plan.featureHighlights.slice(0, 8).map((feature) => (
+                {plan.featureHighlights.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                     <span>{feature}</span>

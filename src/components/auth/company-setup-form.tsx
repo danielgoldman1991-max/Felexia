@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 
 const initialState: CompanyState = { error: null };
 
-export function CompanySetupForm() {
+export function CompanySetupForm({ nextPath }: { nextPath?: string }) {
   const [state, formAction, pending] = useActionState(createCompanyAction, initialState);
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="next" value={nextPath ?? ""} />
       <Input
         name="companyName"
         placeholder="Nom de l'entreprise"

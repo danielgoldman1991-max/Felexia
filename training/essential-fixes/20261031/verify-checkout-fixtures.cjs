@@ -8,25 +8,26 @@ let calls;
 const org='10000000-0000-4000-8000-000000000001';
 function reset(){workspace={organization:{id:org,name:'Synthetic QA'},email:'admin@example.test',role:'admin'};configured=true;price='price_fixture';lease='lease_fixture';customerId='cus_fixture';customerOrganization=org;subscriptions=[];openSessions=[];saveError=false;calls={checkout:0,portal:0,customer:0,expired:0,released:0};}
 const service={async rpc(name){if(name==='claim_billing_checkout')return {data:lease,error:null};if(name==='release_billing_checkout'){calls.released++;return {data:null,error:null};}throw Error('Unexpected RPC');},from(){const q={select(){return q},eq(){return q},update(){return q},single:async()=>({data:{stripe_customer_id:customerId,name:'Synthetic QA'},error:null}),then(resolve){return Promise.resolve({error:saveError?{code:'fixture'}:null}).then(resolve)}};return q;}};
-const stripe={customers:{retrieve:async()=>({id:customerId,metadata:{organization_id:customerOrganization}})},subscriptions:{list:async()=>({data:subscriptions,has_more:false})},checkout:{sessions:{list:async()=>({data:openSessions,has_more:false}),expire:async()=>{calls.expired++;return {};}}}};
+const stripe={customers:{retrieve:async()=>({id:customerId,metadata:{organization_id:customerOrganization}})},subscriptions:{list:async()=>({data:subscriptions,has_more:false})},checkout:{sessions:{list:async()=>({data:openSessions,has_more:false}),listLineItems:async()=>({data:[{quantity:1,price:{id:price}}],has_more:false}),expire:async()=>{calls.expired++;return {};}}}};
 const fixtures={
   'next/server':{NextResponse:{json:(body,{status=200}={})=>({body,status})}},
   '@/lib/auth':{getActiveWorkspace:async()=>workspace},
   '@/lib/supabase/service':{createClient:()=>service},
-  '@/lib/stripe':{getStripe:()=>stripe,getStripePriceIdForPlan:()=>price,createStripeCustomer:async()=>{calls.customer++;return {id:'cus_created'}},createPlanCheckoutSession:async()=>{calls.checkout++;return {url:'https://checkout.stripe.test/fixture'}},createPortalSession:async()=>{calls.portal++;return {url:'https://billing.stripe.test/fixture'}}},
+  '@/lib/stripe':{assertStripePriceMatchesPlan:async()=>{},getStripe:()=>stripe,getStripePriceIdForPlan:()=>price,createStripeCustomer:async()=>{calls.customer++;return {id:'cus_created'}},createPlanCheckoutSession:async()=>{calls.checkout++;return {url:'https://checkout.stripe.test/fixture'}},createPortalSession:async()=>{calls.portal++;return {url:'https://billing.stripe.test/fixture'}}},
   '@/lib/env':{hasStripeEnv:()=>configured},
-  '@/lib/subscriptions/commercial-offers':{isPlanPubliclyAvailable:p=>p==='essentiel'},
   '@/lib/auth/roles':{isAdminRole:r=>['admin','owner'].includes(r),isOperatorRole:r=>r==='operator'},
   '@/lib/auth/operator-access':{OPERATOR_ACCESS_ERROR:'operator denied'},
+  '@/lib/pro-capabilities':{hasProWriteCapabilities:async()=>true},
 };
 function route(filename){const target={exports:{}};const source=ts.transpileModule(fs.readFileSync(path.join(root,filename),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;vm.runInNewContext(source,{module:target,exports:target.exports,console:{error(){}},require:name=>{if(fixtures[name])return fixtures[name];throw Error('Unexpected dependency '+name)}});return target.exports;}
+fixtures['@/lib/subscriptions/commercial-offers']=route('src/lib/subscriptions/commercial-offers.ts');
 const checkout=route('src/app/api/stripe/checkout/route.ts');const portal=route('src/app/api/stripe/portal/route.ts');
 const request=(interval='monthly',plan='essentiel')=>({json:async()=>({planCode:plan,billingInterval:interval})});const results=[];function ok(value,name){assert.equal(value,true,name);results.push(name);}
 async function main(){
   reset();workspace=null;ok((await checkout.POST(request())).status===401,'Anonymous checkout denied');ok(calls.checkout===0,'No checkout before authentication');
   reset();workspace.role='viewer';ok((await checkout.POST(request())).status===403,'Viewer checkout denied');ok((await portal.POST()).status===403,'Viewer portal denied');
   reset();workspace.role='operator';ok((await checkout.POST(request())).body.code==='OPERATOR_ACCESS_DENIED','Operator checkout denied explicitly');
-  reset();ok((await checkout.POST(request('monthly','premium'))).status===400,'Non-public plan cannot be purchased');
+  reset();ok((await checkout.POST(request('monthly','business'))).status===400,'Non-public plan cannot be purchased');
   reset();ok((await checkout.POST(request('invalid'))).status===400,'Invalid cycle rejected');
   reset();configured=false;ok((await checkout.POST(request())).status===503,'Missing Stripe configuration is explicit');
   reset();price=null;ok((await checkout.POST(request())).status===503,'Missing price is explicit');

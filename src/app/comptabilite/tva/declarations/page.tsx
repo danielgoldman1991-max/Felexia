@@ -16,6 +16,8 @@ import {
   VAT_DECLARATION_FREQUENCY_LABELS,
 } from "@/lib/tax/vat-declaration-types";
 import type { VatDeclarationRecord } from "@/lib/tax/vat-declaration-types";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteVatWorkspace } from "@/app/comptabilite/tva/access";
 
 export const dynamic = "force-dynamic";
 
@@ -31,9 +33,10 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default async function VatDeclarationsPage() {
-  const [{ declarations, ready, message }, counters] = await Promise.all([
+  const [{ declarations, ready, message }, counters, workspace] = await Promise.all([
     listVatDeclarations(),
     getVatDeclarationCounters(),
+    requireActiveWorkspace(),
   ]);
 
   return (
@@ -41,9 +44,9 @@ export default async function VatDeclarationsPage() {
       <PageHeader
         title="Déclarations TVA"
         description="Préparez et suivez vos déclarations périodiques de TVA."
-        actions={
+        actions={canWriteVatWorkspace(workspace) ? (
           <Button disabled={!ready} asChild><Link href="/comptabilite/tva/declarations/new"><Plus className="h-4 w-4" /> Nouvelle déclaration TVA</Link></Button>
-        }
+        ) : null}
       />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -89,7 +92,7 @@ export default async function VatDeclarationsPage() {
       <Card>
         <CardContent className="pt-6">
           {declarations.length === 0 ? (
-            <EmptyState title="Aucune déclaration TVA" description={ready ? "Créez votre première déclaration TVA préparatoire." : "Le module n'est pas encore prêt."} />
+            <EmptyState title="Aucune déclaration TVA" description={ready ? "Les déclarations TVA préparatoires de votre entreprise apparaîtront ici." : "Le module n'est pas encore prêt."} />
           ) : (
             <Table>
               <thead>

@@ -18,9 +18,10 @@ function getDefaultPeriod() {
   };
 }
 
-export function NewVatDeclarationForm() {
+export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean }) {
   const defaultPeriod = getDefaultPeriod();
   const [state, formAction, pending] = useActionState(createVatDeclarationAction, { success: false });
+  if (!canWrite) return <p className="text-sm text-[var(--muted)]">Votre accès permet de consulter les déclarations TVA.</p>;
 
   return (
     <form action={formAction} className="space-y-6">

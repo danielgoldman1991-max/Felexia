@@ -11,7 +11,7 @@ export const DEFAULT_PLAN_KEY: PlanKey = PLAN_KEYS.ESSENTIEL;
 export const PLAN_LABELS: Record<PlanKey, string> = {
   essentiel: "Essentiel",
   business: "Business",
-  premium: "Premium",
+  premium: "PRO",
 };
 
 export function normalizePlanKey(planKey: string | null | undefined): PlanKey {

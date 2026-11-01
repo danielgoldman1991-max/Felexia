@@ -5,6 +5,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
 import type { HrEmployee } from "@/lib/hr/types";
+import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 export function HrEmployeesPage({ employees }: { employees: HrEmployee[] }) {
   return (
@@ -13,10 +14,12 @@ export function HrEmployeesPage({ employees }: { employees: HrEmployee[] }) {
         title="Employés"
         description="Fiches salariés, contrats, paie, congés, documents RH et alertes administratives."
         actions={
+          <HrManagementAction>
           <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Link>
+          </HrManagementAction>
         }
       />
       <div className="premium-card p-5">

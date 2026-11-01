@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { TvaExportsPage } from "@/components/comptabilite/tva/tva-exports-page";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteVatWorkspace } from "@/app/comptabilite/tva/access";
 import { getDgiVatExportData } from "@/lib/tax/dgi-vat-query";
 import { validateDgiVatExport } from "@/lib/tax/dgi-vat-validation";
 import type { DgiVatExportData, DgiVatExportHistoryRow, DgiVatValidationIssue, VatFrequency } from "@/lib/tax/dgi-vat-types";
@@ -82,6 +83,7 @@ export default async function VatDgiExportsPage({ searchParams }: { searchParams
         description="Préparez vos exports TVA, contrôlez les anomalies et générez un XML préparatoire structuré."
       />
       <TvaExportsPage
+        canWrite={canWriteVatWorkspace(workspace)}
         data={data}
         history={history}
         periodStart={periodStart}

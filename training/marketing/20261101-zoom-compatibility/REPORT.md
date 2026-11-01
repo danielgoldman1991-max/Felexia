@@ -27,3 +27,15 @@ Une seconde dépendance concernait le média CSS `scripting:enabled`. Sans prise
 Sources de référence : [média scripting](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/scripting), [mouvement réduit](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion).
 
 La désactivation sous600px est reproduite et corrigée. Le réglage exact des autres navigateurs de l’utilisateur n’a pas été observé ; aucune validation de tous les navigateurs n’est revendiquée.
+
+## Correction publiée
+
+Code `b0786541169b3bee26ba65702caa68770dc7a9e8` sur `main`, reconstruit depuis Git avec l’environnement Production. Déploiement `dpl_6jVzFNVVo3TPgEAV1Mp5uAW99mRH` READY, domaines `www.felexia.pro` et `felexia.pro` assignés, construction43,858secondes. Aucun build local envoyé. L’envoi Git CLI initial est resté en attente ; il a été annulé, la référence distante7a66547 contrôlée, puis mise à jour via le connecteur GitHub avec SHA attendu et sans force.
+
+Le domaine public présente le nouveau contrôle, répond200 sur accueil/tarifs/santé, conserve l’image initiale à empreinte identique et ne modifie aucune donnée. Voir `public-smoke.json`.
+
+Dans le même viewport1492×475 que la reproduction du défaut : avant, progrès0 et laptop masqué ; après, fenêtresticky, hauteur1806px, scroll1133px, progrès0,8512 et interface visible. Contrôle de rendu complémentaire à la taille normale de la fenêtre et capture `published-fixed.jpg`. Les tentatives d’override de viewport de l’outil ont parfois produit des captures mal cadrées ; les dimensions DOM réelles sont enregistrées dans `browser.json`, sans revendiquer les tailles demandées à l’outil.
+
+CI branche [41290179774](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41290179774) et CI main [41290475278](https://github.com/danielgoldman1991-max/Felexia/actions/runs/41290475278) entièrement réussies, y compris le nouveau contrôle marketing, build et tracing.
+
+Retour arrière possible vers le déploiement `dpl_9RgUq48bcDXEJy2o5DkcVuk377kc` / code7a66547. Serveur de développement3110 arrêté ; aperçu local optimisé3108 actualisé. Le site public est laissé ouvert à l’accueil, dimensions du navigateur restaurées.

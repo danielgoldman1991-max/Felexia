@@ -3,24 +3,26 @@
   background: #f7f8fa;
   scroll-margin-top: 100px;
 }
-.landing .conversion-pricing-grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); align-items: center; gap: 100px; }
+.landing .conversion-pricing-grid { display: grid; gap: 42px; }
+.landing .conversion-pricing-intro { max-width: 850px; }
 .landing .conversion-pricing-intro .marketing-section-title { margin-top: 20px; }
-.landing .conversion-pricing-intro .marketing-copy { max-width: 390px; margin-top: 24px; }
+.landing .conversion-pricing-intro .marketing-copy { max-width: 650px; margin-top: 24px; }
 .landing .conversion-trial-note { display: flex; align-items: flex-start; gap: 15px; margin-top: 36px; }
 .landing .conversion-trial-icon { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #cee5dc; border-radius: 14px; background: #e7f4ee; color: #245847; }
 .landing .conversion-trial-note strong { display: block; margin-top: 2px; font-size: 14px; font-weight: 600; color: #081b33; }
 .landing .conversion-trial-note p { margin-top: 5px; color: #637087; font-size: 12px; line-height: 1.7; }
-.landing .conversion-pricing-aside { margin-top: 45px; padding-top: 26px; border-top: 1px solid #e1e7f1; color: #637087; font-size: 13px; line-height: 1.8; }
+.landing .conversion-pricing-aside { margin-top: 22px; color: #637087; font-size: 13px; line-height: 1.8; }
 .landing .conversion-pricing-aside a { display: inline; color: #315efb; font-weight: 500; text-underline-offset: 4px; }
 .landing .conversion-pricing-aside a svg { display: inline; margin-left: 2px; vertical-align: -3px; }
 .landing .conversion-pricing-aside a:hover { text-decoration: underline; }
-.landing .conversion-pricing-cards { min-width: 0; }
+.landing .conversion-pricing-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; min-width: 0; align-items: stretch; }
 .landing .conversion-price-card { position: relative; isolation: isolate; padding: 34px; border: 1px solid #d9e1ec; border-radius: 24px; background: linear-gradient(155deg, #fff 62%, #f7f9fc); box-shadow: 0 24px 50px -34px #081b3347, 0 3px 8px -5px #081b3314; }
 .landing .conversion-price-card::before { position: absolute; top: -1px; left: 30px; right: 30px; height: 2px; content: ""; background: linear-gradient(90deg, #315efb 5%, #7e9ef3 55%, #9de8cf); border-radius: 0 0 3px 3px; }
 .landing .conversion-plan-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.landing .conversion-plan-topline :is(h2, h3) { color: #081b33; font-size: 23px; font-weight: 650; letter-spacing: -0.7px; }
+.landing .conversion-plan-topline :is(h2, h3) { color: #081b33; font-size: 23px; font-weight: 650; letter-spacing: -0.7px; text-transform: uppercase; }
+.landing .conversion-plan-description { min-height: 48px; max-width: 370px; margin-top: 16px; color: #637087; font-size: 14px; line-height: 1.7; }
 .landing .conversion-plan-badge { padding: 6px 9px; border: 1px solid #d3e8df; border-radius: 6px; color: #245847; background: #edf7f2; font-size: 12px; font-weight: 550; }
-.landing .conversion-billing-toggle { position: relative; display: flex; gap: 4px; margin-top: 25px; padding: 4px; border: 1px solid #e1e6ee; border-radius: 11px; background: #f1f3f7; isolation: isolate; }
+.landing .conversion-billing-toggle { position: relative; display: flex; max-width: 380px; gap: 4px; margin-top: 30px; padding: 4px; border: 1px solid #e1e6ee; border-radius: 11px; background: #f1f3f7; isolation: isolate; }
 .landing .conversion-billing-toggle::before { position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 6px); border: 1px solid #274fdd; border-radius: 7px; background: #315efb; box-shadow: 0 2px 4px #142d8626, inset 0 1px #ffffff26; content: ""; transition: transform 340ms cubic-bezier(.22,1,.36,1); }
 .landing .conversion-billing-toggle[data-yearly="true"]::before { transform: translateX(calc(100% + 4px)); }
 .landing .conversion-billing-toggle button { position: relative; display: flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-width: 0; min-height: 44px; padding: 7px 10px; border: 0; border-radius: 7px; background: transparent; color: #5d6b82; font-size: 12px; font-weight: 600; cursor: pointer; transition: color 180ms ease; }
@@ -41,6 +43,17 @@
 .landing .conversion-included-list { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 16px; margin: 17px 0 0; padding: 0; list-style: none; }
 .landing .conversion-included-list li { display: flex; align-items: flex-start; gap: 7px; color: #5e6b82; font-size: 12px; line-height: 1.6; }
 .landing .conversion-included-list svg { flex-shrink: 0; margin-top: 1px; color: #21856c; }
+.landing .conversion-plan-limits { margin-top: 24px; padding-top: 18px; border-top: 1px solid #e9edf4; color: #68758b; font-size: 11px; line-height: 1.8; }
+.landing .conversion-price-card-pro { border-color: #1b3b61; background: linear-gradient(145deg, #081b33, #102e4c); box-shadow: 0 24px 50px -34px #081b3377; }
+.landing .conversion-price-card-pro::before { background: linear-gradient(90deg, #9de8cf, #607dff); }
+.landing .conversion-price-card-pro .conversion-plan-topline :is(h2, h3), .landing .conversion-price-card-pro .conversion-price-amount, .landing .conversion-price-card-pro .conversion-included-heading { color: #fff; }
+.landing .conversion-price-card-pro .conversion-plan-badge { border-color: #9de8cf44; background: #9de8cf12; color: #b6f0dc; }
+.landing .conversion-price-card-pro .conversion-plan-description, .landing .conversion-price-card-pro .conversion-price-caption, .landing .conversion-price-card-pro .conversion-no-card, .landing .conversion-price-card-pro .conversion-included-list li, .landing .conversion-price-card-pro .conversion-price-amount > span > span, .landing .conversion-price-card-pro .conversion-plan-limits { color: #b7c8da; }
+.landing .conversion-price-card-pro .conversion-included-heading, .landing .conversion-price-card-pro .conversion-plan-limits { border-color: #b6d9e426; }
+.landing .conversion-price-card-pro .conversion-included-list svg { color: #9de8cf; }
+.landing .conversion-price-card-pro .conversion-included-heading::before { background: #9de8cf; box-shadow: 0 0 0 3px #9de8cf1a; }
+.landing .conversion-pro-button { border: 1px solid #9de8cf; background: #9de8cf; color: #081b33; }
+.landing .conversion-pro-button:hover { border-color: #b6f0dc; background: #b6f0dc; color: #081b33; }
 
 .landing .conversion-contact { padding: 56px 0 80px; background: #f7f8fa; scroll-margin-top: 100px; }
 .landing .conversion-contact-panel { position: relative; isolation: isolate; overflow: hidden; border: 1px solid #1c3554; border-radius: 26px; background: linear-gradient(115deg, #081b33 40%, #102e4c); color: #fff; box-shadow: 0 25px 55px -42px #081b3366; }
@@ -112,7 +125,9 @@
   .landing .conversion-pricing-intro { max-width: 540px; }
   .landing .conversion-pricing-intro .marketing-copy { max-width: 480px; }
   .landing .conversion-pricing-aside { margin-top: 25px; }
-  .landing .conversion-pricing-cards { max-width: 580px; width: 100%; }
+  .landing .conversion-pricing-cards { grid-template-columns: 1fr; max-width: 580px; width: 100%; gap: 24px; }
+  .landing .conversion-included-list { grid-template-columns: 1fr; }
+  .landing .conversion-plan-topline { align-items: flex-start; flex-direction: column; gap: 9px; }
   .landing .conversion-contact { padding: 32px 0 50px; }
   .landing .conversion-contact-content { padding: 45px 34px; }
   .landing .conversion-contact-bottom { padding: 25px 34px; }
@@ -125,6 +140,8 @@
 @media (max-width: 520px) {
   .landing .conversion-pricing { padding: 65px 0; }
   .landing .conversion-price-card { padding: 24px 20px; border-radius: 20px; }
+  .landing .conversion-pricing-cards { grid-template-columns: 1fr; gap: 24px; }
+  .landing .conversion-plan-description { min-height: 0; }
   .landing .conversion-plan-topline { align-items: flex-start; flex-direction: column; gap: 9px; }
   .landing .conversion-plan-badge { font-size: 12px; }
   .landing .conversion-included-list { grid-template-columns: 1fr; gap: 11px; }

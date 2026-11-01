@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +11,7 @@ import { listSalesDocuments } from "@/lib/sales";
 export const dynamic = "force-dynamic";
 
 export default async function VenteDevisPage() {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const { rows } = await listSalesDocuments({ type: "quote" });
 
   return (
@@ -16,11 +19,11 @@ export default async function VenteDevisPage() {
       <PageHeader
         title="Devis"
         description="Propositions commerciales avant commande client."
-        actions={<Button asChild><Link href="/vente/devis/new">Nouveau devis</Link></Button>}
+        actions={canWrite ? <Button asChild><Link href="/vente/devis/new">Nouveau devis</Link></Button> : null}
       />
       <Card>
         <CardContent>
-          <SalesDocumentsTable rows={rows} type="quote" />
+          <SalesDocumentsTable canWrite={canWrite} rows={rows} type="quote" />
         </CardContent>
       </Card>
     </ModulePage>

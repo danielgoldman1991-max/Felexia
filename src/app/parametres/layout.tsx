@@ -26,7 +26,7 @@ const lightNavItems = [
   { label: "Modèles de factures", href: "/parametres/documents", key: "documents" },
   { label: "Numérotation", href: "/parametres/numerotation", key: "numerotation" },
   { label: "Catalogue articles & services", href: "/articles", key: "articles" },
-  { label: "Modules sur demande", href: "/parametres/modules", key: "modules" },
+  { label: "Modules PRO", href: "/parametres/modules", key: "modules" },
 ];
 
 export default async function ParametresLayout({ children }: { children: ReactNode }) {

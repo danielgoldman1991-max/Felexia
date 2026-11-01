@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CompanySetupForm } from "@/components/auth/company-setup-form";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
-export default async function CompanySetupPage() {
+export default async function CompanySetupPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const next = getPostOnboardingPath((await searchParams).next);
   const user = await requireUser();
 
   const supabase = await createClient();
@@ -18,7 +20,7 @@ export default async function CompanySetupPage() {
     .maybeSingle();
 
   if (membership) {
-    redirect("/dashboard");
+    redirect(next);
   }
 
   return (
@@ -35,7 +37,7 @@ export default async function CompanySetupPage() {
           <p className="mt-1 text-sm text-[var(--muted)]">Ces informations sont modifiables plus tard dans les parametres.</p>
         </CardHeader>
         <CardContent>
-          <CompanySetupForm />
+          <CompanySetupForm nextPath={next} />
         </CardContent>
       </Card>
     </main>

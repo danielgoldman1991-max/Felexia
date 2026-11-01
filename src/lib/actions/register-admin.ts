@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-user";
+import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
+import { getAppUrl } from "@/lib/app-url";
 
 export type RegisterAdminState = {
   error: string | null;
@@ -36,11 +38,15 @@ export async function registerAdminAction(
   }
 
   const supabase = await createClient();
+  const onboardingPath = getCompanyOnboardingPath(String(formData.get("next") ?? ""));
+  const callback = new URL("/auth/callback", getAppUrl());
+  callback.searchParams.set("next", onboardingPath);
 
   const { data: authData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
+      emailRedirectTo: callback.toString(),
       data: {
         full_name: `${firstName} ${lastName}`,
         first_name: firstName,
@@ -76,5 +82,5 @@ export async function registerAdminAction(
     return { error: "Votre compte a été créé, mais le profil n’a pas pu être initialisé. Veuillez réessayer." };
   }
 
-  redirect("/onboarding/entreprise");
+  redirect(onboardingPath);
 }

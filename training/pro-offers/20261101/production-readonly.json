@@ -1,0 +1,194 @@
+{
+  "date": "2026-11-01T09:11:40.428Z",
+  "scope": "Existing synthetic QA company; public Auth, GETs and stable capability RPC only",
+  "businessWrites": 0,
+  "billingWrites": 0,
+  "emailsSent": 0,
+  "checks": [
+    {
+      "name": "Existing authorized QA admin authenticates",
+      "passed": true
+    },
+    {
+      "name": "QA admin has active membership in the exact synthetic company",
+      "passed": true
+    },
+    {
+      "name": "Existing company remains on Essentiel",
+      "passed": true
+    },
+    {
+      "name": "Installed hosted capability confirms version104 and PRO write guards",
+      "passed": true
+    },
+    {
+      "name": "Authenticated nonmember company capability denied",
+      "passed": true
+    },
+    {
+      "name": "Anonymous capability denied",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of third_parties",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of products",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of customer_invoices",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of supplier_invoices",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of treasury_accounts",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of accounting_journals",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of sales_documents",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of purchase_documents",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of stock_moves",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of stock_levels",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of documents",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of vat_declarations",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of hr_departments",
+      "passed": true
+    },
+    {
+      "name": "Existing Essentiel company retains scoped read of hr_employees",
+      "passed": true
+    },
+    {
+      "name": "Financial balances, invoice totals and accounting rows unchanged",
+      "passed": true
+    }
+  ],
+  "tableReads": [
+    {
+      "table": "third_parties",
+      "status": 200,
+      "count": 4,
+      "passed": true
+    },
+    {
+      "table": "products",
+      "status": 200,
+      "count": 1,
+      "passed": true
+    },
+    {
+      "table": "customer_invoices",
+      "status": 200,
+      "count": 30,
+      "passed": true
+    },
+    {
+      "table": "supplier_invoices",
+      "status": 200,
+      "count": 2,
+      "passed": true
+    },
+    {
+      "table": "treasury_accounts",
+      "status": 200,
+      "count": 2,
+      "passed": true
+    },
+    {
+      "table": "accounting_journals",
+      "status": 200,
+      "count": 5,
+      "passed": true
+    },
+    {
+      "table": "sales_documents",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "purchase_documents",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "stock_moves",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "stock_levels",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "documents",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "vat_declarations",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "hr_departments",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    },
+    {
+      "table": "hr_employees",
+      "status": 200,
+      "count": 0,
+      "passed": true
+    }
+  ],
+  "financialSnapshot": {
+    "before": "e7a3fe8357d4f57e1f704447e2a05dbc4e1533f9054450b0887210d7f1f51c77",
+    "after": "e7a3fe8357d4f57e1f704447e2a05dbc4e1533f9054450b0887210d7f1f51c77",
+    "rowCounts": {
+      "customer_invoices": 30,
+      "supplier_invoices": 2,
+      "customer_payments": 2,
+      "supplier_payments": 2,
+      "treasury_accounts": 2,
+      "treasury_transactions": 9,
+      "accounting_entries": 11,
+      "accounting_entry_lines": 28
+    }
+  },
+  "passed": true
+}

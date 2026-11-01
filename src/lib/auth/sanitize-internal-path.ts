@@ -13,12 +13,21 @@ export function sanitizeInternalPath(path: string | null | undefined): string {
     path.length === 0 ||
     !path.startsWith("/") ||
     path.startsWith("//") ||
-    path.includes("\u0000") ||
-    path.includes("\r") ||
-    path.includes("\n")
+    path.length > 4096 ||
+    path.includes("\\") ||
+    /[\u0000-\u001f\u007f]/.test(path)
   ) {
     return "/dashboard";
   }
 
-  return path;
+  try {
+    const url = new URL(path, "https://felexia.internal");
+    const decodedPath = decodeURIComponent(url.pathname);
+    if (url.origin !== "https://felexia.internal" || decodedPath.startsWith("//") || decodedPath.includes("\\") || /[\u0000-\u001f\u007f]/.test(decodedPath)) {
+      return "/dashboard";
+    }
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return "/dashboard";
+  }
 }

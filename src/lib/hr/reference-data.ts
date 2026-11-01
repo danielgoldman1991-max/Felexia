@@ -60,7 +60,7 @@ export async function ensureHrReferenceData(supabase: SupabaseClient, organizati
       code: name.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]+/g, "_"),
       updated_at: now,
     })),
-    { onConflict: "organization_id,name" },
+    { onConflict: "organization_id,name", ignoreDuplicates: true },
   );
 
   const { data: direction } = await supabase
@@ -78,12 +78,12 @@ export async function ensureHrReferenceData(supabase: SupabaseClient, organizati
       code: title.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]+/g, "_"),
       updated_at: now,
     })),
-    { onConflict: "organization_id,title" },
+    { onConflict: "organization_id,title", ignoreDuplicates: true },
   );
 
   await supabase.from("hr_leave_types").upsert(
     leaveTypes.map((type) => ({ organization_id: organizationId, ...type })),
-    { onConflict: "organization_id,code" },
+    { onConflict: "organization_id,code", ignoreDuplicates: true },
   );
 
   await supabase.from("hr_salary_items").upsert(
@@ -94,7 +94,7 @@ export async function ensureHrReferenceData(supabase: SupabaseClient, organizati
       is_active: true,
       ...item,
     })),
-    { onConflict: "organization_id,code" },
+    { onConflict: "organization_id,code", ignoreDuplicates: true },
   );
 
   await supabase.from("hr_settings").upsert(
@@ -112,6 +112,6 @@ export async function ensureHrReferenceData(supabase: SupabaseClient, organizati
       payroll_rules: { schemaStatus: "preparatory", officialConformityClaim: false },
       updated_at: now,
     },
-    { onConflict: "organization_id" },
+    { onConflict: "organization_id", ignoreDuplicates: true },
   );
 }

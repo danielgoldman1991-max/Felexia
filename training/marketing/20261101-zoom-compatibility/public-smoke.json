@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-11-01T08:50:08.193022+00:00",
+  "baseUrl": "https://www.felexia.pro",
+  "expectedSourceCommit": "b0786541169b3bee26ba65702caa68770dc7a9e8",
+  "scope": "Anonymous read-only public GET checks; no authentication, cookies, business-data writes or stored binary copy.",
+  "polling": {
+    "marker": "horizon-zoom-preference",
+    "minimumIntervalSeconds": 20,
+    "maximumSeconds": 120,
+    "attempts": [
+      {
+        "checkedAt": "2026-11-01T08:50:08.594540+00:00",
+        "status": 200,
+        "markerPresent": false,
+        "secondsSinceStart": 0.0
+      },
+      {
+        "checkedAt": "2026-11-01T08:50:29.392473+00:00",
+        "status": 200,
+        "markerPresent": true,
+        "secondsSinceStart": 20.02
+      }
+    ],
+    "newReleaseDetected": true,
+    "elapsedSeconds": 21.19
+  },
+  "index": {
+    "path": "/",
+    "url": "https://www.felexia.pro/",
+    "finalUrl": "https://www.felexia.pro/",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:50:29.392473+00:00",
+    "elapsedMs": 1172,
+    "contentType": "text/html; charset=utf-8",
+    "bytes": 143312,
+    "vercelCache": "PRERENDER",
+    "age": "0",
+    "ok": true,
+    "zoomPreferenceMarkerPresent": true,
+    "horizonLaptopPreserved": true,
+    "laptopUiPreserved": true
+  },
+  "pricing": {
+    "path": "/pricing",
+    "url": "https://www.felexia.pro/pricing",
+    "finalUrl": "https://www.felexia.pro/pricing",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:50:30.018770+00:00",
+    "elapsedMs": 625,
+    "contentType": "text/html; charset=utf-8",
+    "bytes": 34932,
+    "vercelCache": "PRERENDER",
+    "age": "0",
+    "ok": true
+  },
+  "health": {
+    "path": "/api/health",
+    "url": "https://www.felexia.pro/api/health",
+    "finalUrl": "https://www.felexia.pro/api/health",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:50:30.493166+00:00",
+    "elapsedMs": 1093,
+    "contentType": "application/json",
+    "bytes": 88,
+    "vercelCache": "MISS",
+    "age": "0",
+    "ok": true,
+    "reportedStatus": "ok"
+  },
+  "image": {
+    "path": "/images/felexia-horizon-v1.png",
+    "url": "https://www.felexia.pro/images/felexia-horizon-v1.png",
+    "finalUrl": "https://www.felexia.pro/images/felexia-horizon-v1.png",
+    "status": 200,
+    "checkedAt": "2026-11-01T08:50:30.472969+00:00",
+    "elapsedMs": 1078,
+    "contentType": "image/png",
+    "bytes": 2506435,
+    "vercelCache": "MISS",
+    "age": "0",
+    "ok": true,
+    "localSourcePath": "public\\images\\felexia-horizon-v1.png",
+    "localSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+    "remoteSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+    "previousPublishedSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+    "matchesLocal": true,
+    "preservedFromPreviousRelease": true,
+    "binarySaved": false
+  },
+  "allChecksPassed": true,
+  "verificationLimit": "Checks server HTML, HTTP status and asset byte integrity only. Small-window scroll/zoom browser verification is performed separately by the parent agent.",
+  "completedAt": "2026-11-01T08:50:30.501551+00:00"
+}

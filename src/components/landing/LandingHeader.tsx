@@ -8,7 +8,7 @@ import "./landing-header-overlay.css";
 
 const navLinks = [
   { href: "/#facturation-electronique", label: "Facture électronique" },
-  { href: "/#modules", label: "La solution" },
+  { href: "/#pro", label: "ERP PRO" },
   { href: "/#pricing", label: "Tarifs" },
   { href: "/#resources", label: "Questions fréquentes" },
 ];

@@ -4,6 +4,7 @@ import { financialErrorMessage } from "@/lib/financial-errors";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
 import { createClient } from "@/lib/supabase/server";
 import { getAccountByNumber, getJournalByCode, getExistingEntryBySource, buildCustomerInvoiceLines, buildSupplierInvoiceLines, verifyBalanced, getAccountingSettings as getAccountingSettingsFromLib } from "@/lib/accounting";
@@ -1074,7 +1075,7 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
 
 export async function createChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const code = text(formData, "code");
   const name = text(formData, "name");
@@ -1126,7 +1127,7 @@ export async function createChartOfAccount(prev: AccountingActionResult, formDat
 
 export async function updateChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1209,7 +1210,7 @@ export async function updateChartOfAccount(prev: AccountingActionResult, formDat
 
 export async function archiveChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1247,7 +1248,7 @@ export async function archiveChartOfAccount(prev: AccountingActionResult, formDa
 
 export async function toggleChartOfAccountActive(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1276,7 +1277,7 @@ export async function toggleChartOfAccountActive(prev: AccountingActionResult, f
 export async function ensureDefaultChartOfAccountsAction(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   void formData;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const { ensureDefaultChartOfAccounts } = await import("@/lib/accounting");
   try {

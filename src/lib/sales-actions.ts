@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { calculateSalesLine, calculateSalesTotals, isIndivisibleUnit } from "@/lib/sales-calculations";
 import { resolveDefaultTaxRate } from "@/lib/tax-reference";
 import type { SalesActionResult, SalesDocumentType, SalesLineFormValue } from "@/lib/sales-types";
@@ -441,7 +441,7 @@ export async function createSalesQuote(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const customerId = text(formData, "customer_id");
   if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
@@ -496,7 +496,7 @@ export async function updateSalesQuote(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
 
@@ -566,7 +566,7 @@ export async function createSalesOrder(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const customerId = text(formData, "customer_id");
   if (!customerId) return { success: false, error: "Selectionnez un client ou un prospect." };
 
@@ -621,7 +621,7 @@ export async function updateSalesOrder(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant commande manquant." };
 
@@ -691,7 +691,7 @@ export async function archiveSalesDocument(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   const documentType = text(formData, "document_type") as SalesDocumentType | null;
   if (!id) return { success: false, error: "Document introuvable." };
@@ -717,7 +717,7 @@ async function updateDocumentStatus(
   allowedType: SalesDocumentType,
   allowedStatuses?: string[],
 ) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const supabase = await createClient();
   const { data: document, error: fetchError } = await supabase
     .from("sales_documents")
@@ -771,7 +771,7 @@ export async function rejectQuote(prev: SalesActionResult, formData: FormData): 
 
 export async function convertQuoteToOrder(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Devis introuvable." };
   const supabase = await createClient();
@@ -839,7 +839,7 @@ export async function convertQuoteToOrder(prev: SalesActionResult, formData: For
 
 export async function confirmOrder(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Commande introuvable." };
   const result = await updateDocumentStatus(id, "confirmed", "order", ["draft"]);
@@ -853,7 +853,7 @@ export async function confirmOrder(prev: SalesActionResult, formData: FormData):
 
 export async function createDeliveryFromOrder(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Commande introuvable." };
   const supabase = await createClient();
@@ -878,7 +878,7 @@ export async function createDeliveryNoteFromOrder(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "order_id");
   if (!id) return { success: false, error: "Commande introuvable." };
   const supabase = await createClient();
@@ -1007,7 +1007,7 @@ export async function createManualDeliveryNote(
 
 export async function validateDeliveryNote(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Bon de livraison introuvable." };
   const supabase = await createClient();
@@ -1073,7 +1073,7 @@ export async function validateDeliveryNote(prev: SalesActionResult, formData: Fo
 
 export async function markDeliveryAsDelivered(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Bon de livraison introuvable." };
   const result = await updateDocumentStatus(id, "delivered", "delivery_note", ["validated"]);
@@ -1094,7 +1094,7 @@ export async function createReturnFromDelivery(
   formData: FormData,
 ): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const deliveryId = text(formData, "delivery_id");
   const returnReason = text(formData, "return_reason");
   const details = text(formData, "return_reason_details");
@@ -1204,7 +1204,7 @@ export async function createReturnFromDelivery(
 
 export async function validateReturnNote(prev: SalesActionResult, formData: FormData): Promise<SalesActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Bon de retour introuvable." };
   const supabase = await createClient();

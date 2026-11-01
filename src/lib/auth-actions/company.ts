@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { initializeOrganizationDefaults } from "@/lib/org-defaults";
+import { getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
 export type CompanyState = {
   error: string | null;
@@ -50,5 +51,6 @@ export async function createCompanyAction(
 
   await initializeOrganizationDefaults(orgId);
 
-  redirect("/bienvenue?trial=essentiel");
+  const next = getPostOnboardingPath(String(formData.get("next") ?? ""));
+  redirect(next !== "/dashboard" ? next : "/bienvenue?trial=essentiel");
 }

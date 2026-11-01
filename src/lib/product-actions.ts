@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { recordStockMovementsAtomic } from "@/lib/stock/record-stock-movements";
 import { resolveDefaultTaxRateId } from "@/lib/tax-reference";
@@ -128,6 +129,9 @@ export async function createProduct(
   const trackStock = type === "service" ? false : formData.get("track_stock") === "on";
   const minStock = type === "service" ? 0 : numberOrZero(formData, "min_stock");
   const currentStock = type === "service" ? 0 : numberOrZero(formData, "current_stock");
+  if (trackStock || currentStock > 0 || minStock > 0 || formData.get("stock_alert_enabled") === "on") {
+    await requireProWorkspace();
+  }
   const purchasePriceHt = numberOrZero(formData, "purchase_price_ht");
   const salePriceHt = numberOrZero(formData, "sale_price_ht");
   const defaultDiscountRate = numberOrZero(formData, "default_discount_rate");
@@ -278,12 +282,19 @@ export async function updateProduct(
   const supabase = await createClient();
   const { data: existingProduct, error: existingProductError } = await supabase
     .from("products")
-    .select("current_stock")
+    .select("current_stock,track_stock,min_stock,stock_alert_enabled")
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
   if (existingProductError || !existingProduct) {
     return { success: false, error: existingProductError?.message ?? "Article introuvable." };
+  }
+  // The simplified catalogue preserves historical stock settings. Changing
+  // them requires PRO before the product update can have any side effect.
+  if (trackStock !== Boolean(existingProduct.track_stock)
+    || minStock !== Number(existingProduct.min_stock ?? 0)
+    || (formData.get("stock_alert_enabled") === "on") !== Boolean(existingProduct.stock_alert_enabled)) {
+    await requireProWorkspace();
   }
   if (type === "service" && Math.abs(Number(existingProduct.current_stock ?? 0)) > 0.0005) {
     return { success: false, error: "Ramenez le stock a zero avant de convertir ce produit en service." };

@@ -50,9 +50,9 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarationRecord }) {
-  const canValidate = (declaration.status === "draft" || declaration.status === "under_review") && declaration.blocking_errors_count === 0;
-  const canArchive = declaration.status === "draft" || declaration.status === "under_review";
+export function VatDeclarationDetail({ declaration, canWrite = false }: { declaration: VatDeclarationRecord; canWrite?: boolean }) {
+  const canValidate = canWrite && (declaration.status === "draft" || declaration.status === "under_review") && declaration.blocking_errors_count === 0;
+  const canArchive = canWrite && (declaration.status === "draft" || declaration.status === "under_review");
   const hasBlocking = declaration.blocking_errors_count > 0;
 
   const validationIssues = (declaration.validation_summary?.issues ?? []) as Array<{
@@ -79,7 +79,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
         actions={
           <>
             <Button variant="secondary" asChild><Link href="/comptabilite/tva/declarations"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>
-            {hasBlocking ? (
+            {canWrite && hasBlocking ? (
               <ActionForm
                 label="Corriger automatiquement"
                 icon={<Wrench className="h-4 w-4" />}
@@ -131,7 +131,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
                 </p>
               </div>
             </div>
-            <ActionForm
+            {canWrite ? <ActionForm
               label="Corriger automatiquement"
               icon={<Wrench className="h-4 w-4" />}
               variant="primary"
@@ -140,7 +140,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
                 fd.set("id", declaration.id);
                 return autoFixVatDeclarationAnomaliesAction(prev, fd);
               }}
-            />
+            /> : null}
           </CardContent>
         </Card>
       ) : null}
@@ -256,7 +256,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
                         {classification.actionLabel}
                       </Badge>
                     </div>
-                    {issue.correctionUrl ? (
+                    {canWrite && issue.correctionUrl ? (
                       <Link href={issue.correctionUrl} className="mt-2 inline-block text-xs text-red-700 underline">
                         {issue.correctionLabel ?? "Corriger"}
                       </Link>
@@ -270,7 +270,7 @@ export function VatDeclarationDetail({ declaration }: { declaration: VatDeclarat
                     <Badge tone="warning">Alerte</Badge>
                     <span className="font-medium text-amber-900">{issue.message}</span>
                   </div>
-                  {issue.correctionUrl ? (
+                  {canWrite && issue.correctionUrl ? (
                     <Link href={issue.correctionUrl} className="mt-2 inline-block text-xs text-amber-700 underline">
                       {issue.correctionLabel ?? "Corriger"}
                     </Link>

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { recordStockMovementsAtomic } from "@/lib/stock/record-stock-movements";
 import type { StockActionResult, StockMoveDirection, StockMoveType } from "@/lib/stock-types";
@@ -18,7 +18,7 @@ function numberValue(formData: FormData, key: string) {
 }
 
 async function createStockMovement(formData: FormData, moveType: StockMoveType, direction: StockMoveDirection) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const supabase = await createClient();
   const productId = text(formData, "product_id");
   const quantity = numberValue(formData, "quantity");

@@ -5,25 +5,28 @@ import { CompanyOnboardingFlow } from "@/components/onboarding/CompanyOnboarding
 import { getUserOnboardingStatus } from "@/lib/saas";
 import { createClient } from "@/lib/supabase/server";
 import { extractGoogleProfileData } from "@/lib/auth/ensure-profile-from-auth-user";
+import { getCompanyOnboardingPath, getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
-export default async function EntreprisePage() {
+export default async function EntreprisePage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const next = getPostOnboardingPath((await searchParams).next);
+  const loginPath = `/login?next=${encodeURIComponent(getCompanyOnboardingPath(next))}`;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?next=/onboarding/entreprise");
+    redirect(loginPath);
   }
 
   const status = await getUserOnboardingStatus();
 
   // Not authenticated → redirect to login
   if (status.nextPath === "/login") {
-    redirect("/login?next=/onboarding/entreprise");
+    redirect(loginPath);
   }
 
   // Already has an organization → go to correct next step
   if (status.hasOrganization) {
-    redirect(status.nextPath);
+    redirect(next !== "/dashboard" ? next : status.nextPath);
   }
 
   const { data: profile } = await supabase
@@ -67,6 +70,7 @@ export default async function EntreprisePage() {
             initialFirstName={profile?.first_name?.trim() || authProfile.firstName || undefined}
             initialLastName={profile?.last_name?.trim() || authProfile.lastName || undefined}
             initialAvatarUrl={profile?.avatar_url || authProfile.avatarUrl || null}
+            nextPath={next}
           />
         </div>
       </main>

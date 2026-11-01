@@ -12,11 +12,13 @@ export function CompanyOnboardingFlow({
   initialFirstName,
   initialLastName,
   initialAvatarUrl,
+  nextPath,
 }: {
   initialEmail: string;
   initialFirstName?: string;
   initialLastName?: string;
   initialAvatarUrl?: string | null;
+  nextPath?: string;
 }) {
   const [step, setStep] = useState<Step>("lookup");
   const [prefill, setPrefill] = useState<CompanyOnboardingPrefill | null>(null);
@@ -38,6 +40,7 @@ export function CompanyOnboardingFlow({
       initialFirstName={initialFirstName}
       initialLastName={initialLastName}
       initialAvatarUrl={initialAvatarUrl}
+      nextPath={nextPath}
       prefill={prefill}
       onBack={() => setStep("lookup")}
     />

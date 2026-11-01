@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +12,7 @@ import { listSalesDocuments } from "@/lib/sales";
 export const dynamic = "force-dynamic";
 
 export default async function SalesDeliveriesPage() {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const { rows } = await listSalesDocuments({ type: "delivery_note" });
 
   return (
@@ -17,16 +20,14 @@ export default async function SalesDeliveriesPage() {
       <PageHeader
         title="Bons de livraison"
         description="Bons de livraison generes depuis les commandes clients."
-        actions={(
-          <Button type="button" asChild><Link href="/vente/livraisons/new">
+        actions={canWrite ? (<Button type="button" asChild><Link href="/vente/livraisons/new">
               <Plus className="h-4 w-4" />
               Nouveau bon de livraison
-            </Link></Button>
-        )}
+            </Link></Button>) : null}
       />
       <Card>
         <CardContent>
-          <SalesDocumentsTable rows={rows} type="delivery_note" />
+          <SalesDocumentsTable canWrite={canWrite} rows={rows} type="delivery_note" />
         </CardContent>
       </Card>
     </ModulePage>

@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sanitizeInternalPath } from "@/lib/auth/sanitize-internal-path";
+import { getCompanyOnboardingPath, getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
 /**
  * Détermine la destination après authentification (email ou Google).
  *
  * Ordre de résolution :
  * - A. aucune organisation active (ni membership actif) → `/onboarding/entreprise`
- *      (sauf si `next` pointe déjà vers une route d'onboarding) ;
+ *      en conservant la destination interne dans son paramètre `next` ;
  * - B. organisation active mais onboarding entreprise incomplet →
  *      `/onboarding/entreprise` ;
  * - C. organisation valide + onboarding complet → `next` s'il est interne et
@@ -25,7 +25,8 @@ export async function resolveAuthenticatedUserRedirect({
   userId: string;
   requestedNext?: string | null;
 }): Promise<string> {
-  const next = sanitizeInternalPath(requestedNext ?? "/dashboard");
+  const next = getPostOnboardingPath(requestedNext);
+  const companySetup = getCompanyOnboardingPath(next);
 
   const { data: membership, error: membershipError } = await supabase
     .from("organization_members")
@@ -41,15 +42,12 @@ export async function resolveAuthenticatedUserRedirect({
       userId,
       errorMessage: membershipError.message,
     });
-    return "/onboarding/entreprise";
+    return companySetup;
   }
 
   // A. Aucun membership actif : état normal pour un nouvel utilisateur Google.
   if (!membership?.organization_id) {
-    if (next.startsWith("/onboarding/")) {
-      return next;
-    }
-    return "/onboarding/entreprise";
+    return companySetup;
   }
 
   // B. Membership existant : on vérifie que l'organisation est réellement
@@ -67,11 +65,11 @@ export async function resolveAuthenticatedUserRedirect({
       organizationId: membership.organization_id,
       errorMessage: organizationError.message,
     });
-    return "/onboarding/entreprise";
+    return companySetup;
   }
 
   if (!organization || !organization.onboarding_completed) {
-    return "/onboarding/entreprise";
+    return companySetup;
   }
 
   // C. Utilisateur déjà membre d'une organisation complète : on respecte

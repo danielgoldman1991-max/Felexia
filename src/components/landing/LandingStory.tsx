@@ -40,9 +40,14 @@ const questions = [
       "Oui. Votre espace est accessible dans votre navigateur sur ordinateur, tablette et téléphone. Vous pouvez retrouver vos factures, vos règlements et votre trésorerie depuis ces appareils.",
   },
   {
-    question: "Et si mon entreprise a besoin d’autres modules ?",
+    question: "Que change l’offre PRO ?",
     answer:
-      "Les modules complémentaires, comme le stock ou la comptabilité avancée, sont accessibles sur demande. Contactez notre équipe pour préciser votre activité et échanger sur vos besoins.",
+      "PRO comprend tout ESSENTIEL et ouvre l’ERP complet : prospects, devis, commandes, livraisons, achats et réceptions, stock, comptabilité avec grand livre et balance, préparation TVA, prévisions de trésorerie et gestion RH. Vous pouvez travailler jusqu’à 25 utilisateurs. La TVA et la paie restent des fonctions préparatoires à valider avec vos conseils.",
+  },
+  {
+    question: "Comment passer d’ESSENTIEL à PRO ?",
+    answer:
+      "Votre administrateur choisit PRO dans Paramètres → Abonnement, avec une facturation mensuelle ou annuelle. Votre entreprise conserve son espace et ses données. L’essai gratuit concerne ESSENTIEL ; les fonctions PRO sont accessibles avec l’abonnement correspondant.",
   },
 ];
 

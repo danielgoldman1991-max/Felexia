@@ -62,7 +62,7 @@ export async function POST() {
     }
 
     if (existingSubscription && !canAccessApp({ status: existingSubscription.status, trial_ends_at: existingSubscription.trial_ends_at ?? existingSubscription.trial_end, current_period_end: existingSubscription.current_period_end })) {
-      return NextResponse.json({ error: "L'essai de cette entreprise a déjà été utilisé. Souscrivez à l'offre Essentiel pour continuer les créations ; vos données restent consultables et exportables." }, { status: 409 });
+      return NextResponse.json({ error: "L'essai de cette entreprise a déjà été utilisé. Souscrivez à une offre ESSENTIEL ou PRO pour continuer les créations ; vos données restent consultables et exportables." }, { status: 409 });
     }
 
     if (existingSubscription && canAccessApp({

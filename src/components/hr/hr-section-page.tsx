@@ -5,6 +5,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
 import { HrPreparatoryNotice } from "@/components/hr/hr-notice";
+import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 type Row = Record<string, string | number | boolean | null>;
 
@@ -29,10 +30,12 @@ export function HrSectionPage({
         title={title}
         description={description}
         actions={newHref ? (
+          <HrManagementAction>
           <Link href={newHref} className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <Plus className="mr-2 h-4 w-4" />
             Nouveau
           </Link>
+          </HrManagementAction>
         ) : null}
       />
       {notice ? <HrPreparatoryNotice /> : null}

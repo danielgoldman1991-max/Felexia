@@ -25,7 +25,7 @@ function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ cl
   );
 }
 
-export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel?: string; initialEmail?: string }) {
+export function EntrepriseForm({ buttonLabel, initialEmail = "", nextPath }: { buttonLabel?: string; initialEmail?: string; nextPath?: string }) {
   const [state, formAction, pending] = useActionState(createEntrepriseAction, initialState);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
@@ -103,6 +103,7 @@ export function EntrepriseForm({ buttonLabel, initialEmail = "" }: { buttonLabel
     <>
       <LoadingOverlay open={showLoadingOverlay} />
       <form action={formAction} onSubmit={handleSubmit} className="space-y-6" aria-busy={showLoadingOverlay}>
+        <input type="hidden" name="next" value={nextPath ?? ""} />
         <fieldset disabled={showLoadingOverlay} className="space-y-6 disabled:opacity-75">
           <div className="space-y-4">
         <Field icon={Building2} error={state.fieldErrors?.raisonSociale}>

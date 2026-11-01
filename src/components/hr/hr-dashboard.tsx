@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
 import { HrPreparatoryNotice } from "@/components/hr/hr-notice";
 import type { HrDashboardData } from "@/lib/hr/types";
+import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 export function HrDashboard({ data }: { data: HrDashboardData }) {
   return (
@@ -15,10 +16,12 @@ export function HrDashboard({ data }: { data: HrDashboardData }) {
         title="Cockpit RH"
         description="Pilotez les employés, contrats, congés, paie préparatoire, CNSS/AMO et alertes RH dans un espace sombre premium."
         actions={
+          <HrManagementAction>
           <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Link>
+          </HrManagementAction>
         }
       />
       <HrPreparatoryNotice />

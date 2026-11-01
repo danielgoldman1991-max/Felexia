@@ -40,11 +40,11 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function SupplierOrderDetail({ document, lines, documentFlow }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[]; documentFlow?: DocumentFlowStep[] }) {
-  const canEdit = document.status === "draft";
-  const canConfirm = document.status === "draft";
-  const canCancel = !["cancelled", "received"].includes(document.status);
-  const canCreateReceipt = ["confirmed", "partially_received"].includes(document.status);
+export function SupplierOrderDetail({ document, lines, documentFlow, canWrite = false }: { document: PurchaseDocumentRecord; lines: PurchaseDocumentLineRecord[]; documentFlow?: DocumentFlowStep[]; canWrite?: boolean }) {
+  const canEdit = canWrite && document.status === "draft";
+  const canConfirm = canWrite && document.status === "draft";
+  const canCancel = canWrite && !["cancelled", "received"].includes(document.status);
+  const canCreateReceipt = canWrite && ["confirmed", "partially_received"].includes(document.status);
 
   const title = `${PURCHASE_DOCUMENT_LABELS[document.document_type]} ${document.document_number}`;
 
@@ -65,16 +65,16 @@ export function SupplierOrderDetail({ document, lines, documentFlow }: { documen
               <Button variant="secondary" asChild><Link href={`/achats/receptions/new?orderId=${document.id}`}><Truck className="h-4 w-4" /> Creer reception</Link></Button>
             ) : null}
             <Button variant="secondary" asChild><Link href={`/achats/commandes/${document.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
-            <SupplierOrderSendActions document={document} />
+            {canWrite ? <SupplierOrderSendActions document={document} /> : null}
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierOrder, document.id)} />
             ) : null}
-            <ActionForm label="Archiver" icon={<Archive className="h-4 w-4" />} variant="danger" action={async (prev) => {
+            {canWrite ? <ActionForm label="Archiver" icon={<Archive className="h-4 w-4" />} variant="danger" action={async (prev) => {
               const fd = new FormData();
               fd.set("id", document.id);
               fd.set("document_type", document.document_type);
               return archivePurchaseDocument(prev, fd);
-            }} />
+            }} /> : null}
           </>
         }
       />

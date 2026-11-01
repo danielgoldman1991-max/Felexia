@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
 function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; error?: string }) {
   return (
@@ -21,7 +22,7 @@ function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ cl
   );
 }
 
-export function RegisterAdminForm() {
+export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,8 +60,9 @@ export function RegisterAdminForm() {
 
     try {
       const supabase = createClient();
+      const onboardingPath = getCompanyOnboardingPath(nextPath);
       const callback = new URL("/auth/callback", getAppUrl(window.location.origin));
-      callback.searchParams.set("next", "/onboarding/entreprise");
+      callback.searchParams.set("next", onboardingPath);
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -85,7 +87,7 @@ export function RegisterAdminForm() {
       if (!signUpData.session) {
         // Confirmation-required signups have no session yet. Keep the notice in
         // the destination URL instead of losing a local message on navigation.
-        router.replace("/login?notice=confirm_email&next=/onboarding/entreprise");
+        router.replace(`/login?notice=confirm_email&next=${encodeURIComponent(onboardingPath)}`);
         return;
       }
 
@@ -99,7 +101,7 @@ export function RegisterAdminForm() {
         setError("Votre compte est créé. Connectez-vous pour reprendre la configuration de votre entreprise.");
         return;
       }
-      router.replace("/onboarding/entreprise");
+      router.replace(onboardingPath);
     } catch {
       setError("La connexion a été interrompue. Réessayez ou connectez-vous si votre compte a déjà été créé.");
     } finally {

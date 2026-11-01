@@ -28,7 +28,7 @@ export function LandingHero() {
             <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
             <a href="#facturation-electronique" className="horizon-discover" aria-label="En savoir plus sur la facturation électronique">En savoir plus</a>
           </div>
-          <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai gratuit · Sans carte bancaire</span>
+          <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL · Sans carte bancaire</span>
           <LandingZoomPreference />
         </div>
         <a className="horizon-scroll-cue" href="#facturation-electronique" aria-label="Découvrir la facturation électronique">

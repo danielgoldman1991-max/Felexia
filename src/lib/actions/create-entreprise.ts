@@ -8,6 +8,7 @@ import { ensureAccountingBaseSetup } from "@/lib/accounting";
 import { isValidMoroccanPhone } from "@/lib/morocco-format";
 import { uploadOrganizationLogoForOrganization } from "@/lib/organization-actions";
 import { validateCompanyConfirmationInput } from "@/lib/ice/ice";
+import { getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 import {
   startDefaultTrialAndEnableModules,
 } from "@/lib/subscriptions/plan-access";
@@ -270,5 +271,6 @@ export async function createEntrepriseAction(
     console.warn("createEntreprise: SUPABASE_SERVICE_ROLE_KEY missing, defaults initialization skipped.");
   }
 
-  redirect(`/dashboard?trial_started=1&company_created=1${defaultsIncomplete ? "&setup_notice=defaults_incomplete" : ""}`);
+  const next = getPostOnboardingPath(String(formData.get("next") ?? ""));
+  redirect(next !== "/dashboard" ? next : `/dashboard?trial_started=1&company_created=1${defaultsIncomplete ? "&setup_notice=defaults_incomplete" : ""}`);
 }

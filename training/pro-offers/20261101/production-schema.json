@@ -1,0 +1,174 @@
+{
+  "date": "2026-11-01T09:07:19.051Z",
+  "scope": "Production OpenAPI schema GET only; no business rows read or written",
+  "businessRowsRead": 0,
+  "businessWrites": 0,
+  "tables": [
+    {
+      "name": "sales_documents",
+      "present": true
+    },
+    {
+      "name": "sales_document_lines",
+      "present": true
+    },
+    {
+      "name": "purchase_documents",
+      "present": true
+    },
+    {
+      "name": "purchase_document_lines",
+      "present": true
+    },
+    {
+      "name": "stock_moves",
+      "present": true
+    },
+    {
+      "name": "stock_levels",
+      "present": true
+    },
+    {
+      "name": "warehouses",
+      "present": true
+    },
+    {
+      "name": "inventory_adjustments",
+      "present": true
+    },
+    {
+      "name": "inventory_adjustment_lines",
+      "present": true
+    },
+    {
+      "name": "documents",
+      "present": true
+    },
+    {
+      "name": "bank_statement_imports",
+      "present": true
+    },
+    {
+      "name": "bank_statement_lines",
+      "present": true
+    },
+    {
+      "name": "bank_reconciliations",
+      "present": true
+    },
+    {
+      "name": "treasury_forecast_items",
+      "present": true
+    },
+    {
+      "name": "tax_export_batches",
+      "present": true
+    },
+    {
+      "name": "hr_employees",
+      "present": true
+    },
+    {
+      "name": "hr_contracts",
+      "present": true
+    },
+    {
+      "name": "hr_departments",
+      "present": true
+    },
+    {
+      "name": "hr_positions",
+      "present": true
+    },
+    {
+      "name": "hr_leave_types",
+      "present": true
+    },
+    {
+      "name": "hr_leave_requests",
+      "present": true
+    },
+    {
+      "name": "hr_absences",
+      "present": true
+    },
+    {
+      "name": "hr_payroll_periods",
+      "present": true
+    },
+    {
+      "name": "hr_payslips",
+      "present": true
+    },
+    {
+      "name": "hr_salary_items",
+      "present": true
+    },
+    {
+      "name": "hr_settings",
+      "present": true
+    },
+    {
+      "name": "hr_advances",
+      "present": true
+    },
+    {
+      "name": "hr_loans",
+      "present": true
+    },
+    {
+      "name": "hr_documents",
+      "present": true
+    },
+    {
+      "name": "hr_evaluations",
+      "present": true
+    },
+    {
+      "name": "hr_disciplinary_actions",
+      "present": true
+    }
+  ],
+  "rpcs": [
+    {
+      "name": "record_stock_movements_atomic",
+      "present": true
+    },
+    {
+      "name": "save_customer_invoice_atomic",
+      "present": true
+    },
+    {
+      "name": "save_supplier_invoice_atomic",
+      "present": true
+    },
+    {
+      "name": "save_customer_credit_note_atomic",
+      "present": true
+    },
+    {
+      "name": "save_supplier_credit_note_atomic",
+      "present": true
+    },
+    {
+      "name": "save_accounting_entry_atomic",
+      "present": true
+    },
+    {
+      "name": "get_numbering_counters",
+      "present": true
+    },
+    {
+      "name": "get_commercial_document_usage",
+      "present": true
+    },
+    {
+      "name": "einvoice_get_capabilities",
+      "present": true
+    }
+  ],
+  "stockRpc": [
+    "args",
+    null
+  ]
+}

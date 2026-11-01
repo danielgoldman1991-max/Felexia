@@ -14,7 +14,7 @@ const pathByType: Record<SalesDocumentType, string> = {
   return_note: "/vente/retours",
 };
 
-export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[]; type: SalesDocumentType }) {
+export function SalesDocumentsTable({ rows, type, canWrite = false }: { rows: SalesDocumentRecord[]; type: SalesDocumentType; canWrite?: boolean }) {
   const isOrderTable = type === "order";
   const isDeliveryTable = type === "delivery_note";
   const isReturnTable = type === "return_note";
@@ -64,7 +64,7 @@ export function SalesDocumentsTable({ rows, type }: { rows: SalesDocumentRecord[
             <Td>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" asChild><Link href={`${pathByType[type]}/${row.id}`}>Consulter</Link></Button>
-                {isOrderTable && row.status === "draft" ? (
+                {canWrite && isOrderTable && row.status === "draft" ? (
                   <Button type="button" variant="ghost" asChild><Link href={`${pathByType[type]}/${row.id}/edit`}>Modifier</Link></Button>
                 ) : null}
               </div>

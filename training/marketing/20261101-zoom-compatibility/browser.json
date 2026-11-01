@@ -60,5 +60,132 @@
     "windowHeight": 475.285888671875,
     "world": "none",
     "y": 880.790771484375
+  },
+  {
+    "copyHeight": 318,
+    "copyScrollHeight": 347,
+    "copyScrollTop": 29.09090805053711,
+    "cta": {
+      "bottom": 240.84415435791016,
+      "height": 46.03084564208984,
+      "left": 313.72564697265625,
+      "right": 512.0698089599609,
+      "top": 194.8133087158203,
+      "width": 198.3441619873047,
+      "x": 313.72564697265625,
+      "y": 194.8133087158203
+    },
+    "progress": "0.0000",
+    "step": "very-short-actions",
+    "viewport": [
+      1000,
+      318
+    ],
+    "y": 0
+  },
+  {
+    "heroHeight": 2039.1639404296875,
+    "laptopDisplay": "block",
+    "overflow": false,
+    "progress": "0.8847",
+    "screen": {
+      "bottom": 481.6223983764648,
+      "height": 366.6233825683594,
+      "left": 273.0716552734375,
+      "right": 876.9219970703125,
+      "top": 114.99901580810548,
+      "width": 603.850341796875,
+      "x": 273.0716552734375,
+      "y": 114.99901580810548
+    },
+    "step": "optimized-short-screen",
+    "url": "http://127.0.0.1:3108/",
+    "viewport": [
+      1163,
+      536
+    ],
+    "windowHeight": 536.6234130859375,
+    "world": "matrix(8.98587, 0, 0, 8.98587, -6897.65, -4755.34)",
+    "y": 1329.3505859375
+  },
+  {
+    "heroBottom": 156.047119140625,
+    "nextTop": 156.0470733642578,
+    "progress": "1.0000",
+    "step": "optimized-short-release",
+    "viewport": [
+      1163,
+      536
+    ],
+    "y": 1883.1168212890625
+  },
+  {
+    "buttonDisplay": "none",
+    "cta": {
+      "bottom": 370.08929443359375,
+      "height": 45,
+      "left": 41.93181991577149,
+      "right": 189.82143783569336,
+      "top": 325.08929443359375,
+      "width": 147.88961791992188,
+      "x": 41.93181991577149,
+      "y": 325.08929443359375
+    },
+    "heroHeight": 2608.7255859375,
+    "overflow": false,
+    "step": "optimized-mobile-opening",
+    "viewport": [
+      355,
+      767
+    ],
+    "windowHeight": 767.2727661132812,
+    "y": 0
+  },
+  {
+    "buttonPresent": true,
+    "heroHeight": 1806.0791015625,
+    "laptopDisplay": "block",
+    "position": "sticky",
+    "reduced": false,
+    "step": "published-fixed-short-opening",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      1492,
+      475
+    ],
+    "windowHeight": 475.285888671875
+  },
+  {
+    "nextTop": 673.3014526367188,
+    "overflow": false,
+    "progress": "0.8512",
+    "screen": {
+      "bottom": 420.2759017944336,
+      "height": 305.2809753417969,
+      "left": 484.58740234375,
+      "right": 987.4098815917968,
+      "top": 114.99492645263672,
+      "width": 502.8224792480469,
+      "x": 484.58740234375,
+      "y": 114.99492645263672
+    },
+    "step": "published-fixed-short-scroll",
+    "url": "https://www.felexia.pro/",
+    "viewport": [
+      1492,
+      475
+    ],
+    "world": "matrix(7.4825, 0, 0, 7.4825, -5486.45, -3940.51)",
+    "y": 1132.777587890625
+  },
+  {
+    "overflow": false,
+    "progress": "0.8481",
+    "step": "published-normal-screen",
+    "viewport": [
+      901,
+      971
+    ],
+    "y": 2305.09765625
   }
 ]

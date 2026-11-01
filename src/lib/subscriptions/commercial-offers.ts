@@ -1,17 +1,20 @@
 // Config commerciale FelexiaERP.
 // Source unique pour savoir quels plans sont commercialisés publiquement.
-// Business / Premium restent techniquement en place (compatibilité avec les
-// abonnements existants) mais ne sont NI visibles NI achetables pour le moment.
+// PRO conserve le code historique "premium" pour les abonnements et Stripe.
+// Business reste disponible uniquement pour les abonnements existants.
 
-export const PUBLICLY_AVAILABLE_PLANS = ["essentiel"] as const;
+export const PUBLICLY_AVAILABLE_PLANS = ["essentiel", "premium"] as const;
 
 export type PubliclyAvailablePlan = (typeof PUBLICLY_AVAILABLE_PLANS)[number];
 
-export function isPlanPubliclyAvailable(
-  planKey: string | null | undefined,
-): boolean {
-  if (!planKey) return false;
-  return PUBLICLY_AVAILABLE_PLANS.includes(planKey as PubliclyAvailablePlan);
+/** Explicit public input mapping; unknown values must never fall back to Essentiel. */
+export function resolvePublicPlanCode(planKey: unknown): PubliclyAvailablePlan | null {
+  if (planKey === "pro") return "premium";
+  return planKey === "essentiel" || planKey === "premium" ? planKey : null;
+}
+
+export function isPlanPubliclyAvailable(planKey: string | null | undefined): boolean {
+  return resolvePublicPlanCode(planKey) !== null;
 }
 
 export function filterPubliclyAvailablePlans<T extends { code: string }>(

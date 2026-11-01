@@ -46,6 +46,7 @@ export function TvaExportsPage({
   frequency,
   generation,
   batch,
+  canWrite = false,
 }: {
   data: DgiVatExportData;
   history: DgiVatExportHistoryRow[];
@@ -54,6 +55,7 @@ export function TvaExportsPage({
   frequency: "monthly" | "quarterly";
   generation?: string;
   batch?: string;
+  canWrite?: boolean;
 }) {
   return (
     <div className="grid gap-6">
@@ -81,7 +83,7 @@ export function TvaExportsPage({
         </CardContent>
       </Card>
 
-      <DgiExportWizard periodStart={periodStart} periodEnd={periodEnd} frequency={frequency} />
+      <DgiExportWizard periodStart={periodStart} periodEnd={periodEnd} frequency={frequency} canWrite={canWrite} />
       <DgiExportSummaryCards summary={data.summary} />
 
       {data.summary.blockingErrorsCount > 0 ? (
@@ -96,6 +98,7 @@ export function TvaExportsPage({
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <DgiExportValidationPanel
           issues={data.validationIssues}
+          canWrite={canWrite}
           returnTo={`/comptabilite/tva/exports?from=${periodStart}&to=${periodEnd}&frequency=${frequency}&preflight=1`}
         />
         <Card>

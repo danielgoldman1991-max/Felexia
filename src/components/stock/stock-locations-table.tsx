@@ -23,7 +23,7 @@ function InlineAction({ label, id, action, icon, variant = "ghost" }: { label: s
   return <form action={formAction}><Button type="submit" variant={variant} className="h-9 w-9 px-0" title={label} disabled={pending}>{icon}</Button></form>;
 }
 
-export function StockLocationsTable({ rows }: { rows: StockLocationRecord[] }) {
+export function StockLocationsTable({ rows, canWrite = false }: { rows: StockLocationRecord[]; canWrite?: boolean }) {
   if (rows.length === 0) return <EmptyState title="Aucun emplacement de stock cree." description="Creez votre premier depot, magasin ou site de stockage." />;
   return (
     <Table>
@@ -43,9 +43,9 @@ export function StockLocationsTable({ rows }: { rows: StockLocationRecord[] }) {
             <Td>
               <div className="flex items-center gap-1">
                 <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/stock/emplacements/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
-                <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/stock/emplacements/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button>
-                {!row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultStockLocation} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
-                <InlineAction label="Archiver" id={row.id} action={archiveStockLocation} icon={<Archive className="h-4 w-4" />} variant="danger" />
+                {canWrite ? <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/stock/emplacements/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button> : null}
+                {canWrite && !row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultStockLocation} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
+                {canWrite ? <InlineAction label="Archiver" id={row.id} action={archiveStockLocation} icon={<Archive className="h-4 w-4" />} variant="danger" /> : null}
               </div>
             </Td>
           </tr>

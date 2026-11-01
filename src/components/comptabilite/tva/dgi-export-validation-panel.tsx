@@ -40,9 +40,11 @@ function sourceGroup(source?: string | null) {
 export function DgiExportValidationPanel({
   issues,
   returnTo,
+  canWrite = false,
 }: {
   issues: DgiVatValidationIssue[];
   returnTo?: string;
+  canWrite?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState<DgiVatSeverity | "all">("all");
@@ -210,7 +212,7 @@ export function DgiExportValidationPanel({
         ) : (
           <div className="space-y-3">
             {filtered.map((issue) => (
-              <ValidationIssueRow key={`${issue.code}-${issue.sourceId ?? ""}-${issue.documentNumber ?? ""}`} issue={issue} returnTo={returnTo} />
+              <ValidationIssueRow key={`${issue.code}-${issue.sourceId ?? ""}-${issue.documentNumber ?? ""}`} issue={issue} returnTo={returnTo} canWrite={canWrite} />
             ))}
           </div>
         )}
@@ -219,9 +221,9 @@ export function DgiExportValidationPanel({
   );
 }
 
-function ValidationIssueRow({ issue, returnTo }: { issue: DgiVatValidationIssue; returnTo?: string }) {
+function ValidationIssueRow({ issue, returnTo, canWrite }: { issue: DgiVatValidationIssue; returnTo?: string; canWrite: boolean }) {
   const { href, label } = buildDgiVatCorrectionLink(issue);
-  const linkHref = returnTo && href ? appendReturnTo(href, returnTo) : href;
+  const linkHref = canWrite ? (returnTo && href ? appendReturnTo(href, returnTo) : href) : null;
 
   return (
     <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-white p-4">

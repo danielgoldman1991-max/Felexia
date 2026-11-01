@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
+import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 type Detail = {
   employee: DetailRecord;
@@ -27,10 +28,12 @@ export function HrEmployeeDetail({ detail }: { detail: Detail }) {
         title={getString(employee, "full_name")}
         description={`Matricule ${getString(employee, "employee_number")} · ${getNestedString(employee, "position", "title", "Poste à affecter")} · ${getNestedString(employee, "department", "name", "Département à affecter")}`}
         actions={
+          <HrManagementAction>
           <Link href={`/rh/employes/${getString(employee, "id")}/edit`} className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]">
             <Pencil className="mr-2 h-4 w-4" />
             Modifier
           </Link>
+          </HrManagementAction>
         }
       />
 

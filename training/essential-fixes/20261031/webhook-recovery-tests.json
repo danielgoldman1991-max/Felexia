@@ -1,6 +1,6 @@
 {
   "success": true,
-  "checks": 27,
+  "checks": 31,
   "scope": "Real TypeScript modules; synthetic Stripe/DB/cookies; no network/project environment",
   "results": [
     "Modern subscription item start preserved",
@@ -13,6 +13,10 @@
     "Configured legacy payment_succeeded event updates subscription",
     "Modern payment_succeeded event retains billing dates",
     "Deleted subscription maps canceled state",
+    "Portal upgrade uses new PRO Price before stale Essentiel metadata",
+    "Portal downgrade uses new Essentiel Price before stale PRO metadata",
+    "Legacy Business Price keeps its entitlement",
+    "Legacy unmapped Price retains known subscription metadata",
     "Persistence failure is rejected for Stripe retry",
     "Failed persistence never marks processed",
     "Failed event can be retried successfully",

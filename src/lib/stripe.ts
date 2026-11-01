@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { getEnv, hasStripeEnv } from "@/lib/env";
-import { getPlanDefinition, normalizePlanCode, type PlanCode } from "@/lib/subscriptions/plans";
+import { getPlanDefinition, type PlanCode } from "@/lib/subscriptions/plans";
 import { getStripePriceId } from "@/lib/subscriptions/stripe-prices";
-import { isPlanPubliclyAvailable, PLAN_NOT_AVAILABLE_MESSAGE } from "@/lib/subscriptions/commercial-offers";
+import { isPlanPubliclyAvailable, PLAN_NOT_AVAILABLE_MESSAGE, resolvePublicPlanCode } from "@/lib/subscriptions/commercial-offers";
 
 let stripeInstance: Stripe | null = null;
 
@@ -56,7 +56,29 @@ export async function createCheckoutSession(
 }
 
 export function getStripePriceIdForPlan(planCode: string, billingCycle: "monthly" | "yearly"): string | null {
-  return getStripePriceId(normalizePlanCode(planCode), billingCycle);
+  const publicPlan = resolvePublicPlanCode(planCode);
+  return publicPlan ? getStripePriceId(publicPlan, billingCycle) : null;
+}
+
+/** A configured Price must charge exactly the advertised offer and cadence. */
+export async function assertStripePriceMatchesPlan(
+  priceId: string,
+  planCode: PlanCode,
+  billingInterval: "monthly" | "yearly",
+): Promise<void> {
+  if (!isPlanPubliclyAvailable(planCode) || getStripePriceIdForPlan(planCode, billingInterval) !== priceId) {
+    throw new Error("BILLING_PRICE_MISMATCH");
+  }
+  const plan = getPlanDefinition(planCode);
+  const expectedAmount = (billingInterval === "yearly" ? plan.yearlyPrice : plan.monthlyPrice) * 100;
+  const price = await getStripe().prices.retrieve(priceId);
+  if (!price.active || price.type !== "recurring" || price.billing_scheme !== "per_unit"
+    || price.currency !== plan.currency.toLowerCase() || price.unit_amount !== expectedAmount
+    || price.recurring?.interval !== (billingInterval === "yearly" ? "year" : "month")
+    || price.recurring.interval_count !== 1 || price.recurring.usage_type !== "licensed"
+    || price.transform_quantity !== null) {
+    throw new Error("BILLING_PRICE_MISMATCH");
+  }
 }
 
 export async function createPlanCheckoutSession(
@@ -69,13 +91,11 @@ export async function createPlanCheckoutSession(
   cancelUrl?: string,
   idempotencyKey?: string,
 ): Promise<Stripe.Checkout.Session> {
-  // Protection commerciale serveur : Business / Premium ne sont plus
-  // commercialisés. Personne ne doit pouvoir lancer un checkout pour ces
-  // plans, même en modifiant le payload. (Les abonnements existants restent
-  // gérés par Stripe via le portail et le webhook.)
+  // Public offers only; durable legacy codes stay unchanged in Stripe metadata.
   if (!isPlanPubliclyAvailable(planCode)) {
     throw new Error(PLAN_NOT_AVAILABLE_MESSAGE);
   }
+  await assertStripePriceMatchesPlan(priceId, planCode, billingInterval);
 
   const stripe = getStripe();
   const env = getEnv();
@@ -104,7 +124,7 @@ export async function createPlanCheckoutSession(
 }
 
 export async function createModuleCheckoutSession(): Promise<Stripe.Checkout.Session> {
-  throw new Error("La facturation par module est désactivée. Les modules sont inclus dans l'offre Essentiel.");
+  throw new Error("La facturation par module est désactivée. Choisissez une offre Essentiel ou PRO.");
 }
 
 export async function createPortalSession(
@@ -115,6 +135,7 @@ export async function createPortalSession(
   const env = getEnv();
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
+    ...(process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID ? { configuration: process.env.STRIPE_BILLING_PORTAL_CONFIGURATION_ID } : {}),
     return_url: returnUrl || `${env.appUrl}/parametres/abonnement`,
   });
   return session;

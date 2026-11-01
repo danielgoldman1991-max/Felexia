@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { BookOpen, Boxes, FileText, Mail, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Boxes, FileText, Users } from "lucide-react";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
-import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
 
@@ -13,25 +12,22 @@ const modules = [
   { title: "Ressources humaines", description: "Personnel, congés, paie et documents RH.", icon: Users },
 ];
 
-export default async function ModulesOnRequestPage() {
+export default async function ProModulesPage() {
   const workspace = await requireActiveWorkspace();
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
-  const subject = `Demande de module — ${workspace.organization.name}`;
-  const body = `Bonjour,\n\nJe souhaite activer un module complémentaire pour mon entreprise.\n\nEntreprise : ${workspace.organization.name}\nIdentifiant entreprise : ${workspace.organization.id}\nModule souhaité : \nBesoin : \n\nMerci.`;
-  const email = LEGAL_CONFIG.legalEmail.trim() || "contact@felexia.pro";
-  const contactHref = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   return (
     <div className="max-w-4xl space-y-6">
-      <PageHeader title="Modules sur demande" description="Un espace simple au quotidien, des possibilités supplémentaires quand vous en avez besoin." />
+      <PageHeader title="La gestion complète avec PRO" description="Deux offres pour accompagner votre entreprise : ESSENTIEL au quotidien, PRO pour aller plus loin." />
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="text-lg font-semibold">Votre essentiel est déjà là</h2>
+        <h2 className="text-lg font-semibold">Tout ESSENTIEL, avec les modules de l’ERP complet</h2>
         <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
           Créez vos factures de vente et d’achat, enregistrez leurs règlements,
           suivez votre trésorerie et gérez vos journaux comptables.
-          Les modules complémentaires s’activent avec l’équipe Felexia selon vos besoins.
+          Avec PRO, reliez aussi vos devis, commandes, livraisons, stocks,
+          outils comptables, TVA et ressources humaines.
         </p>
-        {fullAccess ? <p className="mt-3 text-sm text-[var(--primary)]">L’interface complète est activée pour votre entreprise, selon les droits de votre abonnement.</p> : null}
+        {fullAccess ? <p className="mt-3 text-sm text-[var(--primary)]">Votre entreprise dispose déjà de l’interface complète. Les actions disponibles dépendent de votre rôle et de la validité de votre abonnement.</p> : null}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {modules.map(({ title, description, icon: Icon }) => (
@@ -43,10 +39,10 @@ export default async function ModulesOnRequestPage() {
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button asChild><a href={contactHref}><Mail className="h-4 w-4" /> Demander un module</a></Button>
+        <Button asChild><Link href="/parametres/abonnement?plan=pro">{fullAccess ? "Gérer mon abonnement" : "Découvrir l’offre PRO"}<ArrowRight className="h-4 w-4" /></Link></Button>
         <Button asChild variant="secondary"><Link href="/dashboard">Retour à l’accueil</Link></Button>
       </div>
-      <p className="text-xs text-[var(--muted)]">Le bouton ouvre votre messagerie avec une demande préremplie à {email}.</p>
+      <p className="text-xs text-[var(--muted)]">Les outils TVA et paie préparent vos données et documents ; leur validation reste à votre charge.</p>
     </div>
   );
 }

@@ -14,7 +14,7 @@ const helpLinks = [
 const lightHelpLinks = [
   { href: "/bienvenue", label: "Bien démarrer", description: "Configurer votre entreprise et créer votre première facture.", icon: BookOpen },
   { href: "/parametres", label: "Mon entreprise", description: "Votre entreprise, vos utilisateurs et votre abonnement.", icon: Settings },
-  { href: "/parametres/modules", label: "Un besoin supplémentaire ?", description: "Demander l'accès aux modules complémentaires.", icon: Sparkles },
+  { href: "/parametres/modules", label: "Découvrir PRO", description: "Les modules de l’ERP complet pour votre entreprise.", icon: Sparkles },
 ];
 
 const operatorHelpLinks = [

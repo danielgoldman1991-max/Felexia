@@ -15,7 +15,7 @@ const trialBenefits = [
 ];
 
 const subscriptionBenefits = [
-  "Une seule offre : Essentiel",
+  "Deux offres : ESSENTIEL et PRO",
   "Paiement mensuel ou annuel",
   "Activation immédiate après paiement",
   "Facturation sécurisée par Stripe",

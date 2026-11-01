@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
 import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/purchase-types";
@@ -138,7 +139,7 @@ async function updatePurchaseTotals(supabase: ReturnType<typeof createClient> ex
 export async function createSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const orgId = workspace.organization.id;
 
   const supplierId = text(formData, "supplier_id");
@@ -181,7 +182,7 @@ export async function createSupplierOrder(prev: PurchaseActionResult, formData: 
 export async function updateSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const orgId = workspace.organization.id;
 
   const documentId = text(formData, "id");
@@ -218,7 +219,7 @@ export async function updateSupplierOrder(prev: PurchaseActionResult, formData: 
 export async function confirmSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
@@ -235,7 +236,7 @@ export async function confirmSupplierOrder(prev: PurchaseActionResult, formData:
 export async function cancelSupplierOrder(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
@@ -256,7 +257,7 @@ export async function cancelSupplierOrder(prev: PurchaseActionResult, formData: 
 export async function createSupplierReceipt(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const orgId = workspace.organization.id;
 
   const orderId = text(formData, "order_id");
@@ -378,7 +379,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
 export async function validateSupplierReceipt(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const orgId = workspace.organization.id;
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
@@ -455,7 +456,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
 export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "ID manquant." };
 
@@ -1031,7 +1032,7 @@ async function recalcSupplierInvoicePaymentStatus(supabase: any, invoiceId: stri
 export async function archivePurchaseDocument(prev: PurchaseActionResult, formData: FormData): Promise<PurchaseActionResult> {
   void prev;
   const supabase = await createClient();
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   const docType = text(formData, "document_type");
   if (!id) return { success: false, error: "ID manquant." };

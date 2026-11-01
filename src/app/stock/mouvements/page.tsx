@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/erp/empty-state";
 import { ModulePage } from "@/components/erp/module-page";
@@ -26,6 +28,7 @@ type Search = {
 };
 
 export default async function StockMovesPage({ searchParams }: { searchParams: Promise<Search> }) {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const params = await searchParams;
   const products = await listStockProductsForSelect();
   const warehouses = await listWarehouses();
@@ -62,7 +65,7 @@ export default async function StockMovesPage({ searchParams }: { searchParams: P
           <EmptyState title="Selectionnez un article" description="Choisissez un produit pour afficher son historique de stock." />
         ) : summary?.product ? (
           <>
-            <ProductStockSummary summary={summary} />
+            <ProductStockSummary canWrite={canWrite} summary={summary} />
             <StockMovementFilters
               productId={productId}
               warehouses={warehouses}

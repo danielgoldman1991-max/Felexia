@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { createClient } from "@/lib/supabase/server";
 import type { TreasuryActionResult } from "@/lib/treasury-types";
 import { computeWeightedAmount } from "@/lib/treasury/treasury-forecast";
@@ -23,7 +23,7 @@ function clampProbability(value: number) {
 
 export async function createTreasuryForecastItem(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const label = text(formData, "label");
   if (!label) return { success: false, error: "Le libelle est obligatoire." };
   const directionRaw = text(formData, "direction");
@@ -67,7 +67,7 @@ export async function createTreasuryForecastItem(prev: TreasuryActionResult, for
 
 export async function updateTreasuryForecastItem(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Prevision introuvable." };
   const label = text(formData, "label");
@@ -120,7 +120,7 @@ export async function setTreasuryForecastItemStatus(
   formData: FormData,
 ): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   const status = text(formData, "status");
   if (!id || !status) return { success: false, error: "Prevision introuvable." };
@@ -140,7 +140,7 @@ export async function setTreasuryForecastItemStatus(
 
 export async function archiveTreasuryForecastItem(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Prevision introuvable." };
 

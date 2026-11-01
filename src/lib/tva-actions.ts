@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import {
   buildDgiVatPreparationCsv,
   getDgiVatPreparationData,
@@ -28,7 +28,7 @@ function exportStatusLabel(status: string) {
 }
 
 export async function generateDgiVatPreparationAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const supabase = await createClient();
   const periodStart = text(formData, "period_start");
   const periodEnd = text(formData, "period_end");

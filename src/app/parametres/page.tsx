@@ -118,9 +118,9 @@ export default async function ParametresPage() {
             <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-[var(--primary)]" />
             <div>
               <h2 className="text-sm font-semibold">Votre activité évolue ?</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">Les modules complémentaires sont disponibles sur demande.</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">Retrouvez les modules de l’ERP complet dans l’offre PRO.</p>
               <Link href="/parametres/modules" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
-                Découvrir les modules sur demande <ChevronRight className="h-4 w-4" />
+                Découvrir les modules PRO <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
           </div>

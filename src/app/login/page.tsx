@@ -3,6 +3,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
+import { getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
 // RULE: This page must NEVER auto-redirect on load.
 // Redirects happen ONLY after user actions (loginAction or registerAdminForm).
@@ -36,7 +37,7 @@ export default async function LoginPage({
   const { mode, next, error: errorCode, notice } = await searchParams;
   const isRegisterMode = mode === "register";
   const isLoginMode = !isRegisterMode;
-  const safeNext = next?.startsWith("/") && !next.startsWith("//") ? next : "";
+  const safeNext = next ? getPostOnboardingPath(next) : "";
   const nextQuery = safeNext ? `&next=${encodeURIComponent(safeNext)}` : "";
   const authError = friendlyAuthError(errorCode);
 
@@ -111,7 +112,7 @@ export default async function LoginPage({
 
             <GoogleAuthButton mode={isRegisterMode ? "register" : "login"} next={safeNext} />
 
-            {isRegisterMode ? <RegisterAdminForm /> : <LoginForm nextPath={safeNext} />}
+            {isRegisterMode ? <RegisterAdminForm nextPath={safeNext} /> : <LoginForm nextPath={safeNext} />}
           </div>
 
           {isLoginMode && (

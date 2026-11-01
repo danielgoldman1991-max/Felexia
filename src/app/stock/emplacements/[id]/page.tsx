@@ -1,3 +1,5 @@
+import { requireActiveWorkspace } from "@/lib/auth";
+import { canWriteProWorkspace } from "@/lib/pro-access";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil } from "lucide-react";
@@ -18,6 +20,7 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default async function StockLocationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
   const { id } = await params;
   const { location, stockLevels, movements } = await getStockLocationDetail(id);
   if (!location) notFound();
@@ -26,7 +29,7 @@ export default async function StockLocationDetailPage({ params }: { params: Prom
       <PageHeader
         title={location.name}
         description="Fiche emplacement de stock"
-        actions={<Button variant="secondary" asChild><Link href={`/stock/emplacements/${location.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button>}
+        actions={canWrite ? <Button variant="secondary" asChild><Link href={`/stock/emplacements/${location.id}/edit`}><Pencil className="h-4 w-4" /> Modifier</Link></Button> : null}
       />
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">

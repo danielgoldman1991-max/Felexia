@@ -47,6 +47,7 @@ export function SupplierReceiptDetail({
   existingInvoice,
   archiveEligibility,
   stockMoves,
+  canWrite = false,
 }: {
   document: PurchaseDocumentRecord;
   lines: PurchaseDocumentLineRecord[];
@@ -54,9 +55,10 @@ export function SupplierReceiptDetail({
   existingInvoice?: SupplierInvoiceRecord | null;
   archiveEligibility?: PurchaseReceiptArchiveEligibility | null;
   stockMoves?: StockMoveForReceipt[];
+  canWrite?: boolean;
 }) {
-  const canValidate = document.status === "draft";
-  const canCancel = document.status === "draft";
+  const canValidate = canWrite && document.status === "draft";
+  const canCancel = canWrite && document.status === "draft";
   const canArchive = archiveEligibility?.canArchive ?? (document.status === "draft" && !document.stock_updated_at && !existingInvoice);
   const isInvoiced = Boolean(existingInvoice);
 
@@ -71,7 +73,7 @@ export function SupplierReceiptDetail({
           <>
             {isInvoiced ? (
               <Button variant="secondary" asChild><Link href={`/achats/factures/${existingInvoice!.id}`}><FileText className="h-4 w-4" /> Voir facture</Link></Button>
-            ) : document.status === "validated" ? (
+            ) : canWrite && document.status === "validated" ? (
               <Button variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer facture</Link></Button>
             ) : null}
             {canValidate ? (
@@ -81,7 +83,7 @@ export function SupplierReceiptDetail({
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierReceipt, document.id)} />
             ) : null}
-            {canArchive ? (
+            {canWrite && canArchive ? (
               <ActionForm label="Archiver" icon={<Archive className="h-4 w-4" />} variant="danger" action={async (prev) => {
                 const fd = new FormData();
                 fd.set("id", document.id);
@@ -259,9 +261,9 @@ export function SupplierReceiptDetail({
           </CardHeader>
           <CardContent>
             <p className="text-sm text-[var(--muted)]">Cette reception n&apos;est pas encore facturee.</p>
-            <div className="mt-3">
+            {canWrite ? <div className="mt-3">
               <Button asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer la facture fournisseur</Link></Button>
-            </div>
+            </div> : null}
           </CardContent>
         </Card>
       ) : null}

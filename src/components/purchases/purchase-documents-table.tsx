@@ -11,7 +11,7 @@ import type { PurchaseDocumentRecord, PurchaseDocumentType } from "@/lib/purchas
 import { isSupplierInvoiceFromReceipt, type SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { SupplierInvoiceStatusBadge } from "@/components/purchases/supplier-invoice-status-badge";
 
-export function PurchaseDocumentsTable({ rows, type }: { rows: PurchaseDocumentRecord[]; type: PurchaseDocumentType }) {
+export function PurchaseDocumentsTable({ rows, type, canWrite = false }: { rows: PurchaseDocumentRecord[]; type: PurchaseDocumentType; canWrite?: boolean }) {
   const isReceipt = type === "supplier_receipt";
   if (rows.length === 0) return <EmptyState title={isReceipt ? "Aucune réception pour le moment" : "Aucune commande pour le moment"} description="Vos documents d’achat et leur suivi apparaîtront ici." icon={<PackageCheck className="h-6 w-6" />} />;
   return (
@@ -45,7 +45,7 @@ export function PurchaseDocumentsTable({ rows, type }: { rows: PurchaseDocumentR
             <Td>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" asChild><Link href={`/achats/${isReceipt ? "receptions" : "commandes"}/${row.id}`}>Consulter</Link></Button>
-                {isReceipt && row.status === "validated" ? (
+                {canWrite && isReceipt && row.status === "validated" ? (
                   <Button type="button" variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${row.id}`}>Facturer</Link></Button>
                 ) : null}
               </div>

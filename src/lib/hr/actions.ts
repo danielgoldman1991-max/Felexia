@@ -2,23 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { createClient } from "@/lib/supabase/server";
 import { calculatePayslip } from "@/lib/hr/payroll-engine";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import type { HrSettings } from "@/lib/hr/types";
 
-const manageRoles = new Set(["owner", "admin", "hr_manager", "accountant"]);
-
-function requireHrManager(role: string | null) {
-  if (!manageRoles.has(role ?? "")) {
-    throw new Error("Vous n'avez pas les droits nécessaires pour modifier le module RH.");
-  }
-}
-
 export async function createHrEmployeeAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
   await ensureHrReferenceData(supabase, workspace.organization.id);
 
@@ -49,8 +40,7 @@ export async function createHrEmployeeAction(formData: FormData) {
 }
 
 export async function updateHrEmployeeAction(employeeId: string, formData: FormData) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -78,8 +68,7 @@ export async function updateHrEmployeeAction(employeeId: string, formData: FormD
 }
 
 export async function createHrContractAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
   const payload = {
@@ -103,8 +92,7 @@ export async function createHrContractAction(formData: FormData) {
 }
 
 export async function createHrLeaveRequestAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
   const { error } = await supabase.from("hr_leave_requests").insert({
@@ -123,8 +111,7 @@ export async function createHrLeaveRequestAction(formData: FormData) {
 }
 
 export async function createHrPayrollPeriodAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
   const month = numberValue(formData, "month", new Date().getMonth() + 1);
   const year = numberValue(formData, "year", new Date().getFullYear());
@@ -159,8 +146,7 @@ export async function createHrPayrollPeriodAction(formData: FormData) {
 }
 
 export async function calculateHrPayrollPeriodAction(periodId: string) {
-  const workspace = await requireActiveWorkspace();
-  requireHrManager(workspace.role);
+  const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
   const [{ data: period }, { data: employees }, { data: settings }] = await Promise.all([

@@ -5,10 +5,12 @@ import { SubscriptionManage } from "@/components/settings/subscription-manage";
 import { hasStripeEnv } from "@/lib/env";
 import { getOrganizationSubscription } from "@/lib/subscriptions/plan-access";
 import { isAdminRole } from "@/lib/auth/roles";
+import { resolvePublicPlanCode } from "@/lib/subscriptions/commercial-offers";
 
-export default async function AbonnementPage() {
+export default async function AbonnementPage({ searchParams }: { searchParams: Promise<{ plan?: string; billing?: string }> }) {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
+  const selection = await searchParams;
 
   const [subscription, memberResult, documentsResult, storageResult] = await Promise.all([
     getOrganizationSubscription(workspace.organization.id, { throwOnError: true }),
@@ -57,6 +59,8 @@ export default async function AbonnementPage() {
         hasStripe={hasStripeEnv()}
         canManageBilling={isAdminRole(workspace.role)}
         nowIso={new Date().toISOString()}
+        selectedPlan={resolvePublicPlanCode(selection.plan)}
+        initialBillingInterval={selection.billing === "yearly" ? "yearly" : "monthly"}
       />
     </div>
   );

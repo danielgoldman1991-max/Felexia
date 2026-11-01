@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveWorkspace, hasSupabaseConfig } from "@/lib/auth";
 import { getUserOnboardingStatus } from "@/lib/saas";
+import { getCompanyOnboardingPath, getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
 export type LoginState = {
   error: string | null;
@@ -22,10 +23,7 @@ export async function loginAction(
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const requestedNext = String(formData.get("next") ?? "").trim();
-  const safeNext = requestedNext.startsWith("/") && !requestedNext.startsWith("//")
-    ? requestedNext
-    : "";
+  const safeNext = getPostOnboardingPath(String(formData.get("next") ?? ""));
 
   if (!email || !password) {
     return { error: "Veuillez saisir votre email et votre mot de passe." };
@@ -72,7 +70,10 @@ export async function loginAction(
   }
 
   const status = await getUserOnboardingStatus();
-  if (safeNext) {
+  if (!status.hasOrganization) {
+    redirect(getCompanyOnboardingPath(safeNext));
+  }
+  if (safeNext !== "/dashboard") {
     redirect(safeNext);
   }
   redirect(status.nextPath);

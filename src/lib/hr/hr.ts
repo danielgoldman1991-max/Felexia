@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { canManageHrWorkspace, requireHrWorkspace } from "@/lib/hr/access";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import type { HrDashboardData, HrEmployee, HrSettings } from "@/lib/hr/types";
 
@@ -22,9 +22,11 @@ type CountFilter =
   | "activeLoans";
 
 export async function ensureCurrentWorkspaceHrReferenceData() {
-  const workspace = await requireActiveWorkspace();
-  const supabase = await createClient();
-  await ensureHrReferenceData(supabase, workspace.organization.id);
+  const workspace = await requireHrWorkspace();
+  if (canManageHrWorkspace(workspace)) {
+    const supabase = await createClient();
+    await ensureHrReferenceData(supabase, workspace.organization.id);
+  }
   return workspace;
 }
 
@@ -228,7 +230,7 @@ export async function listHrEmployees(search?: string): Promise<HrEmployee[]> {
 }
 
 export async function getHrEmployeeDetail(id: string) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireHrWorkspace();
   const supabase = await createClient();
   const organizationId = workspace.organization.id;
   const [employeeResult, contracts, leaves, absences, advances, loans, documents, evaluations, discipline] = await Promise.all([

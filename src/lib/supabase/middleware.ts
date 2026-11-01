@@ -121,8 +121,7 @@ export async function updateSession(request: NextRequest) {
       }
     }
 
-    const businessPath = /^\/(?:facturation|achats|tiers|tresorerie|articles)(?:\/|$)/.test(pathname)
-      || pathname.startsWith("/comptabilite/ecritures");
+    const businessPath = /^\/(?:facturation|achats|tiers|tresorerie|articles|vente|ventes|stock|rh|documents|agenda|outils|rapports|comptabilite)(?:\/|$)/.test(pathname);
     if (user && activeMembership?.organization_id && businessPath && (mutationRequest || mutationForm)) {
       const { data: subscription, error: subscriptionError } = await supabase
         .from("organization_subscriptions")
@@ -151,12 +150,12 @@ export async function updateSession(request: NextRequest) {
       // parameter, user metadata or a client-supplied interface preference.
       const membership = activeMembership;
       const fullAccess = membership?.organization_id
-        ? await hasFullErpAccess(membership.organization_id)
+        ? await hasFullErpAccess(membership.organization_id, supabase)
         : false;
       if (!fullAccess) {
         if (request.method !== "GET" && request.method !== "HEAD") {
           const response = NextResponse.json(
-            { error: "Ce module est disponible sur demande.", code: "MODULE_ON_REQUEST" },
+            { error: "Ce module est inclus dans l’offre PRO.", code: "PRO_PLAN_REQUIRED" },
             { status: 403 },
           );
           supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));

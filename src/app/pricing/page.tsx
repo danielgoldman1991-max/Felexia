@@ -7,8 +7,8 @@ import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
 export const metadata = {
-  title: "Tarifs - Felexia",
-  description: "L’offre Essentiel réunit facturation électronique PDF/XML, archivage, règlements, trésorerie et journaux.",
+  title: "Tarifs ESSENTIEL et PRO - Felexia",
+  description: "Comparez ESSENTIEL pour la facturation électronique et la gestion quotidienne, et PRO pour l’ERP complet : ventes, achats, stock, comptabilité, TVA et RH.",
 };
 
 export default function PricingPage() {

@@ -1,0 +1,30 @@
+{
+  "url": "https://www.felexia.pro/",
+  "projectId": "prj_3VWRIDk122M2EssODvf3tZWXGRnQ",
+  "deploymentId": "dpl_6jVzFNVVo3TPgEAV1Mp5uAW99mRH",
+  "buildUrl": "https://felexia-p155htn9g-danielgoldman1991-maxs-projects.vercel.app",
+  "state": "READY",
+  "target": "production",
+  "source": "git",
+  "commit": "b0786541169b3bee26ba65702caa68770dc7a9e8",
+  "branch": "main",
+  "aliases": [
+    "www.felexia.pro",
+    "felexia.pro",
+    "felexia-danielgoldman1991-maxs-projects.vercel.app",
+    "felexia-git-main-danielgoldman1991-maxs-projects.vercel.app"
+  ],
+  "buildMilliseconds": 43858,
+  "previousDeploymentId": "dpl_9RgUq48bcDXEJy2o5DkcVuk377kc",
+  "previousCommit": "7a66547a0154ffdc7af12944e50622e9f14b4c32",
+  "branchCi": {
+    "id": 41290179774,
+    "conclusion": "success"
+  },
+  "mainCi": {
+    "id": 41290475278,
+    "conclusion": "success"
+  },
+  "localBuildUploaded": false,
+  "sqlChanged": false
+}

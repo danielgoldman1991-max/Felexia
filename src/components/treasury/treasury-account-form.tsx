@@ -37,8 +37,8 @@ export function TreasuryAccountForm({ account, action, fullAccess = false }: Pro
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Devise</span>
-            <Input name="currency" defaultValue={account?.currency ?? "MAD"} readOnly={!fullAccess || Boolean(account)} />
-            {!fullAccess ? <span className="block text-xs text-[var(--muted)]">Les nouveaux comptes et règlements de l’offre Essentiel utilisent le dirham marocain (MAD).</span> : null}
+            <Input name="currency" defaultValue={account?.currency ?? "MAD"} readOnly />
+            <span className="block text-xs text-[var(--muted)]">Les nouveaux comptes et règlements utilisent le dirham marocain (MAD).</span>
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Solde initial{account ? " (non modifiable)" : ""}</span>

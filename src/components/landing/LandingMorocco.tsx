@@ -41,7 +41,7 @@ export function LandingMorocco() {
             Pensé pour votre activité au Maroc
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-slate-600">
-            Felexia Pro accompagne le quotidien des PME marocaines : facturer, régler et suivre sa trésorerie.
+            Felexia accompagne les PME marocaines : la gestion quotidienne avec ESSENTIEL, l’ERP complet avec PRO.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export function LandingMorocco() {
         </div>
 
         <p className="mx-auto mt-10 max-w-3xl rounded-2xl border border-amber-200/60 bg-amber-50/60 px-6 py-4 text-center text-sm leading-relaxed text-slate-600">
-          Les journaux et écritures de Felexia Pro sont{" "}
+          Les journaux et écritures de Felexia sont{" "}
           <strong className="font-semibold text-slate-700">préparatoires</strong> : elles
           vous aident à organiser vos opérations, mais ne remplacent ni
           l&apos;expertise d&apos;un expert-comptable ni les obligations déclaratives applicables au

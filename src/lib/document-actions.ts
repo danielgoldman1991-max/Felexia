@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 
 export type DocumentActionState = {
   success: boolean;
@@ -49,7 +49,7 @@ function documentTypeFromCategory(category: string | null) {
 }
 
 async function loadDocumentForWorkspace(id: string) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("documents")
@@ -67,7 +67,7 @@ export async function uploadDocumentAction(
   formData: FormData,
 ): Promise<DocumentActionState> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const file = formData.get("file");
 
   if (!(file instanceof File) || file.size === 0) {

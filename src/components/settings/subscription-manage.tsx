@@ -33,6 +33,8 @@ export function SubscriptionManage({
   hasStripe,
   nowIso,
   canManageBilling = true,
+  selectedPlan = null,
+  initialBillingInterval = "monthly",
 }: {
   currentSubscription: CurrentSubscription | null;
   plans?: Record<string, unknown>[];
@@ -43,10 +45,12 @@ export function SubscriptionManage({
   hasStripe: boolean;
   nowIso?: string;
   canManageBilling?: boolean;
+  selectedPlan?: PlanCode | null;
+  initialBillingInterval?: BillingInterval;
   enabledModules?: string[];
   catalog?: unknown[];
 }) {
-  const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>(initialBillingInterval);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [loadingTrial, setLoadingTrial] = useState(false);
@@ -173,7 +177,7 @@ export function SubscriptionManage({
               <h2 className="text-lg font-semibold">Vous n&apos;avez pas encore activé d&apos;essai ni choisi d&apos;abonnement.</h2>
             </div>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Vous gardez le contrôle : vous pouvez démarrer l&apos;essai Essentiel sans carte bancaire ou souscrire directement à l&apos;offre Essentiel.
+              Démarrez l&apos;essai Essentiel sans carte bancaire ou souscrivez directement à ESSENTIEL ou PRO.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
@@ -248,8 +252,10 @@ export function SubscriptionManage({
         <div className="rounded-[var(--radius-md)] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
       ) : null}
 
+      {selectedPlan ? <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">Votre sélection : <strong>{getPlanDefinition(selectedPlan).name}</strong>. Choisissez votre périodicité puis confirmez pour ouvrir le paiement sécurisé. L’essai gratuit porte sur ESSENTIEL.</p> : null}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold">Votre abonnement</h2>
+        <h2 className="text-lg font-semibold">ESSENTIEL ou PRO</h2>
         <div className="flex items-center gap-2">
           {currentSubscription?.stripe_customer_id ? (
             <Button variant="secondary" disabled={!hasStripe || loadingPortal || !canManageBilling} onClick={openBillingPortal}>
@@ -263,6 +269,7 @@ export function SubscriptionManage({
         <button
           type="button"
           onClick={() => setBillingInterval("monthly")}
+          aria-pressed={billingInterval === "monthly"}
           className={cn(
             "flex items-center gap-2 rounded-[var(--radius-sm)] px-5 py-2 text-sm font-medium transition-all",
             billingInterval === "monthly"
@@ -275,6 +282,7 @@ export function SubscriptionManage({
         <button
           type="button"
           onClick={() => setBillingInterval("yearly")}
+          aria-pressed={billingInterval === "yearly"}
           className={cn(
             "flex items-center gap-2 rounded-[var(--radius-sm)] px-5 py-2 text-sm font-medium transition-all",
             billingInterval === "yearly"
@@ -289,7 +297,7 @@ export function SubscriptionManage({
         </button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2">
         {filterPubliclyAvailablePlans(SUBSCRIPTION_PLANS).map((plan) => {
           const isCurrentPlan = hasSubscription && status === "active" && plan.code === currentPlanCode && billingInterval === currentBillingCycle;
           const savings = yearlySavings.find((s) => s.code === plan.code);
@@ -300,21 +308,17 @@ export function SubscriptionManage({
               className={cn(
                 "relative flex flex-col",
                 plan.isRecommended && "border-blue-400 shadow-[0_18px_50px_rgba(37,99,235,0.14)]",
-                isCurrentPlan && "ring-2 ring-blue-600/20",
+                (isCurrentPlan || plan.code === selectedPlan) && "ring-2 ring-blue-600/20",
               )}
             >
-              {plan.isRecommended && (
-                <div className="absolute right-4 top-4">
-                  <Badge tone="info">Recommandé</Badge>
-                </div>
-              )}
-              {billingInterval === "yearly" && (
-                <div className="absolute left-4 top-4">
-                  <Badge tone="success">Meilleure valeur</Badge>
-                </div>
-              )}
               <CardHeader>
-                <h3 className="text-xl font-semibold">{plan.name}</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-xl font-semibold">{plan.name}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {plan.code === selectedPlan ? <Badge tone="info">Votre sélection</Badge> : plan.isRecommended ? <Badge tone="info">ERP complet</Badge> : null}
+                    {billingInterval === "yearly" ? <Badge tone="success">2 mois offerts</Badge> : null}
+                  </div>
+                </div>
                 <p className="min-h-10 text-sm text-[var(--muted)]">{plan.description}</p>
                 <p className="pt-2 text-3xl font-bold">
                   {formatPrice(plan)}
@@ -328,7 +332,7 @@ export function SubscriptionManage({
               </CardHeader>
               <CardContent className="flex flex-1 flex-col">
                 <ul className="mb-5 space-y-2">
-                  {plan.featureHighlights.slice(0, 8).map((feature) => (
+                  {plan.featureHighlights.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                       <span>{feature}</span>
@@ -350,8 +354,8 @@ export function SubscriptionManage({
                       : loadingPlan === plan.code
                         ? "Redirection..."
                         : billingInterval === "yearly"
-                          ? "Choisir ce plan annuel"
-                          : "Choisir ce plan"}
+                          ? `Choisir ${plan.name} annuel`
+                          : `Choisir ${plan.name}`}
                   </Button>
                 </div>
               </CardContent>
@@ -359,6 +363,7 @@ export function SubscriptionManage({
           );
         })}
       </div>
+      <p className="text-xs leading-5 text-[var(--muted)]">PRO donne accès aux modules complets selon le rôle de chaque utilisateur. Les outils TVA et de paie sont préparatoires. Les abonnements déjà payants se modifient depuis le portail de facturation.</p>
     </div>
   );
 }

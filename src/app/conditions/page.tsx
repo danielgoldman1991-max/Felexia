@@ -110,8 +110,10 @@ export default function ConditionsPage() {
 
       <LegalSection id="abonnement" title="6. Abonnement">
         <LegalParagraph>
-          {LEGAL_CONFIG.productName} commercialise actuellement une seule offre publique :{" "}
-          <strong>Essentiel</strong>.
+          {LEGAL_CONFIG.productName} propose deux offres publiques :{" "}
+          <strong>ESSENTIEL</strong> pour la gestion quotidienne et <strong>PRO</strong> pour
+          les fonctions de l&apos;ERP complet. Le détail des fonctionnalités et des limites
+          de chaque offre est présenté sur la page des tarifs.
         </LegalParagraph>
         <LegalList
           items={[

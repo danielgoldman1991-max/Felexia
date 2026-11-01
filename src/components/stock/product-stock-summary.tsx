@@ -5,7 +5,7 @@ import { StatCard } from "@/components/erp/stat-card";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { StockMovementSummary } from "@/lib/stock-types";
 
-export function ProductStockSummary({ summary }: { summary: StockMovementSummary }) {
+export function ProductStockSummary({ summary, canWrite = false }: { summary: StockMovementSummary; canWrite?: boolean }) {
   const product = summary.product;
   if (!product) return null;
 
@@ -33,10 +33,10 @@ export function ProductStockSummary({ summary }: { summary: StockMovementSummary
                 {product.sku ?? "Sans SKU"} · Unite {product.unit_symbol ?? "-"} · {summary.movements_count} mouvement(s)
               </p>
             </div>
-            <div className="flex gap-2">
+            {canWrite ? <div className="flex gap-2">
               <Button type="button" variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}>Entree stock</Link></Button>
               <Button type="button" variant="secondary" asChild><Link href={`/stock/ajustements/new?productId=${product.id}`}>Ajuster</Link></Button>
-            </div>
+            </div> : null}
           </div>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "checks": 16,
+  "scope": "Synthetic Stripe only; no environment/network/customer/session/payment",
+  "results": [
+    "Prepare is strictly read-only",
+    "Plan preserves original product before apply",
+    "Original product snapshot journaled before mutation",
+    "Only referenced premium product is renamed",
+    "Essentiel and unrelated metadata preserved",
+    "PRO product name and release marker saved",
+    "Dedicated portal exposes exactly two products and four Prices",
+    "Portal cannot increase quantity or add promotion codes",
+    "Cancellation scheduled at period end",
+    "Payment methods and invoice history available",
+    "Apply verifies catalog and portal before completion",
+    "Already matching provision is idempotent",
+    "Rollback restores product name and original metadata marker",
+    "Rollback only deactivates created portal and preserves unrelated metadata",
+    "Invalid price cannot change any Stripe state",
+    "Managed configuration drift requires review"
+  ]
+}

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { createClient } from "@/lib/supabase/server";
 import type { StockActionResult, StockLocationStatus, StockLocationType } from "@/lib/stock-types";
 
@@ -58,7 +58,7 @@ async function applyDefault(organizationId: string, locationId: string) {
 
 export async function createStockLocation(prev: StockActionResult, formData: FormData): Promise<StockActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const payload = readPayload(formData);
   if (!payload.name) return { success: false, error: "Le nom de l'emplacement est obligatoire." };
   if (payload.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) return { success: false, error: "Email invalide." };
@@ -82,7 +82,7 @@ export async function createStockLocation(prev: StockActionResult, formData: For
 
 export async function updateStockLocation(prev: StockActionResult, formData: FormData): Promise<StockActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Emplacement introuvable." };
   const payload = readPayload(formData);
@@ -105,7 +105,7 @@ export async function updateStockLocation(prev: StockActionResult, formData: For
 
 export async function archiveStockLocation(prev: StockActionResult, formData: FormData): Promise<StockActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Emplacement introuvable." };
   const supabase = await createClient();
@@ -123,7 +123,7 @@ export async function archiveStockLocation(prev: StockActionResult, formData: Fo
 
 export async function setDefaultStockLocation(prev: StockActionResult, formData: FormData): Promise<StockActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Emplacement introuvable." };
   const error = await applyDefault(workspace.organization.id, id);

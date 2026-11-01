@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-01T09:15:40.118Z",
+  "origin": "http://localhost:3112",
+  "passed": true,
+  "checks": [
+    {
+      "name": "/ responds 200",
+      "passed": true
+    },
+    {
+      "name": "/pricing responds 200",
+      "passed": true
+    },
+    {
+      "name": "/mentions-legales responds 200",
+      "passed": true
+    },
+    {
+      "name": "/confidentialite responds 200",
+      "passed": true
+    },
+    {
+      "name": "/conditions responds 200",
+      "passed": true
+    },
+    {
+      "name": "/api/health responds 200",
+      "passed": true
+    },
+    {
+      "name": "/robots.txt responds 200",
+      "passed": true
+    },
+    {
+      "name": "/sitemap.xml responds 200",
+      "passed": true
+    },
+    {
+      "name": "/ offers exactly two subscription cards",
+      "passed": true
+    },
+    {
+      "name": "/ presents ESSENTIEL and PRO",
+      "passed": true
+    },
+    {
+      "name": "/ keeps legacy plans off the public page",
+      "passed": true
+    },
+    {
+      "name": "/ has a PRO subscription action",
+      "passed": true
+    },
+    {
+      "name": "/ describes the Essentiel free trial",
+      "passed": true
+    },
+    {
+      "name": "/pricing offers exactly two subscription cards",
+      "passed": true
+    },
+    {
+      "name": "/pricing presents ESSENTIEL and PRO",
+      "passed": true
+    },
+    {
+      "name": "/pricing keeps legacy plans off the public page",
+      "passed": true
+    },
+    {
+      "name": "/pricing has a PRO subscription action",
+      "passed": true
+    },
+    {
+      "name": "/pricing describes the Essentiel free trial",
+      "passed": true
+    },
+    {
+      "name": "Home presents six families of complete ERP modules",
+      "passed": true
+    },
+    {
+      "name": "Conditions describe both offers",
+      "passed": true
+    },
+    {
+      "name": "Anonymous PRO selection opens login with plan and period preserved",
+      "passed": true
+    },
+    {
+      "name": "Anonymous checkout refuses before any billing action",
+      "passed": true
+    },
+    {
+      "name": "Landscape image remains unchanged",
+      "passed": true
+    }
+  ],
+  "imageSha256": "94ebfaa6582175726be0df4b551eb5e9b628eed6753ec4bce894152c342b3f6f",
+  "scope": "Public GETs and anonymous denied checkout only; zero authorized billing or business mutations"
+}

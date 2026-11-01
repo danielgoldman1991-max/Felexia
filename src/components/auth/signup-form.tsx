@@ -8,11 +8,12 @@ import Link from "next/link";
 
 const initialState: SignUpState = { error: null };
 
-export function SignUpForm() {
+export function SignUpForm({ nextPath }: { nextPath?: string }) {
   const [state, formAction, pending] = useActionState(signUpAction, initialState);
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="next" value={nextPath ?? ""} />
       <Input
         name="fullName"
         placeholder="Nom complet"

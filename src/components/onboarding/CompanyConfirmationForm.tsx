@@ -64,6 +64,7 @@ export function CompanyConfirmationForm({
   initialAvatarUrl,
   prefill,
   onBack,
+  nextPath,
 }: {
   initialEmail: string;
   initialFirstName?: string;
@@ -71,6 +72,7 @@ export function CompanyConfirmationForm({
   initialAvatarUrl?: string | null;
   prefill?: CompanyOnboardingPrefill | null;
   onBack: () => void;
+  nextPath?: string;
 }) {
   const [state, formAction, pending] = useActionState(createEntrepriseAction, initialState);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -143,6 +145,7 @@ export function CompanyConfirmationForm({
     <>
       <LoadingOverlay open={showLoadingOverlay} />
       <form action={formAction} onSubmit={handleSubmit} className="space-y-6" aria-busy={showLoadingOverlay}>
+        <input type="hidden" name="next" value={nextPath ?? ""} />
         <fieldset disabled={showLoadingOverlay} className="space-y-6 disabled:opacity-75">
           <div className="flex items-center justify-between gap-4">
             <div>

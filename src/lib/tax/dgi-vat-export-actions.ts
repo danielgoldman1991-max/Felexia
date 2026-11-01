@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireActiveWorkspace } from "@/lib/auth";
+import { requireProWorkspace } from "@/lib/pro-access";
 import { DGI_VAT_SCHEMA_VERSION } from "@/lib/tax/dgi-vat-mapping";
 import { generateDgiVatCsv } from "@/lib/tax/dgi-vat-csv";
 import { generateDgiVatPreparatoryXml } from "@/lib/tax/dgi-vat-xml";
@@ -90,7 +90,7 @@ async function uploadTextFile(path: string, content: string, contentType: string
 
 async function insertAuditLog(action: string, batchId: string, changes: Record<string, unknown>) {
   try {
-    const workspace = await requireActiveWorkspace();
+    const workspace = await requireProWorkspace();
     const supabase = await createClient();
     await supabase.from("audit_logs").insert({
       organization_id: workspace.organization.id,
@@ -106,7 +106,7 @@ async function insertAuditLog(action: string, batchId: string, changes: Record<s
 }
 
 export async function generateDgiVatXmlAction(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireProWorkspace();
   const supabase = await createClient();
 
   if (!allowedRole(workspace.role)) {
