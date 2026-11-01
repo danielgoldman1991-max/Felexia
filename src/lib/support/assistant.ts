@@ -72,6 +72,25 @@ function sourceFor(article: SupportKnowledgeArticle) {
   return { id: article.id, title: article.title, href: article.href };
 }
 
+/** Return only known operational codes, never a provider message or response body. */
+function supportProviderFailureCode(error: unknown, fallback: string): string {
+  const known = ["customer_verification_required", "insufficient_funds", "quota_for_entity_exceeded", "authentication_error", "model_not_found", "invalid_request_error", "rate_limit_exceeded", "forbidden"];
+  let current = error;
+  for (let depth = 0; depth < 4 && current && typeof current === "object"; depth += 1) {
+    const record = current as Record<string, unknown>;
+    let details: unknown = record.data;
+    if (!details && typeof record.responseBody === "string" && record.responseBody.length < 50_000) {
+      try { details = JSON.parse(record.responseBody); } catch { /* Never expose an unstructured error body. */ }
+    }
+    const text = `${typeof record.message === "string" ? record.message : ""} ${details && typeof details === "object" ? JSON.stringify(details) : ""}`;
+    const code = known.find(value => text.toLowerCase().includes(value));
+    if (code) return code.toUpperCase();
+    if (/payment method|customer verification|verify your (?:account|identity)/i.test(text)) return "CUSTOMER_VERIFICATION_REQUIRED";
+    current = record.cause;
+  }
+  return fallback;
+}
+
 const outputSchema = z.object({
   reply: z.string().min(1).max(6_000),
   sourceIds: z.array(z.string()).max(5),
@@ -151,7 +170,7 @@ export async function answerSupportQuestion(request: SupportRequest, signal?: Ab
     // Do not log prompts, provider error bodies, contact information, keys or tokens.
     const status = typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number" ? error.statusCode : undefined;
     const name = typeof error === "object" && error !== null && "name" in error && typeof error.name === "string" ? error.name : "ProviderUnavailable";
-    const code = /^[A-Za-z_]{1,80}$/.test(name) ? name : "ProviderUnavailable";
+    const code = supportProviderFailureCode(error, /^[A-Za-z_]{1,80}$/.test(name) ? name : "ProviderUnavailable");
     console.warn("[support] AI unavailable; help guide retained", { status: status ?? "unavailable" });
     return { ...fallback(), diagnostic: { stage: "generation", code, ...(status === undefined ? {} : { status }) } };
   }
