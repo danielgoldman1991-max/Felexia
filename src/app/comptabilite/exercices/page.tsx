@@ -3,7 +3,8 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
 import { EmptyState } from "@/components/erp/empty-state";
 import { FiscalYearStatusBadge } from "@/components/accounting/accounting-status-badge";
-import { listAccountingFiscalYears, listAccountingPeriods } from "@/lib/accounting-actions";
+import { listAccountingFiscalYears, listAccountingPeriods, openAccountingFiscalYear } from "@/lib/accounting-actions";
+import { OpenFiscalYearForm } from "@/components/accounting/open-fiscal-year-form";
 import { formatDate } from "@/lib/format";
 import type { AccountingFiscalYearRecord, AccountingPeriodRecord } from "@/lib/accounting-types";
 
@@ -23,6 +24,7 @@ export default async function FiscalYearsPage() {
   return (
     <ModulePage>
       <PageHeader title="Exercices" description="Exercices comptables et periodes associees." />
+      <OpenFiscalYearForm action={openAccountingFiscalYear} />
       <div className="space-y-8">
         {fiscalYears.length === 0 ? (
           <EmptyState title="Aucun exercice" description="Les exercices sont crees automatiquement a l'initialisation." />

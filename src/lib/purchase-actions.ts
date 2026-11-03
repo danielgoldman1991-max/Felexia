@@ -11,6 +11,7 @@ import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
 import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/purchase-types";
 import { getPurchaseReceiptArchiveEligibility, getSupplierInvoicePaymentSummary, getSupplierInvoicePreparationFromReceipt, getSupplierOrderLineProgress } from "@/lib/purchases";
+import { calculateCommercialAmounts } from "@/lib/invoice-calculations";
 
 function text(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -43,30 +44,24 @@ function parseJsonLines(formData: FormData, key: string): Record<string, unknown
 }
 
 function calculatePurchaseLine(line: Record<string, unknown>): Record<string, unknown> {
-  const quantity = Math.round((numberValue(line.quantity) + Number.EPSILON) * 1000) / 1000;
-  const unitPriceHt = roundMoney(numberValue(line.unit_price_ht));
-  const discountRate = roundMoney(numberValue(line.discount_rate));
-  const taxRate = roundMoney(numberValue(line.tax_rate));
-  const subtotalHt = roundMoney(quantity * unitPriceHt);
-  const discountAmount = roundMoney(subtotalHt * (discountRate / 100));
-  const afterDiscount = roundMoney(subtotalHt - discountAmount);
-  const taxAmount = roundMoney(afterDiscount * (taxRate / 100));
-  const totalTtc = roundMoney(afterDiscount + taxAmount);
+  const amounts = calculateCommercialAmounts({
+    quantity: numberValue(line.quantity),
+    unitPriceHt: numberValue(line.unit_price_ht),
+    discountRate: numberValue(line.discount_rate),
+    taxRate: numberValue(line.tax_rate),
+  });
+  // Supplier accounting still treats subtotal_ht as the gross HT and subtracts discount_amount once.
   return {
     ...line,
-    quantity,
-    unit_price_ht: unitPriceHt,
-    discount_rate: discountRate,
-    tax_rate: taxRate,
-    subtotal_ht: subtotalHt,
-    discount_amount: discountAmount,
-    tax_amount: taxAmount,
-    total_ttc: totalTtc,
+    quantity: amounts.quantity,
+    unit_price_ht: amounts.unitPriceHt,
+    discount_rate: amounts.discountRate,
+    tax_rate: amounts.taxRate,
+    subtotal_ht: amounts.grossHt,
+    discount_amount: amounts.discountAmount,
+    tax_amount: amounts.taxAmount,
+    total_ttc: amounts.totalTtc,
   };
-}
-
-function roundMoney(value: number) {
-  return Math.round(value * 100) / 100;
 }
 
 function validateUnits(lines: Record<string, unknown>[]): string | null {
@@ -238,14 +233,19 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
         const orderedQty = numberValue(line.ordered_quantity ?? quantity);
         const receivedQty = numberValue(line.received_quantity ?? 0);
         const remainingQty = orderedQty - receivedQty - quantity;
-        const unitPriceHt = numberValue(line.unit_price_ht ?? sourceLine?.unit_price_ht);
-        const discountRate = numberValue(line.discount_rate ?? sourceLine?.discount_rate);
-        const taxRate = numberValue(line.tax_rate ?? sourceLine?.tax_rate);
-        const baseHt = quantity * unitPriceHt;
-        const discountAmount = roundMoney(baseHt * (discountRate / 100));
-        const subtotalHt = roundMoney(baseHt - discountAmount);
-        const taxAmount = roundMoney(subtotalHt * (taxRate / 100));
-        const totalTtc = roundMoney(subtotalHt + taxAmount);
+        const amounts = calculateCommercialAmounts({
+          quantity,
+          unitPriceHt: numberValue(line.unit_price_ht ?? sourceLine?.unit_price_ht),
+          discountRate: numberValue(line.discount_rate ?? sourceLine?.discount_rate),
+          taxRate: numberValue(line.tax_rate ?? sourceLine?.tax_rate),
+        });
+        const unitPriceHt = amounts.unitPriceHt;
+        const discountRate = amounts.discountRate;
+        const taxRate = amounts.taxRate;
+        const discountAmount = amounts.discountAmount;
+        const subtotalHt = amounts.netHt;
+        const taxAmount = amounts.taxAmount;
+        const totalTtc = amounts.totalTtc;
         return {
           organization_id: orgId,
           document_id: doc.id,
@@ -254,7 +254,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
           product_id: (line.product_id as string) || (sourceLine?.product_id as string) || null,
           product_name: (line.product_name as string) || (sourceLine?.product_name as string) || null,
           description: (line.description as string) || (sourceLine?.description as string) || "",
-          quantity,
+          quantity: amounts.quantity,
           unit_id: (line.unit_id as string) || (sourceLine?.unit_id as string) || null,
           unit_name: (line.unit_name as string) || (sourceLine?.unit_name as string) || null,
           unit_price_ht: unitPriceHt,
@@ -266,7 +266,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
           tax_amount: taxAmount,
           total_ttc: totalTtc,
           ordered_quantity: orderedQty,
-          received_quantity: quantity,
+          received_quantity: amounts.quantity,
           remaining_quantity: Math.max(remainingQty, 0),
         };
       })

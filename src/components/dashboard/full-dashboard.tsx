@@ -100,6 +100,11 @@ export async function FullDashboard({
   return (
     <ModulePage>
       <div className="min-w-0 space-y-8">
+        {data.indicatorsCapped ? (
+          <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Les indicateurs sont calculés sur les {2000} pièces les plus récentes renvoyées. Au-delà, exportez le journal ou filtrez la période.
+          </p>
+        ) : null}
         <div className="premium-card luxury-border overflow-hidden rounded-[32px] p-6 md:p-8">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
             <div className="min-w-0">

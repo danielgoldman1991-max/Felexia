@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parseHrSalary } from "@/lib/hr/validation";
 import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
+import { isBaseOnlyPayrollAcknowledgement } from "@/lib/hr/payroll-engine";
 
 export async function createHrEmployeeAction(formData: FormData) {
   const workspace = await requireWritableHrWorkspace();
@@ -157,7 +158,7 @@ export async function calculateHrPayrollPeriodAction(periodId: string, formData:
   const workspace = await requireWritableHrWorkspace();
   const expected = optionalString(formData, "expected_updated_at");
   if (!expected) throw new Error("Actualisez la période avant de lancer le calcul : sa version est manquante.");
-  if (formData.get("ack_base_only") !== "yes") throw new Error("Confirmez la préparation du salaire de base uniquement. Les variables et la paie finale sont exclues.");
+  if (!isBaseOnlyPayrollAcknowledgement(formData.get("ack_base_only"))) throw new Error("Confirmez la préparation du salaire de base uniquement. Les variables et la paie finale sont exclues.");
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("prepare_hr_payroll_atomic", {
     p_organization_id: workspace.organization.id, p_period_id: periodId,

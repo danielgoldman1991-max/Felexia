@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber, partyLegalLines } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import { hasDiscount, SALES_STATUS_LABELS } from "@/lib/sales-types";
 import type { SalesDocumentLineRecord, SalesDocumentRecord } from "@/lib/sales-types";
@@ -23,7 +23,7 @@ function clientLines(document: SalesDocumentRecord) {
     document.customer_city,
     document.customer_phone ? `Tel. : ${document.customer_phone}` : null,
     document.customer_email ? `Email : ${document.customer_email}` : null,
-    document.customer_ice ? `ICE : ${document.customer_ice}` : null,
+    ...partyLegalLines({ ice: document.customer_ice, rc: document.customer_rc, ifNumber: document.customer_if, patente: document.customer_patente }),
   ].filter(Boolean) as string[];
 }
 

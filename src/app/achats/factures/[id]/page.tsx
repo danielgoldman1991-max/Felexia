@@ -6,7 +6,7 @@ import { getEntryWithLinesBySource } from "@/lib/accounting";
 import { getActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
-import { isAdminRole, isReadOnlyRole } from "@/lib/auth/roles";
+import { isAccountingRole, isReadOnlyRole } from "@/lib/auth/roles";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export default async function SupplierInvoiceDetailPage({ params }: { params: Pr
       <SupplierInvoiceDetail
         fullAccess={fullAccess}
         canWrite={canWrite}
-        canPostAccounting={canWrite && isAdminRole(workspace?.role)}
+        canPostAccounting={canWrite && isAccountingRole(workspace?.role)}
         invoice={invoice}
         lines={lines}
         payments={payments}

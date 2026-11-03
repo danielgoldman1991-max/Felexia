@@ -46,6 +46,7 @@ type Props = {
   cancelHref?: string;
   invoiceId?: string;
   fullAccess?: boolean;
+  currency?: string;
 };
 
 function today() {
@@ -79,6 +80,7 @@ export function CustomerInvoiceForm({
   cancelHref = "/facturation/factures",
   invoiceId,
   fullAccess = false,
+  currency = "MAD",
 }: Props) {
   const [state, formAction, pending] = useActionState(action, { success: true });
   const [customerId, setCustomerId] = useState(initialCustomerId);
@@ -261,7 +263,7 @@ export function CustomerInvoiceForm({
           ) : null}
           <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-sm">
             <p className="font-medium">Total TTC</p>
-            <p className="mt-1 text-lg font-semibold text-[var(--secondary)]">{totals.total_ttc.toLocaleString("fr-MA", { style: "currency", currency: "MAD" })}</p>
+            <p className="mt-1 text-lg font-semibold text-[var(--secondary)]">{totals.total_ttc.toLocaleString("fr-MA", { style: "currency", currency })}</p>
           </div>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Notes client</span>

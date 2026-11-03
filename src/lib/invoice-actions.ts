@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { calculateInvoiceLine, calculateInvoiceTotals } from "@/lib/invoice-calculations";
-import { getDeliveryNotesInvoicePreparation, listBillableDeliveryNotesByCustomer, validateInvoiceSourceBillingLock } from "@/lib/invoices";
+import { assertDirectOrderInvoiceAllowed, getDeliveryNotesInvoicePreparation, listBillableDeliveryNotesByCustomer, validateInvoiceSourceBillingLock } from "@/lib/invoices";
+import { logAudit } from "@/lib/audit";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
 import type { InvoiceActionResult, InvoiceLineFormValue } from "@/lib/invoice-types";
 
@@ -159,11 +160,12 @@ async function buildInvoicePayload(formData: FormData) {
   const deliveryNoteIds = selectedDeliveryNoteIds.length > 0 ? selectedDeliveryNoteIds : lineDeliveryNoteIds;
   const requestedSourceType = text(formData, "source_type") ?? "manual";
   const sourceOrderId = text(formData, "source_order_id");
-  if ((requestedSourceType === "order" || sourceOrderId) && deliveryNoteIds.length === 0) {
-    return {
-      workspace,
-      error: "Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.",
-    };
+  if ((requestedSourceType === "order" || sourceOrderId) && deliveryNoteIds.length === 0 && sourceOrderId) {
+    try {
+      await assertDirectOrderInvoiceAllowed(workspace.organization.id, sourceOrderId, text(formData, "id") ?? undefined);
+    } catch (error) {
+      return { workspace, error: error instanceof Error ? error.message : "Cette commande ne peut pas être facturée directement." };
+    }
   }
   const deliveryValidation = await validateDeliveryNotesNotInvoiced(
     workspace.organization.id,
@@ -249,6 +251,10 @@ export async function createCustomerInvoice(prev: InvoiceActionResult, formData:
     p_lines: built.lines.map((line, index) => linePayload("", built.workspace.organization.id, line, index)),
   });
   if (error || !data) return { success: false, error: financialErrorMessage(error, "Impossible de créer la facture.") };
+  await logAudit(built.workspace.organization.id, "create_customer_invoice", "customer_invoices", String(data), {
+    source_type: built.payload.source_type,
+    total_ttc: built.payload.total_ttc,
+  });
   revalidatePath("/facturation/factures");
   redirect(`/facturation/factures/${String(data)}`);
 }
@@ -301,6 +307,7 @@ async function updateInvoiceStatus(id: string, status: string, expected: string[
   if (status === "cancelled") payload.cancelled_at = new Date().toISOString();
   const { error: updateError } = await supabase.from("customer_invoices").update(payload).eq("organization_id", workspace.organization.id).eq("id", id);
   if (updateError) return { success: false, error: financialErrorMessage(updateError) };
+  await logAudit(workspace.organization.id, `invoice_${status}`, "customer_invoices", id, { status });
   revalidatePath(`/facturation/factures/${id}`);
   return { success: true };
 }
@@ -338,14 +345,18 @@ export async function archiveCustomerInvoice(prev: InvoiceActionResult, formData
 
 export async function createInvoiceFromOrder(
   _prev: InvoiceActionResult,
-  _formData: FormData,
+  formData: FormData,
 ): Promise<InvoiceActionResult> {
   void _prev;
-  void _formData;
-  return {
-    success: false,
-    error: "Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.",
-  };
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "Commande introuvable." };
+  const workspace = await requireActiveWorkspace();
+  try {
+    await assertDirectOrderInvoiceAllowed(workspace.organization.id, id);
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Cette commande ne peut pas être facturée directement." };
+  }
+  redirect(`/facturation/factures/new?sourceType=order&sourceId=${id}`);
 }
 
 export const createInvoiceFromDeliveryNote = createCustomerInvoice;

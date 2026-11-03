@@ -28,7 +28,7 @@ const SALES_DOCUMENT_SELECT = `
   custom_payment_terms, custom_payment_method,
   stock_updated_at, validated_at, delivered_at, returned_at,
   created_by, created_at, updated_at, archived_at,
-  customer:customer_id (name, address, city, phone, email, ice, types, primary_type),
+  customer:customer_id (name, address, city, phone, email, ice, rc, if_number, patente, types, primary_type),
   source_document:source_document_id (document_number, document_type)
 `;
 
@@ -110,6 +110,9 @@ function mapSalesDocument(raw: unknown): SalesDocumentRecord {
     customer_phone: (customer?.phone as string | undefined) ?? null,
     customer_email: (customer?.email as string | undefined) ?? null,
     customer_ice: (customer?.ice as string | undefined) ?? null,
+    customer_rc: (customer?.rc as string | undefined) ?? null,
+    customer_if: (customer?.if_number as string | undefined) ?? null,
+    customer_patente: (customer?.patente as string | undefined) ?? null,
     customer_types: (customer?.types as string[] | undefined) ?? null,
     customer_primary_type: (customer?.primary_type as string | undefined) ?? null,
     source_document_number: (sourceDocument?.document_number as string | undefined) ?? null,

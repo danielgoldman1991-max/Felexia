@@ -18,7 +18,7 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Find orgs with Business or Premium subscriptions (active, trialing, past_due)
+  // Module rows only. past_due organizations stay read-only for business mutations.
   let orgQuery = supabase
     .from("organization_subscriptions")
     .select("organization_id, plan_code, status, organizations!inner(name)")

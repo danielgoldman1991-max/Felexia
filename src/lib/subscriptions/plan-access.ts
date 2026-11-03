@@ -216,8 +216,15 @@ export async function canCreateDocument(organizationId?: string): Promise<{ allo
   return { allowed: current < max, current, max };
 }
 
+export class PlanFeatureDeniedError extends Error {
+  constructor(featureKey: string) {
+    super(`Cette fonction n'est pas incluse dans votre offre (${featureKey}).`);
+    this.name = "PlanFeatureDeniedError";
+  }
+}
+
 export async function requirePlanFeature(featureKey: PlanFeatureKey): Promise<void> {
   const workspace = await requireActiveWorkspace();
-  const planCode = workspace.subscription?.planCode ?? workspace.subscription?.planSlug ?? DEFAULT_PLAN_CODE;
-  void canAccessFeature(planCode, featureKey);
+  const planCode = normalizePlanCode(workspace.subscription?.planCode ?? workspace.subscription?.planSlug ?? DEFAULT_PLAN_CODE);
+  if (!canAccessFeature(planCode, featureKey)) throw new PlanFeatureDeniedError(featureKey);
 }

@@ -32,6 +32,9 @@ export type PurchaseDocumentRecord = {
   archived_at: string | null;
   supplier_name?: string | null;
   supplier_ice?: string | null;
+  supplier_rc?: string | null;
+  supplier_if?: string | null;
+  supplier_patente?: string | null;
   supplier_phone?: string | null;
   supplier_email?: string | null;
   warehouse_name?: string | null;
@@ -127,6 +130,9 @@ export type SupplierInvoiceRecord = {
   archived_at: string | null;
   supplier_name?: string | null;
   supplier_ice?: string | null;
+  supplier_rc?: string | null;
+  supplier_if?: string | null;
+  supplier_patente?: string | null;
   supplier_phone?: string | null;
   supplier_email?: string | null;
 };

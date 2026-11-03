@@ -178,8 +178,7 @@ async function launchCases() {
   equal(traces.serverClients, 0, 'Empty company does not query a database');
   reset({ planCode: 'essentiel' });
   environment.FELEXIA_ERP_MODE = ' FULL ';
-  equal(await launch.hasFullErpAccess(company), true, 'Deployment full override remains available');
-  equal(traces.serverClients, 0, 'Deployment full override does not read billing');
+  equal(await launch.hasFullErpAccess(company), false, 'FELEXIA_ERP_MODE=full no longer opens every company');
   reset({ planCode: 'essentiel' });
   environment.FELEXIA_FULL_ERP_ORGANIZATION_IDS = ' other, ' + company.toUpperCase() + ', last ';
   equal(await launch.hasFullErpAccess(company), true, 'Company allowlist remains available with spaces/case');

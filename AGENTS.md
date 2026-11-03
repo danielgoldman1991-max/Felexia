@@ -170,7 +170,7 @@ Complete Felexia ERP: onboarding company search, commercial documents, dashboard
 - Migration 089 adds `products` to `modules_catalog`; `upsertModulesForPlan` filters out keys missing from the catalog.
 - Business trial helpers (`ensureBusinessTrialAndModulesNoRevalidate`, `startBusinessTrialAndEnableModules`, `createDefaultBusinessTrial`) remain for explicit Business upgrade paths only.
 - synta-iq is the single company lookup source: clean JSON, no scraping, no cheerio (dependency removed)
-- `past_due` = grace period; only `canceled` blocks access
+- `past_due`, `unpaid` and `canceled` are read-only; only `active` (period end in the future) and `trialing`/`trial` (trial end in the future) can mutate business data
 - `canAccessApp()` is single source of truth for subscription access
 - Cache never returns "not_found" — always re-queries providers
 - Invitation acceptance is token-gated via security definer RPCs (migration 088), never via RLS grants to anon

@@ -15,6 +15,8 @@ export const FELEXIA_DGI_VAT_DECLARATION_LINES = [
   { code: "092T", label: "TVA 10%" },
   { code: "100", label: "Base 14%" },
   { code: "100T", label: "TVA 14%" },
+  { code: "110", label: "Base 7%" },
+  { code: "110T", label: "TVA 7%" },
   { code: "130", label: "Total TVA exigible" },
   { code: "190", label: "Total TVA déductible" },
   { code: "200", label: "TVA due" },
@@ -62,6 +64,8 @@ export function buildDeclarationLines({
     if (code === "092T") return byRate.get(10)?.vat ?? 0;
     if (code === "100") return byRate.get(14)?.base ?? 0;
     if (code === "100T") return byRate.get(14)?.vat ?? 0;
+    if (code === "110") return byRate.get(7)?.base ?? 0;
+    if (code === "110T") return byRate.get(7)?.vat ?? 0;
     if (code === "130") return collectedVatMad;
     if (code === "190") return deductibleVatMad;
     if (code === "200") return vatDueMad;
@@ -77,4 +81,18 @@ export function buildDeclarationLines({
 
 export function isCommonMoroccanVatRate(rate: number) {
   return [0, 7, 10, 14, 20].includes(roundMad(rate));
+}
+
+const RATE_BASE_CODES = ["080", "092", "100", "110"] as const;
+const RATE_VAT_CODES = ["080T", "092T", "100T", "110T"] as const;
+
+/** Taxable base (060) and collected VAT (130) must match the 20/14/10/7% lines. */
+export function vatDeclarationImbalance(lines: Array<{ code: string; amountMad: number }>) {
+  const amount = (code: string) => roundMad(lines.find((line) => line.code === code)?.amountMad ?? 0);
+  const baseSum = roundMad(RATE_BASE_CODES.reduce((sum, code) => sum + amount(code), 0));
+  const vatSum = roundMad(RATE_VAT_CODES.reduce((sum, code) => sum + amount(code), 0));
+  return {
+    baseGap: roundMad(amount("060") - baseSum),
+    vatGap: roundMad(amount("130") - vatSum),
+  };
 }
