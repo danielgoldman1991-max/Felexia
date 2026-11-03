@@ -193,6 +193,9 @@ export function SalesDocumentDetail({
             {canWrite && isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
               <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/livrer`}><Truck className="h-4 w-4" /> Creer une livraison</Link></Button>
             ) : null}
+            {canWrite && isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) && billingGuard?.billableMode === "direct" ? (
+              <Button variant="secondary" asChild><Link href={`/facturation/factures/new?sourceType=order&sourceId=${document.id}`}><Receipt className="h-4 w-4" /> Facturer la commande</Link></Button>
+            ) : null}
             {canWrite && isDelivery && document.status === "draft" ? (
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
@@ -279,7 +282,7 @@ export function SalesDocumentDetail({
       {isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) ? (
         <Card className="border-blue-100 bg-blue-50">
           <CardContent className="text-sm text-blue-800">
-            Pour fiabiliser la facturation, une commande doit d’abord être livrée par bon de livraison validé. La facture sera créée ensuite à partir des BL validés.
+            Deux chemins exclusifs : facturer la commande tant qu’aucun bon de livraison n’existe, ou livrer puis facturer les BL. Les deux chemins ne peuvent pas servir la même commande.
           </CardContent>
         </Card>
       ) : null}

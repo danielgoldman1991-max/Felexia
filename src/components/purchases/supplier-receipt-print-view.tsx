@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber, partyLegalLines } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
 import { SUPPLIER_RECEIPT_STATUS_LABELS } from "@/lib/purchase-types";
@@ -47,7 +47,7 @@ export function SupplierReceiptPrintView({
           document.supplier_name,
           document.supplier_phone ? `Tél. : ${document.supplier_phone}` : null,
           document.supplier_email,
-          document.supplier_ice ? `ICE : ${document.supplier_ice}` : null,
+          ...partyLegalLines({ ice: document.supplier_ice, rc: document.supplier_rc, ifNumber: document.supplier_if, patente: document.supplier_patente }),
           document.warehouse_name ? `Emplacement : ${document.warehouse_name}` : null,
         ].filter(Boolean) as string[]}
       />

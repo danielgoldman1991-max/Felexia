@@ -45,7 +45,9 @@ export type StockMoveType =
   | "manual_stock_out"
   | "initial_stock"
   | "purchase_in"
-  | "purchase_receipt_in";
+  | "purchase_receipt_in"
+  | "transfer_out"
+  | "transfer_in";
 
 export type StockProductOption = {
   id: string;
@@ -136,6 +138,8 @@ export const STOCK_MOVE_TYPE_LABELS: Record<StockMoveType, string> = {
   initial_stock: "Stock initial",
   purchase_in: "Entree achat",
   purchase_receipt_in: "Reception fournisseur",
+  transfer_out: "Transfert sortant",
+  transfer_in: "Transfert entrant",
 };
 
 export const STOCK_LOCATION_TYPE_LABELS: Record<StockLocationType, string> = {

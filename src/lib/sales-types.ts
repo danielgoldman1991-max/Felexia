@@ -45,6 +45,9 @@ export type SalesDocumentRecord = {
   customer_phone?: string | null;
   customer_email?: string | null;
   customer_ice?: string | null;
+  customer_rc?: string | null;
+  customer_if?: string | null;
+  customer_patente?: string | null;
   customer_types?: string[] | null;
   customer_primary_type?: string | null;
   source_document_number?: string | null;

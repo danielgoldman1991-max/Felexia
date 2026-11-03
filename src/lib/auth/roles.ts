@@ -48,6 +48,11 @@ export function isAdminRole(role: string | null | undefined): boolean {
   return ADMIN_ROLES.includes(role as OrganizationRole);
 }
 
+export function isAccountingRole(role: string | null | undefined): boolean {
+  const normalized = role?.trim().toLowerCase() ?? "";
+  return isAdminRole(normalized) || normalized === "accountant" || normalized === "comptable";
+}
+
 export function isReadOnlyRole(role: string | null | undefined): boolean {
   return ["viewer", "lecture seule", "lecteur", "readonly", "read_only"].includes(role?.trim().toLowerCase() ?? "");
 }

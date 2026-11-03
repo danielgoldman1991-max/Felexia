@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { requireProWorkspace } from "@/lib/pro-access";
 import { isOperatorRole, OPERATOR_ACCESS_ERROR } from "@/lib/auth/operator-access";
+import { isAccountingRole } from "@/lib/auth/roles";
+import { logAudit } from "@/lib/audit";
 import { createClient } from "@/lib/supabase/server";
 import { getAccountByNumber, getJournalByCode, getExistingEntryBySource, buildCustomerInvoiceLines, buildSupplierInvoiceLines, verifyBalanced, getAccountingSettings as getAccountingSettingsFromLib } from "@/lib/accounting";
 import type { AccountingActionResult, AccountingEntryLineFormValue } from "@/lib/accounting-types";
@@ -306,7 +308,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
 export async function postAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
-  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Ecriture introuvable." };
   const supabase = await createClient();
@@ -946,7 +948,7 @@ export async function postCustomerInvoiceToAccounting(prev: AccountingActionResu
   if (!invoiceId) return { success: false, error: "Facture client introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
-  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
   const { data: invoice, error: invoiceError } = await supabase
@@ -980,7 +982,7 @@ export async function postSupplierInvoiceToAccounting(prev: AccountingActionResu
   if (!invoiceId) return { success: false, error: "Facture fournisseur introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
-  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
   const { data: invoice } = await supabase
@@ -1013,7 +1015,7 @@ export async function postCustomerPaymentToAccounting(prev: AccountingActionResu
   if (!paymentId) return { success: false, error: "Paiement client introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
-  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
   const { data: payment } = await supabase
@@ -1046,7 +1048,7 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
   if (!paymentId) return { success: false, error: "Paiement fournisseur introuvable : identifiant manquant." };
 
   const workspace = await requireActiveWorkspace();
-  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
   const { data: payment } = await supabase
@@ -1287,4 +1289,75 @@ export async function ensureDefaultChartOfAccountsAction(prev: AccountingActionR
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Erreur lors de l'initialisation du plan comptable." };
   }
+}
+
+export async function openAccountingFiscalYear(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  const workspace = await requireProWorkspace();
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "L'ouverture d'exercice est réservée au propriétaire, à l’administrateur ou au comptable." };
+  const year = Number(text(formData, "year") ?? new Date().getFullYear());
+  if (!Number.isInteger(year) || year < 2000 || year > 2100) return { success: false, error: "Indiquez une année entre 2000 et 2100." };
+  const supabase = await createClient();
+  const name = String(year);
+  const { data: existing } = await supabase.from("accounting_fiscal_years").select("id").eq("organization_id", workspace.organization.id).eq("name", name).maybeSingle();
+  if (existing?.id) return { success: false, error: `L'exercice ${name} existe déjà.` };
+  const { data: fiscalYear, error } = await supabase.from("accounting_fiscal_years").insert({
+    organization_id: workspace.organization.id,
+    name,
+    start_date: `${year}-01-01`,
+    end_date: `${year}-12-31`,
+    status: "open",
+  }).select("id").single();
+  if (error || !fiscalYear) return { success: false, error: financialErrorMessage(error) };
+  const months = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+  const periods = months.map((month, index) => {
+    const start = `${year}-${String(index + 1).padStart(2, "0")}-01`;
+    const endDate = new Date(Date.UTC(year, index + 1, 0));
+    return {
+      organization_id: workspace.organization.id,
+      fiscal_year_id: fiscalYear.id,
+      name: month,
+      start_date: start,
+      end_date: endDate.toISOString().slice(0, 10),
+      status: "open",
+    };
+  });
+  const { error: periodError } = await supabase.from("accounting_periods").insert(periods);
+  if (periodError) return { success: false, error: financialErrorMessage(periodError) };
+  await logAudit(workspace.organization.id, "open_fiscal_year", "accounting_fiscal_years", fiscalYear.id, { year });
+  revalidatePath("/comptabilite/exercices");
+  return { success: true };
+}
+
+export async function letterAccountingLines(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  const workspace = await requireProWorkspace();
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "Le lettrage est réservé au propriétaire, à l’administrateur ou au comptable." };
+  const code = (text(formData, "lettering_code") ?? "").toUpperCase();
+  const ids = formData.getAll("line_ids").map((value) => String(value).trim()).filter(Boolean);
+  if (!/^[A-Z0-9]{1,6}$/.test(code)) return { success: false, error: "Le code de lettrage doit contenir 1 à 6 lettres ou chiffres." };
+  if (ids.length < 2) return { success: false, error: "Sélectionnez au moins deux lignes." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("accounting_entry_lines")
+    .select("id, account_code, debit, credit, lettering_code")
+    .eq("organization_id", workspace.organization.id)
+    .in("id", ids);
+  if (error) return { success: false, error: financialErrorMessage(error) };
+  const lines = data ?? [];
+  if (lines.length !== ids.length) return { success: false, error: "Certaines lignes n'appartiennent pas à l'entreprise." };
+  if (lines.some((line) => line.lettering_code)) return { success: false, error: "Une ligne est déjà lettrée." };
+  const { canLetterLines } = await import("@/lib/accounting-lettering");
+  if (!canLetterLines(lines.map((line) => ({ accountCode: String(line.account_code), debit: Number(line.debit), credit: Number(line.credit) })))) {
+    return { success: false, error: "Le lettrage exige un même compte 3421 ou 4411, et un total débit égal au total crédit." };
+  }
+  const { error: updateError } = await supabase
+    .from("accounting_entry_lines")
+    .update({ lettering_code: code })
+    .eq("organization_id", workspace.organization.id)
+    .in("id", ids);
+  if (updateError) return { success: false, error: financialErrorMessage(updateError) };
+  await logAudit(workspace.organization.id, "letter_accounting_lines", "accounting_entry_lines", ids[0], { code, count: ids.length });
+  revalidatePath("/comptabilite/lettrage");
+  return { success: true };
 }

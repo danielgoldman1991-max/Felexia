@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireWritableSubscription } from "@/lib/auth/require-subscription";
-import { isAdminRole } from "@/lib/auth/roles";
+import { isAccountingRole } from "@/lib/auth/roles";
 import { financialErrorMessage } from "@/lib/financial-errors";
 import { ensureAccountingBaseSetup, getAccountByNumber, getAccountingSettings, getJournalByCode } from "@/lib/accounting";
 import { getSupplierCreditNoteDetail } from "@/lib/supplier-credit-notes";
@@ -103,7 +103,7 @@ export async function unapplySupplierCreditNote(_prev: SupplierCreditNoteActionR
 export async function postSupplierCreditNoteToAccounting(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
     const workspace = await requireWritableSubscription();
-    if (!isAdminRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée à l’administrateur." };
+    if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
     const id = text(form, "id"); const detail = await getSupplierCreditNoteDetail(id); const note = detail.creditNote;
     if (!note || ["draft", "cancelled"].includes(note.status)) return { success: false, error: "Validez l’avoir avant de le comptabiliser." };
     if (detail.accountingEntry?.entry) return { success: true, data: { entry_id: String(detail.accountingEntry.entry.id), entry_number: String(detail.accountingEntry.entry.entry_number) } };

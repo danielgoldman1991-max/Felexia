@@ -1,26 +1,51 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
-import { EmptyState } from "@/components/erp/empty-state";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/erp/empty-state";
+import { Table, Td, Th } from "@/components/ui/table";
+import { listBankStatementImports } from "@/lib/treasury";
+import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function BankStatementImportsPage() {
+  const imports = await listBankStatementImports();
   return (
     <ModulePage>
       <PageHeader
-        title="Releves bancaires"
-        description="Imports de releves bancaires et rapprochement automatique."
+        title="Relevés bancaires"
+        description="Imports de relevés utilisés par le rapprochement."
+        actions={<Button asChild><Link href="/tresorerie/releves/import">Importer un relevé</Link></Button>}
       />
-      <EmptyState
-        title="Releves bancaires bientot disponibles"
-        description="Ce sous-module est temporairement masque. Utilisez le rapprochement bancaire ou suivez vos mouvements depuis la tresorerie."
-        action={
-          <Button asChild><Link href="/tresorerie"><ArrowLeft className="h-4 w-4" /> Retour a la tresorerie</Link></Button>
-        }
-      />
+      {imports.length === 0 ? (
+        <EmptyState title="Aucun relevé importé" description="Importez un fichier pour rapprocher les lignes avec les mouvements de trésorerie." />
+      ) : (
+        <Table>
+          <thead>
+            <tr>
+              <Th>Code</Th>
+              <Th>Fichier</Th>
+              <Th>Compte</Th>
+              <Th>Statut</Th>
+              <Th className="right">Lignes</Th>
+              <Th>Importé le</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {imports.map((item) => (
+              <tr key={item.id}>
+                <Td><Link href={`/tresorerie/releves/${item.id}`}>{item.import_code || item.file_name}</Link></Td>
+                <Td>{item.file_name}</Td>
+                <Td>{item.account_name || "—"}</Td>
+                <Td>{item.status}</Td>
+                <Td className="right">{item.imported_lines_count}</Td>
+                <Td>{formatDate(item.imported_at)}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </ModulePage>
   );
 }

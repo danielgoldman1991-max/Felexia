@@ -7,7 +7,7 @@ import { calculateInvoiceLine, calculateInvoiceTotals, getCustomerCreditNoteDeta
 import { createClient } from "@/lib/supabase/server";
 import type { CreditNoteActionResult, CreditNoteLineFormValue } from "@/lib/credit-note-types";
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
-import { isAdminRole } from "@/lib/auth/roles";
+import { isAccountingRole } from "@/lib/auth/roles";
 import { buildCustomerInvoiceLines, getAccountByNumber, getAccountingSettings, getExistingEntryBySource, getJournalByCode } from "@/lib/accounting";
 import { financialErrorMessage } from "@/lib/financial-errors";
 
@@ -212,7 +212,7 @@ export async function unapplyCreditNoteFromInvoice(prev: CreditNoteActionResult,
 export async function postCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
   const workspace = await requireActiveWorkspace();
-  if (!isAdminRole(workspace.role)) return { success: false, error: "Seul un administrateur peut comptabiliser cet avoir." };
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Avoir introuvable." };
   const existing = await getExistingEntryBySource(workspace.organization.id, "customer_credit_note", id);

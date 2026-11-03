@@ -1,4 +1,4 @@
-import { isCommonMoroccanVatRate, roundMad } from "@/lib/tax/dgi-vat-mapping";
+import { isCommonMoroccanVatRate, roundMad, vatDeclarationImbalance } from "@/lib/tax/dgi-vat-mapping";
 import type { DgiVatExportData, DgiVatValidationIssue } from "@/lib/tax/dgi-vat-types";
 
 function issue(issue: DgiVatValidationIssue): DgiVatValidationIssue {
@@ -45,6 +45,17 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
     correctionLabel: "Changer la période",
     suggestedFix: "Vérifiez la date de début et la date de fin.",
   });
+  const imbalance = vatDeclarationImbalance(data.declarationLines ?? []);
+  addIfMissing(issues, Math.abs(imbalance.baseGap) > 0.01 || Math.abs(imbalance.vatGap) > 0.01, {
+    code: "VAT_BREAKDOWN_UNBALANCED",
+    severity: "blocking",
+    source: "organization",
+    message: "La ventilation TVA (20 %, 14 %, 10 % et 7 %) ne correspond pas au chiffre d'affaires imposable ou à la TVA exigible.",
+    correctionUrl: "/comptabilite/tva/exports",
+    correctionLabel: "Revoir la déclaration",
+    suggestedFix: "Vérifiez les taux des factures. Un taux hors 20/14/10/7 % ou une base à 7 % non ventilée bloque l'export préparatoire.",
+  });
+
   addIfMissing(issues, data.salesDocuments.length === 0 && data.purchaseDocuments.length === 0, {
     code: "NO_DATA_FOR_PERIOD",
     severity: "blocking",

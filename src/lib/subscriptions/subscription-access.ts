@@ -10,6 +10,10 @@ export type SubscriptionStatus =
   | undefined
   | null;
 
+/**
+ * Writable access is only an active period or a trial that has not ended.
+ * `past_due`, `unpaid` and `canceled` stay readable and block mutations.
+ */
 export function hasValidSubscriptionAccess(subscription: {
   status?: SubscriptionStatus | string;
   trial_ends_at?: string | null;

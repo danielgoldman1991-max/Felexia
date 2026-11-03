@@ -30,7 +30,7 @@ const INVOICE_SELECT = `
   custom_payment_terms, custom_payment_method,
   notes, internal_notes, validated_at, sent_at,
   cancelled_at, created_by, created_at, updated_at, archived_at,
-  customer:customer_id (name, address, city, phone, email, ice)
+  customer:customer_id (name, address, city, phone, email, ice, rc, if_number, patente)
 `;
 
 const INVOICE_LINE_SELECT = `
@@ -109,6 +109,9 @@ function mapInvoice(raw: unknown): CustomerInvoiceRecord {
     customer_phone: customer?.phone as string | null,
     customer_email: customer?.email as string | null,
     customer_ice: customer?.ice as string | null,
+    customer_rc: customer?.rc as string | null,
+    customer_if: customer?.if_number as string | null,
+    customer_patente: customer?.patente as string | null,
   };
 }
 
@@ -709,7 +712,7 @@ export async function getOrderBillingGuard(
     reason,
     directInvoice,
     deliveryInvoices: uniqueDeliveryInvoices,
-    billableMode: isBlocked ? "none" : "delivery",
+    billableMode: isBlocked ? "none" : deliveryRows.length > 0 ? "delivery" : "direct",
   };
 }
 
@@ -1039,9 +1042,43 @@ export async function getDeliveryNotesInvoicePreparation(customerId: string, del
   return { lines: preparedLines, deliveryNotes };
 }
 
+export async function assertDirectOrderInvoiceAllowed(organizationId: string, orderId: string, excludeInvoiceId?: string) {
+  const deliveries = await getOrderDeliveryRows(organizationId, orderId);
+  if (deliveries.length > 0) {
+    throw new Error("Cette commande a déjà un bon de livraison. Facturez le BL pour éviter de compter deux fois les mêmes quantités.");
+  }
+  const guard = await getOrderBillingGuard(organizationId, orderId, { excludeInvoiceId });
+  if (guard.directInvoice) {
+    throw new Error(`Cette commande possède déjà une facture directe ${guard.directInvoice.invoice_number}.`);
+  }
+  if (guard.deliveryInvoices.length > 0) {
+    throw new Error(`Cette commande a déjà été facturée via un bon de livraison par ${guard.deliveryInvoices[0].invoice_number}.`);
+  }
+}
+
 export async function getOrderInvoicePreparation(orderId: string) {
-  void orderId;
-  throw new Error("Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.");
+  const preparation = await documentToInvoicePreparation(orderId, "order");
+  if (!preparation) throw new Error("Commande introuvable.");
+  if (!["confirmed", "partially_delivered", "delivered"].includes(preparation.document.status)) {
+    throw new Error("Seule une commande confirmée, partiellement livrée ou livrée peut être facturée directement.");
+  }
+  const organizationId = await activeOrganizationId();
+  await assertDirectOrderInvoiceAllowed(organizationId, orderId);
+  return preparation;
+}
+
+export async function syncOverdueCustomerInvoices(organizationId: string) {
+  const supabase = await createClient();
+  const today = new Date().toISOString().split("T")[0];
+  const { error } = await supabase
+    .from("customer_invoices")
+    .update({ status: "overdue" })
+    .eq("organization_id", organizationId)
+    .in("status", ["validated", "sent", "partially_paid"])
+    .gt("remaining_amount", 0)
+    .lt("due_date", today)
+    .is("archived_at", null);
+  if (error) console.error("[invoices] overdue sync failed", { code: error.code });
 }
 
 export async function getDeliveryInvoicePreparation(deliveryId: string) {

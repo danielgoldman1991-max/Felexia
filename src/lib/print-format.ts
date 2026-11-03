@@ -36,6 +36,23 @@ export function documentIdentityInfoLines(identity: OrganizationIdentity): strin
   ].filter((line): line is string => Boolean(line));
 }
 
+export function partyLegalLines(party: {
+  ice?: string | null;
+  rc?: string | null;
+  ifNumber?: string | null;
+  patente?: string | null;
+}): string[] {
+  const lines: string[] = [];
+  if (party.ice) lines.push(`ICE : ${party.ice}`);
+  const fiscal = [
+    party.rc ? `RC : ${party.rc}` : null,
+    party.ifNumber ? `IF : ${party.ifNumber}` : null,
+    party.patente ? `Patente : ${party.patente}` : null,
+  ].filter(Boolean);
+  if (fiscal.length > 0) lines.push(fiscal.join(" · "));
+  return lines;
+}
+
 export function documentIdentityContact(identity: OrganizationIdentity): string {
   return [identity.email, identity.phone, identity.website].filter(Boolean).join(" · ");
 }

@@ -3,7 +3,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { SupplierCreditNoteDetail } from "@/components/purchases/supplier-credit-note-detail";
 import { getSupplierCreditNoteDetail } from "@/lib/supplier-credit-notes";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { isAdminRole, isReadOnlyRole } from "@/lib/auth/roles";
+import { isAccountingRole, isReadOnlyRole } from "@/lib/auth/roles";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 
 export const dynamic = "force-dynamic";
@@ -14,5 +14,5 @@ export default async function SupplierCreditNotePage({ params }: { params: Promi
   const data = await getSupplierCreditNoteDetail(id);
   if (!data.creditNote) notFound();
   const canWrite = !isReadOnlyRole(workspace.role) && canWriteWorkspaceSubscription(workspace.subscription);
-  return <ModulePage><SupplierCreditNoteDetail {...data} creditNote={data.creditNote} accountingEntry={data.accountingEntry?.entry ? data.accountingEntry : null} canWrite={canWrite} canPost={canWrite && isAdminRole(workspace.role)} /></ModulePage>;
+  return <ModulePage><SupplierCreditNoteDetail {...data} creditNote={data.creditNote} accountingEntry={data.accountingEntry?.entry ? data.accountingEntry : null} canWrite={canWrite} canPost={canWrite && isAccountingRole(workspace.role)} /></ModulePage>;
 }
