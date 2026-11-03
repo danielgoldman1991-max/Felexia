@@ -38,6 +38,10 @@ jobs:
           node --check scripts/verify-essential-expiry.cjs
       - run: npm run test:regressions
       - run: npm run test:light-launch
+      - name: Verify company lookup provider and onboarding feedback
+        run: |
+          node training/company-lookup/20261103/verify-provider.cjs
+          node training/company-lookup/20261103/verify-lookup-ui.cjs
       - name: Verify marketing scroll zoom compatibility
         run: node training/marketing/20261101-zoom-compatibility/verify-controller.cjs
       - run: npm run test:e-invoicing

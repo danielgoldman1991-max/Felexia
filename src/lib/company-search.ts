@@ -2,7 +2,7 @@
  * Company Search Facade
  *
  * High-level API for searching Moroccan companies by ICE or name.
- * Orchestrates: cache → synta-iq.
+ * Orchestrates: cache → public company lookup form.
  */
 
 import { createHash } from "node:crypto";
@@ -46,6 +46,8 @@ function normalizeCachedResult(raw: unknown): CompanyLookupResult | undefined {
 export async function getCachedCompanySearch(
   supabase: Awaited<ReturnType<typeof createClient>>,
   cacheKey: string,
+  expectedIce?: string,
+  expectedName?: string,
 ): Promise<CompanyLookupResponse | null> {
   const { data, error } = await supabase
     .from("company_lookup_cache")
@@ -70,9 +72,14 @@ export async function getCachedCompanySearch(
   
   // Validate the cached result has meaningful data before serving it.
   // Stale cache entries from old providers may have null fields.
-  if (!result || !result.raisonSociale) {
+  if (!result || !result.found || !result.raisonSociale || (expectedIce && result.ice !== expectedIce)) {
     return null;
   }
+
+  // The former provider selected the first name result regardless of relevance.
+  // Keep valid ICE cache hits, but re-resolve legacy name entries with the new
+  // matching/ambiguity rules instead of preserving those potentially wrong hits.
+  if (expectedName && (result.source !== "managepro" || result.query !== expectedName)) return null;
   
   return { status: "found", message: "Entreprise trouvée (cache).", result };
 }
@@ -135,7 +142,7 @@ export type CompanySearchOutput = CompanyLookupResponse & {
 
 /**
  * Search for a company by ICE or name.
- * Flow: cache → synta-iq.
+ * Flow: cache → public company lookup form.
  */
 export async function searchCompany(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -157,7 +164,11 @@ export async function searchCompany(
   }
 
   const cacheKey = hashQuery(`${parsed.type}:${parsed.normalizedValue}`);
-  const cached = await getCachedCompanySearch(supabase, cacheKey);
+  const cached = await getCachedCompanySearch(
+    supabase, cacheKey,
+    parsed.type === "ice" ? parsed.normalizedValue : undefined,
+    parsed.type === "raison_sociale" ? parsed.normalizedValue : undefined,
+  );
   if (cached) {
     return { ...cached, cached: true };
   }

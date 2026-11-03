@@ -1,0 +1,147 @@
+/* Execute the real lookup TSX with controlled React/fetch boundaries.
+ * This verifies request and result handling, not a browser or external provider.
+ */
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+const assert = require("node:assert/strict");
+const ts = require("typescript");
+
+const root = path.resolve(__dirname, "../../..");
+let slots = [];
+let cursor = 0;
+let requests = [];
+let manual = [];
+let confirmed = [];
+let fetchImplementation;
+const checks = [];
+const jsx = (type, props) => ({ type, props: props ?? {} });
+const react = {
+  useState(value) {
+    const index = cursor++;
+    if (!(index in slots)) slots[index] = value;
+    return [slots[index], (next) => { slots[index] = next; }];
+  },
+  useRef(value) {
+    const index = cursor++;
+    return slots[index] ?? (slots[index] = { current: value });
+  },
+};
+
+function load(filename, imports = {}) {
+  const loaded = { exports: {} };
+  const output = ts.transpileModule(fs.readFileSync(path.join(root, filename), "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
+  }).outputText;
+  vm.runInNewContext(output, {
+    module: loaded, exports: loaded.exports,
+    require(name) {
+      if (name in imports) return imports[name];
+      throw Error("Unexpected import " + name);
+    },
+    fetch(url, options) {
+      requests.push({ url, options, body: JSON.parse(options.body) });
+      return fetchImplementation(url, options);
+    },
+  }, { filename });
+  return loaded.exports;
+}
+
+const parser = load("src/lib/ice/ice.ts");
+const component = load("src/components/onboarding/CompanyLookupStep.tsx", {
+  react,
+  "react/jsx-runtime": { jsx, jsxs: jsx },
+  "sonner": { toast: { success() {}, error() {} } },
+  "lucide-react": new Proxy({}, { get: (_target, name) => "icon:" + String(name) }),
+  "@/lib/ice/ice": parser,
+  "@/components/ui/button": { Button: "button" },
+});
+
+function render() {
+  cursor = 0;
+  return component.CompanyLookupStep({
+    onConfirm(payload) { confirmed.push(payload); },
+    onManual(payload) { manual.push(payload); },
+  });
+}
+function find(node, predicate) {
+  if (Array.isArray(node)) {
+    for (const child of node) { const found = find(child, predicate); if (found) return found; }
+    return null;
+  }
+  if (!node || typeof node !== "object") return null;
+  return predicate(node) ? node : find(node.props?.children, predicate);
+}
+function text(node) {
+  if (Array.isArray(node)) return node.map(text).join("");
+  return node && typeof node === "object" ? text(node.props?.children) : String(node ?? "");
+}
+const input = (tree) => find(tree, (node) => node.type === "input");
+const button = (tree, label) => find(tree, (node) => node.type === "button" && text(node) === label);
+const alert = (tree) => find(tree, (node) => node.props.role === "alert");
+function enter(tree) { input(tree).props.onKeyDown({ key: "Enter", preventDefault() {} }); }
+function query(tree, value) { input(tree).props.onChange({ target: { value } }); return render(); }
+function reset() { slots = []; cursor = 0; requests = []; manual = []; confirmed = []; return render(); }
+function ok(condition, label) { assert.ok(condition, label); checks.push(label); }
+async function flush() { for (let index = 0; index < 10; index++) await Promise.resolve(); }
+const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
+
+async function main() {
+  let resolveSearch;
+  fetchImplementation = () => new Promise((resolve) => { resolveSearch = resolve; });
+  let tree = query(reset(), "  001 234 567 890 123  ");
+  const staleInputTree = tree;
+  enter(tree);
+  enter(staleInputTree);
+  button(staleInputTree, "Rechercher").props.onClick();
+  ok(requests.length === 1, "Repeated Enter/click before React rerender starts one lookup");
+  ok(requests[0].url === "/api/company/search" && requests[0].options.method === "POST", "Lookup uses the authenticated same-origin search route");
+  ok(requests[0].body.query === "001234567890123", "ICE is normalized before submission");
+  tree = render();
+  ok(input(tree).props.disabled === true, "Query is locked during a pending request to avoid stale results");
+  resolveSearch(response({ status: "unavailable", message: "Service temporairement indisponible." }));
+  await flush();
+  tree = render();
+  ok(text(alert(tree)).includes("Service temporairement indisponible."), "HTTP 200 unavailable response leaves a persistent visible message");
+  ok(text(alert(render())).includes("Service temporairement indisponible."), "Failure message survives rerender rather than relying on a toast");
+  ok(input(tree).props.disabled === false, "Input is released after provider failure");
+  button(alert(tree), "Continuer manuellement").props.onClick();
+  ok(manual[0].result.ice === "001234567890123" && manual[0].result.source === "manual", "Manual continuation preserves the ICE without inventing company data");
+
+  for (const [status, httpStatus] of [["blocked", 200], ["invalid_input", 400], ["unavailable", 429], ["unavailable", 502], ["ambiguous", 200]]) {
+    const message = status === "ambiguous" ? "Plusieurs entreprises correspondent à ce nom. Précisez la raison sociale ou utilisez l’ICE à quinze chiffres." : "Erreur vérifiable " + httpStatus;
+    fetchImplementation = async () => response({ status, message }, httpStatus);
+    tree = query(reset(), "  société   exemple  ");
+    enter(tree); await flush(); tree = render();
+    ok(text(alert(tree)).includes(message), `${status}/${httpStatus} remains visible with retry and manual actions`);
+    if (status === "ambiguous") ok(text(alert(tree)).includes("Recherche à préciser"), "Ambiguous companies ask for a more precise search instead of implying provider failure");
+    ok(Boolean(button(alert(tree), "Réessayer")) && Boolean(button(alert(tree), "Continuer manuellement")), "A failed lookup offers retry and manual entry");
+    button(alert(tree), "Continuer manuellement").props.onClick();
+    ok(manual[0].result.raisonSociale === "SOCIÉTÉ EXEMPLE", "Manual continuation preserves the normalized company name");
+    tree = query(tree, "Autre société");
+    ok(!alert(tree), "Editing the query removes the previous failure message");
+  }
+
+  fetchImplementation = async () => { throw Error("Synthetic network failure"); };
+  tree = query(reset(), "Exemple"); enter(tree); await flush(); tree = render();
+  ok(Boolean(alert(tree)) && text(alert(tree)).includes("continuer manuellement"), "Network failure has a persistent manual fallback");
+  fetchImplementation = async () => ({ ok: false, status: 502, json: async () => { throw Error("not JSON"); } });
+  button(alert(tree), "Réessayer").props.onClick(); await flush(); tree = render();
+  ok(requests.length === 2 && Boolean(alert(tree)), "Retry after failure is possible and malformed JSON is visible");
+
+  fetchImplementation = async () => response({ status: "not_found", message: "Aucun résultat confirmé." });
+  tree = query(reset(), "Exemple"); enter(tree); await flush(); tree = render();
+  ok(Boolean(find(tree, (node) => typeof node.type === "function" && node.type.name === "NotFoundState")), "Not-found behavior remains distinct from provider failure");
+
+  fetchImplementation = async () => response({ status: "found", message: "Trouvée", result: {
+    source: "cache", query: "EXEMPLE", found: true, raisonSociale: "EXEMPLE SARL", ice: "001234567890123", confidence: "high",
+  } });
+  tree = query(reset(), "Exemple"); enter(tree); await flush(); tree = render();
+  const modal = find(tree, (node) => typeof node.type === "function" && node.type.name === "ResultModal");
+  ok(Boolean(modal) && !alert(tree), "Found result still opens the confirmation modal");
+  ok(confirmed.length === 0 && manual.length === 0, "Searching never creates or confirms a company automatically");
+  modal.props.onConfirm();
+  ok(confirmed[0].result.raisonSociale === "EXEMPLE SARL" && confirmed[0].result.ice === "001234567890123", "Explicit confirmation passes the actual returned company data");
+  console.log(JSON.stringify({ passed: checks.length, checks }, null, 2));
+}
+main().catch((error) => { console.error(error); process.exitCode = 1; });

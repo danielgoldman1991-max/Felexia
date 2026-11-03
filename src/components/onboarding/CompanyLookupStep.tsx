@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Building2,
@@ -187,8 +187,11 @@ export function CompanyLookupStep({
   const [response, setResponse] = useState<CompanyLookupResponse | null>(null);
   const [manualPayload, setManualPayload] = useState<LookupPayload | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const searchInFlight = useRef(false);
 
   async function handleSearch() {
+    if (searchInFlight.current) return;
+
     const parsed = parseCompanyLookupInput(query);
     if (!parsed.isValid) {
       setError(parsed.error ?? "Recherche invalide.");
@@ -201,6 +204,8 @@ export function CompanyLookupStep({
     setManualPayload(nextManualPayload);
     setError(null);
     setResponse(null);
+    setShowModal(false);
+    searchInFlight.current = true;
     setIsLoading(true);
 
     try {
@@ -241,6 +246,7 @@ export function CompanyLookupStep({
           "La recherche automatique n’a pas pu aboutir. Vous pouvez continuer manuellement avec les informations dont vous disposez.",
       });
     } finally {
+      searchInFlight.current = false;
       setIsLoading(false);
     }
   }
@@ -281,6 +287,7 @@ export function CompanyLookupStep({
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
               <input
                 value={query}
+                disabled={isLoading}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setError(null);
@@ -351,6 +358,25 @@ export function CompanyLookupStep({
           onManual={handleManual}
           onRetry={() => void handleSearch()}
         />
+      ) : null}
+
+      {response && ["unavailable", "blocked", "invalid_input", "ambiguous"].includes(response.status) ? (
+        <section role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {response.status === "invalid_input" ? "Vérifiez votre recherche" : response.status === "ambiguous" ? "Recherche à préciser" : "Recherche automatique indisponible"}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            {response.message || "La recherche automatique n’a pas pu aboutir. Vous pouvez continuer manuellement."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="secondary" onClick={handleManual}>
+              Continuer manuellement
+            </Button>
+            <Button type="button" onClick={() => void handleSearch()} disabled={isLoading}>
+              Réessayer
+            </Button>
+          </div>
+        </section>
       ) : null}
 
     </div>

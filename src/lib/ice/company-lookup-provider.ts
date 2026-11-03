@@ -1,7 +1,7 @@
-import { lookupCompanyOnSyntaIq } from "@/lib/ice/providers/syntaiq";
+import { lookupCompanyOnManagePro } from "@/lib/ice/providers/managepro";
 
 export type CompanyLookupResult = {
-  source: "synta-iq" | "manual" | "cache";
+  source: "managepro" | "synta-iq" | "manual" | "cache";
   query: string;
   found: boolean;
   raisonSociale?: string | null;
@@ -18,11 +18,11 @@ export type CompanyLookupResult = {
 };
 
 export type CompanyLookupResponse = {
-  status: "found" | "not_found" | "unavailable" | "blocked" | "invalid_input";
+  status: "found" | "not_found" | "ambiguous" | "unavailable" | "blocked" | "invalid_input";
   message: string;
   result?: CompanyLookupResult;
 };
 
 export async function lookupCompany(query: string): Promise<CompanyLookupResponse> {
-  return lookupCompanyOnSyntaIq(query);
+  return lookupCompanyOnManagePro(query);
 }

@@ -32,7 +32,7 @@ const searchSchema = z.object({
 /* ─── Helpers ─── */
 
 function jsonResponse(body: object, status = 200) {
-  return NextResponse.json(body, { status });
+  return NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store" } });
 }
 
 /* ─── Route ─── */
@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         status: "unavailable",
-        message: "Trop de recherches. Réessayez dans quelques instants.",
+        message: `Trop de recherches. Réessayez dans ${Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))} secondes.`,
       },
-      { status: 429 },
+      { status: 429, headers: { "Retry-After": String(Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))), "Cache-Control": "private, no-store" } },
     );
   }
 
