@@ -14,17 +14,37 @@ let requests = [];
 let manual = [];
 let confirmed = [];
 let fetchImplementation;
+let clockNow = Date.UTC(2026, 10, 3, 14);
+let nextTimer = 0;
+let effects = new Map();
+let pendingEffects = [];
+const timers = new Map();
+let errorToasts = [];
+class ClockDate extends Date {
+  constructor(...args) { super(...(args.length ? args : [clockNow])); }
+  static now() { return clockNow; }
+}
 const checks = [];
 const jsx = (type, props) => ({ type, props: props ?? {} });
 const react = {
   useState(value) {
     const index = cursor++;
     if (!(index in slots)) slots[index] = value;
-    return [slots[index], (next) => { slots[index] = next; }];
+    return [slots[index], (next) => { slots[index] = typeof next === "function" ? next(slots[index]) : next; }];
   },
   useRef(value) {
     const index = cursor++;
     return slots[index] ?? (slots[index] = { current: value });
+  },
+  useEffect(callback, dependencies) {
+    const index = cursor++;
+    const previous = effects.get(index);
+    if (!previous || !dependencies || dependencies.some((value, at) => !Object.is(value, previous.dependencies[at]))) {
+      pendingEffects.push(() => {
+        previous?.cleanup?.();
+        effects.set(index, { dependencies: dependencies ? [...dependencies] : null, cleanup: callback() });
+      });
+    }
   },
 };
 
@@ -35,6 +55,11 @@ function load(filename, imports = {}) {
   }).outputText;
   vm.runInNewContext(output, {
     module: loaded, exports: loaded.exports,
+    Date: ClockDate,
+    window: {
+      setInterval(callback, delay) { const id = ++nextTimer; timers.set(id, { callback, delay }); return id; },
+      clearInterval(id) { timers.delete(id); },
+    },
     require(name) {
       if (name in imports) return imports[name];
       throw Error("Unexpected import " + name);
@@ -51,7 +76,7 @@ const parser = load("src/lib/ice/ice.ts");
 const component = load("src/components/onboarding/CompanyLookupStep.tsx", {
   react,
   "react/jsx-runtime": { jsx, jsxs: jsx },
-  "sonner": { toast: { success() {}, error() {} } },
+  "sonner": { toast: { success() {}, error(message) { errorToasts.push(message); } } },
   "lucide-react": new Proxy({}, { get: (_target, name) => "icon:" + String(name) }),
   "@/lib/ice/ice": parser,
   "@/components/ui/button": { Button: "button" },
@@ -59,10 +84,13 @@ const component = load("src/components/onboarding/CompanyLookupStep.tsx", {
 
 function render() {
   cursor = 0;
-  return component.CompanyLookupStep({
+  pendingEffects = [];
+  const tree = component.CompanyLookupStep({
     onConfirm(payload) { confirmed.push(payload); },
     onManual(payload) { manual.push(payload); },
   });
+  for (const run of pendingEffects) run();
+  return tree;
 }
 function find(node, predicate) {
   if (Array.isArray(node)) {
@@ -79,12 +107,15 @@ function text(node) {
 const input = (tree) => find(tree, (node) => node.type === "input");
 const button = (tree, label) => find(tree, (node) => node.type === "button" && text(node) === label);
 const alert = (tree) => find(tree, (node) => node.props.role === "alert");
+const statusNotice = (tree) => find(tree, (node) => node.props.role === "status");
 function enter(tree) { input(tree).props.onKeyDown({ key: "Enter", preventDefault() {} }); }
 function query(tree, value) { input(tree).props.onChange({ target: { value } }); return render(); }
-function reset() { slots = []; cursor = 0; requests = []; manual = []; confirmed = []; return render(); }
+function unmount() { for (const effect of effects.values()) effect.cleanup?.(); effects = new Map(); }
+function reset() { unmount(); slots = []; cursor = 0; requests = []; manual = []; confirmed = []; errorToasts = []; return render(); }
+function advance(milliseconds) { clockNow += milliseconds; for (const timer of [...timers.values()]) timer.callback(); return render(); }
 function ok(condition, label) { assert.ok(condition, label); checks.push(label); }
 async function flush() { for (let index = 0; index < 10; index++) await Promise.resolve(); }
-const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
+const response = (body, status = 200, headers = {}) => ({ ok: status >= 200 && status < 300, status, headers: new Headers(headers), json: async () => body });
 
 async function main() {
   let resolveSearch;
@@ -108,7 +139,7 @@ async function main() {
   button(alert(tree), "Continuer manuellement").props.onClick();
   ok(manual[0].result.ice === "001234567890123" && manual[0].result.source === "manual", "Manual continuation preserves the ICE without inventing company data");
 
-  for (const [status, httpStatus] of [["blocked", 200], ["invalid_input", 400], ["unavailable", 429], ["unavailable", 502], ["ambiguous", 200]]) {
+  for (const [status, httpStatus] of [["blocked", 200], ["invalid_input", 400], ["unavailable", 502], ["ambiguous", 200]]) {
     const message = status === "ambiguous" ? "Plusieurs entreprises correspondent à ce nom. Précisez la raison sociale ou utilisez l’ICE à quinze chiffres." : "Erreur vérifiable " + httpStatus;
     fetchImplementation = async () => response({ status, message }, httpStatus);
     tree = query(reset(), "  société   exemple  ");
@@ -121,6 +152,48 @@ async function main() {
     tree = query(tree, "Autre société");
     ok(!alert(tree), "Editing the query removes the previous failure message");
   }
+
+  fetchImplementation = async () => response({ status: "rate_limited", message: "Limite de recherches atteinte.", retryAfterSeconds: 10 }, 429, { "Retry-After": "10" });
+  tree = query(reset(), "felexia");
+  const beforeQuotaRender = tree;
+  enter(tree); await flush();
+  // Ref deadline must guard stale closures before the disabled button is rendered.
+  enter(beforeQuotaRender);
+  button(beforeQuotaRender, "Rechercher").props.onClick();
+  tree = render();
+  ok(requests.length === 1, "A real quota response blocks repeated Enter and stale clicks even before React rerenders");
+  ok(!alert(tree) && text(statusNotice(tree)).includes("Patientez avant de réessayer"), "Quota exhaustion is a timed status notice rather than a provider outage");
+  ok(errorToasts.length === 0, "A quota notice does not duplicate a transient provider-error toast");
+  ok(button(tree, "Rechercher").props.disabled === true && button(statusNotice(tree), "Réessayer dans 10 s").props.disabled === true, "Both search and retry are disabled during the server-supplied wait");
+  ok(Boolean(button(statusNotice(tree), "Continuer manuellement")), "Manual continuation remains available while quota is exhausted");
+  tree = advance(1000);
+  ok(text(statusNotice(tree)).includes("dans 9 secondes") && Boolean(button(statusNotice(tree), "Réessayer dans 9 s")), "The visible quota countdown advances from ten to nine seconds");
+  tree = query(tree, "FELEXIA CONSEILS");
+  ok(text(statusNotice(tree)).includes("dans 9 secondes") && button(tree, "Rechercher").props.disabled === true, "Changing the query does not erase an active server quota deadline");
+  button(statusNotice(tree), "Continuer manuellement").props.onClick();
+  ok(manual[0].result.raisonSociale === "FELEXIA CONSEILS", "Manual continuation during cooldown uses the newly edited legal name");
+  tree = advance(9000);
+  ok(text(statusNotice(tree)).includes("Vous pouvez relancer la recherche") && button(tree, "Rechercher").props.disabled === false && button(statusNotice(tree), "Réessayer").props.disabled === false, "At expiry the search and retry controls unlock without requiring page reload");
+  ok(timers.size === 0, "The quota timer is cleaned up when its countdown reaches zero");
+  fetchImplementation = async () => response({ status: "not_found", message: "Aucun résultat confirmé." });
+  button(statusNotice(tree), "Réessayer").props.onClick(); await flush(); tree = render();
+  ok(requests.length === 2 && requests[1].body.query === "FELEXIA CONSEILS" && !statusNotice(tree), "The first retry after expiry submits the current query and clears the quota notice");
+
+  fetchImplementation = async () => response({ status: "unavailable", message: "Trop de recherches." }, 429, { "Retry-After": "3" });
+  tree = query(reset(), "felexia"); enter(tree); await flush(); tree = render();
+  ok(!alert(tree) && Boolean(button(statusNotice(tree), "Réessayer dans 3 s")), "An old-format HTTP 429 response is normalized into the same timed quota notice");
+  ok(timers.size === 1, "A pending quota deadline owns one active countdown timer");
+  unmount();
+  ok(timers.size === 0, "Unmounting the lookup step clears its pending countdown timer");
+
+  fetchImplementation = async () => ({ ok: false, status: 429, headers: new Headers({ "Retry-After": "2" }), json: async () => { throw Error("bad upstream JSON"); } });
+  tree = query(reset(), "felexia"); enter(tree); await flush(); tree = render();
+  ok(!alert(tree) && Boolean(button(statusNotice(tree), "Réessayer dans 2 s")), "A quota response with malformed JSON still honors its Retry-After header");
+  fetchImplementation = async () => response({ status: "rate_limited", retryAfterSeconds: 0 }, 429);
+  tree = query(reset(), "felexia"); enter(tree); await flush(); tree = render();
+  ok(Boolean(button(statusNotice(tree), "Réessayer dans 30 s")), "A malformed zero quota duration cannot create an immediate retry loop");
+  tree = advance(30_000);
+  ok(button(tree, "Rechercher").props.disabled === false, "A conservative fallback quota duration also expires normally");
 
   fetchImplementation = async () => { throw Error("Synthetic network failure"); };
   tree = query(reset(), "Exemple"); enter(tree); await flush(); tree = render();

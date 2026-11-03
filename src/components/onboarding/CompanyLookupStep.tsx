@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   Building2,
@@ -187,10 +187,20 @@ export function CompanyLookupStep({
   const [response, setResponse] = useState<CompanyLookupResponse | null>(null);
   const [manualPayload, setManualPayload] = useState<LookupPayload | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [retrySeconds, setRetrySeconds] = useState(0);
   const searchInFlight = useRef(false);
+  const retryAt = useRef(0);
+
+  useEffect(() => {
+    if (retrySeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setRetrySeconds(Math.max(0, Math.ceil((retryAt.current - Date.now()) / 1000)));
+    }, 250);
+    return () => window.clearInterval(timer);
+  }, [retrySeconds]);
 
   async function handleSearch() {
-    if (searchInFlight.current) return;
+    if (searchInFlight.current || Date.now() < retryAt.current) return;
 
     const parsed = parseCompanyLookupInput(query);
     if (!parsed.isValid) {
@@ -216,6 +226,16 @@ export function CompanyLookupStep({
       });
 
       const data = (await apiResponse.json().catch(() => null)) as CompanyLookupResponse | null;
+
+      if (apiResponse.status === 429) {
+        // Also understand a 429 from a tab opened before the new server release.
+        const supplied = Number(data?.retryAfterSeconds ?? apiResponse.headers.get("Retry-After"));
+        const seconds = Number.isFinite(supplied) && supplied > 0 ? Math.min(3600, Math.ceil(supplied)) : 30;
+        retryAt.current = Date.now() + seconds * 1000;
+        setRetrySeconds(seconds);
+        setResponse({ status: "rate_limited", message: data?.message ?? "Limite de recherches atteinte.", retryAfterSeconds: seconds });
+        return;
+      }
 
       if (!data) {
         setResponse({
@@ -256,7 +276,7 @@ export function CompanyLookupStep({
     onManual(nextPayload ?? undefined);
   }
 
-  const canSearch = query.trim().length > 0 && !isLoading;
+  const canSearch = query.trim().length > 0 && !isLoading && retrySeconds === 0;
   const foundPayload =
     response?.status === "found" && response.result ? payloadFromResult(response.result) : null;
 
@@ -291,7 +311,7 @@ export function CompanyLookupStep({
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setError(null);
-                  setResponse(null);
+                  if (response?.status !== "rate_limited" || retrySeconds === 0) setResponse(null);
                   setManualPayload(null);
                 }}
                 onKeyDown={(event) => {
@@ -374,6 +394,23 @@ export function CompanyLookupStep({
             </Button>
             <Button type="button" onClick={() => void handleSearch()} disabled={isLoading}>
               Réessayer
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
+      {response?.status === "rate_limited" ? (
+        <section role="status" className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {retrySeconds > 0 ? "Patientez avant de réessayer" : "Vous pouvez relancer la recherche"}
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            {retrySeconds > 0 ? `Limite de recherches atteinte. Nouvel essai possible dans ${retrySeconds} secondes.` : "Le délai est écoulé. Vous pouvez rechercher par ICE ou raison sociale."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="secondary" onClick={handleManual}>Continuer manuellement</Button>
+            <Button type="button" onClick={() => void handleSearch()} disabled={isLoading || retrySeconds > 0}>
+              {retrySeconds > 0 ? `Réessayer dans ${retrySeconds} s` : "Réessayer"}
             </Button>
           </div>
         </section>

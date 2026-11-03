@@ -18,8 +18,9 @@ export type CompanyLookupResult = {
 };
 
 export type CompanyLookupResponse = {
-  status: "found" | "not_found" | "ambiguous" | "unavailable" | "blocked" | "invalid_input";
+  status: "found" | "not_found" | "ambiguous" | "rate_limited" | "unavailable" | "blocked" | "invalid_input";
   message: string;
+  retryAfterSeconds?: number;
   result?: CompanyLookupResult;
 };
 

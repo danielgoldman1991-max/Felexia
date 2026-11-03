@@ -233,15 +233,21 @@ async function main() {
   let currentUser = null;
   let apiCalls = [];
   let apiSearchError = false;
-  const rate = load('src/lib/rate-limit.ts');
+  let clockNow = Date.UTC(2026, 10, 3, 14);
+  class ClockDate extends Date {
+    constructor(...args) { super(...(args.length ? args : [clockNow])); }
+    static now() { return clockNow; }
+  }
+  const rate = load('src/lib/rate-limit.ts', {}, { Date: ClockDate });
   const route = load('src/app/api/company/search/route.ts', {
     'next/server': require('next/server'), zod: require('zod'),
+    '@/lib/ice/ice': parser,
     '@/lib/company-search': { searchCompany: async (_client, input) => {
       apiCalls.push(input); if (apiSearchError) throw Error('Source boundary failure'); return iceResult;
     } },
     '@/lib/supabase/server': { createClient: async () => ({ auth: { getUser: async () => ({ data: { user: currentUser } }) } }) },
     '@/lib/rate-limit': rate,
-  });
+  }, { Date: ClockDate });
   const request = value => new Request('http://localhost/api/company/search', {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(value),
   });
@@ -250,31 +256,86 @@ async function main() {
     assert.equal(unauthorized.status, 401); assert.equal(apiCalls.length, 0);
     assert.equal(unauthorized.headers.get('cache-control'), 'private, no-store');
   });
-  currentUser = { id: 'fixture-member-one' };
-  const apiFound = await route.POST(request({ query: ' X2K CONSEIL ' }));
-  check('Actual route returns a private no-store authenticated result', () => {
-    assert.equal(apiFound.status, 200); assert.equal(apiCalls.length, 1);
-    assert.equal(apiCalls[0].query, 'X2K CONSEIL');
-    assert.equal(apiFound.headers.get('cache-control'), 'private, no-store');
+  currentUser = { id: 'fixture-normal-sequence' };
+  // Another API using the generic limiter must not consume lookup's quota.
+  rate.isRateLimited(currentUser.id, 1, 30_000);
+  const normalQueries = ['000035228000026', ' X2K CONSEIL ', 'felexia', 'FELEXIA CONSEILS', 'FELEXIA CONSEILS'];
+  const immediate = [];
+  for (const query of normalQueries) immediate.push(await route.POST(request({ query })));
+  check('ICE, name, FELEXIA, correction and retry are all accepted immediately for the same user', () => {
+    assert.deepEqual(immediate.map(r => r.status), [200, 200, 200, 200, 200]);
+    assert.equal(apiCalls.length, normalQueries.length);
+    assert.deepEqual(apiCalls.map(input => input.query), normalQueries.map(query => parser.parseCompanyLookupInput(query).normalizedValue));
+    immediate.forEach(r => assert.equal(r.headers.get('cache-control'), 'private, no-store'));
   });
-  const limited = await route.POST(request({ query: '000035228000026' }));
+  check('Lookup quota is namespaced separately from another route using the same user ID', () => {
+    assert.equal(rate.isRateLimited(currentUser.id, 1, 30_000).allowed, false);
+    assert.equal(immediate[0].status, 200);
+  });
+  const restOfBurst = [];
+  for (let index = normalQueries.length; index < 10; index++) restOfBurst.push(await route.POST(request({ query: 'X2K CONSEIL' })));
+  check('Ten valid lookups within one minute are allowed without an artificial inter-request delay', () => {
+    assert.deepEqual(restOfBurst.map(r => r.status), Array(5).fill(200));
+    assert.equal(apiCalls.length, 10);
+  });
+  const limited = await route.POST(request({ query: 'FELEXIA' }));
   const limitedBody = await limited.json();
-  check('Actual route enforces one request per 30 seconds and sends Retry-After', () => {
-    assert.equal(limited.status, 429); assert.equal(apiCalls.length, 1);
-    const seconds = Number(limited.headers.get('retry-after')); assert.ok(seconds >= 1 && seconds <= 30);
-    assert.match(limitedBody.message, /secondes/); assert.equal(limited.headers.get('cache-control'), 'private, no-store');
+  check('The eleventh lookup is bounded by a real rate-limited response with machine-readable expiry', () => {
+    assert.equal(limited.status, 429); assert.equal(apiCalls.length, 10);
+    assert.equal(limitedBody.status, 'rate_limited');
+    const seconds = Number(limited.headers.get('retry-after'));
+    assert.ok(seconds >= 1 && seconds <= 60);
+    assert.equal(limitedBody.retryAfterSeconds, seconds);
+    assert.equal(limited.headers.get('cache-control'), 'private, no-store');
   });
-  currentUser = { id: 'fixture-invalid-body' };
-  const badBody = await route.POST(new Request('http://localhost/api/company/search', { method: 'POST', body: 'not json' }));
-  check('Malformed request JSON does not invoke company search', () => {
-    assert.equal(badBody.status, 400); assert.equal(apiCalls.length, 1);
-    assert.equal(badBody.headers.get('cache-control'), 'private, no-store');
+  currentUser = { id: 'fixture-independent-user' };
+  const independent = await route.POST(request({ query: 'FELEXIA' }));
+  check('One user exhausting lookup quota does not block another authenticated user', () => assert.equal(independent.status, 200));
+  currentUser = { id: 'fixture-normal-sequence' };
+  clockNow += 60_001;
+  const resumed = await route.POST(request({ query: 'FELEXIA CONSEILS' }));
+  check('The minute quota resets and admits a retry at its actual expiry', () => assert.equal(resumed.status, 200));
+
+  currentUser = { id: 'fixture-invalid-requests' };
+  const beforeInvalid = apiCalls.length;
+  const invalidResponses = [];
+  for (let index = 0; index < 3; index++) {
+    invalidResponses.push(await route.POST(new Request('http://localhost/api/company/search', { method: 'POST', body: 'not json' })));
+    for (const query of [123, 'a', '123', '   ']) invalidResponses.push(await route.POST(request({ query })));
+  }
+  check('Malformed JSON, schema errors, short names, invalid ICE and whitespace are rejected before the provider', () => {
+    assert.deepEqual(invalidResponses.map(r => r.status), Array(15).fill(400));
+    assert.equal(apiCalls.length, beforeInvalid);
+    invalidResponses.forEach(r => assert.equal(r.headers.get('cache-control'), 'private, no-store'));
   });
-  currentUser = { id: 'fixture-invalid-schema' };
-  const badSchema = await route.POST(request({ query: 123 }));
-  check('Invalid request types are rejected before company search', () => {
-    assert.equal(badSchema.status, 400); assert.equal(apiCalls.length, 1);
+  const afterInvalid = [];
+  for (let index = 0; index < 10; index++) afterInvalid.push(await route.POST(request({ query: 'X2K CONSEIL' })));
+  check('Invalid requests do not consume the user\'s ten valid lookup slots', () => {
+    assert.deepEqual(afterInvalid.map(r => r.status), Array(10).fill(200));
+    assert.equal(apiCalls.length, beforeInvalid + 10);
   });
+
+  currentUser = { id: 'fixture-hour-limit' };
+  const hourStart = clockNow;
+  const hourResults = [];
+  for (let minute = 0; minute < 6; minute++) {
+    clockNow = hourStart + minute * 60_001;
+    for (let index = 0; index < 10; index++) hourResults.push(await route.POST(request({ query: 'FELEXIA' })));
+  }
+  check('The hourly protection permits sixty valid lookups distributed across minute windows', () => {
+    assert.deepEqual(hourResults.map(r => r.status), Array(60).fill(200));
+  });
+  clockNow = hourStart + 6 * 60_001;
+  const hourly = await route.POST(request({ query: 'FELEXIA' }));
+  const hourlyBody = await hourly.json();
+  check('The sixty-first lookup is blocked by the hourly bound even after the minute window resets', () => {
+    assert.equal(hourly.status, 429); assert.equal(hourlyBody.status, 'rate_limited');
+    const seconds = Number(hourly.headers.get('retry-after'));
+    assert.ok(seconds > 60 && seconds <= 3600); assert.equal(hourlyBody.retryAfterSeconds, seconds);
+  });
+  clockNow = hourStart + 3_600_001;
+  const nextHour = await route.POST(request({ query: 'FELEXIA CONSEILS' }));
+  check('The hourly bound releases a valid lookup at the next window', () => assert.equal(nextHour.status, 200));
   currentUser = { id: 'fixture-upstream-error' }; apiSearchError = true;
   const apiFailure = await route.POST(request({ query: 'X2K CONSEIL' }));
   check('Unexpected source errors return a private actionable unavailable response', () => {
