@@ -57,28 +57,47 @@ export function readGoogleSiteVerification(): string | null {
 const googleSiteVerification = readGoogleSiteVerification();
 
 /** Only allowlisted public routes may opt into indexing. */
-export function createPublicMetadata({ title, description, path }: {
+export function createPublicMetadata({ title, description, path, image, article }: {
   title: string;
   description: string;
   path: string;
+  image?: { path: string; width: number; height: number; alt: string };
+  article?: { publishedAt: string; updatedAt: string; author: string };
 }): Metadata {
   if (!isPublicSitePath(path)) throw new Error("SEO public metadata requires an allowlisted public route.");
   const url = canonicalUrl(path);
+  const socialImage = image
+    ? { url: canonicalUrl(image.path), width: image.width, height: image.height, alt: image.alt }
+    : shareImage;
+  const openGraph = article
+    ? {
+        type: "article" as const,
+        locale: "fr_MA" as const,
+        siteName: BRAND.name,
+        title,
+        description,
+        url,
+        images: [socialImage],
+        publishedTime: article.publishedAt,
+        modifiedTime: article.updatedAt,
+        authors: [article.author],
+      }
+    : {
+        type: "website" as const,
+        locale: "fr_MA" as const,
+        siteName: BRAND.name,
+        title,
+        description,
+        url,
+        images: [socialImage],
+      };
   return {
     title: { absolute: title },
     description,
     alternates: { canonical: url },
     robots: PUBLIC_ROBOTS,
-    openGraph: {
-      type: "website",
-      locale: "fr_MA",
-      siteName: BRAND.name,
-      title,
-      description,
-      url,
-      images: [shareImage],
-    },
-    twitter: { card: "summary_large_image", title, description, images: [shareImage] },
+    openGraph,
+    twitter: { card: "summary_large_image", title, description, images: [socialImage] },
   };
 }
 
@@ -198,27 +217,47 @@ export function getFaqPageStructuredData(questions: readonly { question: string;
   };
 }
 
-export function getBlogPostingStructuredData(article: { h1: string; description: string; path: string; publishedAt: string }) {
+export function getBlogPostingStructuredData(article: {
+  h1: string;
+  description: string;
+  path: string;
+  publishedAt: string;
+  updatedAt?: string;
+  author?: string;
+  cover?: { webp: string; alt: string; width: number; height: number };
+}) {
   const url = canonicalUrl(article.path);
   const home = canonicalUrl("/");
+  const image = article.cover
+    ? { "@type": "ImageObject", url: canonicalUrl(article.cover.webp), width: article.cover.width, height: article.cover.height, caption: article.cover.alt }
+    : canonicalUrl(SEO_SHARE_IMAGE);
   return {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
+    "@type": ["BlogPosting", "Article"],
     "@id": `${url}#article`,
     headline: article.h1,
     description: article.description,
     datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
+    dateModified: article.updatedAt ?? article.publishedAt,
     inLanguage: "fr-MA",
     mainEntityOfPage: url,
     url,
-    image: canonicalUrl(SEO_SHARE_IMAGE),
-    author: { "@id": `${home}#organization` },
+    image,
+    author: article.author
+      ? { "@type": "Organization", name: article.author, url: home }
+      : { "@id": `${home}#organization` },
     publisher: { "@id": `${home}#organization` },
   };
 }
 
-export function getBlogStructuredData(posts: readonly { h1: string; description: string; path: string }[]) {
+export function getBlogStructuredData(posts: readonly {
+  h1: string;
+  description: string;
+  path: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  cover?: { webp: string };
+}[]) {
   const url = canonicalUrl("/blog");
   const home = canonicalUrl("/");
   return {
@@ -235,6 +274,8 @@ export function getBlogStructuredData(posts: readonly { h1: string; description:
       headline: post.h1,
       description: post.description,
       url: canonicalUrl(post.path),
+      ...(post.publishedAt ? { datePublished: post.publishedAt, dateModified: post.updatedAt ?? post.publishedAt } : {}),
+      ...(post.cover ? { image: canonicalUrl(post.cover.webp) } : {}),
     })),
   };
 }
