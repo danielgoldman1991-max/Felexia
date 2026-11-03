@@ -58,7 +58,7 @@ export function BlogIndex({ category }: { category?: BlogPillarSlug }) {
             </nav>
             <p className={styles.kicker}>Guides · PME au Maroc</p>
             <h1 className={styles.title}>Des guides pour gérer une PME au Maroc</h1>
-            <p className={styles.lede}>Facturation, choix du logiciel et stock : des articles sourcés, datés, avec le tarif ESSENTIEL publié et PRO sur devis. Aucun témoignage inventé.</p>
+            <p className={styles.lede}>Facturation, stock, fiscalité : des guides pratiques et sourcés pour piloter votre PME au Maroc.</p>
             <nav aria-label="Catégories des guides">
               <ul className={styles.filters}>
                 <li><Link href="/blog" aria-current={active ? undefined : "page"}>Tous</Link></li>
@@ -125,7 +125,7 @@ export function BlogIndex({ category }: { category?: BlogPillarSlug }) {
             <aside className={styles.cta} aria-labelledby="blog-cta-title">
               <div>
                 <h2 id="blog-cta-title">Essayez Felexia {offer.trial}, sans carte bancaire</h2>
-                <p>ESSENTIEL est affiché à {offer.essentielPrice}. {offer.trialSentence}</p>
+                <p>{offer.offerPitch}</p>
               </div>
               <Link href="/login?mode=register" className="marketing-button marketing-button-primary">Démarrer l’essai <ArrowUpRight size={16} aria-hidden="true" /></Link>
             </aside>
