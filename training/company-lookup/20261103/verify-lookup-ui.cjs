@@ -100,6 +100,11 @@ function find(node, predicate) {
   if (!node || typeof node !== "object") return null;
   return predicate(node) ? node : find(node.props?.children, predicate);
 }
+function findAll(node, predicate) {
+  if (Array.isArray(node)) return node.flatMap(child => findAll(child, predicate));
+  if (!node || typeof node !== "object") return [];
+  return [...(predicate(node) ? [node] : []), ...findAll(node.props?.children, predicate)];
+}
 function text(node) {
   if (Array.isArray(node)) return node.map(text).join("");
   return node && typeof node === "object" ? text(node.props?.children) : String(node ?? "");
@@ -108,6 +113,9 @@ const input = (tree) => find(tree, (node) => node.type === "input");
 const button = (tree, label) => find(tree, (node) => node.type === "button" && text(node) === label);
 const alert = (tree) => find(tree, (node) => node.props.role === "alert");
 const statusNotice = (tree) => find(tree, (node) => node.props.role === "status");
+const candidateList = tree => find(tree, node => node.type === "ul" && node.props["aria-label"] === "Entreprises proches de votre recherche");
+const candidateButtons = tree => findAll(candidateList(tree), node => node.type === "button");
+const resultModal = tree => find(tree, node => typeof node.type === "function" && node.type.name === "ResultModal");
 function enter(tree) { input(tree).props.onKeyDown({ key: "Enter", preventDefault() {} }); }
 function query(tree, value) { input(tree).props.onChange({ target: { value } }); return render(); }
 function unmount() { for (const effect of effects.values()) effect.cleanup?.(); effects = new Map(); }
@@ -215,6 +223,62 @@ async function main() {
   ok(confirmed.length === 0 && manual.length === 0, "Searching never creates or confirms a company automatically");
   modal.props.onConfirm();
   ok(confirmed[0].result.raisonSociale === "EXEMPLE SARL" && confirmed[0].result.ice === "001234567890123", "Explicit confirmation passes the actual returned company data");
+
+  const candidate = (ice, name = "ATLAS CONSEIL") => ({
+    source: "managepro", query: "CONSEIL", found: true,
+    raisonSociale: name, ice, rc: "RC-" + ice.slice(-3), villeRc: "Casablanca", formeJuridique: "SARL", confidence: "medium",
+  });
+  const first = candidate("001234567890101");
+  const second = candidate("001234567890202");
+  const multiple = { status: "ambiguous", message: "Choisissez une entreprise.", candidates: [first, second], candidateCount: 2, candidatesTruncated: false };
+  fetchImplementation = async () => response(multiple);
+  tree = query(reset(), "conseil"); enter(tree); await flush(); tree = render();
+  ok(Boolean(candidateList(tree)) && candidateButtons(tree).length === 2 && !alert(tree), "A partial-name response displays its companies instead of an ambiguity error");
+  ok(text(statusNotice(tree)).includes("2 entreprises proposées"), "The number of visible company choices is announced as a status");
+  ok(text(candidateList(tree)).includes(first.ice) && text(candidateList(tree)).includes(first.rc) && text(candidateList(tree)).includes("Casablanca"), "Each company choice exposes identity fields needed to distinguish legal entities");
+  ok(candidateButtons(tree).every(node => node.props["aria-label"].includes("ATLAS CONSEIL") && /ICE \d{15}$/.test(node.props["aria-label"])), "Homonymous company buttons have distinct accessible names including their ICE");
+  ok(!resultModal(tree) && confirmed.length === 0 && manual.length === 0, "Receiving several companies neither chooses nor confirms the first company");
+  candidateButtons(tree)[1].props.onClick(); tree = render();
+  let chosenModal = resultModal(tree);
+  ok(chosenModal?.props.result.ice === second.ice && chosenModal.props.result.rc === second.rc, "Choosing the second company opens its own confirmation data");
+  ok(confirmed.length === 0 && requests.length === 1, "Choosing a company requires later confirmation and does not issue another lookup");
+  chosenModal.props.onClose(); tree = render();
+  ok(!resultModal(tree) && candidateButtons(tree).length === 2, "Closing company details returns to the unchanged company choices");
+  candidateButtons(tree)[1].props.onClick(); tree = render();
+  resultModal(tree).props.onBack(); tree = render();
+  ok(!resultModal(tree) && candidateButtons(tree).length === 2, "The explicit return-to-results action preserves all choices");
+  candidateButtons(tree)[1].props.onClick(); tree = render();
+  resultModal(tree).props.onConfirm(); tree = render();
+  ok(confirmed.length === 1 && confirmed[0].result.ice === second.ice && confirmed[0].result.rc === second.rc, "Only explicit confirmation sends the selected second company's exact prefill");
+  ok(!resultModal(tree) && requests.length === 1, "Confirming a selection closes its details without consuming another search");
+
+  tree = query(reset(), "conseil"); enter(tree); await flush(); tree = render();
+  candidateButtons(tree)[1].props.onClick(); tree = render();
+  resultModal(tree).props.onModify(); tree = render();
+  ok(manual.length === 1 && manual[0].result.ice === second.ice && manual[0].result.raisonSociale === second.raisonSociale, "Manual modification starts with the selected company's data rather than the partial query");
+  ok(confirmed.length === 0, "Manual modification does not also confirm the company");
+
+  tree = query(reset(), "conseil"); enter(tree); await flush(); tree = render();
+  candidateButtons(tree)[1].props.onClick(); tree = render();
+  tree = query(tree, "Autre société");
+  ok(!candidateList(tree) && !resultModal(tree), "Changing the query clears both previous company choices and selected details");
+  tree = query(tree, "conseil"); enter(tree); await flush(); tree = render();
+  fetchImplementation = () => new Promise(resolve => { resolveSearch = resolve; });
+  button(tree, "Rechercher").props.onClick(); tree = render();
+  ok(!candidateList(tree) && !resultModal(tree) && input(tree).props.disabled, "Starting another search removes stale choices while the new request is pending");
+  resolveSearch(response({ status: "not_found", message: "Aucun résultat confirmé." })); await flush(); tree = render();
+
+  const many = Array.from({ length: 12 }, (_, index) => candidate(String(index + 1).padStart(15, "0"), "CONSEIL " + (index + 1)));
+  fetchImplementation = async () => response({ status: "ambiguous", candidates: [null, { ...first, ice: "123" }, { ...first, raisonSociale: "" }, { ...first, found: false }, many[0], ...many], candidateCount: 12, candidatesTruncated: true });
+  tree = query(reset(), "conseil"); enter(tree); await flush(); tree = render();
+  ok(candidateButtons(tree).length === 10, "Malformed choices and duplicate ICEs are removed and no more than ten are rendered");
+  ok(candidateButtons(tree)[0].props["aria-label"].includes("CONSEIL 1"), "The source's ranked order is retained after defensive validation");
+  ok(text(tree).includes("D’autres entreprises correspondent"), "A truncated list explains how to refine the name or use an ICE");
+  ok(!resultModal(tree) && confirmed.length === 0, "A capped result list still leaves the company choice to the user");
+
+  fetchImplementation = async () => response({ status: "ambiguous", message: "Recherche à préciser.", candidates: [{ ...first, found: false }, { ...second, ice: "invalid" }] });
+  tree = query(reset(), "conseil"); enter(tree); await flush(); tree = render();
+  ok(!candidateList(tree) && Boolean(alert(tree)) && !resultModal(tree), "An old or malformed ambiguous response retains an actionable fallback without false identity choices");
   console.log(JSON.stringify({ passed: checks.length, checks }, null, 2));
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

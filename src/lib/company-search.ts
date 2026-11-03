@@ -109,7 +109,9 @@ export async function saveCompanySearchCache(
         query_type: queryType,
         source: response.result?.source ?? "unknown",
         results: response.status === "found" && response.result ? [response.result] : [],
-        ice: response.result?.ice ?? null,
+        // Only ICE query entries occupy the unique ICE metadata index. A name
+        // query has its own key; the actual identity remains intact in results.
+        ice: queryType === "ice" ? response.result?.ice ?? null : null,
         raison_sociale: response.result?.raisonSociale ?? null,
         rc: response.result?.rc ?? null,
         if_number: response.result?.identifiantFiscal ?? null,
@@ -163,7 +165,10 @@ export async function searchCompany(
     return { status: "invalid_input", message: parsed.error ?? "Recherche invalide." };
   }
 
-  const cacheKey = hashQuery(`${parsed.type}:${parsed.normalizedValue}`);
+  // Earlier name matching could keep one result where the new matching rules
+  // offer several choices. Do not let those entries hide the candidate list.
+  const cacheNamespace = parsed.type === "raison_sociale" ? "name-candidates-v1:" : "";
+  const cacheKey = hashQuery(`${cacheNamespace}${parsed.type}:${parsed.normalizedValue}`);
   const cached = await getCachedCompanySearch(
     supabase, cacheKey,
     parsed.type === "ice" ? parsed.normalizedValue : undefined,

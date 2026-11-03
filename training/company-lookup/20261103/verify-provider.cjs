@@ -87,6 +87,10 @@ async function main() {
   check('Unrelated public multi-result first card is not returned', () => {
     const result = parse(fixture('managepro-multi.html'), 'MAROC TELECOM');
     assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
+    assert.equal(result.candidates.length, 3); assert.equal(result.candidateCount, 3);
+    assert.equal(result.candidatesTruncated, false);
+    assert.ok(result.candidates.every(company => /\bTELECOM\b/.test(company.raisonSociale) && /\bMAROC\b/.test(company.raisonSociale)));
+    assert.ok(result.candidates.every(company => /^\d{15}$/.test(company.ice) && company.found && company.source === 'managepro'));
   });
   const second = found.replaceAll('000035228000026', '000035228000027');
   check('Two identities with the same requested legal name remain ambiguous', () => {
@@ -95,10 +99,64 @@ async function main() {
   check('Duplicate cards with the same ICE are deduplicated', () => {
     assert.equal(parse(found + found, 'X2K CONSEIL').status, 'found');
   });
-  check('Only complete word matches can supply a non-exact single candidate', () => {
+  check('A partial last word can supply a nearby candidate without arbitrary inner-word matching', () => {
     assert.equal(parse(found, 'X2K').status, 'found');
     assert.equal(parse(found, 'X2').status, 'invalid_input');
-    assert.equal(parse(found, 'X2K CON').status, 'not_found');
+    assert.equal(parse(found, 'X2K CON').result.ice, '000035228000026');
+    assert.equal(parse(found, 'NSEIL').status, 'not_found');
+    assert.equal(parse(found, '...').status, 'not_found');
+  });
+  const syntheticCard = (name, index) => found.replaceAll('X2K CONSEIL', name)
+    .replaceAll('000035228000026', String(900000000000000n + BigInt(index)));
+  const suggestions = [
+    syntheticCard('ALPHA CONSEIL MAROC', 1),
+    syntheticCard('CONSEILS MAROC', 2),
+    syntheticCard('CONSEIL INTERNATIONAL', 3),
+    syntheticCard('CONSEIL', 4),
+    syntheticCard('BETA CONSEIL', 5),
+    syntheticCard('UNRELATED COMPANY', 6),
+  ];
+  check('A one-word name search exposes nearby identities and ranks exact, full-word and prefix matches', () => {
+    const result = parse(suggestions.join(''), 'conseil');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
+    assert.deepEqual(Array.from(result.candidates, company => company.raisonSociale),
+      ['CONSEIL', 'CONSEIL INTERNATIONAL', 'ALPHA CONSEIL MAROC', 'BETA CONSEIL', 'CONSEILS MAROC']);
+    assert.equal(result.candidateCount, 5);
+    assert.ok(!result.candidates.some(company => company.raisonSociale === 'UNRELATED COMPANY'));
+  });
+  check('A unique exact name does not suppress other nearby identities for explicit user choice', () => {
+    const result = parse(suggestions[0] + suggestions[3], 'CONSEIL');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.candidates.length, 2);
+    assert.equal(result.candidates[0].raisonSociale, 'CONSEIL'); assert.equal(result.result, undefined);
+  });
+  check('Candidate order and deduplication do not depend on upstream source order', () => {
+    const left = parse(suggestions.join('') + suggestions[0], 'CONSEIL');
+    const right = parse([...suggestions].reverse().join(''), 'CONSEIL');
+    assert.deepEqual(Array.from(left.candidates, company => company.ice), Array.from(right.candidates, company => company.ice));
+    assert.equal(new Set(left.candidates.map(company => company.ice)).size, left.candidates.length);
+  });
+  check('Suggestions are bounded to ten complete public identities with an honest source-card count', () => {
+    const many = Array.from({ length: 14 }, (_, index) => syntheticCard(`ATLAS CONSEIL ${String(index).padStart(2, '0')}`, 20 + index));
+    const result = parse(many.reverse().join(''), 'CONSEIL');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.candidates.length, 10);
+    assert.equal(result.candidateCount, 14); assert.equal(result.candidatesTruncated, true);
+    assert.equal(result.candidates[0].raisonSociale, 'ATLAS CONSEIL 00');
+    assert.equal(result.candidates[9].raisonSociale, 'ATLAS CONSEIL 09');
+    assert.ok(!JSON.stringify(result).includes('PUBLIC_FORM_FIXTURE_TOKEN'));
+    assert.ok(!JSON.stringify(result).includes('<article'));
+    assert.ok(result.candidates.every(company => company.adresse === null && company.identifiantFiscal === null));
+  });
+  check('Case, accents and punctuation are normalized for nearby suggestions', () => {
+    const result = parse(syntheticCard('ÉTUDE CONSEIL', 40) + syntheticCard('AUTRE ETUDE', 41), 'étude');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.candidates.length, 2);
+    assert.equal(result.candidates[0].raisonSociale, 'ÉTUDE CONSEIL');
+  });
+  check('Even with many nearby name candidates an ICE query returns only the exact identity', () => {
+    const html = suggestions.join('');
+    const result = parse(html, '900000000000005');
+    assert.equal(result.status, 'found'); assert.equal(result.result.raisonSociale, 'BETA CONSEIL');
+    assert.equal(result.candidates, undefined);
+    assert.equal(parse(html, '900000000000999').status, 'not_found');
   });
   check('A genuine no-result marker is distinguished from upstream errors', () => {
     assert.equal(parse(empty, 'ZZZ-FELEXIA-LOOKUP-NO-MATCH-20261103').status, 'not_found');
@@ -198,11 +256,11 @@ async function main() {
     '@/lib/ice/company-lookup-provider': { lookupCompany: async () => { providerCalls++; return iceResult; } },
     '@/lib/supabase/server': { createClient() { throw Error('Must not create a client in fixture'); } },
   });
-  function database(results, dbError = null) {
-    const state = { keys: [], writes: [] };
+  function database(results, dbError = null, expectedHash = null) {
+    const state = { keys: [], writes: [], queryHash: null };
     const query = {
-      select() { return query; }, eq(_column, value) { state.keys.push(value); return query; },
-      gt() { return query; }, async maybeSingle() { return { data: { results }, error: dbError }; },
+      select() { return query; }, eq(column, value) { state.keys.push(value); if (column === 'query_hash') state.queryHash = value; return query; },
+      gt() { return query; }, async maybeSingle() { return { data: expectedHash && expectedHash !== state.queryHash ? null : { results }, error: dbError }; },
       async upsert(value) { state.writes.push(value); return { error: null }; },
     };
     return { client: { from() { return query; } }, state };
@@ -227,12 +285,43 @@ async function main() {
   await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
   check('An old negative cache cannot hide source recovery', () => assert.equal(providerCalls, 1));
   const noWrite = database([]);
-  await facade.saveCompanySearchCache(noWrite.client, 'key', 'QUERY', 'raison_sociale', { status: 'ambiguous', message: 'Choose an ICE' });
+  await facade.saveCompanySearchCache(noWrite.client, 'key', 'CONSEIL', 'raison_sociale', parse(suggestions.join(''), 'CONSEIL'));
   check('Ambiguous results do not enter the cache', () => assert.equal(noWrite.state.writes.length, 0));
+  const digest = query => crypto.createHash('sha256').update(query).digest('hex');
+  const oldNameKey = digest('raison_sociale:X2K CONSEIL');
+  const newNameKey = digest('name-candidates-v1:raison_sociale:X2K CONSEIL');
+  db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, oldNameKey); providerCalls = 0;
+  await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
+  check('The versioned name cache bypasses old single-result entries that could hide nearby identities', () => {
+    assert.equal(db.state.queryHash, newNameKey); assert.equal(providerCalls, 1);
+    assert.notEqual(newNameKey, oldNameKey);
+  });
+  db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, newNameKey); providerCalls = 0;
+  const currentNameHit = await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
+  check('Current-version single name hits remain reusable without contacting the source', () => {
+    assert.equal(currentNameHit.cached, true); assert.equal(providerCalls, 0);
+  });
+  db = database([iceResult.result]);
+  await facade.searchCompany(db.client, { query: '000035228000026' });
+  check('ICE cache keys retain their prior exact lookup namespace', () => {
+    assert.equal(db.state.queryHash, digest('ice:000035228000026'));
+  });
+  db = database([]);
+  await facade.saveCompanySearchCache(db.client, 'name-key', 'X2K CONSEIL', 'raison_sociale', iceResult);
+  check('Name cache metadata avoids the historic unique ICE collision while retaining the real identity in results', () => {
+    assert.equal(db.state.writes[0].ice, null);
+    assert.equal(db.state.writes[0].results[0].ice, '000035228000026');
+  });
+  db = database([]);
+  await facade.saveCompanySearchCache(db.client, 'ice-key', '000035228000026', 'ice', iceResult);
+  check('Exact ICE cache metadata continues to identify its indexed ICE', () => {
+    assert.equal(db.state.writes[0].ice, '000035228000026');
+  });
 
   let currentUser = null;
   let apiCalls = [];
   let apiSearchError = false;
+  let apiSearchResult = iceResult;
   let clockNow = Date.UTC(2026, 10, 3, 14);
   class ClockDate extends Date {
     constructor(...args) { super(...(args.length ? args : [clockNow])); }
@@ -243,7 +332,7 @@ async function main() {
     'next/server': require('next/server'), zod: require('zod'),
     '@/lib/ice/ice': parser,
     '@/lib/company-search': { searchCompany: async (_client, input) => {
-      apiCalls.push(input); if (apiSearchError) throw Error('Source boundary failure'); return iceResult;
+      apiCalls.push(input); if (apiSearchError) throw Error('Source boundary failure'); return apiSearchResult;
     } },
     '@/lib/supabase/server': { createClient: async () => ({ auth: { getUser: async () => ({ data: { user: currentUser } }) } }) },
     '@/lib/rate-limit': rate,
@@ -342,6 +431,19 @@ async function main() {
     assert.equal(apiFailure.status, 502); assert.equal(apiFailure.headers.get('cache-control'), 'private, no-store');
   });
   assert.equal((await apiFailure.json()).status, 'unavailable');
+
+  currentUser = { id: 'fixture-candidate-response' }; apiSearchError = false;
+  apiSearchResult = parse(suggestions.join(''), 'CONSEIL');
+  const apiSuggestions = await route.POST(request({ query: 'conseil' }));
+  const apiSuggestionsBody = await apiSuggestions.json();
+  check('The authenticated route preserves ordered nearby identities for explicit user selection', () => {
+    assert.equal(apiSuggestions.status, 200);
+    assert.equal(apiSuggestionsBody.status, 'ambiguous'); assert.equal(apiSuggestionsBody.result, undefined);
+    assert.equal(apiSuggestionsBody.candidateCount, 5); assert.equal(apiSuggestionsBody.candidates.length, 5);
+    assert.equal(apiSuggestionsBody.candidates[0].raisonSociale, 'CONSEIL');
+    assert.ok(apiSuggestionsBody.candidates.every(company => /^\d{15}$/.test(company.ice)));
+    assert.equal(apiSuggestions.headers.get('cache-control'), 'private, no-store');
+  });
 
   const result = { passed: checks.length, runtime: process.version, scope: 'real provider/parser/cache/rate-limit/API modules; mocked HTTP, auth and database; public fixtures; no live writes', checks };
   fs.writeFileSync(path.join(__dirname, 'provider-validation.json'), JSON.stringify(result, null, 2));

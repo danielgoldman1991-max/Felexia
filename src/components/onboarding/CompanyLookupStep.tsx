@@ -53,6 +53,20 @@ function payloadFromResult(result: CompanyLookupResult): LookupPayload {
   };
 }
 
+function matchingCandidates(response: CompanyLookupResponse | null): CompanyLookupResult[] {
+  if (response?.status !== "ambiguous" || !Array.isArray(response.candidates)) return [];
+  const seen = new Set<string>();
+  const candidates: CompanyLookupResult[] = [];
+  for (const candidate of response.candidates.slice(0, 100)) {
+    if (!candidate || candidate.found !== true || typeof candidate.raisonSociale !== "string" ||
+      !candidate.raisonSociale.trim() || typeof candidate.ice !== "string" || !/^\d{15}$/.test(candidate.ice) || seen.has(candidate.ice)) continue;
+    seen.add(candidate.ice);
+    candidates.push(candidate);
+    if (candidates.length === 10) break;
+  }
+  return candidates;
+}
+
 /* ─── Skeleton loader ─── */
 function SearchSkeleton() {
   return (
@@ -76,12 +90,20 @@ function ResultModal({
   onConfirm,
   onModify,
   onClose,
+  onBack,
 }: {
   result: CompanyLookupResult;
   onConfirm: () => void;
   onModify: () => void;
   onClose: () => void;
+  onBack?: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement;
+    dialogRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    return () => { if (previous instanceof HTMLElement && previous.isConnected) previous.focus(); };
+  }, []);
   const fields = [
     { label: "ICE", value: result.ice },
     { label: "Forme juridique", value: result.formeJuridique },
@@ -92,13 +114,30 @@ function ResultModal({
   ].filter((f) => f.value);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog">
+    <div
+      ref={dialogRef}
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="company-result-title"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") { event.preventDefault(); onClose(); }
+        if (event.key !== "Tab") return;
+        const controls = dialogRef.current?.querySelectorAll<HTMLButtonElement>("button:not([disabled])");
+        if (!controls?.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }}
+    >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative z-10 w-full max-w-lg transition-all duration-200">
-        <section className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-6 shadow-[var(--shadow-lg)] md:p-8">
+        <section className="max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--popover)] p-6 shadow-[var(--shadow-lg)] md:p-8">
           <button
             type="button"
             onClick={onClose}
+            aria-label="Fermer les informations de l’entreprise"
             className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--surface-soft)] text-[var(--muted)] transition hover:text-[var(--foreground)]"
           >
             <X className="h-4 w-4" />
@@ -109,7 +148,7 @@ function ResultModal({
               <Building2 className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-[var(--popover-foreground)]">Entreprise trouvée</h2>
+              <h2 id="company-result-title" className="text-lg font-semibold text-[var(--popover-foreground)]">Entreprise trouvée</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 Vérifiez les informations ci-dessous avant de continuer.
               </p>
@@ -117,14 +156,14 @@ function ResultModal({
           </div>
 
           {result.raisonSociale && (
-            <p className="mt-6 text-xl font-semibold text-[var(--popover-foreground)]">{result.raisonSociale}</p>
+            <p className="mt-6 break-words text-xl font-semibold text-[var(--popover-foreground)] [overflow-wrap:anywhere]">{result.raisonSociale}</p>
           )}
 
           <div className="mt-4 grid gap-2">
             {fields.map((f) => (
-              <div key={f.label} className="flex justify-between rounded-2xl bg-[var(--surface-soft)]/60 px-4 py-3">
-                <span className="text-sm text-[var(--muted)]">{f.label}</span>
-                <span className="text-sm font-medium text-[var(--popover-foreground)]">{f.value}</span>
+              <div key={f.label} className="flex flex-col gap-1 rounded-2xl bg-[var(--surface-soft)]/60 px-4 py-3 sm:flex-row sm:justify-between sm:gap-4">
+                <span className="shrink-0 text-sm text-[var(--muted)]">{f.label}</span>
+                <span className="min-w-0 break-words text-sm font-medium text-[var(--popover-foreground)] [overflow-wrap:anywhere] sm:flex-1 sm:text-right">{f.value}</span>
               </div>
             ))}
           </div>
@@ -137,6 +176,7 @@ function ResultModal({
             <Button type="button" variant="secondary" onClick={onModify}>
               Modifier manuellement
             </Button>
+            {onBack ? <Button type="button" variant="secondary" onClick={onBack}>Retour aux résultats</Button> : null}
           </div>
         </section>
       </div>
@@ -186,7 +226,7 @@ export function CompanyLookupStep({
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<CompanyLookupResponse | null>(null);
   const [manualPayload, setManualPayload] = useState<LookupPayload | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<CompanyLookupResult | null>(null);
   const [retrySeconds, setRetrySeconds] = useState(0);
   const searchInFlight = useRef(false);
   const retryAt = useRef(0);
@@ -207,6 +247,7 @@ export function CompanyLookupStep({
       setError(parsed.error ?? "Recherche invalide.");
       setResponse(null);
       setManualPayload(null);
+      setSelectedResult(null);
       return;
     }
 
@@ -214,7 +255,7 @@ export function CompanyLookupStep({
     setManualPayload(nextManualPayload);
     setError(null);
     setResponse(null);
-    setShowModal(false);
+    setSelectedResult(null);
     searchInFlight.current = true;
     setIsLoading(true);
 
@@ -256,7 +297,7 @@ export function CompanyLookupStep({
 
       if (data.status === "found" && data.result) {
         toast.success("Entreprise trouvée !");
-        setShowModal(true);
+        setSelectedResult(data.result);
       }
     } catch {
       toast.error("La recherche automatique n’a pas pu aboutir.");
@@ -277,8 +318,8 @@ export function CompanyLookupStep({
   }
 
   const canSearch = query.trim().length > 0 && !isLoading && retrySeconds === 0;
-  const foundPayload =
-    response?.status === "found" && response.result ? payloadFromResult(response.result) : null;
+  const candidates = matchingCandidates(response);
+  const foundPayload = selectedResult ? payloadFromResult(selectedResult) : null;
 
   return (
     <div className="space-y-6">
@@ -300,12 +341,13 @@ export function CompanyLookupStep({
 
         <div className="mt-7 grid gap-3 md:grid-cols-[1fr_auto]">
           <div>
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            <label htmlFor="company-lookup-query" className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
               ICE ou raison sociale
             </label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
               <input
+                id="company-lookup-query"
                 value={query}
                 disabled={isLoading}
                 onChange={(event) => {
@@ -313,6 +355,7 @@ export function CompanyLookupStep({
                   setError(null);
                   if (response?.status !== "rate_limited" || retrySeconds === 0) setResponse(null);
                   setManualPayload(null);
+                  setSelectedResult(null);
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
@@ -356,20 +399,50 @@ export function CompanyLookupStep({
       {isLoading && !response && <SearchSkeleton />}
 
       {/* Result modal */}
-      {showModal && response?.result && foundPayload && (
+      {selectedResult && foundPayload && (
         <ResultModal
-          result={response.result}
+          result={selectedResult}
           onConfirm={() => {
-            setShowModal(false);
+            setSelectedResult(null);
             onConfirm(foundPayload);
           }}
           onModify={() => {
-            setShowModal(false);
+            setSelectedResult(null);
             onManual(foundPayload);
           }}
-          onClose={() => setShowModal(false)}
+          onClose={() => setSelectedResult(null)}
+          onBack={candidates.length ? () => setSelectedResult(null) : undefined}
         />
       )}
+
+      {candidates.length ? (
+        <section aria-labelledby="company-candidates-heading" className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)] md:p-6">
+          <h2 id="company-candidates-heading" className="text-lg font-semibold text-[var(--foreground)]">Choisissez votre entreprise</h2>
+          <p role="status" className="mt-2 text-sm text-[var(--muted)]">
+            {candidates.length} {candidates.length === 1 ? "entreprise proposée" : "entreprises proposées"}. Vérifiez le nom et les identifiants avant de choisir.
+          </p>
+          <ul className="mt-5 grid gap-3" aria-label="Entreprises proches de votre recherche">
+            {candidates.map((candidate) => (
+              <li key={candidate.ice} className="flex min-w-0 flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)]/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <h3 className="break-words font-semibold text-[var(--foreground)] [overflow-wrap:anywhere]">{candidate.raisonSociale}</h3>
+                  <dl className="mt-2 grid gap-x-5 gap-y-1 text-sm sm:grid-cols-2">
+                    <div className="min-w-0"><dt className="inline text-[var(--muted)]">ICE : </dt><dd className="inline break-words font-medium [overflow-wrap:anywhere]">{candidate.ice}</dd></div>
+                    {candidate.rc ? <div className="min-w-0"><dt className="inline text-[var(--muted)]">RC : </dt><dd className="inline break-words font-medium [overflow-wrap:anywhere]">{candidate.rc}</dd></div> : null}
+                    {candidate.villeRc ? <div className="min-w-0"><dt className="inline text-[var(--muted)]">Ville du RC : </dt><dd className="inline break-words font-medium [overflow-wrap:anywhere]">{candidate.villeRc}</dd></div> : null}
+                    {candidate.formeJuridique ? <div className="min-w-0"><dt className="inline text-[var(--muted)]">Forme : </dt><dd className="inline break-words [overflow-wrap:anywhere]">{candidate.formeJuridique}</dd></div> : null}
+                  </dl>
+                </div>
+                <Button type="button" onClick={() => setSelectedResult(candidate)} aria-label={`Choisir ${candidate.raisonSociale}, ICE ${candidate.ice}`} className="w-full shrink-0 sm:w-auto">
+                  Choisir cette entreprise
+                </Button>
+              </li>
+            ))}
+          </ul>
+          {response?.candidatesTruncated ? <p className="mt-4 text-sm text-[var(--muted)]">D’autres entreprises correspondent. Ajoutez un mot au nom ou utilisez l’ICE pour affiner la recherche.</p> : null}
+          <button type="button" onClick={handleManual} className="mt-4 text-sm font-medium text-[var(--primary)] hover:underline">Continuer manuellement</button>
+        </section>
+      ) : null}
 
       {/* Not found state */}
       {response?.status === "not_found" ? (
@@ -380,7 +453,7 @@ export function CompanyLookupStep({
         />
       ) : null}
 
-      {response && ["unavailable", "blocked", "invalid_input", "ambiguous"].includes(response.status) ? (
+      {response && ["unavailable", "blocked", "invalid_input", "ambiguous"].includes(response.status) && !candidates.length ? (
         <section role="alert" className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
           <h2 className="text-base font-semibold text-[var(--foreground)]">
             {response.status === "invalid_input" ? "Vérifiez votre recherche" : response.status === "ambiguous" ? "Recherche à préciser" : "Recherche automatique indisponible"}

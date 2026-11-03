@@ -22,6 +22,10 @@ export type CompanyLookupResponse = {
   message: string;
   retryAfterSeconds?: number;
   result?: CompanyLookupResult;
+  /** Matching identities from the bounded source response; requires user choice. */
+  candidates?: CompanyLookupResult[];
+  candidateCount?: number;
+  candidatesTruncated?: boolean;
 };
 
 export async function lookupCompany(query: string): Promise<CompanyLookupResponse> {
