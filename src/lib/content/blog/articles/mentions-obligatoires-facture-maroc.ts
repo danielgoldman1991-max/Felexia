@@ -1,0 +1,182 @@
+import { publicOfferCopy } from "@/lib/content/blog/offers";
+import { h2, h3, p, type BlogArticle } from "@/lib/content/blog/types";
+
+const offer = publicOfferCopy();
+const consulted = "03/11/2026";
+
+const article: BlogArticle = {
+  slug: "mentions-obligatoires-facture-maroc",
+  path: "/blog/mentions-obligatoires-facture-maroc",
+  title: "Mentions obligatoires facture Maroc | Felexia",
+  description: "Checklist des mentions obligatoires d’une facture au Maroc selon l’article 145 du CGI : tableau, exemple fictif et sources officielles lues.",
+  h1: "Mentions obligatoires d’une facture au Maroc : la checklist",
+  category: "facturation",
+  publishedAt: "2026-11-03",
+  updatedAt: "2026-11-03",
+  author: "Équipe Felexia",
+  featured: true,
+  cover: {
+    webp: "/images/blog/blog-mentions-obligatoires-facture-maroc.webp",
+    avif: "/images/blog/blog-mentions-obligatoires-facture-maroc.avif",
+    alt: "Illustration d’une facture stylisée à côté d’une liste cochée et d’un sceau doré, aux couleurs bleu et menthe.",
+    width: 1600,
+    height: 900,
+  },
+  essentials: [
+    "L’article 145-III du CGI, édition 2026, demande une facture ou un mémoire en série continue, et fixe les mentions.",
+    "L’identifiant commun de l’entreprise (ICE) du vendeur est exigé par l’article 145-VIII. L’article 198 ter prévoit une amende de 100 dirhams par omission ou inexactitude sur cette mention.",
+    "Pour votre client, une pièce incomplète peut bloquer la déduction de la charge (article 11-III) et le droit à déduction de la TVA (articles 146 et 106-I-9°).",
+    "Le taux normal de TVA est de 20 % (article 99-A). L’article 99-B retient 10 % pour les opérations qu’il liste.",
+  ],
+  introduction: [
+    "Les mentions obligatoires d’une facture au Maroc tiennent d’abord à l’article 145 du Code général des impôts. Une facture sert à votre client, à votre comptable et, en cas de contrôle, à l’administration. ",
+    "Ce guide reprend les mentions lues dans l’édition 2026 du CGI et dans la loi de finances n° 50-25 publiée au Bulletin officiel. Vous repartez avec un tableau, une check-list et un exemple fictif. Le taux de votre propre opération se vérifie dans le code, avec votre expert-comptable.",
+  ],
+  blocks: [
+    h2("article-145", "Que demande l’article 145 du CGI ?"),
+    p("L’article 145 est intitulé « Tenue de la comptabilité ». Son paragraphe III, sous réserve du paragraphe IX, oblige les contribuables à délivrer à leurs acheteurs ou clients des factures ou mémoires. Ces pièces sont pré-numérotées et tirées d’une série continue, ou éditées par un système informatique selon une série continue."),
+    p("Le texte ajoute « en plus des indications habituelles d’ordre commercial », sans définir cette formule. Le tableau reprend les huit rubriques. Le 8° renvoie à « tous autres renseignements prescrits par les dispositions légales », sans les énumérer. Le registre du commerce et la CNSS n’ont pas été relus ici sur un texte officiel consolidé : ne les ajoutez pas sans vérification."),
+    h3("particuliers-et-non-commercants", "Particuliers, ticket de caisse et non-commerçants"),
+    p("Pour une vente de produits à des particuliers, le ticket de caisse peut tenir lieu de facture : date, identification du vendeur, désignation, quantité, prix et TVA le cas échéant. Le paragraphe VII demande aux non-commerçants l’identifiant fiscal et la taxe professionnelle sur leurs documents. Le paragraphe XI écarte l’article 145 pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique du paragraphe X."),
+    h2("tableau-mentions", "Le tableau des mentions obligatoires"),
+    p("Le tableau suit l’article 145, état au 3 novembre 2026. Il ne remplace pas la lecture du code. Les mots « hors taxes » ou « toutes taxes comprises » ne figurent pas tels quels dans le paragraphe III : les prix et la TVA distincte permettent de reconstituer le total."),
+    {
+      type: "table",
+      caption: "Mentions lues à l’article 145 du CGI, édition 2026",
+      columns: ["Mention", "Ce que le texte demande", "Repère"],
+      rows: [
+        ["Série continue", "Facture ou mémoire pré-numéroté, ou édité par un système informatique selon une série continue.", "145-III, chapeau"],
+        ["Identité du vendeur", "L’identité du vendeur, en plus des indications commerciales habituelles.", "145-III-1°"],
+        ["Identifiant fiscal et taxe professionnelle", "Numéro d’identification fiscale du service local des impôts et numéro d’article d’imposition à la taxe professionnelle.", "145-III-2°"],
+        ["Date", "La date de l’opération.", "145-III-3°"],
+        ["Client", "Nom, prénoms ou raison sociale, adresse, et identifiant commun de l’entreprise du client.", "145-III-4°"],
+        ["Opération", "Prix, quantité et nature des marchandises, travaux ou services.", "145-III-5°"],
+        ["TVA distincte", "Montant de la TVA en sus du prix ou comprise dans le prix. En cas d’opération des articles 91, 92 ou 94 : indication de l’exonération ou du régime suspensif.", "145-III-6°"],
+        ["Paiement", "Références et mode de paiement de la facture ou du mémoire.", "145-III-7°"],
+        ["Autres textes", "Tous autres renseignements prescrits par les dispositions légales. Le paragraphe ne les énumère pas.", "145-III-8°"],
+        ["ICE du vendeur", "Mention de l’ICE sur les factures ou documents en tenant lieu délivrés aux clients, et sur les déclarations fiscales prévues par le code.", "145-VIII"],
+        ["Ticket de caisse", "Pour une vente de produits à des particuliers : date, identification du vendeur, désignation, quantité et prix, TVA le cas échéant.", "145-III, alinéa du ticket"],
+      ],
+    },
+    p("L’article 145-VIII vise l’ICE de celui qui délivre la facture. L’article 145-III-4° vise aussi l’ICE du client. Le nombre de caractères de l’ICE n’est pas fixé dans ces paragraphes. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple plus bas utilise uniquement un identifiant de démonstration."),
+    h2("si-une-mention-manque", "Que se passe-t-il si une mention manque ?"),
+    p("L’article 146 demande une facture régulière, établie au nom de l’acheteur, avec les indications des paragraphes III et VIII. L’article 11-III refuse la déduction des achats, travaux et prestations qui ne sont pas justifiés par une telle pièce. La réintégration notifiée ne devient définitive que si les renseignements manquants ne sont pas complétés pendant la procédure des articles 220 ou 221."),
+    p("L’article 106-I-9° ferme le droit à déduction de la TVA sur les achats non justifiés par une facture conforme à l’article 146. L’article 119-I vise les factures des opérations soumises à la TVA. L’article 119-II rend redevable celui qui mentionne la taxe, du seul fait de la facturer. L’article 198 ter, lui, vise seulement l’article 145-VIII : 100 dirhams par omission ou inexactitude sur l’ICE. Ce montant ne s’étend pas, dans le texte lu, à chaque autre case vide."),
+    {
+      type: "callout",
+      tone: "accountant",
+      title: "À vérifier avec votre expert-comptable",
+      paragraphs: [[
+        "La déduction d’une charge ou d’une TVA dépend de la situation du client, du régime et de la pièce réellement détenue. Les articles cités décrivent des règles. Ils ne disent pas, à eux seuls, ce qu’un contrôle retiendra dans votre dossier. Faites relire vos modèles de facture.",
+      ]],
+    },
+    h2("exemple-fictif", "Exemple fictif annoté"),
+    p("L’exemple qui suit est fictif. Les noms, adresses et identifiants n’existent pas. Le calcul utilise le taux normal de 20 % prévu à l’article 99-A, pour une marchandise qui n’est pas présentée comme relevant du 99-B. Vingt ramettes à 25,00 dirhams hors taxe font 500,00. La TVA à 20 % fait 100,00. Le total fait 600,00. Hors taxe plus TVA égale toutes taxes comprises."),
+    {
+      type: "example",
+      kicker: "Exemple fictif",
+      title: "Facture de démonstration FAC-DEMO-0001",
+      note: "Aucun de ces identifiants n’est un ICE, un IF ou une taxe professionnelle réels. L’article 145 ne fixe pas ici le nombre de caractères de l’ICE.",
+      rows: [
+        { label: "Vendeur", value: "Atelier des Oliviers, Casablanca", annotation: "145-III-1°. Société inventée." },
+        { label: "IF et taxe professionnelle", value: "IF 00000000 · taxe professionnelle 00000000", annotation: "145-III-2°. Numéros fictifs." },
+        { label: "ICE du vendeur", value: "000000000000000", annotation: "145-VIII. Démonstration, sans existence réelle." },
+        { label: "Date", value: "3 novembre 2026", annotation: "145-III-3°, date de l’opération." },
+        { label: "Client", value: "Librairie du Jardin, Rabat · ICE 000000000000000", annotation: "145-III-4°. Client inventé." },
+        { label: "Opération", value: "20 ramettes × 25,00 MAD", annotation: "145-III-5°. Prix, quantité, nature." },
+        { label: "Hors taxe", value: "500,00 MAD", annotation: "20 × 25,00. Calcul de l’exemple." },
+        { label: "TVA", value: "100,00 MAD, soit 20 %", annotation: "145-III-6° et taux normal, article 99-A." },
+        { label: "Total", value: "600,00 MAD", annotation: "500,00 + 100,00. Contrôle du calcul." },
+        { label: "Paiement", value: "Virement VIR-DEMO-0001", annotation: "145-III-7°. Référence fictive." },
+        { label: "Numéro", value: "FAC-DEMO-0001", annotation: "Série continue illustrée. Préfixe non imposé." },
+      ],
+    },
+    p("Si l’opération est listée à l’article 99-B, le taux lu est de 10 %. Si elle relève des articles 91, 92 ou 94, la mention de taxe est remplacée par l’exonération ou le régime suspensif."),
+    h2("checklist", "Check-list avant d’envoyer la facture"),
+    p("Relisez la pièce avant l’envoi. Cochez seulement ce que vous voyez sur le document, pas ce que le logiciel est censé faire."),
+    {
+      type: "checklist",
+      title: "Avant envoi",
+      items: [
+        "Le numéro suit la série continue.",
+        "Identité, identifiant fiscal et taxe professionnelle sont ceux de votre entreprise.",
+        "L’ICE du vendeur vient de vos documents officiels.",
+        "La date de l’opération est indiquée.",
+        "Le client a un nom et une adresse ; son ICE figure si le 145-III-4° s’applique.",
+        "Chaque ligne a une nature, une quantité et un prix.",
+        "La TVA est distincte, ou l’exonération la remplace.",
+        "Hors taxe, TVA et total se recalculent sans écart.",
+        "Le mode de paiement et ses références sont écrits.",
+        "Le double peut être conservé dix ans, article 211.",
+      ],
+    },
+    h2("erreurs-frequentes", "Erreurs fréquentes"),
+    p("Un numéro hors série continue casse la suite demandée par le chapeau de l’article 145-III. Les articles lus ici ne chiffrent pas l’amende de ce seul trou. Une TVA fondue dans le prix, sans montant distinct, manque au 6° lorsque l’opération n’est ni exonérée ni en régime suspensif. Un taux recopié sur un autre site est une autre erreur : l’article 99 de l’édition 2026 indique 20 % et 10 %, l’article 100 est abrogé, et les taux de 7 % ou 14 % n’y ont pas été relevés. L’article 247 contient des dispositions transitoires."),
+    p("Oublier l’ICE du vendeur est la mention que l’article 198 ter chiffre : 100 dirhams par omission ou inexactitude. Mentionner la TVA à tort rend redevable du seul fait de la facturation (article 119-II). Le ticket de caisse ne remplace la facture qu’entre une entreprise et un particulier, pour une vente de produits. Un PDF ou un XML n’est pas, dans les textes lus le 3 novembre 2026, une transmission à l’administration."),
+    h2("facture-electronique", "Où en est la facture électronique ?"),
+    p("Le paragraphe IX vise l’impôt sur les sociétés, l’impôt sur le revenu professionnel au réel ou au simplifié, et les assujettis à la TVA. Ils doivent disposer d’un système informatique de facturation répondant aux critères de l’administration, conformément aux paragraphes III et IV. Les modalités sont renvoyées à un texte réglementaire, par secteur."),
+    p("Ce paragraphe ne fixe ni date, ni seuil, ni format, ni amende. La loi de finances n° 50-25, au Bulletin officiel n° 7465 bis, modifie l’article 145 à compter du 1er janvier 2026 sur deux autres points : comptabilité aussi sous format électronique, et adresse électronique. Dans les textes lus le 3 novembre 2026, le décret du paragraphe IX n’est pas reproduit. Aucune date d’envoi des factures vers la DGI n’y figure. Ne recopiez pas une date lue dans la presse."),
+    {
+      type: "callout",
+      tone: "product",
+      title: "Avec Felexia",
+      paragraphs: [[
+        "Dans ESSENTIEL, vous établissez les factures de vente, les avoirs et les règlements. Le PDF reprend le logo, les coordonnées et l’ICE lorsque vous les avez renseignés dans les paramètres. Vous vérifiez les mentions avant d’envoyer la pièce. ",
+        { href: "/logiciel-facturation-maroc", label: "Le logiciel de facturation au Maroc" },
+        " décrit ce quotidien. La génération PDF/XML, l’émission et l’archivage sont inclus après activation par l’administrateur. Felexia est prêt pour la facture électronique au sens de ce parcours documentaire. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. Les fonctions seront mises à jour à la publication des textes.",
+      ], [
+        `ESSENTIEL est affiché à ${offer.essentielPrice}. ${offer.trialSentence}`,
+      ]],
+    },
+    h2("conserver", "Combien de temps garder le double ?"),
+    p("L’article 211 demande aux contribuables, et aux personnes chargées d’opérer la retenue à la source, de conserver pendant dix ans, au lieu où ils sont imposés, les doubles des factures de vente ou des tickets de caisse, les pièces justificatives des dépenses et des investissements, ainsi que les documents comptables nécessaires au contrôle. Lorsque la comptabilité est tenue par procédé électronique, ou lorsqu’elle doit l’être sous format électronique selon l’article 145-I, ces documents sont conservés sur support électronique."),
+    p("Le paragraphe VI, pour le résultat net simplifié, parle des dix années suivant celle de l’établissement. Le point de départ se confirme avec votre conseil. La règle générale lue ici reste l’article 211."),
+  ],
+  questions: [
+    {
+      question: "Une facture sans ICE du vendeur est-elle suffisante ?",
+      answer: "L’article 145-VIII demande de mentionner l’ICE sur les factures délivrées aux clients. L’article 198 ter prévoit une amende de 100 dirhams par omission ou inexactitude relevée sur cette disposition. L’article 146 demande aussi cet ICE parmi les indications d’une facture régulière.",
+    },
+    {
+      question: "Faut-il l’ICE d’un particulier ?",
+      answer: "Pour une vente de produits ou de marchandises à des particuliers, le ticket de caisse peut tenir lieu de facture et la liste lue ne comprend pas l’ICE du client. Pour les autres factures, l’article 145-III-4° vise l’identifiant commun de l’entreprise du client. Un particulier peut ne pas en avoir : le cas se vérifie avec votre expert-comptable.",
+    },
+    {
+      question: "Quel taux de TVA écrire ?",
+      answer: "L’article 99 de l’édition 2026 fixe le taux à 20 % et à 10 % pour les opérations qu’il énumère. Les articles 91, 92 et 94 remplacent la mention de taxe par l’indication de l’exonération ou du régime suspensif. Le taux de votre ligne se vérifie dans le CGI.",
+    },
+    {
+      question: "Combien de temps conserver les doubles ?",
+      answer: "L’article 211 prévoit une conservation de dix ans, au lieu d’imposition, des doubles de factures de vente ou de tickets de caisse et des pièces justificatives. Le support peut être électronique lorsque l’article 145-I impose une comptabilité sous format électronique.",
+    },
+    {
+      question: "Felexia envoie-t-il la facture à la DGI ?",
+      answer: "Non. Le parcours couvre le PDF, le XML, l’émission et l’archivage après activation par l’administrateur. Felexia est prêt pour la facture électronique au sens de ce parcours. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée.",
+    },
+    {
+      question: "L’article 145 s’applique-t-il à l’auto-entrepreneur ?",
+      answer: "Le paragraphe XI écarte l’article 145 pour les personnes physiques au régime de la contribution professionnelle unique ou de l’auto-entrepreneur, sous réserve de l’adresse électronique prévue au paragraphe X. Cette checklist ne décrit pas leur facture.",
+    },
+  ],
+  cta: {
+    label: `Essayer Felexia ${offer.trial}, sans carte bancaire`,
+    href: "/login?mode=register",
+    note: `ESSENTIEL : ${offer.essentielPrice}, d’après les tarifs publiés. ${offer.trialSentence}`,
+  },
+  related: [
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+    { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
+    { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
+  ],
+  sources: [
+    { label: "Direction générale des impôts — page Documentation fiscale, édition du Code général des impôts 2026 listée au 30 décembre 2025", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },
+    { label: "Édition 2026 du CGI (fichier intitulé DGI, préambule : loi de finances n° 50-25 et Bulletin officiel n° 7465 bis). Articles 11-III, 91, 92, 94, 99, 106-I-9°, 119, 145, 146, 198 ter et 211. Copie PDF consultée : apsf.ma.", href: "https://apsf.ma/wp-content/uploads/2026/01/DGI_CODE-GENERAL-DES-IMPOTS-CGI-2026.pdf", consulted },
+    { label: "Bulletin officiel n° 7465 bis du 16 décembre 2025 — dahir n° 1-25-67 du 10 décembre 2025 portant promulgation de la loi de finances n° 50-25, article 7 (articles 99 et 145 du CGI)", href: "https://www.sgg.gov.ma/BO/FR/2873/2025/BO_7465-bis_fr.pdf", consulted },
+    { label: "Felexia — page Logiciel de facturation au Maroc, pour le périmètre du produit cité dans l’encadré", href: "/logiciel-facturation-maroc", consulted },
+    { label: "Felexia — page Tarifs, pour le prix ESSENTIEL et la durée d’essai", href: "/pricing", consulted },
+  ],
+  disclaimer: "Contenu informatif, non contractuel. Les règles évoluent : vérifiez auprès de l’administration fiscale ou de votre expert-comptable. État des textes lus le 3 novembre 2026. Mis à jour le 3 novembre 2026.",
+};
+
+export default article;

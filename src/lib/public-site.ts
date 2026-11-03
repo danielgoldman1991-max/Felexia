@@ -9,6 +9,7 @@ export const PUBLIC_SITE_PATHS = [
   "/logiciel-facturation-maroc",
   "/facturation-electronique-maroc",
   "/blog",
+  "/blog/mentions-obligatoires-facture-maroc",
   "/blog/choisir-entre-essentiel-et-pro",
   "/blog/gestion-de-stock-au-maroc",
   "/mentions-legales",

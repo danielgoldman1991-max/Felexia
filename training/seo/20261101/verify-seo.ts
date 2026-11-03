@@ -8,6 +8,8 @@ import { PUBLIC_SITE_ORIGIN, PUBLIC_SITE_PATHS, isPublicSitePath } from "../../.
 import { ROOT_METADATA, canonicalUrl, createPublicMetadata, getFaqPageStructuredData, getSiteStructuredData, getSoftwareApplicationStructuredData, readGoogleSiteVerification, serializeJsonLd, SEO_CONTENT_UPDATED_AT } from "../../../src/lib/seo";
 import { HOME_FAQS } from "../../../src/lib/content/public-faq";
 import { GUIDES } from "../../../src/lib/content/guides";
+import { BLOG_ARTICLES } from "../../../src/lib/content/blog";
+import { articleWordCount } from "../../../src/lib/content/blog/text";
 import sitemap from "../../../src/app/sitemap";
 import robots from "../../../src/app/robots";
 
@@ -18,7 +20,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 12 && new Set(PUBLIC_SITE_PATHS).size === 12, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 13 && new Set(PUBLIC_SITE_PATHS).size === 13, "Public routes are explicit and unique");
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);
@@ -67,6 +69,21 @@ async function main() {
     check(isPublicSitePath(guide.path), "Guide is on the public allowlist: " + guide.path);
     check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
   }
+  const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
+  check(BLOG_ARTICLES.length === 3 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  for (const article of BLOG_ARTICLES) {
+    const words = articleWordCount(article);
+    const corpus = JSON.stringify(article);
+    check(words >= 1200 && words <= 1800, `Article length stays in the editorial range (${words}): ` + article.slug);
+    check(article.title.length <= 60, "Article title stays within 60 characters: " + article.slug);
+    check(article.description.length >= 140 && article.description.length <= 155, "Article description stays within 140–155 characters: " + article.slug);
+    check(article.cover.alt.length >= 80 && article.cover.alt.length <= 125, "Cover alt text stays descriptive: " + article.slug);
+    check(article.questions.length >= 4 && article.questions.length <= 6, "Article FAQ stays within 4–6 questions: " + article.slug);
+    check(statSync(resolve("public" + article.cover.webp)).size <= 150_000 && statSync(resolve("public" + article.cover.avif)).size <= 150_000, "Cover files stay under 150 KB: " + article.slug);
+    check(forbidden.every((phrase) => !corpus.toLowerCase().includes(phrase.toLowerCase())), "Article avoids forbidden compliance claims: " + article.slug);
+  }
+  const mentions = BLOG_ARTICLES.find((article) => article.slug === "mentions-obligatoires-facture-maroc");
+  check(mentions?.sources.some((source) => source.href.includes("tax.gov.ma")) && mentions?.sources.some((source) => source.href.includes("sgg.gov.ma")), "Invoice article cites the DGI page and the official bulletin");
   const footer = readFileSync(resolve("src/components/landing/LandingFooter.tsx"), "utf8");
   check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("TODO") && !/linkedin\.com|facebook\.com/i.test(footer), "Footer links only the known Instagram profile");
   const heroWebp = statSync(resolve("public/images/felexia-horizon-v1.webp")).size;

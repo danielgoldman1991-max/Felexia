@@ -115,6 +115,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       note: "Sans carte bancaire. La création du compte ouvre ensuite la confirmation de votre entreprise.",
     },
     related: [
+      { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
       { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
       { href: "/essentiel", label: "Détail de l’offre ESSENTIEL" },
       { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
@@ -185,6 +186,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
     },
     related: [
       { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+      { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
       { href: "/pricing", label: "Voir les tarifs" },
       { href: "/blog/choisir-entre-essentiel-et-pro", label: "ESSENTIEL ou PRO" },
       { href: "/pro", label: "Périmètre de l’ERP PRO" },
@@ -192,146 +194,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
   },
 ];
 
-export const ARTICLES: readonly PublicGuide[] = [
-  {
-    kind: "article",
-    slug: "choisir-entre-essentiel-et-pro",
-    path: "/blog/choisir-entre-essentiel-et-pro",
-    title: "ESSENTIEL ou PRO : logiciel de gestion PME au Maroc | Felexia",
-    description: "Comparer ESSENTIEL et l’ERP PRO pour une PME au Maroc : facturation, trésorerie, stock, utilisateurs et mode d’achat. Prix ESSENTIEL affichés, PRO sur devis.",
-    eyebrow: "Guide · Choisir une offre",
-    h1: "ESSENTIEL ou PRO : quel logiciel de gestion pour une PME au Maroc ?",
-    introduction: "Les deux offres partent du même produit. ESSENTIEL couvre la gestion quotidienne et s’essaie sans carte. PRO ajoute l’ERP plus large et se prépare sur devis. Voici les différences réellement décrites sur le site, sans chiffre inventé.",
-    publishedAt: "2026-11-03",
-    sections: [
-      {
-        heading: "ESSENTIEL, pour facturer et suivre la trésorerie",
-        paragraphs: [
-          `ESSENTIEL rassemble clients, fournisseurs, factures de vente et d’achat, avoirs, règlements, comptes bancaires, caisses, mouvements de trésorerie et journaux. Le tarif public est ${monthly} HT MAD par mois ou ${yearly} HT MAD par an, pour 1 entreprise, jusqu’à ${users} utilisateurs, ${documents} documents commerciaux par mois et ${storage} Go.`,
-          `Les nouveaux essais durent ${DEFAULT_TRIAL_DURATION_LABEL} et ne demandent pas de carte bancaire. À l’échéance, un abonnement actif est nécessaire pour poursuivre les créations et modifications. Les données restent consultables selon les droits de chaque compte.`,
-        ],
-      },
-      {
-        heading: "PRO, pour relier le stock et le reste de l’ERP",
-        paragraphs: [
-          `PRO inclut ESSENTIEL et ajoute les prospects, devis, commandes, livraisons et retours, les commandes et réceptions fournisseurs, les emplacements et mouvements de stock, le plan comptable, le grand livre, la balance, la préparation TVA, les prévisions de trésorerie et les dossiers du personnel. La limite affichée est de ${proUsers} utilisateurs et ${proStorage} Go.`,
-          "Aucun montant PRO n’est publié. La mise en place se cadre avec l’équipe Felexia. L’essai public gratuit ne donne pas accès à PRO.",
-        ],
-      },
-      {
-        // TODO(juridique): les phrases sur la TVA, la paie et la facture électronique reprennent le site. Les faire relire avant de les citer comme un conseil.
-        heading: "Ce qu’il ne faut pas confondre avec une obligation remplie",
-        paragraphs: [
-          "Les journaux, la préparation TVA et la paie de base aident à rassembler des données. Ils ne remplacent pas l’expert-comptable, le conseil fiscal ou le conseil social. La paie livrée n’est pas un cycle de paie complet.",
-          "La facturation électronique PDF/XML et l’archivage sont inclus dans les deux offres après activation. Cela ne signifie pas une connexion officielle à la DGI ni une signature qualifiée.",
-        ],
-      },
-      {
-        heading: "Une façon simple de trancher",
-        paragraphs: [
-          "Choisissez ESSENTIEL si le besoin immédiat est de facturer, d’enregistrer les règlements et de suivre la banque ou la caisse. Demandez un devis PRO si plusieurs personnes doivent enchaîner devis, livraisons, achats, stock ou dossiers du personnel.",
-          "Dans les deux cas, indiquez votre activité, le nombre d’utilisateurs et le parcours prioritaire. Le devis PRO précise les fonctions utilisables. L’inventaire physique, l’agenda et les écrans signalés « à venir » ne sont pas des fonctions opérationnelles.",
-        ],
-      },
-    ],
-    questions: [
-      {
-        question: "Puis-je commencer par ESSENTIEL puis passer à PRO ?",
-        answer: "Oui. L’essai et l’abonnement en ligne concernent ESSENTIEL. PRO s’active sur devis. L’entreprise conserve son espace et ses données lors de cette activation.",
-      },
-      {
-        question: "Où voir le prix exact ?",
-        answer: `Le prix ESSENTIEL affiché sur le site est ${monthly} HT MAD par mois ou ${yearly} HT MAD par an. PRO n’a pas de prix en ligne : la page tarifs indique « sur devis ».`,
-      },
-    ],
-    cta: {
-      label: "Voir les tarifs",
-      href: "/pricing",
-      note: "ESSENTIEL s’essaie sans carte. PRO ouvre un brouillon d’e-mail, à envoyer pour transmettre la demande.",
-    },
-    related: [
-      { href: "/essentiel", label: "Offre ESSENTIEL" },
-      { href: "/pro", label: "Offre PRO" },
-      { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation" },
-      { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock" },
-    ],
-  },
-  {
-    kind: "article",
-    slug: "gestion-de-stock-au-maroc",
-    path: "/blog/gestion-de-stock-au-maroc",
-    title: "Logiciel de gestion de stock au Maroc | Felexia PRO",
-    description: "Ce que couvre la gestion de stock dans l’ERP Felexia PRO : emplacements, mouvements, réceptions et livraisons. Périmètre sur devis, sans inventaire physique annoncé comme disponible.",
-    eyebrow: "Guide · Stock",
-    h1: "Logiciel de gestion de stock pour une PME au Maroc",
-    introduction: "Le suivi des emplacements et des mouvements de stock fait partie de Felexia PRO, pas de la page de tarifs ESSENTIEL. L’article décrit uniquement les parcours déjà présentés sur le site : entrées, sorties, réceptions et livraisons.",
-    publishedAt: "2026-11-03",
-    sections: [
-      {
-        heading: "Ce que PRO montre sur le stock",
-        paragraphs: [
-          "PRO permet de retrouver les emplacements de stockage, les entrées, les sorties, les transferts et l’historique des mouvements. L’objectif décrit est de rapprocher les quantités du terrain et les documents de gestion.",
-          `Ce périmètre se cadre sur devis. La limite publique de l’offre est de ${proUsers} utilisateurs et ${proStorage} Go de stockage, avec le socle ESSENTIEL inclus. Aucun prix de PRO n’est affiché.`,
-        ],
-        points: [
-          "Emplacements de stockage",
-          "Entrées, sorties et transferts",
-          "Historique des mouvements",
-          "Réceptions liées aux commandes fournisseurs",
-          "Livraisons et retours clients",
-        ],
-      },
-      {
-        heading: "Le lien avec les achats et les ventes",
-        paragraphs: [
-          "Côté achats, PRO ajoute les commandes fournisseurs et les réceptions aux factures et règlements déjà présents dans ESSENTIEL. Côté ventes, le devis peut devenir une commande, puis une livraison ou un retour.",
-          "ESSENTIEL reste le logiciel de facturation et de trésorerie : clients, factures, avoirs et encaissements. Il ne présente pas, sur ses pages, le suivi des emplacements et des mouvements.",
-        ],
-      },
-      {
-        heading: "Ce qui n’est pas encore un inventaire utilisable",
-        paragraphs: [
-          "L’inventaire physique est signalé « à venir ». Il ne faut pas le compter comme une fonction utilisable dans un devis. Les écrans marqués « à venir » sont exclus des opérations disponibles.",
-          "Les quantités suivies aident le pilotage. Elles ne dispensent pas de contrôler les écarts sur le terrain ni de valider le traitement comptable des stocks avec votre conseil.",
-        ],
-      },
-      {
-        heading: "Comment préparer la demande",
-        paragraphs: [
-          "Indiquez le nombre d’emplacements, qui réceptionne, qui livre, et si vous avez besoin des devis et des commandes en plus des factures. Ces éléments permettent de voir si le parcours PRO correspond à l’activité, de négoce ou autre.",
-          `Pour seulement facturer et suivre les règlements, ESSENTIEL suffit à ${monthly} HT MAD par mois, avec ${DEFAULT_TRIAL_DURATION_LABEL} d’essai sans carte.`,
-        ],
-      },
-    ],
-    questions: [
-      {
-        question: "La gestion de stock est-elle dans ESSENTIEL ?",
-        answer: "Les pages ESSENTIEL décrivent la facturation, les achats, les règlements et la trésorerie. Les emplacements, mouvements, réceptions et livraisons sont présentés dans PRO.",
-      },
-      {
-        question: "Puis-je faire un inventaire physique ?",
-        answer: "Non. L’inventaire physique reste un écran « à venir ». Il n’est pas une fonction opérationnelle à inclure dans le devis.",
-      },
-    ],
-    cta: {
-      label: "Demander un devis PRO",
-      href: "/pro",
-      note: "La page PRO ouvre le brouillon de message. Il faut encore envoyer l’e-mail pour transmettre la demande.",
-    },
-    related: [
-      { href: "/pro", label: "Périmètre PRO" },
-      { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation" },
-      { href: "/blog/choisir-entre-essentiel-et-pro", label: "ESSENTIEL ou PRO" },
-      { href: "/pricing", label: "Tarifs" },
-    ],
-  },
-];
-
-export const GUIDES: readonly PublicGuide[] = [...LANDING_GUIDES, ...ARTICLES];
-
-export function getArticle(slug: string): PublicGuide | undefined {
-  return ARTICLES.find((article) => article.slug === slug);
-}
+export const GUIDES: readonly PublicGuide[] = [...LANDING_GUIDES];
 
 export function getGuide(path: PublicGuide["path"]): PublicGuide {
   const guide = GUIDES.find((item) => item.path === path);
