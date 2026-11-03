@@ -31,8 +31,6 @@ export function isOperatorPathAllowed(href: string, method = "GET"): boolean {
   if (/^\/(?:facturation\/(?:factures|paiements|avoirs)|achats\/(?:factures|paiements|fournisseurs|avoirs))(?:\/|$)/.test(path)) return true;
   if (path === "/facturation/balance-agee") return read;
   if (/^\/vente(?:\/|$)/.test(path)) return true;
-  if (/^\/stock(?:\/|$)/.test(path)) return true;
-  if (/^\/articles(?:\/|$)/.test(path)) return read;
   if (["/tiers/clients", "/tiers/fournisseurs"].includes(path)) return true;
   if (path === "/tiers/new") return ["customer", "supplier", "both", null].includes(url.searchParams.get("type"));
   if (/^\/tiers\/[0-9a-f-]{36}(?:\/edit)?$/i.test(path)) return true;
