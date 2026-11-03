@@ -84,12 +84,13 @@ async function main() {
   check('ICE mismatch never falls back to the first company', () => {
     assert.equal(parse(found, '000035228000027').status, 'not_found');
   });
-  check('Unrelated public multi-result first card is not returned', () => {
+  check('Complete-word public matches precede prefix suggestions instead of selecting the first source card', () => {
     const result = parse(fixture('managepro-multi.html'), 'MAROC TELECOM');
     assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
-    assert.equal(result.candidates.length, 3); assert.equal(result.candidateCount, 3);
+    assert.equal(result.candidates.length, 4); assert.equal(result.candidateCount, 4);
     assert.equal(result.candidatesTruncated, false);
-    assert.ok(result.candidates.every(company => /\bTELECOM\b/.test(company.raisonSociale) && /\bMAROC\b/.test(company.raisonSociale)));
+    assert.ok(result.candidates.slice(0, 3).every(company => /\bTELECOM\b/.test(company.raisonSociale) && /\bMAROC\b/.test(company.raisonSociale)));
+    assert.equal(result.candidates[3].raisonSociale, "STE MAROCAINE D'ETUDES DE TELECOMMUNICATIONS ET AUTRES SERVICES");
     assert.ok(result.candidates.every(company => /^\d{15}$/.test(company.ice) && company.found && company.source === 'managepro'));
   });
   const second = found.replaceAll('000035228000026', '000035228000027');
@@ -102,12 +103,49 @@ async function main() {
   check('A partial last word can supply a nearby candidate without arbitrary inner-word matching', () => {
     assert.equal(parse(found, 'X2K').status, 'found');
     assert.equal(parse(found, 'X2').status, 'invalid_input');
-    assert.equal(parse(found, 'X2K CON').result.ice, '000035228000026');
+    const prefix = parse(found, 'X2K CON');
+    assert.equal(prefix.status, 'ambiguous'); assert.equal(prefix.result, undefined);
+    assert.equal(prefix.candidates.length, 1); assert.equal(prefix.candidates[0].ice, '000035228000026');
     assert.equal(parse(found, 'NSEIL').status, 'not_found');
     assert.equal(parse(found, '...').status, 'not_found');
   });
   const syntheticCard = (name, index) => found.replaceAll('X2K CONSEIL', name)
     .replaceAll('000035228000026', String(900000000000000n + BigInt(index)));
+  const addioui = found.replaceAll('X2K CONSEIL', 'ADDIOUI NEGOCE')
+    .replaceAll('000035228000026', '002173923000040');
+  check('A prefix in the first word exposes ADDIOUI NEGOCE as one explicit suggestion, never an exact ADDI identity', () => {
+    const result = parse(addioui, 'ADDI NEGOCE');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
+    assert.equal(result.candidateCount, 1); assert.equal(result.candidatesTruncated, false);
+    assert.equal(result.candidates.length, 1);
+    assert.equal(result.candidates[0].raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(result.candidates[0].ice, '002173923000040');
+    assert.equal(result.candidates[0].query, 'ADDI NEGOCE');
+    assert.ok(/proche/.test(result.message));
+  });
+  check('Prefixes can occur in any word order while exact ADDIOUI NEGOCE remains a confirmed name', () => {
+    const reversed = parse(addioui, 'NEGOCE ADDI');
+    assert.equal(reversed.status, 'ambiguous'); assert.equal(reversed.result, undefined);
+    assert.equal(reversed.candidates[0].raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(parse(addioui, 'ADDIOUI NEGOCE').result.ice, '002173923000040');
+    assert.equal(parse(addioui, 'NEGOCE ADDIOUI').result.ice, '002173923000040');
+  });
+  check('Prefix suggestions require every word and at least three characters for each incomplete word', () => {
+    for (const query of ['AD NEGOCE', 'ADDI NE', 'ADDI SERVICES', 'DDI NEGOCE', 'ADDINEGOCE']) {
+      const result = parse(addioui, query);
+      assert.equal(result.status, 'not_found'); assert.equal(result.result, undefined); assert.equal(result.candidates, undefined);
+    }
+    const allPrefixes = parse(addioui, 'ADD NEG');
+    assert.equal(allPrefixes.status, 'ambiguous'); assert.equal(allPrefixes.candidates[0].ice, '002173923000040');
+  });
+  check('Complete words rank before prefixes and exact ICE never uses the nearby name', () => {
+    const exactAddi = syntheticCard('ADDI NEGOCE', 51);
+    const result = parse(addioui + exactAddi, 'ADDI NEGOCE');
+    assert.equal(result.status, 'ambiguous');
+    assert.deepEqual(Array.from(result.candidates, company => company.raisonSociale), ['ADDI NEGOCE', 'ADDIOUI NEGOCE']);
+    assert.equal(parse(addioui, '002173923000040').result.raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(parse(addioui, '002173923000041').status, 'not_found');
+  });
   const suggestions = [
     syntheticCard('ALPHA CONSEIL MAROC', 1),
     syntheticCard('CONSEILS MAROC', 2),
@@ -289,12 +327,19 @@ async function main() {
   check('Ambiguous results do not enter the cache', () => assert.equal(noWrite.state.writes.length, 0));
   const digest = query => crypto.createHash('sha256').update(query).digest('hex');
   const oldNameKey = digest('raison_sociale:X2K CONSEIL');
-  const newNameKey = digest('name-candidates-v1:raison_sociale:X2K CONSEIL');
+  const newNameKey = digest('name-candidates-v2:raison_sociale:X2K CONSEIL');
   db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, oldNameKey); providerCalls = 0;
   await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
   check('The versioned name cache bypasses old single-result entries that could hide nearby identities', () => {
     assert.equal(db.state.queryHash, newNameKey); assert.equal(providerCalls, 1);
     assert.notEqual(newNameKey, oldNameKey);
+  });
+  const previousNameKey = digest('name-candidates-v1:raison_sociale:X2K CONSEIL');
+  db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, previousNameKey); providerCalls = 0;
+  await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
+  check('The current cache namespace cannot reuse a prior-version confirmed prefix identity', () => {
+    assert.equal(db.state.queryHash, newNameKey); assert.equal(providerCalls, 1);
+    assert.notEqual(newNameKey, previousNameKey);
   });
   db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, newNameKey); providerCalls = 0;
   const currentNameHit = await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });

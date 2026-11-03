@@ -29,9 +29,9 @@ function matchingName(value: string): string {
   return normalizeCompanyName(value).normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 }
 
-/** No edit-distance guess: every word must match, with a prefix allowed only
- * for the last typed word (at least three characters). A one-word search can
- * match anywhere in a legal name, not only at the beginning.
+/** No edit-distance guess: every word must match a complete word or a prefix
+ * of at least three characters. A word can match anywhere in a legal name.
+ * Prefix-only matches remain suggestions, even when there is only one.
  */
 function nameMatchRank(name: string, requested: string): number | null {
   if (!requested) return null;
@@ -39,8 +39,8 @@ function nameMatchRank(name: string, requested: string): number | null {
   const requestedWords = requested.split(" ");
   const words = name.split(" ");
   const allComplete = requestedWords.every((word) => words.includes(word));
-  const allMatch = requestedWords.every((word, index) => words.includes(word) ||
-    (index === requestedWords.length - 1 && word.length >= 3 && words.some((value) => value.startsWith(word))));
+  const allMatch = requestedWords.every((word) => words.includes(word) ||
+    (word.length >= 3 && words.some((value) => value.startsWith(word))));
   if (!allMatch) return null;
   if (allComplete) return name.startsWith(`${requested} `) ? 1 : 2;
   return name.startsWith(requested) ? 3 : 4;
@@ -116,12 +116,16 @@ export function parseManageProResults(html: string, query: string): CompanyLooku
     return true;
   });
   // Keep nearby name identities visible even when one legal name is exact.
-  // Only a single deduplicated match can open the direct confirmation.
+  // Only one complete-word match can open the direct confirmation; a lone
+  // prefix match still needs explicit selection as a nearby identity.
   const matches = unique.map((entry) => entry.company);
   if (!matches.length) return { status: "not_found", message: "Aucun résultat confirmé pour cette recherche." };
-  if (matches.length > 1) return {
+  const prefixOnlyMatch = parsed.type === "raison_sociale" && unique.some((entry) => entry.rank >= 3);
+  if (matches.length > 1 || prefixOnlyMatch) return {
     status: "ambiguous",
-    message: "Plusieurs entreprises correspondent à votre recherche. Sélectionnez celle qui vous concerne.",
+    message: matches.length === 1
+      ? "Une entreprise proche de votre recherche est proposée. Vérifiez son nom et ses identifiants avant de la choisir."
+      : "Plusieurs entreprises correspondent à votre recherche. Sélectionnez celle qui vous concerne.",
     candidates: matches.slice(0, MAX_CANDIDATES),
     // This count concerns parsed source cards, not the entire company registry.
     candidateCount: matches.length,

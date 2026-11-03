@@ -20,6 +20,7 @@ let effects = new Map();
 let pendingEffects = [];
 const timers = new Map();
 let errorToasts = [];
+let successToasts = [];
 class ClockDate extends Date {
   constructor(...args) { super(...(args.length ? args : [clockNow])); }
   static now() { return clockNow; }
@@ -76,7 +77,7 @@ const parser = load("src/lib/ice/ice.ts");
 const component = load("src/components/onboarding/CompanyLookupStep.tsx", {
   react,
   "react/jsx-runtime": { jsx, jsxs: jsx },
-  "sonner": { toast: { success() {}, error(message) { errorToasts.push(message); } } },
+  "sonner": { toast: { success(message) { successToasts.push(message); }, error(message) { errorToasts.push(message); } } },
   "lucide-react": new Proxy({}, { get: (_target, name) => "icon:" + String(name) }),
   "@/lib/ice/ice": parser,
   "@/components/ui/button": { Button: "button" },
@@ -119,7 +120,7 @@ const resultModal = tree => find(tree, node => typeof node.type === "function" &
 function enter(tree) { input(tree).props.onKeyDown({ key: "Enter", preventDefault() {} }); }
 function query(tree, value) { input(tree).props.onChange({ target: { value } }); return render(); }
 function unmount() { for (const effect of effects.values()) effect.cleanup?.(); effects = new Map(); }
-function reset() { unmount(); slots = []; cursor = 0; requests = []; manual = []; confirmed = []; errorToasts = []; return render(); }
+function reset() { unmount(); slots = []; cursor = 0; requests = []; manual = []; confirmed = []; errorToasts = []; successToasts = []; return render(); }
 function advance(milliseconds) { clockNow += milliseconds; for (const timer of [...timers.values()]) timer.callback(); return render(); }
 function ok(condition, label) { assert.ok(condition, label); checks.push(label); }
 async function flush() { for (let index = 0; index < 10; index++) await Promise.resolve(); }
@@ -267,6 +268,16 @@ async function main() {
   button(tree, "Rechercher").props.onClick(); tree = render();
   ok(!candidateList(tree) && !resultModal(tree) && input(tree).props.disabled, "Starting another search removes stale choices while the new request is pending");
   resolveSearch(response({ status: "not_found", message: "Aucun résultat confirmé." })); await flush(); tree = render();
+
+  const addiSuggestion = { ...candidate("002173923000040", "ADDIOUI NEGOCE"), query: "ADDI NEGOCE", rc: "17507", villeRc: "Inzegane" };
+  fetchImplementation = async () => response({ status: "ambiguous", candidates: [addiSuggestion], candidateCount: 1 });
+  tree = query(reset(), "ADDI NEGOCE"); enter(tree); await flush(); tree = render();
+  ok(candidateButtons(tree).length === 1 && text(statusNotice(tree)).includes("1 entreprise proposée"), "A sole nearby ADDIOUI identity is displayed as a singular suggestion for ADDI NEGOCE");
+  ok(!resultModal(tree) && confirmed.length === 0 && !successToasts.length, "A sole partial-name suggestion neither opens details nor announces an exact match automatically");
+  candidateButtons(tree)[0].props.onClick(); tree = render();
+  ok(resultModal(tree)?.props.result.raisonSociale === "ADDIOUI NEGOCE" && resultModal(tree).props.result.ice === "002173923000040", "Choosing the nearby company retains its actual legal name and ICE");
+  resultModal(tree).props.onConfirm(); tree = render();
+  ok(confirmed.length === 1 && confirmed[0].result.raisonSociale === "ADDIOUI NEGOCE" && confirmed[0].result.ice === "002173923000040" && requests.length === 1, "Confirming a nearby company prefills the actual source identity without renaming it to the query");
 
   const many = Array.from({ length: 12 }, (_, index) => candidate(String(index + 1).padStart(15, "0"), "CONSEIL " + (index + 1)));
   fetchImplementation = async () => response({ status: "ambiguous", candidates: [null, { ...first, ice: "123" }, { ...first, raisonSociale: "" }, { ...first, found: false }, many[0], ...many], candidateCount: 12, candidatesTruncated: true });

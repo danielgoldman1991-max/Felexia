@@ -167,7 +167,7 @@ export async function searchCompany(
 
   // Earlier name matching could keep one result where the new matching rules
   // offer several choices. Do not let those entries hide the candidate list.
-  const cacheNamespace = parsed.type === "raison_sociale" ? "name-candidates-v1:" : "";
+  const cacheNamespace = parsed.type === "raison_sociale" ? "name-candidates-v2:" : "";
   const cacheKey = hashQuery(`${cacheNamespace}${parsed.type}:${parsed.normalizedValue}`);
   const cached = await getCachedCompanySearch(
     supabase, cacheKey,
