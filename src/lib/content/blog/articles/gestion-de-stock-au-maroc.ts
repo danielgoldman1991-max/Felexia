@@ -8,7 +8,7 @@ const article: BlogArticle = {
   slug: "gestion-de-stock-au-maroc",
   path: "/blog/gestion-de-stock-au-maroc",
   title: "Gestion de stock au Maroc avec Felexia PRO | Felexia",
-  description: "Gestion de stock au Maroc : emplacements, mouvements, réceptions et livraisons dans Felexia PRO, sur devis. L’inventaire physique reste à venir.",
+  description: "Gestion de stock au Maroc : emplacements, mouvements, réceptions et livraisons dans Felexia PRO. Un guide clair pour votre PME, proposé sur devis.",
   h1: "Logiciel de gestion de stock pour une PME au Maroc",
   category: "stock-achats",
   publishedAt: "2026-11-03",
@@ -24,12 +24,12 @@ const article: BlogArticle = {
   essentials: [
     "Le suivi des emplacements et des mouvements de stock est décrit dans Felexia PRO, pas sur les pages ESSENTIEL.",
     "PRO couvre les entrées, les sorties, les transferts, l’historique, les réceptions liées aux commandes fournisseurs, les livraisons et les retours clients.",
-    "PRO est sur devis. L’essai public ne donne pas accès à ce périmètre. Tout ESSENTIEL, facturation comprise, reste inclus.",
+    "PRO se prépare sur devis et inclut tout ESSENTIEL, facturation comprise. L’essai gratuit ouvre d’abord ESSENTIEL.",
     "L’inventaire physique est signalé « à venir ». Il ne se compte pas comme une fonction utilisable.",
   ],
   introduction: [
     "Un logiciel de gestion de stock, pour une PME au Maroc, sert à savoir où sont les articles et quels documents ont fait entrer ou sortir une quantité. Dans Felexia, ce suivi fait partie de PRO. Il ne figure pas dans le descriptif public d’ESSENTIEL. ",
-    "L’article ne décrit que les parcours déjà écrits sur le site : emplacements, mouvements, réceptions et livraisons. Aucun pourcentage de perte, aucun coût de rupture et aucune méthode de valorisation ne sont ajoutés. Un exemple fictif montre comment les quantités s’enchaînent.",
+    "Vous y retrouvez les emplacements, les mouvements, les réceptions et les livraisons. Un exemple fictif montre comment les quantités s’enchaînent, sans méthode de valorisation.",
   ],
   blocks: [
     h2("ce-que-pro-montre", "Ce que PRO montre sur le stock"),
@@ -55,10 +55,10 @@ const article: BlogArticle = {
     p("Côté achats, PRO ajoute les commandes fournisseurs et les réceptions aux factures et aux règlements déjà présents dans ESSENTIEL. La réception est liée à la commande. Elle dit ce qui est arrivé. La facture fournisseur dit ce qui est dû. Les deux pièces ne se confondent pas : l’une suit la marchandise, l’autre le paiement."),
     p("Côté ventes, le devis peut devenir une commande, puis une livraison ou un retour. La commande garde le lien avec la proposition retenue. La livraison indique les articles et les quantités qui quittent le stock. Le retour les fait revenir. La facture de vente et le règlement restent le socle ESSENTIEL, inclus dans PRO."),
     p("ESSENTIEL, lu seul, reste le logiciel de facturation et de trésorerie : clients, factures, avoirs et encaissements. Ses pages ne présentent pas le suivi des emplacements et des mouvements. Une PME qui ne fait que facturer des prestations n’a pas besoin de ce circuit pour commencer."),
-    h3("un-circuit-simple", "Un circuit simple, sans étape inventée"),
+    h3("un-circuit-simple", "Un circuit simple"),
     p("Le circuit publié tient en trois temps. D’abord le devis, converti en commande si le client retient la proposition. Ensuite la livraison, avec les quantités à sortir. Enfin le pilotage : mouvements, factures, règlements et écritures au même endroit, pour échanger avec les conseils. Rien, dans ce circuit, ne crée un inventaire physique automatique."),
     h2("exemple-fictif", "Exemple fictif : un distributeur à Casablanca"),
-    p("Négoce des Oliviers est une société inventée. Elle range des ramettes de papier. Les quantités servent à vérifier qu’une entrée, une sortie et un transfert se lisent sans double compte. Ce ne sont pas des stocks réels, et ce n’est pas une valorisation."),
+    p("Négoce des Oliviers est une société fictive. Elle range des ramettes de papier. Les quantités montrent une entrée, une sortie et un transfert, sans double compte et sans valorisation."),
     {
       type: "example",
       kicker: "Exemple fictif",
@@ -74,7 +74,7 @@ const article: BlogArticle = {
     },
     p("Le contrôle est arithmétique : 40 + 20 − 15 − 10 + 2 = 47 en réserve, et les 10 cartons transférés sont au comptoir. Si un écran ne permet pas de retrouver l’une de ces lignes, la quantité affichée ne suffit pas à expliquer l’écart. C’est le rapprochement décrit entre le terrain et les documents, pas une preuve comptable."),
     h2("checklist-devis", "Check-list avant de demander le devis"),
-    p("La demande est plus utile si elle décrit le circuit réel. N’y inscrivez pas une fonction marquée « à venir »."),
+    p("La demande est plus utile si elle décrit votre circuit réel. L’inventaire physique ne fait pas encore partie des fonctions à demander."),
     {
       type: "checklist",
       title: "À préparer pour le devis PRO",
@@ -102,7 +102,7 @@ const article: BlogArticle = {
     },
     h2("erreurs-frequentes", "Erreurs fréquentes"),
     p("La première est de chercher les emplacements dans ESSENTIEL. Les pages de cette offre parlent de factures, d’achats, de règlements et de trésorerie. Le stock nommé sur le site est celui de PRO."),
-    p("La deuxième est d’ouvrir l’essai gratuit en pensant compter les cartons. L’essai public ne donne pas accès à PRO. Il dure quinze jours, sans carte, pour le socle de gestion quotidienne. Le tarif de ce socle est publié : " + offer.essentielPrice + "."),
+    p("La deuxième est d’ouvrir l’essai gratuit en pensant compter les cartons. L’essai gratuit ouvre ESSENTIEL, pour facturer et suivre les règlements. " + offer.offerPitch),
     p("La troisième est de confondre la réception et la facture fournisseur, ou la livraison et la facture client. La marchandise et le paiement se suivent ensemble, mais ce ne sont pas les mêmes pièces. La quatrième est de prendre un transfert pour une sortie : la quantité change d’emplacement, elle ne quitte pas l’entreprise."),
     p("La cinquième est d’ajouter l’inventaire physique à la liste des fonctions attendues le jour du devis. La sixième est de citer un gain de stock ou un pourcentage de chiffre d’affaires évité. Aucun de ces chiffres n’est publié par Felexia, et ce guide n’en crée pas."),
     {
@@ -110,7 +110,7 @@ const article: BlogArticle = {
       tone: "product",
       title: "Avec Felexia",
       paragraphs: [[
-        "PRO réunit le socle ESSENTIEL et les parcours de stock déjà cités : emplacements, mouvements, réceptions, livraisons et retours. La facturation électronique PDF/XML et l’archivage restent inclus après activation, dans les deux offres. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. ",
+        "PRO réunit le socle ESSENTIEL et le stock : emplacements, mouvements, réceptions, livraisons et retours. La facturation électronique PDF/XML et l’archivage restent inclus après activation, dans les deux offres. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. ",
         { href: "/pro", label: "La page PRO" },
         " détaille le périmètre avant la demande de devis. Pour seulement facturer et suivre les règlements, ESSENTIEL suffit, avec son essai sans carte.",
       ]],
@@ -144,7 +144,7 @@ const article: BlogArticle = {
   cta: {
     label: "Demander un devis PRO",
     href: "/pro",
-    note: `La page PRO présente le périmètre, puis ouvre un brouillon d’e-mail à envoyer. L’essai de ${offer.trial} ne donne pas accès à PRO. ESSENTIEL, pour facturer sans stock, est à ${offer.essentielPrice}.`,
+    note: `La page PRO présente le périmètre, puis ouvre un brouillon d’e-mail à envoyer. ${offer.offerPitch}`,
   },
   related: [
     { href: "/pro", label: "Périmètre de l’ERP PRO" },
@@ -158,7 +158,7 @@ const article: BlogArticle = {
     { label: "Felexia — page ESSENTIEL : facturation et trésorerie, sans suivi des emplacements", href: "/essentiel", consulted },
     { label: "Felexia — facturation électronique, incluse dans les deux offres après activation", href: "/facturation-electronique-maroc", consulted },
   ],
-  disclaimer: "Contenu informatif, non contractuel. Les fonctions citées sont celles décrites sur felexia.pro le 3 novembre 2026. L’inventaire physique n’est pas une fonction disponible. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 3 novembre 2026.",
+  disclaimer: "Contenu informatif, non contractuel. Les fonctions présentées sont celles de Felexia PRO au 3 novembre 2026. L’inventaire physique n’est pas encore disponible. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 3 novembre 2026.",
 };
 
 export default article;
