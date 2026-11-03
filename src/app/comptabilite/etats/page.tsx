@@ -24,7 +24,7 @@ export default async function FinancialStatementsPage() {
   return (
     <ModulePage>
       <PageHeader title="Bilan et CPC préparatoires" description="Synthèse CGNC des écritures comptabilisées. Ce n'est pas un bilan certifié ni une liasse fiscale." />
-      <p className="text-sm text-[var(--muted)]">Les classes 1 à 5 sont ventilées par solde. Le résultat de la période est reporté au passif pour vérifier l'équilibre. <Link className="font-semibold text-[var(--primary)]" href="/comptabilite/balance">Voir la balance</Link></p>
+      <p className="text-sm text-[var(--muted)]">Les classes 1 à 5 sont ventilées par solde. Le résultat de la période est reporté au passif pour vérifier l’équilibre. <Link className="font-semibold text-[var(--primary)]" href="/comptabilite/balance">Voir la balance</Link></p>
       <div className="mt-4 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)]">
         {rows.map(([label, value]) => (
           <div key={label} className="flex items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3 last:border-b-0">
