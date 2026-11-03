@@ -1,0 +1,1292 @@
+[
+  {
+    "file": "src/app/abonnement/choisir/page.tsx",
+    "route": "/abonnement/choisir",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/avoirs/[id]/edit/page.tsx",
+    "route": "/achats/avoirs/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/avoirs/[id]/page.tsx",
+    "route": "/achats/avoirs/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/avoirs/[id]/print/page.tsx",
+    "route": "/achats/avoirs/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/avoirs/new/page.tsx",
+    "route": "/achats/avoirs/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/avoirs/page.tsx",
+    "route": "/achats/avoirs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/commandes/[id]/edit/page.tsx",
+    "route": "/achats/commandes/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/commandes/[id]/page.tsx",
+    "route": "/achats/commandes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/commandes/[id]/print/page.tsx",
+    "route": "/achats/commandes/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/commandes/new/page.tsx",
+    "route": "/achats/commandes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/commandes/page.tsx",
+    "route": "/achats/commandes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/factures/[id]/edit/page.tsx",
+    "route": "/achats/factures/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/factures/[id]/page.tsx",
+    "route": "/achats/factures/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/factures/[id]/print/page.tsx",
+    "route": "/achats/factures/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/factures/new/page.tsx",
+    "route": "/achats/factures/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/factures/page.tsx",
+    "route": "/achats/factures",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/fournisseurs/page.tsx",
+    "route": "/achats/fournisseurs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/page.tsx",
+    "route": "/achats",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/paiements/[id]/affecter/page.tsx",
+    "route": "/achats/paiements/[id]/affecter",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/paiements/[id]/page.tsx",
+    "route": "/achats/paiements/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/paiements/[id]/print/page.tsx",
+    "route": "/achats/paiements/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/paiements/new/page.tsx",
+    "route": "/achats/paiements/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/paiements/page.tsx",
+    "route": "/achats/paiements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/receptions/[id]/page.tsx",
+    "route": "/achats/receptions/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/receptions/[id]/print/page.tsx",
+    "route": "/achats/receptions/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/achats/receptions/new/page.tsx",
+    "route": "/achats/receptions/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/achats/receptions/page.tsx",
+    "route": "/achats/receptions",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/agenda/echeances/page.tsx",
+    "route": "/agenda/echeances",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/agenda/page.tsx",
+    "route": "/agenda",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/agenda/rappels/page.tsx",
+    "route": "/agenda/rappels",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/agenda/relances/page.tsx",
+    "route": "/agenda/relances",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/agenda/taches/page.tsx",
+    "route": "/agenda/taches",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/[id]/edit/page.tsx",
+    "route": "/articles/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/articles/[id]/page.tsx",
+    "route": "/articles/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/articles/categories/[id]/edit/page.tsx",
+    "route": "/articles/categories/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/articles/categories/new/page.tsx",
+    "route": "/articles/categories/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/categories/page.tsx",
+    "route": "/articles/categories",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/new/page.tsx",
+    "route": "/articles/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/page.tsx",
+    "route": "/articles",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/produits/page.tsx",
+    "route": "/articles/produits",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/services/page.tsx",
+    "route": "/articles/services",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/tva/[id]/edit/page.tsx",
+    "route": "/articles/tva/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/articles/tva/new/page.tsx",
+    "route": "/articles/tva/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/tva/page.tsx",
+    "route": "/articles/tva",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/unites/[id]/edit/page.tsx",
+    "route": "/articles/unites/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/articles/unites/new/page.tsx",
+    "route": "/articles/unites/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/articles/unites/page.tsx",
+    "route": "/articles/unites",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/avoirs/page.tsx",
+    "route": "/avoirs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/banques/page.tsx",
+    "route": "/banques",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/bienvenue/page.tsx",
+    "route": "/bienvenue",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/blog/[slug]/page.tsx",
+    "route": "/blog/[slug]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/blog/page.tsx",
+    "route": "/blog",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/caisses/page.tsx",
+    "route": "/caisses",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/clients/page.tsx",
+    "route": "/clients",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/commandes/[id]/edit/page.tsx",
+    "route": "/commandes/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/commandes/[id]/page.tsx",
+    "route": "/commandes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/commandes/new/page.tsx",
+    "route": "/commandes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/commandes/page.tsx",
+    "route": "/commandes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/commerce/page.tsx",
+    "route": "/commerce",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/auxiliaires/page.tsx",
+    "route": "/comptabilite/auxiliaires",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/balance/page.tsx",
+    "route": "/comptabilite/balance",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/comptes/[id]/page.tsx",
+    "route": "/comptabilite/comptes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/comptes/page.tsx",
+    "route": "/comptabilite/comptes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/ecritures/[id]/page.tsx",
+    "route": "/comptabilite/ecritures/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/ecritures/nouveau/page.tsx",
+    "route": "/comptabilite/ecritures/nouveau",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/ecritures/page.tsx",
+    "route": "/comptabilite/ecritures",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/exercices/page.tsx",
+    "route": "/comptabilite/exercices",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/exports/page.tsx",
+    "route": "/comptabilite/exports",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/grand-livre/page.tsx",
+    "route": "/comptabilite/grand-livre",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/journal-general/page.tsx",
+    "route": "/comptabilite/journal-general",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/journaux/[id]/page.tsx",
+    "route": "/comptabilite/journaux/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/journaux/[id]/print/page.tsx",
+    "route": "/comptabilite/journaux/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/journaux/page.tsx",
+    "route": "/comptabilite/journaux",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/lettrage/page.tsx",
+    "route": "/comptabilite/lettrage",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/page.tsx",
+    "route": "/comptabilite",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/parametres/page.tsx",
+    "route": "/comptabilite/parametres",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/plan-comptable/[id]/edit/page.tsx",
+    "route": "/comptabilite/plan-comptable/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/plan-comptable/[id]/page.tsx",
+    "route": "/comptabilite/plan-comptable/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/plan-comptable/new/page.tsx",
+    "route": "/comptabilite/plan-comptable/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/plan-comptable/page.tsx",
+    "route": "/comptabilite/plan-comptable",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/tva/controle/page.tsx",
+    "route": "/comptabilite/tva/controle",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/tva/declarations/[id]/page.tsx",
+    "route": "/comptabilite/tva/declarations/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/comptabilite/tva/declarations/new/page.tsx",
+    "route": "/comptabilite/tva/declarations/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/tva/declarations/page.tsx",
+    "route": "/comptabilite/tva/declarations",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/tva/exports/page.tsx",
+    "route": "/comptabilite/tva/exports",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/comptabilite/tva/page.tsx",
+    "route": "/comptabilite/tva",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/conditions/page.tsx",
+    "route": "/conditions",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/confidentialite/page.tsx",
+    "route": "/confidentialite",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/dashboard/page.tsx",
+    "route": "/dashboard",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/decaissements/page.tsx",
+    "route": "/decaissements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/devis/[id]/edit/page.tsx",
+    "route": "/devis/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/devis/[id]/page.tsx",
+    "route": "/devis/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/devis/new/page.tsx",
+    "route": "/devis/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/devis/page.tsx",
+    "route": "/devis",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/documents/archives/page.tsx",
+    "route": "/documents/archives",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/documents/import-export/page.tsx",
+    "route": "/documents/import-export",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/documents/modeles/page.tsx",
+    "route": "/documents/modeles",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/documents/page.tsx",
+    "route": "/documents",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/documents/pieces-jointes/page.tsx",
+    "route": "/documents/pieces-jointes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/encaissements/page.tsx",
+    "route": "/encaissements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/essentiel/page.tsx",
+    "route": "/essentiel",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/avoirs/[id]/affecter/page.tsx",
+    "route": "/facturation/avoirs/[id]/affecter",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/avoirs/[id]/edit/page.tsx",
+    "route": "/facturation/avoirs/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/avoirs/[id]/page.tsx",
+    "route": "/facturation/avoirs/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/avoirs/[id]/print/page.tsx",
+    "route": "/facturation/avoirs/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/avoirs/new/page.tsx",
+    "route": "/facturation/avoirs/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/avoirs/page.tsx",
+    "route": "/facturation/avoirs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/electronique/[kind]/[sourceId]/page.tsx",
+    "route": "/facturation/electronique/[kind]/[sourceId]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/electronique/configuration/page.tsx",
+    "route": "/facturation/electronique/configuration",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/electronique/page.tsx",
+    "route": "/facturation/electronique",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/electronique/supervision/page.tsx",
+    "route": "/facturation/electronique/supervision",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/factures/[id]/edit/page.tsx",
+    "route": "/facturation/factures/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/factures/[id]/page.tsx",
+    "route": "/facturation/factures/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/factures/[id]/paiement/page.tsx",
+    "route": "/facturation/factures/[id]/paiement",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/factures/[id]/print/page.tsx",
+    "route": "/facturation/factures/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/factures/new/page.tsx",
+    "route": "/facturation/factures/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/factures/page.tsx",
+    "route": "/facturation/factures",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/page.tsx",
+    "route": "/facturation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/paiements/[id]/affecter/page.tsx",
+    "route": "/facturation/paiements/[id]/affecter",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/paiements/[id]/edit/page.tsx",
+    "route": "/facturation/paiements/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/paiements/[id]/page.tsx",
+    "route": "/facturation/paiements/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/paiements/[id]/print/page.tsx",
+    "route": "/facturation/paiements/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/paiements/affectation/page.tsx",
+    "route": "/facturation/paiements/affectation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/paiements/new/page.tsx",
+    "route": "/facturation/paiements/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/paiements/page.tsx",
+    "route": "/facturation/paiements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/relances/[id]/page.tsx",
+    "route": "/facturation/relances/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/relances/[id]/print/page.tsx",
+    "route": "/facturation/relances/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/facturation/relances/new/page.tsx",
+    "route": "/facturation/relances/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation/relances/page.tsx",
+    "route": "/facturation/relances",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/facturation-electronique-maroc/page.tsx",
+    "route": "/facturation-electronique-maroc",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/factures/[id]/page.tsx",
+    "route": "/factures/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/factures/new/page.tsx",
+    "route": "/factures/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/factures/page.tsx",
+    "route": "/factures",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/fournisseurs/page.tsx",
+    "route": "/fournisseurs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/invitation/complete/page.tsx",
+    "route": "/invitation/complete",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/invitation/page.tsx",
+    "route": "/invitation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/livraisons/[id]/edit/page.tsx",
+    "route": "/livraisons/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/livraisons/[id]/page.tsx",
+    "route": "/livraisons/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/livraisons/new/page.tsx",
+    "route": "/livraisons/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/livraisons/page.tsx",
+    "route": "/livraisons",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/logiciel-facturation-maroc/page.tsx",
+    "route": "/logiciel-facturation-maroc",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/login/page.tsx",
+    "route": "/login",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/mentions-legales/page.tsx",
+    "route": "/mentions-legales",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/mot-de-passe-oublie/page.tsx",
+    "route": "/mot-de-passe-oublie",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/choix-abonnement/page.tsx",
+    "route": "/onboarding/choix-abonnement",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/demarrage/page.tsx",
+    "route": "/onboarding/demarrage",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/entreprise/page.tsx",
+    "route": "/onboarding/entreprise",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/formule/page.tsx",
+    "route": "/onboarding/formule",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/inscription/page.tsx",
+    "route": "/onboarding/inscription",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/modules/page.tsx",
+    "route": "/onboarding/modules",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/paiement/page.tsx",
+    "route": "/onboarding/paiement",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/onboarding/societe/page.tsx",
+    "route": "/onboarding/societe",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/outils/audit-log/page.tsx",
+    "route": "/outils/audit-log",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/outils/import-export/page.tsx",
+    "route": "/outils/import-export",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/outils/page.tsx",
+    "route": "/outils",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/page.tsx",
+    "route": "/",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/paiements/page.tsx",
+    "route": "/paiements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/abonnement/page.tsx",
+    "route": "/parametres/abonnement",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/documents/page.tsx",
+    "route": "/parametres/documents",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/entreprise/page.tsx",
+    "route": "/parametres/entreprise",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/facturation/page.tsx",
+    "route": "/parametres/facturation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/modules/page.tsx",
+    "route": "/parametres/modules",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/numerotation/page.tsx",
+    "route": "/parametres/numerotation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/page.tsx",
+    "route": "/parametres",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/preferences/page.tsx",
+    "route": "/parametres/preferences",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/profil/page.tsx",
+    "route": "/parametres/profil",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/roles/page.tsx",
+    "route": "/parametres/roles",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/securite/page.tsx",
+    "route": "/parametres/securite",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/parametres/utilisateurs/page.tsx",
+    "route": "/parametres/utilisateurs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/pricing/page.tsx",
+    "route": "/pricing",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/pro/page.tsx",
+    "route": "/pro",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rapports/page.tsx",
+    "route": "/rapports",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/reinitialiser-mot-de-passe/page.tsx",
+    "route": "/reinitialiser-mot-de-passe",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/relances/page.tsx",
+    "route": "/relances",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/absences/page.tsx",
+    "route": "/rh/absences",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/attestations/page.tsx",
+    "route": "/rh/attestations",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/avances/page.tsx",
+    "route": "/rh/avances",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/cnss/page.tsx",
+    "route": "/rh/cnss",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/conges/page.tsx",
+    "route": "/rh/conges",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/contrats/[id]/page.tsx",
+    "route": "/rh/contrats/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/contrats/new/page.tsx",
+    "route": "/rh/contrats/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/contrats/page.tsx",
+    "route": "/rh/contrats",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/dashboard/page.tsx",
+    "route": "/rh/dashboard",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/discipline/page.tsx",
+    "route": "/rh/discipline",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/documents/page.tsx",
+    "route": "/rh/documents",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/employes/[id]/edit/page.tsx",
+    "route": "/rh/employes/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/employes/[id]/page.tsx",
+    "route": "/rh/employes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/employes/new/page.tsx",
+    "route": "/rh/employes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/employes/page.tsx",
+    "route": "/rh/employes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/evaluations/page.tsx",
+    "route": "/rh/evaluations",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/ir/page.tsx",
+    "route": "/rh/ir",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/notes-de-frais/page.tsx",
+    "route": "/rh/notes-de-frais",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/offboarding/page.tsx",
+    "route": "/rh/offboarding",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/onboarding/page.tsx",
+    "route": "/rh/onboarding",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/page.tsx",
+    "route": "/rh",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/paie/bulletins/[id]/page.tsx",
+    "route": "/rh/paie/bulletins/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/paie/bulletins/[id]/print/page.tsx",
+    "route": "/rh/paie/bulletins/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/paie/bulletins/page.tsx",
+    "route": "/rh/paie/bulletins",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/paie/page.tsx",
+    "route": "/rh/paie",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/paie/periodes/[id]/page.tsx",
+    "route": "/rh/paie/periodes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/rh/paie/periodes/new/page.tsx",
+    "route": "/rh/paie/periodes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/paie/periodes/page.tsx",
+    "route": "/rh/paie/periodes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/parametres/page.tsx",
+    "route": "/rh/parametres",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/presences/page.tsx",
+    "route": "/rh/presences",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/rh/prets/page.tsx",
+    "route": "/rh/prets",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/ajustements/new/page.tsx",
+    "route": "/stock/ajustements/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/emplacements/[id]/edit/page.tsx",
+    "route": "/stock/emplacements/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/stock/emplacements/[id]/page.tsx",
+    "route": "/stock/emplacements/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/stock/emplacements/new/page.tsx",
+    "route": "/stock/emplacements/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/emplacements/page.tsx",
+    "route": "/stock/emplacements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/entrees/new/page.tsx",
+    "route": "/stock/entrees/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/inventaire/page.tsx",
+    "route": "/stock/inventaire",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/mouvements/page.tsx",
+    "route": "/stock/mouvements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/page.tsx",
+    "route": "/stock",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/stock/transferts/page.tsx",
+    "route": "/stock/transferts",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tiers/[id]/edit/page.tsx",
+    "route": "/tiers/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tiers/[id]/page.tsx",
+    "route": "/tiers/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tiers/clients/page.tsx",
+    "route": "/tiers/clients",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tiers/fournisseurs/page.tsx",
+    "route": "/tiers/fournisseurs",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tiers/new/page.tsx",
+    "route": "/tiers/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tiers/page.tsx",
+    "route": "/tiers",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tiers/prospects/page.tsx",
+    "route": "/tiers/prospects",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/comptes/[id]/edit/page.tsx",
+    "route": "/tresorerie/comptes/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tresorerie/comptes/[id]/page.tsx",
+    "route": "/tresorerie/comptes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tresorerie/comptes/new/page.tsx",
+    "route": "/tresorerie/comptes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/comptes/page.tsx",
+    "route": "/tresorerie/comptes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/consultation/page.tsx",
+    "route": "/tresorerie/consultation",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/mouvements/[id]/page.tsx",
+    "route": "/tresorerie/mouvements/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tresorerie/mouvements/new/page.tsx",
+    "route": "/tresorerie/mouvements/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/mouvements/page.tsx",
+    "route": "/tresorerie/mouvements",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/page.tsx",
+    "route": "/tresorerie",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/previsions/[id]/edit/page.tsx",
+    "route": "/tresorerie/previsions/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tresorerie/previsions/nouveau/page.tsx",
+    "route": "/tresorerie/previsions/nouveau",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/previsions/page.tsx",
+    "route": "/tresorerie/previsions",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/rapprochement/page.tsx",
+    "route": "/tresorerie/rapprochement",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/releves/[id]/page.tsx",
+    "route": "/tresorerie/releves/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/tresorerie/releves/import/page.tsx",
+    "route": "/tresorerie/releves/import",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/tresorerie/releves/page.tsx",
+    "route": "/tresorerie/releves",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/commandes/[id]/edit/page.tsx",
+    "route": "/vente/commandes/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/commandes/[id]/livrer/page.tsx",
+    "route": "/vente/commandes/[id]/livrer",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/commandes/[id]/page.tsx",
+    "route": "/vente/commandes/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/commandes/[id]/print/page.tsx",
+    "route": "/vente/commandes/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/commandes/new/page.tsx",
+    "route": "/vente/commandes/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/commandes/page.tsx",
+    "route": "/vente/commandes",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/devis/[id]/edit/page.tsx",
+    "route": "/vente/devis/[id]/edit",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/devis/[id]/page.tsx",
+    "route": "/vente/devis/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/devis/[id]/print/page.tsx",
+    "route": "/vente/devis/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/devis/new/page.tsx",
+    "route": "/vente/devis/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/devis/page.tsx",
+    "route": "/vente/devis",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/livraisons/[id]/page.tsx",
+    "route": "/vente/livraisons/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/livraisons/[id]/print/page.tsx",
+    "route": "/vente/livraisons/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/livraisons/[id]/retour/page.tsx",
+    "route": "/vente/livraisons/[id]/retour",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/livraisons/new/page.tsx",
+    "route": "/vente/livraisons/new",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/livraisons/page.tsx",
+    "route": "/vente/livraisons",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/page.tsx",
+    "route": "/vente",
+    "dynamic": false
+  },
+  {
+    "file": "src/app/vente/retours/[id]/page.tsx",
+    "route": "/vente/retours/[id]",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/retours/[id]/print/page.tsx",
+    "route": "/vente/retours/[id]/print",
+    "dynamic": true
+  },
+  {
+    "file": "src/app/vente/retours/page.tsx",
+    "route": "/vente/retours",
+    "dynamic": false
+  }
+]

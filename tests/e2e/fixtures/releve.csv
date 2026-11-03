@@ -1,0 +1,3 @@
+date,value_date,label,reference,debit,credit,balance
+2026-11-01,2026-11-01,Encaissement client Atlas,VIR-ATLAS,0,100.00,100.00
+2026-11-02,2026-11-02,Commission bancaire,COM-01,15.50,0,84.50
