@@ -11,7 +11,7 @@
 .landing .essentiel-einvoice h3 { margin: 0; color: #244b3b; font-size: 16px; font-weight: 550; line-height: 1.5; }
 .landing .essentiel-einvoice p { margin: 7px 0 0; color: #526d60; font-size: 14px; line-height: 1.7; }
 .landing .essentiel-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; margin-top: 32px; }
-.landing .essentiel-actions > a:last-child { display: inline-flex; align-items: center; gap: 9px; color: #2454d8; font-size: 14px; }
+.landing .essentiel-actions > a:not(.marketing-button) { display: inline-flex; align-items: center; gap: 9px; color: #2454d8; font-size: 14px; font-weight: 600; }
 @media (max-width: 1000px) { .landing .essentiel-activities { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; } }
 @media (max-width: 599px) {
   .landing .essentiel-section { padding: 76px 0 64px; }

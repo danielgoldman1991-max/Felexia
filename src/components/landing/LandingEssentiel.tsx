@@ -15,8 +15,8 @@ export function LandingEssentiel() {
       <div className="marketing-container">
         <div className="essentiel-heading" data-reveal>
           <p className="marketing-eyebrow">ESSENTIEL · GESTION D’ENTREPRISE</p>
-          <h2 id="essentiel-title" className="marketing-section-title">Toute votre gestion.<br />Au même endroit.</h2>
-          <p>Ventes, achats, clients, fournisseurs et trésorerie : ESSENTIEL rassemble les outils pour gérer votre entreprise au quotidien.</p>
+          <h2 id="essentiel-title" className="marketing-section-title">Facturer et suivre<br />votre gestion au Maroc.</h2>
+          <p>Ventes, achats, clients, fournisseurs et trésorerie : ESSENTIEL est le logiciel de gestion pour le quotidien d’une PME.</p>
         </div>
         <div className="essentiel-activities">
           {activities.map((activity) => (
@@ -29,11 +29,12 @@ export function LandingEssentiel() {
         </div>
         <div id="facturation-electronique" className="essentiel-einvoice" data-reveal>
           <FileCheck2 size={25} aria-hidden="true" />
-          <div><h3>Compatible avec la facturation électronique</h3><p>La génération PDF/XML, l’émission et l’archivage de vos factures sont inclus dans ESSENTIEL et PRO.</p></div>
+          <div><h3>Prêt pour la facture électronique</h3><p>La génération PDF/XML, l’émission et l’archivage de vos factures sont inclus dans ESSENTIEL et PRO. <Link href="/facturation-electronique-maroc">Voir le parcours au Maroc</Link>.</p></div>
         </div>
         <div className="essentiel-actions" data-reveal>
           <Link href="/login?mode=register" className="marketing-button marketing-button-primary">Essayer ESSENTIEL gratuitement<ArrowUpRight size={17} aria-hidden="true" /></Link>
           <Link href="/essentiel">Découvrir les fonctions ESSENTIEL<ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <Link href="/logiciel-facturation-maroc">Logiciel de facturation au Maroc<ArrowUpRight size={17} aria-hidden="true" /></Link>
         </div>
       </div>
     </section>

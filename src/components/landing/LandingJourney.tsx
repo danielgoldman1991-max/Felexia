@@ -151,8 +151,8 @@ export function LandingJourney() {
       <div className="marketing-container">
         <div className="journey-heading" data-reveal>
           <p className="marketing-eyebrow">VOTRE ACTIVITÉ, SANS LES DÉTOURS.</p>
-          <h2 id="journey-title" className="marketing-section-title">Une facture. Un règlement.<br />Une vision plus claire.</h2>
-          <p className="marketing-copy journey-heading-copy">L’essentiel de votre gestion, relié dans un même espace. Suivez le fil.</p>
+          <h2 id="journey-title" className="marketing-section-title">De la facture au règlement,<br />dans le même logiciel.</h2>
+          <p className="marketing-copy journey-heading-copy">Le logiciel de facturation relie le document, l’encaissement et le suivi. Suivez le fil.</p>
         </div>
         <div ref={rootRef} id="features" className="journey-grid" data-active-chapter={activeIndex}>
           <div className="journey-chapters">

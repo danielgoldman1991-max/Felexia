@@ -9,8 +9,8 @@ const documentLimit = plan.limits.commercialDocumentsPerMonth;
 const documents = documentLimit === null ? "Sans plafond mensuel" : number(documentLimit) + " / mois";
 
 export const metadata = createPublicMetadata({
-  title: "Logiciel de gestion PME au Maroc | Felexia ESSENTIEL",
-  description: "Ventes, achats, factures et trésorerie : gérez votre entreprise avec Felexia ESSENTIEL. " + number(plan.monthlyPrice) + " HT MAD/mois, " + DEFAULT_TRIAL_DURATION_LABEL + " d’essai sans carte.",
+  title: "Logiciel de facturation et de gestion PME au Maroc | Felexia ESSENTIEL",
+  description: "Logiciel de facturation et de gestion pour PME au Maroc. Felexia ESSENTIEL : " + number(plan.monthlyPrice) + " HT MAD/mois, essai de " + DEFAULT_TRIAL_DURATION_LABEL + " sans carte bancaire.",
   path: "/essentiel",
 });
 
@@ -32,7 +32,7 @@ const content: ProductOfferContent = {
   ctaLabel: "Commencer mes " + DEFAULT_TRIAL_DURATION_LABEL + " gratuits",
   ctaHref: "/login?mode=register",
   ctaNote: "Sans carte bancaire. Puis " + number(plan.monthlyPrice) + " HT MAD/mois pour votre entreprise, jusqu’à " + plan.limits.users + " utilisateurs.",
-  featureHeading: "Vos ventes, vos achats et votre trésorerie, au même endroit.",
+  featureHeading: "Facturation, achats et trésorerie pour votre PME.",
   featureIntroduction: "L’offre s’adresse aux entreprises qui veulent structurer leur gestion courante, retrouver les documents d’un tiers et savoir ce qui reste à encaisser ou à payer.",
   features: [
     {
@@ -84,5 +84,5 @@ const content: ProductOfferContent = {
 };
 
 export default function EssentialProductPage() {
-  return <ProductOfferPage content={content} />;
+  return <ProductOfferPage content={content} path="/essentiel" />;
 }

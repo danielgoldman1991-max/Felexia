@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { ResponsiveImage } from "@/components/seo/ResponsiveImage";
 import { cn } from "@/lib/utils";
 import { BRAND } from "@/lib/brand";
+
+const LOGO_ALT = "FelexiaERP, logiciel de gestion pour PME au Maroc";
 
 export type BrandLogoProps = {
   variant?: "horizontal" | "mark";
@@ -40,15 +43,13 @@ export function BrandLogo({
   priority = false,
   height,
 }: BrandLogoProps) {
-  const alt = BRAND.name;
-
   if (variant === "mark") {
     const px = height ?? MARK_SIZES[size];
     return (
       <span className={cn("inline-flex shrink-0 items-center gap-2", className)}>
         <Image
           src={BRAND.logoMark}
-          alt={alt}
+          alt={LOGO_ALT}
           width={px}
           height={px}
           className="shrink-0 object-contain"
@@ -65,30 +66,29 @@ export function BrandLogo({
   if (height !== undefined) {
     const width = Math.round(height * LOGO_ASPECT);
     return (
-      <Image
-        src={BRAND.logoHorizontal}
-        alt={alt}
+      <ResponsiveImage
+        avif="/brand/felexiaerp-logo-horizontal.avif"
+        webp="/brand/felexiaerp-logo-horizontal.webp"
+        alt={LOGO_ALT}
         width={width}
         height={height}
         className={cn("block h-auto max-w-full shrink-0 object-contain", className)}
         style={{ width, height }}
-        unoptimized
-        loading={priority ? "eager" : "lazy"}
+        priority={priority}
       />
     );
   }
 
   const { width, height: displayHeight, className: sizeClassName } = HORIZONTAL_SIZES[size];
   return (
-    <Image
-      src={BRAND.logoHorizontal}
-      alt={alt}
+    <ResponsiveImage
+      avif="/brand/felexiaerp-logo-horizontal.avif"
+      webp="/brand/felexiaerp-logo-horizontal.webp"
+      alt={LOGO_ALT}
       width={width}
       height={displayHeight}
       className={cn("block h-auto max-w-full shrink-0 object-contain", sizeClassName, className)}
-      unoptimized
-      preload={priority}
-      loading={priority ? "eager" : "lazy"}
+      priority={priority}
     />
   );
 }

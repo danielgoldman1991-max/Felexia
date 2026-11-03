@@ -2,7 +2,7 @@
 .landing .pro-intro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 70px; }
 .landing .pro-intro .marketing-section-title { margin-top: 20px; }
 .landing .pro-intro-copy { padding-bottom: 4px; }
-.landing .pro-link { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; color: #2454d8; font-size: 14px; font-weight: 600; text-underline-offset: 5px; }
+.landing .pro-link { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; margin-right: 22px; color: #2454d8; font-size: 14px; font-weight: 600; text-underline-offset: 5px; }
 .landing .pro-link:hover { text-decoration: underline; }
 .landing .pro-modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 48px; overflow: hidden; border: 1px solid #d4dfe8; border-radius: 24px; background: #d4dfe8; }
 .landing .pro-module { padding: 32px; background: #f8fafb; }

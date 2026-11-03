@@ -19,11 +19,12 @@ export function LandingPro() {
         <div className="pro-intro" data-reveal>
           <div>
             <p className="marketing-eyebrow">FELEXIA PRO · L’ERP COMPLET</p>
-            <h2 id="pro-title" className="marketing-section-title">Toute votre entreprise.<br />Un même horizon.</h2>
+            <h2 id="pro-title" className="marketing-section-title">L’ERP pour le stock<br />et le pilotage au Maroc.</h2>
           </div>
           <div className="pro-intro-copy">
-            <p className="marketing-copy">Vos ventes ne s’arrêtent pas à la facture. Avec PRO, reliez votre gestion commerciale, vos achats, votre stock, votre comptabilité et vos ressources humaines.</p>
+            <p className="marketing-copy">Vos ventes ne s’arrêtent pas à la facture. Avec PRO, reliez la gestion commerciale, les achats, le stock, la comptabilité et les ressources humaines.</p>
             <Link href="/pro" className="pro-link">Découvrir PRO et son périmètre <ArrowUpRight size={18} aria-hidden="true" /></Link>
+            <Link href="/blog/gestion-de-stock-au-maroc" className="pro-link">Logiciel de gestion de stock <ArrowUpRight size={18} aria-hidden="true" /></Link>
           </div>
         </div>
         <div className="pro-modules" data-reveal>

@@ -224,6 +224,15 @@ export function LegalPageLayout({
               réservés.
             </p>
             <a
+              href="https://www.instagram.com/felexiaerp/"
+              target="_blank"
+              rel="me noopener noreferrer"
+              className="text-slate-600 transition-colors hover:text-[#1456B8]"
+            >
+              Instagram
+            </a>
+            {/* TODO(owner): add the official LinkedIn and Facebook URLs when they exist. Do not invent profiles. */}
+            <a
               href={`mailto:${LEGAL_CONFIG.legalEmail}`}
               className="inline-flex items-center gap-1.5 text-slate-600 transition-colors hover:text-[#1456B8]"
             >

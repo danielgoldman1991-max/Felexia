@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ResponsiveImage } from "@/components/seo/ResponsiveImage";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import { LandingLaptopInterface } from "./LandingLaptopInterface";
 import { LandingZoomPreference } from "./LandingZoomPreference";
@@ -11,7 +11,16 @@ export function LandingHero() {
       <div className="horizon-window">
         <div className="horizon-landscape" aria-hidden="true">
           <div className="horizon-world">
-            <Image src="/images/felexia-horizon-v1.png" alt="" fill preload sizes="(max-aspect-ratio: 1672/941) 178vh, 100vw" className="horizon-image" />
+            <ResponsiveImage
+              pictureClassName="horizon-picture"
+              className="horizon-image"
+              avif="/images/felexia-horizon-v1.avif"
+              webp="/images/felexia-horizon-v1.webp"
+              alt="Paysage illustratif au-dessus d’un écran Felexia, aperçu du logiciel de gestion pour PME au Maroc. Données fictives."
+              width={1672}
+              height={941}
+              priority
+            />
           </div>
           <div className="horizon-immersion" />
           <div className="horizon-laptop">
@@ -22,8 +31,8 @@ export function LandingHero() {
         </div>
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
-          <h1 id="hero-title">Prenez de la hauteur. Pilotez en toute liberté.</h1>
-          <p>ESSENTIEL au quotidien. PRO pour une vue d’ensemble.</p>
+          <h1 id="hero-title">Logiciel de gestion et ERP pour les PME au Maroc</h1>
+          <p>Facturation et trésorerie au quotidien. Le stock et l’ERP complet, avec PRO sur devis.</p>
           <div className="horizon-actions">
             <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
             <a href="#pricing" className="horizon-discover">Découvrir nos offres</a>

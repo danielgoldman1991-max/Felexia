@@ -1,4 +1,6 @@
-import { createPublicMetadata, getSoftwareApplicationStructuredData, SEO_DEFAULT_DESCRIPTION, SEO_DEFAULT_TITLE, serializeJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { HOME_FAQS } from "@/lib/content/public-faq";
+import { createPublicMetadata, getFaqPageStructuredData, getSoftwareApplicationStructuredData, SEO_DEFAULT_DESCRIPTION, SEO_DEFAULT_TITLE } from "@/lib/seo";
 import { LandingContact } from "@/components/landing/LandingContact";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
@@ -12,12 +14,12 @@ import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
 export const metadata = createPublicMetadata({ title: SEO_DEFAULT_TITLE, description: SEO_DEFAULT_DESCRIPTION, path: "/" });
-const softwareStructuredData = serializeJsonLd(getSoftwareApplicationStructuredData());
 
 export default function LandingPage() {
   return (
     <div id="top" className="landing marketing-site marketing-horizon-site">
-      <script id="felexia-software-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: softwareStructuredData }} />
+      <JsonLd id="felexia-software-schema" data={getSoftwareApplicationStructuredData()} />
+      <JsonLd id="felexia-home-faq" data={getFaqPageStructuredData(HOME_FAQS, "/")} />
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader overlay />
       <main id="main-content" tabIndex={-1}>

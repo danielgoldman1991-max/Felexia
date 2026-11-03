@@ -6,6 +6,8 @@ import { isPublicSitePath } from "@/lib/public-site";
 import { ANALYTICS_SETTINGS_EVENT, PublicAnalyticsController, validMeasurementId, type AnalyticsSnapshot } from "@/lib/analytics/public-analytics";
 import styles from "./PublicAnalytics.module.css";
 
+// Disabled until NEXT_PUBLIC_GA_MEASUREMENT_ID is a valid GA4 id (G-XXXXXXXX).
+// No measurement id is stored in the repository. Consent is still required before any Google script loads.
 const MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export function PublicAnalytics() {

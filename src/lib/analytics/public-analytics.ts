@@ -1,11 +1,11 @@
-import { PUBLIC_SITE_ORIGIN, isPublicSitePath } from "@/lib/public-site";
+import { PUBLIC_SITE_ORIGIN, isPublicSitePath, type PublicSitePath } from "@/lib/public-site";
 
 export const ANALYTICS_CHOICE_KEY = "felexia:analytics-consent:v1";
 export const ANALYTICS_SETTINGS_EVENT = "felexia:analytics-settings";
 export const ANALYTICS_CHOICE_DAYS = 180;
 const CHOICE_LIFETIME = ANALYTICS_CHOICE_DAYS * 24 * 60 * 60 * 1_000;
 const COOKIE_LIFETIME = CHOICE_LIFETIME / 1_000;
-const TITLES: Record<string, string> = {
+const TITLES: Record<PublicSitePath, string> = {
   "/": "FelexiaERP — Gestion d’entreprise au Maroc",
   "/pricing": "Tarifs ESSENTIEL et PRO — FelexiaERP",
   "/essentiel": "Gestion ESSENTIEL — FelexiaERP",
@@ -13,6 +13,11 @@ const TITLES: Record<string, string> = {
   "/mentions-legales": "Mentions légales — FelexiaERP",
   "/confidentialite": "Confidentialité — FelexiaERP",
   "/conditions": "Conditions générales — FelexiaERP",
+  "/logiciel-facturation-maroc": "Logiciel de facturation au Maroc — FelexiaERP",
+  "/facturation-electronique-maroc": "Facture électronique au Maroc — FelexiaERP",
+  "/blog": "Guides gestion PME — FelexiaERP",
+  "/blog/choisir-entre-essentiel-et-pro": "ESSENTIEL ou PRO — FelexiaERP",
+  "/blog/gestion-de-stock-au-maroc": "Gestion de stock au Maroc — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
@@ -47,8 +52,9 @@ export function validMeasurementId(value: string | undefined): string | null {
   return value && /^G-[A-Z0-9]+$/.test(value) ? value : null;
 }
 
-export function publicPath(pathname: string): string | null {
-  return isPublicSitePath(pathname) ? pathname.replace(/\/+$/, "") || "/" : null;
+export function publicPath(pathname: string): PublicSitePath | null {
+  if (!isPublicSitePath(pathname)) return null;
+  return (pathname.replace(/\/+$/, "") || "/") as PublicSitePath;
 }
 
 export function parseAnalyticsChoice(value: string | null, now: number): AnalyticsChoice {
@@ -250,7 +256,7 @@ export class PublicAnalyticsController {
     this.flushPageView(path);
   };
 
-  private currentPath(): string | null {
+  private currentPath(): PublicSitePath | null {
     return PRODUCTION_ORIGINS.includes(this.browser.location.origin) ? publicPath(this.browser.location.pathname) : null;
   }
 
@@ -293,7 +299,7 @@ export class PublicAnalyticsController {
     // suspends the disposable runtime in a layout effect at the private route commit.
   };
 
-  private parameters(path: string): Record<string, string> {
+  private parameters(path: PublicSitePath): Record<string, string> {
     return {
       send_to: this.measurementId!,
       page_location: PUBLIC_SITE_ORIGIN + path,
@@ -330,7 +336,7 @@ export class PublicAnalyticsController {
     this.doc.body.appendChild(frame);
   }
 
-  private flushPageView(path: string): void {
+  private flushPageView(path: PublicSitePath): void {
     const runtime = this.runtime();
     if (!runtime?.gtag || this.sentPath === path) return;
     runtime.gtag("event", "page_view", this.parameters(path));
