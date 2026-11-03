@@ -20,6 +20,6 @@ export function publicOfferCopy() {
     proUsers: pro.limits.users,
     proStorageGb: pro.limits.storageMb / 1024,
     essentielPrice: `${monthly} HT MAD par mois, ou ${yearly} HT MAD par an`,
-    trialSentence: `L’essai public dure ${DEFAULT_TRIAL_DURATION_LABEL} et ne demande pas de carte bancaire. Il concerne ESSENTIEL. Il ne donne pas accès à PRO.`,
+    offerPitch: `ESSENTIEL à ${monthly} MAD HT/mois ou ${yearly} MAD HT/an. Essai gratuit de ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire.`,
   };
 }

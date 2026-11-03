@@ -4,7 +4,7 @@ import { BLOG_PILLARS, type BlogPillarSlug } from "@/lib/content/blog/types";
 import { createPublicMetadata } from "@/lib/seo";
 
 const title = "Guides du logiciel de gestion pour PME au Maroc | Felexia";
-const description = "Guides FelexiaERP pour les PME au Maroc : mentions d’une facture, choix entre ESSENTIEL et PRO, gestion de stock. Sources indiquées, sans chiffre inventé.";
+const description = "Facturation, stock, fiscalité : des guides pratiques et sourcés pour piloter votre PME au Maroc, avec Felexia.";
 
 export const metadata: Metadata = createPublicMetadata({ title, description, path: "/blog" });
 
