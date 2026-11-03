@@ -14,6 +14,7 @@
     "test:regressions": "tsx scripts/verify-qa-regressions.ts",
     "test:light-launch": "tsx scripts/verify-light-launch.ts",
     "test:e-invoicing": "tsx training/e-invoicing/20261031/verify-domain.ts && node training/e-invoicing/20261031/verify-ui.cjs && node training/e-invoicing/20261031/verify-server-guards.cjs && node training/e-invoicing/20261031/verify-operations-access.cjs",
+    "test:e2e:pro": "playwright test --config=playwright.config.ts",
     "audit:data-integrity": "tsx scripts/audit-data-integrity.ts",
     "repair:data-integrity": "tsx scripts/repair-data-integrity.ts",
     "verify:demo-login": "tsx scripts/verify-demo-login.ts",
@@ -49,11 +50,13 @@
     "zod": "^4.6.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pdfkit": "0.17.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@playwright/test": "^1.57.0",
     "eslint": "^9",
     "eslint-config-next": "^16.4.3",
     "tailwindcss": "^4",
