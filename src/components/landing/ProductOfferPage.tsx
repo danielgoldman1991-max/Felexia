@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowUpRight, Check, FileCheck2, Plus } from "lucide-react";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "./landing-conversion.css";
 import styles from "./product-offer-page.module.css";
@@ -38,9 +40,11 @@ export type ProductOfferContent = {
   related: { href: "/essentiel" | "/pro"; label: string };
 };
 
-export function ProductOfferPage({ content }: { content: ProductOfferContent }) {
+export function ProductOfferPage({ content, path }: { content: ProductOfferContent; path: "/essentiel" | "/pro" }) {
   return (
     <div id="top" className={"landing marketing-site " + styles.page}>
+      <JsonLd id="felexia-offer-software" data={getSoftwareApplicationStructuredData()} />
+      <JsonLd id="felexia-offer-faq" data={getFaqPageStructuredData(content.questions, path)} />
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader />
       <main id="main-content" tabIndex={-1}>
@@ -124,7 +128,7 @@ export function ProductOfferPage({ content }: { content: ProductOfferContent }) 
           <div className="marketing-container">
             <div className={styles.electronicNote}>
               <FileCheck2 size={25} aria-hidden="true" />
-              <div><h2>La facturation électronique est incluse</h2><p>{content.electronicInvoicing}</p></div>
+              <div><h2>La facturation électronique est incluse</h2><p>{content.electronicInvoicing}</p><Link href="/facturation-electronique-maroc" className={styles.textLink}>Prêt pour la facture électronique au Maroc <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
             </div>
             <div className={styles.scopeGrid}>
               <div className={styles.sectionHeading}>

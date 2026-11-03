@@ -14,9 +14,9 @@ import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import { createPublicMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPublicMetadata({
-  title: "Conditions générales | FelexiaERP",
+  title: "Conditions générales | FelexiaERP, logiciel de gestion au Maroc",
   description:
-    "Conditions générales d'utilisation du service FelexiaERP, édité par Felexia Conseils.",
+    "Conditions générales de FelexiaERP, logiciel de gestion pour les PME au Maroc, édité par Felexia Conseils.",
   path: "/conditions",
 });
 
@@ -48,7 +48,7 @@ export default function ConditionsPage() {
 
   return (
     <LegalPageLayout
-      title="Conditions générales d'utilisation et de service"
+      title="Conditions générales de FelexiaERP"
       intro={
         <LegalParagraph>
           Les présentes conditions générales d&apos;utilisation et de service régissent

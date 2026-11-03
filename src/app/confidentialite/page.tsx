@@ -14,9 +14,9 @@ import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 import { createPublicMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPublicMetadata({
-  title: "Politique de confidentialité | FelexiaERP",
+  title: "Confidentialité | FelexiaERP, logiciel de gestion au Maroc",
   description:
-    "Découvrez comment FelexiaERP traite vos données, utilise les cookies et respecte vos choix de mesure d’audience sur le site public.",
+    "Politique de confidentialité de FelexiaERP, logiciel de gestion pour les PME au Maroc : données, cookies et mesure d’audience du site public.",
   path: "/confidentialite",
 });
 
@@ -38,7 +38,7 @@ const toc = [
 export default function ConfidentialitePage() {
   return (
     <LegalPageLayout
-      title="Politique de confidentialité"
+      title="Confidentialité de FelexiaERP"
       intro={
         <>
           <LegalParagraph>

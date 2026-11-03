@@ -6,7 +6,8 @@
 .landing .horizon-window { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate; }
 .landing .horizon-landscape { position: absolute; inset: 0; z-index: -2; overflow: hidden; background: #314252; }
 .landing .horizon-world { position: absolute; inset: 0; transform-origin: 0 0; }
-.landing .horizon-image { object-fit: cover; object-position: 50% 68%; }
+.landing .horizon-picture { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.landing .horizon-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 68%; }
 .landing[data-horizon-enhanced="true"] .horizon-world { inset: auto; top: 0; left: 0; width: 1672px; height: 941px; will-change: transform; }
 .landing[data-horizon-enhanced="true"] .horizon-image { object-fit: fill; }
 .landing .horizon-immersion { position: absolute; inset: 0; background: #081b33; opacity: clamp(0, calc((var(--hero-progress, 0) - .55) * 3.2), .92); pointer-events: none; }

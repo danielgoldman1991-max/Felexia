@@ -6,8 +6,8 @@ import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 
 export const metadata = createPublicMetadata({
-  title: "ERP pour PME au Maroc | Felexia PRO",
-  description: "Felexia PRO relie ventes, achats, stock, comptabilité et dossiers RH. Découvrez le périmètre de l’ERP au Maroc et préparez votre projet sur devis.",
+  title: "ERP et logiciel de gestion de stock au Maroc | Felexia PRO",
+  description: "ERP au Maroc : ventes, stock, achats et comptabilité avec Felexia PRO, sur devis. Le socle ESSENTIEL, facturation comprise, reste inclus.",
   path: "/pro",
 });
 
@@ -30,7 +30,7 @@ const content: ProductOfferContent = {
   ctaHref: getProQuoteHref(),
   ctaNote: "Ce bouton ouvre un brouillon dans votre messagerie. Envoyez votre message pour transmettre votre demande à l’équipe Felexia.",
   contactEmail: LEGAL_CONFIG.legalEmail.trim() || "contact@felexia.pro",
-  featureHeading: "Une vue plus large, du devis aux chiffres de gestion.",
+  featureHeading: "Un ERP pour relier facturation, stock et comptabilité.",
   featureIntroduction: "PRO prolonge la gestion quotidienne avec des parcours commerciaux et des outils de pilotage. Le devis précise les fonctions utilisables et le périmètre de votre mise en place.",
   features: [
     {
@@ -93,5 +93,5 @@ const content: ProductOfferContent = {
 };
 
 export default function ProProductPage() {
-  return <ProductOfferPage content={content} />;
+  return <ProductOfferPage content={content} path="/pro" />;
 }

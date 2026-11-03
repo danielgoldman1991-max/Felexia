@@ -1,50 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight, Globe2, Plus } from "lucide-react";
-import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
+import { HOME_FAQS } from "@/lib/content/public-faq";
 import { LandingJourney } from "./LandingJourney";
 import "./landing-story.css";
 
-const questions = [
-  {
-    question: "Que comprend l’offre Essentiel ?",
-    answer:
-      "ESSENTIEL est votre outil de gestion d’entreprise au quotidien : clients et fournisseurs, factures de vente et d’achat, règlements, comptes bancaires et caisses, trésorerie et journaux. La facturation électronique PDF/XML et l’archivage sont aussi inclus. Vous pouvez travailler jusqu’à 3 utilisateurs dans votre espace entreprise.",
-  },
-  {
-    question: "Comment fonctionne l’essai gratuit ?",
-    answer: `Créez votre compte et votre espace entreprise pour découvrir l’offre Essentiel pendant ${DEFAULT_TRIAL_DURATION_LABEL}, sans carte bancaire. Retrouvez ci-dessous les tarifs mensuels et annuels ESSENTIEL et l’offre PRO sur devis.`,
-  },
-  {
-    question: "Puis-je personnaliser mes factures ?",
-    answer:
-      "Oui. Ajoutez votre logo, les coordonnées et l’ICE de votre entreprise. Configurez vos informations et votre numérotation pour retrouver votre identité sur les factures PDF.",
-  },
-  {
-    question: "Felexia fonctionne-t-il sur mobile ?",
-    answer:
-      "Oui. Votre espace est accessible dans votre navigateur sur ordinateur, tablette et téléphone. Vous pouvez retrouver vos factures, vos règlements et votre trésorerie depuis ces appareils.",
-  },
-  {
-    question: "Que change l’offre PRO ?",
-    answer:
-      "PRO comprend tout ESSENTIEL et ouvre l’ERP complet : prospects, devis, commandes, livraisons, achats et réceptions, stock, comptabilité avec grand livre et balance, préparation TVA, prévisions de trésorerie et gestion RH. Vous pouvez travailler jusqu’à 25 utilisateurs. La TVA et la paie restent des fonctions préparatoires à valider avec vos conseils.",
-  },
-  {
-    question: "Comment obtenir une proposition PRO ?",
-    answer:
-      "PRO est proposé uniquement sur devis. Contactez notre équipe pour présenter votre activité et vos besoins ; nous vous préparons une proposition. L’essai gratuit concerne ESSENTIEL. Votre entreprise conserve son espace et ses données lors de l’activation de PRO.",
-  },
-  {
-    question: "La facturation électronique est-elle incluse ?",
-    answer:
-      "Oui, dans ESSENTIEL comme dans PRO. À partir de vos factures et avoirs clients validés, générez les documents PDF/XML, puis émettez et archivez la version retenue. Votre administrateur active cette fonctionnalité depuis Ventes → Facturation électronique → Configuration.",
-  },
-  {
-    question: "Les factures sont-elles transmises à la DGI ?",
-    answer:
-      "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
-  },
-];
+const questions = HOME_FAQS;
 
 export function LandingStory() {
   return (
@@ -56,9 +16,9 @@ export function LandingStory() {
           <div data-reveal>
             <p className="marketing-eyebrow story-context-eyebrow">VOTRE ENTREPRISE A SON TERRAIN.</p>
             <h2 id="story-context-title" className="marketing-section-title story-context-title">
-              Pensé ici.<br />Accessible partout.
+              Un logiciel de gestion<br />pensé pour le Maroc.
             </h2>
-            <p className="story-context-copy">Le quotidien d’une PME marocaine mérite des outils qui parlent sa langue. Felexia rassemble vos repères, sans compliquer votre gestion.</p>
+            <p className="story-context-copy">Le quotidien d’une PME marocaine mérite des outils qui parlent sa langue. Felexia rassemble la facturation, la trésorerie et vos repères, sans compliquer votre gestion.</p>
             <Link href="/login?mode=register" className="story-context-link">Créer mon espace entreprise<ArrowUpRight size={19} aria-hidden="true" /></Link>
           </div>
           <div className="story-context-features" data-reveal>
@@ -75,7 +35,7 @@ export function LandingStory() {
         <div className="marketing-container story-faq-grid">
           <div data-reveal>
             <p className="marketing-eyebrow">AVANT DE VOUS LANCER</p>
-            <h2 id="story-faq-title" className="marketing-section-title">C’est simple.<br />Et c’est clair.</h2>
+            <h2 id="story-faq-title" className="marketing-section-title">Questions sur le logiciel<br />de gestion et l’ERP.</h2>
             <p className="marketing-copy story-faq-intro">Quelques réponses pour faire vos premiers pas avec Felexia.</p>
             <a href="#contact" className="story-faq-contact">Une autre question ? Parlons-en<ArrowUpRight size={17} aria-hidden="true" /></a>
           </div>

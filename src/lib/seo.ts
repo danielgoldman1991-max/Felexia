@@ -7,10 +7,10 @@ import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 
 /** SEO stays on the public www host; OAuth keeps its independent URL contract. */
 export const SEO_SITE_URL = PUBLIC_SITE_ORIGIN;
-export const SEO_CONTENT_UPDATED_AT = "2026-11-01";
-export const SEO_DEFAULT_TITLE = "Logiciel de gestion d’entreprise et ERP au Maroc | Felexia";
+export const SEO_CONTENT_UPDATED_AT = "2026-11-03";
+export const SEO_DEFAULT_TITLE = "Logiciel de gestion PME au Maroc et ERP | Felexia";
 export const SEO_DEFAULT_DESCRIPTION =
-  "Gérez ventes, achats, factures et trésorerie avec ESSENTIEL. Découvrez PRO, l’ERP complet sur devis pour votre entreprise au Maroc.";
+  "Logiciel de gestion pour les PME au Maroc : facturation, achats et trésorerie avec ESSENTIEL. PRO est l’ERP complet, stock compris, disponible uniquement sur devis.";
 export const SEO_SHARE_IMAGE = "/opengraph-image";
 
 export function canonicalUrl(path = "/"): string {
@@ -45,10 +45,18 @@ const shareImage = {
   url: canonicalUrl(SEO_SHARE_IMAGE),
   width: 1200,
   height: 630,
-  alt: "FelexiaERP — ESSENTIEL au quotidien, PRO sur devis",
+  alt: "FelexiaERP, logiciel de gestion et ERP pour les PME au Maroc",
 };
 
-/** Only the seven explicit marketing/legal routes may opt into public indexing. */
+/** Search Console meta tag. Empty or invalid values stay disabled: no code is invented. */
+export function readGoogleSiteVerification(): string | null {
+  const value = process.env.GOOGLE_SITE_VERIFICATION?.trim() || process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || "";
+  return /^[A-Za-z0-9_-]{8,128}$/.test(value) ? value : null;
+}
+
+const googleSiteVerification = readGoogleSiteVerification();
+
+/** Only allowlisted public routes may opt into indexing. */
 export function createPublicMetadata({ title, description, path }: {
   title: string;
   description: string;
@@ -90,6 +98,7 @@ export const ROOT_METADATA: Metadata = {
     shortcut: BRAND.favicon,
     apple: BRAND.appleTouchIcon,
   },
+  ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {}),
 };
 
 export function getSiteStructuredData() {
@@ -103,8 +112,12 @@ export function getSiteStructuredData() {
         name: BRAND.name,
         alternateName: BRAND.shortName,
         url: home,
+        description: "Logiciel de gestion et ERP pour les PME au Maroc.",
         logo: { "@type": "ImageObject", url: canonicalUrl(BRAND.logoMark), width: 512, height: 512 },
         email: LEGAL_CONFIG.supportEmail,
+        areaServed: { "@type": "Country", name: "Maroc" },
+        // TODO(owner): add the official LinkedIn and Facebook profile URLs when they exist. Do not invent them.
+        sameAs: ["https://www.instagram.com/felexiaerp/"],
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "customer support",
@@ -164,6 +177,64 @@ export function getSoftwareApplicationStructuredData() {
         valueAddedTaxIncluded: false,
         billingDuration: duration,
       },
+    })),
+  };
+}
+
+export function getFaqPageStructuredData(questions: readonly { question: string; answer: string }[], path: string) {
+  const url = canonicalUrl(path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    url,
+    inLanguage: "fr-MA",
+    isPartOf: { "@id": `${canonicalUrl("/")}#website` },
+    mainEntity: questions.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+}
+
+export function getBlogPostingStructuredData(article: { h1: string; description: string; path: string; publishedAt: string }) {
+  const url = canonicalUrl(article.path);
+  const home = canonicalUrl("/");
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${url}#article`,
+    headline: article.h1,
+    description: article.description,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    inLanguage: "fr-MA",
+    mainEntityOfPage: url,
+    url,
+    image: canonicalUrl(SEO_SHARE_IMAGE),
+    author: { "@id": `${home}#organization` },
+    publisher: { "@id": `${home}#organization` },
+  };
+}
+
+export function getBlogStructuredData(posts: readonly { h1: string; description: string; path: string }[]) {
+  const url = canonicalUrl("/blog");
+  const home = canonicalUrl("/");
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${url}#blog`,
+    name: "Guides FelexiaERP",
+    description: "Guides sur le logiciel de gestion, la facturation et le stock pour les PME au Maroc.",
+    url,
+    inLanguage: "fr-MA",
+    publisher: { "@id": `${home}#organization` },
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.h1,
+      description: post.description,
+      url: canonicalUrl(post.path),
     })),
   };
 }

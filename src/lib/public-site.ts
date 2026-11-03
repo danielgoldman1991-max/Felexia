@@ -6,10 +6,17 @@ export const PUBLIC_SITE_PATHS = [
   "/essentiel",
   "/pro",
   "/pricing",
+  "/logiciel-facturation-maroc",
+  "/facturation-electronique-maroc",
+  "/blog",
+  "/blog/choisir-entre-essentiel-et-pro",
+  "/blog/gestion-de-stock-au-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",
 ] as const;
+
+export type PublicSitePath = (typeof PUBLIC_SITE_PATHS)[number];
 
 /** Accept a pathname, never a full URL, query, fragment or private child route. */
 export function isPublicSitePath(pathname: string): boolean {

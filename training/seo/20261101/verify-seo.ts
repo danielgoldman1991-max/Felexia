@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync, mkdirSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { PUBLIC_SITE_ORIGIN, PUBLIC_SITE_PATHS, isPublicSitePath } from "../../../src/lib/public-site";
-import { ROOT_METADATA, canonicalUrl, createPublicMetadata, getSiteStructuredData, getSoftwareApplicationStructuredData, serializeJsonLd, SEO_CONTENT_UPDATED_AT } from "../../../src/lib/seo";
+import { ROOT_METADATA, canonicalUrl, createPublicMetadata, getFaqPageStructuredData, getSiteStructuredData, getSoftwareApplicationStructuredData, readGoogleSiteVerification, serializeJsonLd, SEO_CONTENT_UPDATED_AT } from "../../../src/lib/seo";
+import { HOME_FAQS } from "../../../src/lib/content/public-faq";
+import { GUIDES } from "../../../src/lib/content/guides";
 import sitemap from "../../../src/app/sitemap";
 import robots from "../../../src/app/robots";
 
@@ -16,7 +18,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 7 && new Set(PUBLIC_SITE_PATHS).size === 7, "Seven public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 12 && new Set(PUBLIC_SITE_PATHS).size === 12, "Public routes are explicit and unique");
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);
@@ -34,7 +36,7 @@ async function main() {
   check(String(ROOT_METADATA.metadataBase) === PUBLIC_SITE_ORIGIN + "/", "Metadata base does not depend on OAuth getAppUrl");
 
   const map = sitemap();
-  check(JSON.stringify(map.map(entry => entry.url)) === JSON.stringify(PUBLIC_SITE_PATHS.map(canonicalUrl)), "Sitemap includes only the seven public canonical routes");
+  check(JSON.stringify(map.map(entry => entry.url)) === JSON.stringify(PUBLIC_SITE_PATHS.map(canonicalUrl)), "Sitemap includes only the public canonical routes");
   const revisedPages = new Set(["/essentiel", "/pro", "/confidentialite"].map(canonicalUrl));
   check(map.every(entry => entry.lastModified === (revisedPages.has(entry.url) ? "2026-11-03" : SEO_CONTENT_UPDATED_AT)), "Sitemap dates describe each page’s content revision, not crawler/build time");
   check(robots().sitemap === PUBLIC_SITE_ORIGIN + "/sitemap.xml", "Robots advertises the www sitemap");
@@ -42,7 +44,9 @@ async function main() {
   check(JSON.stringify(rules.disallow) === JSON.stringify(["/api/", "/auth/"]), "Only action/API endpoints are excluded from crawling; login noindex stays observable");
 
   const site = getSiteStructuredData();
+  const organization = site["@graph"].find(node => node["@type"] === "Organization");
   check(site["@graph"].some(node => node["@type"] === "Organization") && site["@graph"].some(node => node["@type"] === "WebSite"), "Organization and WebSite describe the real brand");
+  check(organization && "sameAs" in organization && JSON.stringify(organization.sameAs) === JSON.stringify(["https://www.instagram.com/felexiaerp/"]), "Organization sameAs lists only the known Instagram profile");
   check(site["@graph"].every(node => node.url === PUBLIC_SITE_ORIGIN + "/"), "Structured site identities use the same www origin");
   const app = getSoftwareApplicationStructuredData();
   check(app["@type"] === "SoftwareApplication" && app.applicationCategory === "BusinessApplication", "Software describes business management");
@@ -51,6 +55,25 @@ async function main() {
   check(JSON.stringify(app.offers.map(offer => offer.priceSpecification.billingDuration)) === '["P1M","P1Y"]', "Monthly and annual billing intervals are distinct");
   check(app.description.includes("15 jours") && app.description.includes("sans carte bancaire") && app.description.includes("PRO est disponible uniquement sur devis"), "Trial and quote-only PRO match the public product");
   check(!/"aggregateRating"|"review"|"address"|"legalName"/.test(JSON.stringify([site, app])), "No rating, review, legal identity or address is invented");
+  const homeFaq = getFaqPageStructuredData(HOME_FAQS, "/");
+  check(homeFaq["@type"] === "FAQPage" && homeFaq.mainEntity.length === HOME_FAQS.length && homeFaq.mainEntity.every((item, index) => item.name === HOME_FAQS[index]?.question && item.acceptedAnswer.text === HOME_FAQS[index]?.answer), "FAQPage repeats the visible homepage answers");
+  check(readGoogleSiteVerification() === null, "Search Console verification stays absent without an owner code");
+  process.env.GOOGLE_SITE_VERIFICATION = "not a code";
+  check(readGoogleSiteVerification() === null, "Malformed Search Console code is ignored");
+  process.env.GOOGLE_SITE_VERIFICATION = "google-code_OK123";
+  check(readGoogleSiteVerification() === "google-code_OK123", "A well-formed Search Console code can be emitted");
+  delete process.env.GOOGLE_SITE_VERIFICATION;
+  for (const guide of GUIDES) {
+    check(isPublicSitePath(guide.path), "Guide is on the public allowlist: " + guide.path);
+    check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
+  }
+  const footer = readFileSync(resolve("src/components/landing/LandingFooter.tsx"), "utf8");
+  check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("TODO") && !/linkedin\.com|facebook\.com/i.test(footer), "Footer links only the known Instagram profile");
+  const heroWebp = statSync(resolve("public/images/felexia-horizon-v1.webp")).size;
+  const heroAvif = statSync(resolve("public/images/felexia-horizon-v1.avif")).size;
+  const heroPng = statSync(resolve("public/images/felexia-horizon-v1.png")).size;
+  check(heroWebp < heroPng / 4 && heroAvif < heroPng / 4, "Hero WebP and AVIF are much smaller than the source PNG");
+  check(statSync(resolve("public/brand/felexiaerp-logo-horizontal.webp")).size < 30_000 && statSync(resolve("public/brand/felexiaerp-logo-horizontal.avif")).size < 30_000, "Header logo is a sized modern file, not the full PNG");
   const injected = { name: "</script><script>unsafe</script>" };
   check(!serializeJsonLd(injected).includes("<") && JSON.parse(serializeJsonLd(injected)).name === injected.name, "JSON-LD cannot close its script element");
 
@@ -71,21 +94,13 @@ async function main() {
   check(privateHeader.headers.some(header => header.value.includes("noindex") && header.value.includes("nosnippet")), "Private HTTP responses opt out of indexing and snippets");
 
   const hero = readFileSync(resolve("src/components/landing/LandingHero.tsx"), "utf8");
-  check(hero.includes("Prenez de la hauteur. Pilotez en toute liberté.") && hero.includes("ESSENTIEL au quotidien. PRO pour une vue d’ensemble."), "User-approved hero wording is preserved");
-  for (const file of ["src/lib/app-url.ts", "src/app/auth/google/route.ts", "src/app/auth/callback/route.ts", "src/components/landing/LandingHero.tsx"]) {
-    // Useful before committing locally; CI's HEAD comparison is not a release
-    // boundary. Publication separately compares the full tree to production.
+  check(hero.includes("Logiciel de gestion et ERP pour les PME au Maroc") && hero.includes("Facturation et trésorerie au quotidien."), "Homepage H1 and lead name the product and the offers");
+  check(hero.includes("felexia-horizon-v1.avif") && hero.includes("felexia-horizon-v1.webp") && !hero.includes("felexia-horizon-v1.png"), "Hero references the modern images, not the multi-megabyte PNG");
+  check(readFileSync(resolve("src/components/landing/LandingStory.tsx"), "utf8").includes("HOME_FAQS"), "Homepage FAQ is rendered from the structured-data source");
+  for (const file of ["src/lib/app-url.ts", "src/app/auth/google/route.ts", "src/app/auth/callback/route.ts"]) {
     const before = execFileSync("git", ["show", "HEAD:" + file]);
     const after = readFileSync(resolve(file));
-    // Only the reviewed accessible name of the existing scroll cue may differ.
-    // Visible hero copy, image, layout and zoom code remain under this invariant.
-    const comparable = (value: string) => {
-      const normalized = value.replace(/\r\n/g, "\n");
-      return file.endsWith("/LandingHero.tsx")
-        ? normalized.replace('aria-label="Défiler pour découvrir — Découvrez la suite"', 'aria-label="Découvrir la gestion d’entreprise avec ESSENTIEL"')
-        : normalized;
-    };
-    check(comparable(before.toString("utf8")) === comparable(after.toString("utf8")), "OAuth/hero source remains byte-identical except the reviewed scroll cue label, modulo EOL: " + file);
+    check(before.toString("utf8").replace(/\r\n/g, "\n") === after.toString("utf8").replace(/\r\n/g, "\n"), "OAuth source remains unchanged, modulo EOL: " + file);
   }
   check(createHash("sha256").update(readFileSync(resolve("public/google9cbdd88855e0d08d.html"))).digest("hex") === GOOGLE_OWNERSHIP_SHA256, "Google ownership file retains the exact public baseline bytes");
   mkdirSync(resolve("training/seo/20261101"), { recursive: true });
