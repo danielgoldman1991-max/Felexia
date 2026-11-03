@@ -30,7 +30,7 @@ async function main() {
   if (STRICT_MODULES) console.log("Mode strict: les modules hors Essentiel seront desactives.");
   if (TARGET_ORG_NAME) console.log(`Organisation cible: ${TARGET_ORG_NAME}`);
 
-  // Organisations dont l'abonnement est essentiel et utilisable (trialing/active/past_due)
+  // Catalogue de modules seulement. past_due reste en lecture seule pour les écritures métier.
   let orgQuery = supabase
     .from("organization_subscriptions")
     .select("organization_id, plan_code, status, organizations!inner(name)")

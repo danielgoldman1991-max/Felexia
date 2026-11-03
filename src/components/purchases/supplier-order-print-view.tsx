@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxSummary, formatDocumentMoney, formatDocumentNumber, partyLegalLines } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { PurchaseDocumentLineRecord, PurchaseDocumentRecord } from "@/lib/purchase-types";
 import { SUPPLIER_ORDER_STATUS_LABELS } from "@/lib/purchase-types";
@@ -44,7 +44,7 @@ export function SupplierOrderPrintView({
 
       <PrintPartyCard
         title="Fournisseur"
-        lines={[document.supplier_name, document.supplier_phone ? `Tél. : ${document.supplier_phone}` : null, document.supplier_email, document.supplier_ice ? `ICE : ${document.supplier_ice}` : null].filter(Boolean) as string[]}
+        lines={[document.supplier_name, document.supplier_phone ? `Tél. : ${document.supplier_phone}` : null, document.supplier_email, ...partyLegalLines({ ice: document.supplier_ice, rc: document.supplier_rc, ifNumber: document.supplier_if, patente: document.supplier_patente })].filter(Boolean) as string[]}
       />
 
       <PrintLineTable currency={currency}

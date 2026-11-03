@@ -29,7 +29,7 @@ const PURCHASE_DOCUMENT_SELECT = `
   notes, internal_notes, validated_at, stock_updated_at,
   warehouse_id,
   created_by, created_at, updated_at, archived_at,
-  supplier:supplier_id (name, ice, phone, email),
+  supplier:supplier_id (name, ice, rc, if_number, patente, phone, email),
   warehouse:warehouse_id (name)
 `;
 
@@ -48,7 +48,7 @@ const SUPPLIER_INVOICE_SELECT = `
   status, payment_status, subtotal_ht, discount_total, tax_total, total_ttc,
   paid_amount, credit_amount, remaining_amount, currency, notes, internal_notes,
   validated_at, created_by, created_at, updated_at, archived_at,
-  supplier:supplier_id (name, ice, phone, email)
+  supplier:supplier_id (name, ice, rc, if_number, patente, phone, email)
 `;
 
 const SUPPLIER_INVOICE_LINE_SELECT = `
@@ -59,12 +59,15 @@ const SUPPLIER_INVOICE_LINE_SELECT = `
   created_at, updated_at
 `;
 
-function extractSupplier(raw: Record<string, unknown>): { name: string | null; ice: string | null; phone: string | null; email: string | null } {
+function extractSupplier(raw: Record<string, unknown>): { name: string | null; ice: string | null; rc: string | null; ifNumber: string | null; patente: string | null; phone: string | null; email: string | null } {
   const s = raw.supplier as Record<string, unknown> | undefined;
-  if (!s || typeof s !== "object") return { name: null, ice: null, phone: null, email: null };
+  if (!s || typeof s !== "object") return { name: null, ice: null, rc: null, ifNumber: null, patente: null, phone: null, email: null };
   return {
     name: (s.name as string) ?? null,
     ice: (s.ice as string) ?? null,
+    rc: (s.rc as string) ?? null,
+    ifNumber: (s.if_number as string) ?? null,
+    patente: (s.patente as string) ?? null,
     phone: (s.phone as string) ?? null,
     email: (s.email as string) ?? null,
   };
@@ -79,12 +82,12 @@ function extractWarehouse(raw: Record<string, unknown>): { name: string | null }
 function mapPurchaseDocument(raw: Record<string, unknown>): PurchaseDocumentRecord {
   const supplier = extractSupplier(raw);
   const warehouse = extractWarehouse(raw);
-  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_phone: supplier.phone, supplier_email: supplier.email, warehouse_name: warehouse.name } as unknown as PurchaseDocumentRecord;
+  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_rc: supplier.rc, supplier_if: supplier.ifNumber, supplier_patente: supplier.patente, supplier_phone: supplier.phone, supplier_email: supplier.email, warehouse_name: warehouse.name } as unknown as PurchaseDocumentRecord;
 }
 
 function mapSupplierInvoice(raw: Record<string, unknown>): SupplierInvoiceRecord {
   const supplier = extractSupplier(raw);
-  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_phone: supplier.phone, supplier_email: supplier.email } as unknown as SupplierInvoiceRecord;
+  return { ...raw, supplier_name: supplier.name, supplier_ice: supplier.ice, supplier_rc: supplier.rc, supplier_if: supplier.ifNumber, supplier_patente: supplier.patente, supplier_phone: supplier.phone, supplier_email: supplier.email } as unknown as SupplierInvoiceRecord;
 }
 
 function objectValue(value: unknown): Record<string, unknown> | null {

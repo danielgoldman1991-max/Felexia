@@ -1,6 +1,6 @@
 {
   "success": true,
-  "assertions": 177,
+  "assertions": 176,
   "scope": "Real launch-access, pro-access, roles, subscription policy, selected Server Actions and Next middleware; synthetic Auth/DB/environment only",
   "network": false,
   "projectSecretsLoaded": false,
@@ -23,8 +23,7 @@
     "Unavailable full entitlement fails closed: {\"planCode\":\"unknown\"}",
     "Empty company cannot open PRO",
     "Empty company does not query a database",
-    "Deployment full override remains available",
-    "Deployment full override does not read billing",
+    "FELEXIA_ERP_MODE=full no longer opens every company",
     "Company allowlist remains available with spaces/case",
     "Allowlist cannot grant another company access",
     "Middleware client can resolve real PRO entitlement",

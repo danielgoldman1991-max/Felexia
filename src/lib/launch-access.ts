@@ -19,9 +19,18 @@ const readCurrentCompletePlan = cache(async (organizationId: string) =>
   readCompletePlan(organizationId, await createClient()),
 );
 
-/** Server-owned PRO entitlement, with the existing operator overrides preserved. */
+/**
+ * PRO entitlement is the company plan (`premium` / `pro`) or an explicit
+ * organization whitelist. `FELEXIA_ERP_MODE=full` is ignored: it used to open
+ * every menu, including screens the SQL layer still rejects for Essentiel.
+ */
+let warnedAboutFullMode = false;
+
 export async function hasFullErpAccess(organizationId: string, client?: SupabaseClient): Promise<boolean> {
-  if (process.env.FELEXIA_ERP_MODE?.trim().toLowerCase() === "full") return true;
+  if (!warnedAboutFullMode && process.env.FELEXIA_ERP_MODE?.trim().toLowerCase() === "full") {
+    warnedAboutFullMode = true;
+    console.warn("[launch-access] FELEXIA_ERP_MODE=full is ignored. Use FELEXIA_FULL_ERP_ORGANIZATION_IDS or a premium/pro subscription.");
+  }
   if (!organizationId) return false;
   const enabledOrganizations = (process.env.FELEXIA_FULL_ERP_ORGANIZATION_IDS ?? "")
     .split(",")

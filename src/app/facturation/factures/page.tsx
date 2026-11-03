@@ -7,7 +7,7 @@ import { ListPagination } from "@/components/erp/list-pagination";
 import { Button } from "@/components/ui/button";
 import { CustomerInvoicesTable } from "@/components/invoices/customer-invoices-table";
 import { InvoiceListFilters } from "@/components/invoices/invoice-list-filters";
-import { listCustomerInvoices } from "@/lib/invoices";
+import { listCustomerInvoices, syncOverdueCustomerInvoices } from "@/lib/invoices";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isReadOnlyRole } from "@/lib/auth/roles";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
@@ -18,6 +18,7 @@ export default async function CustomerInvoicesPage({ searchParams }: { searchPar
   const params = await searchParams;
   const workspace = await requireActiveWorkspace();
   const canWrite = !isReadOnlyRole(workspace.role) && canWriteWorkspaceSubscription(workspace.subscription);
+  if (canWrite) await syncOverdueCustomerInvoices(workspace.organization.id);
   let result;
   try { result = await listCustomerInvoices({ query: params.q, status: params.status, paymentStatus: params.paymentStatus, dateFrom: params.dateFrom, dateTo: params.dateTo, page: Number(params.page || 1) }); }
   catch { return <ModulePage><PageHeader title="Factures clients" /><EmptyState title="Impossible de charger les factures" description="Réessayez dans un instant. Vos données sont conservées ; contactez l’assistance si le problème persiste." /></ModulePage>; }

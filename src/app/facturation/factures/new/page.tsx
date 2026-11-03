@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { createCustomerInvoice } from "@/lib/invoice-actions";
 import {
   getDeliveryNotesInvoicePreparation,
+  getOrderInvoicePreparation,
   listBillableDeliveryNotesByCustomer,
   listInvoiceCustomers,
   listInvoiceProducts,
@@ -48,14 +49,48 @@ export default async function NewCustomerInvoicePage({ searchParams }: { searchP
   const initialDeliveryNoteId = fullAccess ? params.deliveryNoteId ?? (sourceType === "delivery_note" ? sourceId : "") : "";
 
   if (sourceType === "order") {
+    if (!sourceId) {
+      return (
+        <ModulePage>
+          <PageHeader title="Nouvelle facture" description="Choisissez une commande confirmée sans bon de livraison." />
+          <Card className="border-amber-200 bg-amber-50"><CardContent className="text-sm text-amber-800">Aucune commande n’a été sélectionnée.</CardContent></Card>
+        </ModulePage>
+      );
+    }
+    let orderError: string | null = null;
+    let orderPreparation: Awaited<ReturnType<typeof getOrderInvoicePreparation>> | null = null;
+    try {
+      orderPreparation = await getOrderInvoicePreparation(sourceId);
+    } catch (error) {
+      orderError = error instanceof Error ? error.message : "Commande non facturable.";
+    }
+    if (orderError || !orderPreparation) {
+      return (
+        <ModulePage>
+          <PageHeader title="Nouvelle facture" description="Facturation directe de la commande impossible." />
+          <Card className="border-amber-200 bg-amber-50"><CardContent className="text-sm text-amber-800">{orderError ?? "Commande non facturable."}</CardContent></Card>
+        </ModulePage>
+      );
+    }
+    const [orderCustomers, orderProducts, orderUnits, orderTaxRates] = await Promise.all([
+      listInvoiceCustomers(), listInvoiceProducts(), listInvoiceUnits(), listInvoiceTaxRates(),
+    ]);
     return (
       <ModulePage>
-        <PageHeader title="Nouvelle facture" description="Facturation depuis bon de livraison validé uniquement." />
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="text-sm text-amber-800">
-            Facturation directe depuis commande désactivée. Créez d’abord un bon de livraison validé, puis facturez le BL.
-          </CardContent>
-        </Card>
+        <PageHeader title="Facturer la commande" description={`${orderPreparation.document.document_number} · facture directe, sans bon de livraison. Les quantités ne pourront plus être facturées via un BL.`} />
+        <CustomerInvoiceForm
+          action={createCustomerInvoice}
+          fullAccess={fullAccess}
+          customers={orderCustomers}
+          products={orderProducts}
+          units={orderUnits}
+          taxRates={orderTaxRates}
+          initialCustomerId={orderPreparation.document.customer_id}
+          initialLines={orderPreparation.lines}
+          sourceType="order"
+          sourceDocumentId={orderPreparation.document.id}
+          sourceOrderId={orderPreparation.document.id}
+        />
       </ModulePage>
     );
   }

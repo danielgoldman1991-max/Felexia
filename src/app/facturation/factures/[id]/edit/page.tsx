@@ -29,6 +29,7 @@ export default async function EditCustomerInvoicePage({ params }: { params: Prom
       <CustomerInvoiceForm
         action={updateCustomerInvoice}
         fullAccess={fullAccess}
+        currency={invoice.currency || "MAD"}
         customers={customers}
         products={products}
         units={units}

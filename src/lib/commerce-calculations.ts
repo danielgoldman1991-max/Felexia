@@ -1,4 +1,5 @@
 import type { CommerceLineFormValue } from "@/lib/commerce-types";
+import { calculateCommercialAmounts } from "@/lib/invoice-calculations";
 
 export type TaxRateForSelect = { id: string; name?: string; rate: number };
 
@@ -13,24 +14,22 @@ export function round2(value: number) {
 }
 
 export function calculateLine(line: CommerceLineFormValue): CommerceLineFormValue {
-  const quantity = Number(line.quantity || 0);
-  const unitPrice = Number(line.unit_price_ht || 0);
-  const discountRate = Number(line.discount_rate || 0);
-  const taxRate = Number(line.tax_rate || 0);
-
-  const subtotalHt = quantity * unitPrice * (1 - discountRate / 100);
-  const taxAmount = subtotalHt * taxRate / 100;
-  const totalTtc = subtotalHt + taxAmount;
+  const amounts = calculateCommercialAmounts({
+    quantity: Number(line.quantity || 0),
+    unitPriceHt: Number(line.unit_price_ht || 0),
+    discountRate: Number(line.discount_rate || 0),
+    taxRate: Number(line.tax_rate || 0),
+  });
 
   return {
     ...line,
-    quantity,
-    unit_price_ht: unitPrice,
-    discount_rate: discountRate,
-    tax_rate: taxRate,
-    subtotal_ht: round2(subtotalHt),
-    tax_amount: round2(taxAmount),
-    total_ttc: round2(totalTtc),
+    quantity: amounts.quantity,
+    unit_price_ht: amounts.unitPriceHt,
+    discount_rate: amounts.discountRate,
+    tax_rate: amounts.taxRate,
+    subtotal_ht: amounts.netHt,
+    tax_amount: amounts.taxAmount,
+    total_ttc: amounts.totalTtc,
   };
 }
 

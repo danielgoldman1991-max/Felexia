@@ -12,6 +12,13 @@ import { canonicalMoney, parseLocalizedMoney } from "../src/lib/money";
 import { synchronizeSingleInvoiceAllocation } from "../src/lib/payment-amount-allocation";
 import { resolveSeedLineParents } from "./lib/seed-line-parents";
 import { getDefaultTrialEndDate, getBusinessTrialEndDate } from "../src/lib/subscriptions/trial-config";
+import { calculateCommercialAmounts, calculateInvoiceTotals, calculateInvoiceLine, summarizeVatByRate } from "../src/lib/invoice-calculations";
+import { calculateLine } from "../src/lib/commerce-calculations";
+import { buildDeclarationLines, vatDeclarationImbalance } from "../src/lib/tax/dgi-vat-mapping";
+import { canLetterLines } from "../src/lib/accounting-lettering";
+import { isBaseOnlyPayrollAcknowledgement, PERSISTED_PAYROLL_SCOPE } from "../src/lib/hr/payroll-engine";
+import { hasValidSubscriptionAccess } from "../src/lib/subscriptions/subscription-access";
+import { canAccessFeature } from "../src/lib/subscriptions/plan-access";
 
 const accountingLines = buildCustomerInvoiceLines([
   {
@@ -217,4 +224,99 @@ for (const { start, expected, business } of trialDateCases) {
   assert.equal(source.toISOString(), start, "Le calcul d’essai ne doit pas modifier la date source.");
 }
 
-console.log("Régressions QA vérifiées : comptabilisation des remises, prévisions, statuts documentaires et rattachement du seed.");
+const shared = calculateCommercialAmounts({ quantity: 2.0004, unitPriceHt: 100.005, discountRate: 10, taxRate: 7 });
+assert.equal(shared.quantity, 2);
+assert.equal(shared.unitPriceHt, 100.01);
+assert.equal(shared.grossHt, 200.02);
+assert.equal(shared.discountAmount, 20);
+assert.equal(shared.netHt, 180.02);
+assert.equal(shared.taxAmount, 12.6);
+assert.equal(shared.totalTtc, 192.62);
+
+const invoiceLine = calculateInvoiceLine({
+  id: "line",
+  mode: "free",
+  product_id: "",
+  product_name: "",
+  description: "Taux réduit",
+  quantity: 2.0004,
+  unit_id: "",
+  unit_name: "",
+  unit_price_ht: 100.005,
+  discount_rate: 10,
+  tax_rate_id: "",
+  tax_rate: 7,
+  subtotal_ht: 0,
+  discount_amount: 0,
+  tax_amount: 0,
+  total_ttc: 0,
+});
+assert.equal(invoiceLine.subtotal_ht, shared.netHt, "La facture stocke le HT net.");
+assert.equal(invoiceLine.total_ttc, shared.totalTtc);
+const commerceLine = calculateLine({
+  id: "commerce",
+  mode: "free",
+  product_id: "",
+  product_name: "",
+  description: "Même ligne",
+  quantity: 2.0004,
+  unit_id: "",
+  unit_name: "",
+  unit_price_ht: 100.005,
+  discount_rate: 10,
+  tax_rate_id: "",
+  tax_rate: 7,
+  subtotal_ht: 0,
+  tax_amount: 0,
+  total_ttc: 0,
+});
+assert.equal(commerceLine.subtotal_ht, invoiceLine.subtotal_ht, "Devis et facture utilisent le même net.");
+assert.equal(commerceLine.tax_amount, invoiceLine.tax_amount);
+assert.equal(commerceLine.total_ttc, invoiceLine.total_ttc);
+
+const mixed = [20, 14, 10, 7, 0].map((rate) => calculateCommercialAmounts({ quantity: 1, unitPriceHt: 100, discountRate: 0, taxRate: rate }));
+const totals = calculateInvoiceTotals(mixed.map((line) => ({
+  ...invoiceLine,
+  subtotal_ht: line.netHt,
+  discount_amount: line.discountAmount,
+  tax_amount: line.taxAmount,
+  total_ttc: line.totalTtc,
+  tax_rate: line.taxRate,
+})));
+assert.equal(totals.subtotal_ht, 500);
+assert.equal(totals.tax_total, 51);
+assert.equal(totals.total_ttc, 551);
+const vatSummary = summarizeVatByRate(mixed.map((line) => ({ netHt: line.netHt, taxRate: line.taxRate, taxAmount: line.taxAmount })));
+assert.deepEqual(vatSummary.map((row) => row.rate), [0, 7, 10, 14, 20]);
+assert.equal(vatSummary.find((row) => row.rate === 7)?.vat, 7);
+
+const declaration = buildDeclarationLines({
+  salesBreakdowns: mixed.filter((line) => line.taxRate > 0).map((line) => ({ taxRate: line.taxRate, baseHtMad: line.netHt, vatAmountMad: line.taxAmount })),
+  collectedVatMad: 51,
+  deductibleVatMad: 0,
+  vatDueMad: 51,
+  creditCarryForwardMad: 0,
+});
+assert.equal(declaration.find((line) => line.code === "110")?.amountMad, 100, "La base à 7 % a une ligne dédiée.");
+assert.equal(declaration.find((line) => line.code === "110T")?.amountMad, 7);
+assert.deepEqual(vatDeclarationImbalance(declaration), { baseGap: 0, vatGap: 0 });
+const withoutSeven = declaration.map((line) => line.code === "110" || line.code === "110T" ? { ...line, amountMad: 0 } : line);
+assert.notEqual(vatDeclarationImbalance(withoutSeven).baseGap, 0, "Une base à 7 % non ventilée déséquilibre la déclaration.");
+
+assert.equal(canLetterLines([
+  { accountCode: "3421", debit: 120, credit: 0 },
+  { accountCode: "3421", debit: 0, credit: 120 },
+]), true);
+assert.equal(canLetterLines([
+  { accountCode: "3421", debit: 120, credit: 0 },
+  { accountCode: "4411", debit: 0, credit: 120 },
+]), false);
+assert.equal(isBaseOnlyPayrollAcknowledgement("yes"), true);
+assert.equal(isBaseOnlyPayrollAcknowledgement("no"), false);
+assert.equal(PERSISTED_PAYROLL_SCOPE, "base_only_preparatory");
+assert.equal(hasValidSubscriptionAccess({ status: "past_due", current_period_end: "2099-01-01" }), false, "past_due reste en lecture seule.");
+assert.equal(canAccessFeature("essentiel", "stock"), false);
+assert.equal(canAccessFeature("premium", "stock"), true);
+assert.equal(canAccessFeature("essentiel", "invoices"), true);
+
+console.log("Régressions QA vérifiées : comptabilisation des remises, prévisions, statuts documentaires, totaux, TVA 7 % et rattachement du seed.");

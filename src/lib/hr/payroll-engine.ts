@@ -1,5 +1,16 @@
 import type { HrSettings } from "@/lib/hr/types";
 
+/**
+ * Exploratory calculator only. The persisted payroll RPC is base-salary only
+ * (`prepare_hr_payroll_atomic`, scope base_only_preparatory). Do not present
+ * this function as a CNSS/AMO/IR bulletin.
+ */
+export const PERSISTED_PAYROLL_SCOPE = "base_only_preparatory" as const;
+
+export function isBaseOnlyPayrollAcknowledgement(value: unknown): boolean {
+  return value === "yes";
+}
+
 type PayrollEmployee = {
   id: string;
   full_name?: string | null;

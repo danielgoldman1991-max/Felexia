@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber, partyLegalLines } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import type { SupplierInvoiceLineRecord, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { SUPPLIER_INVOICE_STATUS_LABELS } from "@/lib/purchase-types";
@@ -50,7 +50,7 @@ export function SupplierInvoicePrintView({
           invoice.supplier_name,
           invoice.supplier_phone ? `Tél. : ${invoice.supplier_phone}` : null,
           invoice.supplier_email,
-          invoice.supplier_ice ? `ICE : ${invoice.supplier_ice}` : null,
+          ...partyLegalLines({ ice: invoice.supplier_ice, rc: invoice.supplier_rc, ifNumber: invoice.supplier_if, patente: invoice.supplier_patente }),
         ].filter(Boolean) as string[]}
       />
 

@@ -1,4 +1,4 @@
-import { documentIdentityInfoLines, documentIdentityContact, documentPaymentMethodLabel, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber } from "@/lib/print-format";
+import { documentIdentityInfoLines, documentIdentityContact, documentPaymentMethodLabel, documentTaxRateLabel, documentTaxSummary, formatDocumentMoney, formatDocumentNumber, partyLegalLines } from "@/lib/print-format";
 import { formatDate, formatNumber } from "@/lib/format";
 import { getPaymentTermLabel } from "@/lib/payment-terms";
 import { INVOICE_PAYMENT_STATUS_LABELS, INVOICE_STATUS_LABELS } from "@/lib/invoice-types";
@@ -33,7 +33,7 @@ export function CustomerInvoicePrintView({
     invoice.customer_city,
     invoice.customer_phone ? `Tel. : ${invoice.customer_phone}` : null,
     invoice.customer_email ? `Email : ${invoice.customer_email}` : null,
-    invoice.customer_ice ? `ICE : ${invoice.customer_ice}` : null,
+    ...partyLegalLines({ ice: invoice.customer_ice, rc: invoice.customer_rc, ifNumber: invoice.customer_if, patente: invoice.customer_patente }),
   ].filter(Boolean) as string[];
 
   const currency = invoice.currency || identity.currency;

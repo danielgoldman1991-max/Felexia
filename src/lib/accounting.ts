@@ -56,6 +56,32 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "7124", name: "Prestations de services", type: "revenue" },
   { code: "7381", name: "Interets et produits assimiles", type: "revenue" },
   { code: "7588", name: "Autres produits divers", type: "revenue" },
+  { code: "1161", name: "Report à nouveau", type: "equity" },
+  { code: "2230", name: "Constructions", type: "asset" },
+  { code: "2340", name: "Matériel et outillage", type: "asset" },
+  { code: "2351", name: "Mobilier de bureau", type: "asset" },
+  { code: "2411", name: "Logiciels", type: "asset" },
+  { code: "2832", name: "Amortissements du matériel de transport", type: "asset" },
+  { code: "3121", name: "Matières premières", type: "asset" },
+  { code: "3131", name: "Fournitures consommables", type: "asset" },
+  { code: "3424", name: "Clients douteux ou litigieux", type: "third_party" },
+  { code: "3458", name: "État - autres taxes récupérables", type: "tax" },
+  { code: "3491", name: "Charges constatées d'avance", type: "asset" },
+  { code: "4417", name: "Fournisseurs d'immobilisations", type: "third_party" },
+  { code: "4432", name: "Rémunérations dues au personnel", type: "liability" },
+  { code: "4441", name: "CNSS", type: "liability" },
+  { code: "4448", name: "Autres organismes sociaux", type: "liability" },
+  { code: "4456", name: "État - TVA due", type: "tax" },
+  { code: "4457", name: "État - crédit de TVA", type: "tax" },
+  { code: "4491", name: "Produits constatés d'avance", type: "liability" },
+  { code: "5115", name: "Chèques à encaisser", type: "treasury" },
+  { code: "6131", name: "Locations et charges locatives", type: "expense" },
+  { code: "6142", name: "Transports", type: "expense" },
+  { code: "6174", name: "Charges sociales", type: "expense" },
+  { code: "6193", name: "RRR obtenus sur achats", type: "expense" },
+  { code: "6386", name: "Escomptes accordés", type: "expense" },
+  { code: "7181", name: "RRR accordés sur ventes", type: "revenue" },
+  { code: "7386", name: "Escomptes obtenus", type: "revenue" },
 ] as const;
 
 export const DEFAULT_ACCOUNTING_JOURNALS = [
@@ -313,7 +339,7 @@ export async function listAccountingJournalEntries(journalId: string, filters: A
   const normalized = normalizeFilters(filters);
   const page = normalized.page ?? 1;
   const pageSize = normalized.pageSize ?? 50;
-  const all = await fetchJournalEntries(organizationId, journalId, { ...normalized, pageSize: 10000 });
+  const all = await fetchJournalEntries(organizationId, journalId, { ...normalized, pageSize: 2000 });
   const from = (page - 1) * pageSize;
   const pageEntries = all.entries.slice(from, from + pageSize);
   const lines = await getLinesForEntries(organizationId, pageEntries);
@@ -335,7 +361,7 @@ export async function listAccountingJournalEntries(journalId: string, filters: A
 export async function listAccountingJournalExportRows(journalId: string, filters: AccountingJournalEntryFilters = {}) {
   const workspace = await requireActiveWorkspace();
   const organizationId = workspace.organization.id;
-  const all = await fetchJournalEntries(organizationId, journalId, { ...filters, pageSize: 10000 });
+  const all = await fetchJournalEntries(organizationId, journalId, { ...filters, pageSize: 2000 });
   const lines = await getLinesForEntries(organizationId, all.entries);
   return { entries: all.entries, lines };
 }

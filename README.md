@@ -98,7 +98,7 @@ FELEXIA_ERP_MODE=light
 FELEXIA_FULL_ERP_ORGANIZATION_IDS=
 ```
 
-Pour une demande acceptée, ajouter l'UUID de l'entreprise à `FELEXIA_FULL_ERP_ORGANIZATION_IDS`, puis redéployer. Pour rétablir l'interface complète pour toutes les entreprises, configurer `FELEXIA_ERP_MODE=full`, puis redéployer. Les droits d'abonnement existants continuent à s'appliquer ; les options RH restent soumises à ces droits. Le profil complet active l'ensemble de l'interface existante pour l'entreprise, sans réglage par module. Le retour au profil léger consiste à retirer l'UUID de la liste ou à retirer `full`.
+Pour une demande acceptée, ajouter l'UUID de l'entreprise à `FELEXIA_FULL_ERP_ORGANIZATION_IDS`, puis redéployer. `FELEXIA_ERP_MODE=full` ne donne plus le menu complet à toutes les sociétés : les écritures SQL PRO resteraient refusées. L'interface complète suit l'abonnement `premium`/`pro`, ou la liste d'UUID. Les options RH restent soumises à ces droits. Le retour au profil léger consiste à retirer l'UUID de la liste.
 
 La société active est résolue depuis la session et son membership. Aucun paramètre d'URL, de formulaire, de métadonnées utilisateur ou de stockage navigateur ne peut activer le profil complet. Ce profil règle la présentation et les parcours : il ne remplace ni les permissions métier ni les RLS Supabase. Les informations d'entreprise et les logos sur les factures conservent leur fonctionnement.
 

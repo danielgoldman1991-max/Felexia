@@ -44,6 +44,9 @@ export type CustomerInvoiceRecord = {
   customer_phone?: string | null;
   customer_email?: string | null;
   customer_ice?: string | null;
+  customer_rc?: string | null;
+  customer_if?: string | null;
+  customer_patente?: string | null;
   source_document_number?: string | null;
   source_order_number?: string | null;
   source_delivery_number?: string | null;

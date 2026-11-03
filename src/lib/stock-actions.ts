@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireProWorkspace } from "@/lib/pro-access";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
-import { recordStockMovementsAtomic } from "@/lib/stock/record-stock-movements";
-import type { StockActionResult, StockMoveDirection, StockMoveType } from "@/lib/stock-types";
+import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
+import { logAudit } from "@/lib/audit";
+import type { StockActionResult, StockMoveDirection } from "@/lib/stock-types";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -17,7 +18,7 @@ function numberValue(formData: FormData, key: string) {
   return Number.isFinite(value) ? value : 0;
 }
 
-async function createStockMovement(formData: FormData, moveType: StockMoveType, direction: StockMoveDirection) {
+async function createStockMovement(formData: FormData, moveType: AtomicStockMovement["move_type"], direction: StockMoveDirection) {
   const workspace = await requireProWorkspace();
   const supabase = await createClient();
   const productId = text(formData, "product_id");
@@ -100,4 +101,31 @@ export async function createStockAdjustment(
   if (!reason) return { success: false, error: "Le motif est obligatoire." };
   if (direction === "out") return createStockMovement(formData, "adjustment_out", "out");
   return createStockMovement(formData, "adjustment_in", "in");
+}
+
+export async function transferStock(
+  previousState: StockActionResult,
+  formData: FormData,
+): Promise<StockActionResult> {
+  void previousState;
+  const workspace = await requireProWorkspace();
+  const productId = text(formData, "product_id");
+  const fromId = text(formData, "from_warehouse_id");
+  const toId = text(formData, "to_warehouse_id");
+  const quantity = numberValue(formData, "quantity");
+  if (!productId || !fromId || !toId) return { success: false, error: "Choisissez un article et deux emplacements." };
+  if (fromId === toId) return { success: false, error: "L'emplacement de départ et d'arrivée doivent être différents." };
+  if (quantity <= 0) return { success: false, error: "La quantité doit être supérieure à zéro." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("transfer_stock_between_locations", {
+    p_organization_id: workspace.organization.id,
+    p_product_id: productId,
+    p_from_warehouse_id: fromId,
+    p_to_warehouse_id: toId,
+    p_quantity: quantity,
+    p_notes: text(formData, "notes"),
+  });
+  if (error) return { success: false, error: error.message };
+  await logAudit(workspace.organization.id, "stock_transfer", "stock_moves", productId, { fromId, toId, quantity });
+  redirect("/stock/mouvements");
 }
