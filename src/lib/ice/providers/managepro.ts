@@ -2,11 +2,11 @@
 import { DomUtils, parseDocument } from "htmlparser2";
 import type { CompanyLookupResponse, CompanyLookupResult } from "@/lib/ice/company-lookup-provider";
 import { normalizeCompanyName, normalizeIce, parseCompanyLookupInput } from "@/lib/ice/ice";
+import { selectCompanyLookupResults } from "@/lib/ice/company-lookup-matching";
 
 const LOOKUP_PAGE = "https://www.managepro.ma/companylookup";
 const LOOKUP_ACTION = "https://www.managepro.ma/companylookupjson";
 const MAX_HTML_BYTES = 512 * 1024;
-const MAX_CANDIDATES = 10;
 const USER_AGENT = "FelexiaCompanyLookup/1.0 (+https://felexia.pro/bot; contact@felexia.pro)";
 type Element = ReturnType<typeof DomUtils.findAll>[number];
 
@@ -23,32 +23,6 @@ function text(element: Element | null): string {
     return "children" in node ? node.children.map(safeText).join("") : "";
   };
   return element.children.map(safeText).join("").replace(/\s+/g, " ").trim().slice(0, 1000);
-}
-
-function matchingName(value: string): string {
-  return normalizeCompanyName(value).normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-}
-
-/** No edit-distance guess: every word must match, with a prefix allowed only
- * for the last typed word (at least three characters). A one-word search can
- * match anywhere in a legal name, not only at the beginning.
- */
-function nameMatchRank(name: string, requested: string): number | null {
-  if (!requested) return null;
-  if (name === requested) return 0;
-  const requestedWords = requested.split(" ");
-  const words = name.split(" ");
-  const allComplete = requestedWords.every((word) => words.includes(word));
-  const allMatch = requestedWords.every((word, index) => words.includes(word) ||
-    (index === requestedWords.length - 1 && word.length >= 3 && words.some((value) => value.startsWith(word))));
-  if (!allMatch) return null;
-  if (allComplete) return name.startsWith(`${requested} `) ? 1 : 2;
-  return name.startsWith(requested) ? 3 : 4;
-}
-
-function stableIdentityKey(company: CompanyLookupResult): string {
-  return [matchingName(company.raisonSociale ?? ""), company.ice, company.raisonSociale,
-    company.rc, company.villeRc, company.formeJuridique, company.activite].join("\0");
 }
 
 const unavailable = (): CompanyLookupResponse => ({
@@ -100,34 +74,7 @@ export function parseManageProResults(html: string, query: string): CompanyLooku
   }
   if (!companies.length) return unavailable();
 
-  const requested = matchingName(parsed.normalizedValue);
-  const ranked = companies.map((company) => ({
-    company,
-    // ICE lookup never uses a name approximation or first-result fallback.
-    rank: parsed.type === "ice" ? (company.ice === parsed.normalizedValue ? 0 : null)
-      : nameMatchRank(matchingName(company.raisonSociale ?? ""), requested),
-    key: stableIdentityKey(company),
-  })).filter((entry): entry is typeof entry & { rank: number } => entry.rank !== null)
-    .sort((left, right) => left.rank - right.rank || (left.key < right.key ? -1 : left.key > right.key ? 1 : 0));
-  const seen = new Set<string>();
-  const unique = ranked.filter(({ company }) => {
-    if (seen.has(company.ice!)) return false;
-    seen.add(company.ice!);
-    return true;
-  });
-  // Keep nearby name identities visible even when one legal name is exact.
-  // Only a single deduplicated match can open the direct confirmation.
-  const matches = unique.map((entry) => entry.company);
-  if (!matches.length) return { status: "not_found", message: "Aucun résultat confirmé pour cette recherche." };
-  if (matches.length > 1) return {
-    status: "ambiguous",
-    message: "Plusieurs entreprises correspondent à votre recherche. Sélectionnez celle qui vous concerne.",
-    candidates: matches.slice(0, MAX_CANDIDATES),
-    // This count concerns parsed source cards, not the entire company registry.
-    candidateCount: matches.length,
-    candidatesTruncated: matches.length > MAX_CANDIDATES,
-  };
-  return { status: "found", message: "Entreprise trouvée. Vérifiez ses informations avant de continuer.", result: matches[0] };
+  return selectCompanyLookupResults(companies, parsed.normalizedValue);
 }
 
 async function readHtml(response: Response): Promise<string> {

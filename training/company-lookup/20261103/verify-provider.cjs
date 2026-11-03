@@ -52,9 +52,11 @@ function setup(...responses) { requests = []; queue = responses; deadline = unde
 
 async function main() {
   const parser = load('src/lib/ice/ice.ts');
+  const matching = load('src/lib/ice/company-lookup-matching.ts', { '@/lib/ice/ice': parser });
   const provider = load('src/lib/ice/providers/managepro.ts', {
     htmlparser2: await import('htmlparser2'),
     '@/lib/ice/ice': parser,
+    '@/lib/ice/company-lookup-matching': matching,
   }, {
     fetch(url, options) {
       requests.push({ url, options });
@@ -84,12 +86,13 @@ async function main() {
   check('ICE mismatch never falls back to the first company', () => {
     assert.equal(parse(found, '000035228000027').status, 'not_found');
   });
-  check('Unrelated public multi-result first card is not returned', () => {
+  check('Complete-word public matches precede prefix suggestions instead of selecting the first source card', () => {
     const result = parse(fixture('managepro-multi.html'), 'MAROC TELECOM');
     assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
-    assert.equal(result.candidates.length, 3); assert.equal(result.candidateCount, 3);
+    assert.equal(result.candidates.length, 4); assert.equal(result.candidateCount, 4);
     assert.equal(result.candidatesTruncated, false);
-    assert.ok(result.candidates.every(company => /\bTELECOM\b/.test(company.raisonSociale) && /\bMAROC\b/.test(company.raisonSociale)));
+    assert.ok(result.candidates.slice(0, 3).every(company => /\bTELECOM\b/.test(company.raisonSociale) && /\bMAROC\b/.test(company.raisonSociale)));
+    assert.equal(result.candidates[3].raisonSociale, "STE MAROCAINE D'ETUDES DE TELECOMMUNICATIONS ET AUTRES SERVICES");
     assert.ok(result.candidates.every(company => /^\d{15}$/.test(company.ice) && company.found && company.source === 'managepro'));
   });
   const second = found.replaceAll('000035228000026', '000035228000027');
@@ -102,12 +105,49 @@ async function main() {
   check('A partial last word can supply a nearby candidate without arbitrary inner-word matching', () => {
     assert.equal(parse(found, 'X2K').status, 'found');
     assert.equal(parse(found, 'X2').status, 'invalid_input');
-    assert.equal(parse(found, 'X2K CON').result.ice, '000035228000026');
+    const prefix = parse(found, 'X2K CON');
+    assert.equal(prefix.status, 'ambiguous'); assert.equal(prefix.result, undefined);
+    assert.equal(prefix.candidates.length, 1); assert.equal(prefix.candidates[0].ice, '000035228000026');
     assert.equal(parse(found, 'NSEIL').status, 'not_found');
     assert.equal(parse(found, '...').status, 'not_found');
   });
   const syntheticCard = (name, index) => found.replaceAll('X2K CONSEIL', name)
     .replaceAll('000035228000026', String(900000000000000n + BigInt(index)));
+  const addioui = found.replaceAll('X2K CONSEIL', 'ADDIOUI NEGOCE')
+    .replaceAll('000035228000026', '002173923000040');
+  check('A prefix in the first word exposes ADDIOUI NEGOCE as one explicit suggestion, never an exact ADDI identity', () => {
+    const result = parse(addioui, 'ADDI NEGOCE');
+    assert.equal(result.status, 'ambiguous'); assert.equal(result.result, undefined);
+    assert.equal(result.candidateCount, 1); assert.equal(result.candidatesTruncated, false);
+    assert.equal(result.candidates.length, 1);
+    assert.equal(result.candidates[0].raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(result.candidates[0].ice, '002173923000040');
+    assert.equal(result.candidates[0].query, 'ADDI NEGOCE');
+    assert.ok(/proche/.test(result.message));
+  });
+  check('Prefixes can occur in any word order while exact ADDIOUI NEGOCE remains a confirmed name', () => {
+    const reversed = parse(addioui, 'NEGOCE ADDI');
+    assert.equal(reversed.status, 'ambiguous'); assert.equal(reversed.result, undefined);
+    assert.equal(reversed.candidates[0].raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(parse(addioui, 'ADDIOUI NEGOCE').result.ice, '002173923000040');
+    assert.equal(parse(addioui, 'NEGOCE ADDIOUI').result.ice, '002173923000040');
+  });
+  check('Prefix suggestions require every word and at least three characters for each incomplete word', () => {
+    for (const query of ['AD NEGOCE', 'ADDI NE', 'ADDI SERVICES', 'DDI NEGOCE', 'ADDINEGOCE']) {
+      const result = parse(addioui, query);
+      assert.equal(result.status, 'not_found'); assert.equal(result.result, undefined); assert.equal(result.candidates, undefined);
+    }
+    const allPrefixes = parse(addioui, 'ADD NEG');
+    assert.equal(allPrefixes.status, 'ambiguous'); assert.equal(allPrefixes.candidates[0].ice, '002173923000040');
+  });
+  check('Complete words rank before prefixes and exact ICE never uses the nearby name', () => {
+    const exactAddi = syntheticCard('ADDI NEGOCE', 51);
+    const result = parse(addioui + exactAddi, 'ADDI NEGOCE');
+    assert.equal(result.status, 'ambiguous');
+    assert.deepEqual(Array.from(result.candidates, company => company.raisonSociale), ['ADDI NEGOCE', 'ADDIOUI NEGOCE']);
+    assert.equal(parse(addioui, '002173923000040').result.raisonSociale, 'ADDIOUI NEGOCE');
+    assert.equal(parse(addioui, '002173923000041').status, 'not_found');
+  });
   const suggestions = [
     syntheticCard('ALPHA CONSEIL MAROC', 1),
     syntheticCard('CONSEILS MAROC', 2),
@@ -289,12 +329,19 @@ async function main() {
   check('Ambiguous results do not enter the cache', () => assert.equal(noWrite.state.writes.length, 0));
   const digest = query => crypto.createHash('sha256').update(query).digest('hex');
   const oldNameKey = digest('raison_sociale:X2K CONSEIL');
-  const newNameKey = digest('name-candidates-v1:raison_sociale:X2K CONSEIL');
+  const newNameKey = digest('name-candidates-v3:raison_sociale:X2K CONSEIL');
   db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, oldNameKey); providerCalls = 0;
   await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
   check('The versioned name cache bypasses old single-result entries that could hide nearby identities', () => {
     assert.equal(db.state.queryHash, newNameKey); assert.equal(providerCalls, 1);
     assert.notEqual(newNameKey, oldNameKey);
+  });
+  const previousNameKey = digest('name-candidates-v1:raison_sociale:X2K CONSEIL');
+  db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, previousNameKey); providerCalls = 0;
+  await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
+  check('The current cache namespace cannot reuse a prior-version confirmed prefix identity', () => {
+    assert.equal(db.state.queryHash, newNameKey); assert.equal(providerCalls, 1);
+    assert.notEqual(newNameKey, previousNameKey);
   });
   db = database([{ ...iceResult.result, query: 'X2K CONSEIL' }], null, newNameKey); providerCalls = 0;
   const currentNameHit = await facade.searchCompany(db.client, { query: 'X2K CONSEIL' });
@@ -443,6 +490,184 @@ async function main() {
     assert.equal(apiSuggestionsBody.candidates[0].raisonSociale, 'CONSEIL');
     assert.ok(apiSuggestionsBody.candidates.every(company => /^\d{15}$/.test(company.ice)));
     assert.equal(apiSuggestions.headers.get('cache-control'), 'private, no-store');
+  });
+
+  // Synthetic legal records in the observed public card structure. No live
+  // user company, source cookies or request credentials are included here.
+  const secondaryCard = (name = 'ALPHA NEGOCE', ice = '900000000000081') => `<div class="conta">
+    <div class="note activite">EN ACTIVITE</div><p class="par1"><img src="company.png">${name}</p>
+    <p class="par2"><strong>ICE :</strong><input readonly class="inj" value="${ice}"></p>
+    <div class="cnv"><p class="par3">SARL A ASSOCIE UNIQUE</p><p class="par4">RC 10101 RABAT</p>
+    <p class="par4"><strong>Capital :</strong>100 000 DH</p><p class="par4"><strong>Cr&#xe9;ation :</strong>01/01/2020</p></div>
+    <p class="par5"><strong>Activit&#xe9; :</strong>NEGOCE &amp; CONSEIL</p></div>`;
+  const secondary = load('src/lib/ice/providers/marocfacture.ts', {
+    htmlparser2: await import('htmlparser2'), '@/lib/ice/ice': parser,
+    '@/lib/ice/company-lookup-matching': matching,
+  }, {
+    fetch(url, options) {
+      requests.push({ url, options });
+      if (!queue.length) throw Error('Unexpected secondary HTTP request');
+      const response = queue.shift();
+      return typeof response === 'function' ? response(url, options) : Promise.resolve(response);
+    },
+    setTimeout(callback, delay) { deadline = { callback, delay }; return 1; },
+    clearTimeout() { clears++; },
+    queueMicrotask,
+  });
+  const parseSecondary = secondary.parseMarocFactureResults;
+  const secondaryExact = parseSecondary(secondaryCard(), '900000000000081');
+  check('The secondary public card parser retains exact ICE and real structured fields without inventing an address', () => {
+    assert.equal(secondaryExact.status, 'found');
+    const company = secondaryExact.result;
+    assert.equal(company.source, 'marocfacture'); assert.equal(company.raisonSociale, 'ALPHA NEGOCE');
+    assert.equal(company.ice, '900000000000081'); assert.equal(company.rc, '10101'); assert.equal(company.villeRc, 'RABAT');
+    assert.equal(company.formeJuridique, 'SARL A ASSOCIE UNIQUE'); assert.equal(company.activite, 'NEGOCE & CONSEIL');
+    assert.equal(company.adresse, null); assert.equal(company.identifiantFiscal, null);
+  });
+  check('Secondary matching uses the shared exact ICE, name and explicit prefix suggestion rules', () => {
+    assert.equal(parseSecondary(secondaryCard(), '900000000000082').status, 'not_found');
+    assert.equal(parseSecondary(secondaryCard(), 'ALPHA NEGOCE').status, 'found');
+    const close = parseSecondary(secondaryCard(), 'ALP NEGOCE');
+    assert.equal(close.status, 'ambiguous'); assert.equal(close.result, undefined); assert.equal(close.candidates.length, 1);
+    assert.equal(parseSecondary(secondaryCard(), 'LPH NEGOCE').status, 'not_found');
+    assert.equal(parseSecondary(secondaryCard(), 'AL NEGOCE').status, 'not_found');
+  });
+  check('Missing, malformed or unrelated HTML cannot establish a secondary no-result response', () => {
+    for (const html of ['', '<h1>Access denied</h1>', '<table><tr><td>900000000000081 ALPHA NEGOCE</td></tr></table>',
+      secondaryCard().replace('900000000000081', '123'), secondaryCard().replace('class="inj"', 'class="unrelated"')]) {
+      assert.equal(parseSecondary(html, 'ALPHA NEGOCE').status, 'unavailable');
+    }
+  });
+  check('Secondary card text excludes script/style content and ICE must be the exact fifteen-digit attribute', () => {
+    const clean = parseSecondary(secondaryCard('ALPHA <script>steal()</script><style>.bad{}</style>NEGOCE'), 'ALPHA NEGOCE');
+    assert.equal(clean.result.raisonSociale, 'ALPHA NEGOCE'); assert.ok(!JSON.stringify(clean).includes('steal()'));
+    assert.equal(parseSecondary(secondaryCard('ALPHA NEGOCE', 'ICE 900000000000081'), 'ALPHA NEGOCE').status, 'unavailable');
+  });
+  setup(htmlResponse(secondaryCard()));
+  const secondaryLiveShape = await secondary.lookupCompanyOnMarocFacture('900000000000081', 4321);
+  check('The secondary transport performs one published fixed POST with the remaining shared time budget', () => {
+    assert.equal(secondaryLiveShape.status, 'found'); assert.equal(requests.length, 1);
+    assert.equal(requests[0].url, 'https://ice.marocfacture.com/controller/controller.php');
+    const options = requests[0].options;
+    assert.equal(options.method, 'POST'); assert.equal(options.body.get('name'), '900000000000081');
+    assert.equal(options.body.get('namers'), null); assert.equal(options.redirect, 'error'); assert.equal(options.cache, 'no-store');
+    assert.equal(deadline.delay, 4321); assert.equal(clears, 1);
+  });
+  check('The secondary transport sends no incoming Felexia authentication, cookie or token', () => {
+    const headers = requests[0].options.headers;
+    assert.equal(headers.authorization, undefined); assert.equal(headers.cookie, undefined);
+    assert.equal(headers.origin, 'https://ice.marocfacture.com'); assert.equal(headers.referer, 'https://ice.marocfacture.com/');
+    assert.deepEqual(Array.from(requests[0].options.body.keys()), ['name']);
+  });
+  setup(htmlResponse(secondaryCard()));
+  await secondary.lookupCompanyOnMarocFacture('alpha negoce', 50_000);
+  check('Secondary name requests use only namers and never extend a request beyond fifteen seconds', () => {
+    assert.equal(requests[0].options.body.get('namers'), 'ALPHA NEGOCE');
+    assert.equal(requests[0].options.body.get('name'), null); assert.equal(deadline.delay, 15_000);
+  });
+  for (const [label, response] of [
+    ['HTTP rejection', htmlResponse('Forbidden', 403)],
+    ['non-HTML', new Response('{}', { headers: { 'content-type': 'application/json' } })],
+    ['oversized declared body', htmlResponse(secondaryCard(), 200, { 'content-length': String(512 * 1024 + 1) })],
+    ['oversized streamed body', htmlResponse('x'.repeat(512 * 1024 + 1))],
+  ]) {
+    setup(response);
+    const responseBody = await secondary.lookupCompanyOnMarocFacture('ALPHA NEGOCE', 1000);
+    check('Secondary ' + label + ' remains unavailable rather than not found', () => {
+      assert.equal(responseBody.status, 'unavailable'); assert.equal(requests.length, 1); assert.equal(clears, 1);
+    });
+  }
+  setup((_url, options) => new Promise((_resolve, reject) => {
+    options.signal.addEventListener('abort', () => reject(Error('AbortError')), { once: true });
+    queueMicrotask(() => deadline.callback());
+  }));
+  const secondaryAborted = await secondary.lookupCompanyOnMarocFacture('ALPHA NEGOCE', 3);
+  check('The secondary deadline aborts the request and releases its timer', () => {
+    assert.equal(secondaryAborted.status, 'unavailable'); assert.equal(requests[0].options.signal.aborted, true); assert.equal(clears, 1);
+  });
+  setup();
+  for (const [query, budget] of [['12', 1000], ['A'.repeat(101), 1000], ['ALPHA NEGOCE', 0], ['ALPHA NEGOCE', NaN]]) {
+    await secondary.lookupCompanyOnMarocFacture(query, budget);
+  }
+  check('Invalid input or exhausted time budget cannot contact the secondary source', () => assert.equal(requests.length, 0));
+
+  let lookupNow = 100_000;
+  let primaryDuration = 500;
+  let primaryReply;
+  let secondaryReply;
+  let orchestratedPrimaryCalls = 0;
+  let fallbackCalls = [];
+  class LookupDate extends Date { static now() { return lookupNow; } }
+  const orchestrator = load('src/lib/ice/company-lookup-provider.ts', {
+    '@/lib/ice/ice': parser, '@/lib/ice/company-lookup-matching': matching,
+    '@/lib/ice/providers/managepro': { async lookupCompanyOnManagePro() { orchestratedPrimaryCalls++; lookupNow += primaryDuration; return primaryReply; } },
+    '@/lib/ice/providers/marocfacture': { async lookupCompanyOnMarocFacture(query, budget) { fallbackCalls.push({ query, budget }); return secondaryReply; } },
+  }, { Date: LookupDate });
+  const runCombined = async (query, first, second, duration = 500) => {
+    primaryReply = first; secondaryReply = second; primaryDuration = duration;
+    fallbackCalls = []; orchestratedPrimaryCalls = 0;
+    return orchestrator.lookupCompany(query);
+  };
+  const noMatch = { status: 'not_found', message: 'No matching identity in valid cards' };
+  const sourceUnavailable = { status: 'unavailable', message: 'Unavailable source' };
+  await runCombined('000035228000026', iceResult, secondaryExact);
+  check('An exact primary ICE is returned without querying a second source', () => assert.equal(fallbackCalls.length, 0));
+  const exactPrimaryName = parse(found, 'X2K CONSEIL');
+  await runCombined('X2K CONSEIL', exactPrimaryName, secondaryExact);
+  check('An exact normalized primary name is returned without a second source', () => assert.equal(fallbackCalls.length, 0));
+  const fallbackIce = await runCombined('900000000000081', noMatch, secondaryExact, 1234);
+  check('A missing primary ICE is resolved by the second source within the remaining total deadline', () => {
+    assert.equal(fallbackIce.result.ice, '900000000000081'); assert.equal(fallbackIce.result.source, 'marocfacture');
+    assert.equal(fallbackCalls.length, 1); assert.equal(fallbackCalls[0].query, '900000000000081'); assert.equal(fallbackCalls[0].budget, 13_766);
+  });
+  const primaryApproximate = parse(syntheticCard('ALPHABET NEGOCE', 80), 'ALP NEGOCE');
+  const exactSecondaryName = parseSecondary(secondaryCard('ALP NEGOCE'), 'ALP NEGOCE');
+  const merged = await runCombined('ALP NEGOCE', primaryApproximate, exactSecondaryName);
+  check('A primary approximate suggestion cannot hide the exact name found by a second source', () => {
+    assert.equal(fallbackCalls.length, 1); assert.equal(merged.status, 'ambiguous'); assert.equal(merged.result, undefined);
+    assert.equal(merged.candidates[0].raisonSociale, 'ALP NEGOCE'); assert.equal(merged.candidates[0].source, 'marocfacture');
+    assert.equal(merged.candidates[1].raisonSociale, 'ALPHABET NEGOCE'); assert.equal(merged.candidates[1].source, 'managepro');
+  });
+  const primaryDuplicate = { ...primaryApproximate, candidates: [{ ...primaryApproximate.candidates[0], ice: '900000000000081', rc: 'PRIMARY', adresse: 'PRIMARY ADDRESS' }] };
+  const deduped = await runCombined('ALP NEGOCE', primaryDuplicate, exactSecondaryName);
+  check('Merged duplicate ICEs retain one complete best-ranked source record without mixing legal fields', () => {
+    assert.equal(deduped.status, 'found'); assert.equal(deduped.result.raisonSociale, 'ALP NEGOCE');
+    assert.equal(deduped.result.source, 'marocfacture'); assert.equal(deduped.result.rc, '10101'); assert.equal(deduped.result.adresse, null);
+  });
+  const completePrimary = parse(syntheticCard('ALPHA NEGOCE', 80), 'NEGOCE');
+  await runCombined('NEGOCE', completePrimary, noMatch);
+  check('A primary single complete-word result still permits discovering an exact name on a second source', () => assert.equal(fallbackCalls.length, 1));
+  for (const [label, first, second, expected] of [
+    ['both valid no-match responses', noMatch, noMatch, 'not_found'],
+    ['unavailable first source', sourceUnavailable, noMatch, 'unavailable'],
+    ['unavailable second source', noMatch, sourceUnavailable, 'unavailable'],
+    ['both sources unavailable', sourceUnavailable, sourceUnavailable, 'unavailable'],
+  ]) {
+    const outcome = await runCombined('ALPHA NEGOCE', first, second);
+    check('Combined search handles ' + label + ' without a false absence', () => assert.equal(outcome.status, expected));
+  }
+  const preserved = await runCombined('ALP NEGOCE', primaryApproximate, sourceUnavailable);
+  check('Valid primary suggestions remain available when the second source is unavailable', () => {
+    assert.equal(preserved.status, 'ambiguous'); assert.equal(preserved.candidates[0].raisonSociale, 'ALPHABET NEGOCE');
+  });
+  const manyPrimary = parse(Array.from({ length: 20 }, (_, index) => syntheticCard(`ALPHA NEGOCE ${index}`, 100 + index)).join(''), 'NEGOCE');
+  const retainedCount = await runCombined('NEGOCE', manyPrimary, noMatch);
+  check('Merging does not erase a source count or truncation marker when only its retained choices are available', () => {
+    assert.equal(retainedCount.candidates.length, 10); assert.equal(retainedCount.candidateCount, 20); assert.equal(retainedCount.candidatesTruncated, true);
+  });
+  const manySecondary = { ...manyPrimary, candidates: manyPrimary.candidates.map(company => ({ ...company, source: 'marocfacture' })) };
+  const overlappingCounts = await runCombined('NEGOCE', manyPrimary, manySecondary);
+  check('Overlapping source counts are not blindly added into a fictitious total', () => {
+    assert.equal(overlappingCounts.candidateCount, 20); assert.equal(overlappingCounts.candidatesTruncated, true);
+    assert.equal(new Set(overlappingCounts.candidates.map(company => company.ice)).size, 10);
+  });
+  const exhausted = await runCombined('ALPHA NEGOCE', noMatch, secondaryExact, 15_000);
+  check('The shared fifteen-second budget prevents another request and never fabricates a confirmed absence', () => {
+    assert.equal(fallbackCalls.length, 0); assert.equal(exhausted.status, 'unavailable');
+  });
+  await runCombined('12', noMatch, secondaryExact);
+  check('Invalid orchestrated input cannot call either source', () => {
+    assert.equal(orchestratedPrimaryCalls, 0); assert.equal(fallbackCalls.length, 0);
   });
 
   const result = { passed: checks.length, runtime: process.version, scope: 'real provider/parser/cache/rate-limit/API modules; mocked HTTP, auth and database; public fixtures; no live writes', checks };

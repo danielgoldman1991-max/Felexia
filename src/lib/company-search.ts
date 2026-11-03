@@ -79,7 +79,7 @@ export async function getCachedCompanySearch(
   // The former provider selected the first name result regardless of relevance.
   // Keep valid ICE cache hits, but re-resolve legacy name entries with the new
   // matching/ambiguity rules instead of preserving those potentially wrong hits.
-  if (expectedName && (result.source !== "managepro" || result.query !== expectedName)) return null;
+  if (expectedName && (!["managepro", "marocfacture"].includes(result.source) || result.query !== expectedName)) return null;
   
   return { status: "found", message: "Entreprise trouvée (cache).", result };
 }
@@ -167,7 +167,7 @@ export async function searchCompany(
 
   // Earlier name matching could keep one result where the new matching rules
   // offer several choices. Do not let those entries hide the candidate list.
-  const cacheNamespace = parsed.type === "raison_sociale" ? "name-candidates-v1:" : "";
+  const cacheNamespace = parsed.type === "raison_sociale" ? "name-candidates-v3:" : "";
   const cacheKey = hashQuery(`${cacheNamespace}${parsed.type}:${parsed.normalizedValue}`);
   const cached = await getCachedCompanySearch(
     supabase, cacheKey,

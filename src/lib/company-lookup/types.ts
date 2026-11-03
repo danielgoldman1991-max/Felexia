@@ -8,12 +8,12 @@ export type CompanyLookupResult = {
   villeRc?: string | null;
   identifiantFiscal?: string | null;
   cnss?: string | null;
-  source: "managepro" | "synta-iq" | "manual" | "cache";
+  source: "managepro" | "marocfacture" | "synta-iq" | "manual" | "cache";
   confidence?: number;
 };
 
 export type CompanyOnboardingPrefill = {
-  source?: "managepro" | "synta-iq" | "manual" | "cache";
+  source?: "managepro" | "marocfacture" | "synta-iq" | "manual" | "cache";
   raisonSociale?: string | null;
   ice?: string | null;
   identifiantFiscal?: string | null;
