@@ -329,7 +329,18 @@ async function applyStockMovesForDocument(
 
   if (lineError) return { error: lineError.message };
   const productIds = Array.from(new Set((lines ?? []).map((line) => line.product_id).filter(Boolean))) as string[];
-  if (productIds.length === 0) return {};
+  const finalizeDocumentType = moveType === "delivery_out" ? "delivery_note" : "return_note";
+  if (productIds.length === 0) {
+    const movementResult = await recordStockMovementsAtomic({
+      organizationId,
+      operationKey: documentId,
+      movements: [],
+      finalizeDocumentType,
+      documentId,
+    });
+    if (movementResult.error) return { error: movementResult.error };
+    return {};
+  }
   const warehouseResult = await getDefaultWarehouseId(organizationId);
   if (warehouseResult.error || !warehouseResult.warehouseId) {
     return { error: warehouseResult.error ?? "Impossible de determiner le depot principal." };
@@ -371,7 +382,7 @@ async function applyStockMovesForDocument(
     organizationId,
     operationKey: documentId,
     movements: stockMoves,
-    finalizeDocumentType: moveType === "delivery_out" ? "delivery_note" : "return_note",
+      finalizeDocumentType,
     documentId,
   });
   if (movementResult.error) return { error: movementResult.error };

@@ -112,6 +112,7 @@ export async function createHrLeaveRequestAction(formData: FormData) {
 
   if (error) throw new Error(error.message);
   revalidatePath("/rh/conges");
+  redirect("/rh/conges");
 }
 
 export async function createHrPayrollPeriodAction(formData: FormData) {

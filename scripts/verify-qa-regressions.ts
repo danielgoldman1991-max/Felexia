@@ -19,6 +19,11 @@ import { canLetterLines } from "../src/lib/accounting-lettering";
 import { isBaseOnlyPayrollAcknowledgement, PERSISTED_PAYROLL_SCOPE } from "../src/lib/hr/payroll-engine";
 import { hasValidSubscriptionAccess } from "../src/lib/subscriptions/subscription-access";
 import { canAccessFeature } from "../src/lib/subscriptions/plan-access";
+import { calculateMoroccanPayslip2026, seniorityRate } from "../src/lib/hr/ma-payroll-2026";
+import { computeCump } from "../src/lib/stock/cump";
+import { buildFinancialStatements } from "../src/lib/accounting/financial-statements";
+import { agingBucket } from "../src/lib/sales/aged-receivables";
+import { matchPurchase } from "../src/lib/purchases/three-way-match";
 
 const accountingLines = buildCustomerInvoiceLines([
   {
@@ -319,4 +324,34 @@ assert.equal(canAccessFeature("essentiel", "stock"), false);
 assert.equal(canAccessFeature("premium", "stock"), true);
 assert.equal(canAccessFeature("essentiel", "invoices"), true);
 
-console.log("Régressions QA vérifiées : comptabilisation des remises, prévisions, statuts documentaires, totaux, TVA 7 % et rattachement du seed.");
+const payslip = calculateMoroccanPayslip2026({ baseSalary: 6000, hireDate: "2026-01-01", periodDate: "2026-06-01", dependents: 0 });
+assert.equal(payslip.cnssEmployee, 268.8);
+assert.equal(payslip.amoEmployee, 135.6);
+assert.equal(payslip.professionalExpense, 2100);
+assert.equal(payslip.ir, 16.23);
+assert.equal(payslip.net, 5579.37);
+assert.equal(seniorityRate(5), 10);
+assert.equal(seniorityRate(1), 0);
+const cump = computeCump([
+  { direction: "in", quantity: 10, unitCost: 80 },
+  { direction: "in", quantity: 10, unitCost: 100 },
+  { direction: "out", quantity: 5 },
+]);
+assert.equal(cump.quantity, 15);
+assert.equal(cump.averageCost, 90);
+assert.equal(cump.value, 1350);
+assert.equal(computeCump([{ direction: "in", quantity: 1, unitCost: 10 }, { direction: "out", quantity: 4 }]).negativeAttempt, true);
+const statements = buildFinancialStatements([
+  { accountCode: "3421", debit: 120, credit: 0 },
+  { accountCode: "4455", debit: 0, credit: 20 },
+  { accountCode: "7111", debit: 0, credit: 100 },
+]);
+assert.equal(statements.produits, 100);
+assert.equal(statements.resultat, 100);
+assert.equal(statements.balanced, true);
+assert.equal(agingBucket("2026-10-20", "2026-11-03", 50), "1_30");
+assert.equal(agingBucket("2026-12-01", "2026-11-03", 50), "not_due");
+assert.equal(matchPurchase([{ description: "Câble", ordered: 4, received: 4, invoiced: 4 }]).matched, true);
+assert.equal(matchPurchase([{ description: "Câble", ordered: 4, received: 3, invoiced: 4 }]).matched, false);
+
+console.log("Régressions QA vérifiées : comptabilisation des remises, prévisions, statuts documentaires, totaux, TVA 7 %, paie 2026, CMUP, états et rattachement du seed.");

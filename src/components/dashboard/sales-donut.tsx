@@ -55,7 +55,7 @@ export function SalesDonut({ data, total }: { data: DonutItem[]; total: number }
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="text-xl font-semibold text-[var(--foreground)]">{totalFormatted}</span>
-            <span className="text-xs font-medium text-[var(--muted)]">DH</span>
+            <span className="text-xs font-medium text-[var(--muted)]">MAD</span>
           </div>
         </div>
         <div className="w-full space-y-3">

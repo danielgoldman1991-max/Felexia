@@ -20,7 +20,7 @@ export async function FullDashboard({
 }) {
   const workspace = await requireActiveWorkspace();
   const params = await searchParams;
-  const firstName = workspace.profile?.full_name?.split(" ")[0] || "Youssef";
+  const firstName = workspace.profile?.full_name?.split(" ")[0] || "";
   const [data, checklist] = await Promise.all([
     getDashboardData(),
     getOnboardingChecklist(workspace.organization.id),
@@ -34,7 +34,7 @@ export async function FullDashboard({
   const kpiCards = [
     {
       title: "Chiffre d'affaires",
-      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.revenue)} DH`,
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.revenue)} MAD`,
       change: "+",
       caption: "Ce mois",
       tone: "success" as const,
@@ -42,7 +42,7 @@ export async function FullDashboard({
     },
     {
       title: "Encaissements",
-      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.collections)} DH`,
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.collections)} MAD`,
       change: "+",
       caption: "Ce mois",
       tone: "success" as const,
@@ -50,7 +50,7 @@ export async function FullDashboard({
     },
     {
       title: "Impayes",
-      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.unpaidAmount)} DH`,
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.unpaidAmount)} MAD`,
       change: "+",
       caption: "Total",
       tone: "danger" as const,
@@ -58,7 +58,7 @@ export async function FullDashboard({
     },
     {
       title: "Tresorerie disponible",
-      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.availableCash)} DH`,
+      value: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.availableCash)} MAD`,
       change: "+",
       caption: "Tous comptes confondus",
       tone: "success" as const,
@@ -70,21 +70,21 @@ export async function FullDashboard({
     {
       label: "Devis en attente",
       value: String(data.pendingQuotesCount),
-      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.pendingQuotesAmount)} DH`,
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.pendingQuotesAmount)} MAD`,
       icon: FileClock,
       href: "/vente/devis",
     },
     {
       label: "Commandes en cours",
       value: String(data.activeOrdersCount),
-      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.activeOrdersAmount)} DH`,
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.activeOrdersAmount)} MAD`,
       icon: Receipt,
       href: "/vente/commandes",
     },
     {
       label: "Livraisons a faire",
       value: String(data.deliveriesToDoCount),
-      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.deliveriesToDoAmount)} DH`,
+      amount: `${new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(data.deliveriesToDoAmount)} MAD`,
       icon: Receipt,
       href: "/vente/livraisons",
     },
@@ -112,7 +112,7 @@ export async function FullDashboard({
                 <BrandLogo variant="horizontal" size="sm" />
                 <span className="rounded-full border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--accent)]">Pilotage</span>
               </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">Bonjour {firstName}</h1>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-5xl">Bonjour{firstName ? ` ${firstName}` : ""}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)] md:text-base">
                 Vue consolidée de votre activité, de votre trésorerie et des points qui méritent votre attention.
               </p>
