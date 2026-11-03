@@ -105,7 +105,7 @@ const lightGroups = [
 export function QuickCreateMenu({ fullAccess = false, operator = false }: { fullAccess?: boolean; operator?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const visibleGroups = (fullAccess && !operator ? groups : lightGroups)
+  const visibleGroups = (fullAccess ? groups : lightGroups)
     .map((group) => ({ ...group, items: group.items.filter((item) => !operator || isOperatorPathAllowed(item.href)) }))
     .filter((group) => group.items.length > 0);
 

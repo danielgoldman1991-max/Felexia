@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/erp/page-header";
 import { MembersFullList } from "@/components/settings/members-full-list";
@@ -6,6 +8,7 @@ import { checkUserLimit } from "@/lib/permissions";
 
 export default async function UsersSettingsPage() {
   const workspace = await requireActiveWorkspace();
+  if (isReadOnlyRole(workspace.role)) redirect("/parametres/profil");
   const isOwner = workspace.role === "owner" || workspace.role === "admin";
 
   const supabase = await createClient();

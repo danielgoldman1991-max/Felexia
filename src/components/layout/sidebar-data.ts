@@ -110,6 +110,7 @@ export const sections: SidebarSection[] = [
       { label: "Paiements reçus", href: "/facturation/paiements", icon: WalletCards },
       { label: "Impayés", href: "/facturation/factures?paymentStatus=unpaid", icon: ShieldAlert },
       { label: "Relances", href: "/facturation/relances", icon: BellRing },
+      { label: "Balance âgée", href: "/facturation/balance-agee", icon: ShieldAlert },
     ],
   },
   {
@@ -125,6 +126,7 @@ export const sections: SidebarSection[] = [
       { label: "Transferts", href: "/stock/transferts", icon: ArrowLeftRight },
       { label: "Ajustements", href: "/stock/ajustements/new", icon: Calculator },
       { label: "Inventaire", href: "/stock/inventaire", icon: ShieldAlert },
+      { label: "Valorisation CMUP", href: "/stock/valorisation", icon: Calculator },
     ],
   },
   {
@@ -171,6 +173,7 @@ export const sections: SidebarSection[] = [
       { label: "Absences", href: "/rh/absences", icon: ShieldAlert, badge: "Consultation" },
       { label: "Congés", href: "/rh/conges", icon: Sparkles, badge: "Consultation" },
       { label: "Paie", href: "/rh/paie", icon: Calculator, badge: "Préparatoire", badgeTone: "warning" },
+      { label: "Référence 2026", href: "/rh/paie/reference", icon: Calculator },
       { label: "Bulletins", href: "/rh/paie/bulletins", icon: FileBadge },
       { label: "Avances", href: "/rh/avances", icon: WalletCards, badge: "Consultation" },
       { label: "Prêts", href: "/rh/prets", icon: Landmark, badge: "Consultation" },
@@ -198,6 +201,7 @@ export const sections: SidebarSection[] = [
       { label: "Plan comptable", href: "/comptabilite/plan-comptable", icon: ClipboardList },
       { label: "Grand livre", href: "/comptabilite/grand-livre", icon: BookOpen },
       { label: "Balance", href: "/comptabilite/balance", icon: BarChart3 },
+      { label: "Bilan et CPC", href: "/comptabilite/etats", icon: BarChart3 },
       { label: "Lettrage", href: "/comptabilite/lettrage", icon: ClipboardList },
       { label: "Exercices", href: "/comptabilite/exercices", icon: CalendarDays },
       { label: "TVA", href: "/comptabilite/tva", icon: Calculator },

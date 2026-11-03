@@ -52,13 +52,15 @@ export function Sidebar({
   const operator = isOperatorRole(workspace?.role);
   const visibleSections = useMemo(
     () =>
-      (fullAccess && !operator ? sections : lightSections).map((section) => (
-        operator && section.key === "settings"
-          ? { ...section, label: "Mon compte", href: "/parametres/profil" }
-          : { ...section, items: section.items?.filter((item) => !operator || isOperatorPathAllowed(item.href)) }
-      )).filter((section) => {
+      (fullAccess ? sections : lightSections).map((section) => {
+        const items = section.items?.filter((item) => !operator || isOperatorPathAllowed(item.href));
+        const href = operator && items?.length && !isOperatorPathAllowed(section.href) ? items[0].href : section.href;
+        return operator && section.key === "settings"
+          ? { ...section, label: "Mon compte", href: "/parametres/profil", items }
+          : { ...section, href, items };
+      }).filter((section) => {
         if (section.hidden) return false;
-        if (operator && !isOperatorPathAllowed(section.href)) return false;
+        if (operator && !isOperatorPathAllowed(section.href) && !(section.items?.length)) return false;
         if (section.key === "welcome") return showWelcomeGuide;
         if (!section.moduleKey) return true;
         return workspace?.enabledModules?.includes(section.moduleKey) ?? false;

@@ -25,7 +25,7 @@ export function TopClients({ clients }: { clients: Client[] }) {
                 <p className="text-xs text-green-600">{client.trend}</p>
               </div>
               <p className="text-sm font-bold text-slate-950">
-                {new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(client.amount)} DH
+                {new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(client.amount)} MAD
               </p>
             </div>
           ))}

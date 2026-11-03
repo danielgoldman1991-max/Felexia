@@ -275,8 +275,15 @@ async function middlewareCases() {
   await middlewareCase('PRO viewer advanced consultation', { role: 'viewer', arrayRole: true }, { status: 200, passthrough: true });
   await middlewareCase('PRO viewer advanced POST', { role: 'viewer', method: 'POST' }, { status: 403, code: 'READ_ONLY_ACCESS' });
   await middlewareCase('PRO viewer advanced form', { role: 'viewer', path: '/stock/entrees/new' }, { status: 307, destination: '/dashboard' });
-  await middlewareCase('PRO operator advanced GET', { role: 'operator' }, { status: 307, destination: '/dashboard' });
-  await middlewareCase('PRO operator advanced POST', { role: 'operator', method: 'POST' }, { status: 403, code: 'OPERATOR_ACCESS_DENIED' });
+  await middlewareCase('PRO operator stock GET', { role: 'operator' }, { status: 200, passthrough: true });
+  await middlewareCase('PRO operator stock POST', { role: 'operator', method: 'POST' }, { status: 200, passthrough: true });
+  await middlewareCase('PRO operator stock entry', { role: 'operator', path: '/stock/entrees/new' }, { status: 200, passthrough: true });
+  await middlewareCase('PRO operator article creation', { role: 'operator', path: '/articles/new' }, { status: 307, destination: '/dashboard' });
+  await middlewareCase('PRO operator settings', { role: 'operator', path: '/parametres/roles' }, { status: 307, destination: '/dashboard' });
+  await middlewareCase('PRO operator accounting entry', { role: 'operator', path: '/comptabilite/ecritures/nouveau' }, { status: 307, destination: '/dashboard' });
+  await middlewareCase('PRO operator accounting POST', { role: 'operator', method: 'POST', path: '/comptabilite/ecritures/nouveau' }, { status: 403, code: 'OPERATOR_ACCESS_DENIED' });
+  await middlewareCase('PRO operator HR', { role: 'operator', path: '/rh' }, { status: 307, destination: '/dashboard' });
+  await middlewareCase('PRO operator HR POST', { role: 'operator', method: 'POST', path: '/rh/paie' }, { status: 403, code: 'OPERATOR_ACCESS_DENIED' });
   await middlewareCase('Subscription failure blocks PRO POST', { lookupError: true, method: 'POST' }, { status: 403, code: 'SUBSCRIPTION_WRITE_REQUIRED' });
   await middlewareCase('Entitlement failure blocks advanced GET', { lookupError: true }, { status: 307, destination: '/parametres/modules' });
   await middlewareCase('Anonymous advanced GET preserves login return', { anonymous: true }, { status: 307, destination: '/login' });
