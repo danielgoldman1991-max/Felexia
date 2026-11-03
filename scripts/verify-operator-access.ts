@@ -6,21 +6,27 @@ const id = "0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1";
 const business = ["/facturation/factures/new", `/facturation/factures/${id}`, `/facturation/factures/${id}/paiement`,
   "/facturation/paiements/new", `/facturation/paiements/${id}/affecter`, "/facturation/avoirs/new",
   "/achats/factures/new", `/achats/factures/${id}/edit`, "/achats/paiements/new", "/achats/fournisseurs",
-  "/tiers/clients", "/tiers/fournisseurs", "/tiers/new?type=customer", "/tiers/new?type=supplier", `/tiers/${id}/edit`];
+  "/tiers/clients", "/tiers/fournisseurs", "/tiers/new?type=customer", "/tiers/new?type=supplier", `/tiers/${id}/edit`,
+  "/vente", "/vente/devis", "/vente/commandes/new", "/vente/livraisons", "/vente/retours",
+  "/stock", "/stock/mouvements", "/stock/transferts", "/stock/inventaire", "/stock/valorisation",
+  "/stock/emplacements", "/stock/emplacements/new", `/stock/emplacements/${id}`, `/stock/emplacements/${id}/edit`,
+  "/stock/entrees/new", "/stock/ajustements/new"];
 for (const path of business) {
   assert.equal(isOperatorPathAllowed(path), true, path);
   assert.equal(isOperatorPathAllowed(path, "POST"), true, path);
 }
 const consultation = ["/dashboard", "/tresorerie", "/tresorerie/comptes", `/tresorerie/comptes/${id}`,
   "/tresorerie/mouvements", `/tresorerie/mouvements/${id}`, "/comptabilite/journaux",
-  `/comptabilite/journaux/${id}/export`, `/comptabilite/journaux/${id}/print`, `/comptabilite/ecritures/${id}`];
+  `/comptabilite/journaux/${id}/export`, `/comptabilite/journaux/${id}/print`, `/comptabilite/ecritures/${id}`,
+  "/facturation/balance-agee", "/articles/produits", "/articles/services"];
 for (const path of consultation) {
   assert.equal(isOperatorPathAllowed(path), true, path);
   assert.equal(isOperatorPathAllowed(path, "POST"), false, path);
 }
 const restricted = ["/parametres/entreprise", "/parametres/utilisateurs", "/parametres/roles", "/parametres/abonnement",
   "/parametres/numerotation", "/parametres/documents", "/parametres/modules", "/onboarding/entreprise",
-  "/articles/new", "/stock", "/rh", "/tiers/new?type=prospect", "/tresorerie/comptes/new",
+  "/articles/new", "/articles/produits/new", `/articles/${id}/edit`, "/rh", "/rh/employes", "/rh/paie",
+  "/tiers/new?type=prospect", "/tresorerie/comptes/new",
   `/tresorerie/comptes/${id}/edit`, "/tresorerie/mouvements/new", "/tresorerie/rapprochement",
   "/comptabilite/ecritures/nouveau", "/comptabilite/plan-comptable", `/comptabilite/ecritures/${id}/edit`,
   "/api/stripe/checkout", "/api/stripe/portal", "/api/subscriptions/start-trial", "/api/invitations",
