@@ -21,6 +21,7 @@ import {
   ArrowLeftRight,
   Calculator,
   Search,
+  Scale,
   BarChart3,
   RotateCcw,
   Target,
@@ -66,6 +67,9 @@ export const sections: SidebarSection[] = [
       { label: "Réceptions", href: "/achats/receptions", icon: Truck },
       { label: "Factures", href: "/achats/factures", icon: Receipt },
       { label: "Paiements", href: "/achats/paiements", icon: WalletCards },
+      { label: "Demandes d'achat", href: "/achats/demandes", icon: ClipboardList },
+      { label: "Consultations", href: "/achats/consultations", icon: Scale },
+      { label: "Balance âgée", href: "/achats/balance-agee", icon: ShieldAlert },
     ],
   },
   {

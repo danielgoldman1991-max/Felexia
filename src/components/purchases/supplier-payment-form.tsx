@@ -15,6 +15,7 @@ import type { TreasuryAccountRecord } from "@/lib/treasury-types";
 import type { SupplierInvoicePaymentSummary, SupplierInvoiceRecord } from "@/lib/purchase-types";
 import { formatDate } from "@/lib/format";
 import { synchronizeSingleInvoiceAllocation } from "@/lib/payment-amount-allocation";
+import { computeWithholding, type WithholdingKind } from "@/lib/purchases/withholding";
 
 export function SupplierPaymentForm({
   suppliers,
@@ -53,6 +54,10 @@ export function SupplierPaymentForm({
   const [transferReference, setTransferReference] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [withholdingKind, setWithholdingKind] = useState<WithholdingKind>("none");
+  const [withholdingVat, setWithholdingVat] = useState(0);
+  const [withholdingHt, setWithholdingHt] = useState(0);
+  const withholding = computeWithholding({ kind: withholdingKind, vatAmount: withholdingVat, amountHt: withholdingHt });
   const idempotencyKeyRef = useRef<string | null>(null);
   const filteredInvoices = useMemo(() => availableInvoices.filter((inv) => inv.supplier_id === supplierId), [availableInvoices, supplierId]);
   const [allocations, setAllocations] = useState<Record<string, number>>(() => preselectedInvoice && preselectedMaxAmount > 0 ? { [preselectedInvoice.id]: preselectedMaxAmount } : {});
@@ -110,6 +115,9 @@ export function SupplierPaymentForm({
     if (transferReference) formData.set("transfer_reference", transferReference);
     if (dueDate) formData.set("due_date", dueDate);
     if (notes) formData.set("notes", notes);
+    formData.set("withholding_kind", withholdingKind);
+    formData.set("withholding_vat", String(withholdingVat));
+    formData.set("withholding_ht", String(withholdingHt));
     if (preselectedInvoiceId && supplierId === initialSupplierId) formData.set("supplier_invoice_id", preselectedInvoiceId);
     const allocs = Object.entries(allocations)
       .filter(([, amt]) => amt > 0)
@@ -160,7 +168,7 @@ export function SupplierPaymentForm({
                 onValueChange={(value) => {
                   const next = value ?? 0;
                   setAmount(next);
-                  if (!fullAccess) setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, availableInvoices.map((invoice) => ({
+                  setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, availableInvoices.map((invoice) => ({
                     id: invoice.id,
                     remaining_amount: invoice.id === preselectedInvoiceId ? preselectedMaxAmount : invoice.remaining_amount,
                   }))));
@@ -190,7 +198,7 @@ export function SupplierPaymentForm({
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Compte de decaissement</label>
-              <select value={treasuryAccountId} onChange={(e) => setTreasuryAccountId(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <select name="treasury_account_id" value={treasuryAccountId} onChange={(e) => setTreasuryAccountId(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 <option value="">Selectionner...</option>
                 {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
               </select>
@@ -279,10 +287,34 @@ export function SupplierPaymentForm({
           </Card>
         ) : null}
 
+        <Card className="mt-6">
+          <CardHeader><h2 className="font-semibold">Retenue à la source</h2></CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-3">
+            <label className="text-sm">
+              <span className="text-xs font-medium uppercase text-[var(--muted)]">Cas</span>
+              <select value={withholdingKind} onChange={(event) => setWithholdingKind(event.target.value as WithholdingKind)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                <option value="none">Aucune</option>
+                <option value="vat_attestation">TVA sans attestation (75 %)</option>
+                <option value="fees_10">Honoraires identifiés (10 % HT)</option>
+                <option value="fees_30">Tiers non identifié (30 % HT)</option>
+              </select>
+            </label>
+            <label className="text-sm">
+              <span className="text-xs font-medium uppercase text-[var(--muted)]">TVA de la facture</span>
+              <MoneyInput name="withholding_vat_input" value={withholdingVat} onValueChange={(value) => setWithholdingVat(value ?? 0)} className="mt-1" />
+            </label>
+            <label className="text-sm">
+              <span className="text-xs font-medium uppercase text-[var(--muted)]">Base HT des honoraires</span>
+              <MoneyInput name="withholding_ht_input" value={withholdingHt} onValueChange={(value) => setWithholdingHt(value ?? 0)} className="mt-1" />
+            </label>
+            <p className="md:col-span-3 text-sm text-[var(--muted)]">{withholding.legalBasis} Retenue <MoneyDisplay value={withholding.withheld} />. Le décaissement enregistré reste le montant saisi ; la retenue est à reverser au Trésor.</p>
+          </CardContent>
+        </Card>
+
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || loadingInvoices || Boolean(invoiceLoadError) || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
+          <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
             {pending ? "Enregistrement…" : "Enregistrer le règlement"}
           </Button>
           <Button type="button" variant="secondary" asChild><Link href="/achats/paiements">Annuler</Link></Button>

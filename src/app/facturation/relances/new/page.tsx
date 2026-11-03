@@ -14,7 +14,7 @@ export default async function NewCustomerReminderPage({ searchParams }: { search
   return (
     <ModulePage>
       <PageHeader title="Nouvelle relance" description="Selectionnez un client, ses factures echues puis le niveau de relance." />
-      <CustomerReminderForm customers={customers} invoices={invoices} initialCustomerId={customerId} suggestedLevel={suggestedLevel} />
+      <CustomerReminderForm key={`${customerId}:${invoices.map((invoice) => invoice.id).join(",")}`} customers={customers} invoices={invoices} initialCustomerId={customerId} suggestedLevel={suggestedLevel} />
     </ModulePage>
   );
 }

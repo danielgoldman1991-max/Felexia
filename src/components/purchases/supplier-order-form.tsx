@@ -146,7 +146,7 @@ export function SupplierOrderForm({
         ) : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || !supplierId || lines.length === 0}>
+          <Button type="submit" disabled={pending}>
             {isEdit ? "Enregistrer les modifications" : "Creer commande fournisseur"}
           </Button>
         </div>
