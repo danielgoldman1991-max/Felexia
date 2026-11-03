@@ -7,6 +7,13 @@
 .title { max-width: 830px; margin: 0; color: #13213b; font-size: clamp(38px, 4.5vw, 64px); font-weight: 550; line-height: 1.12; letter-spacing: -.05em; text-wrap: balance; }
 .introduction { max-width: 650px; margin: 25px 0 0; color: #586980; font-size: 18px; line-height: 1.8; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 25px; margin-top: 32px; }
+.ctaNote, .contactEmail { max-width: 590px; margin: 15px 0 0; color: #586980; font-size: 13px; line-height: 1.7; }
+.contactEmail { margin-top: 8px; }
+.contactEmail span { color: #13213b; overflow-wrap: anywhere; }
+.page a:focus-visible, .questions summary:focus-visible { outline: 2px solid #2454d8; outline-offset: 5px; border-radius: 3px; }
+.actions > a, .nextActions > a { min-height: 48px; }
+.actions > a:first-child, .nextActions > a { text-align: center; }
+.actions > a svg, .nextActions > a svg { flex: 0 0 auto; }
 .textLink { display: inline-flex; align-items: center; gap: 8px; color: #2454d8; font-size: 14px; font-weight: 550; text-underline-offset: 5px; }
 .textLink:hover { text-decoration: underline; }
 .priceCard { min-width: 0; padding: 30px; border: 1px solid #dde5e9; border-radius: 20px; background: #fff; box-shadow: 0 15px 45px #13213b06; }
@@ -26,7 +33,7 @@
 .sectionHeading > a { margin-top: 25px; }
 .featureGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 38px 65px; margin-top: 45px; }
 .feature { min-width: 0; padding-top: 24px; border-top: 1px solid #dce4e9; }
-.number { display: inline-flex; color: #5b7c86; font-size: 12px; font-variant-numeric: tabular-nums; }
+.number { display: inline-flex; color: #557680; font-size: 12px; font-variant-numeric: tabular-nums; }
 .feature h3, .workflow h3, .scopeItems h3 { margin: 16px 0 0; color: #13213b; font-size: 20px; font-weight: 550; line-height: 1.4; letter-spacing: -.02em; }
 .feature > p, .workflow p, .scopeItems p { margin: 12px 0 0; color: #617086; font-size: 15px; line-height: 1.8; }
 .feature ul { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
@@ -58,7 +65,10 @@
 .nextPanel { display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 42px; border-radius: 20px; background: #13213b; }
 .nextPanel h2 { max-width: 750px; margin: 0; color: #fff; font-size: clamp(25px, 2.7vw, 34px); font-weight: 500; line-height: 1.3; letter-spacing: -.03em; text-wrap: balance; }
 .nextPanel p { max-width: 690px; margin: 15px 0 0; color: #c2cede; font-size: 14px; line-height: 1.8; }
-.nextPanel > a { flex: 0 0 auto; }
+.nextActions { flex: 0 1 345px; min-width: 0; }
+.nextActions > a { max-width: 100%; }
+.nextActions > p { margin-top: 13px; font-size: 12px; }
+.nextActions > a:focus-visible { outline-color: #b6f0dc; }
 @media (max-width: 1000px) {
   .heroGrid { grid-template-columns: minmax(0, 1fr) 300px; gap: 35px; }
   .priceCard { padding: 25px; }
@@ -75,12 +85,13 @@
   .scopeGrid, .faqGrid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .scopeGrid { margin-top: 48px; }
   .nextPanel { align-items: flex-start; flex-direction: column; gap: 25px; padding: 32px; }
+  .nextActions { flex-basis: auto; }
 }
 @media (max-width: 480px) {
   .hero { padding-top: 24px; }
   .title { font-size: 37px; }
   .actions { align-items: flex-start; flex-direction: column; gap: 22px; }
-  .actions > a, .nextPanel > a { max-width: 100%; }
+  .actions > a { max-width: 100%; }
   .featureGrid { grid-template-columns: minmax(0, 1fr); margin-top: 32px; }
   .electronicNote { padding: 23px 20px; gap: 13px; }
   .electronicNote h2 { font-size: 17px; }

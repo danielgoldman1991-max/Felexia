@@ -51,7 +51,7 @@ export function GoogleAuthButton({
 
       <div className="flex items-center gap-3 py-2">
         <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs uppercase tracking-wide text-slate-400">
+        <span className="text-xs uppercase tracking-wide text-slate-600">
           ou avec votre email
         </span>
         <div className="h-px flex-1 bg-slate-200" />

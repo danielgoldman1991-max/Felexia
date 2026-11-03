@@ -77,7 +77,7 @@ export default async function LoginPage({
               className={`pb-3 text-sm font-medium transition ${
                 isRegisterMode
                   ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  : "text-slate-600 hover:text-slate-800"
               }`}
             >
               Créer mon compte
@@ -87,7 +87,7 @@ export default async function LoginPage({
               className={`pb-3 text-sm font-medium transition ${
                 isLoginMode
                   ? "border-b-2 border-blue-600 text-blue-600"
-                  : "text-slate-400 hover:text-slate-600"
+                  : "text-slate-600 hover:text-slate-800"
               }`}
             >
               Se connecter
@@ -134,7 +134,7 @@ export default async function LoginPage({
           <blockquote className="text-lg font-medium text-slate-700">
             Vos factures de vente et d’achat, leurs règlements et votre trésorerie, dans un espace simple.
           </blockquote>
-          <div className="mt-10 flex items-center justify-center gap-8 text-xs text-slate-400">
+          <div className="mt-10 flex items-center justify-center gap-8 text-xs text-slate-600">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Facturation

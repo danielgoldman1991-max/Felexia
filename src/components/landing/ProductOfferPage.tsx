@@ -20,6 +20,8 @@ export type ProductOfferContent = {
   facts: readonly { label: string; value: string }[];
   ctaLabel: string;
   ctaHref: string;
+  ctaNote: string;
+  contactEmail?: string;
   featureHeading: string;
   featureIntroduction: string;
   features: readonly (TextItem & { points: readonly string[] })[];
@@ -57,11 +59,13 @@ export function ProductOfferPage({ content }: { content: ProductOfferContent }) 
                 <h1 id="offer-title" className={styles.title}>{content.title}</h1>
                 <p className={styles.introduction}>{content.introduction}</p>
                 <div className={styles.actions}>
-                  <a href={content.ctaHref} className="marketing-button marketing-button-primary">
+                  <a href={content.ctaHref} aria-describedby="offer-cta-note" className="marketing-button marketing-button-primary">
                     {content.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" />
                   </a>
                   <a href="#offer-features" className={styles.textLink}>Découvrir les usages<ArrowUpRight size={16} aria-hidden="true" /></a>
                 </div>
+                <p id="offer-cta-note" className={styles.ctaNote}>{content.ctaNote}</p>
+                {content.contactEmail ? <p className={styles.contactEmail}>Vous pouvez aussi écrire à <span>{content.contactEmail}</span>.</p> : null}
               </div>
               <aside className={styles.priceCard} aria-label={"L’offre " + content.name}>
                 <p className={styles.planName}>Felexia {content.name}</p>
@@ -156,7 +160,10 @@ export function ProductOfferPage({ content }: { content: ProductOfferContent }) 
           <div className="marketing-container">
             <div className={styles.nextPanel}>
               <div><h2 id="offer-next-title">{content.nextHeading}</h2><p>{content.nextDescription}</p></div>
-              <a href={content.ctaHref} className="marketing-button marketing-button-primary">{content.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a>
+              <div className={styles.nextActions}>
+                <a href={content.ctaHref} aria-describedby="offer-next-cta-note" className="marketing-button marketing-button-primary">{content.ctaLabel}<ArrowUpRight size={17} aria-hidden="true" /></a>
+                <p id="offer-next-cta-note">{content.ctaNote}</p>
+              </div>
             </div>
           </div>
         </section>

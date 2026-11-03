@@ -2,9 +2,11 @@ import { ProductOfferPage, type ProductOfferContent } from "@/components/landing
 import { createPublicMetadata } from "@/lib/seo";
 import { getPlanDefinition } from "@/lib/subscriptions/plans";
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
+import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
+import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 
 export const metadata = createPublicMetadata({
-  title: "Felexia PRO — ERP complet au Maroc, sur devis",
+  title: "ERP pour PME au Maroc | Felexia PRO",
   description: "Felexia PRO relie ventes, achats, stock, comptabilité et dossiers RH. Découvrez le périmètre de l’ERP au Maroc et préparez votre projet sur devis.",
   path: "/pro",
 });
@@ -13,8 +15,8 @@ const plan = getPlanDefinition("premium");
 const content: ProductOfferContent = {
   name: "PRO",
   eyebrow: "Felexia PRO · ERP au Maroc",
-  title: "Reliez les métiers de votre entreprise avec PRO.",
-  introduction: "Quand votre activité dépasse la facture, PRO rassemble votre gestion commerciale, vos achats, votre stock, votre comptabilité et vos dossiers RH. Tout ESSENTIEL est inclus ; le projet et les fonctions retenues sont précisés avec notre équipe.",
+  title: "Un ERP pour piloter votre PME au Maroc",
+  introduction: "Reliez votre gestion commerciale, vos achats, vos stocks et vos outils comptables avec Felexia PRO. Tout ESSENTIEL est inclus ; notre équipe définit avec vous les parcours utiles et le périmètre disponible pour votre entreprise.",
   price: "Sur devis",
   priceDetail: "Une proposition adaptée à votre entreprise et aux fonctions utiles à votre organisation.",
   priceNote: "La mise en place de PRO se prépare avec l’équipe Felexia. L’essai public gratuit concerne ESSENTIEL ; PRO ne s’achète pas directement en ligne.",
@@ -26,6 +28,8 @@ const content: ProductOfferContent = {
   ],
   ctaLabel: "Demander un devis PRO",
   ctaHref: getProQuoteHref(),
+  ctaNote: "Ce bouton ouvre un brouillon dans votre messagerie. Envoyez votre message pour transmettre votre demande à l’équipe Felexia.",
+  contactEmail: LEGAL_CONFIG.legalEmail.trim() || "contact@felexia.pro",
   featureHeading: "Une vue plus large, du devis aux chiffres de gestion.",
   featureIntroduction: "PRO prolonge la gestion quotidienne avec des parcours commerciaux et des outils de pilotage. Le devis précise les fonctions utilisables et le périmètre de votre mise en place.",
   features: [
@@ -80,9 +84,11 @@ const content: ProductOfferContent = {
     { question: "PRO comprend-il les fonctions ESSENTIEL ?", answer: "Oui. Le suivi courant des ventes, achats, clients, fournisseurs, règlements et trésorerie reste inclus. PRO ajoute les fonctions avancées prévues au devis, avec jusqu’à " + plan.limits.users + " utilisateurs pour votre entreprise." },
     { question: "La paie et la TVA peuvent-elles être utilisées sans validation professionnelle ?", answer: "Non. Ces fonctions servent à préparer et contrôler des données. Elles ne remplacent pas la validation de votre expert-comptable, de votre conseil fiscal ou de votre conseil social. Aucune déclaration officielle DGI ou sociale n’est transmise automatiquement." },
     { question: "Comment préparer une demande de devis utile ?", answer: "Indiquez les métiers concernés, le nombre d’utilisateurs et les parcours prioritaires : par exemple devis et livraisons, achats et réceptions, stock, suivi comptable ou dossiers du personnel. Notre équipe vous aide à cadrer le périmètre disponible." },
+    { question: "Puis-je essayer PRO avec l’essai gratuit de " + DEFAULT_TRIAL_DURATION_LABEL + " ?", answer: "L’essai public gratuit concerne uniquement ESSENTIEL. Pour découvrir les parcours PRO et discuter d’une démonstration adaptée, contactez notre équipe. L’ouverture de votre messagerie ne transmet pas encore de demande : vous devez envoyer votre message." },
+    { question: "PRO convient-il à une PME de négoce ou de services ?", answer: "Pour le négoce, présentez vos besoins de devis, commandes, livraisons, achats et mouvements de stock. Pour les services, précisez vos étapes commerciales et votre suivi des règlements. Nous vérifions avec vous les parcours disponibles avant de définir votre projet." },
   ],
   nextHeading: "Parlons des besoins de votre entreprise.",
-  nextDescription: "Décrivez votre activité et les parcours à relier. Nous préparons avec vous le périmètre de votre projet PRO.",
+  nextDescription: "Indiquez votre entreprise, votre activité, le nombre d’utilisateurs et votre besoin principal. Vous pouvez aussi demander une démonstration des parcours qui vous intéressent.",
   related: { href: "/essentiel", label: "Commencer avec ESSENTIEL" },
 };
 

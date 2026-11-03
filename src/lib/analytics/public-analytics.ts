@@ -19,6 +19,18 @@ const SEARCH_REFERRERS = new Set([
   "https://www.google.com", "https://www.google.co.ma", "https://www.google.fr",
   "https://www.bing.com", "https://bing.com", "https://duckduckgo.com",
 ]);
+/** Literal campaign taxonomy shared with the paused Google Ads import pack. */
+export const PUBLIC_AD_CAMPAIGNS: Record<string, readonly string[]> = {
+  felexia_brand_maroc: ["brand_a", "brand_b"],
+  felexia_essentiel_maroc: ["essentiel_a", "essentiel_b"],
+  felexia_pro_maroc: ["pro_a", "pro_b"],
+};
+export type PublicCampaignParameters = {
+  campaign_source: "google";
+  campaign_medium: "cpc";
+  campaign_name: string;
+  campaign_content: string;
+};
 
 export type AnalyticsChoice = "accepted" | "refused" | null;
 export type AnalyticsSnapshot = { available: boolean; choice: AnalyticsChoice };
@@ -63,6 +75,25 @@ export function safeInitialReferrer(value: string): string {
   } catch { return ""; }
 }
 
+/**
+ * Return fixed campaign labels only. No arbitrary UTM, click identifier, query,
+ * fragment, search term or personal value crosses the public measurement boundary.
+ * This parser does not persist or rewrite the supplied URL.
+ */
+export function publicCampaignForUrl(value: string): PublicCampaignParameters | null {
+  try {
+    const url = new URL(value);
+    if (!PRODUCTION_ORIGINS.includes(url.origin) || !publicPath(url.pathname)) return null;
+    const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content"];
+    if (keys.some((key) => url.searchParams.getAll(key).length !== 1)) return null;
+    if (url.searchParams.get("utm_source") !== "google" || url.searchParams.get("utm_medium") !== "cpc") return null;
+    const name = url.searchParams.get("utm_campaign")!;
+    const content = url.searchParams.get("utm_content")!;
+    if (!Object.prototype.hasOwnProperty.call(PUBLIC_AD_CAMPAIGNS, name) || !PUBLIC_AD_CAMPAIGNS[name].includes(content)) return null;
+    return { campaign_source: "google", campaign_medium: "cpc", campaign_name: name, campaign_content: content };
+  } catch { return null; }
+}
+
 /** Classifies a destination locally. The destination, link text and query never become event parameters. */
 export function marketingEventForHref(href: string, base: string): MarketingEvent | null {
   try {
@@ -87,6 +118,7 @@ export function analyticsRuntimeDocument(): string {
   var titles = ${JSON.stringify(TITLES)};
   var origins = ${JSON.stringify(PRODUCTION_ORIGINS)};
   var searchReferrers = ${JSON.stringify([...SEARCH_REFERRERS])};
+  var campaigns = ${JSON.stringify(PUBLIC_AD_CAMPAIGNS)};
   var canonical = ${JSON.stringify(PUBLIC_SITE_ORIGIN)};
   function publicPath(value){
     if(typeof value !== 'string' || value.charAt(0) !== '/' || value.slice(0,2) === '//' || /[\\\\?#]/.test(value)) return null;
@@ -99,6 +131,12 @@ export function analyticsRuntimeDocument(): string {
       if(origins.indexOf(url.origin) !== -1){ var path = publicPath(url.pathname); return path ? canonical + path : ''; }
       return searchReferrers.indexOf(url.origin) !== -1 ? url.origin + '/' : '';
     } catch(error){ return ''; }
+  }
+  function safeCampaign(parameters){
+    var name = parameters.campaign_name;
+    var content = parameters.campaign_content;
+    if(parameters.campaign_source !== 'google' || parameters.campaign_medium !== 'cpc' || !Object.prototype.hasOwnProperty.call(campaigns,name) || campaigns[name].indexOf(content) === -1) return {};
+    return {campaign_source:'google',campaign_medium:'cpc',campaign_name:name,campaign_content:content};
   }
   window.felexiaStartAnalytics = function(id,parameters){
     if(started || window.parent === window || typeof id !== 'string' || !/^G-[A-Z0-9]+$/.test(id) || !parameters) return false;
@@ -115,6 +153,7 @@ export function analyticsRuntimeDocument(): string {
         send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,
         cookie_domain:'felexia.pro',cookie_path:'/',cookie_expires:${COOKIE_LIFETIME},cookie_update:false,cookie_flags:'SameSite=Lax;Secure'
       };
+      Object.assign(config,safeCampaign(parameters));
       started = true;
       window['ga-disable-'+id] = false;
       window.dataLayer = [];
@@ -147,6 +186,7 @@ export class PublicAnalyticsController {
   private frame: HTMLIFrameElement | null = null;
   private frameReady = false;
   private sentPath: string | null = null;
+  private campaign: PublicCampaignParameters | null = null;
   private previousPublicLocation: string;
   private snapshot: AnalyticsSnapshot = { available: false, choice: null };
 
@@ -196,13 +236,16 @@ export class PublicAnalyticsController {
     this.sync();
   }
 
-  /** Also called after App Router pathname changes; never uses query strings or document.title. */
+  /** Called after route changes; never forwards raw queries or document.title. */
   sync = (): void => {
+    this.readChoice();
     const path = this.currentPath();
     if (!path || !this.snapshot.available || this.snapshot.choice !== "accepted") {
       this.suspend();
       return;
     }
+    const campaign = publicCampaignForUrl(this.browser.location.href);
+    if (campaign) this.campaign = campaign;
     if (!this.frame) this.createFrame();
     this.flushPageView(path);
   };
@@ -212,6 +255,7 @@ export class PublicAnalyticsController {
   }
 
   private updateSnapshot(snapshot: AnalyticsSnapshot): void {
+    if (this.snapshot.available === snapshot.available && this.snapshot.choice === snapshot.choice) return;
     this.snapshot = snapshot;
     this.notify(snapshot);
   }
@@ -255,6 +299,7 @@ export class PublicAnalyticsController {
       page_location: PUBLIC_SITE_ORIGIN + path,
       page_title: TITLES[path],
       page_referrer: this.previousPublicLocation,
+      ...this.campaign,
     };
   }
 
@@ -300,6 +345,11 @@ export class PublicAnalyticsController {
   }
 
   private runtime(): AnalyticsWindow | null {
+    this.readChoice();
+    if (!this.snapshot.available || this.snapshot.choice !== "accepted") {
+      this.suspend();
+      return null;
+    }
     if (!this.currentPath() || !this.snapshot.available || this.snapshot.choice !== "accepted" || !this.frameReady) return null;
     return this.frame?.contentWindow as AnalyticsWindow | null;
   }
@@ -318,6 +368,7 @@ export class PublicAnalyticsController {
     }
     this.frameReady = false;
     this.sentPath = null;
+    this.campaign = null;
   };
 
   private clearCookies(): void {

@@ -97,15 +97,15 @@
 .landing .conversion-footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 45px; padding: 38px 0 44px; }
 .landing .conversion-footer-brand > a { display: inline-block; }
 .landing .conversion-footer-brand p { margin-top: 18px; color: #52617b; font-size: 13px; line-height: 1.8; }
-.landing .conversion-footer-brand > span { display: block; margin-top: 15px; color: #68758b; font-size: 12px; }
+.landing .conversion-footer-brand > span { display: block; margin-top: 15px; color: #617087; font-size: 12px; }
 .landing .conversion-footer-grid nav { padding-top: 14px; }
 .landing .conversion-footer-grid nav h2 { color: #081b33; font-size: 12px; font-weight: 600; }
 .landing .conversion-footer-grid nav ul { display: grid; gap: 12px; margin-top: 19px; padding: 0; list-style: none; }
 .landing .conversion-footer-grid nav a { color: #617087; font-size: 12px; transition: color 160ms ease; }
 .landing .conversion-footer-grid nav a:hover { color: #315efb; }
-.landing .conversion-footer-disclaimer { max-width: 850px; padding: 21px 0; border-top: 1px solid #edf0f5; color: #68758b; font-size: 12px; line-height: 1.85; }
-.landing .conversion-footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid #edf0f5; color: #68758b; font-size: 12px; }
-.landing .conversion-footer-bottom a { display: inline-flex; align-items: center; gap: 8px; color: #66758c; white-space: nowrap; }
+.landing .conversion-footer-disclaimer { max-width: 850px; padding: 21px 0; border-top: 1px solid #edf0f5; color: #617087; font-size: 12px; line-height: 1.85; }
+.landing .conversion-footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid #edf0f5; color: #617087; font-size: 12px; }
+.landing .conversion-footer-bottom a { display: inline-flex; align-items: center; gap: 8px; color: #617087; white-space: nowrap; }
 .landing .conversion-footer-bottom a:hover { color: #315efb; }
 
 @media (hover: hover) and (pointer: fine) {

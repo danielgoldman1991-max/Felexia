@@ -15,7 +15,7 @@
 .landing .pro-bottom p { max-width: 720px; color: #5b6c81; font-size: 14px; line-height: 1.8; }
 .landing .pro-bottom strong { color: #081b33; font-weight: 600; }
 .landing .pro-bottom .marketing-button { flex-shrink: 0; }
-.landing .pro-scope-note { max-width: 860px; margin-top: 24px; color: #66758b; font-size: 11px; line-height: 1.8; }
+.landing .pro-scope-note { max-width: 860px; margin-top: 24px; color: #5d6b82; font-size: 11px; line-height: 1.8; }
 @media (max-width: 1000px) {
   .landing .pro-intro { gap: 35px; }
   .landing .pro-modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }

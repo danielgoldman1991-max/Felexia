@@ -240,8 +240,11 @@ export default function ConfidentialitePage() {
           sur les boutons d’essai, de devis et de contact. Des identifiants de mesure, des
           informations sur le navigateur et le terminal, ainsi que la provenance depuis certains
           moteurs de recherche peuvent être traités par Google, y compris hors du Maroc. Les
-          paramètres d’URL, vos messages, coordonnées saisies et données de l’espace ERP ne
-          sont pas inclus dans les événements transmis. Les clics d’essai ou de contact mesurent
+          URL complètes et leurs paramètres libres, vos messages, coordonnées saisies et données
+          de l’espace ERP ne sont pas inclus dans les événements transmis. Seuls des codes de
+          campagne Felexia prédéfinis peuvent identifier la source publicitaire et la variante
+          d’annonce, après votre accord, sans enregistrer d’identifiant de clic publicitaire.
+          Les clics d’essai ou de contact mesurent
           une intention, sans attester une inscription ou une vente réalisée.
         </LegalParagraph>
         <LegalParagraph>

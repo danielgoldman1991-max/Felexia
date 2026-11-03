@@ -35,7 +35,8 @@ async function main() {
 
   const map = sitemap();
   check(JSON.stringify(map.map(entry => entry.url)) === JSON.stringify(PUBLIC_SITE_PATHS.map(canonicalUrl)), "Sitemap includes only the seven public canonical routes");
-  check(map.every(entry => entry.lastModified === SEO_CONTENT_UPDATED_AT), "Sitemap dates describe the content, not crawler/build time");
+  const revisedPages = new Set(["/essentiel", "/pro", "/confidentialite"].map(canonicalUrl));
+  check(map.every(entry => entry.lastModified === (revisedPages.has(entry.url) ? "2026-11-03" : SEO_CONTENT_UPDATED_AT)), "Sitemap dates describe each page’s content revision, not crawler/build time");
   check(robots().sitemap === PUBLIC_SITE_ORIGIN + "/sitemap.xml", "Robots advertises the www sitemap");
   const rules = object(robots().rules);
   check(JSON.stringify(rules.disallow) === JSON.stringify(["/api/", "/auth/"]), "Only action/API endpoints are excluded from crawling; login noindex stays observable");
@@ -76,7 +77,15 @@ async function main() {
     // boundary. Publication separately compares the full tree to production.
     const before = execFileSync("git", ["show", "HEAD:" + file]);
     const after = readFileSync(resolve(file));
-    check(before.toString("utf8").replace(/\r\n/g, "\n") === after.toString("utf8").replace(/\r\n/g, "\n"), "OAuth/hero source remains byte-identical modulo EOL: " + file);
+    // Only the reviewed accessible name of the existing scroll cue may differ.
+    // Visible hero copy, image, layout and zoom code remain under this invariant.
+    const comparable = (value: string) => {
+      const normalized = value.replace(/\r\n/g, "\n");
+      return file.endsWith("/LandingHero.tsx")
+        ? normalized.replace('aria-label="Défiler pour découvrir — Découvrez la suite"', 'aria-label="Découvrir la gestion d’entreprise avec ESSENTIEL"')
+        : normalized;
+    };
+    check(comparable(before.toString("utf8")) === comparable(after.toString("utf8")), "OAuth/hero source remains byte-identical except the reviewed scroll cue label, modulo EOL: " + file);
   }
   check(createHash("sha256").update(readFileSync(resolve("public/google9cbdd88855e0d08d.html"))).digest("hex") === GOOGLE_OWNERSHIP_SHA256, "Google ownership file retains the exact public baseline bytes");
   mkdirSync(resolve("training/seo/20261101"), { recursive: true });

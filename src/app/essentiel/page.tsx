@@ -9,7 +9,7 @@ const documentLimit = plan.limits.commercialDocumentsPerMonth;
 const documents = documentLimit === null ? "Sans plafond mensuel" : number(documentLimit) + " / mois";
 
 export const metadata = createPublicMetadata({
-  title: "Felexia ESSENTIEL — gestion d’entreprise au Maroc",
+  title: "Logiciel de gestion PME au Maroc | Felexia ESSENTIEL",
   description: "Ventes, achats, factures et trésorerie : gérez votre entreprise avec Felexia ESSENTIEL. " + number(plan.monthlyPrice) + " HT MAD/mois, " + DEFAULT_TRIAL_DURATION_LABEL + " d’essai sans carte.",
   path: "/essentiel",
 });
@@ -17,8 +17,8 @@ export const metadata = createPublicMetadata({
 const content: ProductOfferContent = {
   name: "ESSENTIEL",
   eyebrow: "Logiciel de gestion pour les entreprises au Maroc",
-  title: "ESSENTIEL, pour gérer votre entreprise au quotidien.",
-  introduction: "De la facture de vente au paiement fournisseur, retrouvez vos opérations dans un même espace. ESSENTIEL réunit vos clients, vos achats, vos règlements et votre trésorerie pour garder le fil de votre activité.",
+  title: "Logiciel de gestion pour PME au Maroc",
+  introduction: "Facturez, suivez vos règlements et pilotez votre trésorerie dans un seul espace. Retrouvez vos clients, vos fournisseurs et vos achats avec Felexia ESSENTIEL, pendant " + DEFAULT_TRIAL_DURATION_LABEL + " d’essai gratuit, sans carte bancaire.",
   price: number(plan.monthlyPrice),
   priceUnit: "HT MAD / mois",
   priceDetail: number(plan.yearlyPrice) + " HT MAD / an avec une facturation annuelle, sans remise.",
@@ -29,15 +29,16 @@ const content: ProductOfferContent = {
     { label: "Documents commerciaux", value: documents },
     { label: "Stockage", value: number(plan.limits.storageMb / 1024) + " Go" },
   ],
-  ctaLabel: "Essayer ESSENTIEL gratuitement",
+  ctaLabel: "Commencer mes " + DEFAULT_TRIAL_DURATION_LABEL + " gratuits",
   ctaHref: "/login?mode=register",
+  ctaNote: "Sans carte bancaire. Puis " + number(plan.monthlyPrice) + " HT MAD/mois pour votre entreprise, jusqu’à " + plan.limits.users + " utilisateurs.",
   featureHeading: "Vos ventes, vos achats et votre trésorerie, au même endroit.",
   featureIntroduction: "L’offre s’adresse aux entreprises qui veulent structurer leur gestion courante, retrouver les documents d’un tiers et savoir ce qui reste à encaisser ou à payer.",
   features: [
     {
       title: "Facturer et suivre les encaissements",
       description: "Créez vos factures de vente avec vos articles ou des lignes libres, puis retrouvez les règlements associés et le solde à encaisser.",
-      points: ["Clients et coordonnées de facturation", "Factures, avoirs et règlements clients", "PDF personnalisés avec les informations de votre entreprise"],
+      points: ["Clients et coordonnées de facturation", "Factures, avoirs et règlements clients", "Factures PDF avec votre logo, vos coordonnées et votre ICE"],
     },
     {
       title: "Organiser les achats fournisseurs",
@@ -74,6 +75,7 @@ const content: ProductOfferContent = {
     { question: "Que comprend le prix de " + number(plan.monthlyPrice) + " HT MAD par mois ?", answer: "Votre espace entreprise, les fonctions de gestion ESSENTIEL, jusqu’à " + plan.limits.users + " utilisateurs, vos documents commerciaux (" + documents + ") et " + number(plan.limits.storageMb / 1024) + " Go de stockage. La facturation annuelle est de " + number(plan.yearlyPrice) + " HT MAD, sans remise annuelle." },
     { question: "Faut-il une carte bancaire pour commencer ?", answer: "Non. L’essai ESSENTIEL de " + DEFAULT_TRIAL_DURATION_LABEL + " est gratuit et ne demande pas de carte bancaire. Créez votre compte, puis confirmez votre entreprise pour accéder à votre espace." },
     { question: "Puis-je travailler avec mes propres clients et fournisseurs ?", answer: "Oui. Vous pouvez créer leurs fiches et saisir vos documents dans votre propre entreprise. Vous pouvez aussi préparer des factures avec des lignes libres, sans devoir créer chaque prestation dans le catalogue d’articles." },
+    { question: "Puis-je afficher mon logo et mon ICE sur mes factures ?", answer: "Oui. Renseignez le logo, les coordonnées et l’ICE de votre entreprise dans vos paramètres. Ces informations figurent sur les factures PDF ; vérifiez-les avant de transmettre vos documents à vos clients." },
     { question: "Quand choisir PRO plutôt qu’ESSENTIEL ?", answer: "PRO convient à un périmètre plus large : devis et commandes, livraisons, commandes et réceptions fournisseurs, gestion de stock, comptabilité avancée et dossiers RH. PRO est proposé sur devis ; notre équipe précise avec vous les fonctions utilisables pour votre projet." },
   ],
   nextHeading: "Prenez en main votre gestion quotidienne.",

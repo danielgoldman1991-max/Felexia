@@ -8,16 +8,17 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
 
-function Field({ icon: Icon, children, error }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; error?: string }) {
+function Field({ icon: Icon, children, error, id, label }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; error?: string; id: string; label: string }) {
   return (
     <div>
+      <label htmlFor={id} className="mb-2 block text-sm font-medium text-slate-700">{label}</label>
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
           <Icon className="h-5 w-5 text-slate-400" />
         </div>
         {children}
       </div>
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p id={`${id}-error`} role="alert" className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -113,18 +114,26 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field icon={User} error={fieldErrors.firstName}>
+          <Field icon={User} error={fieldErrors.firstName} id="register-first-name" label="Prénom *">
             <input
+              id="register-first-name"
               name="firstName"
+              autoComplete="given-name"
+              aria-invalid={Boolean(fieldErrors.firstName)}
+              aria-describedby={fieldErrors.firstName ? "register-first-name-error" : undefined}
               placeholder="Prénom *"
               defaultValue=""
               className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               required
             />
           </Field>
-          <Field icon={User} error={fieldErrors.lastName}>
+          <Field icon={User} error={fieldErrors.lastName} id="register-last-name" label="Nom *">
             <input
+              id="register-last-name"
               name="lastName"
+              autoComplete="family-name"
+              aria-invalid={Boolean(fieldErrors.lastName)}
+              aria-describedby={fieldErrors.lastName ? "register-last-name-error" : undefined}
               placeholder="Nom *"
               defaultValue=""
               className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -132,22 +141,30 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
             />
           </Field>
         </div>
-        <Field icon={Mail} error={fieldErrors.email}>
+        <Field icon={Mail} error={fieldErrors.email} id="register-email" label="Email *">
           <input
+            id="register-email"
             name="email"
             type="email"
+            autoComplete="email"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "register-email-hint register-email-error" : "register-email-hint"}
             placeholder="Email *"
             defaultValue=""
             className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             required
           />
         </Field>
-        <p className="-mt-2 text-xs text-slate-400">Votre email servira de login pour accéder à Felexia.</p>
-        <Field icon={Lock} error={fieldErrors.password}>
+        <p id="register-email-hint" className="-mt-2 text-xs text-slate-600">Votre email servira de login pour accéder à Felexia.</p>
+        <Field icon={Lock} error={fieldErrors.password} id="register-password" label="Mot de passe *">
           <div className="relative">
             <input
+              id="register-password"
               name="password"
               type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              aria-invalid={Boolean(fieldErrors.password)}
+              aria-describedby={fieldErrors.password ? "register-password-hint register-password-error" : "register-password-hint"}
               placeholder="Mot de passe *"
               defaultValue=""
               className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -156,20 +173,26 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600"
-              tabIndex={-1}
+              onClick={() => setShowPassword(value => !value)}
+              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+              aria-pressed={showPassword}
+              aria-controls="register-password register-confirm-password"
+              className="absolute inset-y-0 right-0 flex min-w-12 items-center justify-center rounded-r-xl text-slate-600 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
         </Field>
-        <p className="-mt-2 text-xs text-slate-400">Minimum 8 caractères.</p>
-        <Field icon={Lock} error={fieldErrors.confirmPassword}>
+        <p id="register-password-hint" className="-mt-2 text-xs text-slate-600">Minimum 8 caractères.</p>
+        <Field icon={Lock} error={fieldErrors.confirmPassword} id="register-confirm-password" label="Confirmation du mot de passe *">
           <div className="relative">
             <input
+              id="register-confirm-password"
               name="confirmPassword"
               type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
+              aria-describedby={fieldErrors.confirmPassword ? "register-confirm-password-error" : undefined}
               placeholder="Confirmation du mot de passe *"
               defaultValue=""
               className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -178,9 +201,11 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600"
-              tabIndex={-1}
+              onClick={() => setShowPassword(value => !value)}
+              aria-label={showPassword ? "Masquer la confirmation du mot de passe" : "Afficher la confirmation du mot de passe"}
+              aria-pressed={showPassword}
+              aria-controls="register-password register-confirm-password"
+              className="absolute inset-y-0 right-0 flex min-w-12 items-center justify-center rounded-r-xl text-slate-600 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
@@ -189,7 +214,7 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
       </div>
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700">
           {error}
         </p>
       )}
@@ -198,7 +223,7 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
         {pending ? "Création en cours..." : "Créer mon compte et continuer"}
       </Button>
 
-      <div className="flex items-center justify-center gap-6 text-xs text-slate-400">
+      <div className="flex items-center justify-center gap-6 text-xs text-slate-600">
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           Données sécurisées

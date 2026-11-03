@@ -103,6 +103,8 @@ jobs:
         run: |
           node --import tsx training/seo/20261101/verify-seo.ts
           node training/seo/20261101/verify-analytics.cjs
+          node training/google-ads/20261103/landing/verify-offers.cjs
+          node training/google-ads/20261103/tracking/verify-tracking.cjs
       - name: Verify checkout, recovery, exports and histories
         run: |
           node training/price-chat/20261101/verify-repricing.cjs

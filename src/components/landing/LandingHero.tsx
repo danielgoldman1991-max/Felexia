@@ -31,7 +31,7 @@ export function LandingHero() {
           <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL · Sans carte bancaire</span>
           <LandingZoomPreference />
         </div>
-        <a className="horizon-scroll-cue" href="#essentiel" aria-label="Découvrir la gestion d’entreprise avec ESSENTIEL">
+        <a className="horizon-scroll-cue" href="#essentiel" aria-label="Défiler pour découvrir — Découvrez la suite">
           <span className="horizon-cue-enter">Défiler pour découvrir</span>
           <span className="horizon-cue-next" aria-hidden="true">Découvrez la suite</span>
           <svg viewBox="0 0 16 24" width="12" height="19" fill="none" aria-hidden="true"><path d="M8 1v20m-6-6 6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
