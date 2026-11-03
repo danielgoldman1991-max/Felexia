@@ -42,6 +42,8 @@ jobs:
         run: |
           node training/company-lookup/20261103/verify-provider.cjs
           node training/company-lookup/20261103/verify-lookup-ui.cjs
+      - name: Verify invoice calendar dates across timezones
+        run: node training/invoice-dates/20261103/verify-calendar-dates.cjs
       - name: Verify marketing scroll zoom compatibility
         run: node training/marketing/20261101-zoom-compatibility/verify-controller.cjs
       - run: npm run test:e-invoicing
