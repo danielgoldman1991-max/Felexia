@@ -51,7 +51,7 @@ function from(table) {
 const actions=load('src/lib/hr/actions.ts',{
   'next/navigation':{redirect(target){throw Error('REDIRECT:'+target);}},'next/cache':{revalidatePath(target){invalidations.push(target);}},
   '@/lib/hr/access':{requireWritableHrWorkspace:async()=>({organization:{id:'organization'},userId:'owner'})},
-  '@/lib/supabase/server':{createClient:async()=>({from})},'@/lib/hr/payroll-engine':engine,'@/lib/hr/validation':load('src/lib/hr/validation.ts'),'@/lib/pro-transaction-errors':load('src/lib/pro-transaction-errors.ts'),'@/lib/hr/reference-data':{ensureHrReferenceData:async()=>{}},
+  '@/lib/supabase/server':{createClient:async()=>({from})},'@/lib/hr/payroll-engine':engine,'@/lib/hr/validation':load('src/lib/hr/validation.ts'),'@/lib/pro-transaction-errors':load('src/lib/pro-transaction-errors.ts'),'@/lib/hr/reference-data':{ensureHrReferenceData:async()=>{}},'@/lib/hr/ma-payroll-2026':{calculateMoroccanPayslip2026:()=>({})},'@/lib/hr/leave-balance':{leaveBalance:()=>({acquired:0,taken:0,remaining:0})},
 });
 (async()=>{
   for(const [salary,expectedNet,expectedCost]of [[10000,8704,10900],[20000,17524,21200]]) {

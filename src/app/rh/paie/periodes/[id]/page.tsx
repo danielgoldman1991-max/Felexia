@@ -19,7 +19,7 @@ export default async function PayrollPeriodDetailPage({ params }: { params: Prom
       <PageHeader title={period.period_number} description="Préparation du salaire de base uniquement. Validation finale et paiement indisponibles." />
       <HrPreparatoryNotice />
       <div className="premium-card mt-5 space-y-4 p-5">
-        <p className="text-sm text-[var(--foreground)]">Le bouton ci-dessous prépare encore le salaire de base seul. Le bulletin complet, avec les variables, est dans la section suivante. Aucun des deux ne valide ni ne paie la période.</p>
+        <p className="text-sm text-[var(--foreground)]">Les primes, heures supplémentaires, absences, avances, prêts et autres variables ne sont pas intégrés dans cette préparation, sans variables de paie finale. Ce résultat ne peut pas servir de paie finale.</p>
         <p className="text-sm text-[var(--muted)]">{period.employees_count ?? 0} salariés · Brut préparatoire {formatMoney(period.total_gross)} · Net préparatoire {formatMoney(period.total_net)}</p>
         {["draft", "calculated"].includes(period.status) ? <HrManagementAction><HrPayrollPreparationForm periodId={id} updatedAt={period.updated_at} /></HrManagementAction> : <p className="text-sm">Cette période est conservée en consultation et ne peut pas être recalculée.</p>}
       </div>
