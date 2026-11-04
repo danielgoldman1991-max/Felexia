@@ -256,7 +256,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "unfinished-features", title: "Fonctions réservées et périmètre à confirmer",
     keywords: ["inventaire", "agenda", "rapport", "rapports", "analytique", "audit log", "outils", "attestation", "onboarding rh", "offboarding", "inventory", "calendar", "reporting", "roadmap", "planning", "bientôt", "bientot", "جرد", "تقارير", "رزنامة", "شهادة"],
-    content: "L'inventaire physique se fait par sessions de comptage dans Stock. Les congés (demande, acceptation, refus, annulation et solde), les absences, le pointage manuel, les avances, les prêts, les notes de frais, les attestations imprimables et le solde de tout compte préparatoire sont disponibles dans PRO. Restent réservés ou préparatoires : l'agenda, les rapports avancés, certaines vues GED, le dépôt DGI et Damancom, la pointeuse, les évaluations et la discipline. Aucune date de livraison ne doit être inventée.",
+    content: "L'agenda reprend les échéances de factures, et les contrats ou congés en offre PRO. L'inventaire physique se fait par sessions de comptage. Les congés, absences, présences manuelles, avances, prêts, notes de frais, attestations et le solde de tout compte préparatoire sont disponibles. La liasse de gestion, le FEC de type texte et le rapprochement bancaire CSV/OFX sont disponibles sans être un dépôt officiel. Restent préparatoires : le télé-dépôt DGI et Damancom, la pointeuse, les évaluations et la discipline.",
     href: "/#contact",
   },
   {

@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function AttachmentsPage() {
-  return <PlaceholderPage title="Pieces jointes" description="Fichiers rattaches aux tiers, articles et documents commerciaux." />;
+export default function Page() {
+  redirect("/documents");
 }

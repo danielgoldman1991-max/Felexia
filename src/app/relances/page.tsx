@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function RelancesPage() {
-  return <PlaceholderPage title="Relances" description="Relances clients planifiees selon échéances et retards." />;
+export default function Page() {
+  redirect("/facturation/relances");
 }

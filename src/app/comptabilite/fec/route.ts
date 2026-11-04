@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildFec } from "@/lib/accounting/fec";
+import { loadAccountingLines, loadEntryHeaders } from "@/lib/accounting/entry-lines";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { createClient } from "@/lib/supabase/server";
@@ -8,29 +9,27 @@ export async function GET() {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return new NextResponse("PRO requis", { status: 403 });
   const supabase = await createClient();
-  const { data, error } = await supabase.from("accounting_entry_lines").select("account_code, account_label, debit, credit, label, entry_id").eq("organization_id", workspace.organization.id).limit(5000);
-  if (error) return new NextResponse("Export indisponible tant que les écritures ne sont pas lisibles.\n", { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
-  const entryIds = [...new Set((data ?? []).map((line) => line.entry_id).filter(Boolean))] as string[];
-  const { data: entries } = entryIds.length
-    ? await supabase.from("accounting_entries").select("id, entry_number, entry_date").in("id", entryIds)
-    : { data: [] };
-  const byId = new Map((entries ?? []).map((entry) => [entry.id as string, entry]));
-  const body = buildFec((data ?? []).map((line) => {
-    const entry = byId.get(line.entry_id as string);
-    const date = String(entry?.entry_date ?? "").slice(0, 10);
+  const loaded = await loadAccountingLines(supabase, workspace.organization.id);
+  if (loaded.error) return new NextResponse("Export indisponible tant que les écritures ne sont pas lisibles.\n", { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  const entryIds = [...new Set(loaded.rows.map((line) => line.entryId).filter((id): id is string => Boolean(id)))];
+  const headers = await loadEntryHeaders(supabase, workspace.organization.id, entryIds);
+  const body = buildFec(loaded.rows.map((line) => {
+    const entry = line.entryId ? headers.headers.get(line.entryId) : undefined;
+    const date = entry?.date || "2026-01-01";
     return {
-      journalCode: "OD",
-      journalLabel: "Journal",
-      entryNumber: String(entry?.entry_number ?? ""),
-      entryDate: date || "2026-01-01",
-      account: String(line.account_code ?? ""),
-      accountLabel: String(line.account_label ?? ""),
-      piece: String(entry?.entry_number ?? ""),
-      pieceDate: date || "2026-01-01",
-      label: String(line.label ?? ""),
-      debit: Number(line.debit ?? 0),
-      credit: Number(line.credit ?? 0),
+      journalCode: entry?.journalCode || "OD",
+      journalLabel: entry?.journalLabel || "Journal",
+      entryNumber: entry?.number || "",
+      entryDate: date,
+      account: line.accountCode,
+      accountLabel: line.accountLabel,
+      piece: entry?.number || "",
+      pieceDate: date,
+      label: line.label,
+      debit: line.debit,
+      credit: line.credit,
     };
   }));
-  return new NextResponse(body, { headers: { "Content-Type": "text/plain; charset=utf-8", "Content-Disposition": "attachment; filename=fec-preparatoire.txt" } });
+  const note = loaded.truncated ? "Export tronqué à 20000 lignes.\n" : "";
+  return new NextResponse(note + body, { headers: { "Content-Type": "text/plain; charset=utf-8", "Content-Disposition": "attachment; filename=fec-preparatoire.txt" } });
 }

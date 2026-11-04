@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function ImportExportPage() {
-  return <PlaceholderPage title="Import / Export" description="Imports et exports de donnees metier." />;
+export default function Page() {
+  redirect("/documents/import-export");
 }

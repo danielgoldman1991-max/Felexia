@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function DocumentTemplatesPage() {
-  return <PlaceholderPage title="Modeles PDF" description="Modeles de devis, factures, livraisons et documents ERP." />;
+export default function Page() {
+  redirect("/documents");
 }

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
-import { confirmAutomaticReconciliations, createTransactionFromStatementLine, ignoreStatementLine, reconcileStatementLineWithTransaction } from "@/lib/treasury-actions";
+import { confirmAutomaticReconciliations, createTransactionFromStatementLine, ignoreStatementLine, reconcileStatementLineWithTransaction, unreconcileStatementLine } from "@/lib/treasury-actions";
 import type { BankStatementLineRecord, ReconciliationSuggestion, TreasuryAccountRecord, TreasuryActionResult, TreasuryTransactionRecord } from "@/lib/treasury-types";
 import { ReconciliationSuggestionBadge } from "@/components/treasury/reconciliation-suggestion-badge";
 
@@ -82,12 +82,14 @@ export function ReconciliationWorkspace({
   statementLines,
   transactions,
   suggestions,
+  reconciledLines = [],
 }: {
   accounts: TreasuryAccountRecord[];
   selectedAccountId: string;
   statementLines: BankStatementLineRecord[];
   transactions: TreasuryTransactionRecord[];
   suggestions: ReconciliationSuggestion[];
+  reconciledLines?: BankStatementLineRecord[];
 }) {
   return (
     <div className="space-y-5">
@@ -175,6 +177,26 @@ export function ReconciliationWorkspace({
           </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader><h2 className="font-semibold">Lignes déjà rapprochées</h2></CardHeader>
+        <CardContent>
+          {reconciledLines.length === 0 ? <p className="text-sm text-[var(--muted)]">Aucune ligne rapprochée sur ce compte.</p> : (
+            <Table>
+              <thead><tr><Th>Date</Th><Th>Libellé</Th><Th>Montant</Th><Th></Th></tr></thead>
+              <tbody>
+                {reconciledLines.map((line) => (
+                  <tr key={line.id}>
+                    <Td>{line.operation_date}</Td>
+                    <Td>{line.label}</Td>
+                    <Td><MoneyDisplay value={line.amount} /></Td>
+                    <Td><LineButton label="Annuler le rapprochement" lineId={line.id} action={unreconcileStatementLine} variant="ghost" /></Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

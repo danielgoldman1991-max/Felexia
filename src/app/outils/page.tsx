@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function ToolsPage() {
-  return <PlaceholderPage title="Outils" description="Outils d'administration, import, export et audit." />;
+export default function Page() {
+  redirect("/outils/audit-log");
 }

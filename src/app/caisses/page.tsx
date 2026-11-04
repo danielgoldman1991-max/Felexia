@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function CashRegistersPage() {
-  return <PlaceholderPage title="Caisses" description="Suivi des caisses et operations d'especes." />;
+export default function Page() {
+  redirect("/tresorerie/comptes");
 }

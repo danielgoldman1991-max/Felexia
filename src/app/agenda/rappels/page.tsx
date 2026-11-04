@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function RemindersPage() {
-  return <PlaceholderPage title="Rappels" description="Rappels utilisateur et rappels commerciaux." />;
+export default function LegacyRemindersPage() {
+  redirect("/agenda/relances");
 }

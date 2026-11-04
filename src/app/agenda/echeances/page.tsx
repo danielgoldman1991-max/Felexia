@@ -1,5 +1,7 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { AgendaBoard } from "@/components/agenda/agenda-board";
 
-export default function DueDatesPage() {
-  return <PlaceholderPage title="Échéances" description="Échéances commerciales, financieres et administratives." />;
+export const dynamic = "force-dynamic";
+
+export default function AgendaDuePage() {
+  return <AgendaBoard />;
 }

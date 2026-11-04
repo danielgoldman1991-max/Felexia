@@ -11,6 +11,7 @@ import { isReadOnlyRole } from "@/lib/auth/roles";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { createClient } from "@/lib/supabase/server";
 import type { TreasuryActionResult, TreasuryAccountType, TreasuryTransactionDirection, TreasuryTransactionType } from "@/lib/treasury-types";
+import { looksLikeOfx, parseOfx } from "@/lib/treasury/ofx";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -292,11 +293,14 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
   const accountId = text(formData, "treasury_account_id");
   const file = formData.get("file");
   if (!accountId) return { success: false, error: "Sélectionnez un compte bancaire." };
-  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Sélectionnez un fichier CSV." };
+  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Sélectionnez un fichier CSV, OFX ou QFX." };
   const fileContent = await file.text();
+  const ofx = looksLikeOfx(file.name, fileContent);
   const fileHash = hashValue(fileContent);
-  const rows = parseCsv(fileContent);
-  if (rows.length === 0) return { success: false, error: "Le fichier CSV ne contient aucune ligne exploitable." };
+  const rows: Array<Record<string, string>> = ofx
+    ? parseOfx(fileContent).map((row) => ({ ...row }))
+    : parseCsv(fileContent);
+  if (rows.length === 0) return { success: false, error: ofx ? "Le relevé OFX ne contient aucune opération exploitable." : "Le fichier CSV ne contient aucune ligne exploitable." };
   const supabase = await createClient();
   const parsed = rows.map((row) => {
     const debit = num(row.debit);
@@ -369,7 +373,7 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
     treasury_account_id: accountId,
     import_code: importCode,
     file_name: file.name,
-    file_type: "csv",
+    file_type: ofx ? "ofx" : "csv",
     file_hash: fileHash,
     statement_fingerprint: statementFingerprint,
     period_start: periodStart,
@@ -511,6 +515,23 @@ export async function createTransactionFromStatementLine(prev: TreasuryActionRes
 
 export async function unreconcileStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  void formData;
-  return { success: false, error: "Annulation de rapprochement prévue dans une prochaine iteration." };
+  const workspace = await requireProWorkspace();
+  if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
+  const id = text(formData, "statement_line_id");
+  if (!id) return { success: false, error: "Ligne introuvable." };
+  const supabase = await createClient();
+  const { data: line, error } = await supabase.from("bank_statement_lines").select("id, import_id, matched_transaction_id, reconciliation_status").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
+  if (error) return { success: false, error: error.message };
+  if (!line || line.reconciliation_status !== "reconciled") return { success: false, error: "Seule une ligne déjà rapprochée peut être annulée." };
+  const cancelled = await supabase.from("bank_reconciliations").update({ status: "cancelled", cancelled_at: new Date().toISOString(), notes: "Annulation du rapprochement" }).eq("organization_id", workspace.organization.id).eq("statement_line_id", id).eq("status", "confirmed");
+  if (cancelled.error) return { success: false, error: cancelled.error.message };
+  const reopened = await supabase.from("bank_statement_lines").update({ reconciliation_status: "unreconciled", matched_transaction_id: null, matched_at: null, matched_by: null, match_score: null, match_reason: null }).eq("organization_id", workspace.organization.id).eq("id", id);
+  if (reopened.error) return { success: false, error: reopened.error.message };
+  if (line.matched_transaction_id) {
+    await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
+  }
+  if (line.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
+  revalidatePath("/tresorerie/rapprochement");
+  revalidatePath("/tresorerie/releves");
+  return { success: true };
 }
