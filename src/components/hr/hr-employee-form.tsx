@@ -47,7 +47,14 @@ export function HrEmployeeForm({
       <Field name="city" label="Ville" defaultValue={employee?.city} />
       <Field name="cin" label="CIN" defaultValue={employee?.cin} />
       <Field name="cnss_number" label="N° CNSS" defaultValue={employee?.cnss_number} />
-      <Field name="rib" label="RIB" defaultValue={employee?.rib} />
+      <Field name="rib" label="RIB (24 chiffres)" defaultValue={employee?.rib} />
+      <SelectField name="marital_status" label="Situation familiale" defaultValue={String(employee?.marital_status ?? "")} options={[{ value: "celibataire", label: "Célibataire" }, { value: "marie", label: "Marié(e)" }, { value: "divorce", label: "Divorcé(e)" }, { value: "veuf", label: "Veuf(ve)" }]} />
+      <Field name="dependents_count" label="Personnes à charge" type="number" min="0" defaultValue={Number(employee?.dependents_count ?? 0)} />
+      <Field name="weekly_hours" label="Heures hebdomadaires" type="number" min="1" step="0.5" defaultValue={Number(employee?.weekly_hours ?? 44)} />
+      <label className="flex items-center gap-2 text-sm"><input name="cimr_enabled" type="checkbox" defaultChecked={Boolean(employee?.cimr_enabled)} /> CIMR</label>
+      <Field name="cimr_rate" label="Taux CIMR %" type="number" min="0" step="0.01" defaultValue={Number(employee?.cimr_rate ?? 0)} />
+      <Field name="mutuelle_label" label="Mutuelle" defaultValue={String(employee?.mutuelle_label ?? "")} />
+      <Field name="mutuelle_amount" label="Cotisation mutuelle" type="number" min="0" step="0.01" defaultValue={Number(employee?.mutuelle_amount ?? 0)} />
       <SelectField name="department_id" label="Département" options={departments.map((item) => ({ value: item.id, label: item.name ?? "" }))} defaultValue={employee?.department_id} />
       <SelectField name="position_id" label="Poste" options={positions.map((item) => ({ value: item.id, label: item.title ?? "" }))} defaultValue={employee?.position_id} />
       <SelectField

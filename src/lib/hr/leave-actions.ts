@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isMissingRelation, notifyOrganization } from "@/lib/hr/notify";
 import { decideLeave, type LeaveDecision, type LeaveStatus } from "@/lib/hr/leave-decision";
-import { leaveBalance, serviceMonthsInYear } from "@/lib/hr/leave-balance";
+import { leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE, serviceMonthsInYear } from "@/lib/hr/leave-balance";
 import { createClient } from "@/lib/supabase/server";
 
 const decisions = new Set<LeaveDecision>(["approve", "reject", "cancel"]);
@@ -46,6 +46,13 @@ export async function decideHrLeaveAction(formData: FormData) {
     countsAgainstBalance,
   });
   if (!result.ok) throw new Error(result.message);
+  if (result.nextStatus === "approved") {
+    const { data: others } = await supabase.from("hr_leave_requests").select("id, start_date, end_date, status").eq("organization_id", workspace.organization.id).eq("employee_id", request.employee_id).in("status", ["pending", "approved"]).neq("id", requestId);
+    const { data: current } = await supabase.from("hr_leave_requests").select("start_date, end_date").eq("id", requestId).maybeSingle();
+    if (current && (others ?? []).some((row) => leaveRangesOverlap(String(current.start_date), String(current.end_date), String(row.start_date), String(row.end_date)))) {
+      throw new Error(LEAVE_OVERLAP_MESSAGE);
+    }
+  }
 
   const patch: Record<string, string | null> = { status: result.nextStatus };
   if (result.nextStatus === "approved") {

@@ -336,14 +336,23 @@ export async function getCommerceCounters(): Promise<CommerceCounters> {
       0,
     );
 
+    const documents = await supabase.from("sales_documents").select("document_type, status, total_ttc").eq("organization_id", workspace.organization.id).is("archived_at", null).limit(1000);
+    const rows = documents.data ?? [];
+    const ofType = (type: string, statuses: string[]) => rows.filter((row) => row.document_type === type && statuses.includes(String(row.status)));
+    const docDrafts = ofType("quote", ["draft"]).length;
+    const docSent = ofType("quote", ["sent", "validated"]).length;
+    const docAccepted = ofType("quote", ["accepted", "converted"]).length;
+    const docOrders = ofType("order", ["confirmed", "validated", "delivered"]).length;
+    const docDeliveries = ofType("delivery_note", ["draft", "validated"]).length;
+    const legacyEmpty = !(draftQuotes || sentQuotes || acceptedQuotes || confirmedOrders || pendingDeliveries);
     return {
-      draftQuotes: draftQuotes ?? 0,
-      sentQuotes: sentQuotes ?? 0,
-      acceptedQuotes: acceptedQuotes ?? 0,
-      confirmedOrders: confirmedOrders ?? 0,
-      pendingDeliveries: pendingDeliveries ?? 0,
-      quoteAmount,
-      orderAmount,
+      draftQuotes: legacyEmpty ? docDrafts : draftQuotes ?? 0,
+      sentQuotes: legacyEmpty ? docSent : sentQuotes ?? 0,
+      acceptedQuotes: legacyEmpty ? docAccepted : acceptedQuotes ?? 0,
+      confirmedOrders: legacyEmpty ? docOrders : confirmedOrders ?? 0,
+      pendingDeliveries: legacyEmpty ? docDeliveries : pendingDeliveries ?? 0,
+      quoteAmount: legacyEmpty ? ofType("quote", ["accepted", "validated", "sent", "draft"]).reduce((sum, row) => sum + Number(row.total_ttc ?? 0), 0) : quoteAmount,
+      orderAmount: legacyEmpty ? ofType("order", ["confirmed", "validated", "delivered"]).reduce((sum, row) => sum + Number(row.total_ttc ?? 0), 0) : orderAmount,
     };
   } catch (err) {
     console.error("getCommerceCounters failed:", err);

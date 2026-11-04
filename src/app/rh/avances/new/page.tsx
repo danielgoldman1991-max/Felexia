@@ -18,6 +18,8 @@ export default async function NewAdvancePage() {
         <HrField label="Numéro"><HrInput name="advance_number" required placeholder="AV-2026-001" /></HrField>
         <HrField label="Date"><HrInput name="request_date" type="date" required /></HrField>
         <HrField label="Montant MAD"><HrInput name="amount" type="number" min="0.01" step="0.01" required /></HrField>
+        <HrField label="Mois de retenue"><HrInput name="deduction_month" type="number" min="1" max="12" defaultValue={String(new Date().getMonth() + 1)} /></HrField>
+        <HrField label="Année de retenue"><HrInput name="deduction_year" type="number" defaultValue={String(new Date().getFullYear())} /></HrField>
         <HrField label="Note" wide><HrTextarea name="notes" /></HrField>
         <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
       </HrEntryForm>

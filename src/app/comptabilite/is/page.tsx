@@ -23,7 +23,8 @@ export default async function CorporateTaxPage({ searchParams }: { searchParams:
   ]);
   const liasse = buildLiasse((loaded.rows ?? []).map((line) => ({ accountCode: line.accountCode, debit: line.debit, credit: line.credit })), 0);
   const rate = settings.data?.is_rate_percent === null || settings.data?.is_rate_percent === undefined ? null : Number(settings.data.is_rate_percent);
-  const preview = buildIsFile("", year, liasse.cpc.resultat, rate);
+  const turnover = (loaded.rows ?? []).filter((line) => line.accountCode.trim().startsWith("7")).reduce((sum, line) => sum + line.credit - line.debit, 0);
+  const preview = buildIsFile("", year, liasse.cpc.resultat, rate, { turnover });
   return (
     <ModulePage>
       <PageHeader title="IS préparatoire" description="Le résultat comptable est lu dans les écritures. L'impôt n'est estimé que si vous avez saisi un taux. Ce n'est pas la liasse fiscale ni un dépôt." />

@@ -10,8 +10,12 @@ export function parseFrDateToIso(value: string): string {
   const match = cleaned.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (!match) return "";
   const dd = match[1], mm = match[2], yyyy = match[3];
-  const d = parseInt(dd, 10), m = parseInt(mm, 10);
-  if (m < 1 || m > 12 || d < 1 || d > 31) return "";
+  const day = parseInt(dd, 10);
+  const month = parseInt(mm, 10);
+  const year = parseInt(yyyy, 10);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return "";
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return "";
   return `${yyyy}-${mm}-${dd}`;
 }
 

@@ -581,16 +581,17 @@ export async function unreconcileStatementLine(prev: TreasuryActionResult, formD
   await supabase.from("bank_reconciliations").update({ status: "cancelled", cancelled_at: new Date().toISOString(), notes: "Annulation du rapprochement" }).eq("organization_id", workspace.organization.id).eq("statement_line_id", id).eq("status", "confirmed");
   if (line.matched_transaction_id) {
     const tx = await supabase.from("treasury_transactions").select("id, customer_payment_id, supplier_payment_id, transaction_type, created_at, reconciled_at").eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id).maybeSingle();
-    const createdAt = tx.data?.created_at ? new Date(tx.data.created_at).getTime() : 0;
-    const reconciledAt = tx.data?.reconciled_at ? new Date(tx.data.reconciled_at).getTime() : createdAt;
-    const createdWithLine = Boolean(tx.data) && !tx.data?.customer_payment_id && !tx.data?.supplier_payment_id && Math.abs(reconciledAt - createdAt) < 15000;
-    // A payment is only cancelled when it was created together with the reconciliation (transaction created
-    // within seconds of the match). A match against a pre-existing payment must never cancel that payment.
-    const paymentCreatedWithLine = Boolean(tx.data) && Boolean(tx.data?.customer_payment_id || tx.data?.supplier_payment_id) && Math.abs(reconciledAt - createdAt) < 15000;
+    const event = await supabase.from("bank_reconciliation_events").select("action, payload, created_payment_id, created_transaction_id, payment_kind").eq("organization_id", workspace.organization.id).eq("statement_line_id", id).order("created_at", { ascending: false }).limit(5);
+    const linked = (event.data ?? []).find((row) => row.action !== "undone");
+    const payload = (linked?.payload ?? {}) as { createdPaymentId?: string; paymentKind?: "customer" | "supplier"; createdTransactionId?: string };
+    const linkedPaymentId = (linked?.created_payment_id as string | null) ?? payload.createdPaymentId;
+    const linkedTransactionId = (linked?.created_transaction_id as string | null) ?? payload.createdTransactionId;
+    const paymentCreatedWithLine = Boolean(linkedPaymentId);
+    const createdWithLine = Boolean(linkedTransactionId) && !paymentCreatedWithLine;
     await undoExpertReconciliation(workspace.organization.id, workspace.userId, id, {
-      createdPaymentId: paymentCreatedWithLine ? ((tx.data?.customer_payment_id as string | null) ?? (tx.data?.supplier_payment_id as string | null) ?? undefined) : undefined,
-      paymentKind: paymentCreatedWithLine ? (tx.data?.customer_payment_id ? "customer" : "supplier") : undefined,
-      createdTransactionId: createdWithLine ? line.matched_transaction_id : undefined,
+      createdPaymentId: paymentCreatedWithLine ? linkedPaymentId : undefined,
+      paymentKind: paymentCreatedWithLine ? ((linked?.payment_kind as "customer" | "supplier" | null) ?? payload.paymentKind ?? (tx.data?.customer_payment_id ? "customer" : "supplier")) : undefined,
+      createdTransactionId: createdWithLine ? linkedTransactionId : undefined,
     });
     if (!paymentCreatedWithLine && !createdWithLine) {
       await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
@@ -599,6 +600,8 @@ export async function unreconcileStatementLine(prev: TreasuryActionResult, formD
     await undoExpertReconciliation(workspace.organization.id, workspace.userId, id);
   }
   if (line.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
+  const { logAudit } = await import("@/lib/audit");
+  await logAudit(workspace.organization.id, "reconciliation_undone", "bank_reconciliation_events", id, { statement_line_id: id });
   revalidatePath("/tresorerie/rapprochement");
   revalidatePath("/tresorerie/releves");
   revalidatePath("/tresorerie/mouvements");

@@ -21,10 +21,11 @@ export async function GET(request: Request) {
   const grouped = new Map<string, { taxable: number; ir: number; dependents: number }>();
   for (const slip of slips ?? []) {
     const current = grouped.get(slip.employee_id as string) ?? { taxable: 0, ir: 0, dependents: 0 };
-    const details = slip.calculation_details as { slip?: { familyReduction?: number } } | null;
+    const details = slip.calculation_details as { dependents?: number; slip?: { dependents?: number; familyReduction?: number } } | null;
+    const used = Number(details?.dependents ?? details?.slip?.dependents ?? 0);
     current.taxable += Number(slip.taxable_gross ?? 0);
     current.ir += Number(slip.ir_amount ?? 0);
-    current.dependents = Math.max(current.dependents, Number(details?.slip?.familyReduction ? 1 : 0));
+    current.dependents = Math.max(current.dependents, used);
     grouped.set(slip.employee_id as string, current);
   }
   const rows = [...grouped.entries()].map(([id, totals]) => {

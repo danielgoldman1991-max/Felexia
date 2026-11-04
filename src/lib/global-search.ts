@@ -93,12 +93,15 @@ export async function globalSearch(query: string): Promise<GlobalSearchResult[]>
   const thirdPartyIds = await safe(findThirdPartyIds(orgId, q), []);
   const results: GlobalSearchResult[] = [...staticResults];
 
-  const [tiers, products, salesDocs, customerInvoices, customerPayments, purchaseDocs, supplierInvoices, supplierPayments, warehouses, treasuryAccounts, treasuryTransactions, bankImports] = await Promise.all([
+  const [tiers, products, employees, salesDocs, customerInvoices, customerPayments, purchaseDocs, supplierInvoices, supplierPayments, warehouses, treasuryAccounts, treasuryTransactions, bankImports] = await Promise.all([
     safeRows(
       supabase.from("third_parties").select("id, name, primary_type, types, city, ice, email, phone").eq("organization_id", orgId).is("archived_at", null).or(orFilter(q, ["name", "commercial_name", "email", "phone", "mobile", "ice", "city"])).limit(5),
     ),
     safeRows(
       supabase.from("products").select("id, name, sku, barcode, description, type").eq("organization_id", orgId).is("archived_at", null).or(orFilter(q, ["name", "sku", "barcode", "description"])).limit(5),
+    ),
+    safeRows(
+      supabase.from("hr_employees").select("id, full_name, employee_number, cin").eq("organization_id", orgId).is("archived_at", null).or(orFilter(q, ["full_name", "employee_number", "first_name", "last_name", "cin"])).limit(8),
     ),
     safeRows(
       thirdPartyIds.length > 0
@@ -140,6 +143,10 @@ export async function globalSearch(query: string): Promise<GlobalSearchResult[]>
     if (!fullAccess && typeLabel(row.types, row.primary_type) === "Prospect") continue;
     const id = str(row.id);
     results.push({ id: `third-party-${id}`, title: str(row.name, "Tiers"), subtitle: [typeLabel(row.types, row.primary_type), str(row.city), row.ice ? `ICE ${str(row.ice)}` : null].filter(Boolean).join(" · "), href: `/tiers/${id}`, category: "Tiers", type: "record" });
+  }
+  for (const row of employees) {
+    const id = str(row.id);
+    results.push({ id: `employee-${id}`, title: str(row.full_name, "Salarié"), subtitle: [str(row.employee_number), row.cin ? `CIN ${str(row.cin)}` : null].filter(Boolean).join(" · "), href: `/rh/employes/${id}`, category: "RH", type: "record" });
   }
   for (const row of products) {
     const id = str(row.id);

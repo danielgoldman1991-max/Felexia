@@ -46,6 +46,7 @@ export default async function SettlementPrintPage({ params }: { params: Promise<
           <tr><td>Dernier net enregistré</td><td className="right">{formatMoney(Number(settlement.last_net))}</td></tr>
           <tr><td>Congés restants ({settlement.leave_days} j)</td><td className="right">{formatMoney(Number(settlement.leave_indemnity))}</td></tr>
           <tr><td>Préavis non exécuté ({settlement.notice_days} j)</td><td className="right">{formatMoney(Number(settlement.notice_indemnity))}</td></tr>
+          <tr><td>Prorata du dernier mois{settlement.days_worked ? ` (${settlement.days_worked} j)` : ""}</td><td className="right">{formatMoney(Number(settlement.salary_prorata ?? 0))}</td></tr>
           <tr><td>Indemnité de licenciement préparatoire</td><td className="right">{formatMoney(Number(settlement.dismissal_indemnity))}</td></tr>
         </PrintLineTable>
         <PrintTotals rows={[{ label: "Salaire mensuel de référence", value: formatMoney(Number(settlement.monthly_salary)) }]} grandTotalLabel="Total préparatoire" grandTotalValue={formatMoney(Number(settlement.total_amount))} />

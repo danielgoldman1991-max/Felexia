@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { AccountingActionResult } from "@/lib/accounting-types";
 
@@ -16,12 +17,23 @@ type Line = {
 export function LetteringForm({
   action,
   lines,
+  suggestedCode = "A",
 }: {
   action: (state: AccountingActionResult, formData: FormData) => Promise<AccountingActionResult>;
   lines: Line[];
+  suggestedCode?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, { success: true });
   const [localError, setLocalError] = useState<string | null>(null);
+  const toasted = useRef(false);
+  useEffect(() => {
+    if (pending) toasted.current = false;
+    const message = (state.data as { message?: string } | undefined)?.message;
+    if (!pending && state.success && message && !toasted.current) {
+      toasted.current = true;
+      toast.success(message);
+    }
+  }, [pending, state]);
   if (lines.length === 0) return <p className="text-sm text-[var(--muted)]">Aucune ligne ouverte sur 3421 ou 4411.</p>;
   return (
     <form
@@ -45,7 +57,7 @@ export function LetteringForm({
     >
       <label className="grid max-w-xs gap-1 text-sm">
         Code de lettrage
-        <input name="lettering_code" required maxLength={6} className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 uppercase" placeholder="A1" />
+        <input name="lettering_code" maxLength={6} defaultValue={suggestedCode} className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 uppercase" placeholder="Proposé automatiquement" />
       </label>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

@@ -23,7 +23,7 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
   const supabase = await createClient();
   const { data: slip } = await supabase
     .from("hr_payslips")
-    .select("payslip_number, status, gross_salary, net_to_pay, net_salary, ir_amount, cnss_employee, amo_employee, base_salary, earnings, deductions, employer_contributions, employee_id, payroll_period_id")
+    .select("payslip_number, status, gross_salary, net_to_pay, net_salary, taxable_gross, ir_amount, cnss_employee, amo_employee, base_salary, advance_deduction, earnings, deductions, employer_contributions, calculation_details, employee_id, payroll_period_id")
     .eq("id", id)
     .eq("organization_id", workspace.organization.id)
     .maybeSingle();
@@ -68,7 +68,11 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
             { label: "Salaire brut", value: formatMoney(Number(slip?.gross_salary ?? 0)) },
             { label: "CNSS salarié", value: formatMoney(Number(slip?.cnss_employee ?? 0)) },
             { label: "AMO salarié", value: formatMoney(Number(slip?.amo_employee ?? 0)) },
+            { label: "Frais professionnels", value: formatMoney(Number((slip?.calculation_details as { slip?: { professionalExpense?: number } } | null)?.slip?.professionalExpense ?? 0)) },
+            { label: "Net imposable", value: formatMoney(Number(slip?.taxable_gross ?? 0)) },
             { label: "IR", value: formatMoney(Number(slip?.ir_amount ?? 0)) },
+            { label: "Charges de famille", value: formatMoney(Number((slip?.calculation_details as { slip?: { familyReduction?: number } } | null)?.slip?.familyReduction ?? 0)) },
+            { label: "Avances et prêts", value: formatMoney(Number((slip as { advance_deduction?: number } | null)?.advance_deduction ?? 0)) },
           ]}
           grandTotalLabel="Net à payer"
           grandTotalValue={formatMoney(Number(slip?.net_to_pay ?? slip?.net_salary ?? 0))}

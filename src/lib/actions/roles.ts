@@ -20,10 +20,14 @@ export async function createRoleAction(
     if (!name) return { error: "Le nom est requis." };
 
     const supabase = await createClient();
+    const { data: existing } = await supabase.from("roles").select("id, name").eq("organization_id", workspace.organization.id);
+    if ((existing ?? []).some((role) => role.name.trim().toLowerCase() === name.toLowerCase())) {
+      return { error: "Un rôle porte déjà ce nom, sans tenir compte des majuscules." };
+    }
 
     const { error } = await supabase.from("roles").insert({
       organization_id: workspace.organization.id,
-      name: name.toLowerCase(),
+      name,
       description: description || null,
     });
 

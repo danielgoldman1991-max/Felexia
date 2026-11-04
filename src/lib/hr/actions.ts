@@ -4,12 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { createClient } from "@/lib/supabase/server";
-import { parseHrSalary } from "@/lib/hr/validation";
+import { parseHrSalary, validateCin, validateCnss, validateRib } from "@/lib/hr/validation";
 import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import { isBaseOnlyPayrollAcknowledgement } from "@/lib/hr/payroll-engine";
-import { calculateMoroccanPayslip2026 } from "@/lib/hr/ma-payroll-2026";
-import { leaveBalance } from "@/lib/hr/leave-balance";
+import { calculateMoroccanPayslip2026, overtimePayFromHours } from "@/lib/hr/ma-payroll-2026";
+import { leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE } from "@/lib/hr/leave-balance";
 
 export async function createHrEmployeeAction(formData: FormData) {
   const workspace = await requireWritableHrWorkspace();
@@ -25,9 +25,16 @@ export async function createHrEmployeeAction(formData: FormData) {
     email: optionalString(formData, "email"),
     phone: optionalString(formData, "phone"),
     city: optionalString(formData, "city"),
-    cin: optionalString(formData, "cin"),
-    cnss_number: optionalString(formData, "cnss_number"),
-    rib: optionalString(formData, "rib"),
+    cin: validateCin(optionalString(formData, "cin")),
+    cnss_number: validateCnss(optionalString(formData, "cnss_number")),
+    rib: validateRib(optionalString(formData, "rib")),
+    marital_status: optionalString(formData, "marital_status"),
+    dependents_count: Math.max(0, Math.min(12, Math.round(numberValue(formData, "dependents_count")))),
+    cimr_enabled: formData.get("cimr_enabled") === "on",
+    cimr_rate: numberValue(formData, "cimr_rate"),
+    mutuelle_label: optionalString(formData, "mutuelle_label"),
+    mutuelle_amount: numberValue(formData, "mutuelle_amount"),
+    weekly_hours: numberValue(formData, "weekly_hours") || 44,
     department_id: optionalString(formData, "department_id"),
     position_id: optionalString(formData, "position_id"),
     hire_date: requiredString(formData, "hire_date"),
@@ -36,8 +43,14 @@ export async function createHrEmployeeAction(formData: FormData) {
     created_by: workspace.userId,
   };
 
-  const { data, error } = await supabase.from("hr_employees").insert(payload).select("id").single();
-  if (error) throw new Error(error.message);
+  let saved = await supabase.from("hr_employees").insert(payload).select("id").single();
+  if (saved.error && missingColumn(saved.error)) {
+    const { cimr_enabled, cimr_rate, mutuelle_label, mutuelle_amount, weekly_hours, ...base } = payload;
+    void cimr_enabled; void cimr_rate; void mutuelle_label; void mutuelle_amount; void weekly_hours;
+    saved = await supabase.from("hr_employees").insert(base).select("id").single();
+  }
+  if (saved.error || !saved.data) throw new Error(saved.error?.message ?? "Le salarié n'a pas été créé.");
+  const data = saved.data;
 
   revalidatePath("/rh");
   redirect(`/rh/employes/${data.id}`);
@@ -55,9 +68,16 @@ export async function updateHrEmployeeAction(employeeId: string, formData: FormD
       email: optionalString(formData, "email"),
       phone: optionalString(formData, "phone"),
       city: optionalString(formData, "city"),
-      cin: optionalString(formData, "cin"),
-      cnss_number: optionalString(formData, "cnss_number"),
-      rib: optionalString(formData, "rib"),
+      cin: validateCin(optionalString(formData, "cin")),
+      cnss_number: validateCnss(optionalString(formData, "cnss_number")),
+      rib: validateRib(optionalString(formData, "rib")),
+      marital_status: optionalString(formData, "marital_status"),
+      dependents_count: Math.max(0, Math.min(12, Math.round(numberValue(formData, "dependents_count")))),
+      cimr_enabled: formData.get("cimr_enabled") === "on",
+      cimr_rate: numberValue(formData, "cimr_rate"),
+      mutuelle_label: optionalString(formData, "mutuelle_label"),
+      mutuelle_amount: numberValue(formData, "mutuelle_amount"),
+      weekly_hours: numberValue(formData, "weekly_hours") || 44,
       department_id: optionalString(formData, "department_id"),
       position_id: optionalString(formData, "position_id"),
       employment_status: optionalString(formData, "employment_status") ?? "active",
@@ -101,18 +121,25 @@ export async function createHrLeaveRequestAction(formData: FormData) {
   const workspace = await requireWritableHrWorkspace();
   const supabase = await createClient();
 
+  const employeeId = requiredString(formData, "employee_id");
+  const startDate = requiredString(formData, "start_date");
+  const endDate = requiredString(formData, "end_date");
+  const { data: existingLeaves } = await supabase.from("hr_leave_requests").select("start_date, end_date, status").eq("organization_id", workspace.organization.id).eq("employee_id", employeeId).in("status", ["pending", "approved"]);
+  if ((existingLeaves ?? []).some((row) => leaveRangesOverlap(startDate, endDate, String(row.start_date), String(row.end_date)))) {
+    throw new Error(LEAVE_OVERLAP_MESSAGE);
+  }
   const { error } = await supabase.from("hr_leave_requests").insert({
     organization_id: workspace.organization.id,
-    employee_id: requiredString(formData, "employee_id"),
+    employee_id: employeeId,
     leave_type_id: requiredString(formData, "leave_type_id"),
-    start_date: requiredString(formData, "start_date"),
-    end_date: requiredString(formData, "end_date"),
+    start_date: startDate,
+    end_date: endDate,
     days_count: numberValue(formData, "days_count", 1),
     reason: optionalString(formData, "reason"),
     status: "pending",
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message.includes("HR_LEAVE_OVERLAP") ? LEAVE_OVERLAP_MESSAGE : error.message);
   revalidatePath("/rh/conges");
   redirect("/rh/conges");
 }
@@ -187,16 +214,25 @@ export async function prepareFullPayslipFormAction(periodId: string, previous: {
     const workspace = await requireWritableHrWorkspace();
     const employeeId = requiredString(formData, "employee_id");
     const supabase = await createClient();
-    const { data: employee } = await supabase.from("hr_employees").select("id, base_salary, hire_date, first_name, last_name").eq("id", employeeId).eq("organization_id", workspace.organization.id).maybeSingle();
+    const { data: employee } = await supabase.from("hr_employees").select("id, base_salary, hire_date, first_name, last_name, dependents_count").eq("id", employeeId).eq("organization_id", workspace.organization.id).maybeSingle();
     const { data: period } = await supabase.from("hr_payroll_periods").select("id, year, month, status").eq("id", periodId).eq("organization_id", workspace.organization.id).maybeSingle();
     if (!employee || !period || !["draft", "calculated"].includes(period.status)) return { error: "Période ou salarié introuvable." };
+    const weeklyHours = numberValue(formData, "weekly_hours") || 44;
+    const overtimeFromHours = overtimePayFromHours(Number(employee?.base_salary ?? 0), {
+      at25: numberValue(formData, "overtime_hours_25"),
+      at50: numberValue(formData, "overtime_hours_50"),
+      at100: numberValue(formData, "overtime_hours_100"),
+    }, weeklyHours);
+    const manualAdvance = numberValue(formData, "advance_deduction");
+    const scheduled = manualAdvance > 0 ? manualAdvance : await deductionsForMonth(supabase, workspace.organization.id, employeeId, Number(period?.year), Number(period?.month));
+    const formDependents = Math.max(0, Math.round(numberValue(formData, "dependents")));
     const variables = {
       bonuses: numberValue(formData, "bonuses"),
-      overtimeAmount: numberValue(formData, "overtime_amount"),
+      overtimeAmount: overtimeFromHours.at25 + overtimeFromHours.at50 + overtimeFromHours.at100 > 0 ? overtimeFromHours.amount : numberValue(formData, "overtime_amount"),
       indemnities: numberValue(formData, "indemnities"),
       absenceDeduction: numberValue(formData, "absence_deduction"),
-      advanceDeduction: numberValue(formData, "advance_deduction"),
-      dependents: Math.max(0, Math.round(numberValue(formData, "dependents"))),
+      advanceDeduction: scheduled,
+      dependents: formDependents > 0 ? formDependents : Math.max(0, Math.round(Number(employee?.dependents_count ?? 0))),
     };
     const periodDate = `${period.year}-${String(period.month).padStart(2, "0")}-01`;
     const slip = calculateMoroccanPayslip2026({
@@ -254,7 +290,7 @@ export async function prepareFullPayslipFormAction(periodId: string, previous: {
         { code: "AMO_ER", label: "AMO employeur", amount: slip.amoEmployer },
         { code: "FORMATION", label: "Taxe de formation professionnelle", amount: slip.trainingTax },
       ],
-      calculation_details: { scope: "elements_2026", officialConformityClaim: false, slip },
+      calculation_details: { scope: "elements_2026", officialConformityClaim: false, dependents: variables.dependents, slip: { ...slip, dependents: variables.dependents } },
       status: "calculated",
     };
     const saved = await supabase.from("hr_payslips").upsert(payload, { onConflict: "payroll_period_id,employee_id" });
@@ -315,6 +351,30 @@ function optionalString(formData: FormData, key: string): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+async function deductionsForMonth(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, employeeId: string, year: number, month: number) {
+  if (!year || !month) return 0;
+  const advances = await supabase.from("hr_advances").select("amount, status, deduction_month, deduction_year").eq("organization_id", organizationId).eq("employee_id", employeeId).in("status", ["approved", "paid"]);
+  let total = 0;
+  if (!advances.error) {
+    for (const row of advances.data ?? []) {
+      if (Number(row.deduction_year) === year && Number(row.deduction_month) === month) total += Number(row.amount ?? 0);
+    }
+  }
+  const loans = await supabase.from("hr_loans").select("monthly_deduction, remaining_amount, start_month, start_year, status").eq("organization_id", organizationId).eq("employee_id", employeeId).eq("status", "active");
+  if (!loans.error) {
+    for (const row of loans.data ?? []) {
+      const started = Number(row.start_year) < year || (Number(row.start_year) === year && Number(row.start_month) <= month);
+      if (started) total += Math.min(Number(row.monthly_deduction ?? 0), Number(row.remaining_amount ?? 0));
+    }
+  }
+  return Math.round(total * 100) / 100;
+}
+
+function missingColumn(error: { code?: string; message?: string } | null) {
+  const message = error?.message ?? "";
+  return error?.code === "42703" || error?.code === "PGRST204" || /schema cache|column/i.test(message);
 }
 
 function numberValue(formData: FormData, key: string, fallback = 0): number {

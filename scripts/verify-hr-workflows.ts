@@ -61,6 +61,13 @@ const recent = computeFinalSettlement({
 });
 assert.equal(recent.eligibleForDismissal, false);
 assert.equal(recent.dismissalIndemnity, 0);
+const prorata = computeFinalSettlement({
+  monthlySalary: 14000, hireDate: "2020-01-01", exitDate: "2026-01-15", reason: "demission",
+  remainingLeaveDays: 15, noticeDays: 0, noticePaid: true, lastNet: 1000, daysWorked: 15,
+});
+assert.equal(prorata.salaryProrata, 8076.92);
+assert.equal(prorata.leaveIndemnity, 8076.92);
+assert.equal(prorata.total, 8076.92 + 8076.92 + 1000);
 
 assert.equal(isCheckKey("onboarding", "cin"), true);
 assert.equal(isCheckKey("offboarding", "pointeuse"), false);

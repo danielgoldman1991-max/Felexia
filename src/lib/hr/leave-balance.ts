@@ -18,6 +18,17 @@ export function serviceMonthsInYear(hireDate: string, year: number, asOf = new D
   return Math.max(0, Math.min(12, months));
 }
 
+/** Vrai lorsque deux périodes de congé se chevauchent, bornes incluses. */
+export function leaveRangesOverlap(startA: string, endA: string, startB: string, endB: string) {
+  const a0 = startA.slice(0, 10);
+  const a1 = (endA || startA).slice(0, 10);
+  const b0 = startB.slice(0, 10);
+  const b1 = (endB || startB).slice(0, 10);
+  return a0 <= b1 && b0 <= a1;
+}
+
+export const LEAVE_OVERLAP_MESSAGE = "Ce salarié a déjà un congé qui chevauche cette période. Modifiez les dates ou annulez l'autre demande.";
+
 export function leaveBalance(monthsWorked: number, takenDays: number) {
   const acquired = acquiredLeaveDays(monthsWorked);
   const taken = Math.round(Math.max(0, takenDays) * 100) / 100;

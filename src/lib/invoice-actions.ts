@@ -302,7 +302,7 @@ async function updateInvoiceStatus(id: string, status: string, expected: string[
   const supabase = await createClient();
   const { data: invoice, error } = await supabase
     .from("customer_invoices")
-    .select("id, status, total_ttc, paid_amount")
+    .select("id, status, total_ttc, paid_amount, invoice_date")
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
@@ -311,6 +311,12 @@ async function updateInvoiceStatus(id: string, status: string, expected: string[
   const payload: Record<string, unknown> = { status };
   if (status === "validated") {
     if (Number(invoice.total_ttc ?? 0) <= 0) return { success: false, error: "Le total TTC doit etre superieur a zero." };
+    try {
+      const { assertDateInOpenPeriod } = await import("@/lib/accounting/period-lock");
+      await assertDateInOpenPeriod(supabase, workspace.organization.id, String(invoice.invoice_date ?? ""));
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "Période verrouillée." };
+    }
     payload.validated_at = new Date().toISOString();
     payload.remaining_amount = Math.max(Number(invoice.total_ttc ?? 0) - Number(invoice.paid_amount ?? 0), 0);
   }

@@ -79,12 +79,10 @@ export async function getHrDashboardData(): Promise<HrDashboardData> {
       .eq("organization_id", organizationId)
       .eq("is_active", true),
     supabase
-      .from("hr_payroll_periods")
-      .select("total_gross,total_net")
+      .from("hr_payslips")
+      .select("gross_salary, net_to_pay, status, period:payroll_period_id(month, year)")
       .eq("organization_id", organizationId)
-      .eq("month", now.getUTCMonth() + 1)
-      .eq("year", now.getUTCFullYear())
-      .maybeSingle(),
+      .in("status", ["validated", "paid"]),
   ]);
 
   const deptMap = new Map<string, string>();
@@ -143,8 +141,8 @@ export async function getHrDashboardData(): Promise<HrDashboardData> {
     contractsEndingSoon,
     pendingLeaves,
     absencesThisMonth,
-    grossPayrollThisMonth: Number(payrollResult.data?.total_gross ?? 0),
-    netPayrollThisMonth: Number(payrollResult.data?.total_net ?? 0),
+    grossPayrollThisMonth: sumCurrentPayslips(payrollResult.data, now.getUTCFullYear(), now.getUTCMonth() + 1, "gross_salary"),
+    netPayrollThisMonth: sumCurrentPayslips(payrollResult.data, now.getUTCFullYear(), now.getUTCMonth() + 1, "net_to_pay"),
     openAdvances,
     activeLoans,
     alerts: [
@@ -317,6 +315,16 @@ export async function listHrTable(table: string, limit = 50) {
 
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+function sumCurrentPayslips(data: unknown, year: number, month: number, field: "gross_salary" | "net_to_pay") {
+  const rows = Array.isArray(data) ? data as Array<Record<string, unknown>> : [];
+  return rows.reduce((sum, row) => {
+    const periodRaw = row.period;
+    const period = Array.isArray(periodRaw) ? periodRaw[0] as { month?: number; year?: number } : periodRaw as { month?: number; year?: number } | null;
+    if (!period || Number(period.month) !== month || Number(period.year) !== year) return sum;
+    return sum + Number(row[field] ?? 0);
+  }, 0);
 }
 
 async function countRows(

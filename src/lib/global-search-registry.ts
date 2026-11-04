@@ -6,7 +6,8 @@ export type GlobalSearchCategory =
   | "Facturation"
   | "Achats"
   | "Stock"
-  | "Tresorerie";
+  | "Tresorerie"
+  | "RH";
 
 export type GlobalSearchResult = {
   id: string;
