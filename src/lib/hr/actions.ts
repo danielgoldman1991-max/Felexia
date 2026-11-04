@@ -8,6 +8,8 @@ import { parseHrSalary } from "@/lib/hr/validation";
 import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import { isBaseOnlyPayrollAcknowledgement } from "@/lib/hr/payroll-engine";
+import { calculateMoroccanPayslip2026 } from "@/lib/hr/ma-payroll-2026";
+import { leaveBalance } from "@/lib/hr/leave-balance";
 
 export async function createHrEmployeeAction(formData: FormData) {
   const workspace = await requireWritableHrWorkspace();
@@ -176,6 +178,129 @@ export async function prepareHrPayrollPeriodFormAction(periodId: string, previou
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "La préparation n’a pas pu être enregistrée. Actualisez puis réessayez." };
+  }
+}
+
+export async function prepareFullPayslipFormAction(periodId: string, previous: { error?: string; success?: boolean }, formData: FormData): Promise<{ error?: string; success?: boolean }> {
+  void previous;
+  try {
+    const workspace = await requireWritableHrWorkspace();
+    const employeeId = requiredString(formData, "employee_id");
+    const supabase = await createClient();
+    const { data: employee } = await supabase.from("hr_employees").select("id, base_salary, hire_date, first_name, last_name").eq("id", employeeId).eq("organization_id", workspace.organization.id).maybeSingle();
+    const { data: period } = await supabase.from("hr_payroll_periods").select("id, year, month, status").eq("id", periodId).eq("organization_id", workspace.organization.id).maybeSingle();
+    if (!employee || !period || !["draft", "calculated"].includes(period.status)) return { error: "Période ou salarié introuvable." };
+    const variables = {
+      bonuses: numberValue(formData, "bonuses"),
+      overtimeAmount: numberValue(formData, "overtime_amount"),
+      indemnities: numberValue(formData, "indemnities"),
+      absenceDeduction: numberValue(formData, "absence_deduction"),
+      advanceDeduction: numberValue(formData, "advance_deduction"),
+      dependents: Math.max(0, Math.round(numberValue(formData, "dependents"))),
+    };
+    const periodDate = `${period.year}-${String(period.month).padStart(2, "0")}-01`;
+    const slip = calculateMoroccanPayslip2026({
+      baseSalary: Number(employee.base_salary ?? 0),
+      hireDate: employee.hire_date,
+      periodDate,
+      ...variables,
+    });
+    const variablesSaved = await supabase.from("hr_payslip_variables").upsert({
+      organization_id: workspace.organization.id,
+      payroll_period_id: periodId,
+      employee_id: employeeId,
+      bonuses: variables.bonuses,
+      overtime_amount: variables.overtimeAmount,
+      indemnities: variables.indemnities,
+      absence_deduction: variables.absenceDeduction,
+      advance_deduction: variables.advanceDeduction,
+      dependents: variables.dependents,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "payroll_period_id,employee_id" });
+    const variablesPending = variablesSaved.error && (variablesSaved.error.code === "42P01" || variablesSaved.error.code === "PGRST205" || /does not exist|schema cache/i.test(variablesSaved.error.message ?? ""));
+    const payslipNumber = `BUL-${period.year}-${String(period.month).padStart(2, "0")}-${employeeId}`;
+    const payload = {
+      organization_id: workspace.organization.id,
+      payroll_period_id: periodId,
+      employee_id: employeeId,
+      payslip_number: payslipNumber,
+      base_salary: slip.baseSalary,
+      gross_salary: slip.gross,
+      taxable_gross: slip.taxableMonthly,
+      net_salary: slip.net,
+      net_to_pay: slip.netToPay,
+      employer_cost: slip.employerCost,
+      cnss_employee: slip.cnssEmployee,
+      amo_employee: slip.amoEmployee,
+      ir_amount: slip.ir,
+      advance_deduction: slip.advanceDeduction,
+      cnss_employer: Math.round((slip.cnssEmployerSocial + slip.cnssEmployerFamily) * 100) / 100,
+      amo_employer: slip.amoEmployer,
+      earnings: [
+        { code: "BASE", label: "Salaire de base", amount: slip.baseSalary },
+        { code: "ANCIENNETE", label: `Prime d'ancienneté ${slip.seniorityPercent} %`, amount: slip.seniorityBonus },
+        { code: "PRIME", label: "Primes", amount: variables.bonuses },
+        { code: "HS", label: "Heures supplémentaires", amount: variables.overtimeAmount },
+        { code: "INDEMNITE", label: "Indemnités", amount: variables.indemnities },
+      ],
+      deductions: [
+        { code: "CNSS", label: "CNSS salarié", amount: slip.cnssEmployee },
+        { code: "AMO", label: "AMO salarié", amount: slip.amoEmployee },
+        { code: "IR", label: "IR", amount: slip.ir },
+        { code: "AVANCE", label: "Avance", amount: slip.advanceDeduction },
+      ],
+      employer_contributions: [
+        { code: "CNSS_ER", label: "CNSS employeur", amount: slip.cnssEmployerSocial + slip.cnssEmployerFamily },
+        { code: "AMO_ER", label: "AMO employeur", amount: slip.amoEmployer },
+        { code: "FORMATION", label: "Taxe de formation professionnelle", amount: slip.trainingTax },
+      ],
+      calculation_details: { scope: "elements_2026", officialConformityClaim: false, slip },
+      status: "calculated",
+    };
+    const saved = await supabase.from("hr_payslips").upsert(payload, { onConflict: "payroll_period_id,employee_id" });
+    if (saved.error) return { error: saved.error.message };
+    revalidatePath(`/rh/paie/periodes/${periodId}`);
+    return variablesPending
+      ? { success: true, error: "Bulletin enregistré dans la paie existante. Le détail des variables attend la migration 116." }
+      : { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Le bulletin complet n'a pas pu être enregistré." };
+  }
+}
+
+export async function refreshLeaveBalancesAction(previous: { error?: string; success?: boolean }, formData: FormData): Promise<{ error?: string; success?: boolean }> {
+  void previous;
+  void formData;
+  try {
+    const workspace = await requireWritableHrWorkspace();
+    const supabase = await createClient();
+    const year = new Date().getFullYear();
+    const { data: employees } = await supabase.from("hr_employees").select("id, hire_date").eq("organization_id", workspace.organization.id).is("archived_at", null);
+    const { data: leaves } = await supabase.from("hr_leave_requests").select("employee_id, days_count, start_date, status").eq("organization_id", workspace.organization.id).eq("status", "approved");
+    for (const employee of employees ?? []) {
+      const hire = new Date(`${employee.hire_date}T00:00:00Z`);
+      const start = new Date(Date.UTC(year, 0, 1));
+      const from = hire > start ? hire : start;
+      const months = Math.max(0, (new Date().getUTCFullYear() === year ? new Date().getUTCMonth() : 11) - from.getUTCMonth() + (from.getUTCFullYear() === year ? 1 : 0));
+      const taken = (leaves ?? []).filter((leave) => leave.employee_id === employee.id && String(leave.start_date).startsWith(String(year))).reduce((sum, leave) => sum + Number(leave.days_count ?? 0), 0);
+      const balance = leaveBalance(months, taken);
+      const stored = await supabase.from("hr_leave_balances").upsert({
+        organization_id: workspace.organization.id,
+        employee_id: employee.id,
+        leave_year: year,
+        acquired_days: balance.acquired,
+        taken_days: balance.taken,
+        remaining_days: balance.remaining,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "employee_id,leave_year" });
+      if (stored.error && (stored.error.code === "42P01" || stored.error.code === "PGRST205" || /does not exist|schema cache/i.test(stored.error.message ?? ""))) {
+        return { error: "Le calcul est prêt, mais l'enregistrement des soldes attend la migration 116." };
+      }
+    }
+    revalidatePath("/rh/conges/soldes");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Les soldes n'ont pas pu être enregistrés." };
   }
 }
 

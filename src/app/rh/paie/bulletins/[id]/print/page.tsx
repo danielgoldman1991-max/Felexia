@@ -1,4 +1,5 @@
 import { requireActiveWorkspace } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { getOrganizationDocumentIdentity } from "@/lib/company-identity";
 import { documentIdentityContact, documentIdentityInfoLines } from "@/lib/print-format";
 import { PrintActions } from "@/components/sales/print-actions";
@@ -13,6 +14,10 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
   const { id } = await params;
   const workspace = await requireActiveWorkspace();
   const identity = await getOrganizationDocumentIdentity(workspace.organization.id);
+  const supabase = await createClient();
+  const { data: slip } = await supabase.from("hr_payslips").select("payslip_number, gross_salary, net_to_pay, ir_amount, cnss_employee, amo_employee, earnings, deductions, calculation_details").eq("id", id).eq("organization_id", workspace.organization.id).maybeSingle();
+  const earnings = Array.isArray(slip?.earnings) ? slip.earnings as { label?: string; amount?: number }[] : [];
+  const deductions = Array.isArray(slip?.deductions) ? slip.deductions as { label?: string; amount?: number }[] : [];
   const companyContact = documentIdentityContact(identity);
   return (
     <div className="print-preview">
@@ -20,9 +25,14 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
       <PrintPage>
         <PrintHeader>
           <PrintOrganizationIdentity identity={identity} infoLines={documentIdentityInfoLines(identity)} contact={companyContact} />
-          <PrintDocumentTitle title="Bulletin préparatoire" documentNumber={id}><p>Document préparatoire</p></PrintDocumentTitle>
+          <PrintDocumentTitle title="Bulletin de paie" documentNumber={slip?.payslip_number ?? id}><p>À conserver par l’employeur. Calcul de référence 2026, sans dépôt CNSS ni DGI.</p></PrintDocumentTitle>
         </PrintHeader>
-        <PrintTerms title="Préparation du bulletin">
+        <PrintTerms title="Éléments">
+          {earnings.map((line) => `${line.label ?? "Gain"} : ${Number(line.amount ?? 0).toFixed(2)} MAD`).join(" · ") || "Aucun élément enregistré."}
+          {" "}Retenues : {deductions.map((line) => `${line.label ?? "Retenue"} ${Number(line.amount ?? 0).toFixed(2)}`).join(", ") || "—"}.
+          {" "}CNSS {Number(slip?.cnss_employee ?? 0).toFixed(2)} · AMO {Number(slip?.amo_employee ?? 0).toFixed(2)} · IR {Number(slip?.ir_amount ?? 0).toFixed(2)} · Net à payer {Number(slip?.net_to_pay ?? 0).toFixed(2)} MAD.
+        </PrintTerms>
+        <PrintTerms title="Mentions">
           Bulletin préparatoire généré par Felexia. À compléter et à valider par l’employeur, le comptable ou le conseiller social avant remise.
         </PrintTerms>
         <PrintTerms title="Validation requise">

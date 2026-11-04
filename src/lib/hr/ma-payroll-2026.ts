@@ -66,6 +66,7 @@ export type MoroccanPayslipInput = {
   overtimeAmount?: number;
   indemnities?: number;
   absenceDeduction?: number;
+  advanceDeduction?: number;
   dependents?: number;
 };
 
@@ -98,7 +99,9 @@ export function calculateMoroccanPayslip2026(input: MoroccanPayslipInput) {
   const dependents = Math.min(MA_PAYROLL_2026.familyReductionMaxDependents, Math.max(0, Math.floor(input.dependents ?? 0)));
   const familyReduction = roundMoney(Math.min(irBeforeFamily, dependents * MA_PAYROLL_2026.familyReductionMonthly));
   const ir = roundMoney(irBeforeFamily - familyReduction);
+  const advanceDeduction = roundMoney(Math.max(0, input.advanceDeduction ?? 0));
   const net = roundMoney(gross - cnssEmployee - amoEmployee - ir);
+  const netToPay = roundMoney(net - advanceDeduction);
 
   const cnssEmployerSocial = roundMoney(cnssBase * MA_PAYROLL_2026.cnssEmployerSocialRate / 100);
   const cnssEmployerFamily = roundMoney(cnssBase * MA_PAYROLL_2026.cnssEmployerFamilyRate / 100);
@@ -118,7 +121,9 @@ export function calculateMoroccanPayslip2026(input: MoroccanPayslipInput) {
     taxableMonthly,
     ir,
     familyReduction,
+    advanceDeduction,
     net,
+    netToPay,
     cnssEmployerSocial,
     cnssEmployerFamily,
     trainingTax,

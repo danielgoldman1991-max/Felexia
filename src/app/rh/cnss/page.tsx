@@ -14,5 +14,6 @@ export default async function HrCnssPage() {
     base_salary: employee.base_salary,
     status: employee.cnss_number ? "ready" : "missing",
   }));
-  return <ModulePage><HrSectionPage title="CNSS / AMO préparatoire" description="Liste déclarable, anomalies CNSS/AMO et export de contrôle préparatoire. Déclaration officielle hors Felexia." rows={rows} notice columns={[{ key: "employee_number", label: "Matricule" }, { key: "full_name", label: "Employé" }, { key: "cnss_number", label: "CNSS" }, { key: "base_salary", label: "Base", money: true }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
+  const now = new Date();
+  return <ModulePage><p className="mb-4 text-sm"><a className="font-semibold text-[var(--primary)]" href={`/rh/cnss/bds?year=${now.getFullYear()}&month=${now.getMonth() + 1}`}>Télécharger le bordereau préparatoire (format BDS)</a>. Ce fichier n’est pas un dépôt Damancom.</p><HrSectionPage title="CNSS / AMO préparatoire" description="Liste déclarable, anomalies CNSS/AMO et export de contrôle préparatoire. Déclaration officielle hors Felexia." rows={rows} notice columns={[{ key: "employee_number", label: "Matricule" }, { key: "full_name", label: "Employé" }, { key: "cnss_number", label: "CNSS" }, { key: "base_salary", label: "Base", money: true }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
 }
