@@ -37,6 +37,7 @@
   color: #13213b;
   padding: 10px 12px;
   font: inherit;
+  font-size: 16px;
   font-weight: 450;
 }
 .field input:focus-visible, .field select:focus-visible, .close:focus-visible, .submit:focus-visible, .download:focus-visible {

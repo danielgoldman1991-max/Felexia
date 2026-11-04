@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { RegisterAdminForm } from "@/components/auth/register-admin-form";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { getPostOnboardingPath } from "@/lib/auth/onboarding-continuation";
+import "./auth-public.css";
 
 // RULE: This page must NEVER auto-redirect on load.
 // Redirects happen ONLY after user actions (loginAction or registerAdminForm).
@@ -94,7 +95,7 @@ export default async function LoginPage({
             </Link>
           </div>
 
-          <div className="mt-8">
+          <div className="auth-public mt-8">
             {notice === "password_updated" ? <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">Votre mot de passe a été modifié. Connectez-vous avec votre nouveau mot de passe.</div> : null}
             {notice === "confirm_email" ? (
               <p role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center text-sm leading-6 text-blue-800">

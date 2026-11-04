@@ -17,6 +17,13 @@ function analyticsBlocking(): boolean {
   }
 }
 
+function footerNewsletterVisible(): boolean {
+  const form = document.querySelector("footer form");
+  if (!form) return false;
+  const box = form.getBoundingClientRect();
+  return box.top < window.innerHeight - 40 && box.bottom > 80;
+}
+
 function rememberDismissal() {
   try {
     localStorage.setItem(NEWSLETTER_PROMPT_KEY, JSON.stringify(promptRecord(Date.now())));
@@ -57,15 +64,18 @@ export function NewsletterPrompt() {
       } catch {
         return;
       }
-      if (document.documentElement.dataset.guideDialogOpen === "true" || analyticsBlocking()) return;
+      if (document.documentElement.dataset.guideDialogOpen === "true" || analyticsBlocking() || footerNewsletterVisible()) return;
       if (!(armedByTime || progress() >= 0.5)) return;
       const signedIn = await visitorIsSignedIn();
       if (cancelled || signedIn) { shown = true; return; }
-      if (document.documentElement.dataset.guideDialogOpen === "true" || analyticsBlocking()) return;
+      if (document.documentElement.dataset.guideDialogOpen === "true" || analyticsBlocking() || footerNewsletterVisible()) return;
       shown = true;
       setOpen(true);
     };
-    const onScroll = () => { if (progress() >= 0.5) void canShow(); };
+    const onScroll = () => {
+      if (footerNewsletterVisible()) { setOpen(false); shown = true; return; }
+      if (progress() >= 0.5) void canShow();
+    };
     const onJoined = (event: Event) => {
       rememberDismissal();
       shown = true;

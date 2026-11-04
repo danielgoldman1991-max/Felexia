@@ -1,0 +1,12 @@
+/* Public auth screens only. 16px inputs avoid the iOS focus zoom; 44px keeps tap targets usable. */
+.auth-public input,
+.auth-public textarea {
+  height: 44px;
+  min-height: 44px;
+  font-size: 16px;
+}
+.auth-public button,
+.auth-public a[class*="h-12"],
+.auth-public [type="submit"] {
+  min-height: 44px;
+}
