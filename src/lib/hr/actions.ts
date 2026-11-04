@@ -205,7 +205,7 @@ export async function prepareFullPayslipFormAction(periodId: string, previous: {
       periodDate,
       ...variables,
     });
-    await supabase.from("hr_payslip_variables").upsert({
+    const variablesSaved = await supabase.from("hr_payslip_variables").upsert({
       organization_id: workspace.organization.id,
       payroll_period_id: periodId,
       employee_id: employeeId,
@@ -217,6 +217,7 @@ export async function prepareFullPayslipFormAction(periodId: string, previous: {
       dependents: variables.dependents,
       updated_at: new Date().toISOString(),
     }, { onConflict: "payroll_period_id,employee_id" });
+    const variablesPending = variablesSaved.error && (variablesSaved.error.code === "42P01" || variablesSaved.error.code === "PGRST205" || /does not exist|schema cache/i.test(variablesSaved.error.message ?? ""));
     const payslipNumber = `BUL-${period.year}-${String(period.month).padStart(2, "0")}-${employeeId}`;
     const payload = {
       organization_id: workspace.organization.id,
@@ -259,7 +260,9 @@ export async function prepareFullPayslipFormAction(periodId: string, previous: {
     const saved = await supabase.from("hr_payslips").upsert(payload, { onConflict: "payroll_period_id,employee_id" });
     if (saved.error) return { error: saved.error.message };
     revalidatePath(`/rh/paie/periodes/${periodId}`);
-    return { success: true };
+    return variablesPending
+      ? { success: true, error: "Bulletin enregistré dans la paie existante. Le détail des variables attend la migration 116." }
+      : { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Le bulletin complet n'a pas pu être enregistré." };
   }
@@ -281,7 +284,7 @@ export async function refreshLeaveBalancesAction(previous: { error?: string; suc
       const months = Math.max(0, (new Date().getUTCFullYear() === year ? new Date().getUTCMonth() : 11) - from.getUTCMonth() + (from.getUTCFullYear() === year ? 1 : 0));
       const taken = (leaves ?? []).filter((leave) => leave.employee_id === employee.id && String(leave.start_date).startsWith(String(year))).reduce((sum, leave) => sum + Number(leave.days_count ?? 0), 0);
       const balance = leaveBalance(months, taken);
-      await supabase.from("hr_leave_balances").upsert({
+      const stored = await supabase.from("hr_leave_balances").upsert({
         organization_id: workspace.organization.id,
         employee_id: employee.id,
         leave_year: year,
@@ -290,6 +293,9 @@ export async function refreshLeaveBalancesAction(previous: { error?: string; suc
         remaining_days: balance.remaining,
         updated_at: new Date().toISOString(),
       }, { onConflict: "employee_id,leave_year" });
+      if (stored.error && (stored.error.code === "42P01" || stored.error.code === "PGRST205" || /does not exist|schema cache/i.test(stored.error.message ?? ""))) {
+        return { error: "Le calcul est prêt, mais l'enregistrement des soldes attend la migration 116." };
+      }
     }
     revalidatePath("/rh/conges/soldes");
     return { success: true };

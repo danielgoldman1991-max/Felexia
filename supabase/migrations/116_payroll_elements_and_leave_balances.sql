@@ -1,4 +1,5 @@
 -- 116: variables de paie et soldes de congés.
+-- Apply after 115 and before 117. Do not reuse this number.
 -- Additive. The base-only RPC and the preparatory trigger of migration 106
 -- stay in place. Existing payslips are not rewritten.
 --
