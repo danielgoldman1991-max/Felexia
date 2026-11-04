@@ -35,12 +35,28 @@ async function findPayrollEntry(organizationId: string, reference: string) {
     .maybeSingle();
 }
 
-/** Écriture de charges à la validation. Idempotente : une référence déjà enregistrée n'est pas recréée. */
+/** Écriture de charges à la validation. Une écriture par bulletin, reconnue par son identifiant. */
 export async function postPayrollAccrualEntry(organizationId: string, slip: SlipAmounts) {
+  const supabase = await createClient();
+  const bySlip = await supabase
+    .from("accounting_entries")
+    .select("id, entry_number, notes")
+    .eq("organization_id", organizationId)
+    .eq("source_module", "hr")
+    .ilike("notes", `%hr_payslip:${slip.id}%`)
+    .neq("status", "cancelled")
+    .limit(5);
+  const owned = (bySlip.data ?? []).find((row) => {
+    const notes = String(row.notes ?? "");
+    return notes.includes(`hr_payslip:${slip.id}:accrual`) || notes === `hr_payslip:${slip.id}`;
+  });
+  if (owned?.id) return { success: true as const, entryNumber: String(owned.entry_number ?? "") };
   const existing = await findPayrollEntry(organizationId, slip.payslipNumber);
-  if (existing.data?.id) return { success: true as const, entryNumber: String(existing.data.entry_number ?? "") };
-  if (existing.error && existing.error.code !== "PGRST116") return { success: false as const, error: financialErrorMessage(existing.error) };
-  return insertPayrollEntry(organizationId, slip, "accrual");
+  const referenceNotes = String(existing.data?.notes ?? "");
+  if (existing.data?.id && (referenceNotes.includes(slip.id) || referenceNotes === "")) {
+    return { success: true as const, entryNumber: String(existing.data.entry_number ?? "") };
+  }
+  return insertPayrollEntry(organizationId, slip, "accrual", existing.data?.id ? `PAIE-${slip.id}` : slip.payslipNumber);
 }
 
 /** Règlement banque au paiement. Une écriture combinée déjà passée n'est pas doublée. */
@@ -55,10 +71,10 @@ export async function postPayrollPaymentEntry(organizationId: string, slip: Slip
     const posted = await postPayrollAccrualEntry(organizationId, slip);
     if (!posted.success) return posted;
   }
-  return insertPayrollEntry(organizationId, slip, "payment");
+  return insertPayrollEntry(organizationId, slip, "payment", `${slip.payslipNumber}/reglement`);
 }
 
-async function insertPayrollEntry(organizationId: string, slip: SlipAmounts, kind: "accrual" | "payment") {
+async function insertPayrollEntry(organizationId: string, slip: SlipAmounts, kind: "accrual" | "payment", reference = kind === "payment" ? `${slip.payslipNumber}/reglement` : slip.payslipNumber) {
   const supabase = await createClient();
   const journal = await getJournalByCode(organizationId, "OD") ?? await getJournalByCode(organizationId, "PA");
   if (!journal) return { success: false as const, error: "Le journal des opérations diverses est introuvable." };
@@ -103,7 +119,7 @@ async function insertPayrollEntry(organizationId: string, slip: SlipAmounts, kin
       journal_id: journal.id,
       entry_date: slip.date,
       label: `Paie ${slip.payslipNumber} · ${slip.employeeName}`,
-      reference: kind === "payment" ? `${slip.payslipNumber}/reglement` : slip.payslipNumber,
+      reference,
       status: "posted",
       source_module: "hr",
       notes: `hr_payslip:${slip.id}:${kind}`,

@@ -55,6 +55,7 @@ function formatQuantity(line: SalesLineFormValue, units: UnitForSalesSelect[]) {
 
 export function SalesLinesEditor({ lines, onChange, products, units, taxRates, defaultTaxRate, productCategories, allUnits, allTaxRates }: Props) {
   const [draftLine, setDraftLine] = useState<SalesLineFormValue>(() => createEmptySalesLine(defaultTaxRate));
+  const [quantityText, setQuantityText] = useState("1");
   const [error, setError] = useState<string | null>(null);
   const [quickModalOpen, setQuickModalOpen] = useState(false);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
@@ -149,7 +150,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
   }
 
   function handleAddLine() {
-    const preparedLine = calculateSalesLine(draftLine);
+    const preparedLine = calculateSalesLine({ ...draftLine, quantity: Number(quantityText.replace(",", ".")) });
 
     if (preparedLine.mode === "product" && !preparedLine.product_id) {
       setError("Sélectionnez un article ou service.");
@@ -159,11 +160,12 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
       setError("Saisissez une description.");
       return;
     }
-    if (Number(preparedLine.quantity) < 0) {
+    if (quantityDraftError(quantityText)) {
       setError("La quantité ne peut pas être négative.");
       return;
     }
-    if (Number(preparedLine.quantity) <= 0) {
+    const typedQuantity = Number(quantityText.replace(",", "."));
+    if (!Number.isFinite(typedQuantity) || typedQuantity <= 0) {
       setError("La quantité doit être supérieure à zéro.");
       return;
     }
@@ -182,6 +184,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
     };
 
     onChange([...lines, lineToAdd]);
+    setQuantityText("1");
     setDraftLine(createEmptySalesLine(defaultTaxRate));
     setError(null);
   }
@@ -298,16 +301,16 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             <Input
               type="text"
               inputMode="decimal"
-              value={String(draftLine.quantity)}
+              value={quantityText}
               onChange={(event) => {
                 const raw = event.target.value;
-                const negative = quantityDraftError(raw);
-                if (negative) {
-                  setError(negative);
-                  const parsed = Number(raw.replace(",", "."));
-                  if (Number.isFinite(parsed)) updateDraft({ ...draftLine, quantity: parsed });
+                setQuantityText(raw);
+                if (quantityDraftError(raw)) {
+                  setError("La quantité ne peut pas être négative.");
                   return;
                 }
+                setError(null);
+                if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return;
                 const quantity = toNumber(raw.replace(",", "."));
                 updateDraft({
                   ...draftLine,

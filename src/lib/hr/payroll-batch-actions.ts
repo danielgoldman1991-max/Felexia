@@ -42,28 +42,36 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
       .eq("id", periodId)
       .maybeSingle();
     if (periodError || !period) return { success: false, error: "Période de paie introuvable." };
-    if (!["draft", "calculated"].includes(period.status)) return { success: false, error: "Cette période est figée." };
+    if (["validated", "paid", "archived"].includes(period.status)) {
+      return { success: false, error: "Cette période est validée ou payée. Les bulletins déjà validés ne sont pas recalculés." };
+    }
     const { data: employees, error: employeeError } = await supabase
       .from("hr_employees")
-      .select("id, employee_number, first_name, last_name, base_salary, hire_date, dependents_count, employment_status")
+      .select("id, employee_number, first_name, last_name, base_salary, hire_date, dependents_count, employment_status, archived_at")
       .eq("organization_id", workspace.organization.id)
-      .is("archived_at", null)
-      .neq("employment_status", "terminated");
+      .or("archived_at.is.null,employment_status.eq.terminated");
     if (employeeError) return { success: false, error: employeeError.message };
     const { data: contracts } = await supabase.from("hr_contracts").select("employee_id, base_salary, status").eq("organization_id", workspace.organization.id).eq("status", "active");
     const contractSalary = new Map((contracts ?? []).map((row) => [row.employee_id as string, Number(row.base_salary ?? 0)]));
-    const { data: existingSlips } = await supabase.from("hr_payslips").select("employee_id, payslip_number").eq("organization_id", workspace.organization.id).eq("payroll_period_id", periodId);
+    const { data: existingSlips } = await supabase.from("hr_payslips").select("id, employee_id, payslip_number, status, gross_salary, net_to_pay, employer_cost").eq("organization_id", workspace.organization.id).eq("payroll_period_id", periodId);
     const usedNumbers = new Set((existingSlips ?? []).map((row) => String(row.payslip_number ?? "")));
-    const numberByEmployee = new Map((existingSlips ?? []).map((row) => [row.employee_id as string, String(row.payslip_number ?? "")]));
+    const slipByEmployee = new Map((existingSlips ?? []).map((row) => [row.employee_id as string, row]));
     const periodDate = `${period.year}-${String(period.month).padStart(2, "0")}-01`;
     const periodEnd = monthEnd(period.year, period.month);
     const skipped: Array<{ name: string; reason: string }> = [];
-    let totalGross = 0;
-    let totalNet = 0;
-    let totalCost = 0;
     let count = 0;
     for (const employee of employees ?? []) {
-      const name = `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim() || employee.employee_number || "Salarié";
+      const person = `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim() || "Salarié";
+      const name = employee.employee_number ? `${employee.employee_number} · ${person}` : person;
+      if (employee.employment_status === "terminated" || employee.archived_at) {
+        skipped.push({ name, reason: "sorti" });
+        continue;
+      }
+      const existing = slipByEmployee.get(employee.id);
+      if (existing && ["validated", "paid"].includes(String(existing.status))) {
+        skipped.push({ name, reason: "Bulletin déjà validé : non recalculé." });
+        continue;
+      }
       if (!["active", "trial_period", "on_leave"].includes(String(employee.employment_status))) {
         skipped.push({ name, reason: employee.employment_status === "suspended" ? "Statut suspendu : exclu de la paie du mois." : `Statut « ${employee.employment_status} » : exclu de la paie.` });
         continue;
@@ -85,8 +93,8 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         dependents: Number(employee.dependents_count ?? 0),
         advanceDeduction: scheduled.advances + scheduled.loans,
       });
-      const currentNumber = numberByEmployee.get(employee.id);
-      const payslipNumber = currentNumber && /^BUL-\d{4}-\d{2}-\d{4}$/.test(currentNumber) ? currentNumber : nextBulletinNumber(period.year, period.month, usedNumbers);
+      const currentNumber = existing ? String(existing.payslip_number ?? "") : "";
+      const payslipNumber = sequentialBulletinNumber(currentNumber, period.year, period.month) ? currentNumber : nextBulletinNumber(period.year, period.month, usedNumbers);
       const saved = await supabase.from("hr_payslips").upsert({
         organization_id: workspace.organization.id,
         payroll_period_id: periodId,
@@ -127,17 +135,16 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         continue;
       }
       count += 1;
-      totalGross += slip.gross;
-      totalNet += slip.netToPay;
-      totalCost += slip.employerCost;
     }
-    await supabase.from("hr_payroll_periods").update({
-      status: "calculated",
-      employees_count: count,
-      total_gross: Math.round(totalGross * 100) / 100,
-      total_net: Math.round(totalNet * 100) / 100,
-      total_employer_cost: Math.round(totalCost * 100) / 100,
-    }).eq("organization_id", workspace.organization.id).eq("id", periodId);
+    const stored = await syncPayrollPeriodTotals(supabase, workspace.organization.id, periodId, period.status === "draft" && count > 0 ? "calculated" : null);
+    if (!stored.ok) return { success: false, error: stored.error ?? "Les totaux de la période n'ont pas pu être recalculés.", count, skipped };
+    if (count === 0 && skipped.some((item) => item.reason.startsWith("Bulletin déjà validé"))) {
+      const stillOpen = (existingSlips ?? []).some((row) => !["validated", "paid", "cancelled"].includes(String(row.status)));
+      if (!stillOpen && (existingSlips ?? []).length > 0 && period.status === "calculated") {
+        await supabase.from("hr_payroll_periods").update({ status: "validated" }).eq("organization_id", workspace.organization.id).eq("id", periodId).eq("status", "calculated");
+      }
+      return { success: false, error: "Des bulletins sont déjà validés. Ils n'ont pas été recalculés et les totaux de la période ont été repris depuis les bulletins existants.", count, skipped };
+    }
     await logAudit(workspace.organization.id, "payroll_calculated", "hr_payroll_periods", periodId, { employees: count, skipped: skipped.length });
     revalidatePath(`/rh/paie/periodes/${periodId}`);
     revalidatePath("/rh/paie");
@@ -158,6 +165,7 @@ export async function setPayrollPeriodStatusAction(periodId: string, next: "vali
   if (rows.length === 0) return { success: false, error: "Calculez d'abord les bulletins." };
   if (next === "validated") {
     const payDate = monthEnd(period.year, period.month);
+    const missing: string[] = [];
     for (const slip of rows) {
       const { data: employee } = await supabase.from("hr_employees").select("first_name, last_name").eq("id", slip.employee_id).maybeSingle();
       const posted = await postPayrollAccrualEntry(workspace.organization.id, {
@@ -176,10 +184,16 @@ export async function setPayrollPeriodStatusAction(periodId: string, next: "vali
         netToPay: Number(slip.net_to_pay ?? 0),
         date: payDate,
       });
-      if (!posted.success) return { success: false, error: posted.error };
+      if (!posted.success) {
+        missing.push(String(slip.payslip_number ?? slip.id));
+        continue;
+      }
       if (slip.status === "paid" || slip.status === "validated") continue;
       const updated = await supabase.from("hr_payslips").update({ status: "validated" }).eq("organization_id", workspace.organization.id).eq("id", slip.id);
-      if (updated.error) return { success: false, error: updated.error.message };
+      if (updated.error) missing.push(String(slip.payslip_number ?? slip.id));
+    }
+    if (missing.length > 0) {
+      return { success: false, error: `Écriture de charges manquante pour ${missing.length} bulletin${missing.length > 1 ? "s" : ""} : ${missing.join(", ")}. Les autres ont une écriture.` };
     }
     await logAudit(workspace.organization.id, "payroll_validated", "hr_payroll_periods", periodId, { slips: rows.length });
     const periodUpdate = await supabase.from("hr_payroll_periods").update({ status: "validated" }).eq("organization_id", workspace.organization.id).eq("id", periodId);
@@ -245,6 +259,31 @@ async function scheduledDeductions(supabase: Awaited<ReturnType<typeof createCli
     loans: Math.round(loanTotal * 100) / 100,
     advanceIds,
   };
+}
+
+async function syncPayrollPeriodTotals(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, periodId: string, nextStatus: "calculated" | null) {
+  const { data, error } = await supabase.from("hr_payslips").select("gross_salary, net_to_pay, employer_cost, status").eq("organization_id", organizationId).eq("payroll_period_id", periodId);
+  if (error || !data) return { ok: false, error: "Les bulletins existants n'ont pas pu être relus. Les totaux de la période n'ont pas été modifiés." };
+  const rows = data.filter((row) => row.status !== "cancelled");
+  if (rows.length === 0) return { ok: true };
+  const patch: Record<string, number | string> = {
+    employees_count: rows.length,
+    total_gross: roundMoney(rows.reduce((sum, row) => sum + Number(row.gross_salary ?? 0), 0)),
+    total_net: roundMoney(rows.reduce((sum, row) => sum + Number(row.net_to_pay ?? 0), 0)),
+    total_employer_cost: roundMoney(rows.reduce((sum, row) => sum + Number(row.employer_cost ?? 0), 0)),
+  };
+  if (nextStatus) patch.status = nextStatus;
+  const updated = await supabase.from("hr_payroll_periods").update(patch).eq("organization_id", organizationId).eq("id", periodId);
+  if (updated.error) return { ok: false, error: "Les totaux n'ont pas été remis à zéro. " + updated.error.message };
+  return { ok: true };
+}
+
+function roundMoney(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function sequentialBulletinNumber(number: string, year: number, month: number) {
+  return new RegExp(`^BUL-${year}-${String(month).padStart(2, "0")}-\\d{4}$`).test(number);
 }
 
 function nextBulletinNumber(year: number, month: number, used: Set<string>) {

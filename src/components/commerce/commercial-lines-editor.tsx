@@ -37,6 +37,7 @@ function createTempLineId() {
 
 export function CommercialLinesEditor({ lines, onChange, products, units, taxRates, defaultTaxRate }: Props) {
   const [draftLine, setDraftLine] = useState<CommerceLineFormValue>(() => createEmptyDraftLine(defaultTaxRate));
+  const [quantityText, setQuantityText] = useState("1");
   const [error, setError] = useState<string | null>(null);
   const totals = calculateTotals(lines);
 
@@ -105,7 +106,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
   }
 
   function handleAddLine() {
-    let preparedLine = calculateLine(draftLine);
+    let preparedLine = calculateLine({ ...draftLine, quantity: Number(quantityText.replace(",", ".")) });
 
     if (preparedLine.mode === "product" && !preparedLine.product_id) {
       setError("Sélectionnez un article ou service.");
@@ -117,7 +118,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
       return;
     }
 
-    if (Number(draftLine.quantity) < 0 || Number(preparedLine.quantity) < 0) {
+    if (quantityDraftError(quantityText)) {
       setError("La quantité ne peut pas être négative.");
       return;
     }
@@ -148,6 +149,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
     onChange(nextLines);
 
     setDraftLine(createEmptyDraftLine(defaultTaxRate));
+    setQuantityText("1");
     setError(null);
   }
 
@@ -240,16 +242,16 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
             <Input
               type="text"
               inputMode="decimal"
-              value={String(draftLine.quantity)}
+              value={quantityText}
               onChange={(event) => {
                 const raw = event.target.value;
-                const negative = quantityDraftError(raw);
-                if (negative) {
-                  setError(negative);
-                  const parsed = Number(raw.replace(",", "."));
-                  if (Number.isFinite(parsed)) setCalculatedDraftLine({ ...draftLine, quantity: parsed });
+                setQuantityText(raw);
+                if (quantityDraftError(raw)) {
+                  setError("La quantité ne peut pas être négative.");
                   return;
                 }
+                setError(null);
+                if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return;
                 setCalculatedDraftLine({ ...draftLine, quantity: toNumber(raw.replace(",", ".")) });
               }}
             />

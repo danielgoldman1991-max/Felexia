@@ -16,11 +16,9 @@ export type AuditRow = {
 export async function loadAuditRows(filters: AuditFilters): Promise<AuditRow[]> {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
-  let query = supabase.from("audit_logs").select("id, action, table_name, record_id, created_at, actor_id, changes").eq("organization_id", workspace.organization.id).order("created_at", { ascending: false }).limit(200);
+  let query = supabase.from("audit_logs").select("id, action, table_name, record_id, created_at, actor_id, changes").eq("organization_id", workspace.organization.id).order("created_at", { ascending: false }).limit(500);
   if (filters.from) query = query.gte("created_at", `${filters.from}T00:00:00.000Z`);
   if (filters.to) query = query.lte("created_at", `${filters.to}T23:59:59.999Z`);
-  if (filters.action) query = query.ilike("action", `%${filters.action}%`);
-  if (filters.table) query = query.eq("table_name", filters.table);
   const { data } = await query;
   const rows = data ?? [];
   const actorIds = [...new Set(rows.map((row) => row.actor_id).filter(Boolean))] as string[];
@@ -35,9 +33,17 @@ export async function loadAuditRows(filters: AuditFilters): Promise<AuditRow[]> 
       names.set(record.id, record.full_name?.trim() || record.email?.trim() || "Utilisateur");
     }
   }
-  const visible = filters.user
-    ? rows.filter((row) => (names.get(row.actor_id) ?? "").toLowerCase().includes(filters.user!.toLowerCase()) || String(row.actor_id ?? "").toLowerCase().includes(filters.user!.toLowerCase()))
-    : rows;
+  const needle = (value?: string) => value?.trim().toLocaleLowerCase("fr") ?? "";
+  const visible = rows.filter((row) => {
+    const user = needle(filters.user);
+    const action = needle(filters.action);
+    const table = needle(filters.table);
+    const userLabel = names.get(row.actor_id) ?? "";
+    if (user && !userLabel.toLocaleLowerCase("fr").includes(user) && !String(row.actor_id ?? "").toLocaleLowerCase("fr").includes(user)) return false;
+    if (action && !auditActionLabel(row.action).toLocaleLowerCase("fr").includes(action) && !String(row.action ?? "").toLocaleLowerCase("fr").includes(action)) return false;
+    if (table && !auditTableLabel(row.table_name).toLocaleLowerCase("fr").includes(table) && !String(row.table_name ?? "").toLocaleLowerCase("fr").includes(table)) return false;
+    return true;
+  });
   return visible.map((row) => ({
     id: String(row.id),
     when: formatAuditTimestamp(row.created_at),

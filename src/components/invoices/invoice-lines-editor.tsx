@@ -32,6 +32,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
     return calculateInvoiceLine({ ...createEmptyInvoiceLine(), mode: fullAccess ? "product" : "free", tax_rate_id: tax?.id ?? "", tax_rate: Number(tax?.rate ?? 0) });
   }
   const [draft, setDraft] = useState<InvoiceLineFormValue>(emptyLine);
+  const [quantityText, setQuantityText] = useState("1");
   const [error, setError] = useState<string | null>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const totals = calculateInvoiceTotals(lines);
@@ -64,11 +65,11 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
   }
 
   function addLine() {
-    let prepared = calculateInvoiceLine(draft);
+    let prepared = calculateInvoiceLine({ ...draft, quantity: Number(quantityText.replace(",", ".")) });
     if (prepared.mode === "product" && !prepared.product_id) return setError("Sélectionnez un article ou un service.");
     if (!prepared.description.trim()) return setError("Saisissez une description.");
-    if (prepared.quantity < 0) return setError("La quantité ne peut pas être négative.");
-    if (prepared.quantity <= 0) return setError("La quantité doit être supérieure à zéro.");
+    if (quantityDraftError(quantityText)) return setError("La quantité ne peut pas être négative.");
+    if (!(Number(quantityText.replace(",", ".")) > 0)) return setError("La quantité doit être supérieure à zéro.");
     if (isIndivisibleUnit(prepared, units) && !Number.isInteger(prepared.quantity)) return setError("La quantité doit être entière pour l’unité U.");
     if (prepared.unit_price_ht < 0) return setError("Le prix ne peut pas être négatif.");
     if (!prepared.tax_rate_id && taxRates.length > 0) {
@@ -80,6 +81,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
     }
     onChange([...lines, { ...prepared, id: `temp-${Date.now()}-${Math.random().toString(36).slice(2)}` }]);
     setDraft(emptyLine());
+    setQuantityText("1");
     setError(null);
   }
 
@@ -131,15 +133,15 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
           </label>
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Quantité</span>
-            <Input type="text" inputMode="decimal" value={String(draft.quantity)} onChange={(event) => {
+            <Input type="text" inputMode="decimal" value={quantityText} onChange={(event) => {
               const raw = event.target.value;
-              const negative = quantityDraftError(raw);
-              if (negative) {
-                setError(negative);
-                const parsed = Number(raw.replace(",", "."));
-                if (Number.isFinite(parsed)) update({ ...draft, quantity: parsed });
+              setQuantityText(raw);
+              if (quantityDraftError(raw)) {
+                setError("La quantité ne peut pas être négative.");
                 return;
               }
+              setError(null);
+              if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return;
               const quantity = toNumber(raw.replace(",", "."));
               update({ ...draft, quantity: indivisible && quantity >= 1 ? normalizeIndivisibleQuantity(quantity) : quantity });
             }} />
