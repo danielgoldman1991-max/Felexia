@@ -17,6 +17,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/facturation-electronique-maroc": "Facture électronique au Maroc — FelexiaERP",
   "/guides": "Guides et ressources — FelexiaERP",
   "/blog": "Guides gestion PME — FelexiaERP",
+  "/blog/facturation-electronique-maroc-etat-des-lieux": "Facture électronique au Maroc — FelexiaERP",
   "/blog/mentions-obligatoires-facture-maroc": "Mentions obligatoires facture Maroc — FelexiaERP",
   "/blog/choisir-entre-essentiel-et-pro": "ESSENTIEL ou PRO — FelexiaERP",
   "/blog/gestion-de-stock-au-maroc": "Gestion de stock au Maroc — FelexiaERP",

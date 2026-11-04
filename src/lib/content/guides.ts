@@ -185,6 +185,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       note: `Essai de ${DEFAULT_TRIAL_DURATION_LABEL} sans carte bancaire, puis ${monthly} HT MAD par mois.`,
     },
     related: [
+      { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
       { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
       { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
       { href: "/pricing", label: "Voir les tarifs" },

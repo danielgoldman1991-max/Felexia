@@ -116,6 +116,11 @@ const article: BlogArticle = {
     h2("facture-electronique", "Où en est la facture électronique ?"),
     p("Le paragraphe IX vise l’impôt sur les sociétés, l’impôt sur le revenu professionnel au réel ou au simplifié, et les assujettis à la TVA. Ils doivent disposer d’un système informatique de facturation répondant aux critères de l’administration, conformément aux paragraphes III et IV. Les modalités sont renvoyées à un texte réglementaire, par secteur."),
     p("Ce paragraphe ne fixe ni date, ni seuil, ni format, ni amende. La loi de finances n° 50-25, au Bulletin officiel n° 7465 bis, modifie l’article 145 à compter du 1er janvier 2026 sur deux autres points : comptabilité aussi sous format électronique, et adresse électronique. Au 3 novembre 2026, le décret du paragraphe IX n’est pas publié dans les textes cités. Aucune date d’envoi des factures vers la DGI n’y figure. Ne reprenez pas une date lue seulement dans la presse."),
+    p(
+      "L’état des textes, relu le 4 novembre 2026, est dans ",
+      { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Facture électronique au Maroc : où en est-on ?" },
+      ".",
+    ),
     {
       type: "callout",
       tone: "product",
@@ -166,6 +171,7 @@ const article: BlogArticle = {
   related: [
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
     { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
   ],
