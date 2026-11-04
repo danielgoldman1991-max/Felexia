@@ -10,6 +10,7 @@ export const PUBLIC_SITE_PATHS = [
   "/facturation-electronique-maroc",
   "/guides",
   "/blog",
+  "/blog/facturation-electronique-maroc-etat-des-lieux",
   "/blog/mentions-obligatoires-facture-maroc",
   "/blog/choisir-entre-essentiel-et-pro",
   "/blog/gestion-de-stock-au-maroc",

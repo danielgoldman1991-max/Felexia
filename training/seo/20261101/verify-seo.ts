@@ -40,7 +40,12 @@ async function main() {
   const map = sitemap();
   check(JSON.stringify(map.map(entry => entry.url)) === JSON.stringify(PUBLIC_SITE_PATHS.map(canonicalUrl)), "Sitemap includes only the public canonical routes");
   const revisedPages = new Set(["/essentiel", "/pro", "/confidentialite"].map(canonicalUrl));
-  check(map.every(entry => entry.lastModified === (revisedPages.has(entry.url) ? "2026-11-03" : SEO_CONTENT_UPDATED_AT)), "Sitemap dates describe each page’s content revision, not crawler/build time");
+  check(map.every(entry => {
+    const path = new URL(entry.url).pathname;
+    const article = BLOG_ARTICLES.find((item) => item.path === path);
+    const expected = article?.updatedAt ?? (revisedPages.has(entry.url) ? "2026-11-03" : SEO_CONTENT_UPDATED_AT);
+    return entry.lastModified === expected;
+  }), "Sitemap dates describe each page’s content revision, not crawler/build time");
   check(robots().sitemap === PUBLIC_SITE_ORIGIN + "/sitemap.xml", "Robots advertises the www sitemap");
   const rules = object(robots().rules);
   check(JSON.stringify(rules.disallow) === JSON.stringify(["/api/", "/auth/"]), "Only action/API endpoints are excluded from crawling; login noindex stays observable");
@@ -70,7 +75,7 @@ async function main() {
     check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
   }
   const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
-  check(BLOG_ARTICLES.length === 3 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  check(BLOG_ARTICLES.length === 4 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
   for (const article of BLOG_ARTICLES) {
     const words = articleWordCount(article);
     const corpus = JSON.stringify(article);
