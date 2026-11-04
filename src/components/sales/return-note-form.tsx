@@ -23,7 +23,7 @@ const returnReasons = [
   "Produit defectueux",
   "Erreur de livraison",
   "Produit non conforme",
-  "Quantite incorrecte",
+  "Quantité incorrecte",
   "Client a change d'avis",
   "Emballage endommage",
   "Autre",
@@ -76,7 +76,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Quantites a retourner</h2>
+          <h2 className="font-semibold">Quantités à retourner</h2>
         </CardHeader>
         <CardContent>
           <Table>
@@ -84,9 +84,9 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
               <tr>
                 <Th>Description</Th>
                 <Th>Livre</Th>
-                <Th>Deja retourne</Th>
+                <Th>Déjà retourné</Th>
                 <Th>Retournable</Th>
-                <Th>A retourner maintenant</Th>
+                <Th>À retourner maintenant</Th>
               </tr>
             </thead>
             <tbody>
@@ -135,7 +135,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={`/vente/livraisons/${delivery.id}`}>Annuler</Link></Button>
-        <Button disabled={pending || payload.length === 0}>Creer le bon de retour</Button>
+        <Button disabled={pending || payload.length === 0}>Créer le bon de retour</Button>
       </div>
     </form>
   );

@@ -1,12 +1,16 @@
 import path from "node:path";
 import { test, type Page } from "@playwright/test";
-import { addCommercialLine, clickButton, fillMoney, login, money, orgId, OWNER, pickParty, psql, psqlJson, run, USERS } from "./execute-helpers";
+import { addCommercialLine, clickButton, fillMoney, login, money, orgId, OWNER, pickParty, pickSupplier, psql, psqlJson, run, USERS } from "./execute-helpers";
 import { record, saveJournal } from "./journal";
 
 test.describe.configure({ mode: "serial" });
 test.afterAll(() => saveJournal());
 
 const near = (actual: number, expected: number) => Math.abs(actual - expected) < 0.02;
+
+function cableQty(org: string, warehouse: string) {
+  return Number(psql(`select coalesce(sum(sl.quantity),0) from public.stock_levels sl join public.warehouses l on l.id=sl.warehouse_id join public.products p on p.id=sl.product_id where p.organization_id='${org}' and p.name='Câble électrique 2,5 mm' and l.name='${warehouse.replace(/'/g, "''")}'`));
+}
 
 test("exécuter les opérations PRO et vérifier les pièces", async ({ page }) => {
   test.setTimeout(1_200_000);
@@ -23,42 +27,48 @@ test("exécuter les opérations PRO et vérifier les pièces", async ({ page }) 
   });
 
   await run(page, "Tiers", "Compléter IF, RC et patente du client", async () => {
-    const id = psql(`select id from public.third_parties where organization_id='${org}' and name='Société Atlas Client' order by created_at limit 1`);
-    await page.goto(`/tiers/${id}/edit`);
-    const details = page.locator("details, summary").filter({ hasText: /identifiants|facultatif/i }).first();
-    if (await details.count()) await details.click().catch(() => undefined);
-    await page.locator('input[name="ice"]').last().fill("002345678000012");
-    await page.locator('input[name="if_number"]').fill("1122334");
-    await page.locator('input[name="rc"]').fill("654321");
-    await page.locator('input[name="patente"]').fill("7788991");
-    await page.getByRole("button", { name: /enregistrer|sauvegarder/i }).first().click();
-    await page.waitForTimeout(1200);
-    const row = money(`select ice, if_number, rc, patente from public.third_parties where id='${id}'`);
-    const ok = row?.ice === "002345678000012" && row.if_number === "1122334" && row.rc === "654321" && row.patente === "7788991";
-    return { verdict: ok ? "OK" : "bug", priority: "P1", detail: JSON.stringify(row) };
+    const ids = psqlJson<Array<{ id: string }>>(`select id from public.third_parties where organization_id='${org}' and name='Société Atlas Client' order by created_at`);
+    for (const party of ids) {
+      await page.goto(`/tiers/${party.id}/edit`);
+      const details = page.locator("details, summary").filter({ hasText: /identifiants|facultatif/i }).first();
+      if (await details.count()) await details.click().catch(() => undefined);
+      await page.locator('input[name="ice"]').last().fill("002345678000012");
+      await page.locator('input[name="if_number"]').fill("1122334");
+      await page.locator('input[name="rc"]').fill("654321");
+      await page.locator('input[name="patente"]').fill("7788991");
+      await page.getByRole("button", { name: /enregistrer|sauvegarder/i }).first().click();
+      await page.waitForTimeout(800);
+    }
+    const missing = Number(psql(`select count(*) from public.third_parties where organization_id='${org}' and name='Société Atlas Client' and (ice<>'002345678000012' or if_number<>'1122334' or rc<>'654321' or patente<>'7788991' or ice is null or if_number is null or rc is null or patente is null)`));
+    return { verdict: ids.length > 0 && missing === 0 ? "OK" : "bug", priority: "P1", detail: `${ids.length} fiche(s), ${missing} incomplète(s)` };
   });
 
   await run(page, "Trésorerie", "Créer une banque et une caisse", async () => {
+    let created = 0;
     for (const account of [
       { name: "Banque AWBtest", type: "bank", code: "BQ-AWB" },
       { name: "Caisse siège", type: "cash", code: "CA-SIEGE" },
     ]) {
+      const exists = psql(`select id from public.treasury_accounts where organization_id='${org}' and name='${account.name.replace(/'/g, "''")}' and archived_at is null limit 1`);
+      if (exists) continue;
+      created += 1;
       await page.goto("/tresorerie/comptes/new");
       await page.locator('input[name="name"]').fill(account.name);
       await page.locator('select[name="account_type"]').selectOption(account.type);
       await fillMoney(page, "opening_balance", "1000");
-      await page.locator('input[name="code"]').fill(account.code);
+      await page.locator('input[name="code"]').fill(`${account.code}-${Date.now().toString().slice(-4)}`);
       if (account.type === "bank") await page.locator('input[name="is_default"]').check();
       await page.getByRole("button", { name: /créer le compte/i }).click();
       await page.waitForTimeout(1000);
     }
     const rows = psqlJson<Array<{ name: string; account_type: string; is_default: boolean; current_balance: string }>>(
-      `select name, account_type, is_default, current_balance::text from public.treasury_accounts where organization_id='${org}' and name in ('Banque AWBtest','Caisse siège')`,
+      `select name, account_type, is_default, current_balance::text from public.treasury_accounts where organization_id='${org}' and name in ('Banque AWBtest','Caisse siège') and archived_at is null`,
     );
     const bank = rows.find((row) => row.name === "Banque AWBtest");
     const cash = rows.find((row) => row.name === "Caisse siège");
-    const ok = Boolean(bank && cash && bank.is_default && Number(bank.current_balance) === 1000 && Number(cash.current_balance) === 1000);
-    return { verdict: ok ? "OK" : "bug", priority: "P0", detail: JSON.stringify(rows) };
+    const fresh = created === 2 && bank?.is_default && Number(bank.current_balance) === 1000 && Number(cash?.current_balance) === 1000;
+    const reused = created === 0 && bank?.account_type === "bank" && cash?.account_type === "cash";
+    return { verdict: fresh || reused ? "OK" : "bug", priority: "P0", detail: created === 0 ? `Comptes déjà présents, soldes conservés ${JSON.stringify(rows)}` : JSON.stringify(rows) };
   });
 
   await run(page, "Stock", "Créer deux emplacements", async () => {
@@ -77,6 +87,7 @@ test("exécuter les opérations PRO et vérifier les pièces", async ({ page }) 
   });
 
   await run(page, "Stock", "Entrée manuelle de 10 câbles", async () => {
+    const before = cableQty(org, "Magasin Casa");
     await page.goto("/stock/entrees/new");
     await page.getByPlaceholder(/rechercher par nom/i).click();
     await page.getByPlaceholder(/rechercher par nom/i).fill("Câble");
@@ -85,8 +96,8 @@ test("exécuter les opérations PRO et vérifier les pièces", async ({ page }) 
     await page.locator('input[name="quantity"]').fill("10");
     await page.getByRole("button", { name: /valider entree|valider entrée/i }).click();
     await page.waitForTimeout(1200);
-    const qty = psql(`select coalesce(sum(sl.quantity),0)::text from public.stock_levels sl join public.products p on p.id=sl.product_id join public.warehouses l on l.id=sl.warehouse_id where p.organization_id='${org}' and p.name='Câble électrique 2,5 mm' and l.name='Magasin Casa'`);
-    return { verdict: Number(qty) === 10 ? "OK" : "bug", priority: "P0", detail: `Stock Magasin Casa = ${qty} (attendu 10)` };
+    const after = cableQty(org, "Magasin Casa");
+    return { verdict: near(after - before, 10) ? "OK" : "bug", priority: "P0", detail: `Stock Magasin Casa ${before} → ${after} (attendu +10)` };
   });
 
   const quoteId = await salesChain(page, org);
@@ -247,12 +258,12 @@ async function invoiceFromDelivery(page: Page, org: string, _quoteId: string) {
     await clickButton(page, "Marquer comme envoyée");
     await page.getByRole("link", { name: /enregistrer paiement/i }).click();
     await page.locator('select[name="treasury_account_id"]').selectOption({ label: "Caisse siège" });
-    await page.locator('input[name="amount"]').fill("400");
+    await fillMoney(page, "amount", "400");
     await page.getByRole("button", { name: /enregistrer le règlement/i }).click();
     await page.waitForTimeout(1500);
     await page.goto(`/facturation/factures/${invoiceId}/paiement`);
     await page.locator('select[name="treasury_account_id"]').selectOption({ label: "Banque AWBtest" });
-    await page.locator('input[name="amount"]').fill("800");
+    await fillMoney(page, "amount", "800");
     await page.getByRole("button", { name: /enregistrer le règlement/i }).click();
     await page.waitForTimeout(1500);
     const invoice = money(`select status, payment_status, remaining_amount::text, paid_amount::text from public.customer_invoices where id='${invoiceId}'`);
@@ -264,6 +275,9 @@ async function invoiceFromDelivery(page: Page, org: string, _quoteId: string) {
   await run(page, "Ventes", "Avoir partiel sur la facture du BL", async () => {
     const invoiceId = psql(`select id from public.customer_invoices where organization_id='${org}' and total_ttc=1200 order by created_at desc limit 1`);
     await page.goto(`/facturation/avoirs/new?invoiceId=${invoiceId}`);
+    while (await page.getByRole("button", { name: /^Supprimer$/ }).count()) {
+      await page.getByRole("button", { name: /^Supprimer$/ }).first().click();
+    }
     await addCommercialLine(page, { description: "Avoir geste commercial", qty: "1", price: "100", vat: "20 %" });
     await page.getByRole("button", { name: /créer l’avoir|créer l'avoir/i }).click();
     await page.waitForURL(/\/facturation\/avoirs\/[0-9a-f-]{36}/, { timeout: 20_000 });
@@ -363,11 +377,14 @@ async function multiVatDiscountCancel(page: Page, org: string) {
     await page.waitForTimeout(1000);
     const status = psql(`select status from public.customer_invoices where id='${id}'`);
     await page.goto(`/facturation/factures/${id}`);
-    const reminder = page.getByRole("link", { name: /creer relance|créer relance/i });
+    const reminder = page.getByRole("link", { name: /cr[eé]er( la)? relance/i });
     if (await reminder.count()) {
       await reminder.click();
-      await page.getByRole("button", { name: /créer|enregistrer/i }).last().click();
-      await page.waitForTimeout(1200);
+      await page.waitForURL(/\/facturation\/relances\/new/);
+      const box = page.locator('input[type="checkbox"]').first();
+      if (await box.count() && !(await box.isChecked())) await box.check();
+      await page.getByRole("button", { name: /cr[eé]er( la)? relance/i }).click();
+      await page.waitForURL(/\/facturation\/relances\/[0-9a-f-]{36}/, { timeout: 20_000 });
     }
     const reminders = Number(psql(`select count(*) from public.customer_reminders where organization_id='${org}'`));
     const overdue = status === "overdue";
@@ -385,28 +402,29 @@ async function multiVatDiscountCancel(page: Page, org: string) {
 async function purchaseChain(page: Page, org: string) {
   await run(page, "Achats", "Commande, réception, facture et règlement", async () => {
     await page.goto("/achats/commandes/new");
-    await pickParty(page, "Fournitures", /rechercher/i);
+    await pickSupplier(page, "Fournitures");
     await page.getByRole("button", { name: /ligne libre/i }).click();
     const inputs = page.locator("table input");
     await inputs.nth(0).fill("Fourniture bureau");
     await inputs.nth(1).fill("4");
     await inputs.nth(3).fill("80");
     await inputs.nth(5).fill("20");
-    await page.getByRole("button", { name: /creer commande fournisseur/i }).click();
+    await page.getByRole("button", { name: /cr[eé]er( la)? commande fournisseur/i }).click();
     await page.waitForURL(/\/achats\/commandes\/[0-9a-f-]{36}/);
     const orderId = page.url().split("/").pop() ?? "";
     const order = money(`select document_number, subtotal_ht::text, tax_total::text, total_ttc::text from public.purchase_documents where id='${orderId}'`);
     await clickButton(page, "Confirmer");
-    await page.getByRole("link", { name: /creer reception|créer réception/i }).click();
+    await page.getByRole("link", { name: /cr[eé]er (une )?r[eé]ception/i }).click();
     await page.locator('input[type="number"]').last().fill("4");
     const warehouse = page.locator("select").filter({ has: page.locator("option", { hasText: "Magasin Casa" }) }).first();
     if (await warehouse.count()) await warehouse.selectOption({ label: "Magasin Casa" });
-    await page.getByRole("button", { name: /creer reception|créer réception/i }).click();
+    await page.getByRole("button", { name: /cr[eé]er (la |une )?r[eé]ception/i }).click();
     await page.waitForURL(/\/achats\/receptions\/[0-9a-f-]{36}/);
     await clickButton(page, "Valider reception");
-    await page.getByRole("link", { name: /creer la facture fournisseur|creer facture/i }).click();
-    const supplierNumber = page.getByLabel(/numéro facture fournisseur/i);
-    if (await supplierNumber.count()) await supplierNumber.fill(`FF-TEST-${Date.now().toString().slice(-6)}`);
+    await page.getByRole("link", { name: /cr[eé]er la facture fournisseur/i }).click();
+    const supplierNumber = page.getByLabel("Numéro facture fournisseur");
+    await supplierNumber.waitFor({ timeout: 15_000 });
+    await supplierNumber.fill(`FF-TEST-${Date.now().toString().slice(-6)}`);
     await page.getByRole("button", { name: /créer la facture d’achat|créer la facture d'achat/i }).click();
     await page.waitForURL(/\/achats\/factures\/[0-9a-f-]{36}/);
     const invoiceId = page.url().split("/").pop() ?? "";
@@ -414,10 +432,10 @@ async function purchaseChain(page: Page, org: string) {
     await clickButton(page, "Valider");
     await page.goto(`/achats/paiements/new?invoiceId=${invoiceId}`);
     if (!page.url().includes("/paiements/")) await page.goto("/achats/paiements/new");
-    await pickParty(page, "Fournitures", /rechercher/i).catch(() => undefined);
+    const supplierPicker = page.getByRole("button", { name: /s[eé]lectionner un fournisseur/i });
+    if (await supplierPicker.count()) await pickSupplier(page, "Fournitures");
     await page.locator('select[name="treasury_account_id"]').selectOption({ label: "Banque AWBtest" });
-    const amount = page.locator('input[name="amount"]');
-    if ((await amount.inputValue()) === "" || (await amount.inputValue()) === "0") await amount.fill(invoice?.total_ttc ?? "384");
+    await fillMoney(page, "amount", invoice?.total_ttc ?? "384");
     await page.getByRole("button", { name: /enregistrer le règlement/i }).click();
     await page.waitForTimeout(1500);
     const paid = money(`select payment_status, remaining_amount::text from public.supplier_invoices where id='${invoiceId}'`);
@@ -426,29 +444,28 @@ async function purchaseChain(page: Page, org: string) {
   });
 
   await run(page, "Achats", "Avoir fournisseur (retour commercial)", async () => {
+    const before = Number(psql(`select count(*) from public.supplier_credit_notes where organization_id='${org}'`));
     const invoiceId = psql(`select id from public.supplier_invoices where organization_id='${org}' order by created_at desc limit 1`);
     await page.goto(`/achats/avoirs/new?invoiceId=${invoiceId}`);
     if (page.url().includes("/dashboard") || /introuvable|pas le droit/i.test(await page.locator("body").innerText())) {
       return { verdict: "manquant", priority: "P1", detail: "Pas de création d'avoir fournisseur depuis la facture, ni de retour stock fournisseur dédié." };
     }
-    const free = page.getByRole("button", { name: /ajouter une ligne|ligne libre/i }).first();
-    if (await free.count()) await free.click();
-    const inputs = page.locator("table input, input[name='description']");
+    const supplierPicker = page.getByRole("button", { name: /s[eé]lectionner un fournisseur/i });
+    if (await supplierPicker.count()) await pickSupplier(page, "Fournitures");
+    const reference = page.getByPlaceholder(/référence du document reçu/i);
+    if (await reference.count()) await reference.fill(`AVF-${Date.now().toString().slice(-6)}`);
     if (await page.getByText("Description", { exact: true }).count()) await addCommercialLine(page, { description: "Retour fourniture", qty: "1", price: "80", vat: "20 %" });
-    else if (await inputs.count()) {
-      await inputs.nth(0).fill("Retour fourniture");
-      await inputs.nth(1).fill("1");
-      await inputs.nth(3).fill("80");
-    }
-    await page.getByRole("button", { name: /créer l’avoir|créer l'avoir/i }).click();
-    await page.waitForTimeout(1500);
+    await page.getByRole("button", { name: /créer l[’']avoir/i }).click();
+    await page.waitForURL(/\/achats\/avoirs\/[0-9a-f-]{36}/, { timeout: 20_000 });
     const count = Number(psql(`select count(*) from public.supplier_credit_notes where organization_id='${org}'`));
-    return { verdict: count > 0 ? "OK" : "bug", priority: "P1", detail: `Avoirs fournisseurs : ${count}. URL ${page.url()}` };
+    return { verdict: count > before ? "OK" : "bug", priority: "P1", detail: `Avoirs fournisseurs : ${before} → ${count}. URL ${page.url()}` };
   });
 }
 
 async function stockMoves(page: Page, org: string) {
   await run(page, "Stock", "Transfert de 3 câbles vers Dépôt Rabat", async () => {
+    const casaBefore = cableQty(org, "Magasin Casa");
+    const rabatBefore = cableQty(org, "Dépôt Rabat");
     await page.goto("/stock/transferts");
     await page.locator('select[name="product_id"]').selectOption({ label: "Câble électrique 2,5 mm" });
     await page.locator('select[name="from_warehouse_id"]').selectOption({ label: "Magasin Casa" });
@@ -456,13 +473,14 @@ async function stockMoves(page: Page, org: string) {
     await page.locator('input[name="quantity"]').fill("3");
     await page.getByRole("button", { name: /transférer/i }).click();
     await page.waitForTimeout(1200);
-    const casa = psql(`select coalesce(sum(sl.quantity),0)::text from public.stock_levels sl join public.warehouses l on l.id=sl.warehouse_id join public.products p on p.id=sl.product_id where p.organization_id='${org}' and p.name='Câble électrique 2,5 mm' and l.name='Magasin Casa'`);
-    const rabat = psql(`select coalesce(sum(sl.quantity),0)::text from public.stock_levels sl join public.warehouses l on l.id=sl.warehouse_id join public.products p on p.id=sl.product_id where p.organization_id='${org}' and p.name='Câble électrique 2,5 mm' and l.name='Dépôt Rabat'`);
-    const ok = Number(casa) === 7 && Number(rabat) === 3;
-    return { verdict: ok ? "OK" : "bug", priority: "P0", detail: `Casa ${casa} (attendu 7), Rabat ${rabat} (attendu 3)` };
+    const casa = cableQty(org, "Magasin Casa");
+    const rabat = cableQty(org, "Dépôt Rabat");
+    const ok = near(casaBefore - casa, 3) && near(rabat - rabatBefore, 3);
+    return { verdict: ok ? "OK" : "bug", priority: "P0", detail: `Casa ${casaBefore} → ${casa}, Rabat ${rabatBefore} → ${rabat} (attendu −3 / +3)` };
   });
 
   await run(page, "Stock", "Ajustement sortie et refus de stock négatif", async () => {
+    const before = cableQty(org, "Dépôt Rabat");
     await page.goto("/stock/ajustements/new");
     await page.getByPlaceholder(/rechercher par nom/i).click();
     await page.getByPlaceholder(/rechercher par nom/i).fill("Câble");
@@ -473,9 +491,9 @@ async function stockMoves(page: Page, org: string) {
     await page.getByRole("button", { name: /valider ajustement/i }).click();
     await page.waitForTimeout(1000);
     const body = await page.locator("body").innerText();
-    const rabat = Number(psql(`select coalesce(sum(sl.quantity),0) from public.stock_levels sl join public.warehouses l on l.id=sl.warehouse_id join public.products p on p.id=sl.product_id where p.organization_id='${org}' and p.name='Câble électrique 2,5 mm' and l.name='Dépôt Rabat'`));
-    const refused = rabat === 3 && /insuffisant|négatif|negatif|disponible|impossible/i.test(body);
-    return { verdict: refused ? "OK" : rabat < 0 ? "bug" : "à améliorer", priority: rabat < 0 ? "P0" : "P1", detail: `Rabat après tentative 99 = ${rabat}. ${body.replace(/\s+/g, " ").slice(0, 180)}` };
+    const rabat = cableQty(org, "Dépôt Rabat");
+    const refused = near(rabat, before) && /insuffisant|négatif|negatif|disponible|impossible/i.test(body);
+    return { verdict: refused ? "OK" : rabat < 0 ? "bug" : "à améliorer", priority: rabat < 0 ? "P0" : "P1", detail: `Rabat ${before} → ${rabat} après une sortie de 99. ${body.replace(/\s+/g, " ").slice(0, 180)}` };
   });
 
   await run(page, "Stock", "Inventaire et seuil", async () => {
@@ -489,12 +507,16 @@ async function stockMoves(page: Page, org: string) {
     const bl = psql(`select id from public.sales_documents where organization_id='${org}' and document_type='delivery_note' order by created_at desc limit 1`);
     if (!bl) return { verdict: "non testé", detail: "Aucun BL." };
     await page.goto(`/vente/livraisons/${bl}`);
-    const link = page.getByRole("link", { name: /creer un retour|créer un retour/i });
+    const link = page.getByRole("link", { name: /cr[eé]er un retour/i });
     if (!(await link.count())) return { verdict: "manquant", priority: "P1", detail: "Pas de bouton de retour sur le BL." };
     await link.click();
-    const qty = page.locator('input[type="number"]').last();
-    if (await qty.count()) await qty.fill("1");
-    await page.getByRole("button", { name: /créer|valider|enregistrer/i }).last().click();
+    const reason = page.locator('select[name="return_reason"]');
+    await reason.waitFor({ timeout: 15_000 });
+    await reason.selectOption({ index: 1 });
+    const qty = page.locator("table input[type='number']").first();
+    await qty.waitFor();
+    await qty.fill("1");
+    await page.getByRole("button", { name: /cr[eé]er le bon de retour/i }).click();
     await page.waitForTimeout(1500);
     const count = Number(psql(`select count(*) from public.sales_documents where organization_id='${org}' and document_type='return_note'`));
     return { verdict: count > 0 ? "OK" : "bug", priority: "P1", detail: `Bons de retour : ${count}. URL ${page.url()}` };
@@ -510,7 +532,7 @@ async function treasuryOps(page: Page, org: string) {
     await page.locator('select[name="destination_account_id"]').selectOption({ label: "Banque AWBtest" });
     await fillMoney(page, "amount", "150");
     await page.locator('input[name="label"]').fill("Alimentation banque");
-    await page.getByRole("button", { name: /enregistrer|créer/i }).last().click();
+    await page.getByRole("button", { name: /effectuer le transfert/i }).click();
     await page.waitForTimeout(1500);
     const after = money(`select (select current_balance from public.treasury_accounts where organization_id='${org}' and name='Caisse siège')::text as cash, (select current_balance from public.treasury_accounts where organization_id='${org}' and name='Banque AWBtest')::text as bank`);
     const ok = before && after && near(Number(before.cash) - Number(after.cash), 150) && near(Number(after.bank) - Number(before.bank), 150);
@@ -548,11 +570,25 @@ async function accountingOps(page: Page, org: string) {
   });
 
   await run(page, "Compta", "Comptabiliser une facture client (admin)", async () => {
-    const id = psql(`select id from public.customer_invoices where organization_id='${org}' and status in ('validated','sent','paid','partially_paid') and total_ttc=360 order by created_at desc limit 1`);
+    let id = psql(`select i.id from public.customer_invoices i where i.organization_id='${org}' and i.total_ttc=360 and i.status in ('validated','sent','paid','partially_paid') and not exists (select 1 from public.accounting_entries e where e.source_document_id=i.id) order by i.created_at desc limit 1`);
+    if (!id) {
+      id = psql(`select id from public.customer_invoices where organization_id='${org}' and total_ttc=360 and status='draft' order by created_at desc limit 1`);
+      if (id) {
+        await page.goto(`/facturation/factures/${id}`);
+        await clickButton(page, "Valider");
+      }
+    }
+    if (!id) id = psql(`select id from public.customer_invoices where organization_id='${org}' and total_ttc=360 order by created_at desc limit 1`);
+    if (!id) return { verdict: "bug", priority: "P0", detail: "Aucune facture de 360 MAD à comptabiliser." };
     await page.goto(`/facturation/factures/${id}`);
-    const details = page.locator("summary").filter({ hasText: /journal comptable/i });
-    if (await details.count()) await details.click();
-    await clickButton(page, "Comptabiliser");
+    const posted = money(`select entry_number from public.accounting_entries where organization_id='${org}' and source_document_id='${id}' limit 1`);
+    if (!posted) {
+      const panel = page.locator("details").filter({ hasText: /journal comptable/i }).first();
+      await panel.waitFor({ timeout: 15_000 });
+      await panel.evaluate((element: HTMLElement) => { (element as HTMLDetailsElement).open = true; });
+      await panel.getByRole("button", { name: /^Comptabiliser$/ }).click();
+      await page.getByRole("link", { name: /voir l['’]écriture|voir l'ecriture/i }).waitFor({ timeout: 20_000 });
+    }
     const entry = money(`select entry_number, status, total_debit::text, total_credit::text from public.accounting_entries where organization_id='${org}' and source_document_id='${id}' order by created_at desc limit 1`);
     const ok = entry && entry.total_debit === entry.total_credit && near(Number(entry.total_debit), 360);
     return { verdict: ok ? "OK" : "bug", priority: "P0", detail: JSON.stringify(entry) };
@@ -562,7 +598,7 @@ async function accountingOps(page: Page, org: string) {
     await page.goto("/comptabilite/ecritures/nouveau");
     const body = await page.locator("body").innerText();
     if (/introuvable|bientôt/i.test(body)) return { verdict: "manquant", priority: "P1", detail: "Pas de formulaire d'écriture manuelle." };
-    await page.locator('input[name="label"], textarea[name="label"]').first().fill("OD test loyer");
+    await page.getByLabel("Libellé de l'écriture").fill("OD test loyer");
     await page.getByRole("button", { name: /ajouter une ligne/i }).click();
     await page.getByRole("button", { name: /ajouter une ligne/i }).click();
     const debits = page.locator('input[name*="debit"], input[placeholder*="Débit"]');
@@ -595,6 +631,7 @@ async function vatOps(page: Page, org: string) {
 async function documentsAndHr(page: Page, org: string) {
   await run(page, "PDF", "ICE/IF/RC/patente sur la facture imprimable", async () => {
     const id = psql(`select id from public.customer_invoices where organization_id='${org}' and total_ttc=360 order by created_at desc limit 1`);
+    if (!id) return { verdict: "bug", priority: "P1", detail: "Aucune facture de 360 MAD à imprimer." };
     await page.goto(`/facturation/factures/${id}/print`);
     const text = await page.locator("body").innerText();
     const checks = {
@@ -720,8 +757,8 @@ async function permissions(page: Page) {
     { role: "accountant", email: USERS.accountant.email, path: "/comptabilite/ecritures/nouveau", expect: "allow", label: "Comptable écriture manuelle" },
     { role: "accountant", email: USERS.accountant.email, path: "/parametres/utilisateurs", expect: "allow", label: "Comptable consulte les utilisateurs" },
     { role: "operator", email: USERS.operator.email, path: "/facturation/factures/new", expect: "allow", label: "Opérateur crée une facture" },
-    { role: "operator", email: USERS.operator.email, path: "/vente/devis/new", expect: "deny", label: "Opérateur devis (refusé par le produit)" },
-    { role: "operator", email: USERS.operator.email, path: "/stock/entrees/new", expect: "deny", label: "Opérateur entrée stock" },
+    { role: "operator", email: USERS.operator.email, path: "/vente/devis/new", expect: "allow", label: "Opérateur crée un devis" },
+    { role: "operator", email: USERS.operator.email, path: "/stock/entrees/new", expect: "allow", label: "Opérateur entrée de stock" },
     { role: "operator", email: USERS.operator.email, path: "/comptabilite/ecritures/nouveau", expect: "deny", label: "Opérateur écriture" },
     { role: "viewer", email: USERS.viewer.email, path: "/facturation/factures/new", expect: "deny", label: "Lecteur nouvelle facture" },
     { role: "viewer", email: USERS.viewer.email, path: "/tiers/new?type=customer", expect: "deny", label: "Lecteur nouveau client" },

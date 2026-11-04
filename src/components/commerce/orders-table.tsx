@@ -25,7 +25,7 @@ export function OrdersTable({ rows }: { rows: SalesOrderRecord[] }) {
         {rows.length === 0 ? (
           <tr>
             <td colSpan={7} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
-              Aucune commande trouvee.
+              Aucune commande trouvée.
             </td>
           </tr>
         ) : null}

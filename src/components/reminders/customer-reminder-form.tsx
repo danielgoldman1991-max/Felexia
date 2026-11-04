@@ -20,9 +20,9 @@ function today() {
 }
 
 function defaultMessage(level: number) {
-  if (level === 2) return "Nous constatons que les factures ci-dessous demeurent impayees malgre une precedente relance. Nous vous remercions de regulariser votre situation dans les meilleurs delais.";
-  if (level >= 3) return "Nous vous demandons de bien vouloir regulariser votre situation dans les meilleurs delais concernant les factures echues ci-dessous.";
-  return "Sauf erreur de notre part, certaines factures arrivees a echeance restent ouvertes a ce jour. Nous vous remercions de bien vouloir proceder a leur reglement.";
+  if (level === 2) return "Nous constatons que les factures ci-dessous demeurent impayées malgré une précédente relance. Nous vous remercions de régulariser votre situation dans les meilleurs délais.";
+  if (level >= 3) return "Nous vous demandons de bien vouloir régulariser votre situation dans les meilleurs délais concernant les factures échues ci-dessous.";
+  return "Sauf erreur de notre part, certaines factures arrivées à échéance restent ouvertes à ce jour. Nous vous remercions de bien vouloir procéder à leur règlement.";
 }
 
 export function CustomerReminderForm({
@@ -49,7 +49,7 @@ export function CustomerReminderForm({
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="invoice_ids" value={JSON.stringify(selectedIds)} />
       <Card>
-        <CardHeader><h2 className="font-semibold">Client a relancer</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client à relancer</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Client</span>
@@ -99,7 +99,7 @@ export function CustomerReminderForm({
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Objet</span>
-            <Input name="subject" defaultValue="Relance factures echues" />
+            <Input name="subject" defaultValue="Relance de factures échues" />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Message</span>
@@ -113,7 +113,7 @@ export function CustomerReminderForm({
       </Card>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Factures echues</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Factures échues</h2></CardHeader>
         <CardContent className="space-y-3">
           {invoices.length === 0 ? <p className="text-sm text-[var(--muted)]">Selectionnez un client avec des factures echues depuis la liste.</p> : (
             <Table>
@@ -136,7 +136,7 @@ export function CustomerReminderForm({
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/facturation/relances">Annuler</Link></Button>
-        <Button disabled={pending || !customerId || selectedIds.length === 0}>Creer relance</Button>
+        <Button disabled={pending || !customerId || selectedIds.length === 0}>Créer la relance</Button>
       </div>
     </form>
   );

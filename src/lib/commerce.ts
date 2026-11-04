@@ -34,18 +34,14 @@ const ORDER_SELECT = `
   document_date, due_date, expected_delivery_date, status, currency,
   payment_terms_days, subtotal, subtotal_ht, discount_total, tax_total,
   total, total_ttc, delivered_total, notes, internal_notes,
-  created_by, created_at, updated_at, archived_at,
-  customer:third_party_id (name, city),
-  quote:quote_id (number)
+  created_by, created_at, updated_at, archived_at
 `;
 
 const DELIVERY_SELECT = `
   id, organization_id, number, order_id, third_party_id, contact_id,
-  document_date, delivered_at, delivery_date, delivery_address, status,
+  document_date, delivered_at, delivery_address, status,
   notes, internal_notes,
-  created_by, created_at, updated_at, archived_at,
-  customer:third_party_id (name),
-  order:order_id (number)
+  created_by, created_at, updated_at, archived_at
 `;
 
 const QUOTE_LINE_SELECT = `
@@ -439,6 +435,46 @@ export async function getSalesQuoteDetail(id: string) {
   };
 }
 
+type Db = Awaited<ReturnType<typeof createClient>>;
+
+async function lookupByIds(supabase: Db, table: string, organizationId: string, ids: string[], columns: string) {
+  const unique = Array.from(new Set(ids.filter(Boolean)));
+  if (unique.length === 0) return [] as Array<Record<string, unknown>>;
+  const { data, error } = await supabase.from(table).select(columns).eq("organization_id", organizationId).in("id", unique);
+  if (error) return [] as Array<Record<string, unknown>>;
+  return (data ?? []) as unknown as Array<Record<string, unknown>>;
+}
+
+async function attachOrderRelations(supabase: Db, organizationId: string, rows: Array<Record<string, unknown>>) {
+  const [parties, quotes] = await Promise.all([
+    lookupByIds(supabase, "third_parties", organizationId, rows.map((row) => String(row.third_party_id ?? "")), "id, name, city"),
+    lookupByIds(supabase, "sales_quotes", organizationId, rows.map((row) => String(row.quote_id ?? "")), "id, number"),
+  ]);
+  const partyById = new Map(parties.map((row) => [String(row.id), row]));
+  const quoteById = new Map(quotes.map((row) => [String(row.id), row]));
+  for (const row of rows) {
+    const party = partyById.get(String(row.third_party_id ?? ""));
+    const quote = quoteById.get(String(row.quote_id ?? ""));
+    row.customer = party ? { name: party.name, city: party.city } : null;
+    row.quote = quote ? { number: quote.number } : null;
+  }
+}
+
+async function attachDeliveryRelations(supabase: Db, organizationId: string, rows: Array<Record<string, unknown>>) {
+  const [parties, orders] = await Promise.all([
+    lookupByIds(supabase, "third_parties", organizationId, rows.map((row) => String(row.third_party_id ?? "")), "id, name"),
+    lookupByIds(supabase, "sales_orders", organizationId, rows.map((row) => String(row.order_id ?? "")), "id, number"),
+  ]);
+  const partyById = new Map(parties.map((row) => [String(row.id), row]));
+  const orderById = new Map(orders.map((row) => [String(row.id), row]));
+  for (const row of rows) {
+    const party = partyById.get(String(row.third_party_id ?? ""));
+    const order = orderById.get(String(row.order_id ?? ""));
+    row.customer = party ? { name: party.name } : null;
+    row.order = order ? { number: order.number } : null;
+  }
+}
+
 export async function listSalesOrders(
   filters: CommerceListFilters = {},
 ): Promise<PaginatedResult<SalesOrderRecord>> {
@@ -476,9 +512,7 @@ export async function listSalesOrders(
   if (filters.query) {
     const value = filters.query.trim();
     if (value) {
-      query = query.or(
-        `number.ilike.%${value}%,third_party_id.name.ilike.%${value}%`,
-      );
+      query = query.ilike("number", `%${value}%`);
     }
   }
 
@@ -486,8 +520,11 @@ export async function listSalesOrders(
 
   if (error) throw new Error(error.message);
 
+  const rawRows = (data ?? []) as Array<Record<string, unknown>>;
+  await attachOrderRelations(supabase, workspace.organization.id, rawRows);
+
   return {
-    rows: ((data ?? []) as unknown[]).map(mapOrderRow),
+    rows: rawRows.map(mapOrderRow),
     total: count ?? 0,
     page,
     limit,
@@ -517,8 +554,11 @@ export async function getSalesOrderDetail(id: string) {
   if (orderResult.error) throw new Error(orderResult.error.message);
   if (linesResult.error) throw new Error(linesResult.error.message);
 
+  const orderRow = orderResult.data as Record<string, unknown> | null;
+  if (orderRow) await attachOrderRelations(supabase, workspace.organization.id, [orderRow]);
+
   return {
-    order: orderResult.data ? mapOrderRow(orderResult.data) : null,
+    order: orderRow ? mapOrderRow(orderRow) : null,
     lines: ((linesResult.data ?? []) as unknown[]).map(mapOrderLineRow),
   };
 }
@@ -560,9 +600,7 @@ export async function listDeliveryNotes(
   if (filters.query) {
     const value = filters.query.trim();
     if (value) {
-      query = query.or(
-        `number.ilike.%${value}%,third_party_id.name.ilike.%${value}%`,
-      );
+      query = query.ilike("number", `%${value}%`);
     }
   }
 
@@ -570,8 +608,11 @@ export async function listDeliveryNotes(
 
   if (error) throw new Error(error.message);
 
+  const rawRows = (data ?? []) as Array<Record<string, unknown>>;
+  await attachDeliveryRelations(supabase, workspace.organization.id, rawRows);
+
   return {
-    rows: ((data ?? []) as unknown[]).map(mapDeliveryRow),
+    rows: rawRows.map(mapDeliveryRow),
     total: count ?? 0,
     page,
     limit,
@@ -601,8 +642,11 @@ export async function getDeliveryNoteDetail(id: string) {
   if (deliveryResult.error) throw new Error(deliveryResult.error.message);
   if (linesResult.error) throw new Error(linesResult.error.message);
 
+  const deliveryRow = deliveryResult.data as Record<string, unknown> | null;
+  if (deliveryRow) await attachDeliveryRelations(supabase, workspace.organization.id, [deliveryRow]);
+
   return {
-    delivery: deliveryResult.data ? mapDeliveryRow(deliveryResult.data) : null,
+    delivery: deliveryRow ? mapDeliveryRow(deliveryRow) : null,
     lines: ((linesResult.data ?? []) as unknown[]).map(mapDeliveryLineRow),
   };
 }

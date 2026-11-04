@@ -87,14 +87,14 @@ export function SupplierOrderForm({
 
       <form action={handleSubmit}>
         <Card>
-          <CardHeader><h2 className="font-semibold">En-tete</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">En-tête</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
               <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
             </div>
             <DateField label="Date commande" value={documentDate} onChange={setDocumentDate} />
-            <DateField label="Reception prevue" value={expectedReceiptDate} onChange={setExpectedReceiptDate} placeholder="jj/mm/aaaa" />
+            <DateField label="Réception prévue" value={expectedReceiptDate} onChange={setExpectedReceiptDate} placeholder="jj/mm/aaaa" />
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
@@ -147,7 +147,7 @@ export function SupplierOrderForm({
 
         <div className="mt-6 flex gap-3">
           <Button type="submit" disabled={pending}>
-            {isEdit ? "Enregistrer les modifications" : "Creer commande fournisseur"}
+            {isEdit ? "Enregistrer les modifications" : "Créer la commande fournisseur"}
           </Button>
         </div>
       </form>

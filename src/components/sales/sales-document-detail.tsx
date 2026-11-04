@@ -203,7 +203,7 @@ export function SalesDocumentDetail({
               <ActionForm label="Marquer livre" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
             ) : null}
             {canWrite && isDelivery && ["validated", "delivered"].includes(document.status) ? (
-              <Button variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/retour`}><Truck className="h-4 w-4" /> Creer un retour</Link></Button>
+              <Button variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/retour`}><Truck className="h-4 w-4" /> Créer un retour</Link></Button>
             ) : null}
             {canWrite && isDelivery && ["validated", "delivered"].includes(document.status) && !deliveryBillingBlocked ? (
               <Button variant="secondary" asChild><Link href={`/facturation/factures/new?customerId=${document.customer_id}&deliveryNoteId=${document.id}`}><Receipt className="h-4 w-4" /> Facturer</Link></Button>

@@ -40,7 +40,7 @@ export function SupplierCombobox({
       >
         <Search className="h-4 w-4 text-slate-400" />
         <span className={selected ? "text-slate-900" : "text-slate-400"}>
-          {selected ? selected.name : "Selectionner un fournisseur..."}
+          {selected ? selected.name : "Sélectionner un fournisseur…"}
         </span>
       </button>
       {open && (
@@ -55,7 +55,7 @@ export function SupplierCombobox({
             />
           </div>
           {filtered.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-slate-500">Aucun fournisseur trouve.</p>
+            <p className="px-4 py-3 text-sm text-slate-500">Aucun fournisseur trouvé.</p>
           ) : (
             <div className="max-h-72 overflow-y-auto">
               {filtered.map((s) => (
