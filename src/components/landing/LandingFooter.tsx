@@ -28,9 +28,16 @@ const legalLinks = [
   { label: "Confidentialité", href: "/confidentialite" },
   { label: "Conditions générales", href: "/conditions" },
 ];
-// TODO(owner): add the official LinkedIn and Facebook URLs next to Instagram. Do not invent profiles.
-const socialLinks = [
-  { label: "Instagram", href: "https://www.instagram.com/felexiaerp/" },
+type SocialLink = { label: string; href: string; icon: "instagram" | "linkedin"; ariaLabel?: string };
+// TODO(owner): add the official Facebook URL next to Instagram and LinkedIn. Do not invent a profile.
+const socialLinks: SocialLink[] = [
+  { label: "Instagram", href: "https://www.instagram.com/felexiaerp/", icon: "instagram" as const },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/felexiaerp/",
+    icon: "linkedin" as const,
+    ariaLabel: "FelexiaERP sur LinkedIn (nouvel onglet)",
+  },
 ];
 
 const columns = [
@@ -52,10 +59,14 @@ export function LandingFooter() {
             <ul className={styles.social}>
               {socialLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} target="_blank" rel="me noopener noreferrer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" /></svg>
+                  <a href={link.href} target="_blank" rel={link.icon === "linkedin" ? "noopener noreferrer" : "me noopener noreferrer"} aria-label={link.ariaLabel}>
+                    {link.icon === "linkedin" ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.22 8.5h4.56V24H.22V8.5zM8.34 8.5h4.37v2.12h.06c.61-1.16 2.1-2.38 4.32-2.38 4.62 0 5.48 3.04 5.48 7V24h-4.56v-6.86c0-1.64-.03-3.74-2.28-3.74-2.28 0-2.63 1.78-2.63 3.62V24H8.34V8.5z" /></svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" /></svg>
+                    )}
                     {link.label}
-                    <span className={styles.srOnly}> (nouvel onglet)</span>
+                    {link.ariaLabel ? null : <span className={styles.srOnly}> (nouvel onglet)</span>}
                   </a>
                 </li>
               ))}

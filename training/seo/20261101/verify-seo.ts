@@ -53,7 +53,7 @@ async function main() {
   const site = getSiteStructuredData();
   const organization = site["@graph"].find(node => node["@type"] === "Organization");
   check(site["@graph"].some(node => node["@type"] === "Organization") && site["@graph"].some(node => node["@type"] === "WebSite"), "Organization and WebSite describe the real brand");
-  check(organization && "sameAs" in organization && JSON.stringify(organization.sameAs) === JSON.stringify(["https://www.instagram.com/felexiaerp/"]), "Organization sameAs lists only the known Instagram profile");
+  check(organization && "sameAs" in organization && JSON.stringify(organization.sameAs) === JSON.stringify(["https://www.instagram.com/felexiaerp/", "https://www.linkedin.com/company/felexiaerp/"]), "Organization sameAs lists the known Instagram and LinkedIn profiles");
   check(site["@graph"].every(node => node.url === PUBLIC_SITE_ORIGIN + "/"), "Structured site identities use the same www origin");
   const app = getSoftwareApplicationStructuredData();
   check(app["@type"] === "SoftwareApplication" && app.applicationCategory === "BusinessApplication", "Software describes business management");
@@ -90,7 +90,7 @@ async function main() {
   const mentions = BLOG_ARTICLES.find((article) => article.slug === "mentions-obligatoires-facture-maroc");
   check(mentions?.sources.some((source) => source.href.includes("tax.gov.ma")) && mentions?.sources.some((source) => source.href.includes("sgg.gov.ma")), "Invoice article cites the DGI page and the official bulletin");
   const footer = readFileSync(resolve("src/components/landing/LandingFooter.tsx"), "utf8");
-  check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("TODO") && !/linkedin\.com|facebook\.com/i.test(footer), "Footer links only the known Instagram profile");
+  check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("https://www.linkedin.com/company/felexiaerp/") && footer.includes("TODO") && !/facebook\.com/i.test(footer), "Footer links the known Instagram and LinkedIn profiles, and no invented Facebook profile");
   const heroWebp = statSync(resolve("public/images/felexia-horizon-v1.webp")).size;
   const heroAvif = statSync(resolve("public/images/felexia-horizon-v1.avif")).size;
   const heroPng = statSync(resolve("public/images/felexia-horizon-v1.png")).size;
