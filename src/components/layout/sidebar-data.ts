@@ -85,6 +85,7 @@ export const sections: SidebarSection[] = [
       { label: "Commandes", href: "/vente/commandes", icon: ClipboardList },
       { label: "Bons de livraison", href: "/vente/livraisons", icon: Truck },
       { label: "Retours client", href: "/vente/retours", icon: RotateCcw },
+      { label: "Pipeline", href: "/vente/pipeline", icon: Target },
     ],
   },
   {
