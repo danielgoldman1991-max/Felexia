@@ -16,7 +16,8 @@ export default async function StockLotsPage() {
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
-  const { data: lots } = await supabase.from("stock_lots").select("id, lot_code, quantity, unit_cost, expires_on, product_id").eq("organization_id", workspace.organization.id).order("expires_on");
+  const { data: lots, error } = await supabase.from("stock_lots").select("id, lot_code, quantity, unit_cost, expires_on, product_id").eq("organization_id", workspace.organization.id).order("expires_on");
+  if (isMissingSchema(error)) return <ModulePage><PageHeader title="Lots et réapprovisionnement" description={SCHEMA_PENDING_MESSAGE} /></ModulePage>;
   const expiring = expiringLots((lots ?? []).map((lot) => ({ quantity: Number(lot.quantity), unitCost: Number(lot.unit_cost), lot: lot.lot_code as string, expiresOn: lot.expires_on as string | null })), today);
   const { data: products } = await supabase.from("products").select("id, name, current_stock, min_stock").eq("organization_id", workspace.organization.id).eq("track_stock", true).limit(200);
   const suggestions = (products ?? []).flatMap((product) => {
