@@ -10,7 +10,7 @@ const navLinks = [
   { href: "/#essentiel", label: "ESSENTIEL" },
   { href: "/#pro", label: "ERP PRO" },
   { href: "/pricing", label: "Tarifs" },
-  { href: "/blog", label: "Guides" },
+  { href: "/guides", label: "Guides" },
   { href: "/#resources", label: "FAQ" },
 ];
 

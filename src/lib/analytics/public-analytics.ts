@@ -15,6 +15,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/conditions": "Conditions générales — FelexiaERP",
   "/logiciel-facturation-maroc": "Logiciel de facturation au Maroc — FelexiaERP",
   "/facturation-electronique-maroc": "Facture électronique au Maroc — FelexiaERP",
+  "/guides": "Guides et ressources — FelexiaERP",
   "/blog": "Guides gestion PME — FelexiaERP",
   "/blog/mentions-obligatoires-facture-maroc": "Mentions obligatoires facture Maroc — FelexiaERP",
   "/blog/choisir-entre-essentiel-et-pro": "ESSENTIEL ou PRO — FelexiaERP",
@@ -40,7 +41,13 @@ export type PublicCampaignParameters = {
 
 export type AnalyticsChoice = "accepted" | "refused" | null;
 export type AnalyticsSnapshot = { available: boolean; choice: AnalyticsChoice };
-export type MarketingEvent = "trial_cta_click" | "pro_quote_click" | "whatsapp_click" | "contact_click";
+export type MarketingEvent = "trial_cta_click" | "pro_quote_click" | "whatsapp_click" | "contact_click" | "newsletter_signup" | "guide_download";
+export const PUBLIC_MARKETING_EVENT = "felexia:marketing-event";
+
+export function trackPublicMarketingEvent(name: "newsletter_signup" | "guide_download"): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(PUBLIC_MARKETING_EVENT, { detail: name }));
+}
 type Gtag = (...args: unknown[]) => void;
 type AnalyticsWindow = Window & {
   gtag?: Gtag;
@@ -217,12 +224,14 @@ export class PublicAnalyticsController {
     this.browser.addEventListener("pageshow", this.sync);
     this.browser.addEventListener("pagehide", this.suspend);
     this.browser.addEventListener("storage", this.onStorage);
+    this.browser.addEventListener(PUBLIC_MARKETING_EVENT, this.onMarketing);
     return () => {
       this.doc.removeEventListener("click", this.onClick, true);
       this.browser.removeEventListener("popstate", this.sync);
       this.browser.removeEventListener("pageshow", this.sync);
       this.browser.removeEventListener("pagehide", this.suspend);
       this.browser.removeEventListener("storage", this.onStorage);
+      this.browser.removeEventListener(PUBLIC_MARKETING_EVENT, this.onMarketing);
       this.suspend();
     };
   }
@@ -287,6 +296,11 @@ export class PublicAnalyticsController {
     this.suspend();
     this.readChoice();
     this.sync();
+  };
+
+  private onMarketing = (event: Event): void => {
+    const name = "detail" in event ? (event as CustomEvent<unknown>).detail : null;
+    if (name === "newsletter_signup" || name === "guide_download") this.sendEvent(name);
   };
 
   private onClick = (event: MouseEvent): void => {

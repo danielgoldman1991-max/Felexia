@@ -1,3 +1,4 @@
+import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, Boxes, ChartNoAxesCombined, ClipboardList, ShoppingCart, UsersRound } from "lucide-react";
@@ -40,6 +41,7 @@ export function LandingPro() {
           <p><strong>Tout ESSENTIEL est inclus.</strong> Retrouvez vos ventes, vos achats, votre trésorerie et la facturation électronique, avec les fonctions de l’ERP complet et jusqu’à 25 utilisateurs.</p>
           <a href={getProQuoteHref()} className="marketing-button marketing-button-primary">Demander un devis PRO <ArrowUpRight size={18} aria-hidden="true" /></a>
         </div>
+        <ProGuideCta />
         <p className="pro-scope-note">PRO se met en place avec notre équipe, selon les fonctions précisées au devis. Les écrans « à venir » sont exclus des opérations disponibles. Les déclarations TVA et la paie restent préparatoires, à valider avec vos conseils.</p>
       </div>
     </section>

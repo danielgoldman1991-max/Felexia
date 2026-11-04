@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LEGAL_CONFIG, legalValue } from "@/lib/legal/legal-config";
 import { AnalyticsSettingsButton } from "@/components/analytics/PublicAnalytics";
+import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 
 export type LegalTocItem = { id: string; title: string };
 
@@ -195,6 +196,7 @@ export function LegalPageLayout({
 
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+          <NewsletterBand source="footer" />
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <p className="text-sm text-slate-500">
               {LEGAL_CONFIG.productName} — produit édité par {publisher}.

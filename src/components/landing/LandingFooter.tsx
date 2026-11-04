@@ -2,13 +2,15 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { AnalyticsSettingsButton } from "@/components/analytics/PublicAnalytics";
+import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 
 const productLinks = [
   { label: "La gestion avec ESSENTIEL", href: "/essentiel" },
   { label: "Au quotidien", href: "/#modules" }, { label: "L’ERP complet PRO", href: "/pro" },
   { label: "Logiciel de facturation", href: "/logiciel-facturation-maroc" },
   { label: "Facture électronique", href: "/facturation-electronique-maroc" },
-  { label: "Guides", href: "/blog" },
+  { label: "Guides", href: "/guides" },
+  { label: "Articles", href: "/blog" },
   { label: "Tarifs", href: "/pricing" }, { label: "FAQ", href: "/#resources" },
 ];
 // TODO(owner): add the official LinkedIn and Facebook URLs next to Instagram. Do not invent profiles.
@@ -32,6 +34,7 @@ export function LandingFooter() {
           <nav aria-label="Votre espace"><h2>Votre espace</h2><ul>{accessLinks.map((link) => <li key={link.href}><Link href={link.href}>{link.label}</Link></li>)}</ul></nav>
           <nav aria-label="Informations légales"><h2>En toute clarté</h2><ul>{legalLinks.map((link) => <li key={link.href}><Link href={link.href}>{link.label}</Link></li>)}<li><AnalyticsSettingsButton /></li></ul></nav>
         </div>
+        <NewsletterBand source="footer" />
         <p className="conversion-footer-disclaimer">Les fonctions fiscales, sociales et comptables de Felexia sont préparatoires : elles ne se substituent ni à l’expertise d’un professionnel (expert-comptable, conseiller fiscal) ni aux obligations déclaratives applicables au Maroc.</p>
         <div className="conversion-footer-bottom"><p>© {new Date().getFullYear()} Felexia Conseils. FelexiaERP — Tous droits réservés.</p><a href="#top">Retour en haut <ArrowUpRight size={14} aria-hidden="true" /></a></div>
       </div>

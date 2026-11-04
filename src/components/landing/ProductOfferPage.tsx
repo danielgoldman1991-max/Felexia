@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, FileCheck2, Plus } from "lucide-react";
 import { LandingFooter } from "@/components/landing/LandingFooter";
+import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
@@ -160,6 +161,7 @@ export function ProductOfferPage({ content, path }: { content: ProductOfferConte
           </div>
         </section>
 
+        {content.name === "PRO" ? <div className="marketing-container"><ProGuideCta /></div> : null}
         <section className={styles.nextSection} aria-labelledby="offer-next-title">
           <div className="marketing-container">
             <div className={styles.nextPanel}>
