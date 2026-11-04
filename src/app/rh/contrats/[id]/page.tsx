@@ -4,7 +4,11 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { StatusBadge } from "@/components/erp/status-badge";
+import { Button } from "@/components/ui/button";
+import { HrManagementAction } from "@/components/hr/hr-management-action";
 import { requireHrWorkspace } from "@/lib/hr/access";
+import { endHrContractAction } from "@/lib/hr/contract-actions";
+import { SETTLEMENT_REASONS } from "@/lib/hr/settlement";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
 
@@ -39,6 +43,21 @@ export default async function HrContractDetailPage({ params }: { params: Promise
         </dl>
       </div>
       <p className="text-sm text-[var(--muted)]">Cette fiche présente les informations enregistrées. Elle ne remplace pas le document contractuel validé et signé par les parties.</p>
+      {contract.status !== "terminated" && contract.status !== "archived" ? (
+        <HrManagementAction>
+          <form action={endHrContractAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
+            <input type="hidden" name="contract_id" value={contract.id} />
+            <h2 className="font-semibold md:col-span-2">Clôturer le contrat</h2>
+            <p className="text-sm text-[var(--muted)] md:col-span-2">La clôture passe le salarié en sortie, fige la date de fin et prépare un solde de tout compte imprimable. Le calcul est une aide, pas une décision juridique.</p>
+            <label className="space-y-1 text-sm"><span className="font-medium">Date de sortie</span><input name="exit_date" type="date" required className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3" /></label>
+            <label className="space-y-1 text-sm"><span className="font-medium">Motif</span><select name="reason" required className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">{SETTLEMENT_REASONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+            <label className="space-y-1 text-sm"><span className="font-medium">Jours de préavis</span><input name="notice_days" type="number" min="0" step="0.5" defaultValue="0" className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3" /></label>
+            <label className="flex items-center gap-2 text-sm md:mt-7"><input name="notice_paid" type="checkbox" /> Préavis exécuté ou payé</label>
+            <label className="space-y-1 text-sm md:col-span-2"><span className="font-medium">Note interne</span><textarea name="notes" rows={2} className="w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2" /></label>
+            <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer la fin de contrat</Button></div>
+          </form>
+        </HrManagementAction>
+      ) : <p className="text-sm text-[var(--muted)]">Contrat clos. Le solde de tout compte, s&apos;il a été préparé, est disponible dans Départ.</p>}
     </ModulePage>
   );
 }
