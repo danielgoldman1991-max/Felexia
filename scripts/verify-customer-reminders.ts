@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { agingBucket } from "../src/lib/sales/aged-receivables";
-import { collectionQueue, daysSalesOutstanding, renderReminderMessage, whatsAppLink, DEFAULT_COLLECTION_SCENARIOS } from "../src/lib/sales/collection";
+import { collectionQueue, daysSalesOutstanding, embeddedCustomerName, renderReminderMessage, whatsAppLink, DEFAULT_COLLECTION_SCENARIOS } from "../src/lib/sales/collection";
 import { nextReminderDate } from "../src/lib/sales/reminder-schedule";
 
 const rules = DEFAULT_COLLECTION_SCENARIOS.map((scenario, index) => ({
@@ -89,4 +90,28 @@ assert.equal(agingBucket("2026-08-01", "2026-11-04", 50), "over_90");
 assert.equal(agingBucket("2026-09-20", "2026-11-04", 50), "31_60");
 assert.equal(agingBucket("2026-08-20", "2026-11-04", 50), "61_90");
 
-console.log("Relances : échéances, file, exclusions, promesse, WhatsApp et DSO vérifiés.");
+assert.equal(embeddedCustomerName({ name: "Atlas Négoce" }), "Atlas Négoce");
+assert.equal(embeddedCustomerName([{ name: "  Yam Bureau  " }]), "Yam Bureau");
+assert.equal(embeddedCustomerName(null), "Client");
+assert.equal(embeddedCustomerName({ name: "" }, "Client"), "Client");
+
+const invoiceReaders = [
+  "src/app/api/cron/customer-reminders/route.ts",
+  "src/lib/sales/collection-desk.ts",
+  "src/lib/treasury/reconciliation-view.ts",
+  "src/app/facturation/balance-agee/page.tsx",
+];
+for (const file of invoiceReaders) {
+  const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+  const selects = [...source.matchAll(/from\("customer_invoices"\)\s*\.select\(\s*"([^"]*)"\)/g)];
+  assert.ok(selects.length > 0, file);
+  for (const select of selects) {
+    const columns = select[1].split(",").map((column) => column.trim());
+    assert.equal(columns.includes("customer_name"), false, `${file} lit une colonne customer_name absente de customer_invoices`);
+  }
+  if (file.endsWith("balance-agee/page.tsx") || file.endsWith("route.ts") || file.endsWith("collection-desk.ts") || file.endsWith("reconciliation-view.ts")) {
+    assert.match(source, /customer:customer_id\(name/, `${file} doit joindre third_parties.name`);
+  }
+}
+
+console.log("Relances : échéances, file, exclusions, promesse, WhatsApp, DSO et nom client vérifiés.");

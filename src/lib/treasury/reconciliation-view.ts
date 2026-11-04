@@ -11,6 +11,7 @@ import {
   type ProposedMatch,
   type StatementLineInput,
 } from "@/lib/treasury/match-engine";
+import { embeddedCustomerName } from "@/lib/sales/collection";
 import type { ExpertReconciliationView } from "@/lib/treasury/reconciliation-types";
 
 export type ExpertLineRecord = StatementLineInput & {
@@ -43,7 +44,7 @@ export async function buildExpertState(accountId?: string): Promise<ExpertState>
   const [linesResult, txResult, customerResult, supplierResult, balanceResult, settingsResult, rulesResult, learningResult, eventsResult] = await Promise.all([
     supabase.from("bank_statement_lines").select("id, import_id, treasury_account_id, operation_date, value_date, label, reference, amount, direction").eq("organization_id", orgId).eq("treasury_account_id", selected).eq("reconciliation_status", "unreconciled").order("operation_date", { ascending: false }).limit(200),
     supabase.from("treasury_transactions").select("id, transaction_date, value_date, amount, direction, label, reference, third_party_id, customer_invoice_id").eq("organization_id", orgId).eq("treasury_account_id", selected).eq("reconciliation_status", "unreconciled").is("archived_at", null).limit(200),
-    supabase.from("customer_invoices").select("id, invoice_number, customer_id, customer_name, due_date, invoice_date, remaining_amount").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(400),
+    supabase.from("customer_invoices").select("id, invoice_number, customer_id, due_date, invoice_date, remaining_amount, customer:customer_id(name)").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(400),
     supabase.from("supplier_invoices").select("id, invoice_number, supplier_id, due_date, invoice_date, remaining_amount").eq("organization_id", orgId).gt("remaining_amount", 0).in("status", ["validated", "partially_paid"]).is("archived_at", null).limit(400),
     supabase.from("bank_statement_lines").select("balance_after").eq("organization_id", orgId).eq("treasury_account_id", selected).not("balance_after", "is", null).order("operation_date", { ascending: false }).limit(1),
     supabase.from("bank_reconciliation_settings").select("auto_threshold, suggest_threshold, date_window_days, auto_enabled").eq("organization_id", orgId).maybeSingle(),
@@ -95,7 +96,7 @@ export async function buildExpertState(accountId?: string): Promise<ExpertState>
       amount: Number(row.remaining_amount),
       direction: "in" as const,
       number: row.invoice_number as string,
-      partyName: (row.customer_name as string | null) || partyName.get(row.customer_id as string) || null,
+      partyName: embeddedCustomerName(row.customer, partyName.get(row.customer_id as string) || "Client"),
       partyId: row.customer_id as string,
       label: row.invoice_number as string,
     })),

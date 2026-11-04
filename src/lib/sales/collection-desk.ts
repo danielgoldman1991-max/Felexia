@@ -1,14 +1,14 @@
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isMissingSchema } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
-import { collectionQueue, type CollectionInvoice, type CollectionRule } from "@/lib/sales/collection";
+import { collectionQueue, embeddedCustomerField, embeddedCustomerName, type CollectionInvoice, type CollectionRule } from "@/lib/sales/collection";
 
 export async function loadCollectionDesk(today = new Date().toISOString().slice(0, 10)) {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
   const orgId = workspace.organization.id;
   const [invoices, rules, reminders, exclusions, promises, settings, account] = await Promise.all([
-    supabase.from("customer_invoices").select("id, invoice_number, customer_id, customer_name, due_date, invoice_date, remaining_amount, total_ttc").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).not("due_date", "is", null).limit(400),
+    supabase.from("customer_invoices").select("id, invoice_number, customer_id, due_date, invoice_date, remaining_amount, total_ttc, customer:customer_id(name, email, phone, mobile)").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).not("due_date", "is", null).limit(400),
     supabase.from("customer_reminder_rules").select("id, name, days_after_due, level, channel, subject, message, active").eq("organization_id", orgId).eq("active", true),
     supabase.from("customer_reminders").select("id, customer_id, reminder_level, status").eq("organization_id", orgId).neq("status", "cancelled").is("archived_at", null).limit(500),
     supabase.from("customer_collection_exclusions").select("customer_id, paused_until, reason").eq("organization_id", orgId),
@@ -17,31 +17,23 @@ export async function loadCollectionDesk(today = new Date().toISOString().slice(
     supabase.from("treasury_accounts").select("rib, iban").eq("organization_id", orgId).eq("status", "active").is("archived_at", null).order("is_default", { ascending: false }).limit(1),
   ]);
   const pending = [exclusions.error, promises.error, settings.error].some((error) => isMissingSchema(error));
-  const customerIds = [...new Set((invoices.data ?? []).map((row) => row.customer_id as string))];
-  const parties = customerIds.length
-    ? await supabase.from("third_parties").select("id, email, phone, mobile").eq("organization_id", orgId).in("id", customerIds)
-    : { data: [] };
-  const party = new Map((parties.data ?? []).map((row) => [row.id as string, row]));
   const reminderIds = (reminders.data ?? []).map((row) => row.id as string);
   const links = reminderIds.length
     ? await supabase.from("customer_reminder_invoices").select("invoice_id, reminder_id").eq("organization_id", orgId).in("reminder_id", reminderIds.slice(0, 200))
     : { data: [] };
   const levelByReminder = new Map((reminders.data ?? []).map((row) => [row.id as string, Number(row.reminder_level ?? 1)]));
-  const openInvoices: CollectionInvoice[] = (invoices.data ?? []).map((row) => {
-    const contact = party.get(row.customer_id as string);
-    return {
-      id: row.id as string,
-      number: row.invoice_number as string,
-      customerId: row.customer_id as string,
-      customerName: (row.customer_name as string | null) || "Client",
-      dueDate: row.due_date as string,
-      invoiceDate: row.invoice_date as string | null,
-      remaining: Number(row.remaining_amount ?? 0),
-      total: Number(row.total_ttc ?? 0),
-      email: (contact?.email as string | null) ?? null,
-      phone: (contact?.mobile as string | null) || (contact?.phone as string | null) || null,
-    };
-  });
+  const openInvoices: CollectionInvoice[] = (invoices.data ?? []).map((row) => ({
+    id: row.id as string,
+    number: row.invoice_number as string,
+    customerId: row.customer_id as string,
+    customerName: embeddedCustomerName(row.customer),
+    dueDate: row.due_date as string,
+    invoiceDate: row.invoice_date as string | null,
+    remaining: Number(row.remaining_amount ?? 0),
+    total: Number(row.total_ttc ?? 0),
+    email: embeddedCustomerField(row.customer, "email"),
+    phone: embeddedCustomerField(row.customer, "mobile") || embeddedCustomerField(row.customer, "phone"),
+  }));
   const typedRules: CollectionRule[] = (rules.error ? [] : rules.data ?? []).map((rule) => ({
     id: rule.id as string,
     name: (rule.name as string | null) ?? null,
