@@ -11,7 +11,9 @@ import { isReadOnlyRole } from "@/lib/auth/roles";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { createClient } from "@/lib/supabase/server";
 import type { TreasuryActionResult, TreasuryAccountType, TreasuryTransactionDirection, TreasuryTransactionType } from "@/lib/treasury-types";
-import { looksLikeOfx, parseOfx } from "@/lib/treasury/ofx";
+import { isMissingSchema } from "@/lib/optional-schema";
+import { undoExpertReconciliation } from "@/lib/treasury/reconciliation-actions";
+import { parseBankFile, statementLineHash, type ColumnMapping } from "@/lib/treasury/statement-parse";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -276,14 +278,15 @@ export async function archiveTreasuryTransaction(prev: TreasuryActionResult, for
   return { success: true };
 }
 
-function parseCsv(textContent: string) {
-  const lines = textContent.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(",").map((header) => header.trim().toLowerCase());
-  return lines.slice(1).map((line) => {
-    const cells = line.split(",").map((cell) => cell.trim());
-    return Object.fromEntries(headers.map((header, index) => [header, cells[index] ?? ""]));
-  });
+function parseColumnMapping(value: string | null): ColumnMapping | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(value) as ColumnMapping;
+    if (!parsed?.date || !parsed?.label) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export async function importBankStatement(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
@@ -293,33 +296,40 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
   const accountId = text(formData, "treasury_account_id");
   const file = formData.get("file");
   if (!accountId) return { success: false, error: "Sélectionnez un compte bancaire." };
-  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Sélectionnez un fichier CSV, OFX ou QFX." };
-  const fileContent = await file.text();
-  const ofx = looksLikeOfx(file.name, fileContent);
-  const fileHash = hashValue(fileContent);
-  const rows: Array<Record<string, string>> = ofx
-    ? parseOfx(fileContent).map((row) => ({ ...row }))
-    : parseCsv(fileContent);
-  if (rows.length === 0) return { success: false, error: ofx ? "Le relevé OFX ne contient aucune opération exploitable." : "Le fichier CSV ne contient aucune ligne exploitable." };
+  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Sélectionnez un fichier CSV, Excel, OFX ou QFX." };
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const fileContent = bytes.toString("utf8");
   const supabase = await createClient();
-  const parsed = rows.map((row) => {
-    const debit = num(row.debit);
-    const credit = num(row.credit);
-    const amount = credit > 0 ? credit : debit;
+  const submittedMapping = parseColumnMapping(text(formData, "column_mapping"));
+  let savedMapping = submittedMapping;
+  if (!savedMapping) {
+    const saved = await supabase.from("bank_import_mappings").select("columns").eq("organization_id", workspace.organization.id).eq("treasury_account_id", accountId).maybeSingle();
+    if (!saved.error && saved.data?.columns && typeof saved.data.columns === "object") savedMapping = saved.data.columns as ColumnMapping;
+  }
+  const parsedFile = parseBankFile({ fileName: file.name, text: fileContent, bytes, mapping: savedMapping });
+  if (parsedFile.error) return { success: false, error: parsedFile.error };
+  if (parsedFile.needsMapping) {
     return {
-      operation_date: row.date || row.operation_date,
-      value_date: row.value_date || null,
-      label: row.label || row.libelle || "Operation bancaire",
-      reference: row.reference || null,
-      debit_amount: debit,
-      credit_amount: credit,
-      amount,
-      direction: credit > 0 ? "in" : "out",
-      balance_after: row.balance ? num(row.balance) : null,
-      raw_data: row,
+      success: false,
+      error: "Ce relevé n'a pas été reconnu. Indiquez la date, le libellé et les colonnes débit/crédit, puis importez à nouveau.",
+      data: { needsMapping: true, headers: parsedFile.headers, sample: parsedFile.sample, suggested: parsedFile.suggested, bankCode: parsedFile.bankCode },
     };
-  }).filter((row) => row.operation_date && row.amount > 0);
-  if (parsed.length === 0) return { success: false, error: "Aucune ligne valide a importer." };
+  }
+  const parsed = parsedFile.rows;
+  if (parsed.length === 0) return { success: false, error: "Aucune ligne valide à importer." };
+  const fileHash = hashValue(parsedFile.fileType === "xlsx" ? bytes.toString("base64") : fileContent);
+  if (parsedFile.suggested) {
+    const mappingSave = await supabase.from("bank_import_mappings").upsert({
+      organization_id: workspace.organization.id,
+      treasury_account_id: accountId,
+      bank_code: text(formData, "bank_code") ?? parsedFile.bankCode,
+      columns: parsedFile.suggested,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "organization_id,treasury_account_id" });
+    if (mappingSave.error && !isMissingSchema(mappingSave.error)) {
+      console.error("[treasury] import mapping not saved", { code: mappingSave.error.code });
+    }
+  }
   const sameFileResult = await supabase
     .from("bank_statement_imports")
     .select("id")
@@ -352,20 +362,27 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
   const sameStatement = sameStatementResult.data;
   if (sameStatement?.id) return { success: false, error: "Un releve couvrant la meme periode et les memes montants semble deja importe." };
 
-  const linesWithFingerprints = parsed.map((row) => {
-    const lineFingerprint = hashValue([accountId, row.operation_date, row.value_date, row.label, row.reference, row.direction, Number(row.amount).toFixed(2), Number(row.debit_amount).toFixed(2), Number(row.credit_amount).toFixed(2), row.balance_after ?? ""].map(normalizeFingerprintPart).join("|"));
-    return { ...row, line_hash: lineFingerprint, line_fingerprint: lineFingerprint };
+  const seen = new Set<string>();
+  const linesWithFingerprints = parsed.flatMap((row) => {
+    const lineFingerprint = statementLineHash(accountId, row);
+    if (seen.has(lineFingerprint)) return [];
+    seen.add(lineFingerprint);
+    return [{ ...row, line_hash: lineFingerprint, line_fingerprint: lineFingerprint }];
   });
-  const existingLinesResult = await supabase
-    .from("bank_statement_lines")
-    .select("line_fingerprint")
-    .eq("organization_id", workspace.organization.id)
-    .eq("treasury_account_id", accountId)
-    .in("line_fingerprint", linesWithFingerprints.map((row) => row.line_fingerprint));
-  if (isMissingTreasuryImportColumn(existingLinesResult.error)) return { success: false, error: "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." };
-  const existingLines = existingLinesResult.data;
-  if ((existingLines?.length ?? 0) === linesWithFingerprints.length) return { success: false, error: "Ce releve bancaire semble deja avoir ete importe." };
-  if ((existingLines?.length ?? 0) > 0) return { success: false, error: "Certaines lignes de ce releve existent deja. Import annule pour eviter les doublons." };
+  const known = new Set<string>();
+  for (let offset = 0; offset < linesWithFingerprints.length; offset += 80) {
+    const slice = linesWithFingerprints.slice(offset, offset + 80).map((row) => row.line_fingerprint);
+    const existingLinesResult = await supabase
+      .from("bank_statement_lines")
+      .select("line_fingerprint")
+      .eq("organization_id", workspace.organization.id)
+      .eq("treasury_account_id", accountId)
+      .in("line_fingerprint", slice);
+    if (isMissingTreasuryImportColumn(existingLinesResult.error)) return { success: false, error: "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." };
+    for (const row of existingLinesResult.data ?? []) known.add(String(row.line_fingerprint));
+  }
+  const fresh = linesWithFingerprints.filter((row) => !known.has(row.line_fingerprint));
+  if (fresh.length === 0) return { success: false, error: "Ce relevé est déjà importé. Les lignes connues n'ont pas été dupliquées." };
 
   const importCode = await generateBankStatementImportCode(workspace.organization.id);
   const { data: imported, error } = await supabase.from("bank_statement_imports").insert({
@@ -373,20 +390,20 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
     treasury_account_id: accountId,
     import_code: importCode,
     file_name: file.name,
-    file_type: ofx ? "ofx" : "csv",
+    file_type: parsedFile.fileType,
     file_hash: fileHash,
     statement_fingerprint: statementFingerprint,
     period_start: periodStart,
     period_end: periodEnd,
-    imported_lines_count: linesWithFingerprints.length,
-    unmatched_lines_count: linesWithFingerprints.length,
+    imported_lines_count: fresh.length,
+    unmatched_lines_count: fresh.length,
     imported_by: workspace.userId,
   }).select("id").single();
   if (error || !imported) return { success: false, error: isMissingTreasuryImportColumn(error) ? "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." : error?.message ?? "Import impossible." };
-  const lineInsert = await supabase.from("bank_statement_lines").insert(linesWithFingerprints.map((row) => ({ ...row, organization_id: workspace.organization.id, import_id: imported.id, treasury_account_id: accountId })));
+  const lineInsert = await supabase.from("bank_statement_lines").insert(fresh.map((row) => ({ ...row, organization_id: workspace.organization.id, import_id: imported.id, treasury_account_id: accountId })));
   if (lineInsert.error) return { success: false, error: isMissingTreasuryImportColumn(lineInsert.error) ? "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." : lineInsert.error.message };
   revalidatePath("/tresorerie/releves");
-  redirect(`/tresorerie/releves/${imported.id}`);
+  redirect(`/tresorerie/releves/${imported.id}?imported=${fresh.length}&skipped=${known.size}`);
 }
 
 export async function cancelBankStatementImport(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
@@ -531,7 +548,14 @@ export async function unreconcileStatementLine(prev: TreasuryActionResult, formD
     await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
   }
   if (line.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
+  try {
+    await undoExpertReconciliation(workspace.organization.id, workspace.userId, id);
+  } catch (error) {
+    console.error("[treasury] undo side effects failed", { message: error instanceof Error ? error.message : "unknown" });
+  }
   revalidatePath("/tresorerie/rapprochement");
   revalidatePath("/tresorerie/releves");
+  revalidatePath("/facturation/paiements");
+  revalidatePath("/facturation/factures");
   return { success: true };
 }
