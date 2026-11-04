@@ -8,7 +8,8 @@ export async function GET() {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return new NextResponse("PRO requis", { status: 403 });
   const supabase = await createClient();
-  const { data } = await supabase.from("accounting_entry_lines").select("account_code, account_label, debit, credit, label, entry_id").eq("organization_id", workspace.organization.id).limit(5000);
+  const { data, error } = await supabase.from("accounting_entry_lines").select("account_code, account_label, debit, credit, label, entry_id").eq("organization_id", workspace.organization.id).limit(5000);
+  if (error) return new NextResponse("Export indisponible tant que les écritures ne sont pas lisibles.\n", { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   const entryIds = [...new Set((data ?? []).map((line) => line.entry_id).filter(Boolean))] as string[];
   const { data: entries } = entryIds.length
     ? await supabase.from("accounting_entries").select("id, entry_number, entry_date").in("id", entryIds)

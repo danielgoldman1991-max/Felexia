@@ -14,7 +14,8 @@ export default async function LiassePage() {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
-  const { data } = await supabase.from("accounting_entry_lines").select("account_code, debit, credit").eq("organization_id", workspace.organization.id).limit(5000);
+  const { data, error } = await supabase.from("accounting_entry_lines").select("account_code, debit, credit").eq("organization_id", workspace.organization.id).limit(5000);
+  if (error) return <ModulePage><PageHeader title="Liasse préparatoire" description="Les écritures ne sont pas lisibles pour le moment. La liasse reste vide et le reste de l'application fonctionne." /></ModulePage>;
   const liasse = buildLiasse((data ?? []).map((line) => ({
     accountCode: String(line.account_code ?? ""),
     debit: Number(line.debit ?? 0),
