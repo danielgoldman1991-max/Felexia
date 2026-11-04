@@ -23,6 +23,8 @@ const ACTIONS: Record<string, string> = {
   remove_user: "Retrait d'un utilisateur",
   open_fiscal_year: "Ouverture d'un exercice",
   activate_plan: "Activation d'une offre",
+  create_third_party: "Création d'un tiers",
+  update_third_party: "Modification d'un tiers",
   create_customer_invoice: "Création d'une facture client",
   invoice_validated: "Validation d'une facture",
   invoice_sent: "Envoi d'une facture",
@@ -44,6 +46,9 @@ const TABLES: Record<string, string> = {
   accounting_entries: "Écritures",
   accounting_fiscal_years: "Exercices",
   customer_invoices: "Factures clients",
+  third_parties: "Tiers",
+  third_party: "Tiers",
+  tiers: "Tiers",
   stock_moves: "Mouvements de stock",
   settings: "Paramètres",
   profiles: "Profils",
@@ -86,7 +91,8 @@ export function auditActionLabel(action: string | null | undefined) {
 
 export function auditTableLabel(table: string | null | undefined) {
   if (!table) return "—";
-  return TABLES[table] ?? table.replaceAll("_", " ");
+  const key = table.trim().toLowerCase().replaceAll(" ", "_");
+  return TABLES[key] ?? TABLES[table] ?? table.replaceAll("_", " ");
 }
 
 export function formatAuditTimestamp(value: string | null | undefined) {
