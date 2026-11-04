@@ -178,14 +178,14 @@ export default async function TreasuryForecastPage({
         <PremiumKpiCard
           label="Point bas de tresorerie"
           value={formatMoney(forecast.lowestForecastBalance)}
-          caption={isNegative ? "Solde negatif atteint" : "Solde minimum prevu"}
+          caption={isNegative ? "Solde négatif atteint" : "Solde minimum prévu"}
           icon={ShieldAlert}
           tone={isNegative ? "danger" : "warning"}
         />
         <PremiumKpiCard
           label="Jours critiques"
           value={forecast.criticalDaysCount}
-          caption={forecast.criticalDaysCount > 0 ? "Jours a solde negatif" : "Aucun jour negatif"}
+          caption={forecast.criticalDaysCount > 0 ? "Jours à solde négatif" : "Aucun jour négatif"}
           icon={AlertTriangle}
           tone={forecast.criticalDaysCount > 0 ? "danger" : "success"}
         />

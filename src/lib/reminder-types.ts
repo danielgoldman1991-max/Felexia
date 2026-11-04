@@ -84,7 +84,7 @@ export const REMINDER_STATUS_LABELS: Record<string, string> = {
 
 export const REMINDER_CHANNEL_LABELS: Record<string, string> = {
   email: "Email",
-  phone: "Telephone",
+  phone: "Téléphone",
   whatsapp: "WhatsApp",
   letter: "Courrier",
   in_person: "En personne",

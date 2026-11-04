@@ -9,7 +9,7 @@ export function SuppliersTable({ rows }: { rows: SupplierRow[] }) {
   if (rows.length === 0) return <EmptyState title="Aucun fournisseur" description="Les fournisseurs actifs apparaitront ici." />;
   return (
     <Table>
-      <thead><tr><Th>Nom</Th><Th>ICE</Th><Th>Telephone</Th><Th>Email</Th><Th>Ville</Th><Th>Statut</Th><Th>Actions</Th></tr></thead>
+      <thead><tr><Th>Nom</Th><Th>ICE</Th><Th>Téléphone</Th><Th>Email</Th><Th>Ville</Th><Th>Statut</Th><Th>Actions</Th></tr></thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>

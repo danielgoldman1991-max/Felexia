@@ -69,7 +69,7 @@ function normalizeInvoiceLines(rawLines: Record<string, unknown>[]) {
 
     if (!line.description) return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
     if (line.quantity <= 0) return { lines: [], error: "Les quantités doivent etre superieures a zero." };
-    if (line.unit_price_ht < 0) return { lines: [], error: "Le prix ne peut pas etre negatif." };
+    if (line.unit_price_ht < 0) return { lines: [], error: "Le prix ne peut pas être négatif." };
     if (line.discount_rate < 0 || line.discount_rate > 100) return { lines: [], error: "La remise doit etre comprise entre 0 et 100%." };
     lines.push(line);
   }
