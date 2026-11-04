@@ -10,10 +10,23 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default async function HrSettingsPage() {
+const PAGE_SIZE = 20;
+
+function pageNumber(value: string | undefined) {
+  const page = Number(value);
+  return Number.isSafeInteger(page) && page > 0 ? page : 1;
+}
+
+export default async function HrSettingsPage({ searchParams }: { searchParams?: Promise<Record<string, string | undefined>> }) {
+  const query = searchParams ? await searchParams : {};
   const [{ departments, positions, leaveTypes, settings }, catalog, workspace] = await Promise.all([
     getHrReferenceData(),
-    loadHrCatalog(),
+    loadHrCatalog({
+      departments: pageNumber(query.dept),
+      positions: pageNumber(query.poste),
+      leaveTypes: pageNumber(query.conge),
+      schedules: pageNumber(query.horaire),
+    }),
     requireHrWorkspace(),
   ]);
   const canWrite = await canWriteHrSettings(workspace);
@@ -32,26 +45,37 @@ export default async function HrSettingsPage() {
         <SettingCard title="CNSS" value={settings?.cnss_enabled ? "Activée" : "Désactivée"} />
         <SettingCard title="IR" value={settings?.ir_enabled ? "Activé" : "Désactivé"} />
       </div>
-      <HrSettingsEditor catalog={catalog} canWrite={canWrite} />
+      <HrSettingsEditor catalog={catalog} canWrite={canWrite} query={query} departmentOptions={departments.map((item) => ({ id: item.id, name: item.name ?? "", code: null, is_active: true }))} />
     </ModulePage>
   );
 }
 
-async function loadHrCatalog(): Promise<HrCatalog> {
+async function loadHrCatalog(pages: { departments: number; positions: number; leaveTypes: number; schedules: number }): Promise<HrCatalog> {
   const workspace = await requireHrWorkspace();
   const supabase = await createClient();
   const orgId = workspace.organization.id;
+  const windowFor = (page: number) => ({ from: (page - 1) * PAGE_SIZE, to: page * PAGE_SIZE - 1 });
+  const departmentsWindow = windowFor(pages.departments);
+  const positionsWindow = windowFor(pages.positions);
+  const leaveWindow = windowFor(pages.leaveTypes);
+  const scheduleWindow = windowFor(pages.schedules);
   const [departments, positions, leaveTypes, schedules] = await Promise.all([
-    supabase.from("hr_departments").select("id, name, code, is_active").eq("organization_id", orgId).order("name"),
-    supabase.from("hr_positions").select("id, title, code, department_id, is_active").eq("organization_id", orgId).order("title"),
-    supabase.from("hr_leave_types").select("id, name, code, is_paid, annual_entitlement_days, is_active").eq("organization_id", orgId).order("name"),
-    supabase.from("hr_work_schedules").select("id, name, weekly_hours, work_days, notes, is_active").eq("organization_id", orgId).order("name"),
+    supabase.from("hr_departments").select("id, name, code, is_active", { count: "exact" }).eq("organization_id", orgId).order("name").range(departmentsWindow.from, departmentsWindow.to),
+    supabase.from("hr_positions").select("id, title, code, department_id, is_active", { count: "exact" }).eq("organization_id", orgId).order("title").range(positionsWindow.from, positionsWindow.to),
+    supabase.from("hr_leave_types").select("id, name, code, is_paid, annual_entitlement_days, is_active", { count: "exact" }).eq("organization_id", orgId).order("name").range(leaveWindow.from, leaveWindow.to),
+    supabase.from("hr_work_schedules").select("id, name, weekly_hours, work_days, notes, is_active", { count: "exact" }).eq("organization_id", orgId).order("name").range(scheduleWindow.from, scheduleWindow.to),
   ]);
   return {
     departments: departments.data ?? [],
     positions: positions.data ?? [],
     leaveTypes: (leaveTypes.data ?? []).map((row) => ({ ...row, annual_entitlement_days: row.annual_entitlement_days == null ? null : Number(row.annual_entitlement_days) })),
     schedules: isMissingSchema(schedules.error) ? [] : (schedules.data ?? []).map((row) => ({ ...row, weekly_hours: Number(row.weekly_hours) })),
+    pages: {
+      departments: { page: pages.departments, total: departments.count ?? 0, param: "dept" },
+      positions: { page: pages.positions, total: positions.count ?? 0, param: "poste" },
+      leaveTypes: { page: pages.leaveTypes, total: leaveTypes.count ?? 0, param: "conge" },
+      schedules: { page: pages.schedules, total: isMissingSchema(schedules.error) ? 0 : schedules.count ?? 0, param: "horaire" },
+    },
   };
 }
 

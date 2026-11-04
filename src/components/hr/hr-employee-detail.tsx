@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BriefcaseBusiness, CalendarDays, FileText, Pencil, WalletCards } from "lucide-react";
 import { PageHeader } from "@/components/erp/page-header";
 import { MoneyDisplay } from "@/components/erp/money-display";
-import { StatusBadge } from "@/components/erp/status-badge";
+import { frenchStatusLabel, StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
 import { HrManagementAction } from "@/components/hr/hr-management-action";
 
@@ -86,7 +86,7 @@ function MiniTable({ title, rows, columns, moneyColumn }: { title: string; rows:
               <tr key={getString(row, "id")}>
                 {columns.map((column) => (
                   <Td key={column}>
-                    {column === moneyColumn ? <MoneyDisplay value={getNumber(row, column)} /> : getString(row, column, "-")}
+                    {column === moneyColumn ? <MoneyDisplay value={getNumber(row, column)} /> : column === "status" || column === "action_type" || column === "absence_type" || column === "document_type" ? frenchStatusLabel(getString(row, column, "")) : getString(row, column, "-")}
                   </Td>
                 ))}
               </tr>

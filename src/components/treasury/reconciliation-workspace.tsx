@@ -6,6 +6,7 @@ import Link from "next/link";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PendingButton } from "@/components/ui/pending-button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -32,7 +33,7 @@ function lineAction(action: typeof ignoreStatementLine, lineId: string) {
 
 function ReconcileButton({ lineId, transactionId }: { lineId: string; transactionId: string }) {
   const [, formAction, pending] = useActionState(reconcileAction(lineId, transactionId), { success: true });
-  return <form action={formAction}><Button type="submit" className="h-8" disabled={pending} aria-busy={pending}>{pending ? "Rapprochement…" : "Rapprocher"}</Button></form>;
+  return <form action={formAction}><PendingButton className="h-8" disabled={pending} idle="Rapprocher" pendingLabel="Rapprochement…" /></form>;
 }
 
 function LineButton({ label, lineId, action, variant = "secondary", confirm }: { label: string; lineId: string; action: typeof ignoreStatementLine; variant?: "secondary" | "ghost"; confirm?: string }) {
@@ -104,7 +105,7 @@ function AutomaticSuggestionsForm({ suggestions }: { suggestions: Reconciliation
       {state.success && (state.data as { message?: string } | undefined)?.message ? <p className="text-sm text-emerald-700">{(state.data as { message: string }).message}</p> : null}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/rapprochement">Annuler</Link></Button>
-        <Button disabled={pending} aria-busy={pending}>{pending ? "Rapprochement…" : "Confirmer les rapprochements selectionnes"}</Button>
+        <PendingButton disabled={pending} idle="Confirmer les rapprochements sélectionnés" pendingLabel="Rapprochement…" />
       </div>
     </form>
   );

@@ -56,7 +56,7 @@ export function StockLocationForm({ location, locations, action }: Props) {
           </label>
           <label className="flex items-center gap-2 pt-7 text-sm">
             <input type="checkbox" name="is_default" defaultChecked={Boolean(location?.is_default)} />
-            <span className="font-medium">Emplacement par defaut</span>
+            <span className="font-medium">Emplacement par défaut</span>
           </label>
           <label className="space-y-2 text-sm md:col-span-2">
             <span className="font-medium">Adresse</span>

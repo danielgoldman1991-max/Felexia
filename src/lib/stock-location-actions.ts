@@ -113,7 +113,7 @@ export async function archiveStockLocation(prev: StockActionResult, formData: Fo
   if (!current) return { success: false, error: "Emplacement introuvable." };
   if (current.is_default) {
     const { count } = await supabase.from("warehouses").select("id", { count: "exact", head: true }).eq("organization_id", workspace.organization.id).eq("status", "active").is("archived_at", null);
-    if ((count ?? 0) <= 1) return { success: false, error: "Impossible d'archiver le seul emplacement actif par defaut." };
+    if ((count ?? 0) <= 1) return { success: false, error: "Impossible d'archiver le seul emplacement actif par défaut." };
   }
   const { error } = await supabase.from("warehouses").update({ status: "archived", archived_at: new Date().toISOString(), is_default: false }).eq("organization_id", workspace.organization.id).eq("id", id);
   if (error) return { success: false, error: error.message };

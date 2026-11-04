@@ -66,7 +66,7 @@ export async function listActiveStockLocations(): Promise<WarehouseOption[]> {
   const rows = await listStockLocations({ status: "active" });
   return rows.map((row) => ({
     id: row.id,
-    name: row.is_default ? `${row.name} (par defaut)` : row.name,
+    name: row.is_default ? `${row.name} (par défaut)` : row.name,
     code: row.code,
     location_type: row.location_type,
     is_default: row.is_default,
@@ -149,7 +149,7 @@ export async function getDefaultStockLocationId(organizationId?: string): Promis
     .insert({ organization_id: orgId, name: "Depot principal", code: "DEPOT-PRINCIPAL", location_type: "depot", is_default: true, status: "active" })
     .select("id")
     .single();
-  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer l'emplacement par defaut.");
+  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer l'emplacement par défaut.");
   return created.id as string;
 }
 

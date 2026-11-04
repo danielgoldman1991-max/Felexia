@@ -69,7 +69,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
             <label className="space-y-1 text-sm">
               <span className="text-xs font-medium uppercase text-[var(--muted)]">Emplacement de reception</span>
               <Select value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)}>
-                <option value="">Emplacement par defaut</option>
+                <option value="">Emplacement par défaut</option>
                 {stockLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
               </Select>
             </label>

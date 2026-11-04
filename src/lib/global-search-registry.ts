@@ -1,5 +1,5 @@
 export type GlobalSearchCategory =
-  | "Acces rapide"
+  | "Accès rapide"
   | "Tiers"
   | "Articles"
   | "Vente"
@@ -20,8 +20,8 @@ export type GlobalSearchResult = {
 };
 
 export const GLOBAL_SEARCH_REGISTRY: GlobalSearchResult[] = [
-  { id: "journals", title: "Journaux comptables", subtitle: "Ventes, achats, banque et caisse", href: "/comptabilite/journaux", category: "Acces rapide", type: "route", keywords: ["journal", "écritures", "comptabilité"] },
-  { id: "dashboard", title: "Tableau de bord", subtitle: "Vue generale Felexia", href: "/dashboard", category: "Acces rapide", type: "route", keywords: ["dashboard", "accueil", "pilotage"] },
+  { id: "journals", title: "Journaux comptables", subtitle: "Ventes, achats, banque et caisse", href: "/comptabilite/journaux", category: "Accès rapide", type: "route", keywords: ["journal", "écritures", "comptabilité"] },
+  { id: "dashboard", title: "Tableau de bord", subtitle: "Vue générale Felexia", href: "/dashboard", category: "Accès rapide", type: "route", keywords: ["dashboard", "accueil", "pilotage"] },
   { id: "tiers", title: "Tiers", subtitle: "Clients, prospects et fournisseurs", href: "/tiers", category: "Tiers", type: "route", keywords: ["crm", "client", "fournisseur", "prospect"] },
   { id: "tiers-prospects", title: "Prospects", subtitle: "Liste des prospects", href: "/tiers/prospects", category: "Tiers", type: "route", keywords: ["prospect", "crm"] },
   { id: "tiers-clients", title: "Clients", subtitle: "Liste des clients", href: "/tiers/clients", category: "Tiers", type: "route", keywords: ["client"] },

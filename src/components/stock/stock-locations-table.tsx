@@ -44,7 +44,7 @@ export function StockLocationsTable({ rows, canWrite = false }: { rows: StockLoc
               <div className="flex items-center gap-1">
                 <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/stock/emplacements/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
                 {canWrite ? <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Modifier" asChild><Link href={`/stock/emplacements/${row.id}/edit`}><Pencil className="h-4 w-4" /></Link></Button> : null}
-                {canWrite && !row.is_default ? <InlineAction label="Definir par defaut" id={row.id} action={setDefaultStockLocation} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
+                {canWrite && !row.is_default ? <InlineAction label="Définir par défaut" id={row.id} action={setDefaultStockLocation} icon={<CheckCircle2 className="h-4 w-4" />} /> : null}
                 {canWrite ? <InlineAction label="Archiver" id={row.id} action={archiveStockLocation} icon={<Archive className="h-4 w-4" />} variant="danger" /> : null}
               </div>
             </Td>

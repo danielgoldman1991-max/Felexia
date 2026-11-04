@@ -70,48 +70,47 @@ export async function ensureHrReferenceData(supabase: SupabaseClient, organizati
     .eq("name", "Direction")
     .maybeSingle();
 
-  await supabase.from("hr_positions").upsert(
-    positions.map((title) => ({
-      organization_id: organizationId,
-      department_id: direction?.id ?? null,
-      title,
-      code: title.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]+/g, "_"),
-      updated_at: now,
-    })),
-    { onConflict: "organization_id,title", ignoreDuplicates: true },
-  );
-
-  await supabase.from("hr_leave_types").upsert(
-    leaveTypes.map((type) => ({ organization_id: organizationId, ...type })),
-    { onConflict: "organization_id,code", ignoreDuplicates: true },
-  );
-
-  await supabase.from("hr_salary_items").upsert(
-    salaryItems.map((item) => ({
-      organization_id: organizationId,
-      default_amount: 0,
-      default_rate: 0,
-      is_active: true,
-      ...item,
-    })),
-    { onConflict: "organization_id,code", ignoreDuplicates: true },
-  );
-
-  await supabase.from("hr_settings").upsert(
-    {
-      organization_id: organizationId,
-      default_weekly_hours: 44,
-      default_annual_leave_days: 18,
-      leave_accrual_days_per_month: 1.5,
-      payroll_currency: "MAD",
-      payroll_rounding: "nearest_cent",
-      cnss_enabled: true,
-      amo_enabled: true,
-      ir_enabled: true,
-      ir_brackets: [],
-      payroll_rules: { schemaStatus: "preparatory", officialConformityClaim: false },
-      updated_at: now,
-    },
-    { onConflict: "organization_id", ignoreDuplicates: true },
-  );
+  await Promise.all([
+    supabase.from("hr_positions").upsert(
+      positions.map((title) => ({
+        organization_id: organizationId,
+        department_id: direction?.id ?? null,
+        title,
+        code: title.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]+/g, "_"),
+        updated_at: now,
+      })),
+      { onConflict: "organization_id,title", ignoreDuplicates: true },
+    ),
+    supabase.from("hr_leave_types").upsert(
+      leaveTypes.map((type) => ({ organization_id: organizationId, ...type })),
+      { onConflict: "organization_id,code", ignoreDuplicates: true },
+    ),
+    supabase.from("hr_salary_items").upsert(
+      salaryItems.map((item) => ({
+        organization_id: organizationId,
+        default_amount: 0,
+        default_rate: 0,
+        is_active: true,
+        ...item,
+      })),
+      { onConflict: "organization_id,code", ignoreDuplicates: true },
+    ),
+    supabase.from("hr_settings").upsert(
+      {
+        organization_id: organizationId,
+        default_weekly_hours: 44,
+        default_annual_leave_days: 18,
+        leave_accrual_days_per_month: 1.5,
+        payroll_currency: "MAD",
+        payroll_rounding: "nearest_cent",
+        cnss_enabled: true,
+        amo_enabled: true,
+        ir_enabled: true,
+        ir_brackets: [],
+        payroll_rules: { schemaStatus: "preparatory", officialConformityClaim: false },
+        updated_at: now,
+      },
+      { onConflict: "organization_id", ignoreDuplicates: true },
+    ),
+  ]);
 }

@@ -70,7 +70,7 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
       <input type="hidden" name="lines" value={JSON.stringify(docLines)} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={delivery?.third_party_id ?? ""} required>

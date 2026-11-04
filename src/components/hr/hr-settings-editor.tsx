@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useActionState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HR_DELETE_CONFIRM, type HrCatalogKind } from "@/lib/hr/settings-catalog";
@@ -14,24 +15,33 @@ export type HrCatalog = {
   positions: { id: string; title: string; code: string | null; department_id: string | null; is_active: boolean }[];
   leaveTypes: { id: string; name: string; code: string; is_paid: boolean; annual_entitlement_days: number | null; is_active: boolean }[];
   schedules: { id: string; name: string; weekly_hours: number; work_days: string; notes: string | null; is_active: boolean }[];
+  pages?: {
+    departments: CatalogPage;
+    positions: CatalogPage;
+    leaveTypes: CatalogPage;
+    schedules: CatalogPage;
+  };
 };
 
-export function HrSettingsEditor({ catalog, canWrite }: { catalog: HrCatalog; canWrite: boolean }) {
+type CatalogPage = { page: number; total: number; param: string };
+
+export function HrSettingsEditor({ catalog, canWrite, query = {}, departmentOptions }: { catalog: HrCatalog; canWrite: boolean; query?: Record<string, string | undefined>; departmentOptions?: HrCatalog["departments"] }) {
+  const departments = departmentOptions ?? catalog.departments;
   return (
     <div className="mt-6 space-y-6">
-      <Section title="Départements">
+      <Section title="Départements" page={catalog.pages?.departments} query={query}>
         {catalog.departments.map((item) => <DepartmentForm key={item.id} item={item} canWrite={canWrite} />)}
         {canWrite ? <DepartmentForm canWrite /> : null}
       </Section>
-      <Section title="Postes">
-        {catalog.positions.map((item) => <PositionForm key={item.id} item={item} departments={catalog.departments} canWrite={canWrite} />)}
-        {canWrite ? <PositionForm departments={catalog.departments} canWrite /> : null}
+      <Section title="Postes" page={catalog.pages?.positions} query={query}>
+        {catalog.positions.map((item) => <PositionForm key={item.id} item={item} departments={departments} canWrite={canWrite} />)}
+        {canWrite ? <PositionForm departments={departments} canWrite /> : null}
       </Section>
-      <Section title="Types de congés">
+      <Section title="Types de congés" page={catalog.pages?.leaveTypes} query={query}>
         {catalog.leaveTypes.map((item) => <LeaveForm key={item.id} item={item} canWrite={canWrite} />)}
         {canWrite ? <LeaveForm canWrite /> : null}
       </Section>
-      <Section title="Horaires de travail">
+      <Section title="Horaires de travail" page={catalog.pages?.schedules} query={query}>
         {catalog.schedules.map((item) => <ScheduleForm key={item.id} item={item} canWrite={canWrite} />)}
         {canWrite ? <ScheduleForm canWrite /> : null}
       </Section>
@@ -39,12 +49,35 @@ export function HrSettingsEditor({ catalog, canWrite }: { catalog: HrCatalog; ca
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="space-y-3"><h2 className="text-lg font-semibold">{title}</h2>{children}</section>;
+function Section({ title, children, page, query }: { title: string; children: ReactNode; page?: CatalogPage; query: Record<string, string | undefined> }) {
+  const size = 20;
+  const totalPages = page ? Math.max(1, Math.ceil(page.total / size)) : 1;
+  const href = (next: number) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) if (value) params.set(key, value);
+    if (page) params.set(page.param, String(next));
+    const text = params.toString();
+    return text ? `/rh/parametres?${text}` : "/rh/parametres";
+  };
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {page && page.total > size ? <p className="text-sm text-[var(--muted)]">{page.total} éléments · page {page.page}/{totalPages}</p> : null}
+      </div>
+      {children}
+      {page && totalPages > 1 ? (
+        <div className="flex gap-2">
+          {page.page > 1 ? <Button variant="secondary" asChild><Link href={href(page.page - 1)}>Page précédente</Link></Button> : null}
+          {page.page < totalPages ? <Button variant="secondary" asChild><Link href={href(page.page + 1)}>Page suivante</Link></Button> : null}
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
-function Result({ state }: { state: HrSettingState }) {
-  if (state.success) return <p className="text-sm text-emerald-700">Enregistré.</p>;
+function Result({ state, successLabel = "Enregistré." }: { state: HrSettingState; successLabel?: string }) {
+  if (state.success) return <p className="text-sm text-emerald-700">{successLabel}</p>;
   if (state.error) return <p className="text-sm text-red-700">{state.error}</p>;
   return null;
 }
@@ -144,18 +177,18 @@ function CatalogActions({ id, active, kind }: { id: string; active: boolean; kin
   return (
     <div className="flex flex-wrap gap-2 sm:col-span-full">
       {active ? <CatalogButton id={id} action={archiveAction[kind]} label="Archiver" pendingLabel="Archivage…" /> : null}
-      <CatalogButton id={id} action={deleteAction[kind]} label="Supprimer" pendingLabel="Suppression…" confirm={HR_DELETE_CONFIRM[kind]} />
+      <CatalogButton id={id} action={deleteAction[kind]} label="Supprimer" pendingLabel="Suppression…" confirm={HR_DELETE_CONFIRM[kind]} successLabel="Supprimé." />
     </div>
   );
 }
 
-function CatalogButton({ id, action, label, pendingLabel, confirm }: { id: string; action: (state: HrSettingState, formData: FormData) => Promise<HrSettingState>; label: string; pendingLabel: string; confirm?: string }) {
+function CatalogButton({ id, action, label, pendingLabel, confirm, successLabel }: { id: string; action: (state: HrSettingState, formData: FormData) => Promise<HrSettingState>; label: string; pendingLabel: string; confirm?: string; successLabel?: string }) {
   const [state, formAction, pending] = useActionState(action, initial);
   return (
     <form action={formAction} onSubmit={(event) => { if (confirm && !window.confirm(confirm)) event.preventDefault(); }}>
       <input type="hidden" name="id" value={id} />
       <Button type="submit" variant="ghost" disabled={pending} aria-busy={pending}>{pending ? pendingLabel : label}</Button>
-      <Result state={state} />
+      <Result state={state} successLabel={successLabel} />
     </form>
   );
 }

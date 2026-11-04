@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { employeeCsvTemplate, employeeImportDecision, parseEmployeeCsv } from "../src/lib/hr/validation";
-import { hrCatalogDeleteDecision } from "../src/lib/hr/settings-catalog";
+import { hrCatalogDeleteDecision, hrCatalogDeleteOutcome } from "../src/lib/hr/settings-catalog";
+import { frenchStatusLabel } from "../src/components/erp/status-badge";
 import { decideLeave } from "../src/lib/hr/leave-decision";
 import { serviceMonthsInYear } from "../src/lib/hr/leave-balance";
 import { computeFinalSettlement } from "../src/lib/hr/settlement";
@@ -126,5 +127,17 @@ const blocked = hrCatalogDeleteDecision("department", 2);
 assert.equal(blocked.ok, false);
 if (!blocked.ok) assert.match(blocked.error, /Archivez-le/);
 assert.equal(hrCatalogDeleteDecision("schedule", 0).ok, true);
+const untouched = hrCatalogDeleteOutcome(0);
+assert.equal(untouched.success, false);
+if (!untouched.success) assert.match(untouched.error, /rien retiré/);
+assert.equal(hrCatalogDeleteOutcome(1).success, true);
+assert.equal(frenchStatusLabel("terminated"), "Sorti");
+assert.equal(frenchStatusLabel("trial_period"), "Période d'essai");
+assert.equal(frenchStatusLabel("on_leave"), "En congé");
+assert.equal(frenchStatusLabel("suspended"), "Suspendu");
+assert.match(readFileSync("supabase/migrations/143_hr_catalog_delete.sql", "utf8"), /hr_departments_delete/);
+assert.match(readFileSync("supabase/migrations/143_hr_catalog_delete.sql", "utf8"), /hr_can_manage/);
+assert.match(readFileSync("supabase/rollbacks/143_hr_catalog_delete_rollback.sql", "utf8"), /using \(false\)/);
+assert.match(readFileSync("src/lib/hr/settings-actions.ts", "utf8"), /\.select\("id"\)/);
 
 console.log("RH : décisions de congé, solde de tout compte et contrôles d'accès vérifiés.");

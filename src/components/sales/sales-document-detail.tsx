@@ -299,7 +299,7 @@ export function SalesDocumentDetail({
       </Card>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Info label="Client / Prospect" value={document.customer_name} />
           <Info label="Date" value={formatDate(document.document_date)} />
@@ -444,11 +444,11 @@ export function SalesDocumentDetail({
             {document.stock_updated_at ? (
               isReturn
                 ? `Stock reintegre le ${formatDate(document.stock_updated_at)}.`
-                : `Stock mis a jour le ${formatDate(document.stock_updated_at)}.`
+                : `Stock mis à jour le ${formatDate(document.stock_updated_at)}.`
             ) : isReturn ? (
               "Stock non encore reintegre. Il sera impacte a la validation du bon de retour."
             ) : (
-              "Stock non encore mis a jour. Il sera impacte a la validation du bon de livraison."
+              "Stock non encore mis à jour. Il sera impacté à la validation du bon de livraison."
             )}
           </CardContent>
         </Card>

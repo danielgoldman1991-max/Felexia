@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Button } from "@/components/ui/button";
+import { PendingButton } from "@/components/ui/pending-button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { saveManualMatch, undoManualMatch } from "@/lib/treasury/reconciliation-actions";
@@ -42,7 +43,7 @@ export function ManualReconciliationForm({ board }: { board: ManualMatchBoard })
             detail: `${document.party || "Sans tiers"} · ${document.date} · ${document.kind === "transaction" ? "Mouvement" : document.kind === "customer_invoice" ? "Facture client" : "Facture fournisseur"}`,
             remaining: document.remaining,
           }))} />
-          <Button type="submit" disabled={pending || board.pendingMigration || !board.accountId} aria-busy={pending}>{pending ? "Rapprochement…" : "Rapprocher la sélection"}</Button>
+          <PendingButton disabled={pending || board.pendingMigration || !board.accountId} idle="Rapprocher la sélection" pendingLabel="Rapprochement…" />
           {state.success && message ? <p className="text-sm text-emerald-700">{message}</p> : null}
           {!state.success && state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
         </form>

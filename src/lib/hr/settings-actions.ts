@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
-import { hrCatalogDeleteDecision, type HrCatalogKind } from "@/lib/hr/settings-catalog";
+import { hrCatalogDeleteDecision, hrCatalogDeleteOutcome, type HrCatalogKind } from "@/lib/hr/settings-catalog";
 import { isMissingSchema } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
@@ -120,9 +120,9 @@ async function countUsed(kind: HrCatalogKind, id: string, organizationId: string
   } else if (kind === "leave") {
     checks.push(supabase.from("hr_leave_requests").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("leave_type_id", id));
   }
+  const results = await Promise.all(checks);
   let used = 0;
-  for (const check of checks) {
-    const result = await check;
+  for (const result of results) {
     if (result.error && !isMissingSchema(result.error)) return { error: "Impossible de vérifier si cet élément est utilisé." as const };
     used += result.count ?? 0;
   }
@@ -152,12 +152,14 @@ async function deleteCatalog(kind: HrCatalogKind, formData: FormData): Promise<H
   const decision = hrCatalogDeleteDecision(kind, usage.used);
   if (!decision.ok) return { success: false, error: decision.error };
   const supabase = await createClient();
-  const removed = await supabase.from(tableFor(kind)).delete().eq("organization_id", current.organization.id).eq("id", id);
+  const removed = await supabase.from(tableFor(kind)).delete().eq("organization_id", current.organization.id).eq("id", id).select("id");
   if (removed.error) {
     const blocked = hrCatalogDeleteDecision(kind, 1);
     if (removed.error.code === "23503" && !blocked.ok) return { success: false, error: blocked.error };
-    return { success: false, error: "La suppression n'a pas abouti. Archivez l'élément s'il est encore utilisé." };
+    return { success: false, error: removed.error.message || "La suppression n'a pas abouti. Archivez l'élément s'il est encore utilisé." };
   }
+  const outcome = hrCatalogDeleteOutcome(removed.data?.length ?? 0);
+  if (!outcome.success) return outcome;
   revalidatePath("/rh/parametres");
   return { success: true };
 }

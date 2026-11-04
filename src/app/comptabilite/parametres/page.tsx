@@ -12,7 +12,7 @@ export default async function AccountingSettingsPage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Parametres comptables" description="Configuration des journaux, comptes par defaut et numerotation." />
+      <PageHeader title="Paramètres comptables" description="Configuration des journaux, comptes par défaut et numérotation." />
       <SettingsForm
         action={updateAccountingSettings}
         settings={settings}

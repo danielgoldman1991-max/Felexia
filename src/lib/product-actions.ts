@@ -669,7 +669,7 @@ export async function setDefaultTaxRate(
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
 
-  if (error) return { success: false, error: "Impossible de definir ce taux par defaut." };
+  if (error) return { success: false, error: "Impossible de définir ce taux par défaut." };
 
   revalidatePath("/articles/tva");
   return { success: true };

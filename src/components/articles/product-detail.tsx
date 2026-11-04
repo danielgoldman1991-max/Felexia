@@ -66,7 +66,7 @@ export function ProductDetail({ product, fullAccess = false }: { product: Produc
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
-          <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Type" value={isService ? "Service" : "Produit"} />
             {fullAccess ? <Info label="Reference interne" value={product.sku} /> : null}
@@ -121,7 +121,7 @@ export function ProductDetail({ product, fullAccess = false }: { product: Produc
         <CardContent className="grid gap-4 md:grid-cols-3">
           <Info label="Vendable" value={product.is_sellable ? "Oui" : "Non"} />
           <Info label="Achetable" value={product.is_purchasable ? "Oui" : "Non"} />
-          <Info label="Remise par defaut" value={product.default_discount_rate ? `${product.default_discount_rate}%` : null} />
+          <Info label="Remise par défaut" value={product.default_discount_rate ? `${product.default_discount_rate}%` : null} />
         </CardContent>
       </Card>
 
