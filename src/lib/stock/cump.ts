@@ -12,6 +12,15 @@ export type CumpResult = {
   negativeAttempt: boolean;
 };
 
+export function weightedAverageCost(onHandQty: number, oldCost: number, receivedQty: number, receivedCost: number) {
+  const held = Number.isFinite(onHandQty) ? Math.max(0, onHandQty) : 0;
+  const incoming = Number.isFinite(receivedQty) ? receivedQty : 0;
+  const total = held + incoming;
+  if (total <= 0) return 0;
+  const value = held * (Number.isFinite(oldCost) ? oldCost : 0) + incoming * (Number.isFinite(receivedCost) ? receivedCost : 0);
+  return Math.round((value / total) * 100) / 100;
+}
+
 function round2(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }

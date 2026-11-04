@@ -19,6 +19,34 @@ async function requireInventoryWrite() {
   return workspace;
 }
 
+async function seedInventoryLines(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, countId: string, warehouseId: string) {
+  const levels = await supabase.from("stock_levels").select("product_id, quantity").eq("organization_id", organizationId).eq("warehouse_id", warehouseId).gt("quantity", 0);
+  if (levels.error) return { error: levels.error.message };
+  const lines = (levels.data ?? []).map((level) => ({
+    organization_id: organizationId,
+    count_id: countId,
+    product_id: level.product_id,
+    warehouse_id: warehouseId,
+    theoretical_quantity: Number(level.quantity ?? 0),
+    counted_quantity: Number(level.quantity ?? 0),
+    variance_quantity: 0,
+  }));
+  if (lines.length === 0) return { error: null as string | null };
+  const inserted = await supabase.from("stock_count_lines").insert(lines);
+  if (inserted.error) return { error: inserted.error.message.includes("status") ? "La feuille de comptage nécessite la migration 131." : inserted.error.message };
+  return { error: null as string | null };
+}
+
+export async function ensureInventoryCountLines(countId: string) {
+  const workspace = await requireInventoryWrite();
+  const supabase = await createClient();
+  const session = await supabase.from("stock_counts").select("id, status, warehouse_id").eq("organization_id", workspace.organization.id).eq("id", countId).maybeSingle();
+  if (!session.data || session.data.status === "validated" || !session.data.warehouse_id) return;
+  const existing = await supabase.from("stock_count_lines").select("id").eq("organization_id", workspace.organization.id).eq("count_id", countId).limit(1);
+  if ((existing.data ?? []).length > 0) return;
+  await seedInventoryLines(supabase, workspace.organization.id, countId, session.data.warehouse_id);
+}
+
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
   return value.length > 0 ? value : null;
@@ -44,17 +72,8 @@ export async function createInventorySessionAction(_previous: FormState, formDat
     }).select("id").single();
     if (isMissingSchema(created.error)) return { success: false, error: SCHEMA_PENDING_MESSAGE };
     if (created.error || !created.data) return { success: false, error: created.error?.message ?? "La session n’a pas pu être créée." };
-    const levels = await supabase.from("stock_levels").select("product_id, quantity").eq("organization_id", workspace.organization.id).eq("warehouse_id", warehouseId);
-    const lines = (levels.data ?? []).map((level) => ({
-      organization_id: workspace.organization.id,
-      count_id: created.data.id,
-      product_id: level.product_id,
-      warehouse_id: warehouseId,
-      theoretical_quantity: Number(level.quantity ?? 0),
-      counted_quantity: Number(level.quantity ?? 0),
-      variance_quantity: 0,
-    }));
-    if (lines.length > 0) await supabase.from("stock_count_lines").insert(lines);
+    const seeded = await seedInventoryLines(supabase, workspace.organization.id, created.data.id, warehouseId);
+    if (seeded.error) return { success: false, error: seeded.error };
     revalidatePath("/stock/inventaire/sessions");
     redirect(`/stock/inventaire/sessions/${created.data.id}`);
   } catch (error) {

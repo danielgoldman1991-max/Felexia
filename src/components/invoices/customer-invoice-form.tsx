@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { calculateInvoiceTotals } from "@/lib/invoice-calculations";
 import { listBillableDeliveryNotesForInvoice, prepareInvoiceLinesFromDeliveryNotes } from "@/lib/invoice-actions";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
-import { calculateDueDate } from "@/lib/payment-terms";
+import { calculateDueDate, getPaymentTermsDays } from "@/lib/payment-terms";
 import type { BillableDeliveryOption, InvoiceActionResult, InvoiceCustomerOption, InvoiceLineFormValue, InvoiceProductOption } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 
@@ -100,6 +100,8 @@ export function CustomerInvoiceForm({
   const [customPaymentMethod, setCustomPaymentMethod] = useState(
     initialCustomPaymentMethod ?? initialCustomerData?.custom_payment_method ?? "",
   );
+  const [invoiceDate, setInvoiceDate] = useState(initialInvoiceDate);
+  const [dueDateTouched, setDueDateTouched] = useState(Boolean(initialDueDate));
   const initialDue = initialDueDate
     ?? (initialCustomerData?.payment_terms ? calculateDueDate(initialInvoiceDate, initialCustomerData.payment_terms) : null)
     ?? "";
@@ -141,9 +143,10 @@ export function CustomerInvoiceForm({
       setPaymentTermsDays(customer.payment_terms_days ?? 0);
       setCustomPaymentTerms(customer.custom_payment_terms ?? "");
       setCustomPaymentMethod(customer.custom_payment_method ?? "");
-      const invoiceDate = (document.querySelector<HTMLInputElement>("input[name='invoice_date']")?.value) ?? new Date().toISOString().split("T")[0];
-      const calculatedDueDate = calculateDueDate(invoiceDate, customer.payment_terms);
-      if (calculatedDueDate) setDueDate(calculatedDueDate);
+      if (!dueDateTouched) {
+        const calculatedDueDate = calculateDueDate(invoiceDate, customer.payment_terms);
+        if (calculatedDueDate) setDueDate(calculatedDueDate);
+      }
     }
   }
 
@@ -207,11 +210,17 @@ export function CustomerInvoiceForm({
           {customers.length === 0 ? <p className="text-sm lg:col-span-2"><Link href="/tiers/new?type=customer" className="font-medium text-[var(--primary)] underline">Créer mon premier client</Link>, puis revenir à cette facture.</p> : null}
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date de facture</span>
-            <DateField name="invoice_date" defaultValue={initialInvoiceDate} />
+            <DateField name="invoice_date" value={invoiceDate} onChange={(iso) => {
+              setInvoiceDate(iso);
+              if (!dueDateTouched) {
+                const calculatedDueDate = calculateDueDate(iso, paymentTerms);
+                if (calculatedDueDate) setDueDate(calculatedDueDate);
+              }
+            }} />
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Date d’échéance</span>
-            <DateField name="due_date" value={dueDate} onChange={(iso) => setDueDate(iso)} />
+            <DateField name="due_date" value={dueDate} onChange={(iso) => { setDueDateTouched(true); setDueDate(iso); }} />
           </label>
           <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4 lg:col-span-2">
             <summary className="cursor-pointer text-sm font-medium">Conditions de règlement et notes (facultatif)</summary>
@@ -223,10 +232,12 @@ export function CustomerInvoiceForm({
               onChange={(e) => {
                 const value = e.target.value;
                 setPaymentTerms(value);
-                const invoiceDateInput = document.querySelector<HTMLInputElement>("input[name='invoice_date']");
-                const invoiceDate = invoiceDateInput?.value ?? new Date().toISOString().split("T")[0];
-                const newDueDate = calculateDueDate(invoiceDate, value);
-                if (newDueDate) setDueDate(newDueDate);
+                const days = getPaymentTermsDays(value);
+                if (days !== null) setPaymentTermsDays(days);
+                if (!dueDateTouched) {
+                  const newDueDate = calculateDueDate(invoiceDate, value);
+                  if (newDueDate) setDueDate(newDueDate);
+                }
               }}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >

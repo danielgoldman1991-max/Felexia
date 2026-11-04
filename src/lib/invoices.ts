@@ -279,7 +279,8 @@ export async function listCustomerInvoices(filters: InvoiceListFilters = {}) {
     .order("created_at", { ascending: false }).order("id");
 
   if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
-  if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
+  if (filters.paymentStatus === "unpaid") query = query.in("payment_status", ["unpaid", "partial"]);
+  else if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
     if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("invoice_date", filters.dateFrom);
     if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("invoice_date", filters.dateTo);
     return query;
@@ -310,7 +311,8 @@ export async function listCustomerInvoiceExportRows(filters: InvoiceListFilters 
   const all = await readAllPages((from, to) => {
     let query = supabase.from("customer_invoices").select(INVOICE_SELECT).eq("organization_id", organizationId).is("archived_at", null).order("invoice_date", { ascending: false }).order("id");
     if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
-    if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
+    if (filters.paymentStatus === "unpaid") query = query.in("payment_status", ["unpaid", "partial"]);
+    else if (filters.paymentStatus && filters.paymentStatus !== "all") query = query.eq("payment_status", filters.paymentStatus);
     if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("invoice_date", filters.dateFrom);
     if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("invoice_date", filters.dateTo);
     return query.range(from, to);

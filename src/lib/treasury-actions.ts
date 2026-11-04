@@ -14,6 +14,7 @@ import type { TreasuryActionResult, TreasuryAccountType, TreasuryTransactionDire
 import { isMissingSchema } from "@/lib/optional-schema";
 import { undoExpertReconciliation } from "@/lib/treasury/reconciliation-actions";
 import { parseBankFile, statementLineHash, type ColumnMapping } from "@/lib/treasury/statement-parse";
+import { moroccanRibError, ribDigits } from "@/lib/morocco-rib";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -101,6 +102,8 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
   const opening = num(formData.get("opening_balance"));
   const currency = (text(formData, "currency") ?? "MAD").toUpperCase();
   if (currency !== "MAD") return { success: false, error: financialIntegrityError({ message: "FINANCE_MAD_ONLY" }) };
+  const ribError = moroccanRibError(text(formData, "rib"));
+  if (ribError) return { success: false, error: ribError };
   const isDefault = formData.get("is_default") === "on";
   const supabase = await createClient();
   const payload = {
@@ -110,7 +113,7 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
     account_type: (text(formData, "account_type") ?? "bank") as TreasuryAccountType,
     bank_name: text(formData, "bank_name"),
     agency_name: text(formData, "agency_name"),
-    rib: text(formData, "rib"),
+    rib: text(formData, "rib") ? ribDigits(text(formData, "rib") ?? "") : null,
     iban: text(formData, "iban"),
     swift: text(formData, "swift"),
     account_number: text(formData, "account_number"),
@@ -142,6 +145,8 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
   if (!name) return { success: false, error: "Le nom du compte est obligatoire." };
   const currency = (text(formData, "currency") ?? "MAD").toUpperCase();
   if (currency !== "MAD") return { success: false, error: financialIntegrityError({ message: "FINANCE_MAD_ONLY" }) };
+  const ribError = moroccanRibError(text(formData, "rib"));
+  if (ribError) return { success: false, error: ribError };
   const isDefault = formData.get("is_default") === "on";
   const supabase = await createClient();
   const payload = {
@@ -150,7 +155,7 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
     account_type: text(formData, "account_type") ?? "bank",
     bank_name: text(formData, "bank_name"),
     agency_name: text(formData, "agency_name"),
-    rib: text(formData, "rib"),
+    rib: text(formData, "rib") ? ribDigits(text(formData, "rib") ?? "") : null,
     iban: text(formData, "iban"),
     swift: text(formData, "swift"),
     account_number: text(formData, "account_number"),
@@ -363,11 +368,11 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
   if (sameStatement?.id) return { success: false, error: "Un releve couvrant la meme periode et les memes montants semble deja importe." };
 
   const seen = new Set<string>();
-  const linesWithFingerprints = parsed.flatMap((row) => {
+  const linesWithFingerprints = parsed.flatMap((row, index) => {
     const lineFingerprint = statementLineHash(accountId, row);
     if (seen.has(lineFingerprint)) return [];
     seen.add(lineFingerprint);
-    return [{ ...row, line_hash: lineFingerprint, line_fingerprint: lineFingerprint }];
+    return [{ ...row, line_hash: lineFingerprint, line_fingerprint: lineFingerprint, file_order: index + 1 }];
   });
   const known = new Set<string>();
   for (let offset = 0; offset < linesWithFingerprints.length; offset += 80) {
@@ -400,7 +405,15 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
     imported_by: workspace.userId,
   }).select("id").single();
   if (error || !imported) return { success: false, error: isMissingTreasuryImportColumn(error) ? "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." : error?.message ?? "Import impossible." };
-  const lineInsert = await supabase.from("bank_statement_lines").insert(fresh.map((row) => ({ ...row, organization_id: workspace.organization.id, import_id: imported.id, treasury_account_id: accountId })));
+  const lineRows = fresh.map((row) => ({ ...row, organization_id: workspace.organization.id, import_id: imported.id, treasury_account_id: accountId }));
+  let lineInsert = await supabase.from("bank_statement_lines").insert(lineRows);
+  if (lineInsert.error?.code === "42703") {
+    lineInsert = await supabase.from("bank_statement_lines").insert(lineRows.map((row) => {
+      const { file_order: omitted, ...rest } = row;
+      void omitted;
+      return rest;
+    }));
+  }
   if (lineInsert.error) return { success: false, error: isMissingTreasuryImportColumn(lineInsert.error) ? "La migration 032 des releves bancaires doit etre appliquee avant d importer un releve." : lineInsert.error.message };
   revalidatePath("/tresorerie/releves");
   redirect(`/tresorerie/releves/${imported.id}?imported=${fresh.length}&skipped=${known.size}`);
@@ -521,6 +534,27 @@ export async function createTransactionFromStatementLine(prev: TreasuryActionRes
   if (error) return { success: false, error: financialIntegrityError(error) };
   const row = (data as Array<{ transaction_id?: string }> | null)?.[0];
   if (!row?.transaction_id) return { success: false, error: "Le mouvement n'a pas pu etre confirme." };
+  const category = text(formData, "category") ?? "bank_fee";
+  const categoryLabel: Record<string, string> = {
+    bank_fee: "Frais bancaires",
+    vat: "TVA",
+    agio: "Agios",
+    commission: "Commission",
+    transfer: "Virement",
+    other: "Autre",
+  };
+  await supabase.from("treasury_transactions").update({
+    transaction_type: category === "transfer" ? "manual_out" : "bank_fee",
+    description: categoryLabel[category] ?? "Mouvement de rapprochement",
+  }).eq("organization_id", workspace.organization.id).eq("id", row.transaction_id);
+  await supabase.from("bank_reconciliation_events").insert({
+    organization_id: workspace.organization.id,
+    statement_line_id: id,
+    action: "movement_created",
+    reason: categoryLabel[category] ?? category,
+    payload: { createdTransactionId: row.transaction_id, category },
+    created_by: workspace.userId,
+  });
   const { data: line } = await supabase.from("bank_statement_lines").select("import_id").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
   if (line?.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
   revalidatePath("/tresorerie/rapprochement");
@@ -539,23 +573,34 @@ export async function unreconcileStatementLine(prev: TreasuryActionResult, formD
   const supabase = await createClient();
   const { data: line, error } = await supabase.from("bank_statement_lines").select("id, import_id, matched_transaction_id, reconciliation_status").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
   if (error) return { success: false, error: error.message };
-  if (!line || line.reconciliation_status !== "reconciled") return { success: false, error: "Seule une ligne déjà rapprochée peut être annulée." };
-  const cancelled = await supabase.from("bank_reconciliations").update({ status: "cancelled", cancelled_at: new Date().toISOString(), notes: "Annulation du rapprochement" }).eq("organization_id", workspace.organization.id).eq("statement_line_id", id).eq("status", "confirmed");
-  if (cancelled.error) return { success: false, error: cancelled.error.message };
-  const reopened = await supabase.from("bank_statement_lines").update({ reconciliation_status: "unreconciled", matched_transaction_id: null, matched_at: null, matched_by: null, match_score: null, match_reason: null }).eq("organization_id", workspace.organization.id).eq("id", id);
-  if (reopened.error) return { success: false, error: reopened.error.message };
+  if (!line) return { success: false, error: "Ligne introuvable." };
+  if (line.reconciliation_status !== "reconciled") return { success: true, data: { message: "Ce rapprochement est déjà annulé." } };
+  const claimed = await supabase.from("bank_statement_lines").update({ reconciliation_status: "unreconciled", matched_transaction_id: null, matched_at: null, matched_by: null, match_score: null, match_reason: null }).eq("organization_id", workspace.organization.id).eq("id", id).eq("reconciliation_status", "reconciled").select("id");
+  if (claimed.error) return { success: false, error: claimed.error.message };
+  if (!claimed.data?.length) return { success: true, data: { message: "Ce rapprochement est déjà annulé." } };
+  await supabase.from("bank_reconciliations").update({ status: "cancelled", cancelled_at: new Date().toISOString(), notes: "Annulation du rapprochement" }).eq("organization_id", workspace.organization.id).eq("statement_line_id", id).eq("status", "confirmed");
   if (line.matched_transaction_id) {
-    await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
+    const tx = await supabase.from("treasury_transactions").select("id, customer_payment_id, supplier_payment_id, transaction_type, created_at, reconciled_at").eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id).maybeSingle();
+    const createdAt = tx.data?.created_at ? new Date(tx.data.created_at).getTime() : 0;
+    const reconciledAt = tx.data?.reconciled_at ? new Date(tx.data.reconciled_at).getTime() : createdAt;
+    const createdWithLine = Boolean(tx.data) && !tx.data?.customer_payment_id && !tx.data?.supplier_payment_id && Math.abs(reconciledAt - createdAt) < 15000;
+    if (tx.data?.customer_payment_id || tx.data?.supplier_payment_id || createdWithLine) {
+      await undoExpertReconciliation(workspace.organization.id, workspace.userId, id, {
+        createdPaymentId: (tx.data?.customer_payment_id as string | null) ?? (tx.data?.supplier_payment_id as string | null) ?? undefined,
+        paymentKind: tx.data?.customer_payment_id ? "customer" : tx.data?.supplier_payment_id ? "supplier" : undefined,
+        createdTransactionId: createdWithLine ? line.matched_transaction_id : undefined,
+      });
+    } else {
+      await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
+    }
+  } else {
+    await undoExpertReconciliation(workspace.organization.id, workspace.userId, id);
   }
   if (line.import_id) await recalculateBankStatementImportStatus(String(line.import_id), workspace.organization.id);
-  try {
-    await undoExpertReconciliation(workspace.organization.id, workspace.userId, id);
-  } catch (error) {
-    console.error("[treasury] undo side effects failed", { message: error instanceof Error ? error.message : "unknown" });
-  }
   revalidatePath("/tresorerie/rapprochement");
   revalidatePath("/tresorerie/releves");
+  revalidatePath("/tresorerie/mouvements");
   revalidatePath("/facturation/paiements");
   revalidatePath("/facturation/factures");
-  return { success: true };
+  return { success: true, data: { message: "Rapprochement annulé. Le règlement ou le mouvement créé a été extourné." } };
 }

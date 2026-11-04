@@ -34,8 +34,8 @@ export function BillingOverview({
   const statusLabels: Record<string, { label: string; color: string }> = {
     active: { label: "Actif", color: "text-green-600 bg-green-50" },
     past_due: { label: "Paiement en retard", color: "text-red-600 bg-red-50" },
-    canceled: { label: "Resilie", color: "text-slate-600 bg-slate-100" },
-    unpaid: { label: "Impaye", color: "text-red-600 bg-red-50" },
+    canceled: { label: "Résilié", color: "text-slate-600 bg-slate-100" },
+    unpaid: { label: "Impayé", color: "text-red-600 bg-red-50" },
     trialing: { label: "Essai actif", color: "text-blue-600 bg-blue-50" },
     trial: { label: "Essai actif", color: "text-blue-600 bg-blue-50" },
     incomplete: { label: "En attente", color: "text-amber-600 bg-amber-50" },
@@ -81,7 +81,7 @@ export function BillingOverview({
             <div>
               <h3 className="font-semibold">Aucun abonnement actif</h3>
               <p className="mt-1 text-sm text-[var(--muted)]">
-                Vous navez pas encore souscrit a une formule. Choisissez un plan pour commencer.
+                Vous n&apos;avez pas encore souscrit à une formule. Choisissez un plan pour commencer.
               </p>
               <Button className="mt-4" onClick={() => router.push("/parametres/abonnement")}>
                 Voir les formules
@@ -144,7 +144,7 @@ export function BillingOverview({
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
               <h3 className="mb-4 font-semibold">Gestion de l&apos;abonnement</h3>
               <p className="mb-4 text-sm text-[var(--muted)]">
-                Accedez au portail Stripe pour modifier votre moyen de paiement, telecharger vos factures ou resilier.
+                Accédez au portail Stripe pour modifier votre moyen de paiement, télécharger vos factures ou résilier.
               </p>
               <Button onClick={handlePortal} disabled={loadingPortal} variant="secondary">
                 {loadingPortal ? (

@@ -21,6 +21,26 @@ function text(formData: FormData, key: string) {
   return value === "" ? null : value;
 }
 
+async function productConstraintMessage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  organizationId: string,
+  error: { code?: string; message?: string } | null,
+  barcode: string | null,
+) {
+  if (error?.code !== "23505") return null;
+  const message = error.message ?? "";
+  if (message.includes("barcode")) {
+    const { data } = barcode
+      ? await supabase.from("products").select("name").eq("organization_id", organizationId).eq("barcode", barcode).is("archived_at", null).limit(1).maybeSingle()
+      : { data: null };
+    return `Ce code-barres est déjà utilisé par l'article ${data?.name ?? "un autre article"}.`;
+  }
+  if (message.includes("sku")) {
+    return "Cette référence (SKU) est déjà utilisée par un autre article.";
+  }
+  return "Cet identifiant est déjà utilisé.";
+}
+
 async function resolveCategoryId(type: ProductType, organizationId: string): Promise<string | null> {
   const defaultName = type === "service" ? "Services" : "Marchandises";
   const fallbackName = type === "service" ? "Autre" : "Marchandises";
@@ -200,7 +220,7 @@ export async function createProduct(
     created_by: workspace.userId,
   }).select("id").single();
 
-  if (error || !created) return { success: false, error: error?.message ?? "Impossible de créer l'article." };
+  if (error || !created) return { success: false, error: await productConstraintMessage(supabase, workspace.organization.id, error, text(formData, "barcode")) ?? error?.message ?? "Impossible de créer l'article." };
 
   if (trackStock && currentStock > 0) {
     try {
@@ -327,7 +347,7 @@ export async function updateProduct(
     .eq("organization_id", workspace.organization.id)
     .eq("id", id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) return { success: false, error: await productConstraintMessage(supabase, workspace.organization.id, error, text(formData, "barcode")) ?? error.message };
 
   revalidatePath("/articles");
   revalidatePath(`/articles/${id}`);

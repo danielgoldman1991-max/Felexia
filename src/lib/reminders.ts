@@ -120,7 +120,6 @@ export async function listCustomersWithOverdueInvoices(): Promise<ReminderCustom
     .select("customer_id, remaining_amount, customer:customer_id(name, commercial_name)")
     .eq("organization_id", organizationId)
     .gt("remaining_amount", 0)
-    .lt("due_date", todayIso())
     .in("payment_status", ["unpaid", "partial"])
     .not("status", "in", "(cancelled,draft)")
     .is("archived_at", null);
@@ -184,7 +183,7 @@ export async function getSuggestedReminderLevel(customerId: string) {
     .neq("status", "cancelled")
     .is("archived_at", null);
   if (error) throw new Error(error.message);
-  return Math.min((count ?? 0) + 1, 3);
+  return Math.min((count ?? 0) + 1, 4);
 }
 
 export async function getReminderPreparation(customerId: string) {

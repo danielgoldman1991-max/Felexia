@@ -56,6 +56,7 @@ export default async function AccountingJournalDetailPage({ params, searchParams
   const workspace = await requireActiveWorkspace();
   const canWrite = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) notFound();
   const rawParams = await searchParams;
   const filters = filtersFromParams(rawParams);
   const [detail, list, accounts] = await Promise.all([

@@ -67,6 +67,8 @@ export async function validateSupplierCreditNote(_prev: SupplierCreditNoteAction
     if (note.status !== "draft") return { success: false, error: "Seul un avoir brouillon peut être validé." };
     const { error } = await db.from("supplier_credit_notes").update({ status: "validated", validated_at: new Date().toISOString(), available_amount: Number(note.total_ttc) }).eq("organization_id", workspace.organization.id).eq("id", id).eq("status", "draft");
     if (error) return { success: false, error: creditError(error) };
+    const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+    await autoPostOnValidation(workspace.organization.id, "supplier_credit_note", id);
     refresh(id); return { success: true };
   } catch (error) { return { success: false, error: creditError(error) }; }
 }

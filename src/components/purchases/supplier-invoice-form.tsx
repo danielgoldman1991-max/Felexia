@@ -13,6 +13,7 @@ import { PurchaseProductCombobox } from "@/components/purchases/purchase-product
 import { DateField } from "@/components/ui/date-field";
 import { createSupplierInvoice, updateSupplierInvoice } from "@/lib/purchase-actions";
 import { calculateSupplierInvoiceLine } from "@/lib/purchase-line-amounts";
+import { dueDateFromTerms } from "@/lib/payment-terms";
 import { roundInvoice2 } from "@/lib/invoice-calculations";
 import type { SupplierInvoiceLineFormValue, BillableSupplierReceipt, SupplierInvoiceRecord, SupplierInvoiceLineRecord, PurchaseProductOption } from "@/lib/purchase-types";
 
@@ -28,7 +29,7 @@ export function SupplierInvoiceForm({
   fullAccess = false,
   taxRates = [],
 }: {
-  suppliers: { id: string; name: string; ice: string | null }[];
+  suppliers: { id: string; name: string; ice: string | null; payment_terms?: string | null; payment_terms_days?: number | null; supplier_payment_terms?: string | null }[];
   products: PurchaseProductOption[];
   billableReceipts?: BillableSupplierReceipt[];
   invoice?: SupplierInvoiceRecord | null;
@@ -46,6 +47,7 @@ export function SupplierInvoiceForm({
   const isEdit = !!invoice;
   const [supplierId, setSupplierId] = useState(invoice?.supplier_id ?? prefilledSupplierId ?? "");
   const [invoiceDate, setInvoiceDate] = useState(invoice?.invoice_date ?? new Date().toISOString().slice(0, 10));
+  const [dueDateTouched, setDueDateTouched] = useState(Boolean(invoice?.due_date));
   const [dueDate, setDueDate] = useState(invoice?.due_date ?? "");
   const [supplierInvoiceNumber, setSupplierInvoiceNumber] = useState(invoice?.supplier_invoice_number ?? "");
   const [notes, setNotes] = useState(invoice?.notes ?? "");
@@ -143,11 +145,23 @@ export function SupplierInvoiceForm({
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
-              <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
+              <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={(nextId) => {
+                setSupplierId(nextId);
+                if (dueDateTouched) return;
+                const supplier = suppliers.find((item) => item.id === nextId);
+                const nextDue = dueDateFromTerms(invoiceDate, supplier?.supplier_payment_terms || supplier?.payment_terms, supplier?.payment_terms_days);
+                if (nextDue) setDueDate(nextDue);
+              }} />
               {suppliers.length === 0 ? <p className="mt-2 text-sm"><Link href="/tiers/new?type=supplier" className="font-medium text-[var(--primary)] underline">Créer mon premier fournisseur</Link></p> : null}
             </div>
-            <DateField label="Date de facture" value={invoiceDate} onChange={setInvoiceDate} />
-            <DateField label="Échéance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
+            <DateField label="Date de facture" value={invoiceDate} onChange={(iso) => {
+              setInvoiceDate(iso);
+              if (dueDateTouched) return;
+              const supplier = suppliers.find((item) => item.id === supplierId);
+              const nextDue = dueDateFromTerms(iso, supplier?.supplier_payment_terms || supplier?.payment_terms, supplier?.payment_terms_days);
+              if (nextDue) setDueDate(nextDue);
+            }} />
+            <DateField label="Échéance" value={dueDate} onChange={(iso) => { setDueDateTouched(true); setDueDate(iso); }} placeholder="jj/mm/aaaa" />
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">N° de facture fournisseur <span className="text-red-500">*</span></label>
               <input aria-label="Numéro facture fournisseur" value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex. : FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />

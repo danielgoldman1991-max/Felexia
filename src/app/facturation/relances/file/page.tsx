@@ -27,7 +27,7 @@ export default async function CollectionFilePage() {
           </>
         )}
       />
-      <CollectionFile queue={desk.queue} autoSend={desk.autoSend} arabic={desk.arabic} pending={desk.pending} />
+      <CollectionFile queue={desk.queue} openInvoices={desk.openInvoices} autoSend={desk.autoSend} arabic={desk.arabic} pending={desk.pending} />
     </ModulePage>
   );
 }

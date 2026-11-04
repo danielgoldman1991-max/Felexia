@@ -21,7 +21,8 @@ function today() {
 
 function defaultMessage(level: number) {
   if (level === 2) return "Nous constatons que les factures ci-dessous demeurent impayées malgré une précédente relance. Nous vous remercions de régulariser votre situation dans les meilleurs délais.";
-  if (level >= 3) return "Nous vous demandons de bien vouloir régulariser votre situation dans les meilleurs délais concernant les factures échues ci-dessous.";
+  if (level === 3) return "Nous vous demandons de bien vouloir régulariser votre situation dans les meilleurs délais concernant les factures échues ci-dessous.";
+  if (level >= 4) return "Malgré nos relances, les factures ci-dessous restent échues. Nous vous mettons en demeure de régulariser votre situation.";
   return "Sauf erreur de notre part, certaines factures arrivées à échéance restent ouvertes à ce jour. Nous vous remercions de bien vouloir procéder à leur règlement.";
 }
 
@@ -67,7 +68,7 @@ export function CustomerReminderForm({
               }}
             >
               <option value="">Sélectionner un client</option>
-              {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} - {customer.overdue_invoices_count} facture(s)</option>)}
+              {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} — {customer.overdue_invoices_count} facture(s) ouverte(s)</option>)}
             </Select>
           </label>
           <label className="space-y-1.5 text-sm">
@@ -85,16 +86,17 @@ export function CustomerReminderForm({
                 setMessage(defaultMessage(nextLevel));
               }}
             >
-              <option value={1}>Niveau 1 - amiable</option>
-              <option value={2}>Niveau 2 - ferme</option>
-              <option value={3}>Niveau 3 - mise en demeure commerciale</option>
+              <option value={1}>Niveau 1 — amiable</option>
+              <option value={2}>Niveau 2 — rappel</option>
+              <option value={3}>Niveau 3 — ferme</option>
+              <option value={4}>Niveau 4 — mise en demeure</option>
             </Select>
           </label>
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Canal</span>
             <Select name="channel" defaultValue="email">
               <option value="email">Email</option>
-              <option value="phone">Telephone</option>
+              <option value="phone">Téléphone</option>
               <option value="whatsapp">WhatsApp</option>
               <option value="letter">Courrier</option>
               <option value="in_person">En personne</option>

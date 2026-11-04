@@ -297,6 +297,8 @@ export async function confirmCustomerPayment(prev: PaymentActionResult, formData
   const supabase = await createClient();
   const { error } = await supabase.from("customer_payments").update({ status: "confirmed", confirmed_at: new Date().toISOString() }).eq("organization_id", workspace.organization.id).eq("id", id);
   if (error) return { success: false, error: financialErrorMessage(error) };
+  const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+  await autoPostOnValidation(workspace.organization.id, "customer_payment", id);
   revalidatePath(`/facturation/paiements/${id}`);
   return { success: true };
 }

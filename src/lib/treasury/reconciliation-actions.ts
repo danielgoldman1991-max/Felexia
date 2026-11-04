@@ -133,7 +133,7 @@ export async function deleteBankMatchRule(formData: FormData) {
   redirect("/tresorerie/rapprochement/regles");
 }
 
-export async function undoExpertReconciliation(organizationId: string, userId: string, statementLineId: string) {
+export async function undoExpertReconciliation(organizationId: string, userId: string, statementLineId: string, fallback: { createdPaymentId?: string; paymentKind?: "customer" | "supplier"; createdTransactionId?: string } = {}) {
   const supabase = await createClient();
   const latest = await supabase
     .from("bank_reconciliation_events")
@@ -144,8 +144,8 @@ export async function undoExpertReconciliation(organizationId: string, userId: s
     .limit(1)
     .maybeSingle();
   if (latest.error && isMissingSchema(latest.error)) return;
-  const payload = (latest.data?.payload ?? {}) as { createdPaymentId?: string; paymentKind?: string; feeTransactionId?: string; accountingEntryId?: string };
   if (latest.data?.action === "undone") return;
+  const payload = { ...fallback, ...((latest.data?.payload ?? {}) as { createdPaymentId?: string; paymentKind?: "customer" | "supplier"; feeTransactionId?: string; accountingEntryId?: string; createdTransactionId?: string }) };
   if (payload.createdPaymentId && payload.paymentKind === "customer") {
     await supabase.rpc("cancel_customer_payment_atomic", { p_organization_id: organizationId, p_payment_id: payload.createdPaymentId });
   }
@@ -154,6 +154,9 @@ export async function undoExpertReconciliation(organizationId: string, userId: s
   }
   if (payload.feeTransactionId) {
     await supabase.rpc("archive_treasury_transaction_atomic", { p_organization_id: organizationId, p_transaction_id: payload.feeTransactionId });
+  }
+  if (payload.createdTransactionId && payload.createdTransactionId !== payload.feeTransactionId) {
+    await supabase.rpc("archive_treasury_transaction_atomic", { p_organization_id: organizationId, p_transaction_id: payload.createdTransactionId });
   }
   if (payload.accountingEntryId) await reverseAccountingEntry(payload.accountingEntryId);
   await supabase.from("bank_reconciliation_groups").update({ status: "cancelled" }).eq("organization_id", organizationId).eq("statement_line_id", statementLineId).eq("status", "confirmed");

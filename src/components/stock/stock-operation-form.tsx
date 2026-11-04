@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -27,8 +29,11 @@ function today() {
 }
 
 export function StockOperationForm({ mode, products, warehouses, initialProductId, action }: Props) {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(action, initialState);
   const [productId, setProductId] = useState(initialProductId ?? "");
+  const toasted = useRef(false);
+  const defaultWarehouseId = warehouses.find((warehouse) => warehouse.is_default)?.id ?? warehouses[0]?.id ?? "";
   const [quantity, setQuantity] = useState("1");
   const [qtyError, setQtyError] = useState<string | null>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
@@ -58,6 +63,16 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
       setQtyError(null);
     }
   }
+
+  useEffect(() => {
+    if (pending) toasted.current = false;
+    const message = (state.data as { message?: string } | undefined)?.message;
+    if (!pending && state.success && message && !toasted.current) {
+      toasted.current = true;
+      toast.success(message);
+      router.refresh();
+    }
+  }, [pending, state, router]);
 
   function handleSubmit(formData: FormData) {
     idempotencyKeyRef.current ??= globalThis.crypto.randomUUID();
@@ -100,8 +115,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
 
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Emplacement de stock</span>
-            <Select name="warehouse_id" defaultValue={warehouses[0]?.id ?? ""}>
-              <option value="">Emplacement par defaut</option>
+            <Select name="warehouse_id" defaultValue={defaultWarehouseId}>
               {warehouses.map((warehouse) => (
                 <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
               ))}
@@ -123,6 +137,13 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
               <p className="text-xs text-red-600">{qtyError}</p>
             ) : null}
           </label>
+
+          {mode === "entry" ? (
+            <label className="space-y-2 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Coût unitaire HT</span>
+              <Input name="unit_cost" type="number" min="0" step="0.01" placeholder="Optionnel, pour le CMUP" />
+            </label>
+          ) : null}
 
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Date</span>

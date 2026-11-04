@@ -283,7 +283,7 @@ export async function listPurchaseSuppliers() {
   const workspace = await requireActiveWorkspace();
   const { data } = await supabase
     .from("third_parties")
-    .select("id, name, ice, phone, email, city, status")
+    .select("id, name, ice, phone, email, city, status, payment_terms, payment_terms_days, supplier_payment_terms")
     .eq("organization_id", workspace.organization.id)
     .contains("types", ["supplier"])
     .eq("status", "active")

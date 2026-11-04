@@ -168,7 +168,7 @@ export function validateCompanyConfirmationInput(input: CompanyConfirmationInput
 } {
   const normalized: CompanyConfirmationInput = {
     ...input,
-    raisonSociale: normalizeCompanyName(input.raisonSociale),
+    raisonSociale: input.raisonSociale.trim(),
     ice: input.ice ? normalizeIce(input.ice) : "",
     telephone: normalizeMoroccanPhone(input.telephone),
     emailEnt: input.emailEnt.trim().toLowerCase(),

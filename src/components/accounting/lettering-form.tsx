@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { AccountingActionResult } from "@/lib/accounting-types";
 
@@ -21,9 +21,28 @@ export function LetteringForm({
   lines: Line[];
 }) {
   const [state, formAction, pending] = useActionState(action, { success: true });
+  const [localError, setLocalError] = useState<string | null>(null);
   if (lines.length === 0) return <p className="text-sm text-[var(--muted)]">Aucune ligne ouverte sur 3421 ou 4411.</p>;
   return (
-    <form action={formAction} className="space-y-4">
+    <form
+      className="space-y-4"
+      onSubmit={(event) => {
+        const selected = [...new FormData(event.currentTarget).getAll("line_ids")].map(String);
+        const chosen = lines.filter((line) => selected.includes(line.id));
+        const debit = chosen.reduce((sum, line) => sum + Number(line.debit), 0);
+        const credit = chosen.reduce((sum, line) => sum + Number(line.credit), 0);
+        if (chosen.length < 2 || Math.abs(debit - credit) > 0.01) {
+          event.preventDefault();
+          setLocalError(chosen.length < 2
+            ? "Sélectionnez au moins deux lignes."
+            : `Sélection déséquilibrée : les débits (${debit.toFixed(2)}) ne sont pas égaux aux crédits (${credit.toFixed(2)}).`);
+          return;
+        }
+        setLocalError(null);
+        event.preventDefault();
+        formAction(new FormData(event.currentTarget));
+      }}
+    >
       <label className="grid max-w-xs gap-1 text-sm">
         Code de lettrage
         <input name="lettering_code" required maxLength={6} className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 uppercase" placeholder="A1" />
@@ -52,7 +71,7 @@ export function LetteringForm({
           </tbody>
         </table>
       </div>
-      {!state.success && state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
+      {localError || (!state.success && state.error) ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{localError || state.error}</p> : null}
       <Button type="submit" disabled={pending}>{pending ? "Lettrage…" : "Lettrer la sélection"}</Button>
     </form>
   );

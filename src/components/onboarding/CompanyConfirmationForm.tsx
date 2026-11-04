@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { createEntrepriseAction, type CreateEntrepriseState } from "@/lib/actions/create-entreprise";
 import type { CompanyOnboardingPrefill } from "@/lib/company-lookup/types";
-import { normalizeCompanyName, normalizeIce, normalizeMoroccanPhone } from "@/lib/ice/ice";
+import { normalizeIce, normalizeMoroccanPhone } from "@/lib/ice/ice";
 
 const initialState: CreateEntrepriseState = { error: null };
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
@@ -161,7 +161,7 @@ export function CompanyConfirmationForm({
           <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] p-5 shadow-[var(--shadow-sm)]">
             <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">Informations principales</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Raison sociale" name="raisonSociale" defaultValue={prefill?.raisonSociale ?? ""} error={state.fieldErrors?.raisonSociale} icon={Building2} required onChange={normalizeCompanyName} />
+              <Field label="Raison sociale" name="raisonSociale" defaultValue={prefill?.raisonSociale ?? ""} error={state.fieldErrors?.raisonSociale} icon={Building2} required />
               <Field label="Forme juridique" name="formeJuridique" defaultValue={prefill?.formeJuridique ?? ""} placeholder="SARL, SA, personne physique..." />
               <Field label="ICE" name="ice" defaultValue={prefill?.ice ?? ""} error={state.fieldErrors?.ice} icon={FileText} onChange={normalizeIce} />
               <Field label="Identifiant fiscal" name="identifiantFiscal" defaultValue={prefill?.identifiantFiscal ?? ""} />

@@ -13,6 +13,7 @@ import {
 } from "@/lib/treasury/match-engine";
 import { embeddedCustomerName } from "@/lib/sales/collection";
 import type { ExpertReconciliationView } from "@/lib/treasury/reconciliation-types";
+import { closingStatementBalance } from "@/lib/statement-balance";
 
 export type ExpertLineRecord = StatementLineInput & {
   importId: string | null;
@@ -34,23 +35,24 @@ export async function buildExpertState(accountId?: string): Promise<ExpertState>
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
   const orgId = workspace.organization.id;
-  const accounts = await supabase.from("treasury_accounts").select("id, name, current_balance, account_type").eq("organization_id", orgId).eq("status", "active").is("archived_at", null).order("name");
+  const accounts = await supabase.from("treasury_accounts").select("id, name, current_balance, account_type, is_default").eq("organization_id", orgId).eq("status", "active").is("archived_at", null).order("is_default", { ascending: false }).order("name");
   const openAccounts = accounts.data ?? [];
-  const selected = accountId || (openAccounts.find((item) => item.account_type === "bank")?.id as string | undefined) || (openAccounts[0]?.id as string | undefined) || "";
+  const selected = accountId && openAccounts.some((item) => item.id === accountId)
+    ? accountId
+    : ((openAccounts[0]?.id as string | undefined) ?? "");
   const account = openAccounts.find((item) => item.id === selected);
   const empty = emptyView(selected, (account?.name as string | undefined) ?? "");
   if (!selected) return { view: empty, proposals: [], lines: [] };
 
-  const [linesResult, txResult, customerResult, supplierResult, balanceResult, settingsResult, rulesResult, learningResult, eventsResult] = await Promise.all([
+  const [linesResult, txResult, customerResult, supplierResult, settingsResult, rulesResult, learningResult, eventsResult] = await Promise.all([
     supabase.from("bank_statement_lines").select("id, import_id, treasury_account_id, operation_date, value_date, label, reference, amount, direction").eq("organization_id", orgId).eq("treasury_account_id", selected).eq("reconciliation_status", "unreconciled").order("operation_date", { ascending: false }).limit(200),
     supabase.from("treasury_transactions").select("id, transaction_date, value_date, amount, direction, label, reference, third_party_id, customer_invoice_id").eq("organization_id", orgId).eq("treasury_account_id", selected).eq("reconciliation_status", "unreconciled").is("archived_at", null).limit(200),
     supabase.from("customer_invoices").select("id, invoice_number, customer_id, due_date, invoice_date, remaining_amount, customer:customer_id(name)").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(400),
     supabase.from("supplier_invoices").select("id, invoice_number, supplier_id, due_date, invoice_date, remaining_amount").eq("organization_id", orgId).gt("remaining_amount", 0).in("status", ["validated", "partially_paid"]).is("archived_at", null).limit(400),
-    supabase.from("bank_statement_lines").select("balance_after").eq("organization_id", orgId).eq("treasury_account_id", selected).not("balance_after", "is", null).order("operation_date", { ascending: false }).limit(1),
     supabase.from("bank_reconciliation_settings").select("auto_threshold, suggest_threshold, date_window_days, auto_enabled").eq("organization_id", orgId).maybeSingle(),
     supabase.from("bank_match_rules").select("id, label_contains, direction, category, third_party_id, account_code, auto_apply, active").eq("organization_id", orgId).eq("active", true).order("priority", { ascending: false }),
     supabase.from("bank_match_learnings").select("label_key, direction, third_party_id, confirmations").eq("organization_id", orgId).limit(200),
-    supabase.from("bank_reconciliation_events").select("id, action, reason, score, created_at").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(12),
+    supabase.from("bank_reconciliation_events").select("id, action, reason, score, created_at, treasury_account_id").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(40),
   ]);
 
   const pending = [settingsResult.error, rulesResult.error, learningResult.error].some((error) => isMissingSchema(error));
@@ -138,9 +140,19 @@ export async function buildExpertState(accountId?: string): Promise<ExpertState>
   }));
   const proposals = matchStatementLines({ lines, candidates, rules, learning, settings });
   const names = new Map(candidates.map((candidate) => [`${candidate.kind}:${candidate.id}`, candidate.number || candidate.partyName || candidate.label || "Pièce"]));
-  const statementBalance = balanceResult.data?.[0]?.balance_after === null || balanceResult.data?.[0]?.balance_after === undefined
-    ? null
-    : Number(balanceResult.data[0].balance_after);
+  const latestImport = await supabase.from("bank_statement_imports").select("id").eq("organization_id", orgId).eq("treasury_account_id", selected).is("archived_at", null).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  const balanceQuery = latestImport.data?.id
+    ? await supabase.from("bank_statement_lines").select("balance_after, amount, direction, file_order").eq("organization_id", orgId).eq("import_id", latestImport.data.id)
+    : { data: [], error: null as { code?: string } | null };
+  const balanceRows = balanceQuery.error?.code === "42703" && latestImport.data?.id
+    ? (await supabase.from("bank_statement_lines").select("balance_after, amount, direction").eq("organization_id", orgId).eq("import_id", latestImport.data.id)).data
+    : balanceQuery.data;
+  const statementBalance = closingStatementBalance((balanceRows ?? []).map((row) => ({
+    balanceAfter: row.balance_after == null ? null : Number(row.balance_after),
+    amount: Number(row.amount),
+    direction: row.direction === "out" ? "out" : "in",
+    fileOrder: "file_order" in row && row.file_order != null ? Number(row.file_order) : null,
+  })));
   const bookBalance = account ? Number(account.current_balance) : null;
   const view: ExpertReconciliationView = {
     pending,
@@ -167,7 +179,7 @@ export async function buildExpertState(accountId?: string): Promise<ExpertState>
         summary: (proposal?.targets ?? []).map((target) => names.get(`${target.kind}:${target.id}`) || (target.kind === "fee" ? "Frais bancaire" : "Pièce")).join(" + "),
       };
     }),
-    events: eventsResult.error ? [] : (eventsResult.data ?? []).map((event) => ({
+    events: eventsResult.error ? [] : (eventsResult.data ?? []).filter((event) => !event.treasury_account_id || event.treasury_account_id === selected).slice(0, 12).map((event) => ({
       id: event.id as string,
       action: event.action as string,
       reason: (event.reason as string | null) ?? null,

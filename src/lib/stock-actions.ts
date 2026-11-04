@@ -1,10 +1,10 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireProWorkspace } from "@/lib/pro-access";
 import { getDefaultStockLocationId } from "@/lib/stock-locations";
 import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
+import { weightedAverageCost } from "@/lib/stock/cump";
 import { logAudit } from "@/lib/audit";
 import type { StockActionResult, StockMoveDirection } from "@/lib/stock-types";
 
@@ -32,7 +32,7 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
 
   const { data: product, error: productError } = await supabase
     .from("products")
-    .select("id, type, name, unit_id, unit:unit_id(symbol, name)")
+    .select("id, type, name, current_stock, purchase_price_ht, unit_id, unit:unit_id(symbol, name)")
     .eq("organization_id", workspace.organization.id)
     .eq("id", productId)
     .maybeSingle();
@@ -65,6 +65,9 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
 
   const operationKey = text(formData, "idempotency_key");
   if (!operationKey) return { success: false, error: "Cle de securite du mouvement manquante." };
+  const unitCostRaw = text(formData, "unit_cost");
+  const unitCost = unitCostRaw == null ? null : Number(unitCostRaw);
+  if (unitCost != null && (!Number.isFinite(unitCost) || unitCost < 0)) return { success: false, error: "Le coût unitaire doit être positif." };
   const movementResult = await recordStockMovementsAtomic({
     organizationId: workspace.organization.id,
     operationKey,
@@ -79,8 +82,15 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
     }],
   });
   if (movementResult.error) return { success: false, error: movementResult.error };
+  if (direction === "in" && unitCost != null) {
+    const average = weightedAverageCost(Number(product.current_stock ?? 0), Number(product.purchase_price_ht ?? 0), quantity, unitCost);
+    const price = await supabase.from("products").update({ purchase_price_ht: average }).eq("organization_id", workspace.organization.id).eq("id", productId);
+    if (price.error) console.error("[stock] purchase price", { code: price.error.code, message: price.error.message });
+    const move = await supabase.from("stock_moves").update({ unit_cost: unitCost }).eq("organization_id", workspace.organization.id).eq("stock_operation_key", operationKey).eq("product_id", productId);
+    if (move.error && move.error.code !== "42703") console.error("[stock] unit cost", { code: move.error.code, message: move.error.message });
+  }
 
-  redirect(`/stock/mouvements?productId=${productId}`);
+  return { success: true, data: { message: direction === "in" ? "Entrée de stock enregistrée." : "Ajustement de stock enregistré." } };
 }
 
 export async function createManualStockEntry(
@@ -127,5 +137,5 @@ export async function transferStock(
   });
   if (error) return { success: false, error: error.message };
   await logAudit(workspace.organization.id, "stock_transfer", "stock_moves", productId, { fromId, toId, quantity });
-  redirect("/stock/mouvements");
+  return { success: true, data: { message: "Transfert enregistré." } };
 }

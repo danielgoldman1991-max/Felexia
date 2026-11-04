@@ -1,6 +1,9 @@
 /** Public messages for financial guards; database details stay on the server. */
-export function financialErrorMessage(error: { code?: string; message?: string } | null | undefined, fallback = "L’opération n’a pas pu être enregistrée. Actualisez la page puis réessayez.") {
+export function financialErrorMessage(error: { code?: string; message?: string; details?: string } | null | undefined, fallback = "L’opération n’a pas pu être enregistrée. Actualisez la page puis réessayez.") {
   const message = error?.message ?? "";
+  if (error?.code || message) {
+    console.error("[finance]", { code: error?.code ?? null, message, details: error?.details ?? null });
+  }
   if (message.includes("SUBSCRIPTION_WRITE_REQUIRED")) return "Votre espace est en consultation. Renouvelez votre essai ou abonnement pour enregistrer de nouvelles opérations.";
   if (message.includes("COMMERCIAL_DOCUMENT_LIMIT_REACHED")) return "La limite de documents commerciaux de votre offre pour ce mois est atteinte. Vos données restent consultables et exportables.";
   if (message.includes("FINANCE_POSTED_PAYMENT_READ_ONLY") || message.includes("OPERATOR_POSTED_PAYMENT_READ_ONLY")) return "Ce règlement est déjà comptabilisé. Son montant, son compte et son annulation sont verrouillés pour préserver le journal.";
@@ -19,5 +22,11 @@ export function financialErrorMessage(error: { code?: string; message?: string }
   if (message.includes("FINANCE_INVALID_LINE")) return "Vérifiez les descriptions, quantités, prix, remises et taux de TVA des lignes.";
   if (message.includes("FINANCE_WRITE_REQUIRED") || message.includes("FINANCE_ACCOUNTING_WRITE_REQUIRED") || error?.code === "42501") return "Votre profil ne permet pas cette modification.";
   if (error?.code === "PGRST202" || error?.code === "42883") return "La mise à jour de sécurité financière doit être activée avant cette opération.";
+  if (error?.code === "23505") {
+    if (message.includes("accounting_accounts") || message.includes("accounting_journals")) return "Ce code existe déjà pour votre entreprise.";
+    if (message.includes("products_organization_id_barcode_unique")) return "Ce code-barres est déjà utilisé par un autre article.";
+    if (message.includes("products_organization_id_sku_unique")) return "Cette référence est déjà utilisée par un autre article.";
+    return "Cette valeur est déjà utilisée. Modifiez-la puis réessayez.";
+  }
   return fallback;
 }

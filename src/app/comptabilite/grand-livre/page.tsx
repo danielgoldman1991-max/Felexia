@@ -5,20 +5,23 @@ import { AccountingReportFilters } from "@/components/accounting/accounting-repo
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, Td, Th } from "@/components/ui/table";
-import { getAccountingReportLines } from "@/lib/accounting";
+import { getAccountingReportLines, listActiveChartOfAccounts } from "@/lib/accounting";
 import { formatDate } from "@/lib/format";
 import Link from "next/link";
 
-export default async function GeneralLedgerPage({ searchParams }: { searchParams: Promise<{ date_from?: string; date_to?: string }> }) {
+export default async function GeneralLedgerPage({ searchParams }: { searchParams: Promise<{ date_from?: string; date_to?: string; account?: string; tiers?: string }> }) {
   const filters = await searchParams;
-  const lines = await getAccountingReportLines({ dateFrom: filters.date_from, dateTo: filters.date_to });
+  const [lines, chart] = await Promise.all([
+    getAccountingReportLines({ dateFrom: filters.date_from, dateTo: filters.date_to, accountCode: filters.account, thirdParty: filters.tiers }),
+    listActiveChartOfAccounts().catch(() => []),
+  ]);
   const grouped = new Map<string, typeof lines>();
   for (const line of lines) grouped.set(line.account_id, [...(grouped.get(line.account_id) ?? []), line]);
   const accounts = [...grouped.entries()].sort(([, a], [, b]) => (a[0]?.account_code ?? "").localeCompare(b[0]?.account_code ?? ""));
   return (
     <ModulePage>
       <PageHeader title="Grand livre" description="Détail chronologique des mouvements et solde progressif par compte." />
-      <AccountingReportFilters dateFrom={filters.date_from} dateTo={filters.date_to} />
+      <AccountingReportFilters dateFrom={filters.date_from} dateTo={filters.date_to} accountCode={filters.account} thirdParty={filters.tiers} accounts={chart.map((account) => ({ code: account.account_number, name: account.account_name }))} />
       {accounts.length === 0 ? <EmptyState title="Aucune écriture comptabilisée" description="Validez une écriture ou élargissez la période affichée." action={<Link className="text-sm font-semibold text-[var(--primary)]" href="/comptabilite/ecritures">Voir les écritures</Link>} /> : accounts.map(([accountId, accountLines]) => {
         let runningBalance = 0;
         const debit = accountLines.reduce((sum, line) => sum + line.debit, 0);
