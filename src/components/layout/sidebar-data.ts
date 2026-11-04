@@ -131,6 +131,7 @@ export const sections: SidebarSection[] = [
       { label: "Ajustements", href: "/stock/ajustements/new", icon: Calculator },
       { label: "Inventaire", href: "/stock/inventaire", icon: ShieldAlert },
       { label: "Valorisation CMUP", href: "/stock/valorisation", icon: Calculator },
+      { label: "Lots et séries", href: "/stock/lots", icon: Package },
     ],
   },
   {
