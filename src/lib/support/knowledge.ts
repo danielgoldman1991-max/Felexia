@@ -148,7 +148,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "stock", title: "PRO : stock, dépôts et mouvements",
     keywords: ["stock", "dépôt", "depot", "entrepôt", "entrepot", "emplacement", "entrée", "sortie", "transfert", "warehouse", "inventory movement", "مخزون", "مستودع", "ستوك", "stok"],
-    content: "Les fonctions de stock de PRO comprennent les articles stockables, emplacements, entrées, sorties, ajustements et mouvements, ainsi que les impacts des livraisons/retours et réceptions. Les transferts permettent de suivre des mouvements entre emplacements. Le sous-menu Inventaire reste un écran réservé et ne constitue pas encore une procédure d’inventaire physique complète. Ne pas promettre cette dernière fonction ; préciser le besoin de l’utilisateur et confirmer le périmètre avec l’équipe.",
+    content: "Les fonctions de stock de PRO comprennent les articles stockables, emplacements, entrées, sorties, ajustements et mouvements, ainsi que les impacts des livraisons/retours et réceptions. Les transferts permettent de suivre des mouvements entre emplacements. Les sessions d'inventaire physique comptent un emplacement puis valident l'écart. Ce n'est pas une valorisation comptable certifiée.",
     href: "/stock",
   },
   {
@@ -196,13 +196,13 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "documents-exports", title: "Documents, fichiers et exports disponibles",
     keywords: ["document", "documents", "ged", "pièce jointe", "piece jointe", "fichier", "csv", "excel", "export", "import", "attachment", "file", "download", "ملف", "وثيقة", "تصدير", "استيراد"],
-    content: "Felexia propose une bibliothèque documentaire avec import/téléchargement de fichiers selon les droits, des impressions PDF de documents commerciaux, des exports CSV selon les listes, ainsi que des exports dédiés de journaux et du plan comptable. Les quotas de stockage dépendent de l’offre. Il ne faut pas annoncer un import universel automatisé de toutes les données ou un export FEC/DGI opérationnel à partir des seules cartes de la page centrale d’exports. Certains sous-menus GED Archives/Modèles/Pièces jointes et Outils restent réservés ; le parcours d’archives des factures électroniques est une fonction distincte et disponible.",
+    content: "Felexia propose une bibliothèque documentaire avec import/téléchargement de fichiers selon les droits, des impressions PDF de documents commerciaux, des exports CSV selon les listes, ainsi que des exports dédiés de journaux et du plan comptable. Les quotas de stockage dépendent de l’offre. Il ne faut pas annoncer un import universel automatisé de toutes les données. Les anciennes adresses Archives, Modèles et Pièces jointes renvoient vers cette bibliothèque. Le FEC de type texte et les fichiers fiscaux préparatoires se téléchargent depuis la comptabilité ; ils ne sont pas un dépôt officiel.",
     href: "/documents",
   },
   {
     id: "hr", title: "PRO : dossiers du personnel et fonctions RH",
     keywords: ["rh", "ressources humaines", "salarié", "salarie", "employé", "employe", "contrat", "congé", "conge", "absence", "personnel", "employee", "human resources", "leave", "contract", "موظف", "أجير", "اجير", "عطلة", "كونجي"],
-    content: "PRO comprend le module RH avec création/modification des fiches salariés, liste et création de contrats, ainsi que plusieurs consultations RH. Le détail de contrat n’est pas encore une fiche complète. Congés, absences, présences, avances, prêts, discipline, évaluations, notes de frais, documents et paramètres comportent encore des écrans de consultation sans tous les formulaires de traitement. Ne pas promettre une approbation complète des congés, une pointeuse, un générateur d’attestations ou un onboarding/offboarding automatisé. Pour un besoin RH précis, faites confirmer le parcours par l’équipe avant engagement.",
+    content: "PRO comprend le module RH : fiches salariés, contrats avec clôture et solde de tout compte préparatoire, demandes de congés avec acceptation, refus ou annulation et décompte du solde, absences, présences manuelles, avances, prêts et notes de frais. Les attestations de travail, de salaire et le certificat de travail s'impriment depuis le dossier. Il n'y a pas de pointeuse. La paie, la CNSS et l'IR restent préparatoires et ne constituent pas une déclaration déposée. Les évaluations, la discipline et les paramètres de barème restent en consultation.",
     href: "/rh",
   },
   {
@@ -256,7 +256,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "unfinished-features", title: "Fonctions réservées et périmètre à confirmer",
     keywords: ["inventaire", "agenda", "rapport", "rapports", "analytique", "audit log", "outils", "attestation", "onboarding rh", "offboarding", "inventory", "calendar", "reporting", "roadmap", "planning", "bientôt", "bientot", "جرد", "تقارير", "رزنامة", "شهادة"],
-    content: "Certains sous-menus de l’ERP étendu sont encore réservés ou descriptifs : Agenda et ses tâches/rappels, procédure d’Inventaire, Rapports avancés, certains écrans GED/Outils et la page centrale d’exports comptables. Les indicateurs de tableau de bord, journaux et exports dédiés réellement disponibles sont distincts d’une suite de rapports avancés finalisée. Plusieurs fonctions RH sont encore des consultations ; les attestations et checklists RH ne constituent pas un workflow complet. Aucune date de livraison ne doit être inventée. Demandez à l’équipe de confirmer une fonction précise avant engagement.",
+    content: "L'inventaire physique se fait par sessions de comptage dans Stock. Les congés (demande, acceptation, refus, annulation et solde), les absences, le pointage manuel, les avances, les prêts, les notes de frais, les attestations imprimables et le solde de tout compte préparatoire sont disponibles dans PRO. Restent réservés ou préparatoires : l'agenda, les rapports avancés, certaines vues GED, le dépôt DGI et Damancom, la pointeuse, les évaluations et la discipline. Aucune date de livraison ne doit être inventée.",
     href: "/#contact",
   },
   {

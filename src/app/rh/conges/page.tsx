@@ -5,6 +5,9 @@ import { listHrTable } from "@/lib/hr/hr";
 export const dynamic = "force-dynamic";
 
 export default async function HrCongesPage() {
-  const rows = await listHrTable("hr_leave_requests");
-  return <ModulePage><HrSectionPage title="Congés" description="Demandes, validations, soldes, historique et calendrier de congés." rows={rows} newHref="/rh/conges/new" columns={[{ key: "start_date", label: "Début" }, { key: "end_date", label: "Fin" }, { key: "days_count", label: "Jours" }, { key: "reason", label: "Motif" }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
+  const rows = (await listHrTable("hr_leave_requests")).map((row) => ({
+    ...row,
+    periode: `${row.start_date ?? ""} → ${row.end_date ?? ""}`,
+  }));
+  return <ModulePage><HrSectionPage title="Congés" description="Demande, acceptation ou refus, décompte du solde et historique." rows={rows} newHref="/rh/conges/new" detailBasePath="/rh/conges" columns={[{ key: "periode", label: "Période" }, { key: "days_count", label: "Jours" }, { key: "reason", label: "Motif" }, { key: "status", label: "Statut", status: true }]} /></ModulePage>;
 }

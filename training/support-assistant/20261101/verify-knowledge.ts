@@ -30,9 +30,9 @@ check("PRO user quota follows the actual plan config", byId("pro").content.inclu
 check("PRO quotation-only policy is explicit", byId("pro").content.includes("exclusivement sur devis") && byId("pro").content.includes("Aucun montant mensuel/annuel PRO"));
 check("DGI acceptance is never inferred from an XML export", byId("dgi-signature").content.includes("ces capacités officielles ne sont pas activées"));
 check("Email status action does not pretend to send email", byId("invoice-email").content.includes("ce bouton n’envoie pas d’email"));
-check("Inventory is accurately marked reserved", byId("stock").content.includes("Inventaire reste un écran réservé"));
+check("Inventory sessions are described without claiming a certified valuation", byId("stock").content.includes("sessions d'inventaire physique"));
 check("Payroll is accurately marked preparatory", byId("payroll").content.includes("paie de PRO est préparatoire"));
-check("RH forms are not advertised as complete", byId("hr").content.includes("consultation sans tous les formulaires"));
+check("RH keeps a manual limit", byId("hr").content.includes("Il n'y a pas de pointeuse"));
 check("Visitor bot cannot see private tenant data", byId("support-scope").content.includes("Il ne voit pas les comptes ou données d’entreprise"));
 check("Human support uses the published Felexia Team WhatsApp", byId("contact").content.includes("Felexia Team") && byId("contact").content.includes("https://wa.me/212614505090") && !byId("contact").content.includes("Aucun numéro de téléphone"));
 check("Accents and punctuation normalize consistently", normalizeSupportQuery("TRÉSORERIE / D’ACHAT") === "tresorerie d achat");
