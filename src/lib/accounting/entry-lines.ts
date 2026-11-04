@@ -8,33 +8,85 @@ export type ExportLine = {
   credit: number;
   label: string;
   entryId: string | null;
+  letter?: string | null;
+  letterDate?: string | null;
+  auxiliaryId?: string | null;
 };
+
+const LINE_COLUMNS = "id, account_code, account_label, debit, credit, label, entry_id, lettering_code, lettering_date, auxiliary_id";
+const LINE_COLUMNS_PLAIN = "id, account_code, account_label, debit, credit, label, entry_id";
+
+function missingLetteringColumns(error: { code?: string; message?: string }) {
+  return error.code === "42703" || error.code === "PGRST204" || /lettering_|auxiliary_id/i.test(error.message ?? "");
+}
 
 /** Lecture paginée. Le plafond évite une réponse sans fin ; truncated le signale. */
 export async function loadAccountingLines(supabase: SupabaseClient, organizationId: string, maxRows = 20000) {
   const rows: ExportLine[] = [];
-  for (let offset = 0; offset < maxRows; offset += 1000) {
+  let columns = LINE_COLUMNS;
+  let offset = 0;
+  while (offset < maxRows) {
     const { data, error } = await supabase
       .from("accounting_entry_lines")
-      .select("id, account_code, account_label, debit, credit, label, entry_id")
+      .select(columns)
       .eq("organization_id", organizationId)
       .order("id")
       .range(offset, offset + 999);
-    if (error) return { rows, error: error.message, truncated: false };
+    if (error) {
+      if (columns !== LINE_COLUMNS_PLAIN && missingLetteringColumns(error)) {
+        columns = LINE_COLUMNS_PLAIN;
+        continue;
+      }
+      return { rows, error: error.message, truncated: false };
+    }
     for (const line of data ?? []) {
+      const record = line as unknown as {
+        id: string;
+        account_code?: string | null;
+        account_label?: string | null;
+        debit?: number | null;
+        credit?: number | null;
+        label?: string | null;
+        entry_id?: string | null;
+        lettering_code?: string | null;
+        lettering_date?: string | null;
+        auxiliary_id?: string | null;
+      };
       rows.push({
-        id: String(line.id),
-        accountCode: String(line.account_code ?? ""),
-        accountLabel: String(line.account_label ?? ""),
-        debit: Number(line.debit ?? 0),
-        credit: Number(line.credit ?? 0),
-        label: String(line.label ?? ""),
-        entryId: line.entry_id ? String(line.entry_id) : null,
+        id: String(record.id),
+        accountCode: String(record.account_code ?? ""),
+        accountLabel: String(record.account_label ?? ""),
+        debit: Number(record.debit ?? 0),
+        credit: Number(record.credit ?? 0),
+        label: String(record.label ?? ""),
+        entryId: record.entry_id ? String(record.entry_id) : null,
+        letter: record.lettering_code ?? null,
+        letterDate: record.lettering_date ? String(record.lettering_date).slice(0, 10) : null,
+        auxiliaryId: record.auxiliary_id ? String(record.auxiliary_id) : null,
       });
     }
     if ((data?.length ?? 0) < 1000) return { rows, error: null, truncated: false };
+    offset += 1000;
   }
   return { rows, error: null, truncated: true };
+}
+
+export async function loadAccountingAuxiliaries(supabase: SupabaseClient, organizationId: string, ids: string[]) {
+  const found = new Map<string, { code: string; name: string }>();
+  const unique = [...new Set(ids.filter(Boolean))];
+  for (let index = 0; index < unique.length; index += 200) {
+    const slice = unique.slice(index, index + 200);
+    const { data, error } = await supabase
+      .from("accounting_auxiliaries")
+      .select("id, code, name")
+      .eq("organization_id", organizationId)
+      .in("id", slice);
+    if (error) return found;
+    for (const row of data ?? []) {
+      found.set(String(row.id), { code: String(row.code ?? ""), name: String(row.name ?? "") });
+    }
+  }
+  return found;
 }
 
 export async function loadEntryHeaders(supabase: SupabaseClient, organizationId: string, entryIds: string[]) {

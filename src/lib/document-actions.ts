@@ -49,7 +49,7 @@ function documentTypeFromCategory(category: string | null) {
 }
 
 async function loadDocumentForWorkspace(id: string) {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "parametres" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("documents")
@@ -67,7 +67,7 @@ export async function uploadDocumentAction(
   formData: FormData,
 ): Promise<DocumentActionState> {
   void previousState;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "parametres" });
   const file = formData.get("file");
 
   if (!(file instanceof File) || file.size === 0) {

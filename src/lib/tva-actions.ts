@@ -28,7 +28,7 @@ function exportStatusLabel(status: string) {
 }
 
 export async function generateDgiVatPreparationAction(formData: FormData) {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   const supabase = await createClient();
   const periodStart = text(formData, "period_start");
   const periodEnd = text(formData, "period_end");

@@ -301,7 +301,7 @@ export async function createThirdParty(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const parsed = validateThirdParty(formData);
   if (parsed.error !== null) {
     return { success: false, error: parsed.error };
@@ -347,7 +347,7 @@ export async function updateThirdParty(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   if (!id) {
     return { success: false, error: "Identifiant tiers manquant." };
@@ -401,7 +401,7 @@ export async function archiveThirdParty(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   if (isReadOnlyRole(workspace.role)) return { success: false, error: "Votre accès est en lecture seule." };
   const id = text(formData, "id");
 
@@ -435,7 +435,7 @@ export async function archiveThirdParty(
 
 export async function restoreThirdParty(previousState: ThirdPartyActionResult, formData: FormData): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   if (isReadOnlyRole(workspace.role)) return { success: false, error: "Votre accès est en lecture seule." };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Contact introuvable." };
@@ -452,7 +452,7 @@ export async function convertProspectToCustomer(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
 
   if (!id) {
@@ -507,7 +507,7 @@ export async function createThirdPartyContact(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const thirdPartyId = text(formData, "third_party_id");
   const fullName = text(formData, "full_name");
 
@@ -549,7 +549,7 @@ export async function updateThirdPartyContact(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   const thirdPartyId = text(formData, "third_party_id");
 
@@ -593,7 +593,7 @@ export async function deleteThirdPartyContact(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   const thirdPartyId = text(formData, "third_party_id");
 
@@ -629,7 +629,7 @@ export async function createThirdPartyAddress(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const thirdPartyId = text(formData, "third_party_id");
   const label = text(formData, "label");
   const address = text(formData, "address");
@@ -672,7 +672,7 @@ export async function updateThirdPartyAddress(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   const thirdPartyId = text(formData, "third_party_id");
 
@@ -717,7 +717,7 @@ export async function deleteThirdPartyAddress(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   const thirdPartyId = text(formData, "third_party_id");
 
@@ -753,7 +753,7 @@ export async function uploadThirdPartyAttachment(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const thirdPartyId = text(formData, "third_party_id");
   const file = formData.get("file");
 
@@ -830,7 +830,7 @@ export async function archiveThirdPartyAttachment(
   formData: FormData,
 ): Promise<ThirdPartyActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const id = text(formData, "id");
   const thirdPartyId = text(formData, "third_party_id");
 

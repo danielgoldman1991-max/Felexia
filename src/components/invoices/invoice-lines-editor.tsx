@@ -90,7 +90,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
       <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-sm font-semibold">Ajouter une ligne</p>
-          <span className="text-xs text-[var(--muted)]">Total de la ligne : <MoneyDisplay value={draft.total_ttc} /></span>
+          <span className="text-xs text-[var(--muted)]">{quantityDraftError(quantityText) ? <span className="text-red-700">La quantité ne peut pas être négative.</span> : <>Total de la ligne : <MoneyDisplay value={draft.total_ttc} /></>}</span>
         </div>
         {fullAccess ? <div className="mb-3 flex flex-wrap gap-3">
           <label className="flex flex-col gap-1 text-xs">

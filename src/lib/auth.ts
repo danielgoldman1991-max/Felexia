@@ -151,7 +151,7 @@ export async function getActiveWorkspace(): Promise<ActiveWorkspace | null> {
   };
 }
 
-export async function requireActiveWorkspace() {
+export async function requireActiveWorkspace(options?: { module?: import("@/lib/auth/module-catalog").ModuleKey; modules?: import("@/lib/auth/module-catalog").ModuleKey[]; level?: "read" | "write" }) {
   const workspace = await getActiveWorkspace();
 
   if (!workspace) {
@@ -167,6 +167,15 @@ export async function requireActiveWorkspace() {
       redirect("/onboarding/entreprise");
     }
     redirect("/login");
+  }
+
+  if (options?.module || options?.modules?.length) {
+    const permission = await import("@/lib/auth/module-permission");
+    const level = options.level ?? "read";
+    const denied = options.modules?.length
+      ? await permission.moduleAccessErrorAny(workspace, options.modules, level)
+      : await permission.moduleAccessError(workspace, options.module!, level);
+    if (denied) throw new Error(denied);
   }
 
   return workspace;

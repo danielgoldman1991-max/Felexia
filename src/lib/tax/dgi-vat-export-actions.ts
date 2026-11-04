@@ -90,7 +90,7 @@ async function uploadTextFile(path: string, content: string, contentType: string
 
 async function insertAuditLog(action: string, batchId: string, changes: Record<string, unknown>) {
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "tva" });
     const supabase = await createClient();
     await supabase.from("audit_logs").insert({
       organization_id: workspace.organization.id,
@@ -106,7 +106,7 @@ async function insertAuditLog(action: string, batchId: string, changes: Record<s
 }
 
 export async function generateDgiVatXmlAction(formData: FormData) {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   const supabase = await createClient();
 
   if (!allowedRole(workspace.role)) {

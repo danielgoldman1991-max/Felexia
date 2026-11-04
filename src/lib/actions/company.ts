@@ -31,10 +31,10 @@ export async function updateCompanyAction(
 ): Promise<CompanyState> {
   try {
     const workspace = await requireActiveWorkspace();
-
-    if (!canManageCompanySettings(workspace.role)) {
-      return { error: "Vous n'avez pas les droits nécessaires.", success: false };
-    }
+    const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+    const gate = await enforceModuleWrite(workspace, "parametres", canManageCompanySettings(workspace.role));
+    if (gate === "legacy") return { error: "Vous n'avez pas les droits nécessaires.", success: false };
+    if (gate) return { error: gate, success: false };
 
     const supabase = await createClient();
     const data: Record<string, string | null> = {};

@@ -24,7 +24,7 @@ export async function approveCollectionItem(prev: ReminderActionResult, formData
   const invoiceId = text(formData, "invoice_id");
   if (!invoiceId) return { success: false, error: "Facture introuvable." };
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "ventes" });
     const desk = await loadCollectionDesk();
     const item = desk.queue.find((entry) => entry.invoice.id === invoiceId);
     if (!item) return { success: false, error: "Cette facture n'est plus à relancer." };
@@ -97,7 +97,7 @@ export async function approveCollectionItem(prev: ReminderActionResult, formData
 export async function saveCollectionSettings(prev: ReminderActionResult, formData: FormData): Promise<ReminderActionResult> {
   void prev;
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "ventes" });
     const supabase = await createClient();
     const saved = await supabase.from("customer_collection_settings").upsert({
       organization_id: workspace.organization.id,
@@ -119,7 +119,7 @@ export async function saveCollectionExclusion(prev: ReminderActionResult, formDa
   const customerId = text(formData, "customer_id");
   if (!customerId) return { success: false, error: "Choisissez un client." };
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "ventes" });
     const supabase = await createClient();
     const saved = await supabase.from("customer_collection_exclusions").upsert({
       organization_id: workspace.organization.id,
@@ -144,7 +144,7 @@ export async function savePaymentPromise(prev: ReminderActionResult, formData: F
   const amount = Number(formData.get("amount") ?? 0);
   if (!customerId || !promisedOn || !(amount > 0)) return { success: false, error: "Client, date et montant sont requis." };
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "ventes" });
     const supabase = await createClient();
     const saved = await supabase.from("customer_payment_promises").insert({
       organization_id: workspace.organization.id,
@@ -165,7 +165,7 @@ export async function savePaymentPromise(prev: ReminderActionResult, formData: F
 }
 
 export async function seedCollectionScenarios() {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "ventes" });
   const supabase = await createClient();
   const existing = await supabase.from("customer_reminder_rules").select("id").eq("organization_id", workspace.organization.id).limit(1);
   if (existing.error) return;

@@ -11,7 +11,7 @@ import { listActiveTreasuryAccounts } from "@/lib/treasury";
 export const dynamic = "force-dynamic";
 
 export default async function NewAccountingJournalPage() {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) {
     return (
       <ModulePage>

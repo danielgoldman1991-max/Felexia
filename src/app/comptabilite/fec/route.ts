@@ -1,20 +1,33 @@
 import { NextResponse } from "next/server";
 import { buildFec } from "@/lib/accounting/fec";
-import { loadAccountingLines, loadEntryHeaders } from "@/lib/accounting/entry-lines";
+import { loadAccountingAuxiliaries, loadAccountingLines, loadEntryHeaders } from "@/lib/accounting/entry-lines";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { createClient } from "@/lib/supabase/server";
 
+function isRedirect(error: unknown) {
+  const digest = error && typeof error === "object" ? (error as { digest?: string }).digest : undefined;
+  return typeof digest === "string" && digest.startsWith("NEXT_REDIRECT");
+}
+
 export async function GET() {
-  const workspace = await requireActiveWorkspace();
+  let workspace;
+  try {
+    workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
+  } catch (error) {
+    if (isRedirect(error)) throw error;
+    return new NextResponse(error instanceof Error ? error.message : "Accès refusé", { status: 403 });
+  }
   if (!(await hasFullErpAccess(workspace.organization.id))) return new NextResponse("PRO requis", { status: 403 });
   const supabase = await createClient();
   const loaded = await loadAccountingLines(supabase, workspace.organization.id);
   if (loaded.error) return new NextResponse("Export indisponible tant que les écritures ne sont pas lisibles.\n", { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   const entryIds = [...new Set(loaded.rows.map((line) => line.entryId).filter((id): id is string => Boolean(id)))];
   const headers = await loadEntryHeaders(supabase, workspace.organization.id, entryIds);
+  const auxiliaries = await loadAccountingAuxiliaries(supabase, workspace.organization.id, loaded.rows.map((line) => line.auxiliaryId ?? ""));
   const body = buildFec(loaded.rows.map((line) => {
     const entry = line.entryId ? headers.headers.get(line.entryId) : undefined;
+    const auxiliary = line.auxiliaryId ? auxiliaries.get(line.auxiliaryId) : undefined;
     const date = entry?.date || "2026-01-01";
     return {
       journalCode: entry?.journalCode || "OD",
@@ -23,11 +36,15 @@ export async function GET() {
       entryDate: date,
       account: line.accountCode,
       accountLabel: line.accountLabel,
+      auxiliaryNumber: auxiliary?.code || "",
+      auxiliaryLabel: auxiliary?.name || "",
       piece: entry?.number || "",
       pieceDate: date,
       label: line.label,
       debit: line.debit,
       credit: line.credit,
+      letter: line.letter || "",
+      letterDate: line.letterDate || "",
     };
   }));
   const note = loaded.truncated ? "Export tronqué à 20000 lignes.\n" : "";

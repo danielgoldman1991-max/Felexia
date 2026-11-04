@@ -95,7 +95,7 @@ async function applyDefaultAccount(organizationId: string, id: string) {
 
 export async function createTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireWritableSubscription();
+  const workspace = await requireWritableSubscription({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const name = text(formData, "name");
   if (!name) return { success: false, error: "Le nom du compte est obligatoire." };
@@ -137,7 +137,7 @@ export async function createTreasuryAccount(prev: TreasuryActionResult, formData
 
 export async function updateTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireWritableSubscription();
+  const workspace = await requireWritableSubscription({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -176,7 +176,7 @@ export async function updateTreasuryAccount(prev: TreasuryActionResult, formData
 
 export async function archiveTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "tresorerie", level: "write" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -189,7 +189,7 @@ export async function archiveTreasuryAccount(prev: TreasuryActionResult, formDat
 
 export async function setDefaultTreasuryAccount(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireWritableSubscription();
+  const workspace = await requireWritableSubscription({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -201,7 +201,7 @@ export async function setDefaultTreasuryAccount(prev: TreasuryActionResult, form
 
 export async function createManualTreasuryTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "tresorerie", level: "write" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const accountId = text(formData, "treasury_account_id");
   const operationMode = text(formData, "operation_mode") ?? "movement";
@@ -268,7 +268,7 @@ export async function createManualTreasuryTransaction(prev: TreasuryActionResult
 
 export async function archiveTreasuryTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "tresorerie", level: "write" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Mouvement introuvable." };
@@ -296,7 +296,7 @@ function parseColumnMapping(value: string | null): ColumnMapping | null {
 
 export async function importBankStatement(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const accountId = text(formData, "treasury_account_id");
   const file = formData.get("file");
@@ -421,7 +421,7 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
 
 export async function cancelBankStatementImport(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Import introuvable." };
@@ -434,7 +434,7 @@ export async function cancelBankStatementImport(prev: TreasuryActionResult, form
 
 export async function reconcileStatementLineWithTransaction(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const statementLineId = text(formData, "statement_line_id");
   const transactionId = text(formData, "transaction_id");
@@ -462,7 +462,7 @@ export async function reconcileStatementLineWithTransaction(prev: TreasuryAction
 
 export async function confirmAutomaticReconciliations(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const selected = formData.getAll("suggestions").map((value) => String(value));
   if (selected.length === 0) return { success: false, error: "Sélectionnez au moins une suggestion." };
@@ -506,7 +506,7 @@ export async function confirmAutomaticReconciliations(prev: TreasuryActionResult
 
 export async function ignoreStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };
@@ -522,7 +522,7 @@ export async function ignoreStatementLine(prev: TreasuryActionResult, formData: 
 
 export async function createTransactionFromStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };
@@ -566,7 +566,7 @@ export async function createTransactionFromStatementLine(prev: TreasuryActionRes
 
 export async function unreconcileStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const id = text(formData, "statement_line_id");
   if (!id) return { success: false, error: "Ligne introuvable." };

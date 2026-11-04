@@ -34,7 +34,7 @@ function refresh(id?: string) {
 }
 async function save(form: FormData, editing: boolean): Promise<SupplierCreditNoteActionResult & { savedId?: string }> {
   try {
-    const workspace = await requireWritableSubscription(); const db = await createClient();
+    const workspace = await requireWritableSubscription({ module: "achats" }); const db = await createClient();
     const id = editing ? text(form, "id") : null;
     if (editing && !id) return { success: false, error: "Avoir introuvable." };
     if (!text(form, "supplier_id")) return { success: false, error: "Sélectionnez un fournisseur." };
@@ -61,7 +61,7 @@ export async function updateSupplierCreditNote(_prev: SupplierCreditNoteActionRe
 }
 export async function validateSupplierCreditNote(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
-    const workspace = await requireWritableSubscription(); const db = await createClient(); const id = text(form, "id");
+    const workspace = await requireWritableSubscription({ module: "achats" }); const db = await createClient(); const id = text(form, "id");
     const { data: note, error: readError } = await db.from("supplier_credit_notes").select("id,total_ttc,status").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
     if (readError || !note) return { success: false, error: "Avoir introuvable." };
     if (note.status !== "draft") return { success: false, error: "Seul un avoir brouillon peut être validé." };
@@ -74,7 +74,7 @@ export async function validateSupplierCreditNote(_prev: SupplierCreditNoteAction
 }
 export async function cancelSupplierCreditNote(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
-    const workspace = await requireWritableSubscription(); const db = await createClient(); const id = text(form, "id");
+    const workspace = await requireWritableSubscription({ module: "achats" }); const db = await createClient(); const id = text(form, "id");
     const { data: note, error: readError } = await db.from("supplier_credit_notes").select("id,status,applied_amount").eq("organization_id", workspace.organization.id).eq("id", id).maybeSingle();
     if (readError || !note) return { success: false, error: "Avoir introuvable." };
     if (note.status === "cancelled") return { success: true };
@@ -86,7 +86,7 @@ export async function cancelSupplierCreditNote(_prev: SupplierCreditNoteActionRe
 }
 export async function applySupplierCreditNote(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
-    const workspace = await requireWritableSubscription(); const db = await createClient(); const id = text(form, "id");
+    const workspace = await requireWritableSubscription({ module: "achats" }); const db = await createClient(); const id = text(form, "id");
     const applications: unknown = JSON.parse(text(form, "applications") || "[]");
     if (!Array.isArray(applications) || applications.length === 0) return { success: false, error: "Indiquez une facture et le montant à affecter." };
     const { error } = await db.rpc("apply_supplier_credit_note_atomic", { p_organization_id: workspace.organization.id, p_credit_note_id: id, p_applications: applications });
@@ -96,7 +96,7 @@ export async function applySupplierCreditNote(_prev: SupplierCreditNoteActionRes
 }
 export async function unapplySupplierCreditNote(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
-    const workspace = await requireWritableSubscription(); const db = await createClient();
+    const workspace = await requireWritableSubscription({ module: "achats" }); const db = await createClient();
     const { data, error } = await db.rpc("unapply_supplier_credit_note_atomic", { p_organization_id: workspace.organization.id, p_application_id: text(form, "application_id") });
     if (error) return { success: false, error: creditError(error) };
     refresh(data ? String(data) : undefined); return { success: true };
@@ -104,7 +104,7 @@ export async function unapplySupplierCreditNote(_prev: SupplierCreditNoteActionR
 }
 export async function postSupplierCreditNoteToAccounting(_prev: SupplierCreditNoteActionResult, form: FormData): Promise<SupplierCreditNoteActionResult> {
   try {
-    const workspace = await requireWritableSubscription();
+    const workspace = await requireWritableSubscription({ module: "achats" });
     if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
     const id = text(form, "id"); const detail = await getSupplierCreditNoteDetail(id); const note = detail.creditNote;
     if (!note || ["draft", "cancelled"].includes(note.status)) return { success: false, error: "Validez l’avoir avant de le comptabiliser." };

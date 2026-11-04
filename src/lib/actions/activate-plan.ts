@@ -21,10 +21,10 @@ export async function activatePlanAction(
   const planSlug = String(formData.get("planSlug") ?? formData.get("planCode") ?? "");
   const requestedOrganizationId = String(formData.get("organizationId") ?? "");
   const workspace = await requireActiveWorkspace();
-
-  if (!isAdminRole(workspace.role)) {
-    return { error: "Seul un administrateur de l'entreprise peut changer l'offre." };
-  }
+  const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+  const gate = await enforceModuleWrite(workspace, "parametres", isAdminRole(workspace.role));
+  if (gate === "legacy") return { error: "Seul un administrateur de l'entreprise peut changer l'offre." };
+  if (gate) return { error: gate };
   if (requestedOrganizationId && requestedOrganizationId !== workspace.organization.id) {
     return { error: "L'entreprise demandée ne correspond pas à la session." };
   }

@@ -5,7 +5,7 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { DEFAULT_CUSTOMER_CATEGORIES, DEFAULT_PRODUCT_CATEGORIES, DEFAULT_UNITS } from "@/lib/reference-lists";
 
 export async function ensureCustomerCategories() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const supabase = await createClient();
 
   const { data: existing, error: checkError } = await supabase
@@ -33,7 +33,7 @@ export async function ensureCustomerCategories() {
 }
 
 export async function ensureProductCategories() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const supabase = await createClient();
 
   const { data: existing, error: checkError } = await supabase
@@ -64,7 +64,7 @@ export async function ensureProductCategories() {
 }
 
 export async function ensureUnits() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const supabase = await createClient();
 
   const { data: existing, error: checkError } = await supabase

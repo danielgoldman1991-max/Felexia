@@ -195,7 +195,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="text-sm font-semibold">Ajouter une ligne</p>
           <span className="text-xs text-[var(--muted)]">
-            Total ligne: <MoneyDisplay value={draftLine.total_ttc} />
+            {quantityDraftError(quantityText) ? <span className="text-red-700">La quantité ne peut pas être négative.</span> : <>Total ligne: <MoneyDisplay value={draftLine.total_ttc} /></>}
           </span>
         </div>
 

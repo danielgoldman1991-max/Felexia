@@ -10,7 +10,7 @@ const editors = new Set(["owner", "admin", "accountant", "hr_manager"]);
 export async function saveFiscalSettingsAction(previous: { error?: string; success?: boolean }, formData: FormData): Promise<{ error?: string; success?: boolean }> {
   void previous;
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "comptabilite" });
     if (!editors.has(workspace.role ?? "")) return { error: "Seuls l'administrateur et le comptable enregistrent ces paramètres." };
     const frequency = String(formData.get("vat_frequency") ?? "monthly");
     if (frequency !== "monthly" && frequency !== "quarterly") return { error: "Périodicité de TVA inconnue." };

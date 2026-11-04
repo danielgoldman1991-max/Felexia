@@ -83,7 +83,7 @@ function creditNoteError(error: { code?: string; message?: string } | null) {
 }
 
 async function saveCreditNote(formData: FormData, id: string | null): Promise<{ id?: string; error?: string }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const rawLines = parseLines(formData);
   if (!text(formData, "customer_id")) return { error: "Sélectionnez un client." };
   if (rawLines.length < 1 || rawLines.length > 500) return { error: "Ajoutez entre 1 et 500 lignes." };
@@ -133,7 +133,7 @@ export async function createCreditNoteFromReturn(prev: CreditNoteActionResult, f
 
 export async function validateCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Avoir introuvable." };
   const supabase = await createClient();
@@ -163,7 +163,7 @@ export async function validateCustomerCreditNote(prev: CreditNoteActionResult, f
 
 export async function cancelCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Avoir introuvable." };
   const { creditNote, applications } = await getCustomerCreditNoteDetail(id);
@@ -188,7 +188,7 @@ function parseApplications(formData: FormData) {
 
 export async function applyCreditNoteToInvoices(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace=await requireActiveWorkspace();
+  const workspace=await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id=text(formData,"credit_note_id");
   if(!id) return {success:false,error:"Avoir introuvable."};
   const applications=parseApplications(formData);
@@ -202,7 +202,7 @@ export async function applyCreditNoteToInvoices(prev: CreditNoteActionResult, fo
 
 export async function unapplyCreditNoteFromInvoice(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace=await requireActiveWorkspace();
+  const workspace=await requireActiveWorkspace({ module: "ventes", level: "write" });
   const applicationId=text(formData,"id");
   if(!applicationId)return {success:false,error:"Affectation introuvable."};
   const supabase=await createClient();
@@ -214,7 +214,7 @@ export async function unapplyCreditNoteFromInvoice(prev: CreditNoteActionResult,
 
 export async function postCustomerCreditNote(prev: CreditNoteActionResult, formData: FormData): Promise<CreditNoteActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Avoir introuvable." };

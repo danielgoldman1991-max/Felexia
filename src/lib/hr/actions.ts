@@ -149,7 +149,7 @@ export async function createHrLeaveRequestAction(previous: { error?: string } | 
 }
 
 export async function createHrPayrollPeriodAction(formData: FormData) {
-  const workspace = await requireWritableHrWorkspace();
+  const workspace = await requireWritableHrWorkspace("paie");
   const supabase = await createClient();
   const month = numberValue(formData, "month", new Date().getMonth() + 1);
   const year = numberValue(formData, "year", new Date().getFullYear());
@@ -189,7 +189,7 @@ export async function createHrPayrollPeriodAction(formData: FormData) {
 }
 
 export async function calculateHrPayrollPeriodAction(periodId: string, formData: FormData) {
-  const workspace = await requireWritableHrWorkspace();
+  const workspace = await requireWritableHrWorkspace("paie");
   const expected = optionalString(formData, "expected_updated_at");
   if (!expected) throw new Error("Actualisez la période avant de lancer le calcul : sa version est manquante.");
   if (!isBaseOnlyPayrollAcknowledgement(formData.get("ack_base_only"))) throw new Error("Confirmez la préparation du salaire de base uniquement. Les variables et la paie finale sont exclues.");
@@ -215,7 +215,7 @@ export async function prepareHrPayrollPeriodFormAction(periodId: string, previou
 export async function prepareFullPayslipFormAction(periodId: string, previous: { error?: string; success?: boolean }, formData: FormData): Promise<{ error?: string; success?: boolean }> {
   void previous;
   try {
-    const workspace = await requireWritableHrWorkspace();
+    const workspace = await requireWritableHrWorkspace("paie");
     const employeeId = requiredString(formData, "employee_id");
     const supabase = await createClient();
     const { data: employee } = await supabase.from("hr_employees").select("id, base_salary, hire_date, first_name, last_name, dependents_count").eq("id", employeeId).eq("organization_id", workspace.organization.id).maybeSingle();

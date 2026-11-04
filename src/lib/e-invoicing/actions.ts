@@ -26,6 +26,9 @@ function rpcError(error: { code?: string; message?: string } | null) {
 async function run(form: FormData, location: "detail" | "configuration" | "supervision", operation: Operation) {
   // Authentication redirects must remain outside the business-error catch.
   const c = await getEinvoiceContext();
+  const { moduleAccessError } = await import("@/lib/auth/module-permission");
+  const denied = await moduleAccessError(c.workspace, "ventes", "write");
+  if (denied) throw new EInvoiceError("FORBIDDEN", denied, 403);
   let path = location === "detail" ? base : `${base}/${location}`;
   let errorCode: string | undefined;
   let notice = "saved";

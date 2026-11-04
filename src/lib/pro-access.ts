@@ -14,10 +14,15 @@ export function canWriteProWorkspace(workspace: ActiveWorkspace): boolean {
 }
 
 /** Check the current company before any advanced mutation, including storage. */
-export async function requireProWorkspace({ write = true }: { write?: boolean } = {}) {
+export async function requireProWorkspace({ write = true, module }: { write?: boolean; module?: import("@/lib/auth/module-catalog").ModuleKey } = {}) {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) {
     throw new Error(PRO_PLAN_REQUIRED_MESSAGE);
+  }
+  if (module) {
+    const { moduleAccessError } = await import("@/lib/auth/module-permission");
+    const denied = await moduleAccessError(workspace, module, write ? "write" : "read");
+    if (denied) throw new Error(denied);
   }
   if (write) {
     if (!canWriteWorkspaceSubscription(workspace.subscription)) {

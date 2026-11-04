@@ -74,7 +74,19 @@ async function assertCanUpdateOrganizationLogo(organizationId: string) {
   }
 
   const roleName = getRoleName(membership?.role);
-  if (!canManageOrganizationRole(roleName)) {
+  const { requireActiveWorkspace } = await import("@/lib/auth");
+  const { modulePermissionDecision } = await import("@/lib/auth/module-permission");
+  let decision: "allow" | "deny" | "legacy" = "legacy";
+  try {
+    const workspace = await requireActiveWorkspace();
+    if (workspace.organization.id === organizationId) decision = await modulePermissionDecision(workspace, "parametres", "write");
+  } catch (error) {
+    const digest = error && typeof error === "object" ? (error as { digest?: string }).digest : undefined;
+    if (typeof digest === "string" && digest.startsWith("NEXT_")) throw error;
+    decision = "deny";
+  }
+  if (decision === "deny") return { supabase, error: "Votre rôle ne permet pas de modifier le module Paramètres." };
+  if (decision !== "allow" && !canManageOrganizationRole(roleName)) {
     return { supabase, error: "Vous n’êtes pas autorisé à modifier le logo de cette organisation." };
   }
 

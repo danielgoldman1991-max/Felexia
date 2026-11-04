@@ -79,7 +79,7 @@ export async function createHrDocumentAction(formData: FormData) {
 
 export async function createAgendaTaskAction(formData: FormData) {
   const { requireActiveWorkspace } = await import("@/lib/auth");
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const supabase = await createClient();
   const saved = await supabase.from("agenda_tasks").insert({
     organization_id: workspace.organization.id,

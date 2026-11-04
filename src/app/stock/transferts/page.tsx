@@ -9,7 +9,7 @@ import { StockTransferForm } from "@/components/stock/stock-transfer-form";
 export const dynamic = "force-dynamic";
 
 export default async function StockTransferPage() {
-  await requireProWorkspace({ write: false });
+  await requireProWorkspace({ write: false, module: "stock" });
   const [products, locations] = await Promise.all([
     listStockProductsForSelect(),
     listActiveStockLocations(),

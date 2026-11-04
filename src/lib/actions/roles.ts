@@ -5,14 +5,20 @@ import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 
+async function settingsWriteError(workspace: Awaited<ReturnType<typeof requireActiveWorkspace>>, legacyAllowed: boolean, legacyMessage: string) {
+  const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+  const gate = await enforceModuleWrite(workspace, "parametres", legacyAllowed);
+  if (gate === "legacy") return legacyMessage;
+  return gate;
+}
+
 export async function createRoleAction(
   formData: FormData,
 ): Promise<{ error: string | null }> {
   try {
     const workspace = await requireActiveWorkspace();
-    if (workspace.role !== "owner" && workspace.role !== "admin") {
-      return { error: "Non autorisé." };
-    }
+    const denied = await settingsWriteError(workspace, workspace.role === "owner" || workspace.role === "admin", "Non autorisé.");
+    if (denied) return { error: denied };
 
     const name = String(formData.get("name") ?? "").trim();
     const description = String(formData.get("description") ?? "").trim();
@@ -47,9 +53,8 @@ export async function deleteRoleAction(
 ): Promise<{ error: string | null }> {
   try {
     const workspace = await requireActiveWorkspace();
-    if (workspace.role !== "owner" && workspace.role !== "admin") {
-      return { error: "Non autorisé." };
-    }
+    const denied = await settingsWriteError(workspace, workspace.role === "owner" || workspace.role === "admin", "Non autorisé.");
+    if (denied) return { error: denied };
 
     const supabase = await createClient();
 
@@ -85,9 +90,8 @@ export async function updateRolePermissionsAction(
 ): Promise<{ error: string | null }> {
   try {
     const workspace = await requireActiveWorkspace();
-    if (workspace.role !== "owner" && workspace.role !== "admin") {
-      return { error: "Non autorisé." };
-    }
+    const denied = await settingsWriteError(workspace, workspace.role === "owner" || workspace.role === "admin", "Non autorisé.");
+    if (denied) return { error: denied };
 
     const supabase = await createClient();
 

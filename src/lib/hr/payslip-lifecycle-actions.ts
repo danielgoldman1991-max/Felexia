@@ -15,7 +15,7 @@ function payrollMessage(message: string) {
 }
 
 async function movePayslip(slipId: string, next: "validated" | "paid") {
-  const workspace = await requireWritableHrWorkspace();
+  const workspace = await requireWritableHrWorkspace("paie");
   const supabase = await createClient();
   const { data: slip, error } = await supabase
     .from("hr_payslips")

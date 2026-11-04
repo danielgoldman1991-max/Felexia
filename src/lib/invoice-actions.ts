@@ -144,7 +144,7 @@ function linePayload(invoiceId: string, organizationId: string, line: InvoiceLin
 }
 
 async function buildInvoicePayload(formData: FormData) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const customerId = text(formData, "customer_id");
   const normalized = normalizeInvoiceLines(parseLines(formData));
   if (!customerId) return { workspace, error: "Sélectionnez un client." };
@@ -307,7 +307,7 @@ export async function updateCustomerInvoice(prev: InvoiceActionResult, formData:
 }
 
 async function updateInvoiceStatus(id: string, status: string, expected: string[]) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const supabase = await createClient();
   const { data: invoice, error } = await supabase
     .from("customer_invoices")
@@ -359,7 +359,7 @@ export async function cancelCustomerInvoice(prev: InvoiceActionResult, formData:
 
 export async function archiveCustomerInvoice(prev: InvoiceActionResult, formData: FormData) {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Facture introuvable." };
   const supabase = await createClient();
@@ -380,7 +380,7 @@ export async function createInvoiceFromOrder(
   void _prev;
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Commande introuvable." };
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   try {
     await assertDirectOrderInvoiceAllowed(workspace.organization.id, id);
   } catch (error) {
