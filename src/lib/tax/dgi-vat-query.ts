@@ -284,7 +284,8 @@ export async function getDgiVatExportData({
     const invoiceId = String(invoice.id);
     const payment = paymentByInvoice.get(invoiceId);
     const totalTtc = toMadAmount(invoice.total_ttc);
-    const paid = Math.max(payment?.paid ?? toMadAmount(invoice.paid_amount), 0);
+    // Keep the stored paid amount: the old embed never returned allocations in prod, so totals came from paid_amount.
+    const paid = Math.max(toMadAmount(invoice.paid_amount), 0);
     const prorata = totalTtc > 0 ? Math.min(paid / totalTtc, 1) : 0;
     const lines = supplierLinesByInvoice.get(invoiceId) ?? [];
 
