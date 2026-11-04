@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { collectionQueue, type CollectionInvoice, type CollectionRule } from "@/lib/sales/collection";
+import { collectionQueue, embeddedCustomerField, embeddedCustomerName, type CollectionInvoice, type CollectionRule } from "@/lib/sales/collection";
 import { sendTransactionalEmail } from "@/lib/mail/outbound";
 
 const NO_STORE = { "Cache-Control": "no-store" };
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
 async function prepareOrganization(supabase: Awaited<ReturnType<typeof import("@/lib/supabase/service").createClient>>, organizationId: string, today: string, arabic: boolean) {
   const [invoices, rules, reminders] = await Promise.all([
-    supabase.from("customer_invoices").select("id, invoice_number, customer_id, customer_name, due_date, remaining_amount, total_ttc").eq("organization_id", organizationId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(200),
+    supabase.from("customer_invoices").select("id, invoice_number, customer_id, due_date, remaining_amount, total_ttc, customer:customer_id(name, email)").eq("organization_id", organizationId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(200),
     supabase.from("customer_reminder_rules").select("id, name, days_after_due, level, channel, subject, message, active").eq("organization_id", organizationId).eq("active", true).eq("channel", "email"),
     supabase.from("customer_reminders").select("id, reminder_level").eq("organization_id", organizationId).neq("status", "cancelled").limit(200),
   ]);
@@ -45,10 +45,11 @@ async function prepareOrganization(supabase: Awaited<ReturnType<typeof import("@
     id: invoice.id as string,
     number: invoice.invoice_number as string,
     customerId: invoice.customer_id as string,
-    customerName: (invoice.customer_name as string | null) || "Client",
+    customerName: embeddedCustomerName(invoice.customer),
     dueDate: invoice.due_date as string,
     remaining: Number(invoice.remaining_amount ?? 0),
     total: Number(invoice.total_ttc ?? 0),
+    email: embeddedCustomerField(invoice.customer, "email"),
   }));
   const typedRules: CollectionRule[] = (rules.data ?? []).map((rule) => ({
     id: rule.id as string,
@@ -69,8 +70,7 @@ async function prepareOrganization(supabase: Awaited<ReturnType<typeof import("@
   });
   let created = 0;
   for (const item of queue) {
-    const customer = await supabase.from("third_parties").select("email").eq("id", item.invoice.customerId).maybeSingle();
-    const email = customer.data?.email as string | null;
+    const email = item.invoice.email;
     if (!email) continue;
     const sent = await sendTransactionalEmail({ to: email, subject: item.subject, text: item.message });
     if (!sent.delivered) {

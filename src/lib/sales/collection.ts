@@ -1,4 +1,19 @@
 import { summarizeAging, type AgingBucket } from "@/lib/sales/aged-receivables";
+
+/** Nom lu comme sur les factures : third_parties.name via customer:customer_id, pas une colonne de customer_invoices. */
+export function embeddedCustomerName(value: unknown, fallback = "Client") {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row || typeof row !== "object") return fallback;
+  const name = (row as { name?: unknown }).name;
+  return typeof name === "string" && name.trim() ? name.trim() : fallback;
+}
+
+export function embeddedCustomerField(value: unknown, key: "email" | "phone" | "mobile") {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row || typeof row !== "object") return null;
+  const field = (row as Record<string, unknown>)[key];
+  return typeof field === "string" && field.trim() ? field.trim() : null;
+}
 import { matchingReminderRule, type ReminderRuleMatch } from "@/lib/sales/reminder-schedule";
 
 export type CollectionInvoice = {

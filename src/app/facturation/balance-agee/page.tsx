@@ -4,7 +4,7 @@ import { MoneyDisplay } from "@/components/erp/money-display";
 import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { daysSalesOutstanding } from "@/lib/sales/collection";
+import { daysSalesOutstanding, embeddedCustomerName } from "@/lib/sales/collection";
 import { summarizeAging, type AgingBucket } from "@/lib/sales/aged-receivables";
 
 export const dynamic = "force-dynamic";
@@ -24,14 +24,14 @@ export default async function AgedReceivablesPage() {
   const today = new Date().toISOString().slice(0, 10);
   const { data } = await supabase
     .from("customer_invoices")
-    .select("id, invoice_number, customer_name, due_date, remaining_amount, status")
+    .select("id, invoice_number, due_date, remaining_amount, status, customer:customer_id(name)")
     .eq("organization_id", workspace.organization.id)
     .gt("remaining_amount", 0)
     .not("status", "in", "(draft,cancelled)");
   const summary = summarizeAging((data ?? []).map((row) => ({
     id: row.id as string,
     number: row.invoice_number as string,
-    customer: (row.customer_name as string | null) ?? "Client",
+    customer: embeddedCustomerName(row.customer),
     dueDate: (row.due_date as string | null) ?? null,
     remaining: Number(row.remaining_amount ?? 0),
   })), today);
