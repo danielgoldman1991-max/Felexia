@@ -1,4 +1,5 @@
 -- 117: verrou de période et date de clôture, si les tables existent déjà.
+-- Apply after 116 and before 118. Do not reuse this number.
 -- Additive. Missing accounting tables are left untouched. No journal line is rewritten.
 --
 -- Rollback:
