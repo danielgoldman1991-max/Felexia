@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight, Check, Plus } from "lucide-react";
 import { LandingEffects } from "@/components/landing/LandingEffects";
 import { LandingFooter } from "@/components/landing/LandingFooter";
+import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import styles from "@/components/marketing/blog.module.css";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -194,6 +195,9 @@ export function BlogArticle({ article }: { article: BlogArticleData }) {
             </article>
             <div className={styles.tocDesktop}><Toc article={article} /></div>
           </div>
+        </div>
+        <div className="marketing-container">
+          <NewsletterBand source="blog" title="Recevoir les prochains guides" text="Un e-mail lorsque nous publions un article utile pour votre gestion. Vous pouvez vous désinscrire à tout moment." />
         </div>
       </main>
       <LandingFooter />

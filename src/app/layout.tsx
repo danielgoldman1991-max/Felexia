@@ -8,6 +8,8 @@ import { ROOT_METADATA, getSiteStructuredData, serializeJsonLd } from "@/lib/seo
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { PublicSupportAssistant } from "@/components/support/PublicSupportAssistant";
 import { PublicAnalytics } from "@/components/analytics/PublicAnalytics";
+import { GuideDownloadHost } from "@/components/guides/GuideDownload";
+import { NewsletterPrompt } from "@/components/newsletter/NewsletterPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,7 @@ export default function RootLayout({
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <script id="felexia-site-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteStructuredData }} />
-        <ThemeProvider>{children}<PublicSupportAssistant /><Suspense fallback={null}><PublicAnalytics /></Suspense></ThemeProvider>
+        <ThemeProvider>{children}<PublicSupportAssistant /><Suspense fallback={null}><PublicAnalytics /></Suspense><Suspense fallback={null}><NewsletterPrompt /></Suspense><GuideDownloadHost /></ThemeProvider>
       </body>
     </html>
   );

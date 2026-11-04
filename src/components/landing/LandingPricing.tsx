@@ -3,6 +3,7 @@
 import { ArrowRight, Check, CreditCard, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
 import { filterPubliclyAvailablePlans, isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
@@ -73,6 +74,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
             );
           })}
         </div>
+        {standalone ? <ProGuideCta /> : null}
       </div>
     </section>
   );
