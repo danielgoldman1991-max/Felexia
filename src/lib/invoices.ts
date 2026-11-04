@@ -20,7 +20,7 @@ import type {
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
 import { getSalesDocumentFlow } from "@/lib/sales";
-import { pageRows, positivePage, readAllPages, searchText } from "@/lib/listing";
+import { boundedPage, isUnsatisfiableRange, pageRows, positivePage, readAllPages, searchText } from "@/lib/listing";
 
 const INVOICE_SELECT = `
   id, organization_id, invoice_number, customer_id, source_type, source_document_id,
@@ -293,15 +293,31 @@ export async function listCustomerInvoices(filters: InvoiceListFilters = {}) {
     return { ...result, rows: await enrichInvoicesAccountingStatus(organizationId, result.rows) };
   }
 
-  const { data, error, count } = await makeQuery().range(from, to);
-  if (error) throw new Error(error.message);
+  let pageForRange = page;
+  let loaded = await makeQuery().range(from, to);
+  if (loaded.error && isUnsatisfiableRange(loaded.error)) {
+    const probe = await makeQuery().range(0, pageSize - 1);
+    if (probe.error) throw new Error(probe.error.message);
+    pageForRange = boundedPage(page, probe.count ?? 0, pageSize).page;
+    loaded = pageForRange === 1 ? probe : await makeQuery().range((pageForRange - 1) * pageSize, pageForRange * pageSize - 1);
+  }
+  if (loaded.error) throw new Error(loaded.error.message);
+  const bounded = boundedPage(page, loaded.count ?? 0, pageSize);
+  if (bounded.page !== pageForRange) {
+    pageForRange = bounded.page;
+    loaded = await makeQuery().range((pageForRange - 1) * pageSize, pageForRange * pageSize - 1);
+    if (loaded.error) throw new Error(loaded.error.message);
+  }
+  const data = loaded.data;
+  const count = loaded.count;
   const rows = await enrichInvoicesAccountingStatus(organizationId, (data ?? []).map(mapInvoice));
+  const shown = boundedPage(pageForRange, count ?? 0, pageSize);
   return {
     rows,
     total: count ?? 0,
-    page,
+    page: shown.page,
     pageSize,
-    totalPages: Math.max(1, Math.ceil((count ?? 0) / pageSize)),
+    totalPages: shown.totalPages,
   };
 }
 

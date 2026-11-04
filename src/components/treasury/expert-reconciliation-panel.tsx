@@ -9,6 +9,7 @@ import { PendingButton } from "@/components/ui/pending-button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, Td, Th } from "@/components/ui/table";
+import { auditActionLabel } from "@/lib/audit-labels";
 import { confirmExpertAuto, confirmExpertLine, saveReconciliationSettings } from "@/lib/treasury/reconciliation-actions";
 import type { ExpertLineView, ExpertReconciliationView } from "@/lib/treasury/reconciliation-types";
 import type { TreasuryActionResult } from "@/lib/treasury-types";
@@ -114,7 +115,7 @@ export function ExpertReconciliationPanel({ view }: { view: ExpertReconciliation
               <thead><tr><Th>Date</Th><Th>Action</Th><Th>Score</Th><Th>Motif</Th></tr></thead>
               <tbody>
                 {view.events.map((event) => (
-                  <tr key={event.id}><Td>{event.createdAt.slice(0, 16).replace("T", " ")}</Td><Td>{event.action}</Td><Td>{event.score ?? "—"}</Td><Td>{event.reason ?? "—"}</Td></tr>
+                  <tr key={event.id}><Td>{event.createdAt.slice(0, 16).replace("T", " ")}</Td><Td>{auditActionLabel(event.action)}</Td><Td>{event.score ?? "—"}</Td><Td>{event.reason ?? "—"}</Td></tr>
                 ))}
               </tbody>
             </Table>

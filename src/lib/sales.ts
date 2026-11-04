@@ -1,3 +1,4 @@
+import { boundedPage, isUnsatisfiableRange, positivePage } from "@/lib/listing";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import type {
@@ -378,40 +379,56 @@ export async function listSalesDocuments(
 ): Promise<PaginatedSalesResult<SalesDocumentRecord>> {
   const organizationId = await getActiveOrganizationId();
   const supabase = await createClient();
-  const page = filters.page ?? 1;
-  const pageSize = filters.pageSize ?? 25;
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
+  const pageSize = Math.min(100, positivePage(filters.pageSize, 25));
+  const requested = positivePage(filters.page);
 
-  let query = supabase
-    .from("sales_documents")
-    .select(SALES_DOCUMENT_LIST_SELECT, { count: "exact" })
-    .eq("organization_id", organizationId)
-    .is("archived_at", null)
-    .order("created_at", { ascending: false })
-    .range(from, to);
+  const makeQuery = () => {
+    let query = supabase
+      .from("sales_documents")
+      .select(SALES_DOCUMENT_LIST_SELECT, { count: "exact" })
+      .eq("organization_id", organizationId)
+      .is("archived_at", null)
+      .order("created_at", { ascending: false });
+    if (filters.type) query = query.eq("document_type", filters.type);
+    if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+    if (filters.search?.trim()) query = query.or(`document_number.ilike.%${filters.search.trim()}%`);
+    return query;
+  };
 
-  if (filters.type) query = query.eq("document_type", filters.type);
-  if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
-  if (filters.search?.trim()) {
-    const value = filters.search.trim();
-    query = query.or(`document_number.ilike.%${value}%`);
+  const readPage = (page: number) => {
+    const from = (page - 1) * pageSize;
+    return makeQuery().range(from, from + pageSize - 1);
+  };
+  let page = requested;
+  let loaded = await readPage(page);
+  if (loaded.error && isUnsatisfiableRange(loaded.error)) {
+    const probe = await readPage(1);
+    if (probe.error) throw new Error(probe.error.message);
+    page = boundedPage(requested, probe.count ?? 0, pageSize).page;
+    loaded = page === 1 ? probe : await readPage(page);
   }
-
-  const { data, error, count } = await query;
-  if (error) throw new Error(error.message);
+  if (loaded.error) throw new Error(loaded.error.message);
+  const bounded = boundedPage(requested, loaded.count ?? 0, pageSize);
+  if (bounded.page !== page) {
+    page = bounded.page;
+    loaded = await readPage(page);
+    if (loaded.error) throw new Error(loaded.error.message);
+  }
+  const data = loaded.data;
+  const count = loaded.count;
 
   const rows = await enrichRelatedDocumentNumbers(
     organizationId,
     ((data ?? []) as unknown[]).map(mapSalesDocument),
   );
 
+  const shown = boundedPage(page, count ?? 0, pageSize);
   return {
     rows,
     total: count ?? 0,
-    page,
+    page: shown.page,
     pageSize,
-    totalPages: Math.max(1, Math.ceil((count ?? 0) / pageSize)),
+    totalPages: shown.totalPages,
   };
 }
 

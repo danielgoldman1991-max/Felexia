@@ -2,8 +2,8 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { HrPreparatoryNotice } from "@/components/hr/hr-notice";
 import { HrSettingsEditor, type HrCatalog } from "@/components/hr/hr-settings-editor";
-import { requireHrWorkspace } from "@/lib/hr/access";
-import { getHrReferenceData } from "@/lib/hr/hr";
+import { canManageHrWorkspace, requireHrWorkspace } from "@/lib/hr/access";
+import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import { canWriteHrSettings } from "@/lib/hr/settings-access";
 import { isMissingSchema } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
@@ -19,41 +19,57 @@ function pageNumber(value: string | undefined) {
 
 export default async function HrSettingsPage({ searchParams }: { searchParams?: Promise<Record<string, string | undefined>> }) {
   const query = searchParams ? await searchParams : {};
-  const [{ departments, positions, leaveTypes, settings }, catalog, workspace] = await Promise.all([
-    getHrReferenceData(),
-    loadHrCatalog({
-      departments: pageNumber(query.dept),
-      positions: pageNumber(query.poste),
-      leaveTypes: pageNumber(query.conge),
-      schedules: pageNumber(query.horaire),
-    }),
-    requireHrWorkspace(),
+  const workspace = await requireHrWorkspace();
+  await ensureReferenceIfMissing(workspace);
+  const orgId = workspace.organization.id;
+  const pages = {
+    departments: pageNumber(query.dept),
+    positions: pageNumber(query.poste),
+    leaveTypes: pageNumber(query.conge),
+    schedules: pageNumber(query.horaire),
+  };
+  const supabase = await createClient();
+  const [canWrite, catalog, settings, departmentCount, positionCount, leaveCount, scheduleCount, departmentOptions] = await Promise.all([
+    canWriteHrSettings(workspace),
+    loadHrCatalog(orgId, pages),
+    supabase.from("hr_settings").select("default_weekly_hours, default_annual_leave_days, leave_accrual_days_per_month, cnss_enabled, ir_enabled").eq("organization_id", orgId).maybeSingle(),
+    supabase.from("hr_departments").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("is_active", true),
+    supabase.from("hr_positions").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("is_active", true),
+    supabase.from("hr_leave_types").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("is_active", true),
+    supabase.from("hr_work_schedules").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("is_active", true),
+    supabase.from("hr_departments").select("id, name").eq("organization_id", orgId).eq("is_active", true).order("name"),
   ]);
-  const canWrite = await canWriteHrSettings(workspace);
+  const settingsRow = settings.data;
   return (
     <ModulePage>
       <PageHeader title="Paramètres RH" description="Départements, postes, types de congés et horaires. Les rubriques de paie restent préparatoires." />
       <HrPreparatoryNotice />
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SettingCard title="Départements" value={departments.length} />
-        <SettingCard title="Postes" value={positions.length} />
-        <SettingCard title="Types de congés" value={leaveTypes.length} />
-        <SettingCard title="Horaires" value={catalog.schedules.filter((item) => item.is_active).length} />
-        <SettingCard title="Heures hebdomadaires" value={Number(settings?.default_weekly_hours ?? 44)} />
-        <SettingCard title="Congés annuels" value={`${settings?.default_annual_leave_days ?? 18} jours`} />
-        <SettingCard title="Acquisition mensuelle" value={`${settings?.leave_accrual_days_per_month ?? 1.5} jours`} />
-        <SettingCard title="CNSS" value={settings?.cnss_enabled ? "Activée" : "Désactivée"} />
-        <SettingCard title="IR" value={settings?.ir_enabled ? "Activé" : "Désactivé"} />
+        <SettingCard title="Départements" value={departmentCount.count ?? 0} />
+        <SettingCard title="Postes" value={positionCount.count ?? 0} />
+        <SettingCard title="Types de congés" value={leaveCount.count ?? 0} />
+        <SettingCard title="Horaires" value={isMissingSchema(scheduleCount.error) ? 0 : scheduleCount.count ?? 0} />
+        <SettingCard title="Heures hebdomadaires" value={Number(settingsRow?.default_weekly_hours ?? 44)} />
+        <SettingCard title="Congés annuels" value={`${settingsRow?.default_annual_leave_days ?? 18} jours`} />
+        <SettingCard title="Acquisition mensuelle" value={`${settingsRow?.leave_accrual_days_per_month ?? 1.5} jours`} />
+        <SettingCard title="CNSS" value={settingsRow?.cnss_enabled ? "Activée" : "Désactivée"} />
+        <SettingCard title="IR" value={settingsRow?.ir_enabled ? "Activé" : "Désactivé"} />
       </div>
-      <HrSettingsEditor catalog={catalog} canWrite={canWrite} query={query} departmentOptions={departments.map((item) => ({ id: item.id, name: item.name ?? "", code: null, is_active: true }))} />
+      <HrSettingsEditor catalog={catalog} canWrite={canWrite} query={query} departmentOptions={(departmentOptions.data ?? []).map((item) => ({ id: item.id, name: item.name ?? "", code: null, is_active: true }))} />
     </ModulePage>
   );
 }
 
-async function loadHrCatalog(pages: { departments: number; positions: number; leaveTypes: number; schedules: number }): Promise<HrCatalog> {
-  const workspace = await requireHrWorkspace();
+async function ensureReferenceIfMissing(workspace: Awaited<ReturnType<typeof requireHrWorkspace>>) {
+  if (!canManageHrWorkspace(workspace)) return;
   const supabase = await createClient();
-  const orgId = workspace.organization.id;
+  const existing = await supabase.from("hr_settings").select("organization_id").eq("organization_id", workspace.organization.id).maybeSingle();
+  if (existing.data || isMissingSchema(existing.error)) return;
+  await ensureHrReferenceData(supabase, workspace.organization.id);
+}
+
+async function loadHrCatalog(orgId: string, pages: { departments: number; positions: number; leaveTypes: number; schedules: number }): Promise<HrCatalog> {
+  const supabase = await createClient();
   const windowFor = (page: number) => ({ from: (page - 1) * PAGE_SIZE, to: page * PAGE_SIZE - 1 });
   const departmentsWindow = windowFor(pages.departments);
   const positionsWindow = windowFor(pages.positions);

@@ -23,7 +23,7 @@ export default async function FiscalYearsPage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Exercices" description="Exercices comptables et periodes associees." />
+      <PageHeader title="Exercices" description="Exercices comptables et périodes associées." />
       <OpenFiscalYearForm action={openAccountingFiscalYear} />
       <div className="space-y-8">
         {fiscalYears.length === 0 ? (

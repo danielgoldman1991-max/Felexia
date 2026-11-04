@@ -18,7 +18,7 @@ export function SettingsForm({ action, settings }: Props) {
     { label: "Journal achats", name: "purchases_journal_code", defaultValue: settings?.purchases_journal_code ?? "AC", description: "Code du journal des achats" },
     { label: "Journal banque", name: "bank_journal_code", defaultValue: settings?.bank_journal_code ?? "BQ", description: "Code du journal de banque" },
     { label: "Journal caisse", name: "cash_journal_code", defaultValue: settings?.cash_journal_code ?? "CA", description: "Code du journal de caisse" },
-    { label: "Journal OD", name: "od_journal_code", defaultValue: settings?.od_journal_code ?? "OD", description: "Code du journal des operations diverses" },
+    { label: "Journal OD", name: "od_journal_code", defaultValue: settings?.od_journal_code ?? "OD", description: "Code du journal des opérations diverses" },
     { label: "Compte client", name: "default_customer_account_code", defaultValue: settings?.default_customer_account_code ?? "3421", description: "Compte par défaut pour les clients" },
     { label: "Compte fournisseur", name: "default_supplier_account_code", defaultValue: settings?.default_supplier_account_code ?? "4411", description: "Compte par défaut pour les fournisseurs" },
     { label: "Compte ventes", name: "default_sales_account_code", defaultValue: settings?.default_sales_account_code ?? "7111", description: "Compte par défaut pour les ventes" },

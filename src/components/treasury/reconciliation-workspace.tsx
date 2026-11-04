@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { MoneyDisplay } from "@/components/erp/money-display";
@@ -111,6 +111,21 @@ function AutomaticSuggestionsForm({ suggestions }: { suggestions: Reconciliation
   );
 }
 
+function AccountFilter({ accounts, selectedAccountId }: { accounts: TreasuryAccountRecord[]; selectedAccountId: string }) {
+  const [pending, setPending] = useState(false);
+  return (
+    <form method="get" onSubmit={() => setPending(true)} className="flex max-w-md items-end gap-3">
+      <label className="flex-1 space-y-2 text-sm">
+        <span className="font-medium">Compte bancaire</span>
+        <Select name="accountId" defaultValue={selectedAccountId}>
+          {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
+        </Select>
+      </label>
+      <Button type="submit" disabled={pending} aria-busy={pending}>{pending ? "Chargement…" : "Afficher"}</Button>
+    </form>
+  );
+}
+
 export function ReconciliationWorkspace({
   accounts,
   selectedAccountId,
@@ -132,15 +147,7 @@ export function ReconciliationWorkspace({
     <div className="space-y-5">
       <Card>
         <CardContent>
-          <form method="get" className="flex max-w-md items-end gap-3">
-            <label className="flex-1 space-y-2 text-sm">
-              <span className="font-medium">Compte bancaire</span>
-              <Select name="accountId" defaultValue={selectedAccountId}>
-                {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
-              </Select>
-            </label>
-            <Button type="submit">Afficher</Button>
-          </form>
+          <AccountFilter accounts={accounts} selectedAccountId={selectedAccountId} />
         </CardContent>
       </Card>
 
@@ -165,7 +172,7 @@ export function ReconciliationWorkspace({
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card>
-          <CardHeader><h2 className="font-semibold">Lignes bancaires non rapprochees</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Lignes bancaires non rapprochées</h2></CardHeader>
           <CardContent>
             <Table>
               <thead><tr><Th>Date</Th><Th>Libellé</Th><Th>Sens</Th><Th>Montant</Th><Th>Suggestion</Th><Th>Actions</Th></tr></thead>
@@ -176,7 +183,7 @@ export function ReconciliationWorkspace({
                     <tr key={line.id}>
                       <Td>{line.operation_date}</Td>
                       <Td>{line.label}</Td>
-                      <Td><Badge tone={line.direction === "in" ? "success" : "warning"}>{line.direction === "in" ? "Credit" : "Debit"}</Badge></Td>
+                      <Td><Badge tone={line.direction === "in" ? "success" : "warning"}>{line.direction === "in" ? "Crédit" : "Débit"}</Badge></Td>
                       <Td><MoneyDisplay value={line.amount} /></Td>
                       <Td>{suggestion ? <ReconciliationSuggestionBadge score={suggestion.score} /> : "-"}</Td>
                       <Td>
@@ -195,7 +202,7 @@ export function ReconciliationWorkspace({
         </Card>
 
         <Card>
-          <CardHeader><h2 className="font-semibold">Mouvements internes non rapproches</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Mouvements internes non rapprochés</h2></CardHeader>
           <CardContent>
             <Table>
               <thead><tr><Th>Date</Th><Th>Libellé</Th><Th>Sens</Th><Th>Montant</Th><Th>Reference</Th></tr></thead>

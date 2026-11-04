@@ -49,7 +49,7 @@ function periodLabel(filters: AccountingJournalEntryFilters) {
   if (filters.date_from && filters.date_to) return `${filters.date_from} au ${filters.date_to}`;
   if (filters.date_from) return `Depuis ${filters.date_from}`;
   if (filters.date_to) return `Jusqu'au ${filters.date_to}`;
-  return "Toutes periodes";
+  return "Toutes périodes";
 }
 
 export default async function AccountingJournalDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: SearchParams }) {
@@ -71,7 +71,7 @@ export default async function AccountingJournalDetailPage({ params, searchParams
     <ModulePage>
       <PageHeader
         title={`Journal ${detail.journal.code} - ${detail.journal.name}`}
-        description="Detail des écritures comptables du journal."
+        description="Détail des écritures comptables du journal."
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href="/comptabilite/journaux"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>

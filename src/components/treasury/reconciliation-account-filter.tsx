@@ -13,7 +13,7 @@ export function ReconciliationAccountFilter({ accounts, selectedAccountId }: { a
           {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
         </select>
       </label>
-      <Button type="submit" disabled={pending} aria-busy={pending}>{pending ? "Affichage…" : "Afficher"}</Button>
+      <Button type="submit" disabled={pending} aria-busy={pending}>{pending ? "Chargement…" : "Afficher"}</Button>
     </form>
   );
 }

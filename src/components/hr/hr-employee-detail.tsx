@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { frenchStatusLabel, StatusBadge } from "@/components/erp/status-badge";
 import { Table, Td, Th } from "@/components/ui/table";
+import { ArchiveEmployeeButton } from "@/components/hr/archive-employee-button";
 import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 type Detail = {
@@ -20,7 +21,7 @@ type Detail = {
 
 type DetailRecord = Record<string, unknown>;
 
-export function HrEmployeeDetail({ detail }: { detail: Detail }) {
+export function HrEmployeeDetail({ detail, canWrite = false }: { detail: Detail; canWrite?: boolean }) {
   const employee = detail.employee;
   return (
     <div className="space-y-6">
@@ -29,10 +30,13 @@ export function HrEmployeeDetail({ detail }: { detail: Detail }) {
         description={`Matricule ${getString(employee, "employee_number")} · ${getNestedString(employee, "position", "title", "Poste à affecter")} · ${getNestedString(employee, "department", "name", "Département à affecter")}`}
         actions={
           <HrManagementAction>
-          <Link href={`/rh/employes/${getString(employee, "id")}/edit`} className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]">
-            <Pencil className="mr-2 h-4 w-4" />
-            Modifier
-          </Link>
+          <span className="flex flex-wrap items-center gap-2">
+            <Link href={`/rh/employes/${getString(employee, "id")}/edit`} className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-soft)]">
+              <Pencil className="mr-2 h-4 w-4" />
+              Modifier
+            </Link>
+            {canWrite && !employee.archived_at ? <ArchiveEmployeeButton employeeId={getString(employee, "id")} /> : null}
+          </span>
           </HrManagementAction>
         }
       />

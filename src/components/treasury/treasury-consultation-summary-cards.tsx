@@ -12,7 +12,7 @@ export function TreasuryConsultationSummaryCards({ summary }: { summary: Treasur
       <StatCard title="Flux comptabilises" value={`${summary.posted_count} / ${summary.total_entries}`} icon={<CheckCircle2 className="h-5 w-5" />} caption={summary.posted_count > 0 ? `${((summary.posted_count / summary.total_entries) * 100).toFixed(0)}% comptabilise` : undefined} />
       <StatCard title="Non comptabilises" value={summary.not_posted_count} icon={<Clock className="h-5 w-5" />} />
       <StatCard title="Rapproches" value={summary.reconciled_count} icon={<CheckCircle2 className="h-5 w-5" />} />
-      <StatCard title="Non rapproches" value={summary.unreconciled_count} icon={<Banknote className="h-5 w-5" />} />
+      <StatCard title="Non rapprochés" value={summary.unreconciled_count} icon={<Banknote className="h-5 w-5" />} />
     </div>{summary.currencyTotals?.filter((total) => total.currency !== "MAD").map((total) => <p key={total.currency} className="mb-3 text-sm text-[var(--muted)]">{total.currency} : entrées {total.total_in.toFixed(2)} · sorties {total.total_out.toFixed(2)} · net {total.net_flow.toFixed(2)}. Devise conservée séparément.</p>)}</>
   );
 }

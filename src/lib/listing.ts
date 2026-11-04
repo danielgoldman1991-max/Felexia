@@ -14,6 +14,19 @@ export function positivePage(value: unknown, fallback = 1): number {
   return Number.isSafeInteger(page) && page > 0 ? page : fallback;
 }
 
+/** Keep a requested page inside 1..last. Page 0, negatives and values past the end stay on a real page. */
+export function boundedPage(page: unknown, total: number, pageSize: number) {
+  const size = Math.max(1, Math.floor(pageSize) || 1);
+  const safeTotal = Number.isFinite(total) && total > 0 ? Math.floor(total) : 0;
+  const totalPages = Math.max(1, Math.ceil(safeTotal / size));
+  return { page: Math.min(positivePage(page), totalPages), pageSize: size, totalPages };
+}
+
+export function isUnsatisfiableRange(error: { code?: string; message?: string } | null | undefined) {
+  if (!error) return false;
+  return error.code === "PGRST103" || /requested range not satisfiable|\b416\b/i.test(error.message ?? "");
+}
+
 export function pageRows<T>(rows: T[], page: number, pageSize: number) {
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
   const current = Math.min(positivePage(page), totalPages);

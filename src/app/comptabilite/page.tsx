@@ -25,11 +25,11 @@ export default async function AccountingPage() {
     { title: "Journaux", href: "/comptabilite/journaux", count: journals.length, description: "Journaux de saisie" },
     { title: "Écritures", href: "/comptabilite/ecritures", count: entries.total, description: "Saisie et consultation" },
     { title: "Auxiliaires", href: "/comptabilite/auxiliaires", count: 0, description: "Tiers comptables" },
-    { title: "Exercices", href: "/comptabilite/exercices", count: 0, description: "Exercices et periodes" },
+    { title: "Exercices", href: "/comptabilite/exercices", count: 0, description: "Exercices et périodes" },
     { title: "Balance", href: "/comptabilite/balance", count: 0, description: "Balance des comptes" },
     { title: "Grand livre", href: "/comptabilite/grand-livre", count: 0, description: "Grand livre général" },
     { title: "Journal général", href: "/comptabilite/journal-general", count: 0, description: "Journal chronologique" },
-    { title: "TVA", href: "/comptabilite/tva", count: 0, description: "Declaration et controle" },
+    { title: "TVA", href: "/comptabilite/tva", count: 0, description: "Déclaration et contrôle" },
     { title: "Exports", href: "/comptabilite/exports", count: 0, description: "Export cabinet comptable" },
     { title: "Paramètres", href: "/comptabilite/parametres", count: 0, description: "Configuration" },
   ];
@@ -38,7 +38,7 @@ export default async function AccountingPage() {
     <ModulePage>
       <PageHeader
         title="Comptabilité"
-        description="Plan comptable, saisie, lettrage, declarations et exports."
+        description="Plan comptable, saisie, lettrage, déclarations et exports."
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {sections.map((section) => (
