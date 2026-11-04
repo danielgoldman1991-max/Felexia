@@ -1,12 +1,28 @@
-import { EmptyState } from "@/components/erp/empty-state";
+import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 
-export default function RapportsPage() {
+const reports = [
+  { href: "/comptabilite/balance", label: "Balance" },
+  { href: "/comptabilite/grand-livre", label: "Grand livre" },
+  { href: "/comptabilite/etats", label: "Bilan et CPC" },
+  { href: "/comptabilite/liasse", label: "Liasse de gestion" },
+  { href: "/comptabilite/tva", label: "TVA" },
+  { href: "/tresorerie", label: "Trésorerie" },
+  { href: "/tresorerie/previsions", label: "Prévisions" },
+  { href: "/vente", label: "Ventes" },
+  { href: "/achats", label: "Achats" },
+];
+
+export default function ReportsPage() {
   return (
     <ModulePage>
-      <PageHeader title="Rapports avancés · À venir" description="Cet espace de rapports supplémentaires n’est pas encore disponible." />
-      <EmptyState title="Fonctionnalité à venir" description="Utilisez les tableaux de bord de ventes, d’achats et de trésorerie ainsi que les rapports comptables disponibles dans leurs modules. Notre équipe précise avec vous le périmètre de votre projet PRO." />
+      <PageHeader title="Rapports" description="Accès aux états déjà produits dans chaque module. Il n'y a pas de suite analytique supplémentaire." />
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {reports.map((report) => (
+          <li key={report.href}><Link className="block rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] px-4 py-3 font-medium text-[var(--primary)] hover:underline" href={report.href}>{report.label}</Link></li>
+        ))}
+      </ul>
     </ModulePage>
   );
 }

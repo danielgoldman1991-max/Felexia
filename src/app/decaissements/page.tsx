@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function DisbursementsPage() {
-  return <PlaceholderPage title="Decaissements" description="Vue consolidee des sorties de tresorerie." />;
+export default function Page() {
+  redirect("/tresorerie/mouvements");
 }

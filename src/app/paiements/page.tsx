@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function PaiementsPage() {
-  return <PlaceholderPage title="Paiements clients" description="Encaissements, rapprochements et statut facture." />;
+export default function Page() {
+  redirect("/facturation/paiements");
 }

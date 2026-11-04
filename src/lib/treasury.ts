@@ -242,6 +242,19 @@ export async function getBankStatementImportDetail(id: string) {
   return { statementImport: importData.data ? mapImport(importData.data) : null, lines: (linesData.data ?? []).map(mapLine) };
 }
 
+export async function listReconciledStatementLines(accountId: string) {
+  const orgId = await activeOrgId();
+  const supabase = await createClient();
+  const result = await supabase.from("bank_statement_lines").select(LINE_SELECT).eq("organization_id", orgId).eq("treasury_account_id", accountId).eq("reconciliation_status", "reconciled").order("operation_date", { ascending: false }).limit(30);
+  if (result.error && isMissingColumnError(result.error)) {
+    const legacy = await supabase.from("bank_statement_lines").select(LEGACY_LINE_SELECT).eq("organization_id", orgId).eq("treasury_account_id", accountId).eq("reconciliation_status", "reconciled").order("operation_date", { ascending: false }).limit(30);
+    if (legacy.error) throw new Error(legacy.error.message);
+    return (legacy.data ?? []).map(mapLine);
+  }
+  if (result.error) throw new Error(result.error.message);
+  return (result.data ?? []).map(mapLine);
+}
+
 export async function listUnreconciledStatementLines(accountId: string) {
   const orgId = await activeOrgId();
   const supabase = await createClient();
@@ -262,8 +275,10 @@ export async function listUnreconciledTreasuryTransactions(accountId: string) {
 export async function getReconciliationWorkspace(accountId?: string, options: { includeSuggestions?: boolean } = {}) {
   const accounts = await listActiveTreasuryAccounts();
   const selectedAccountId = accountId || accounts[0]?.id || "";
-  const [statementLines, transactions] = selectedAccountId ? await Promise.all([listUnreconciledStatementLines(selectedAccountId), listUnreconciledTreasuryTransactions(selectedAccountId)]) : [[], []];
-  return { accounts, selectedAccountId, statementLines, transactions, suggestions: options.includeSuggestions ? suggestMatches(statementLines, transactions) : [] };
+  const [statementLines, transactions, reconciledLines] = selectedAccountId
+    ? await Promise.all([listUnreconciledStatementLines(selectedAccountId), listUnreconciledTreasuryTransactions(selectedAccountId), listReconciledStatementLines(selectedAccountId)])
+    : [[], [], []];
+  return { accounts, selectedAccountId, statementLines, transactions, reconciledLines, suggestions: options.includeSuggestions ? suggestMatches(statementLines, transactions) : [] };
 }
 
 function daysBetween(a: string, b: string) {

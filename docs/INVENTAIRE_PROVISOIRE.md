@@ -23,14 +23,14 @@ Légende des décisions : **implémenté** (parcours réel dans l'application), 
 
 | Élément | Fichier | État avant | Décision |
 | --- | --- | --- | --- |
-| Liasse CGNC | `src/lib/accounting/liasse.ts`, `/comptabilite/liasse` | Quatre totaux, 5 000 lignes, capitaux d'ouverture à 0, pas d'export | **À compléter** dans la PR comptabilité : postes, impression, Excel. Reste une liasse de gestion, pas une liasse certifiée. |
+| Liasse CGNC | `src/lib/accounting/liasse.ts`, `/comptabilite/liasse` | Quatre totaux, 5 000 lignes, pas d'export | **Implémenté** comme liasse de gestion : postes, impression, Excel. Capitaux d'ouverture non repris d'un bilan N-1. Pas une liasse certifiée. |
+| FEC | `/comptabilite/fec` | Journal forcé à OD, plafond 5 000 | **Implémenté** : code journal réel, lecture paginée jusqu'à 20 000 lignes. Export de type FEC, pas un dépôt. |
+| Relevés et rapprochement | `/tresorerie/releves`, `/tresorerie/rapprochement` | CSV seulement, annulation absente | **Implémenté** : OFX/QFX et annulation (`status = cancelled`). |
 | Bilan et CPC | `/comptabilite/etats` | Synthèse des classes 1 à 7 | Conservé comme synthèse. Le détail est sur la liasse. |
-| FEC | `/comptabilite/fec` | Texte tabulé, journal forcé à OD, plafond 5 000 | **À compléter** : code journal réel et lecture paginée. Reste un export de type FEC, pas un dépôt. |
 | Lettrage comptable | `/comptabilite/lettrage` | 3421 / 4411 | Déjà en place. |
 | Déclaration TVA | `/comptabilite/tva` | CRUD, contrôle, XML/CSV préparatoires vers Storage | Déjà en place, non homologué DGI. |
 | EDI SIMPL | `/comptabilite/tva/edi-simpl` | Fichier vide hors en-tête | **À brancher** sur les lignes de déclaration. Pas de télé-dépôt. |
 | Excel TVA DGI | `src/lib/tax/dgi-vat-xlsx.ts` | `DGI_VAT_XLSX_AVAILABLE = false` | **Laissé.** Le XML et le CSV préparatoires existent. Ajouter une dépendance tableur n'apporte pas le schéma DGI. |
-| Relevés et rapprochement | `/tresorerie/releves`, `/tresorerie/rapprochement` | Import CSV, suggestions, lettrage des lignes. Annulation renvoyée « prochaine itération ». Menu visible. | **À compléter** : OFX/QFX et annulation d'un rapprochement (`status = cancelled`, déjà prévu en base). |
 | Prévisions de trésorerie | `/tresorerie/previsions` | Opérationnel | Conservé. |
 | Page Exports comptables | `/comptabilite/exports` | Liens vers les vrais exports | Conservée comme index, sans promettre un FEC depuis cette seule page. |
 
@@ -47,18 +47,18 @@ Légende des décisions : **implémenté** (parcours réel dans l'application), 
 
 | Élément | Fichier | Décision |
 | --- | --- | --- |
-| Inventaire physique | `/stock/inventaire/sessions` | Déjà livré (migration 122). Les textes vitrine qui disent encore « à venir » sont **à corriger**. |
-| Agenda, tâches, rappels, échéances, relances legacy | `src/app/agenda/*`, `src/app/relances` | Placeholders. **À remplacer** par les échéances déjà en base (factures, contrats, congés). Pas un second calendrier. |
-| Anciennes maquettes | `/avoirs`, `/banques`, `/caisses`, `/encaissements`, `/decaissements`, `/paiements` | Placeholders alors que les écrans réels existent. **À rediriger.** |
-| GED archives / modèles / pièces jointes | `/documents/archives`, `/documents/modeles`, `/documents/pieces-jointes` | Placeholders. Le module `/documents` et son import existent. **À rediriger.** |
-| Outils | `/outils`, `/outils/import-export` | Placeholders. Le journal d'audit `/outils/audit-log` est réel. |
-| Rapports avancés | `/rapports` | Vide « à venir ». **À remplacer** par un index des rapports déjà produits (balance, journaux, TVA, trésorerie). Pas une suite analytique nouvelle. |
+| Inventaire physique | `/stock/inventaire/sessions` | Déjà livré (migration 122). Les textes vitrine faux ont été alignés. |
+| Agenda | `src/app/agenda` | **Implémenté** à partir des factures ouvertes, et des contrats ou congés en PRO. |
+| Anciennes maquettes | `/avoirs`, `/banques`, `/caisses`, `/encaissements`, `/decaissements`, `/paiements`, `/relances` | **Redirigées** vers les écrans réels. |
+| GED archives / modèles / pièces jointes | `/documents/archives`, `/documents/modeles`, `/documents/pieces-jointes` | **Redirigées** vers `/documents`. |
+| Outils | `/outils`, `/outils/import-export` | **Redirigés** vers le journal d'audit et l'import de documents. |
+| Rapports | `/rapports` | **Implémenté** comme index des états existants. Pas de suite analytique nouvelle. |
 | CRM | menu masqué, fiches tiers réelles | Les fiches clients, prospects et le pipeline sont livrés. Le menu CRM groupé reste masqué : les entrées sont déjà sous Ventes et Tiers. **Laissé** pour ne pas dupliquer la navigation. |
 | Demandes et consultations d'achat, retenues | `/achats/demandes`, `/achats/consultations` | Déjà livrés sur les PR précédentes. La retenue à la source reste un calcul préparatoire, pas une déclaration. |
 
 ## Vitrine et contenu
 
-Les pages `/pro`, tarifs, articles et base d'aide décrivent encore l'inventaire, l'agenda et les attestations comme non livrés. **À aligner** sur le périmètre réel, sans annoncer de dépôt DGI ou de paie certifiée.
+Les pages publiques ont été alignées sur ce périmètre : inventaire, agenda, attestations et liasse de gestion sont décrits comme disponibles. Le dépôt DGI, Damancom et la paie certifiée ne sont pas annoncés.
 
 ## Hors produit, laissés tels quels
 

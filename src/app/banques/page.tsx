@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function BanksPage() {
-  return <PlaceholderPage title="Banques" description="Comptes bancaires, soldes et rapprochements a venir." />;
+export default function Page() {
+  redirect("/tresorerie/comptes");
 }

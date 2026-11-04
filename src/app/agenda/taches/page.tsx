@@ -1,5 +1,7 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { AgendaBoard } from "@/components/agenda/agenda-board";
 
-export default function TasksPage() {
-  return <PlaceholderPage title="Taches" description="Taches internes et suivi operationnel." />;
+export const dynamic = "force-dynamic";
+
+export default function AgendaTasksPage() {
+  return <AgendaBoard filter="conge" />;
 }

@@ -77,7 +77,7 @@ const content: ProductOfferContent = {
   scope: [
     { title: "TVA et paie : des travaux préparatoires", description: "Les déclarations TVA et leurs exports doivent être validés avec votre conseil fiscal. La paie couvre une préparation de base ; les variables, la validation finale et les déclarations sociales ne constituent pas un cycle de paie complet livré." },
     { title: "Certaines vues restent en consultation", description: "Plusieurs écrans RH, notamment les congés, présences et frais, sont des consultations sans parcours complet de création et d’approbation. Le détail complet des contrats et la génération d’attestations ne sont pas promis." },
-    { title: "Les fonctions « à venir » sont exclues", description: "L’inventaire physique, l’agenda et les écrans signalés « à venir » ne sont pas opérationnels. Ils ne sont pas présentés comme des fonctions utilisables dans votre devis." },
+    { title: "Les dépôts officiels restent manuels", description: "La liasse de gestion, le rapprochement bancaire et les fichiers TVA se préparent dans Felexia. Le télé-dépôt DGI ou Damancom et la signature qualifiée ne sont pas simulés." },
   ],
   questions: [
     { question: "Pourquoi PRO est-il uniquement sur devis ?", answer: "Le projet dépend des métiers concernés et des parcours que vous souhaitez mettre en place. Notre équipe précise les fonctions utilisables et vous transmet une proposition ; aucun prix PRO ni achat direct en ligne n’est proposé." },

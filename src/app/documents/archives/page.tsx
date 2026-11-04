@@ -1,5 +1,5 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { redirect } from "next/navigation";
 
-export default function DocumentArchivesPage() {
-  return <PlaceholderPage title="Archives" description="Documents archives et historique de conservation." />;
+export default function Page() {
+  redirect("/documents");
 }

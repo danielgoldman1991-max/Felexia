@@ -1,5 +1,7 @@
-import { PlaceholderPage } from "@/components/erp/placeholder-page";
+import { AgendaBoard } from "@/components/agenda/agenda-board";
 
-export default function AgendaFollowUpsPage() {
-  return <PlaceholderPage title="Relances a faire" description="Relances clients, prospects et échéances prioritaires." />;
+export const dynamic = "force-dynamic";
+
+export default function AgendaRemindersPage() {
+  return <AgendaBoard filter="overdue" />;
 }

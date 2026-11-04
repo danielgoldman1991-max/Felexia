@@ -25,7 +25,7 @@ const article: BlogArticle = {
     "Le suivi des emplacements et des mouvements de stock est décrit dans Felexia PRO, pas sur les pages ESSENTIEL.",
     "PRO couvre les entrées, les sorties, les transferts, l’historique, les réceptions liées aux commandes fournisseurs, les livraisons et les retours clients.",
     "PRO se prépare sur devis et inclut tout ESSENTIEL, facturation comprise. L’essai gratuit ouvre d’abord ESSENTIEL.",
-    "L’inventaire physique est signalé « à venir ». Il ne se compte pas comme une fonction utilisable.",
+    "Les sessions d'inventaire physique permettent de compter un emplacement, puis de valider l'écart.",
   ],
   introduction: [
     "Un logiciel de gestion de stock, pour une PME au Maroc, sert à savoir où sont les articles et quels documents ont fait entrer ou sortir une quantité. Dans Felexia, ce suivi fait partie de PRO. Il ne figure pas dans le descriptif public d’ESSENTIEL. ",
@@ -74,7 +74,7 @@ const article: BlogArticle = {
     },
     p("Le contrôle est arithmétique : 40 + 20 − 15 − 10 + 2 = 47 en réserve, et les 10 cartons transférés sont au comptoir. Si un écran ne permet pas de retrouver l’une de ces lignes, la quantité affichée ne suffit pas à expliquer l’écart. C’est le rapprochement décrit entre le terrain et les documents, pas une preuve comptable."),
     h2("checklist-devis", "Check-list avant de demander le devis"),
-    p("La demande est plus utile si elle décrit votre circuit réel. L’inventaire physique ne fait pas encore partie des fonctions à demander."),
+    p("La demande est plus utile si elle décrit votre circuit réel. Les sessions d'inventaire physique font partie des fonctions PRO à préciser dans le devis."),
     {
       type: "checklist",
       title: "À préparer pour le devis PRO",
@@ -85,12 +85,12 @@ const article: BlogArticle = {
         "Si les retours clients doivent revenir sur un emplacement précis.",
         "Le nombre de personnes qui ouvriront le logiciel, dans la limite publiée de 25 utilisateurs.",
         "Ce qui doit rester dans le socle ESSENTIEL : factures, règlements, banque, journaux.",
-        "La confirmation que l’inventaire physique n’est pas compté comme disponible.",
+        "Le circuit d'inventaire physique à décrire : emplacement, qui compte, qui valide.",
         "Le canal de la demande : la page PRO, puis l’envoi effectif du message.",
       ],
     },
     h2("pas-encore-un-inventaire", "Ce qui n’est pas encore un inventaire utilisable"),
-    p("L’inventaire physique est signalé « à venir ». Il ne faut pas le compter dans un devis, ni l’annoncer à une équipe comme un comptage déjà possible dans le logiciel. Les écrans marqués « à venir », dont l’agenda, sont dans le même cas."),
+    p("Les sessions d'inventaire physique enregistrent un comptage par emplacement. Elles ne remplacent pas le conseil sur la valorisation. L'agenda, lui, reprend les échéances déjà présentes dans les factures."),
     p("Les quantités suivies aident le pilotage. Elles ne dispensent pas de contrôler les écarts sur le terrain. Elles ne disent pas, à elles seules, comment comptabiliser le stock. Ce traitement se valide avec votre conseil. Le site ne publie pas ici de méthode de coût unitaire moyen pondéré ni de premier entré, premier sorti."),
     {
       type: "callout",
@@ -126,7 +126,7 @@ const article: BlogArticle = {
     },
     {
       question: "Puis-je faire un inventaire physique ?",
-      answer: "Non. L’inventaire physique reste un écran « à venir ». Il n’est pas une fonction opérationnelle à inclure dans le devis.",
+      answer: "Oui, par une session de comptage sur un emplacement, puis une validation de l'écart. Ce n'est pas une valorisation comptable certifiée.",
     },
     {
       question: "L’essai gratuit permet-il de tester le stock ?",
@@ -158,7 +158,7 @@ const article: BlogArticle = {
     { label: "Felexia — page ESSENTIEL : facturation et trésorerie, sans suivi des emplacements", href: "/essentiel", consulted },
     { label: "Felexia — facturation électronique, incluse dans les deux offres après activation", href: "/facturation-electronique-maroc", consulted },
   ],
-  disclaimer: "Contenu informatif, non contractuel. Les fonctions présentées sont celles de Felexia PRO au 3 novembre 2026. L’inventaire physique n’est pas encore disponible. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 3 novembre 2026.",
+  disclaimer: "Contenu informatif, non contractuel. Les sessions d'inventaire physique sont disponibles dans PRO. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 4 novembre 2026.",
 };
 
 export default article;

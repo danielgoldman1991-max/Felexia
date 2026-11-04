@@ -16,7 +16,7 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Import releve bancaire</h2>
-          <p className="mt-1 text-sm text-[var(--muted)]">Format CSV standard : date,value_date,label,reference,debit,credit,balance</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">CSV (date, libellé, débit, crédit) ou relevé OFX/QFX.</p>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm">
@@ -28,11 +28,11 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium">Format</span>
-            <Select name="file_type" defaultValue="csv"><option value="csv">CSV</option></Select>
+            <Select name="file_type" defaultValue="csv"><option value="csv">CSV</option><option value="ofx">OFX / QFX</option></Select>
           </label>
           <label className="space-y-2 text-sm md:col-span-2">
-            <span className="font-medium">Fichier CSV *</span>
-            <Input name="file" type="file" accept=".csv,text/csv" required />
+            <span className="font-medium">Fichier *</span>
+            <Input name="file" type="file" accept=".csv,.ofx,.qfx,text/csv,application/x-ofx" required />
           </label>
         </CardContent>
       </Card>

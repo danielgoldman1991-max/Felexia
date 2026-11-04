@@ -15,7 +15,7 @@ export default async function BankStatementImportsPage() {
     <ModulePage>
       <PageHeader
         title="Relevés bancaires"
-        description="Imports de relevés utilisés par le rapprochement."
+        description="Importez un fichier pour rapprocher les lignes avec les mouvements de trésorerie."
         actions={<Button asChild><Link href="/tresorerie/releves/import">Importer un relevé</Link></Button>}
       />
       {imports.length === 0 ? (
