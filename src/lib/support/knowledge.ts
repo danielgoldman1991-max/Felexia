@@ -148,7 +148,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "stock", title: "PRO : stock, dépôts et mouvements",
     keywords: ["stock", "dépôt", "depot", "entrepôt", "entrepot", "emplacement", "entrée", "sortie", "transfert", "warehouse", "inventory movement", "مخزون", "مستودع", "ستوك", "stok"],
-    content: "Les fonctions de stock de PRO comprennent les articles stockables, emplacements, entrées, sorties, ajustements et mouvements, ainsi que les impacts des livraisons/retours et réceptions. Les transferts permettent de suivre des mouvements entre emplacements. Le sous-menu Inventaire reste un écran réservé et ne constitue pas encore une procédure d’inventaire physique complète. Ne pas promettre cette dernière fonction ; préciser le besoin de l’utilisateur et confirmer le périmètre avec l’équipe.",
+    content: "Les fonctions de stock de PRO comprennent les articles stockables, emplacements, entrées, sorties, ajustements et mouvements, ainsi que les impacts des livraisons/retours et réceptions. Les transferts permettent de suivre des mouvements entre emplacements. Les sessions d'inventaire physique comptent un emplacement puis valident l'écart. Ce n'est pas une valorisation comptable certifiée.",
     href: "/stock",
   },
   {
@@ -196,7 +196,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "documents-exports", title: "Documents, fichiers et exports disponibles",
     keywords: ["document", "documents", "ged", "pièce jointe", "piece jointe", "fichier", "csv", "excel", "export", "import", "attachment", "file", "download", "ملف", "وثيقة", "تصدير", "استيراد"],
-    content: "Felexia propose une bibliothèque documentaire avec import/téléchargement de fichiers selon les droits, des impressions PDF de documents commerciaux, des exports CSV selon les listes, ainsi que des exports dédiés de journaux et du plan comptable. Les quotas de stockage dépendent de l’offre. Il ne faut pas annoncer un import universel automatisé de toutes les données ou un export FEC/DGI opérationnel à partir des seules cartes de la page centrale d’exports. Certains sous-menus GED Archives/Modèles/Pièces jointes et Outils restent réservés ; le parcours d’archives des factures électroniques est une fonction distincte et disponible.",
+    content: "Felexia propose une bibliothèque documentaire avec import/téléchargement de fichiers selon les droits, des impressions PDF de documents commerciaux, des exports CSV selon les listes, ainsi que des exports dédiés de journaux et du plan comptable. Les quotas de stockage dépendent de l’offre. Il ne faut pas annoncer un import universel automatisé de toutes les données. Les anciennes adresses Archives, Modèles et Pièces jointes renvoient vers cette bibliothèque. Le FEC de type texte et les fichiers fiscaux préparatoires se téléchargent depuis la comptabilité ; ils ne sont pas un dépôt officiel.",
     href: "/documents",
   },
   {
