@@ -14,7 +14,7 @@ function isRedirectError(error: unknown) {
 }
 
 async function requireInventoryWrite() {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "stock" });
   if (!(await hasFullErpAccess(workspace.organization.id))) throw new Error("L’inventaire physique est réservé à l’offre PRO.");
   return workspace;
 }

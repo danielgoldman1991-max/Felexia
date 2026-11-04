@@ -17,12 +17,22 @@ export async function requireHrWorkspace(): Promise<ActiveWorkspace> {
   if (!(await hasFullErpAccess(workspace.organization.id))) {
     throw new Error("Le module Ressources humaines est inclus dans l’offre PRO.");
   }
+  const { moduleAccessErrorAny } = await import("@/lib/auth/module-permission");
+  const denied = await moduleAccessErrorAny(workspace, ["rh", "paie"], "read");
+  if (denied) throw new Error(denied);
   return workspace;
 }
 
-export async function requireWritableHrWorkspace(): Promise<ActiveWorkspace> {
+export async function requireWritableHrWorkspace(module: "rh" | "paie" = "rh"): Promise<ActiveWorkspace> {
   const workspace = await requireHrWorkspace();
-  if (!managementRoles.has(workspace.role ?? "")) {
+  const { modulePermissionDecision } = await import("@/lib/auth/module-permission");
+  const decision = await modulePermissionDecision(workspace, module, "write");
+  if (decision === "deny") {
+    throw new Error(module === "paie"
+      ? "Votre rôle ne permet pas de modifier le module Paie."
+      : "Votre rôle ne permet pas de modifier le module RH.");
+  }
+  if (decision !== "allow" && !managementRoles.has(workspace.role ?? "")) {
     throw new Error("Vous n'avez pas les droits nécessaires pour modifier le module RH.");
   }
   if (!canWriteWorkspaceSubscription(workspace.subscription)) {

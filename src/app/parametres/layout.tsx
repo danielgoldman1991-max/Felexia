@@ -31,6 +31,15 @@ const lightNavItems = [
 
 export default async function ParametresLayout({ children }: { children: ReactNode }) {
   const workspace = await requireActiveWorkspace();
+  const { moduleAccessError } = await import("@/lib/auth/module-permission");
+  const denied = await moduleAccessError(workspace, "parametres", "read");
+  if (denied) {
+    return (
+      <ModulePage>
+        <p className="text-sm text-[var(--foreground)]">{denied}</p>
+      </ModulePage>
+    );
+  }
   const fullAccess = await hasFullErpAccess(workspace.organization.id);
   const operator = isOperatorRole(workspace.role);
   const visibleNavItems = operator ? navItems.filter((item) => isOperatorPathAllowed(item.href)) : fullAccess ? navItems : lightNavItems;

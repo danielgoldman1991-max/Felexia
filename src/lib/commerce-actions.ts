@@ -98,7 +98,7 @@ export async function createSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const third_party_id = text(formData, "third_party_id");
   if (!third_party_id) return { success: false, error: "Le client est obligatoire." };
@@ -184,7 +184,7 @@ export async function updateSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
@@ -284,7 +284,7 @@ export async function archiveSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
@@ -307,7 +307,7 @@ export async function sendSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
@@ -341,7 +341,7 @@ export async function acceptSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
@@ -375,7 +375,7 @@ export async function rejectSalesQuote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant devis manquant." };
@@ -409,7 +409,7 @@ export async function convertQuoteToOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const quote_id = text(formData, "quote_id");
   if (!quote_id) return { success: false, error: "Identifiant devis manquant." };
@@ -516,7 +516,7 @@ export async function createSalesOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const third_party_id = text(formData, "third_party_id");
   if (!third_party_id) return { success: false, error: "Le client est obligatoire." };
@@ -616,7 +616,7 @@ export async function updateSalesOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant commande manquant." };
@@ -731,7 +731,7 @@ export async function archiveSalesOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant commande manquant." };
@@ -754,7 +754,7 @@ export async function confirmSalesOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant commande manquant." };
@@ -788,7 +788,7 @@ export async function createDeliveryFromOrder(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const order_id = text(formData, "order_id");
   if (!order_id) return { success: false, error: "Identifiant commande manquant." };
@@ -859,7 +859,7 @@ export async function createDeliveryNote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const third_party_id = text(formData, "third_party_id");
   if (!third_party_id) return { success: false, error: "Le client est obligatoire." };
@@ -917,7 +917,7 @@ export async function updateDeliveryNote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant bon de livraison manquant." };
@@ -987,7 +987,7 @@ export async function archiveDeliveryNote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant bon de livraison manquant." };
@@ -1010,7 +1010,7 @@ export async function validateDeliveryNote(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant bon de livraison manquant." };
@@ -1044,7 +1044,7 @@ export async function markDeliveryAsDelivered(
   formData: FormData,
 ): Promise<CommerceActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
 
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant bon de livraison manquant." };

@@ -19,7 +19,7 @@ function numberValue(formData: FormData, key: string) {
 }
 
 async function createStockMovement(formData: FormData, moveType: AtomicStockMovement["move_type"], direction: StockMoveDirection) {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "stock" });
   const supabase = await createClient();
   const productId = text(formData, "product_id");
   const quantity = numberValue(formData, "quantity");
@@ -118,7 +118,7 @@ export async function transferStock(
   formData: FormData,
 ): Promise<StockActionResult> {
   void previousState;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "stock" });
   const productId = text(formData, "product_id");
   const fromId = text(formData, "from_warehouse_id");
   const toId = text(formData, "to_warehouse_id");

@@ -133,6 +133,7 @@ jobs:
           node training/pro-offers/20261101/verify-signup-continuation.cjs
           node training/google-oauth/20261101/verify-server-pkce.cjs
           node training/pro-offers/20261101/verify-hr-guards.cjs
+          node training/rbac/verify-module-access.cjs
           node training/essential-fixes/20261031/verify-webhook-recovery.cjs
           node training/essential-fixes/20261031/verify-recovery-actions.cjs
           node training/essential-fixes/20261031/verify-expiry-harness.cjs

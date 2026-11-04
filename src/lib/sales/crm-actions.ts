@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function createOpportunity(previous: { error?: string }, formData: FormData): Promise<{ error?: string }> {
   void previous;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   if (!(await hasFullErpAccess(workspace.organization.id))) return { error: "Le pipeline est inclus dans l'offre PRO." };
   if (isReadOnlyRole(workspace.role)) return { error: "Votre accès est en lecture seule." };
   const title = String(formData.get("title") ?? "").trim();

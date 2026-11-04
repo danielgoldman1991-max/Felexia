@@ -12,6 +12,9 @@ export async function updatePreferencesAction(
 ): Promise<PrefsState> {
   try {
     const workspace = await requireActiveWorkspace();
+    const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+    const gate = await enforceModuleWrite(workspace, "parametres", true);
+    if (gate) return { error: gate, success: false };
     const getVal = (key: string): string => {
       const v = formData.get(key);
       return typeof v === "string" && v.trim() ? v.trim() : "";

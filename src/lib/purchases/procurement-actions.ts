@@ -22,7 +22,7 @@ function money(value: FormDataEntryValue | null) {
 }
 
 async function guard() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "achats", level: "write" });
   if (!(await hasFullErpAccess(workspace.organization.id))) {
     return { workspace, error: "Les demandes d'achat et les consultations sont incluses dans l'offre PRO." };
   }

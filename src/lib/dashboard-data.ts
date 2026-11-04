@@ -14,6 +14,8 @@ export interface LightDashboardData {
 /** Only invoices and cash accounts are read by the launch dashboard. */
 export async function getLightDashboardData(): Promise<LightDashboardData | null> {
   const workspace = await requireActiveWorkspace();
+  const { moduleAccessError } = await import("@/lib/auth/module-permission");
+  if (await moduleAccessError(workspace, "dashboard", "read")) return null;
   const supabase = await createClient();
   const orgId = workspace.organization.id;
   type InvoiceRow = { id: string; invoice_number: string; invoice_date: string; total_ttc: number; remaining_amount: number; currency: string; status: string; created_at: string };

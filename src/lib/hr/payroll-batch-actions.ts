@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { isNextControlFlow } from "@/lib/hr/leave-balance";
 import { logAudit } from "@/lib/audit";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isMissingSchema } from "@/lib/optional-schema";
@@ -14,7 +16,7 @@ function monthEnd(year: number, month: number) {
 }
 
 export async function applyPayrollReference2026Action(): Promise<{ success: boolean; error?: string }> {
-  const workspace = await requireWritableHrWorkspace();
+  const workspace = await requireWritableHrWorkspace("paie");
   const supabase = await createClient();
   const saved = await supabase.from("hr_settings").upsert(payrollReference2026Settings(workspace.organization.id), { onConflict: "organization_id" });
   if (saved.error) return { success: false, error: saved.error.message };
@@ -26,9 +28,7 @@ export async function applyPayrollReference2026Action(): Promise<{ success: bool
 export async function prepareReferencePayrollAction(periodId: string, _previous: { error?: string; success?: boolean }, formData: FormData) {
   void _previous;
   try {
-    const workspace = await requireWritableHrWorkspace();
-    const { assertModulePermission } = await import("@/lib/auth/module-permission");
-    await assertModulePermission(workspace, "paie", "write");
+    const workspace = await requireWritableHrWorkspace("paie");
     if (formData.get("ack_base_only") !== "yes") {
       return { success: false, error: "Confirmez l'utilisation du référentiel 2026 avant de calculer les bulletins." };
     }
@@ -59,7 +59,7 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
     const periodDate = `${period.year}-${String(period.month).padStart(2, "0")}-01`;
     const periodEnd = monthEnd(period.year, period.month);
     const skipped: Array<{ name: string; reason: string }> = [];
-    let count = 0;
+    const eligible: Array<{ employee: (typeof employees)[number]; name: string; salary: number; existingNumber: string }> = [];
     for (const employee of employees ?? []) {
       const person = `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim() || "Salarié";
       const name = employee.employee_number ? `${employee.employee_number} · ${person}` : person;
@@ -85,7 +85,20 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         skipped.push({ name, reason: "Salaire de base absent sur la fiche et sur le contrat actif." });
         continue;
       }
-      const scheduled = await scheduledDeductions(supabase, workspace.organization.id, employee.id, period.year, period.month);
+      eligible.push({ employee, name, salary, existingNumber: existing ? String(existing.payslip_number ?? "") : "" });
+    }
+    const eligibleIds = eligible.map((item) => item.employee.id);
+    const [advanceRows, loanRows] = eligibleIds.length === 0
+      ? [{ data: [], error: null }, { data: [], error: null }]
+      : await Promise.all([
+        supabase.from("hr_advances").select("id, employee_id, amount, status, deduction_month, deduction_year").eq("organization_id", workspace.organization.id).in("employee_id", eligibleIds).in("status", ["approved", "paid"]),
+        supabase.from("hr_loans").select("employee_id, monthly_deduction, remaining_amount, start_month, start_year, status").eq("organization_id", workspace.organization.id).in("employee_id", eligibleIds).eq("status", "active"),
+      ]);
+    if (advanceRows.error || loanRows.error) {
+      return { success: false, error: "Les avances et prêts n'ont pas pu être lus. Aucun bulletin n'a été modifié." };
+    }
+    const slipsToSave = eligible.map(({ employee, salary, existingNumber }) => {
+      const scheduled = deductionsForEmployee(advanceRows.data ?? [], loanRows.data ?? [], employee.id, period.year, period.month);
       const slip = calculateMoroccanPayslip2026({
         baseSalary: salary,
         hireDate: employee.hire_date,
@@ -93,9 +106,8 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         dependents: Number(employee.dependents_count ?? 0),
         advanceDeduction: scheduled.advances + scheduled.loans,
       });
-      const currentNumber = existing ? String(existing.payslip_number ?? "") : "";
-      const payslipNumber = sequentialBulletinNumber(currentNumber, period.year, period.month) ? currentNumber : nextBulletinNumber(period.year, period.month, usedNumbers);
-      const saved = await supabase.from("hr_payslips").upsert({
+      const payslipNumber = sequentialBulletinNumber(existingNumber, period.year, period.month) ? existingNumber : nextBulletinNumber(period.year, period.month, usedNumbers);
+      return {
         organization_id: workspace.organization.id,
         payroll_period_id: periodId,
         employee_id: employee.id,
@@ -129,12 +141,16 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         ],
         calculation_details: { scope: "reference_2026", dependents: slip.dependents, advanceIds: scheduled.advanceIds, slip, officialConformityClaim: false },
         status: "calculated",
-      }, { onConflict: "payroll_period_id,employee_id" });
+      };
+    });
+    let count = 0;
+    if (slipsToSave.length > 0) {
+      const saved = await supabase.from("hr_payslips").upsert(slipsToSave, { onConflict: "payroll_period_id,employee_id" });
       if (saved.error) {
-        skipped.push({ name, reason: saved.error.message.includes("duplicate") || saved.error.code === "23505" ? "Numéro de bulletin déjà utilisé." : "Le bulletin n'a pas pu être enregistré." });
-        continue;
+        await syncPayrollPeriodTotals(supabase, workspace.organization.id, periodId, null);
+        return { success: false, error: saved.error.code === "23505" ? "Un numéro de bulletin est déjà utilisé. Aucun total n'a été remis à zéro." : "Le calcul n'a pas été enregistré. Les totaux existants sont conservés." };
       }
-      count += 1;
+      count = slipsToSave.length;
     }
     const stored = await syncPayrollPeriodTotals(supabase, workspace.organization.id, periodId, period.status === "draft" && count > 0 ? "calculated" : null);
     if (!stored.ok) return { success: false, error: stored.error ?? "Les totaux de la période n'ont pas pu être recalculés.", count, skipped };
@@ -149,14 +165,17 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
     revalidatePath(`/rh/paie/periodes/${periodId}`);
     revalidatePath("/rh/paie");
     revalidatePath("/rh/paie/bulletins");
-    return { success: true, count, skipped };
+    const params = new URLSearchParams({ prepare: "1", count: String(count) });
+    if (skipped.length > 0) params.set("skipped", skipped.slice(0, 20).map((item) => `${item.name} : ${item.reason}`).join(" | "));
+    redirect(`/rh/paie/periodes/${periodId}?${params.toString()}`);
   } catch (error) {
+    if (isNextControlFlow(error)) throw error;
     return { success: false, error: error instanceof Error ? error.message : "Le calcul n'a pas abouti." };
   }
 }
 
 export async function setPayrollPeriodStatusAction(periodId: string, next: "validated" | "paid") {
-  const workspace = await requireWritableHrWorkspace();
+  const workspace = await requireWritableHrWorkspace("paie");
   const supabase = await createClient();
   const { data: period } = await supabase.from("hr_payroll_periods").select("id, year, month, status").eq("organization_id", workspace.organization.id).eq("id", periodId).maybeSingle();
   if (!period) return { success: false, error: "Période introuvable." };
@@ -233,26 +252,21 @@ export async function setPayrollPeriodStatusAction(periodId: string, next: "vali
   return { success: true };
 }
 
-async function scheduledDeductions(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, employeeId: string, year: number, month: number) {
-  const advances = await supabase.from("hr_advances").select("id, amount, status, deduction_month, deduction_year").eq("organization_id", organizationId).eq("employee_id", employeeId).in("status", ["approved", "paid"]);
+function deductionsForEmployee(advances: Array<{ id?: string; employee_id?: string; amount?: number | null; deduction_month?: number | null; deduction_year?: number | null }>, loans: Array<{ employee_id?: string; monthly_deduction?: number | null; remaining_amount?: number | null; start_month?: number | null; start_year?: number | null }>, employeeId: string, year: number, month: number) {
   let advanceTotal = 0;
   const advanceIds: string[] = [];
-  if (!advances.error) {
-    for (const row of advances.data ?? []) {
-      const matches = Number(row.deduction_year) === year && Number(row.deduction_month) === month;
-      if (!matches) continue;
-      advanceTotal += Number(row.amount ?? 0);
-      advanceIds.push(row.id);
-    }
+  for (const row of advances) {
+    if (row.employee_id !== employeeId) continue;
+    if (Number(row.deduction_year) !== year || Number(row.deduction_month) !== month) continue;
+    advanceTotal += Number(row.amount ?? 0);
+    if (row.id) advanceIds.push(row.id);
   }
-  const loans = await supabase.from("hr_loans").select("monthly_deduction, remaining_amount, start_month, start_year, status").eq("organization_id", organizationId).eq("employee_id", employeeId).eq("status", "active");
   let loanTotal = 0;
-  if (!loans.error) {
-    for (const row of loans.data ?? []) {
-      const started = row.start_year < year || (row.start_year === year && row.start_month <= month);
-      if (!started) continue;
-      loanTotal += Math.min(Number(row.monthly_deduction ?? 0), Number(row.remaining_amount ?? 0));
-    }
+  for (const row of loans) {
+    if (row.employee_id !== employeeId) continue;
+    const started = Number(row.start_year) < year || (Number(row.start_year) === year && Number(row.start_month) <= month);
+    if (!started) continue;
+    loanTotal += Math.min(Number(row.monthly_deduction ?? 0), Number(row.remaining_amount ?? 0));
   }
   return {
     advances: Math.round(advanceTotal * 100) / 100,

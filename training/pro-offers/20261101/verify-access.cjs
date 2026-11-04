@@ -113,6 +113,12 @@ function load(relative) {
       if (name === 'crypto') return { randomUUID: () => 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' };
       if (name === '@/lib/env') return { getEnv: () => ({ supabaseUrl: 'https://fixture.example.invalid', supabaseAnonKey: 'fixture-publishable' }) };
       if (name === '@/lib/auth') return { requireActiveWorkspace: async () => workspace() };
+      if (name === '@/lib/auth/module-permission') return {
+        moduleAccessError: async () => null,
+        moduleAccessErrorAny: async () => null,
+        modulePermissionDecision: async () => 'legacy',
+        enforceModuleWrite: async (_workspace, _module, legacyAllowed) => legacyAllowed ? null : 'legacy',
+      };
       if (name === '@/lib/supabase/server') return { createClient: async () => { traces.serverClients++; return database(); } };
       if (name === '@supabase/ssr') return { createServerClient: (_url, _key, options) => {
         const client = database({ supplied: true, membership: true });

@@ -13,10 +13,10 @@ export async function updateDocumentSettingsAction(
 ): Promise<DocState> {
   try {
     const workspace = await requireActiveWorkspace();
-
-    if (workspace.role !== "owner" && workspace.role !== "admin") {
-      return { error: "Vous n'avez pas les droits nécessaires.", success: false };
-    }
+    const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+    const gate = await enforceModuleWrite(workspace, "parametres", workspace.role === "owner" || workspace.role === "admin");
+    if (gate === "legacy") return { error: "Vous n'avez pas les droits nécessaires.", success: false };
+    if (gate) return { error: gate, success: false };
 
     const supabase = await createClient();
     const getVal = (key: string): string | null => {

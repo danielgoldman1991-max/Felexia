@@ -63,7 +63,9 @@ export async function inviteOrganizationUser(input: {
 }): Promise<{ invitationId: string; email: string; authUserId: string }> {
   const workspace = await getActiveWorkspace();
   if (!workspace) throw new InvitationError("UNAUTHENTICATED", "Non authentifié.", 401);
-  if (!isAdminRole(workspace.role)) throw new InvitationError("FORBIDDEN", "Seul un administrateur peut inviter un utilisateur.", 403);
+  const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+  const gate = await enforceModuleWrite(workspace, "parametres", isAdminRole(workspace.role));
+  if (gate) throw new InvitationError("FORBIDDEN", gate === "legacy" ? "Seul un administrateur peut inviter un utilisateur." : gate, 403);
   if (!workspace.subscription) throw new InvitationError("SUBSCRIPTION_REQUIRED", "Votre abonnement n'a pas pu être vérifié. Actualisez la page avant d'inviter un utilisateur.", 403);
   if (!matchesInvitationOrganization(workspace.organization.id, input.legacyOrganizationId)) {
     throw new InvitationError("FORBIDDEN", "L’entreprise affichée ne correspond plus à votre espace actif. Actualisez la page avant d’inviter un utilisateur.", 403);

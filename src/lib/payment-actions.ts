@@ -82,7 +82,7 @@ async function validateAllocationTargets(organizationId: string, thirdPartyId: s
 
 export async function createCustomerPayment(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const thirdPartyId = text(formData, "third_party_id") ?? text(formData, "customer_id");
   const amount = numberValue(formData.get("amount"));
   const paymentMethod = text(formData, "payment_method");
@@ -146,7 +146,7 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
 
 export async function updateCustomerPayment(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Paiement introuvable." };
   const amount = numberValue(formData.get("amount"));
@@ -189,7 +189,7 @@ export async function updateCustomerPayment(prev: PaymentActionResult, formData:
 
 export async function allocatePaymentToInvoices(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const paymentId = text(formData, "payment_id");
   if (!paymentId) return { success: false, error: "Paiement introuvable." };
   const allocations = parseAllocations(formData);
@@ -229,7 +229,7 @@ export async function allocatePaymentToInvoices(prev: PaymentActionResult, formD
 
 export async function unallocatePaymentFromInvoice(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const allocationId = text(formData, "allocation_id");
   if (!allocationId) return { success: false, error: "Affectation introuvable." };
   const supabase = await createClient();
@@ -264,7 +264,7 @@ export const createPaymentAndAllocateToInvoice = createCustomerPayment;
 
 export async function cancelCustomerPayment(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Paiement introuvable." };
   const supabase = await createClient();
@@ -291,7 +291,7 @@ export async function cancelCustomerPayment(prev: PaymentActionResult, formData:
 
 export async function confirmCustomerPayment(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Paiement introuvable." };
   const supabase = await createClient();
@@ -305,7 +305,7 @@ export async function confirmCustomerPayment(prev: PaymentActionResult, formData
 
 export async function archiveCustomerPayment(prev: PaymentActionResult, formData: FormData): Promise<PaymentActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "tresorerie"], level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Paiement introuvable." };
   const supabase = await createClient();

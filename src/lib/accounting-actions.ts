@@ -70,7 +70,7 @@ async function saveAtomicAccountingEntry(supabase: Awaited<ReturnType<typeof cre
 }
 
 export async function listAccountingJournals() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("accounting_journals")
@@ -82,7 +82,7 @@ export async function listAccountingJournals() {
 }
 
 export async function listAccountingAccounts(filters?: { query?: string; class_number?: string; type?: string }) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   let query = supabase
     .from("accounting_accounts")
@@ -103,7 +103,7 @@ export async function listAccountingAccounts(filters?: { query?: string; class_n
 }
 
 export async function getAccountingAccount(id: string) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("accounting_accounts")
@@ -119,7 +119,7 @@ export async function getAccountingAccount(id: string) {
 export async function generateAccountingAuxiliaries(prev: AccountingActionResult, _formData: FormData): Promise<AccountingActionResult> {
   void prev;
   void _formData;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const { backfillOrganizationAuxiliaries } = await import("@/lib/accounting/auxiliaries");
   const supabase = await createClient();
@@ -130,7 +130,7 @@ export async function generateAccountingAuxiliaries(prev: AccountingActionResult
 }
 
 export async function listAccountingAuxiliaries(filters?: { query?: string; type?: string }) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   let query = supabase
     .from("accounting_auxiliaries")
@@ -148,7 +148,7 @@ export async function listAccountingAuxiliaries(filters?: { query?: string; type
 }
 
 export async function listAccountingFiscalYears() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("accounting_fiscal_years")
@@ -160,7 +160,7 @@ export async function listAccountingFiscalYears() {
 }
 
 export async function listAccountingPeriods(fiscalYearId?: string) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   let query = supabase
     .from("accounting_periods")
@@ -181,7 +181,7 @@ export async function listAccountingEntries(filters?: {
   page?: number;
   pageSize?: number;
 }) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const page = filters?.page ?? 1;
   const pageSize = filters?.pageSize ?? 50;
@@ -222,7 +222,7 @@ export async function listAccountingEntries(filters?: {
 }
 
 export async function getAccountingEntry(id: string) {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const { data: entry, error: entryError } = await supabase
     .from("accounting_entries")
@@ -256,7 +256,7 @@ export async function getAccountingEntry(id: string) {
 }
 
 export async function getAccountingSettings() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("accounting_settings")
@@ -269,7 +269,7 @@ export async function getAccountingSettings() {
 
 export async function createAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const journalId = text(formData, "journal_id");
   const entryDate = text(formData, "entry_date");
@@ -337,7 +337,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
 
 export async function postAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Écriture introuvable." };
@@ -364,7 +364,7 @@ export async function postAccountingEntry(prev: AccountingActionResult, formData
 
 export async function cancelAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Écriture introuvable." };
@@ -384,7 +384,7 @@ export async function cancelAccountingEntry(prev: AccountingActionResult, formDa
 
 export async function archiveAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Écriture introuvable." };
@@ -473,7 +473,7 @@ async function getTreasuryPostingSetup(organizationId: string, treasuryAccountId
 }
 
 export async function generateCustomerInvoiceAccountingEntry(invoiceId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
@@ -592,7 +592,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
 }
 
 export async function generateSupplierInvoiceAccountingEntry(invoiceId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
@@ -712,7 +712,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
 }
 
 export async function generateCustomerPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
@@ -800,7 +800,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
 }
 
 export async function generateSupplierPaymentAccountingEntry(paymentId: string): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const orgId = workspace.organization.id;
   const supabase = await createClient();
@@ -899,7 +899,7 @@ export async function generateBankFeeAccountingEntry(input: {
   vat: number;
   expenseAccount: string;
 }): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   const orgId = workspace.organization.id;
   const supabase = await createClient();
   const existing = await getExistingEntryBySource(orgId, "bank_statement_fee", input.statementLineId);
@@ -958,7 +958,7 @@ export async function generateBankFeeAccountingEntry(input: {
 }
 
 export async function reverseAccountingEntry(entryId: string): Promise<{ success: boolean; error?: string }> {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   const orgId = workspace.organization.id;
   const supabase = await createClient();
   const existing = await getExistingEntryBySource(orgId, "bank_reconciliation_reversal", entryId);
@@ -1009,7 +1009,7 @@ export async function reverseAccountingEntry(entryId: string): Promise<{ success
 
 export async function updateAccountingSettings(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const supabase = await createClient();
   const payload: Record<string, string> = {};
@@ -1042,7 +1042,7 @@ export async function updateAccountingSettings(prev: AccountingActionResult, for
 
 export async function updateAccountingEntryLineAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const lineId = text(formData, "entry_line_id");
   const accountId = text(formData, "account_id");
@@ -1112,7 +1112,7 @@ export async function postCustomerInvoiceToAccounting(prev: AccountingActionResu
   const invoiceId = firstText(formData, ["invoice_id", "customer_invoice_id", "id"]);
   if (!invoiceId) return { success: false, error: "Facture client introuvable : identifiant manquant." };
 
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
@@ -1146,7 +1146,7 @@ export async function postSupplierInvoiceToAccounting(prev: AccountingActionResu
   const invoiceId = firstText(formData, ["invoice_id", "supplier_invoice_id", "id"]);
   if (!invoiceId) return { success: false, error: "Facture fournisseur introuvable : identifiant manquant." };
 
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
@@ -1179,7 +1179,7 @@ export async function postCustomerPaymentToAccounting(prev: AccountingActionResu
   const paymentId = firstText(formData, ["payment_id", "customer_payment_id", "id"]);
   if (!paymentId) return { success: false, error: "Paiement client introuvable : identifiant manquant." };
 
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
@@ -1212,7 +1212,7 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
   const paymentId = firstText(formData, ["payment_id", "supplier_payment_id", "id"]);
   if (!paymentId) return { success: false, error: "Paiement fournisseur introuvable : identifiant manquant." };
 
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const supabase = await createClient();
 
@@ -1244,7 +1244,7 @@ const JOURNAL_TYPES = ["sales", "purchases", "bank", "cash", "od"] as const;
 
 export async function createAccountingJournal(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const code = (text(formData, "code") ?? "").toUpperCase();
   const name = text(formData, "name");
@@ -1284,7 +1284,7 @@ export async function createAccountingJournal(prev: AccountingActionResult, form
 
 export async function createChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const code = text(formData, "code");
   const name = text(formData, "name");
@@ -1338,7 +1338,7 @@ export async function createChartOfAccount(prev: AccountingActionResult, formDat
 
 export async function updateChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1421,7 +1421,7 @@ export async function updateChartOfAccount(prev: AccountingActionResult, formDat
 
 export async function archiveChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1459,7 +1459,7 @@ export async function archiveChartOfAccount(prev: AccountingActionResult, formDa
 
 export async function toggleChartOfAccountActive(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Compte introuvable." };
@@ -1488,7 +1488,7 @@ export async function toggleChartOfAccountActive(prev: AccountingActionResult, f
 export async function ensureDefaultChartOfAccountsAction(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   void formData;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const { ensureDefaultChartOfAccounts } = await import("@/lib/accounting");
   try {
@@ -1502,7 +1502,7 @@ export async function ensureDefaultChartOfAccountsAction(prev: AccountingActionR
 
 export async function openAccountingFiscalYear(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "L'ouverture d'exercice est réservée au propriétaire, à l’administrateur ou au comptable." };
   const year = Number(text(formData, "year") ?? new Date().getFullYear());
   if (!Number.isInteger(year) || year < 2000 || year > 2100) return { success: false, error: "Indiquez une année entre 2000 et 2100." };
@@ -1546,7 +1546,7 @@ export type PendingAccountingDocument = {
 };
 
 export async function listPendingAccountingDocuments(): Promise<PendingAccountingDocument[]> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "read" });
   const supabase = await createClient();
   const orgId = workspace.organization.id;
   const [invoices, supplierInvoices, creditNotes, supplierCredits, payments, supplierPayments, entries] = await Promise.all([
@@ -1572,7 +1572,7 @@ export async function listPendingAccountingDocuments(): Promise<PendingAccountin
 export async function postPendingAccountingDocuments(prev: AccountingActionResult, _formData: FormData): Promise<AccountingActionResult> {
   void prev;
   void _formData;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "comptabilite", level: "write" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const pending = await listPendingAccountingDocuments();
   if (pending.length === 0) return { success: true, data: { message: "Aucune pièce en attente." } };
@@ -1605,7 +1605,7 @@ export async function postPendingAccountingDocuments(prev: AccountingActionResul
 
 export async function letterAccountingLines(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "Le lettrage est réservé au propriétaire, à l’administrateur ou au comptable." };
   const requested = (text(formData, "lettering_code") ?? "").toUpperCase();
   const ids = formData.getAll("line_ids").map((value) => String(value).trim()).filter(Boolean);
@@ -1642,7 +1642,7 @@ export async function letterAccountingLines(prev: AccountingActionResult, formDa
 
 export async function unletterAccountingLines(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "Le délettrage est réservé au propriétaire, à l’administrateur ou au comptable." };
   const ids = formData.getAll("line_ids").map((value) => String(value).trim()).filter(Boolean);
   if (ids.length === 0) return { success: false, error: "Sélectionnez au moins une ligne lettrée." };
@@ -1661,7 +1661,7 @@ export async function unletterAccountingLines(prev: AccountingActionResult, form
 
 export async function setAccountingPeriodLock(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "comptabilite" });
   if (!isAccountingRole(workspace.role)) return { success: false, error: "Le verrouillage est réservé au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "period_id");
   const lock = formData.get("locked") === "1";

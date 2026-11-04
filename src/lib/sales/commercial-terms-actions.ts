@@ -12,7 +12,7 @@ function isRedirectError(error: unknown) {
 }
 
 async function requireCommercialWrite() {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   if (!(await hasFullErpAccess(workspace.organization.id))) throw new Error("Cette fonction est réservée à l’offre PRO.");
   return workspace;
 }

@@ -32,7 +32,7 @@ function generateDeclarationNumber(periodStart: string, frequency: string, seque
 }
 
 export async function createVatDeclarationAction(_prev: VatDeclarationActionResult, formData: FormData): Promise<VatDeclarationActionResult> {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   if (!allowedRole(workspace.role)) {
     return { success: false, error: "Vous n'avez pas les droits pour créer une déclaration TVA." };
   }
@@ -171,7 +171,7 @@ export async function createVatDeclarationAction(_prev: VatDeclarationActionResu
 
 export async function validateVatDeclarationAction(prev: VatDeclarationActionResult, formData: FormData): Promise<VatDeclarationActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   if (!allowedRole(workspace.role)) {
     return { success: false, error: "Permissions insuffisantes." };
   }
@@ -221,7 +221,7 @@ export async function validateVatDeclarationAction(prev: VatDeclarationActionRes
 
 export async function archiveVatDeclarationAction(prev: VatDeclarationActionResult, formData: FormData): Promise<VatDeclarationActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   if (!allowedRole(workspace.role)) {
     return { success: false, error: "Permissions insuffisantes." };
   }
@@ -263,7 +263,7 @@ export async function archiveVatDeclarationAction(prev: VatDeclarationActionResu
 
 export async function autoFixVatDeclarationAnomaliesAction(prev: VatDeclarationActionResult, formData: FormData): Promise<VatDeclarationActionResult> {
   void prev;
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tva" });
   if (!allowedRole(workspace.role)) {
     return { success: false, error: "Vous n'avez pas les droits pour corriger les anomalies TVA." };
   }

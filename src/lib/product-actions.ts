@@ -137,7 +137,7 @@ export async function createProduct(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const name = text(formData, "name");
   const type = text(formData, "type") as ProductType | null;
 
@@ -150,7 +150,7 @@ export async function createProduct(
   const minStock = type === "service" ? 0 : numberOrZero(formData, "min_stock");
   const currentStock = type === "service" ? 0 : numberOrZero(formData, "current_stock");
   if (trackStock || currentStock > 0 || minStock > 0 || formData.get("stock_alert_enabled") === "on") {
-    await requireProWorkspace();
+    await requireProWorkspace({ module: "stock" });
   }
   const purchasePriceHt = numberOrZero(formData, "purchase_price_ht");
   const salePriceHt = numberOrZero(formData, "sale_price_ht");
@@ -249,7 +249,7 @@ export async function updateProduct(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant article manquant." };
 
@@ -314,7 +314,7 @@ export async function updateProduct(
   if (trackStock !== Boolean(existingProduct.track_stock)
     || minStock !== Number(existingProduct.min_stock ?? 0)
     || (formData.get("stock_alert_enabled") === "on") !== Boolean(existingProduct.stock_alert_enabled)) {
-    await requireProWorkspace();
+    await requireProWorkspace({ module: "stock" });
   }
   if (type === "service" && Math.abs(Number(existingProduct.current_stock ?? 0)) > 0.0005) {
     return { success: false, error: "Ramenez le stock a zero avant de convertir ce produit en service." };
@@ -359,7 +359,7 @@ export async function archiveProduct(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant article manquant." };
 
@@ -385,7 +385,7 @@ export async function createProductCategory(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const name = text(formData, "name");
   if (!name) return { success: false, error: "Le nom de la categorie est obligatoire." };
 
@@ -410,7 +410,7 @@ export async function updateProductCategory(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant categorie manquant." };
 
@@ -439,7 +439,7 @@ export async function archiveProductCategory(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant categorie manquant." };
 
@@ -465,7 +465,7 @@ export async function createUnit(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const name = text(formData, "name");
   const symbol = text(formData, "symbol");
 
@@ -492,7 +492,7 @@ export async function updateUnit(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant unite manquant." };
 
@@ -520,7 +520,7 @@ export async function archiveUnit(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant unite manquant." };
 
@@ -546,7 +546,7 @@ export async function createTaxRate(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const name = text(formData, "name");
   const rate = numberValue(formData, "rate");
 
@@ -588,7 +588,7 @@ export async function updateTaxRate(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant taux manquant." };
 
@@ -631,7 +631,7 @@ export async function archiveTaxRate(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant taux manquant." };
 
@@ -653,7 +653,7 @@ export async function setDefaultTaxRate(
   formData: FormData,
 ): Promise<ProductActionResult> {
   void previousState;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Identifiant taux manquant." };
 

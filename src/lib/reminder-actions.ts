@@ -23,7 +23,7 @@ function parseIds(formData: FormData, key: string) {
 
 export async function createCustomerReminder(prev: ReminderActionResult, formData: FormData): Promise<ReminderActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const customerId = text(formData, "customer_id");
   const invoiceIds = parseIds(formData, "invoice_ids");
   if (!customerId) return { success: false, error: "Sélectionnez un client." };
@@ -76,7 +76,7 @@ export async function createCustomerReminder(prev: ReminderActionResult, formDat
 }
 
 async function updateReminderStatus(formData: FormData, status: "sent" | "cancelled") {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Relance introuvable." };
   const payload: Record<string, unknown> = { status };
@@ -101,7 +101,7 @@ export async function cancelCustomerReminder(prev: ReminderActionResult, formDat
 
 export async function archiveCustomerReminder(prev: ReminderActionResult, formData: FormData): Promise<ReminderActionResult> {
   void prev;
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "ventes", level: "write" });
   const id = text(formData, "id");
   if (!id) return { success: false, error: "Relance introuvable." };
   const supabase = await createClient();

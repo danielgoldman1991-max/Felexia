@@ -29,6 +29,10 @@ const access = compile('src/lib/hr/access.ts', {
   '@/lib/auth': { requireActiveWorkspace: async () => workspace },
   '@/lib/launch-access': { hasFullErpAccess: async org => { assert.equal(org, workspace.organization.id); return fullAccess; } },
   '@/lib/subscriptions/subscription-access': subscription,
+  '@/lib/auth/module-permission': {
+    modulePermissionDecision: async () => 'legacy',
+    moduleAccessErrorAny: async () => null,
+  },
 });
 async function denied(run, pattern, label) { await assert.rejects(run, pattern, label); checks++; results.push(label); }
 (async () => {

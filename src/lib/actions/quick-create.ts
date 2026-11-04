@@ -7,7 +7,7 @@ import { resolveDefaultTaxRate } from "@/lib/tax-reference";
 import type { ProductType } from "@/lib/product-types";
 
 export async function quickCreateCustomerCategory(name: string): Promise<{ id: string; name: string } | { error: string }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("customer_categories")
@@ -19,7 +19,7 @@ export async function quickCreateCustomerCategory(name: string): Promise<{ id: s
 }
 
 export async function quickCreateProductCategory(code: string, name: string): Promise<{ id: string; name: string; code: string | null } | { error: string }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("product_categories")
@@ -38,7 +38,7 @@ export async function quickCreateProductCategory(code: string, name: string): Pr
 }
 
 export async function quickCreateUnit(name: string, symbol: string): Promise<{ id: string; name: string; symbol: string } | { error: string }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("units")
@@ -56,7 +56,7 @@ export async function quickCreateUnit(name: string, symbol: string): Promise<{ i
 }
 
 export async function quickCreateProduct(formData: FormData): Promise<{ success: boolean; error?: string; data?: { id: string } }> {
-  const workspace = await requireActiveWorkspace();
+  const workspace = await requireActiveWorkspace({ module: "stock", level: "write" });
   const supabase = await createClient();
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { success: false, error: "Le nom est obligatoire." };

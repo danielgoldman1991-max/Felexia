@@ -10,7 +10,10 @@ import { isNumberingCounterAllowed, MAX_NUMBERING_VALUE, NUMBERING_ADMIN_ERROR, 
 
 export async function correctNumberingCounterAction(_previous: NumberingActionState, formData: FormData): Promise<NumberingActionState> {
   const workspace = await requireActiveWorkspace();
-  if (!isAdminRole(workspace.role)) return { success: false, error: NUMBERING_ADMIN_ERROR };
+  const { enforceModuleWrite } = await import("@/lib/auth/module-permission");
+  const gate = await enforceModuleWrite(workspace, "parametres", isAdminRole(workspace.role));
+  if (gate === "legacy") return { success: false, error: NUMBERING_ADMIN_ERROR };
+  if (gate) return { success: false, error: gate };
   if (["organizationId", "organization_id", "p_organization_id"].some((key) => formData.has(key))) return { success: false, error: "L’entreprise est déterminée par votre session." };
   const text = (key: string) => typeof formData.get(key) === "string" ? String(formData.get(key)).trim() : "";
   const period = parseNumberingPeriod(text("period"));

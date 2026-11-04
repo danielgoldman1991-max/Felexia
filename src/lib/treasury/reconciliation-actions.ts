@@ -25,7 +25,7 @@ export async function confirmExpertLine(prev: TreasuryActionResult, formData: Fo
   const lineId = text(formData, "statement_line_id");
   if (!accountId || !lineId) return { success: false, error: "Ligne introuvable." };
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
     const state = await buildExpertState(accountId);
     const proposal = state.proposals.find((item) => item.lineId === lineId);
     const line = state.lines.find((item) => item.id === lineId);
@@ -46,7 +46,7 @@ export async function confirmExpertAuto(prev: TreasuryActionResult, formData: Fo
   const accountId = text(formData, "account_id");
   if (!accountId) return { success: false, error: "Sélectionnez un compte." };
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
     const state = await buildExpertState(accountId);
     if (!state.view.settings.autoEnabled) return { success: false, error: "Le rapprochement automatique est désactivé pour cette entreprise." };
     const ready = state.proposals.filter((item) => item.band === "auto");
@@ -69,7 +69,7 @@ export async function confirmExpertAuto(prev: TreasuryActionResult, formData: Fo
 export async function saveReconciliationSettings(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
     const autoThreshold = clamp(Number(formData.get("auto_threshold")), 80, 100, 92);
     const suggestThreshold = clamp(Number(formData.get("suggest_threshold")), 40, 90, 70);
     if (autoThreshold <= suggestThreshold) return { success: false, error: "Le seuil automatique doit être supérieur au seuil des suggestions." };
@@ -94,7 +94,7 @@ export async function saveReconciliationSettings(prev: TreasuryActionResult, for
 export async function saveBankMatchRule(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   try {
-    const workspace = await requireProWorkspace();
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
     const label = text(formData, "label_contains");
     const category = text(formData, "category");
     if (!label || label.length < 2) return { success: false, error: "Indiquez un extrait de libellé d'au moins 2 caractères." };
@@ -124,7 +124,7 @@ export async function saveBankMatchRule(prev: TreasuryActionResult, formData: Fo
 }
 
 export async function deleteBankMatchRule(formData: FormData) {
-  const workspace = await requireProWorkspace();
+  const workspace = await requireProWorkspace({ module: "tresorerie" });
   const id = text(formData, "id");
   if (!id) return;
   const supabase = await createClient();
