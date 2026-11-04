@@ -72,6 +72,7 @@ export const GLOBAL_SEARCH_REGISTRY: GlobalSearchResult[] = [
   { id: "new-treasury-move", title: "Nouveau mouvement tresorerie", subtitle: "Saisir une entree/sortie", href: "/tresorerie/mouvements/new", category: "Tresorerie", type: "create", keywords: ["créer mouvement"] },
   { id: "bank-reconciliation", title: "Rapprochement bancaire", subtitle: "Rapprocher banque et mouvements", href: "/tresorerie/rapprochement", category: "Tresorerie", type: "route", keywords: ["rapprochement", "banque"] },
   { id: "bank-match-rules", title: "Règles de rapprochement", subtitle: "Libellés, frais et agios", href: "/tresorerie/rapprochement/regles", category: "Tresorerie", type: "route", keywords: ["rapprochement", "commission", "agios"] },
+  { id: "collection-file", title: "Recouvrement", subtitle: "Relances à envoyer aujourd'hui", href: "/facturation/relances/file", category: "Facturation", type: "route", keywords: ["relance", "impayé", "dso"] },
   { id: "treasury-forecast", title: "Previsions tresorerie", subtitle: "Anticiper les flux", href: "/tresorerie/previsions", category: "Tresorerie", type: "route", keywords: ["prevision"] },
   { id: "new-treasury-forecast", title: "Nouvelle prevision de tresorerie", subtitle: "Saisir un flux prevu", href: "/tresorerie/previsions/nouveau", category: "Tresorerie", type: "create", keywords: ["prevision", "flux prevu"] },
 ];

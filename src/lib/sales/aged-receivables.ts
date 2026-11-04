@@ -15,7 +15,7 @@ export function agingBucket(dueDate: string | null, today: string, remaining: nu
   const now = Date.parse(`${today}T00:00:00Z`);
   if (Number.isNaN(due) || Number.isNaN(now)) return "no_due";
   const days = Math.floor((now - due) / 86_400_000);
-  if (days <= 0) return "not_due";
+  if (days < 0) return "not_due";
   if (days <= 30) return "1_30";
   if (days <= 60) return "31_60";
   if (days <= 90) return "61_90";
