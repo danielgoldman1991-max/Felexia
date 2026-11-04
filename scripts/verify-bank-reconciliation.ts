@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { deflateRawSync } from "node:zlib";
+import { planManualMatch } from "../src/lib/treasury/manual-match";
+import { deductionPeriod, deductionTable, paymentModeLabel } from "../src/lib/tax/vat-deduction-report";
+import { writeXlsx } from "../src/lib/spreadsheet/minimal-xlsx";
 import { matchStatementLines, nameScore, reconciliationGap, scoreCandidate, splitBankCharge, DEFAULT_RECONCILIATION_SETTINGS, type MatchCandidate, type StatementLineInput } from "../src/lib/treasury/match-engine";
 import { parseBankFile, parseMoroccanAmount, parseMoroccanDate, readXlsxGrid, statementLineHash } from "../src/lib/treasury/statement-parse";
 
@@ -149,6 +153,56 @@ const prefersBook = matchStatementLines({
 });
 assert.equal(prefersBook[0].targets[0].kind, "transaction");
 assert.equal(prefersBook[0].createPayment, false);
+
+const partialMatch = planManualMatch(
+  [{ id: "l1", direction: "out", remaining: 1000, amount: 400 }],
+  [{ id: "f1", kind: "supplier_invoice", direction: "out", remaining: 400, amount: 400 }],
+);
+assert.equal(partialMatch.ok && partialMatch.plan.kind, "partial");
+assert.equal(partialMatch.ok && partialMatch.plan.partial, true);
+const groupedMatch = planManualMatch(
+  [
+    { id: "l1", direction: "in", remaining: 700, amount: 700 },
+    { id: "l2", direction: "in", remaining: 500, amount: 300 },
+  ],
+  [
+    { id: "c1", kind: "customer_invoice", direction: "in", remaining: 800, amount: 800 },
+    { id: "tx", kind: "transaction", direction: "in", remaining: 200, amount: 200 },
+  ],
+);
+assert.equal(groupedMatch.ok && groupedMatch.plan.kind, "grouped");
+assert.equal(groupedMatch.ok && groupedMatch.plan.total, 1000);
+assert.equal(planManualMatch(
+  [{ id: "l1", direction: "in", remaining: 100, amount: 100 }],
+  [{ id: "f1", kind: "supplier_invoice", direction: "out", remaining: 100, amount: 100 }],
+).ok, false);
+assert.equal(planManualMatch(
+  [{ id: "l1", direction: "in", remaining: 100, amount: 40 }],
+  [{ id: "c1", kind: "customer_invoice", direction: "in", remaining: 100, amount: 50 }],
+).ok, false);
+assert.match(readFileSync("supabase/migrations/141_bank_manual_matches.sql", "utf8"), /undo_bank_manual_match/);
+assert.match(readFileSync("supabase/rollbacks/141_bank_manual_matches_rollback.sql", "utf8"), /drop table if exists public.bank_manual_matches/);
+
+assert.equal(deductionPeriod("2026-11-01", "2026-10-01").ok, false);
+assert.equal(paymentModeLabel("bank_transfer"), "Virement");
+const table = deductionTable([{
+  supplier: "Atlas",
+  ifNumber: "12345678",
+  ice: "001234567890123",
+  invoiceNumber: "FF-1",
+  invoiceDate: "2026-11-04",
+  amountHt: 1000,
+  vatAmount: 200,
+  payments: [{ date: "2026-11-10", mode: "cheque" }, { date: "2026-11-10", mode: "cheque" }],
+}]);
+assert.equal(table[1]?.[0], "Atlas");
+assert.equal(table[1]?.[5], "1000,00");
+assert.equal(table[1]?.[7], "2026-11-10");
+assert.equal(table[1]?.[8], "Chèque");
+const grid = readXlsxGrid(writeXlsx(table));
+assert.equal(grid[0]?.[0], "Fournisseur");
+assert.equal(grid[1]?.[3], "FF-1");
+assert.equal(grid[1]?.[8], "Chèque");
 
 console.log("Rapprochement automatique : formats marocains, scores, groupes, frais et dédoublonnage vérifiés.");
 

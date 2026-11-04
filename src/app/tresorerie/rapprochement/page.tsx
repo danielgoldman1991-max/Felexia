@@ -2,9 +2,11 @@ import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { ExpertReconciliationPanel } from "@/components/treasury/expert-reconciliation-panel";
+import { ManualReconciliationForm } from "@/components/treasury/manual-reconciliation-form";
 import { ReconciliationWorkspace } from "@/components/treasury/reconciliation-workspace";
 import { Button } from "@/components/ui/button";
 import { getReconciliationWorkspace } from "@/lib/treasury";
+import { loadManualMatchBoard } from "@/lib/treasury/manual-match-data";
 import { loadExpertReconciliation } from "@/lib/treasury/reconciliation-view";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +17,12 @@ export default async function BankReconciliationPage({ searchParams }: { searchP
     getReconciliationWorkspace(params.accountId),
     loadExpertReconciliation(params.accountId),
   ]);
+  const manual = await loadManualMatchBoard(expert.accountId);
   return (
     <ModulePage>
       <PageHeader
         title="Rapprochement bancaire"
-        description="Comparez le relevé et les mouvements, validez les propositions et annulez si besoin."
+        description="Comparez le relevé et les pièces, validez les propositions, rapprochez plusieurs lignes à la main et annulez si besoin."
         actions={<Button variant="secondary" asChild><Link href="/tresorerie/releves/import">Importer un relevé</Link></Button>}
       />
       <form method="get" className="flex max-w-md items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
@@ -32,6 +35,7 @@ export default async function BankReconciliationPage({ searchParams }: { searchP
         <Button type="submit">Afficher</Button>
       </form>
       <ExpertReconciliationPanel view={expert} />
+      <ManualReconciliationForm board={manual} />
       <ReconciliationWorkspace {...workspace} hideLegacyAuto suggestions={[]} />
     </ModulePage>
   );
