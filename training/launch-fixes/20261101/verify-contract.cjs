@@ -23,6 +23,8 @@ function load(){
   if(name==='next/navigation')return{notFound(){throw new Error('NOT_FOUND');}};
   if(name==='@/lib/hr/access')return{async requireHrWorkspace(){if(denied)throw new Error('PRO_REQUIRED');return{organization:{id:org}};}};
   if(name==='@/lib/format')return{formatDate:value=>value};
+  if(name==='@/lib/hr/contract-actions')return{async endHrContractAction(){}};
+  if(name==='@/lib/hr/settlement')return{SETTLEMENT_REASONS:[{value:'demission',label:'Démission'}]};
   if(name==='@/lib/supabase/server')return {
    async createClient(){return {
     from(table){
