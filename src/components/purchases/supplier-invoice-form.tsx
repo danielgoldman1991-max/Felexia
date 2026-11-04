@@ -150,7 +150,7 @@ export function SupplierInvoiceForm({
             <DateField label="Échéance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">N° de facture fournisseur <span className="text-red-500">*</span></label>
-              <input value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex. : FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input aria-label="Numéro facture fournisseur" value={supplierInvoiceNumber} onChange={(e) => setSupplierInvoiceNumber(e.target.value)} placeholder="Ex. : FAC-2026-00125" required className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
@@ -214,7 +214,7 @@ export function SupplierInvoiceForm({
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">
-          <Button type="submit" disabled={pending || !supplierId || !supplierInvoiceNumber.trim() || lines.length === 0}>
+          <Button type="submit" disabled={pending}>
             {pending ? "Enregistrement…" : isEdit ? "Enregistrer" : "Créer la facture d’achat"}
           </Button>
           <Button type="button" variant="secondary" asChild><Link href="/achats/factures">Annuler</Link></Button>

@@ -12,6 +12,7 @@ import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stoc
 import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/purchase-types";
 import { getPurchaseReceiptArchiveEligibility, getSupplierInvoicePaymentSummary, getSupplierInvoicePreparationFromReceipt, getSupplierOrderLineProgress } from "@/lib/purchases";
 import { calculateCommercialAmounts } from "@/lib/invoice-calculations";
+import { computeWithholding, type WithholdingKind } from "@/lib/purchases/withholding";
 
 function text(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -809,6 +810,16 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const allocationValidation = await validateSupplierInvoiceAllocations({ supabase, orgId, supplierId, allocations, paymentAmount: amount });
   if (!allocationValidation.success) return allocationValidation;
 
+  const withholdingKind = (text(formData, "withholding_kind") ?? "none") as WithholdingKind;
+  const withholding = computeWithholding({
+    kind: withholdingKind === "vat_attestation" || withholdingKind === "fees_10" || withholdingKind === "fees_30" ? withholdingKind : "none",
+    amountHt: numberOrZero(formData, "withholding_ht"),
+    vatAmount: numberOrZero(formData, "withholding_vat"),
+  });
+  const paymentNotes = withholding.withheld > 0
+    ? [notes, `${withholding.legalBasis} Retenue ${withholding.withheld.toFixed(2)} MAD, net fournisseur ${(amount - withholding.withheld).toFixed(2)} MAD.`]
+      .filter(Boolean).join(" ")
+    : notes;
   const idempotencyKey = text(formData, "idempotency_key") ?? globalThis.crypto.randomUUID();
   const atomicResult = await supabase.rpc("create_supplier_payment_atomic", {
     p_organization_id: orgId,
@@ -825,7 +836,7 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
     p_check_number: checkNumber,
     p_transfer_reference: transferReference,
     p_due_date: dueDate,
-    p_notes: notes,
+    p_notes: paymentNotes,
     p_created_by: workspace.userId,
   });
 
@@ -836,6 +847,14 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
       : null;
     if (!atomicPaymentId) {
       return { success: false, error: "Le paiement transactionnel n'a pas retourné d'identifiant." };
+    }
+    if (withholding.withheld > 0) {
+      const stored = await supabase.from("supplier_payments").update({
+        withholding_kind: withholding.kind,
+        withholding_amount: withholding.withheld,
+        net_amount: Math.round((amount - withholding.withheld) * 100) / 100,
+      }).eq("id", atomicPaymentId).eq("organization_id", orgId);
+      if (stored.error) console.error("[purchases] withholding columns unavailable", { code: stored.error.code });
     }
     revalidatePath("/achats/paiements");
     revalidatePath("/achats/factures");

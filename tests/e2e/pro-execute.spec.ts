@@ -405,6 +405,8 @@ async function purchaseChain(page: Page, org: string) {
     await page.waitForURL(/\/achats\/receptions\/[0-9a-f-]{36}/);
     await clickButton(page, "Valider reception");
     await page.getByRole("link", { name: /creer la facture fournisseur|creer facture/i }).click();
+    const supplierNumber = page.getByLabel(/numéro facture fournisseur/i);
+    if (await supplierNumber.count()) await supplierNumber.fill(`FF-TEST-${Date.now().toString().slice(-6)}`);
     await page.getByRole("button", { name: /créer la facture d’achat|créer la facture d'achat/i }).click();
     await page.waitForURL(/\/achats\/factures\/[0-9a-f-]{36}/);
     const invoiceId = page.url().split("/").pop() ?? "";

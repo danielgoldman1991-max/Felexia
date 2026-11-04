@@ -6,6 +6,8 @@ const id = "0c1d0c3e-7b4e-4e2e-a51e-21fc0f2f4bf1";
 const business = ["/facturation/factures/new", `/facturation/factures/${id}`, `/facturation/factures/${id}/paiement`,
   "/facturation/paiements/new", `/facturation/paiements/${id}/affecter`, "/facturation/avoirs/new",
   "/achats/factures/new", `/achats/factures/${id}/edit`, "/achats/paiements/new", "/achats/fournisseurs",
+  "/achats/commandes/new", "/achats/receptions/new", "/achats/demandes", "/achats/demandes/new",
+  "/achats/consultations", "/achats/balance-agee",
   "/tiers/clients", "/tiers/fournisseurs", "/tiers/new?type=customer", "/tiers/new?type=supplier", `/tiers/${id}/edit`,
   "/vente", "/vente/devis", "/vente/commandes/new", "/vente/livraisons", "/vente/retours",
   "/stock", "/stock/mouvements", "/stock/transferts", "/stock/inventaire", "/stock/valorisation",

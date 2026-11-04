@@ -28,7 +28,7 @@ export function isOperatorPathAllowed(href: string, method = "GET"): boolean {
   if (/^\/api\/exports\/(?:sales|purchases|contacts|treasury|treasury-ledger|supplier-credits)$/.test(path)) return read;
   if (path === "/facturation/electronique") return read;
   if (/^\/facturation\/electronique\/(?:factures|avoirs)\/[0-9a-f-]{36}(?:\/download)?$/i.test(path)) return read || !path.endsWith("/download");
-  if (/^\/(?:facturation\/(?:factures|paiements|avoirs)|achats\/(?:factures|paiements|fournisseurs|avoirs))(?:\/|$)/.test(path)) return true;
+  if (/^\/(?:facturation\/(?:factures|paiements|avoirs)|achats\/(?:factures|paiements|fournisseurs|avoirs|commandes|receptions|demandes|consultations|balance-agee))(?:\/|$)/.test(path)) return true;
   if (path === "/facturation/balance-agee") return read;
   if (/^\/vente(?:\/|$)/.test(path)) return true;
   if (/^\/stock(?:\/|$)/.test(path)) return true;

@@ -182,7 +182,7 @@ export function CustomerPaymentForm({
               amountEdited.current = true;
               const next = nextAmount ?? 0;
               setAmount(next);
-              if (!fullAccess) setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, openItems?.invoices ?? []));
+              setAllocations((current) => synchronizeSingleInvoiceAllocation(current, next, openItems?.invoices ?? invoices));
             }} required />
           </label>
           <label className="space-y-1.5 text-sm">
@@ -248,7 +248,7 @@ export function CustomerPaymentForm({
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={cancelHref}>Annuler</Link></Button>
-        <Button disabled={pending || isLoadingOpenItems || Boolean(openItemsError) || !customerId || amount <= 0 || allocatedTotal > amount}>{pending ? "Enregistrement…" : submitLabel}</Button>
+        <Button type="submit" disabled={pending || !customerId || amount <= 0 || allocatedTotal > amount + 0.009}>{pending ? "Enregistrement…" : submitLabel}</Button>
       </div>
     </form>
   );
