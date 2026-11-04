@@ -29,7 +29,7 @@ Légende des décisions : **implémenté** (parcours réel dans l'application), 
 | Bilan et CPC | `/comptabilite/etats` | Synthèse des classes 1 à 7 | Conservé comme synthèse. Le détail est sur la liasse. |
 | Lettrage comptable | `/comptabilite/lettrage` | 3421 / 4411 | Déjà en place. |
 | Déclaration TVA | `/comptabilite/tva` | CRUD, contrôle, XML/CSV préparatoires vers Storage | Déjà en place, non homologué DGI. |
-| EDI SIMPL | `/comptabilite/tva/edi-simpl` | Fichier vide hors en-tête | **À brancher** sur les lignes de déclaration. Pas de télé-dépôt. |
+| EDI SIMPL | `/comptabilite/tva/edi-simpl` | Fichier vide hors en-tête | **Implémenté** dans la section fiscale : lignes réelles et contrôles, sans télé-dépôt. |
 | Excel TVA DGI | `src/lib/tax/dgi-vat-xlsx.ts` | `DGI_VAT_XLSX_AVAILABLE = false` | **Laissé.** Le XML et le CSV préparatoires existent. Ajouter une dépendance tableur n'apporte pas le schéma DGI. |
 | Prévisions de trésorerie | `/tresorerie/previsions` | Opérationnel | Conservé. |
 | Page Exports comptables | `/comptabilite/exports` | Liens vers les vrais exports | Conservée comme index, sans promettre un FEC depuis cette seule page. |
@@ -38,9 +38,10 @@ Légende des décisions : **implémenté** (parcours réel dans l'application), 
 
 | Élément | Fichier | Décision |
 | --- | --- | --- |
-| Identifiants de dépôt DGI / CNSS | pas d'écran dédié | **À ajouter** : paramètres (affiliation, régime, taux d'IS saisi). Aucun mot de passe Damancom ni jeton DGI stocké. |
-| SIMPL TVA, état 9421, BDS | bibliothèques existantes | **À contrôler** (ICE, période, totaux, jours, plafond). Le fichier se télécharge. Le dépôt en ligne reste manuel. |
-| IS | absent | **À ajouter** comme préparation à partir du résultat comptable et d'un taux saisi. Pas de taux légal inventé. |
+| Identifiants de dépôt DGI / CNSS | `/comptabilite/parametres-fiscaux` | **Implémenté.** Affiliation, périodicité, taux d'IS saisi, note. Aucun mot de passe ni dépôt. Migration 124. |
+| SIMPL TVA | `/comptabilite/tva/edi-simpl` | **Implémenté** à partir des lignes de déclaration, avec contrôles ICE, période et cohérence des taux. Téléchargement seulement. |
+| BDS et état 9421 | `/rh/cnss/bds`, `/rh/ir/etat-9421` | **Contrôles ajoutés** (CNSS, jours, plafond, CIN, IR). Le format reste préparatoire, pas un dépôt Damancom ou EDI. |
+| IS | `/comptabilite/is` | **Implémenté** depuis le résultat comptable et le taux saisi. Pas de taux légal inventé, pas de liasse fiscale officielle. |
 | Télé-dépôt DGI, Damancom, signature qualifiée, facturation électronique officielle | `docs/e-invoicing` | **Laissé.** Identifiants, certificats et homologation officiels requis. Felexia ne simule pas un accusé de dépôt. |
 
 ## Stock, ventes, achats, CRM

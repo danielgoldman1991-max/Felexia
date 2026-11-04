@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireHrWorkspace } from "@/lib/hr/access";
 import { buildEtat9421 } from "@/lib/hr/etat-9421";
+import { controlTrailer, irIssues } from "@/lib/accounting/fiscal-files";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
     current.dependents = Math.max(current.dependents, Number(details?.slip?.familyReduction ? 1 : 0));
     grouped.set(slip.employee_id as string, current);
   }
-  const body = buildEtat9421(year, [...grouped.entries()].map(([id, totals]) => {
+  const rows = [...grouped.entries()].map(([id, totals]) => {
     const employee = people.get(id);
     return {
       employeeNumber: (employee?.employee_number as string | null) ?? id,
@@ -36,7 +37,8 @@ export async function GET(request: Request) {
       irWithheld: Math.round(totals.ir * 100) / 100,
       dependents: totals.dependents,
     };
-  }));
+  });
+  const body = `${buildEtat9421(year, rows)}${controlTrailer(irIssues(rows))}`;
   return new NextResponse(body, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
