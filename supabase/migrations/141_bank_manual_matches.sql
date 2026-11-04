@@ -104,14 +104,14 @@ declare
   document_count integer := 0;
   line_sum numeric(14,2) := 0;
   document_sum numeric(14,2) := 0;
-  direction text;
+  v_direction text;
   line_amount numeric(14,2);
   open_amount numeric(14,2);
   already numeric(14,2);
   doc_amount numeric(14,2);
   doc_direction text;
-  kind text;
-  partial boolean := false;
+  v_kind text;
+  v_partial boolean := false;
   first_line uuid;
 begin
   if actor is null or not app_private.has_active_org_membership(p_organization_id) then
@@ -134,17 +134,18 @@ begin
   for item in select value from jsonb_array_elements(p_lines) loop
     line_amount := null;
     doc_direction := null;
-    select amount, direction into line_amount, doc_direction
-    from public.bank_statement_lines
-    where id = (item->>'id')::uuid
-      and organization_id = p_organization_id
-      and treasury_account_id = p_treasury_account_id
-      and reconciliation_status = 'unreconciled';
+    select l.amount, l.direction into line_amount, doc_direction
+    from public.bank_statement_lines l
+    where l.id = (item->>'id')::uuid
+      and l.organization_id = p_organization_id
+      and l.treasury_account_id = p_treasury_account_id
+      and l.reconciliation_status = 'unreconciled'
+    for update;
     if not found or line_amount is null then
       raise exception 'MANUAL_MATCH_LINE' using errcode = '22023';
     end if;
-    if direction is null then direction := doc_direction;
-    elsif direction <> doc_direction then
+    if v_direction is null then v_direction := doc_direction;
+    elsif v_direction <> doc_direction then
       raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023';
     end if;
     select coalesce(sum(l.amount), 0) into already
@@ -158,7 +159,7 @@ begin
     if line_amount <= 0 or line_amount > open_amount + 0.001 then
       raise exception 'MANUAL_MATCH_AMOUNT' using errcode = '22023';
     end if;
-    if line_amount + 0.009 < open_amount then partial := true; end if;
+    if line_amount + 0.009 < open_amount then v_partial := true; end if;
     line_sum := line_sum + line_amount;
     line_count := line_count + 1;
     if first_line is null then first_line := (item->>'id')::uuid; end if;
@@ -169,25 +170,28 @@ begin
     open_amount := null;
     doc_direction := null;
     if item->>'type' = 'customer_invoice' then
-      if direction <> 'in' then raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023'; end if;
+      if v_direction <> 'in' then raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023'; end if;
       select round(remaining_amount, 2) into open_amount
       from public.customer_invoices
       where id = (item->>'id')::uuid and organization_id = p_organization_id
-        and archived_at is null and status not in ('draft', 'cancelled');
+        and archived_at is null and status not in ('draft', 'cancelled')
+      for update;
     elsif item->>'type' = 'supplier_invoice' then
-      if direction <> 'out' then raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023'; end if;
+      if v_direction <> 'out' then raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023'; end if;
       select round(remaining_amount, 2) into open_amount
       from public.supplier_invoices
       where id = (item->>'id')::uuid and organization_id = p_organization_id
-        and archived_at is null and status in ('validated', 'partially_paid');
+        and archived_at is null and status in ('validated', 'partially_paid')
+      for update;
     elsif item->>'type' = 'transaction' then
-      select round(amount, 2), direction into open_amount, doc_direction
-      from public.treasury_transactions
-      where id = (item->>'id')::uuid and organization_id = p_organization_id
-        and treasury_account_id = p_treasury_account_id
-        and archived_at is null and reconciliation_status = 'unreconciled';
+      select round(t.amount, 2), t.direction into open_amount, doc_direction
+      from public.treasury_transactions t
+      where t.id = (item->>'id')::uuid and t.organization_id = p_organization_id
+        and t.treasury_account_id = p_treasury_account_id
+        and t.archived_at is null and t.reconciliation_status = 'unreconciled'
+      for update;
       if not found then raise exception 'MANUAL_MATCH_DOCUMENT' using errcode = '22023'; end if;
-      if doc_direction is distinct from direction then
+      if doc_direction is distinct from v_direction then
         raise exception 'MANUAL_MATCH_DIRECTION' using errcode = '22023';
       end if;
     else
@@ -203,7 +207,7 @@ begin
     if doc_amount <= 0 or doc_amount > open_amount + 0.001 then
       raise exception 'MANUAL_MATCH_AMOUNT' using errcode = '22023';
     end if;
-    if doc_amount + 0.009 < open_amount then partial := true; end if;
+    if doc_amount + 0.009 < open_amount then v_partial := true; end if;
     document_sum := document_sum + doc_amount;
     document_count := document_count + 1;
   end loop;
@@ -211,12 +215,12 @@ begin
   if abs(line_sum - document_sum) > 0.009 then
     raise exception 'MANUAL_MATCH_BALANCE' using errcode = '22023';
   end if;
-  kind := case when line_count > 1 or document_count > 1 then 'grouped' else 'partial' end;
+  v_kind := case when line_count > 1 or document_count > 1 then 'grouped' else 'partial' end;
 
   insert into public.bank_manual_matches (
     id, organization_id, treasury_account_id, kind, is_partial, status, total_amount, created_by
   ) values (
-    v_match, p_organization_id, p_treasury_account_id, kind, partial, 'confirmed', round(line_sum, 2), actor
+    v_match, p_organization_id, p_treasury_account_id, v_kind, v_partial, 'confirmed', round(line_sum, 2), actor
   );
   insert into public.bank_manual_match_lines (organization_id, match_id, statement_line_id, amount)
   select p_organization_id, v_match, (value->>'id')::uuid, round((value->>'amount')::numeric, 2)
@@ -259,9 +263,9 @@ begin
     p_organization_id,
     p_treasury_account_id,
     first_line,
-    case when kind = 'grouped' then 'manual_grouped' else 'manual' end,
-    case when kind = 'grouped' then 'Rapprochement groupé' else 'Rapprochement partiel' end,
-    jsonb_build_object('matchId', v_match, 'partial', partial, 'total', round(line_sum, 2)),
+    case when v_kind = 'grouped' then 'manual_grouped' else 'manual' end,
+    case when v_kind = 'grouped' then 'Rapprochement groupé' else 'Rapprochement partiel' end,
+    jsonb_build_object('matchId', v_match, 'partial', v_partial, 'total', round(line_sum, 2)),
     actor
   );
   return v_match;
@@ -309,6 +313,8 @@ begin
       match_reason = null
   where line.organization_id = p_organization_id
     and line.id in (select statement_line_id from public.bank_manual_match_lines where match_id = p_match_id)
+    and line.matched_transaction_id is null
+    and not exists (select 1 from public.bank_reconciliations br where br.organization_id = p_organization_id and br.statement_line_id = line.id)
     and line.amount > (
       select coalesce(sum(l.amount), 0) + 0.009
       from public.bank_manual_match_lines l
@@ -322,6 +328,7 @@ begin
       select target_id from public.bank_manual_match_documents
       where match_id = p_match_id and target_type = 'transaction'
     )
+    and not exists (select 1 from public.bank_reconciliations br where br.organization_id = p_organization_id and br.transaction_id = tx.id)
     and tx.amount > (
       select coalesce(sum(d.amount), 0) + 0.009
       from public.bank_manual_match_documents d
