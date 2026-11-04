@@ -40,7 +40,7 @@ export async function updateCompanyAction(
     const data: Record<string, string | null> = {};
     const fields = [
       "legal_name", "commercial_name", "forme_juridique", "ice", "rc", "ville_rc", "if_number",
-      "cnss", "tax_identifier", "address", "city", "country",
+      "patente", "cnss", "tax_identifier", "address", "city", "country",
       "phone", "email", "website", "activity", "currency", "footer_text",
     ];
 

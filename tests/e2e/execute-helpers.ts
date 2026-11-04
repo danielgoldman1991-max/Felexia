@@ -51,6 +51,13 @@ export async function pickParty(page: Page, query: string, placeholder: RegExp) 
   await page.getByRole("button", { name: new RegExp(query, "i") }).first().click();
 }
 
+export async function pickSupplier(page: Page, query: string) {
+  await page.getByRole("button", { name: /s[eé]lectionner un fournisseur/i }).click();
+  const search = page.getByPlaceholder(/^Rechercher\.\.\.$/);
+  await search.fill(query);
+  await search.locator("xpath=ancestor::div[contains(@class,'absolute')][1]").getByRole("button", { name: new RegExp(query, "i") }).first().click();
+}
+
 export async function addCommercialLine(page: Page, line: { description: string; qty: string; price: string; vat: string; discount?: string }) {
   const free = page.locator("select").filter({ has: page.locator("option", { hasText: "Ligne libre" }) }).first();
   if (await free.count()) await free.selectOption("free");

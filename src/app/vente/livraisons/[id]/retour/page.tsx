@@ -18,7 +18,7 @@ export default async function ReturnFromDeliveryPage({ params }: { params: Promi
   return (
     <ModulePage>
       <PageHeader
-        title="Creer un retour client"
+        title="Créer un retour client"
         description={`Bon de livraison ${document.document_number}`}
       />
       <ReturnNoteForm delivery={document} lines={lines} action={createReturnFromDelivery} />

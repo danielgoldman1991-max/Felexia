@@ -23,7 +23,7 @@ export function DeliveriesTable({ rows }: { rows: DeliveryNoteRecord[] }) {
         {rows.length === 0 ? (
           <tr>
             <td colSpan={6} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
-              Aucun bon de livraison trouve.
+              Aucun bon de livraison trouvé.
             </td>
           </tr>
         ) : null}

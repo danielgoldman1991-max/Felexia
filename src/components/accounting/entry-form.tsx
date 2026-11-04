@@ -110,13 +110,14 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-[var(--muted)]">Libelle *</label>
+            <label className="mb-1 block text-xs font-medium text-[var(--muted)]">Libellé *</label>
             <input
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               className="h-9 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--primary)]"
-              placeholder="Libelle de l'ecriture"
+              placeholder="Libellé de l'écriture"
+              aria-label="Libellé de l'écriture"
               required
             />
           </div>

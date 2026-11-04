@@ -65,10 +65,10 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
               <Button type="button" variant="secondary" asChild><Link href={`/facturation/factures/${invoice.id}/paiement`}><WalletCards className="h-4 w-4" /> Enregistrer paiement</Link></Button>
             ) : null}
             {canWrite && ["validated", "sent", "partially_paid", "paid"].includes(invoice.status) ? (
-              <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><RotateCcw className="h-4 w-4" /> Creer avoir</Link></Button>
+              <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?invoiceId=${invoice.id}`}><RotateCcw className="h-4 w-4" /> Créer un avoir</Link></Button>
             ) : null}
             {canWrite && fullAccess && invoice.due_date && new Date(invoice.due_date) < new Date() && invoice.remaining_amount > 0 && !["draft", "cancelled"].includes(invoice.status) ? (
-              <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Bell className="h-4 w-4" /> Creer relance</Link></Button>
+              <Button type="button" variant="secondary" asChild><Link href={`/facturation/relances/new?customerId=${invoice.customer_id}`}><Bell className="h-4 w-4" /> Créer la relance</Link></Button>
             ) : null}
             {canWrite && invoice.status === "draft" ? (
               <>
@@ -126,7 +126,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
         <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(invoice.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
-        <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Comptabilité</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
             <div className="space-y-3">
@@ -140,20 +140,20 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
                   </p>
                 </div>
                 <Badge tone={(accountingEntry.entry.status as string) === "posted" ? "success" : "neutral"}>
-                  {String(accountingEntry.entry.status ?? "") === "posted" ? "Comptabilisee" : String(accountingEntry.entry.status ?? "")}
+                  {String(accountingEntry.entry.status ?? "") === "posted" ? "Comptabilisée" : String(accountingEntry.entry.status ?? "")}
                 </Badge>
               </div>
               <div className="flex gap-4 text-sm">
-                <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
-                <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
+                <span className="text-[var(--muted)]">Total débit : <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
+                <span className="text-[var(--muted)]">Total crédit : <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l’écriture</Link></Button>
             </div>
           ) : invoice.status === "draft" || invoice.status === "cancelled" ? (
-            <p className="text-sm text-[var(--muted)]">L&apos;ecriture comptable pourra etre generee apres validation de la facture.</p>
+            <p className="text-sm text-[var(--muted)]">L’écriture comptable pourra être générée après validation de la facture.</p>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour cette facture.</p>
+              <p className="text-sm text-[var(--muted)]">Aucune écriture comptable générée pour cette facture.</p>
               {canPostAccounting ? <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithInvoiceId(postCustomerInvoiceToAccounting, invoice.id)} /> : null}
             </div>
           )}

@@ -144,7 +144,7 @@ async function buildInvoicePayload(formData: FormData) {
   const workspace = await requireActiveWorkspace();
   const customerId = text(formData, "customer_id");
   const normalized = normalizeInvoiceLines(parseLines(formData));
-  if (!customerId) return { workspace, error: "Selectionnez un client." };
+  if (!customerId) return { workspace, error: "Sélectionnez un client." };
   if (normalized.error) return { workspace, error: normalized.error };
   const supabase = await createClient();
   const { data: customer, error: customerError } = await supabase.from("third_parties")
@@ -156,10 +156,14 @@ async function buildInvoicePayload(formData: FormData) {
   const totals = calculateInvoiceTotals(normalized.lines);
   const paidAmount = numberValue(formData.get("paid_amount"));
   const selectedDeliveryNoteIds = parseStringArray(formData, "selected_delivery_note_ids");
-  const lineDeliveryNoteIds = Array.from(new Set(normalized.lines.map((line) => line.source_document_id).filter(Boolean))) as string[];
-  const deliveryNoteIds = selectedDeliveryNoteIds.length > 0 ? selectedDeliveryNoteIds : lineDeliveryNoteIds;
   const requestedSourceType = text(formData, "source_type") ?? "manual";
   const sourceOrderId = text(formData, "source_order_id");
+  const lineSourceIds = Array.from(new Set(normalized.lines.map((line) => line.source_document_id).filter(Boolean))) as string[];
+  // An order preparation stamps the order id on each line. That id is not a delivery note.
+  const lineDeliveryNoteIds = requestedSourceType === "order"
+    ? lineSourceIds.filter((id) => id !== sourceOrderId)
+    : lineSourceIds;
+  const deliveryNoteIds = selectedDeliveryNoteIds.length > 0 ? selectedDeliveryNoteIds : lineDeliveryNoteIds;
   if ((requestedSourceType === "order" || sourceOrderId) && deliveryNoteIds.length === 0 && sourceOrderId) {
     try {
       await assertDirectOrderInvoiceAllowed(workspace.organization.id, sourceOrderId, text(formData, "id") ?? undefined);

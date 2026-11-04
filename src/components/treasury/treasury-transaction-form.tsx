@@ -58,7 +58,7 @@ export function TreasuryTransactionForm({ accounts }: { accounts: TreasuryAccoun
           {operationMode === "movement" ? <label className="space-y-2 text-sm">
             <span className="font-medium">Sens</span>
             <Select name="direction" defaultValue="in">
-              <option value="in">Entree</option>
+              <option value="in">Entrée</option>
               <option value="out">Sortie</option>
             </Select>
           </label> : null}
@@ -67,7 +67,7 @@ export function TreasuryTransactionForm({ accounts }: { accounts: TreasuryAccoun
             <MoneyInput name="amount" min={0.01} required />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Date operation</span>
+            <span className="font-medium">Date de l’opération</span>
             <Input name="transaction_date" type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
           </label>
           <label className="space-y-2 text-sm">
@@ -75,7 +75,7 @@ export function TreasuryTransactionForm({ accounts }: { accounts: TreasuryAccoun
             <Input name="value_date" type="date" />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Libelle *</span>
+            <span className="font-medium">Libellé *</span>
             <Input name="label" required />
           </label>
           <label className="space-y-2 text-sm">

@@ -9,7 +9,7 @@ import { formatDate } from "@/lib/format";
 import { REMINDER_CHANNEL_LABELS, type CustomerReminderRecord } from "@/lib/reminder-types";
 
 export function CustomerRemindersTable({ rows }: { rows: CustomerReminderRecord[] }) {
-  if (rows.length === 0) return <EmptyState title="Aucune relance" description="Les relances clients creees apparaitront ici." />;
+  if (rows.length === 0) return <EmptyState title="Aucune relance" description="Les relances clients créées apparaîtront ici." />;
 
   return (
     <Table>

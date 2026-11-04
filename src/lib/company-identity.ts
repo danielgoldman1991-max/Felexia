@@ -56,7 +56,7 @@ export async function getOrganizationDocumentIdentity(
     ice: legalDisplay.ice,
     rc: legalDisplay.rc,
     ifNumber: legalDisplay.fiscalId,
-    patente: companySettings?.patente ?? null,
+    patente: nonEmpty(companySettings?.patente) ?? nonEmpty(organization?.patente),
     cnss: legalDisplay.cnss,
     address: legalDisplay.address,
     city: legalDisplay.city,
