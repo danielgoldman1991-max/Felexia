@@ -11,8 +11,8 @@ export function TreasuryDashboardCards({ counters, fullAccess = false }: { count
       <StatCard title="Entrées du mois" caption="Tous les mouvements du mois en MAD" value={<MoneyDisplay value={counters.monthlyIn} />} icon={<TrendingUp className="h-5 w-5" />} />
       <StatCard title="Sorties du mois" caption="Tous les mouvements du mois en MAD" value={<MoneyDisplay value={counters.monthlyOut} />} icon={<TrendingDown className="h-5 w-5" />} />
       {fullAccess ? <><StatCard title="Solde net du mois" caption="Mouvements en MAD" value={<MoneyDisplay value={counters.monthlyNet} />} />
-      <StatCard title="Lignes bancaires non rapprochees" value={counters.unreconciledStatementLines} />
-      <StatCard title="Mouvements non rapproches" value={counters.unreconciledTransactions} /></> : null}
+      <StatCard title="Lignes bancaires non rapprochées" value={counters.unreconciledStatementLines} />
+      <StatCard title="Mouvements non rapprochés" value={counters.unreconciledTransactions} /></> : null}
     </div>
   );
 }

@@ -97,7 +97,7 @@ export function TreasuryForecastFilters({ accounts }: { accounts: Array<Pick<Tre
       </div>
       {hasFilters ? (
         <div className="flex justify-end">
-          <Button variant="ghost" onClick={reset}><X className="h-4 w-4" /> Reinitialiser</Button>
+          <Button variant="ghost" onClick={reset}><X className="h-4 w-4" /> Réinitialiser</Button>
         </div>
       ) : null}
     </div>

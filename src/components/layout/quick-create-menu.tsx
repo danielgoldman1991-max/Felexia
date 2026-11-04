@@ -131,6 +131,7 @@ export function QuickCreateMenu({ fullAccess = false, operator = false }: { full
         onClick={() => setOpen((value) => !value)}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
         aria-label="Création rapide"
+        title="Création rapide"
         aria-expanded={open}
       >
         <Plus className="h-[18px] w-[18px]" />

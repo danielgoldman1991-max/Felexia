@@ -63,7 +63,7 @@ export function AccountingJournalFilters({
           </div>
           <div className="flex items-end gap-2 xl:col-span-4">
             <Button type="submit">Appliquer</Button>
-            <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${journalId}`}>Reinitialiser</Link></Button>
+            <Button type="button" variant="secondary" asChild><Link href={`/comptabilite/journaux/${journalId}`}>Réinitialiser</Link></Button>
           </div>
         </form>
       </CardContent>

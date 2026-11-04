@@ -7,6 +7,7 @@ import { decideLeave } from "../src/lib/hr/leave-decision";
 import { serviceMonthsInYear } from "../src/lib/hr/leave-balance";
 import { computeFinalSettlement } from "../src/lib/hr/settlement";
 import { isCheckKey } from "../src/lib/hr/checks";
+import { boundedPage } from "../src/lib/listing";
 
 const approved = decideLeave({ status: "pending", days: 2, remainingDays: 12, decision: "approve", countsAgainstBalance: true });
 assert.equal(approved.ok, true);
@@ -139,5 +140,11 @@ assert.match(readFileSync("supabase/migrations/143_hr_catalog_delete.sql", "utf8
 assert.match(readFileSync("supabase/migrations/143_hr_catalog_delete.sql", "utf8"), /hr_can_manage/);
 assert.match(readFileSync("supabase/rollbacks/143_hr_catalog_delete_rollback.sql", "utf8"), /using \(false\)/);
 assert.match(readFileSync("src/lib/hr/settings-actions.ts", "utf8"), /\.select\("id"\)/);
+assert.deepEqual(boundedPage(0, 10, 25), { page: 1, pageSize: 25, totalPages: 1 });
+assert.deepEqual(boundedPage(-3, 10, 25), { page: 1, pageSize: 25, totalPages: 1 });
+assert.deepEqual(boundedPage("abc", 40, 25), { page: 1, pageSize: 25, totalPages: 2 });
+assert.deepEqual(boundedPage(9, 30, 25), { page: 2, pageSize: 25, totalPages: 2 });
+assert.match(readFileSync("src/lib/hr/employee-archive-actions.ts", "utf8"), /archived_at/);
+assert.doesNotMatch(readFileSync("src/lib/hr/employee-archive-actions.ts", "utf8"), /\.delete\(/);
 
 console.log("RH : décisions de congé, solde de tout compte et contrôles d'accès vérifiés.");

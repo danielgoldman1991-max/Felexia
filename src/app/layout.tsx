@@ -10,6 +10,7 @@ import { PublicSupportAssistant } from "@/components/support/PublicSupportAssist
 import { PublicAnalytics } from "@/components/analytics/PublicAnalytics";
 import { GuideDownloadHost } from "@/components/guides/GuideDownload";
 import { NewsletterPrompt } from "@/components/newsletter/NewsletterPrompt";
+import { FrenchRequired } from "@/components/forms/french-required";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export default function RootLayout({
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <script id="felexia-site-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteStructuredData }} />
-        <ThemeProvider>{children}<PublicSupportAssistant /><Suspense fallback={null}><PublicAnalytics /></Suspense><Suspense fallback={null}><NewsletterPrompt /></Suspense><GuideDownloadHost /></ThemeProvider>
+        <ThemeProvider><FrenchRequired />{children}<PublicSupportAssistant /><Suspense fallback={null}><PublicAnalytics /></Suspense><Suspense fallback={null}><NewsletterPrompt /></Suspense><GuideDownloadHost /></ThemeProvider>
       </body>
     </html>
   );
