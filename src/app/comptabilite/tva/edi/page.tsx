@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ export default function EdiPeriodPage() {
         <label className="text-sm">Année<input name="year" type="number" defaultValue={now.getFullYear()} className="mt-1 block h-11 w-28 rounded border border-[var(--border)] px-2" /></label>
         <Button type="submit">Télécharger</Button>
       </form>
-      <p className="mt-4 text-sm"><a className="font-semibold text-[var(--primary)]" href="/comptabilite/tva/declarations">Les déclarations affichent aussi la colonne 10 %.</a></p>
+      <p className="mt-4 text-sm"><Link className="font-semibold text-[var(--primary)]" href="/comptabilite/tva/declarations">Les déclarations affichent aussi la colonne 10 %.</Link></p>
     </ModulePage>
   );
 }

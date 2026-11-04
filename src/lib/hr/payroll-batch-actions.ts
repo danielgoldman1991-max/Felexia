@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { logAudit } from "@/lib/audit";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isMissingSchema } from "@/lib/optional-schema";
-import { calculateMoroccanPayslip2026, overtimePayFromHours } from "@/lib/hr/ma-payroll-2026";
+import { calculateMoroccanPayslip2026 } from "@/lib/hr/ma-payroll-2026";
 import { payrollReference2026Settings } from "@/lib/hr/payroll-reference";
 import { postPayrollPaymentEntry } from "@/lib/hr/payroll-posting";
 import { createClient } from "@/lib/supabase/server";
@@ -199,11 +199,4 @@ async function scheduledDeductions(supabase: Awaited<ReturnType<typeof createCli
     loans: Math.round(loanTotal * 100) / 100,
     advanceIds,
   };
-}
-
-export function overtimeFromForm(baseSalary: number, formData: FormData, weeklyHours: number) {
-  const hours = (key: string) => Math.max(0, Number(String(formData.get(key) ?? "0").replace(",", ".")) || 0);
-  const computed = overtimePayFromHours(baseSalary, { at25: hours("overtime_hours_25"), at50: hours("overtime_hours_50"), at100: hours("overtime_hours_100") }, weeklyHours);
-  if (computed.at25 + computed.at50 + computed.at100 > 0) return computed.amount;
-  return Math.max(0, Number(String(formData.get("overtime_amount") ?? "0").replace(",", ".")) || 0);
 }
