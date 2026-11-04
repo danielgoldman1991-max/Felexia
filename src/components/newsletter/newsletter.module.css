@@ -25,6 +25,7 @@
   color: #13213b;
   padding: 10px 12px;
   font: inherit;
+  font-size: 16px;
   font-weight: 450;
 }
 .field input:focus-visible, .field select:focus-visible { outline: 2px solid #2454d8; outline-offset: 2px; }
@@ -57,7 +58,7 @@
   position: fixed;
   z-index: 70;
   right: 20px;
-  bottom: 20px;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
   width: min(380px, calc(100% - 24px));
   padding: 18px;
@@ -93,5 +94,5 @@
   .prompt { transition: none; }
 }
 @media (max-width: 640px) {
-  .prompt { right: 12px; left: 12px; width: auto; bottom: 12px; }
+  .prompt { right: 12px; left: 12px; width: auto; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
