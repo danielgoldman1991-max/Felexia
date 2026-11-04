@@ -275,7 +275,20 @@ export async function listUnreconciledStatementLines(accountId: string) {
 }
 
 export async function listUnreconciledTreasuryTransactions(accountId: string) {
-  return listTreasuryTransactions({ accountId, status: "unreconciled" });
+  const orgId = await activeOrgId();
+  const supabase = await createClient();
+  const rows = await readAllPages((from, to) => supabase
+    .from("treasury_transactions")
+    .select("id, organization_id, treasury_account_id, transaction_type, direction, amount, currency, transaction_date, value_date, label, reference, description, third_party_id, customer_payment_id, supplier_payment_id, customer_invoice_id, supplier_invoice_id, reconciliation_status, reconciled_at, created_at, archived_at")
+    .eq("organization_id", orgId)
+    .eq("treasury_account_id", accountId)
+    .eq("reconciliation_status", "unreconciled")
+    .is("archived_at", null)
+    .order("transaction_date", { ascending: false })
+    .order("created_at", { ascending: false })
+    .order("id")
+    .range(from, to));
+  return rows.map(mapTransaction);
 }
 
 export async function getReconciliationWorkspace(accountId?: string, options: { includeSuggestions?: boolean } = {}) {

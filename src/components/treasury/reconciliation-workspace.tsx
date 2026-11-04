@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { MoneyDisplay } from "@/components/erp/money-display";
@@ -112,9 +113,21 @@ function AutomaticSuggestionsForm({ suggestions }: { suggestions: Reconciliation
 }
 
 function AccountFilter({ accounts, selectedAccountId }: { accounts: TreasuryAccountRecord[]; selectedAccountId: string }) {
-  const [pending, setPending] = useState(false);
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   return (
-    <form method="get" onSubmit={() => setPending(true)} className="flex max-w-md items-end gap-3">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const id = String(new FormData(event.currentTarget).get("accountId") ?? "");
+        const params = new URLSearchParams();
+        if (id) params.set("accountId", id);
+        startTransition(() => {
+          router.push(params.size ? `/tresorerie/rapprochement?${params}` : "/tresorerie/rapprochement");
+        });
+      }}
+      className="flex max-w-md items-end gap-3"
+    >
       <label className="flex-1 space-y-2 text-sm">
         <span className="font-medium">Compte bancaire</span>
         <Select name="accountId" defaultValue={selectedAccountId}>
@@ -154,7 +167,7 @@ export function ReconciliationWorkspace({
       {hideLegacyAuto ? null : <Card>
         <CardHeader>
           <h2 className="font-semibold">Rapprochement automatique</h2>
-          <p className="mt-1 text-sm text-[var(--muted)]">Voulez-vous lancer une proposition de rapprochement automatique basee sur les dates, montants, sens, compte et references ?</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">Voulez-vous lancer une proposition de rapprochement automatique basée sur les dates, montants, sens, compte et références ?</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 text-sm md:grid-cols-3">

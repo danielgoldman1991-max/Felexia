@@ -23,12 +23,12 @@ export function SettingsForm({ action, settings }: Props) {
     { label: "Compte fournisseur", name: "default_supplier_account_code", defaultValue: settings?.default_supplier_account_code ?? "4411", description: "Compte par défaut pour les fournisseurs" },
     { label: "Compte ventes", name: "default_sales_account_code", defaultValue: settings?.default_sales_account_code ?? "7111", description: "Compte par défaut pour les ventes" },
     { label: "Compte achats", name: "default_purchase_account_code", defaultValue: settings?.default_purchase_account_code ?? "6111", description: "Compte par défaut pour les achats" },
-    { label: "Compte TVA collectee", name: "default_sales_vat_account_code", defaultValue: settings?.default_sales_vat_account_code ?? "4455", description: "Compte de TVA facturée" },
+    { label: "Compte TVA collectée", name: "default_sales_vat_account_code", defaultValue: settings?.default_sales_vat_account_code ?? "4455", description: "Compte de TVA facturée" },
     { label: "Compte TVA récupérable", name: "default_purchase_vat_account_code", defaultValue: settings?.default_purchase_vat_account_code ?? "34552", description: "Compte de TVA récupérable sur charges" },
     { label: "Compte banque", name: "default_bank_account_code", defaultValue: settings?.default_bank_account_code ?? "5141", description: "Compte bancaire par défaut" },
     { label: "Compte caisse", name: "default_cash_account_code", defaultValue: settings?.default_cash_account_code ?? "5161", description: "Compte de caisse par défaut" },
     { label: "Compte frais bancaires", name: "default_bank_fees_account_code", defaultValue: settings?.default_bank_fees_account_code ?? "6147", description: "Compte des frais bancaires" },
-    { label: "Préfixe numérotation", name: "numbering_prefix", defaultValue: settings?.numbering_prefix ?? "PC", description: "Prefixe pour les numéros d'écritures" },
+    { label: "Préfixe numérotation", name: "numbering_prefix", defaultValue: settings?.numbering_prefix ?? "PC", description: "Préfixe pour les numéros d'écritures" },
   ];
 
   return (
@@ -89,7 +89,7 @@ export function SettingsForm({ action, settings }: Props) {
       ) : null}
 
       <div className="flex justify-end">
-        <Button disabled={pending}>{pending ? "Enregistrement..." : "Enregistrer les parametres"}</Button>
+        <Button disabled={pending}>{pending ? "Enregistrement…" : "Enregistrer les paramètres"}</Button>
       </div>
     </form>
   );

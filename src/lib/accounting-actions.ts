@@ -527,7 +527,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
   if (!customerAccount) return { success: false, error: `Compte client ${customerAccountCode} introuvable.` };
   if (!salesProductAccount) return { success: false, error: `Compte vente ${salesProductCode} introuvable.` };
   if (!salesServiceAccount) return { success: false, error: `Compte vente service ${salesServiceCode} introuvable.` };
-  if (!salesVatAccount) return { success: false, error: `Compte TVA collectee ${salesVatCode} introuvable.` };
+  if (!salesVatAccount) return { success: false, error: `Compte TVA collectée ${salesVatCode} introuvable.` };
 
   const accountLines = buildCustomerInvoiceLines(
     lines.map((l) => ({
@@ -645,7 +645,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
   if (!supplierAccount) return { success: false, error: `Compte fournisseur ${supplierAccountCode} introuvable.` };
   if (!purchaseProductAccount) return { success: false, error: `Compte achat ${purchaseProductCode} introuvable.` };
   if (!purchaseServiceAccount) return { success: false, error: `Compte achat service ${purchaseServiceCode} introuvable.` };
-  if (!purchaseVatAccount) return { success: false, error: `Compte TVA recuperable ${purchaseVatCode} introuvable.` };
+  if (!purchaseVatAccount) return { success: false, error: `Compte TVA récupérable ${purchaseVatCode} introuvable.` };
 
   const accountLines = buildSupplierInvoiceLines(
     lines.map((l) => ({

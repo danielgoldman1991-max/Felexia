@@ -150,7 +150,7 @@ export function SupplierReceiptDetail({
                 <Th>Article</Th>
                 <Th>Description</Th>
                 <Th>Unite</Th>
-                <Th className="text-right">Qte recue</Th>
+                <Th className="text-right">Qté reçue</Th>
                 <Th className="text-right">Prix HT</Th>
                 <Th className="text-right">Remise %</Th>
                 <Th className="text-right">Total HT</Th>

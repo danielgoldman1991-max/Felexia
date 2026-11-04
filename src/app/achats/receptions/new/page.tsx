@@ -11,7 +11,7 @@ export default async function NewSupplierReceiptPage({ searchParams }: { searchP
 
   if (orderId) {
     const [order, stockLocations] = await Promise.all([getSupplierReceiptPreparation(orderId), listActiveStockLocations()]);
-    if (!order) return <ModulePage><p className="text-sm text-red-600">Commande non trouvee ou deja entierement recue.</p></ModulePage>;
+    if (!order) return <ModulePage><p className="text-sm text-red-600">Commande non trouvée ou déjà entièrement reçue.</p></ModulePage>;
     return <ModulePage><SupplierReceiptForm order={order} stockLocations={stockLocations} /></ModulePage>;
   }
 

@@ -23,7 +23,7 @@ export default async function NewSalesOrderPage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Nouvelle commande" description="Creation directe d'une commande client." />
+      <PageHeader title="Nouvelle commande" description="Création directe d'une commande client." />
       <SalesOrderForm
         mode="create"
         customers={customers}

@@ -72,7 +72,7 @@ export function ProductDetail({ product, fullAccess = false }: { product: Produc
             {fullAccess ? <Info label="Reference interne" value={product.sku} /> : null}
             {fullAccess ? <Info label="Code-barres" value={product.barcode} /> : null}
             <Info label="Categorie" value={product.category_name} />
-            <Info label="Unite" value={product.unit_name ? `${product.unit_name} (${product.unit_symbol ?? ""})` : null} />
+            <Info label="Unité" value={product.unit_name ? `${product.unit_name} (${product.unit_symbol ?? ""})` : null} />
             <div className="md:col-span-2">
               <Info label="Description" value={product.description} />
             </div>
