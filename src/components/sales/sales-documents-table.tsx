@@ -21,10 +21,11 @@ export function SalesDocumentsTable({ rows, type, canWrite = false }: { rows: Sa
   const isLogisticsTable = isDeliveryTable || isReturnTable;
 
   if (rows.length === 0) {
+    const title = type === "quote" ? "Aucun devis trouvé." : type === "order" ? "Aucune commande trouvée." : "Aucun document trouvé.";
     return (
       <EmptyState
-        title="Aucun document"
-        description="Les documents de vente apparaitront ici progressivement."
+        title={title}
+        description="Les documents de vente apparaîtront ici progressivement."
       />
     );
   }

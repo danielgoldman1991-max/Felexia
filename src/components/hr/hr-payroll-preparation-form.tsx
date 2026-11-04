@@ -24,7 +24,7 @@ export function HrPayrollPreparationForm({ periodId, updatedAt, status = "draft"
       {status === "draft" || status === "calculated" ? <form action={action} className="space-y-4">
         <input type="hidden" name="expected_updated_at" value={updatedAt} />
         <p className="text-sm text-[var(--muted)]">Le calcul reprend le référentiel 2026 (CNSS, AMO, ancienneté, frais professionnels, IR et charges de famille), les avances du mois et les échéances de prêt.</p>
-        <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="ack_base_only" value="yes" required className="mt-1" /><span>Je lance le calcul avec le référentiel 2026. Les montants restent à valider avant paiement.</span></label>
+        <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="ack_base_only" value="yes" required className="mt-1" onInvalid={(event) => event.currentTarget.setCustomValidity("Cochez cette confirmation pour préparer les bulletins.")} onChange={(event) => event.currentTarget.setCustomValidity("")} /><span>Je lance le calcul avec le référentiel 2026. Les montants restent à valider avant paiement.</span></label>
         {state.error ? <p role="alert" className="text-sm text-[var(--danger)]">{state.error}</p> : null}
         {state.success ? <p role="status" className="text-sm text-[var(--success)]">Les bulletins et les totaux ont été enregistrés ensemble.{typeof state.count === "number" ? ` ${state.count} bulletin${state.count > 1 ? "s" : ""}.` : ""}</p> : null}
         {state.skipped && state.skipped.length > 0 ? (

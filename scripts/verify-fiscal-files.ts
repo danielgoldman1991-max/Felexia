@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { fecAuxiliaryColumns, partyAuxiliaryCode } from "../src/lib/accounting/fec-parties";
+import { frenchStatusLabel } from "../src/components/erp/status-badge";
 import { buildEdiSimpl } from "../src/lib/accounting/edi-simpl";
 import { bdsIssues, buildIsFile, controlTrailer, declarationToSimplLines, irIssues, validateSimpl } from "../src/lib/accounting/fiscal-files";
 
@@ -30,5 +32,15 @@ const ir = irIssues([{ employeeNumber: "E1", fullName: "", cin: "ZZ", taxable: 1
 assert.ok(ir.length >= 2);
 assert.equal(controlTrailer([]), "CONTROLE;0\n");
 assert.match(controlTrailer(["ICE"]), /CONTROLE;1/);
+
+assert.equal(frenchStatusLabel("calculated"), "Calculé");
+assert.equal(frenchStatusLabel("validated"), "Validé");
+assert.equal(frenchStatusLabel("paid"), "Payé");
+assert.equal(frenchStatusLabel("archived"), "Archivé");
+const party = { code: partyAuxiliaryCode("CL-01", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), name: "Atlas Négoce" };
+assert.deepEqual(fecAuxiliaryColumns("3421", undefined, party), { number: "CL-01", label: "Atlas Négoce" });
+assert.deepEqual(fecAuxiliaryColumns("4411", undefined, party), { number: "CL-01", label: "Atlas Négoce" });
+assert.deepEqual(fecAuxiliaryColumns("3421", { code: "3421-AUX", name: "Auxiliaire" }, party), { number: "3421-AUX", label: "Auxiliaire" });
+assert.deepEqual(fecAuxiliaryColumns("7111", undefined, party), { number: "", label: "" });
 
 console.log("Fichiers fiscaux préparatoires : SIMPL, IS, BDS et 9421 contrôlés.");

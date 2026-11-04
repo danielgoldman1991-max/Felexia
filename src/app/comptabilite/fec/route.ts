@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { fecAuxiliaryColumns, loadEntryThirdParties } from "@/lib/accounting/fec-parties";
 import { buildFec } from "@/lib/accounting/fec";
 import { loadAccountingAuxiliaries, loadAccountingLines, loadEntryHeaders } from "@/lib/accounting/entry-lines";
 import { requireActiveWorkspace } from "@/lib/auth";
@@ -25,9 +26,12 @@ export async function GET() {
   const entryIds = [...new Set(loaded.rows.map((line) => line.entryId).filter((id): id is string => Boolean(id)))];
   const headers = await loadEntryHeaders(supabase, workspace.organization.id, entryIds);
   const auxiliaries = await loadAccountingAuxiliaries(supabase, workspace.organization.id, loaded.rows.map((line) => line.auxiliaryId ?? ""));
+  const parties = await loadEntryThirdParties(supabase, workspace.organization.id, headers.headers);
   const body = buildFec(loaded.rows.map((line) => {
     const entry = line.entryId ? headers.headers.get(line.entryId) : undefined;
     const auxiliary = line.auxiliaryId ? auxiliaries.get(line.auxiliaryId) : undefined;
+    const party = line.entryId ? parties.get(line.entryId) ?? null : null;
+    const columns = fecAuxiliaryColumns(line.accountCode, auxiliary, party);
     const date = entry?.date || "2026-01-01";
     return {
       journalCode: entry?.journalCode || "OD",
@@ -36,8 +40,8 @@ export async function GET() {
       entryDate: date,
       account: line.accountCode,
       accountLabel: line.accountLabel,
-      auxiliaryNumber: auxiliary?.code || "",
-      auxiliaryLabel: auxiliary?.name || "",
+      auxiliaryNumber: columns.number,
+      auxiliaryLabel: columns.label,
       piece: entry?.number || "",
       pieceDate: date,
       label: line.label,
