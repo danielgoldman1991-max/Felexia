@@ -1,4 +1,5 @@
 -- 118: lots, séries, dates de péremption et inventaire physique.
+-- Apply after 117 and before 119. Do not reuse this number.
 -- Additive. Existing stock levels and the CUMP path are unchanged.
 --
 -- Rollback:

@@ -6,6 +6,7 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { expiringLots } from "@/lib/stock/fifo";
 import { reorderSuggestion } from "@/lib/stock/inventory";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
