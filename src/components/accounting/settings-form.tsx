@@ -24,7 +24,7 @@ export function SettingsForm({ action, settings }: Props) {
     { label: "Compte ventes", name: "default_sales_account_code", defaultValue: settings?.default_sales_account_code ?? "7111", description: "Compte par defaut pour les ventes" },
     { label: "Compte achats", name: "default_purchase_account_code", defaultValue: settings?.default_purchase_account_code ?? "6111", description: "Compte par defaut pour les achats" },
     { label: "Compte TVA collectee", name: "default_sales_vat_account_code", defaultValue: settings?.default_sales_vat_account_code ?? "4455", description: "Compte de TVA facturée" },
-    { label: "Compte TVA recuperable", name: "default_purchase_vat_account_code", defaultValue: settings?.default_purchase_vat_account_code ?? "34552", description: "Compte de TVA recuperable" },
+    { label: "Compte TVA récupérable", name: "default_purchase_vat_account_code", defaultValue: settings?.default_purchase_vat_account_code ?? "34552", description: "Compte de TVA récupérable sur charges" },
     { label: "Compte banque", name: "default_bank_account_code", defaultValue: settings?.default_bank_account_code ?? "5141", description: "Compte bancaire par defaut" },
     { label: "Compte caisse", name: "default_cash_account_code", defaultValue: settings?.default_cash_account_code ?? "5161", description: "Compte de caisse par defaut" },
     { label: "Compte frais bancaires", name: "default_bank_fees_account_code", defaultValue: settings?.default_bank_fees_account_code ?? "6147", description: "Compte des frais bancaires" },
@@ -66,6 +66,19 @@ export function SettingsForm({ action, settings }: Props) {
               <p className="mt-0.5 text-xs text-[var(--muted)]">{field.description}</p>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><h2 className="font-semibold">Comptabilisation</h2></CardHeader>
+        <CardContent>
+          <label className="flex items-start gap-3 text-sm">
+            <input type="checkbox" name="auto_post_on_validation" defaultChecked={settings?.auto_post_on_validation === true} className="mt-1" />
+            <span>
+              <span className="font-medium">Comptabiliser automatiquement à la validation</span>
+              <span className="mt-1 block text-[var(--muted)]">Factures, avoirs et règlements validés passent au journal sans ouvrir « Comptabiliser ». Désactivé par défaut.</span>
+            </span>
+          </label>
         </CardContent>
       </Card>
 

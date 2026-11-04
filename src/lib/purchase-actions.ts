@@ -13,6 +13,8 @@ import { isSupplierInvoiceFromReceipt, type PurchaseActionResult } from "@/lib/p
 import { getPurchaseReceiptArchiveEligibility, getSupplierInvoicePaymentSummary, getSupplierInvoicePreparationFromReceipt, getSupplierOrderLineProgress } from "@/lib/purchases";
 import { calculateCommercialAmounts } from "@/lib/invoice-calculations";
 import { computeWithholding, type WithholdingKind } from "@/lib/purchases/withholding";
+import { dueDateFromTerms } from "@/lib/payment-terms";
+import { weightedAverageCost } from "@/lib/stock/cump";
 
 function text(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -307,7 +309,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
   if (doc.status !== "draft") return { success: false, error: "Seules les receptions brouillon peuvent etre validees." };
   if (doc.stock_updated_at) return { success: false, error: "Le stock a deja ete mis a jour pour cette reception." };
 
-  const { data: lines } = await supabase.from("purchase_document_lines").select("id, product_id, quantity, unit_name, source_line_id").eq("document_id", id);
+  const { data: lines } = await supabase.from("purchase_document_lines").select("id, product_id, quantity, unit_name, source_line_id, unit_price_ht").eq("document_id", id);
   if (!lines || lines.length === 0) return { success: false, error: "Aucune ligne a receptionner." };
 
   // Verify no line exceeds real remaining from validated receipts (exclude this draft)
@@ -327,6 +329,8 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
 
   const defaultWarehouse = doc.warehouse_id ?? await getDefaultStockLocationId(orgId);
   const stockMovements: AtomicStockMovement[] = [];
+  const nextCosts = new Map<string, { qty: number; cost: number }>();
+  const lineCosts: { lineId: string; unitCost: number }[] = [];
 
   for (const line of lines) {
     if (!line.product_id) continue;
@@ -337,8 +341,14 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
     if (line.unit_name?.toLowerCase() === "u" && !Number.isInteger(quantity)) {
       return { success: false, error: `La quantité du produit ${line.product_id} doit etre un entier (unite U).` };
     }
-    const { data: product } = await supabase.from("products").select("type, track_stock").eq("organization_id", orgId).eq("id", line.product_id).single();
+    const { data: product } = await supabase.from("products").select("type, track_stock, current_stock, purchase_price_ht").eq("organization_id", orgId).eq("id", line.product_id).single();
     if (product?.type === "product" && product.track_stock) {
+      const unitCost = Number(line.unit_price_ht ?? 0);
+      const known = nextCosts.get(line.product_id) ?? { qty: Number(product.current_stock ?? 0), cost: Number(product.purchase_price_ht ?? 0) };
+      known.cost = weightedAverageCost(known.qty, known.cost, quantity, unitCost);
+      known.qty += quantity;
+      nextCosts.set(line.product_id, known);
+      lineCosts.push({ lineId: line.id, unitCost });
       stockMovements.push({
         warehouse_id: defaultWarehouse,
         product_id: line.product_id,
@@ -361,6 +371,14 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
     documentId: id,
   });
   if (movementResult.error) return { success: false, error: movementResult.error };
+  for (const [productId, state] of nextCosts) {
+    const updated = await supabase.from("products").update({ purchase_price_ht: state.cost }).eq("organization_id", orgId).eq("id", productId);
+    if (updated.error) console.error("[stock] purchase price", { code: updated.error.code, message: updated.error.message });
+  }
+  for (const lineCost of lineCosts) {
+    const updated = await supabase.from("stock_moves").update({ unit_cost: lineCost.unitCost }).eq("organization_id", orgId).eq("source_line_id", lineCost.lineId).eq("source_document_id", id);
+    if (updated.error && updated.error.code !== "42703") console.error("[stock] unit cost", { code: updated.error.code, message: updated.error.message });
+  }
 
   if (doc.related_order_id) {
     revalidatePath(`/achats/commandes/${doc.related_order_id}`);
@@ -390,6 +408,12 @@ export async function cancelSupplierReceipt(prev: PurchaseActionResult, formData
 // ============================================================================
 // Supplier Invoices
 // ============================================================================
+async function supplierDueDate(supabase: Awaited<ReturnType<typeof createClient>>, organizationId: string, supplierId: string, invoiceDate: string, submitted: string | null) {
+  if (submitted) return submitted;
+  const { data } = await supabase.from("third_parties").select("payment_terms, payment_terms_days, supplier_payment_terms").eq("organization_id", organizationId).eq("id", supplierId).maybeSingle();
+  return dueDateFromTerms(invoiceDate, (data?.supplier_payment_terms as string | null) || (data?.payment_terms as string | null), data?.payment_terms_days == null ? null : Number(data.payment_terms_days));
+}
+
 function supplierInvoiceLinePayloads(lines: Record<string, unknown>[]) {
   return lines.map((line) => {
     const calculated = calculatePurchaseLine(line);
@@ -414,7 +438,7 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   if (!supplierId) return { success: false, error: "Veuillez sélectionner un fournisseur." };
 
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
-  const dueDate = text(formData, "due_date");
+  const dueDate = await supplierDueDate(supabase, orgId, supplierId, invoiceDate, text(formData, "due_date"));
   const supplierInvoiceNumber = text(formData, "supplier_invoice_number");
   if (!supplierInvoiceNumber) return { success: false, error: "Le numéro de facture fournisseur est obligatoire." };
 
@@ -498,11 +522,13 @@ export async function updateSupplierInvoice(prev: PurchaseActionResult, formData
   if (!existing || existing.status !== "draft" || Number(existing.paid_amount ?? 0) !== 0) return { success: false, error: "Seules les factures brouillon non réglées peuvent être modifiées." };
 
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
-  const dueDate = text(formData, "due_date");
   const supplierInvoiceNumber = text(formData, "supplier_invoice_number");
   if (!supplierInvoiceNumber) return { success: false, error: "Le numéro de facture fournisseur est obligatoire." };
 
   const { data: existingInv } = await supabase.from("supplier_invoices").select("supplier_id").eq("id", invoiceId).eq("organization_id", orgId).single();
+  const dueDate = existingInv?.supplier_id
+    ? await supplierDueDate(supabase, orgId, existingInv.supplier_id, invoiceDate, text(formData, "due_date"))
+    : text(formData, "due_date");
   const invSupplierId = existingInv?.supplier_id;
   if (invSupplierId) {
     const { data: dup } = await supabase
@@ -617,6 +643,8 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
   revalidatePath("/achats/factures");
   revalidatePath(`/achats/factures/${id}`);
   revalidatePath("/achats/paiements/new");
+  const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+  await autoPostOnValidation(orgId, "supplier_invoice", id);
   return { success: true };
 }
 
@@ -797,7 +825,7 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const bankName = text(formData, "bank_name");
   const checkNumber = text(formData, "check_number");
   const transferReference = text(formData, "transfer_reference");
-  const dueDate = text(formData, "due_date");
+  const dueDate = supplierId ? await supplierDueDate(supabase, orgId, supplierId, paymentDate, text(formData, "due_date")) : text(formData, "due_date");
   const notes = text(formData, "notes");
   const treasuryAccountId = text(formData, "treasury_account_id");
   if (!treasuryAccountId) return { success: false, error: "Sélectionnez un compte de decaissement." };
@@ -856,6 +884,8 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
       }).eq("id", atomicPaymentId).eq("organization_id", orgId);
       if (stored.error) console.error("[purchases] withholding columns unavailable", { code: stored.error.code });
     }
+    const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+    await autoPostOnValidation(orgId, "supplier_payment", atomicPaymentId);
     revalidatePath("/achats/paiements");
     revalidatePath("/achats/factures");
     redirect(`/achats/paiements/${atomicPaymentId}`);

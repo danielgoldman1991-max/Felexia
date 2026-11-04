@@ -132,7 +132,7 @@ export const STOCK_MOVE_TYPE_LABELS: Record<StockMoveType, string> = {
   delivery_out: "Sortie BL client",
   customer_return_in: "Retour client",
   adjustment_in: "Ajustement positif",
-  adjustment_out: "Ajustement negatif",
+  adjustment_out: "Ajustement négatif",
   manual_stock_in: "Entrée manuelle",
   manual_stock_out: "Sortie manuelle",
   initial_stock: "Stock initial",

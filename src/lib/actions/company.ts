@@ -48,6 +48,9 @@ export async function updateCompanyAction(
       const val = formData.get(field);
       data[field] = typeof val === "string" && val.trim() ? val.trim() : null;
     }
+    if (data.ice && !/^\d{15}$/.test(data.ice)) {
+      return { error: "L'ICE doit contenir exactement 15 chiffres.", success: false, fieldErrors: { ice: "L'ICE doit contenir exactement 15 chiffres." } };
+    }
 
     const logoFile = formData.get("logo") as File | null;
     const submittedLogoPath = formData.get("logo_path");
@@ -141,6 +144,17 @@ export async function updateCompanyAction(
       return { error: error.message, success: false };
     }
 
+    if (data.legal_name) {
+      const { error: nameError } = await supabase.from("organizations").update({
+        name: data.legal_name,
+        legal_name: data.legal_name,
+        commercial_name: data.commercial_name,
+        ice: data.ice,
+        updated_at: new Date().toISOString(),
+      }).eq("id", workspace.organization.id);
+      if (nameError) console.error("[company] organization name", nameError.message);
+    }
+
     await logAudit(
       workspace.organization.id,
       "update_company_settings",
@@ -151,6 +165,7 @@ export async function updateCompanyAction(
 
     revalidatePath("/parametres/entreprise");
     revalidatePath("/parametres/entreprise/**");
+    revalidatePath("/", "layout");
     return {
       error: null,
       success: true,

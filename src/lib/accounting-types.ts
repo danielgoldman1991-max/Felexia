@@ -211,6 +211,7 @@ export type AccountingSettingsRecord = {
   default_cash_account_code: string;
   default_bank_fees_account_code: string;
   numbering_prefix: string;
+  auto_post_on_validation?: boolean;
   created_at: string;
   updated_at: string;
 };

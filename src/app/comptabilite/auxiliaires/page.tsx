@@ -3,10 +3,16 @@ import { PageHeader } from "@/components/erp/page-header";
 import { Table, Td, Th } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/erp/empty-state";
-import { listAccountingAuxiliaries } from "@/lib/accounting-actions";
+import { generateAccountingAuxiliaries, listAccountingAuxiliaries } from "@/lib/accounting-actions";
 import { AUXILIARY_TYPE_LABELS } from "@/lib/accounting-types";
+import { GenerateAuxiliariesButton } from "@/app/comptabilite/auxiliaires/generate-button";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { isOperatorRole } from "@/lib/auth/operator-access";
+import { isReadOnlyRole } from "@/lib/auth/roles";
 
 export default async function AuxiliariesPage() {
+  const workspace = await requireActiveWorkspace();
+  const canWrite = !isOperatorRole(workspace.role) && !isReadOnlyRole(workspace.role);
   const result = await listAccountingAuxiliaries();
   const auxiliaries = result.success && result.data
     ? result.data as import("@/lib/accounting-types").AccountingAuxiliaryRecord[]
@@ -14,7 +20,7 @@ export default async function AuxiliariesPage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Auxiliaires" description="Tiers comptables rattaches aux comptes de tiers." />
+      <PageHeader title="Auxiliaires" description="Comptes auxiliaires des clients (3421) et des fournisseurs (4411)." actions={canWrite ? <GenerateAuxiliariesButton action={generateAccountingAuxiliaries} /> : null} />
       {auxiliaries.length === 0 ? (
         <EmptyState title="Aucun auxiliaire" description="Les auxiliaires sont generes automatiquement depuis les clients et fournisseurs." />
       ) : (

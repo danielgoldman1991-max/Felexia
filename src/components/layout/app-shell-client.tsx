@@ -9,6 +9,7 @@ import { isReadOnlyRole } from "@/lib/auth/roles";
 import { isOperatorRole } from "@/lib/auth/operator-access";
 import Link from "next/link";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
+import { Toaster } from "sonner";
 
 export function AppShellClient({
   children,
@@ -29,6 +30,7 @@ export function AppShellClient({
 
   return (
     <div className="felexia-app min-h-screen max-w-full overflow-x-clip bg-[var(--background)] text-[var(--foreground)]">
+      <Toaster position="top-right" richColors />
       <Sidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}

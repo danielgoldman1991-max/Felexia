@@ -36,6 +36,26 @@ export function getPaymentTermsDays(value: string | null | undefined): number | 
   return map[value] ?? null;
 }
 
+export function addCalendarDays(invoiceDate: string, days: number): string | null {
+  if (!invoiceDate || !Number.isFinite(days)) return null;
+  const date = new Date(`${invoiceDate}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setDate(date.getDate() + Math.trunc(days));
+  return date.toISOString().split("T")[0];
+}
+
+/** Échéance depuis la date de pièce et les conditions, puis le délai en jours. */
+export function dueDateFromTerms(
+  invoiceDate: string,
+  paymentTerms: string | null | undefined,
+  paymentTermsDays: number | null | undefined,
+): string | null {
+  const fromTerms = calculateDueDate(invoiceDate, paymentTerms);
+  if (fromTerms) return fromTerms;
+  if (paymentTermsDays == null || paymentTermsDays < 0) return null;
+  return addCalendarDays(invoiceDate, paymentTermsDays);
+}
+
 export function calculateDueDate(invoiceDate: string, paymentTerms: string | null | undefined): string | null {
   if (!paymentTerms || !invoiceDate) return null;
   const date = new Date(invoiceDate + "T12:00:00");

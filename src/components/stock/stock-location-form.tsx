@@ -75,7 +75,7 @@ export function StockLocationForm({ location, locations, action }: Props) {
             <Input name="manager_name" defaultValue={location?.manager_name ?? ""} />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Telephone</span>
+            <span className="font-medium">Téléphone</span>
             <Input name="phone" defaultValue={location?.phone ?? ""} />
           </label>
           <label className="space-y-2 text-sm">

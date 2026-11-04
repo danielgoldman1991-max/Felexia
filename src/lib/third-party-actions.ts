@@ -10,6 +10,7 @@ import { COUNTRY_OPTIONS } from "@/lib/location-options";
 import { SUPPLIER_PURCHASE_TERMS_OPTIONS, SUPPLIER_PAYMENT_METHOD_OPTIONS } from "@/lib/supplier-options";
 import type { ThirdPartyKind } from "@/lib/third-party-types";
 import { duplicateThirdWarning } from "@/lib/tiers/duplicate-third";
+import { upsertThirdPartyAuxiliaries } from "@/lib/accounting/auxiliaries";
 
 const ATTACHMENTS_BUCKET = "third-party-attachments";
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
@@ -316,6 +317,19 @@ export async function createThirdParty(
     return { success: false, error: error.message };
   }
 
+  await upsertThirdPartyAuxiliaries(supabase, workspace.organization.id, {
+    id: data.id,
+    name: payload.name,
+    code: null,
+    ice: payload.ice,
+    if_number: payload.if_number,
+    rc: payload.rc,
+    phone: payload.phone,
+    email: payload.email,
+    address: payload.address,
+    types: payload.types,
+  });
+
   await logThirdPartyActivity({
     organizationId: workspace.organization.id,
     userId: workspace.userId,
@@ -355,6 +369,19 @@ export async function updateThirdParty(
   if (error) {
     return { success: false, error: error.message };
   }
+
+  await upsertThirdPartyAuxiliaries(supabase, workspace.organization.id, {
+    id,
+    name: payload.name,
+    code: null,
+    ice: payload.ice,
+    if_number: payload.if_number,
+    rc: payload.rc,
+    phone: payload.phone,
+    email: payload.email,
+    address: payload.address,
+    types: payload.types,
+  });
 
   await logThirdPartyActivity({
     organizationId: workspace.organization.id,

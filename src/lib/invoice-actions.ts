@@ -11,6 +11,7 @@ import { assertDirectOrderInvoiceAllowed, getDeliveryNotesInvoicePreparation, li
 import { logAudit } from "@/lib/audit";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
 import type { InvoiceActionResult, InvoiceLineFormValue } from "@/lib/invoice-types";
+import { dueDateFromTerms } from "@/lib/payment-terms";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -68,7 +69,7 @@ function normalizeInvoiceLines(rawLines: Record<string, unknown>[]) {
 
     if (!line.description) return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
     if (line.quantity <= 0) return { lines: [], error: "Les quantités doivent etre superieures a zero." };
-    if (line.unit_price_ht < 0) return { lines: [], error: "Le prix ne peut pas etre negatif." };
+    if (line.unit_price_ht < 0) return { lines: [], error: "Le prix ne peut pas être négatif." };
     if (line.discount_rate < 0 || line.discount_rate > 100) return { lines: [], error: "La remise doit etre comprise entre 0 et 100%." };
     lines.push(line);
   }
@@ -150,7 +151,7 @@ async function buildInvoicePayload(formData: FormData) {
   const supabase = await createClient();
   normalized.lines = (await applyStoredCustomerPrices(supabase as never, workspace.organization.id, customerId, normalized.lines)).map((line) => calculateInvoiceLine(line));
   const { data: customer, error: customerError } = await supabase.from("third_parties")
-    .select("id").eq("organization_id", workspace.organization.id).eq("id", customerId).is("archived_at", null).maybeSingle();
+    .select("id, payment_terms, payment_terms_days").eq("organization_id", workspace.organization.id).eq("id", customerId).is("archived_at", null).maybeSingle();
   if (customerError || !customer) return { workspace, error: "Sélectionnez un client actif de votre entreprise." };
 
   const unitValidation = await validateUnits(workspace.organization.id, normalized.lines);
@@ -207,7 +208,11 @@ async function buildInvoicePayload(formData: FormData) {
       source_order_id: sourceOrderId,
       source_delivery_id: sourceDeliveryId,
       invoice_date: text(formData, "invoice_date") ?? new Date().toISOString().split("T")[0],
-      due_date: text(formData, "due_date"),
+      due_date: text(formData, "due_date") || dueDateFromTerms(
+        text(formData, "invoice_date") ?? new Date().toISOString().split("T")[0],
+        text(formData, "payment_terms") || (customer?.payment_terms as string | null),
+        Math.trunc(numberValue(formData.get("payment_terms_days"))) || Number(customer?.payment_terms_days ?? 0),
+      ),
       payment_terms_days: Math.trunc(numberValue(formData.get("payment_terms_days"))),
       payment_terms: text(formData, "payment_terms"),
       payment_method: text(formData, "payment_method"),
@@ -314,6 +319,10 @@ async function updateInvoiceStatus(id: string, status: string, expected: string[
   const { error: updateError } = await supabase.from("customer_invoices").update(payload).eq("organization_id", workspace.organization.id).eq("id", id);
   if (updateError) return { success: false, error: financialErrorMessage(updateError) };
   await logAudit(workspace.organization.id, `invoice_${status}`, "customer_invoices", id, { status });
+  if (status === "validated") {
+    const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+    await autoPostOnValidation(workspace.organization.id, "customer_invoice", id);
+  }
   revalidatePath(`/facturation/factures/${id}`);
   return { success: true };
 }

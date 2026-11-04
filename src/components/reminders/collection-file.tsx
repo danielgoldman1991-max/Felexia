@@ -31,11 +31,13 @@ function Approve({ item }: { item: CollectionQueueItem }) {
 
 export function CollectionFile({
   queue,
+  openInvoices = [],
   autoSend,
   arabic,
   pending,
 }: {
   queue: CollectionQueueItem[];
+  openInvoices?: { id: string; number: string; customerId: string; customerName: string }[];
   autoSend: boolean;
   arabic: boolean;
   pending: boolean;
@@ -43,7 +45,8 @@ export function CollectionFile({
   const [settingsState, settingsAction, settingsPending] = useActionState(saveCollectionSettings, { success: true } as ReminderActionResult);
   const [exclusionState, exclusionAction, exclusionPending] = useActionState(saveCollectionExclusion, { success: true } as ReminderActionResult);
   const [promiseState, promiseAction, promisePending] = useActionState(savePaymentPromise, { success: true } as ReminderActionResult);
-  const customers = [...new Map(queue.map((item) => [item.invoice.customerId, item.invoice.customerName])).entries()];
+  const customers = [...new Map((openInvoices.length ? openInvoices : queue.map((item) => ({ id: item.invoice.id, number: item.invoice.number, customerId: item.invoice.customerId, customerName: item.invoice.customerName }))).map((item) => [item.customerId, item.customerName])).entries()];
+  const invoiceChoices = openInvoices.length ? openInvoices : queue.map((item) => ({ id: item.invoice.id, number: item.invoice.number }));
   return (
     <div className="space-y-5">
       {pending ? <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">Les exclusions, promesses et le journal d&apos;envoi attendent la migration 127. La file se calcule déjà.</p> : null}
@@ -91,7 +94,7 @@ export function CollectionFile({
           <CardContent>
             <form action={exclusionAction} className="grid gap-3">
               <Select name="customer_id" defaultValue={customers[0]?.[0] ?? ""}>
-                <option value="">Client de la file</option>
+                <option value="">Client avec facture ouverte</option>
                 {customers.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
               </Select>
               <Select name="reason" defaultValue="pause"><option value="pause">Pause</option><option value="dispute">Litige</option></Select>
@@ -112,7 +115,7 @@ export function CollectionFile({
               </Select>
               <Select name="invoice_id" defaultValue="">
                 <option value="">Toutes les factures ouvertes</option>
-                {queue.map((item) => <option key={item.invoice.id} value={item.invoice.id}>{item.invoice.number}</option>)}
+                {invoiceChoices.map((item) => <option key={item.id} value={item.id}>{item.number}</option>)}
               </Select>
               <Input name="promised_on" type="date" required />
               <Input name="amount" type="number" min="0.01" step="0.01" placeholder="Montant MAD" required />

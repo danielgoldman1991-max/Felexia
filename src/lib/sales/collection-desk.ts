@@ -59,6 +59,7 @@ export async function loadCollectionDesk(today = new Date().toISOString().slice(
     pending,
     today,
     queue,
+    openInvoices,
     autoSend: settings.data?.auto_send === true,
     arabic: settings.data?.include_arabic === true,
     rib,

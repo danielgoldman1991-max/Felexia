@@ -4,22 +4,36 @@ import type { StatusTone } from "@/lib/types";
 const labels: Record<string, string> = {
   active: "Actif",
   inactive: "Inactif",
-  blocked: "Bloque",
-  archived: "Archive",
+  blocked: "Bloqué",
+  archived: "Archivé",
   draft: "Brouillon",
-  sent: "Envoye",
-  accepted: "Accepte",
-  rejected: "Rejete",
-  expired: "Expire",
+  sent: "Envoyé",
+  accepted: "Accepté",
+  rejected: "Rejeté",
+  expired: "Expiré",
   converted: "Converti",
-  confirmed: "Confirme",
-  partially_paid: "Partiel",
-  paid: "Paye",
+  confirmed: "Confirmé",
+  partially_paid: "Partiellement payé",
+  partially_delivered: "Partiellement livré",
+  partially_received: "Partiellement reçu",
+  paid: "Payé",
   overdue: "En retard",
-  cancelled: "Annule",
-  validated: "Valide",
-  delivered: "Livre",
+  cancelled: "Annulé",
+  canceled: "Annulé",
+  validated: "Validé",
+  delivered: "Livré",
+  received: "Reçu",
+  awarded: "Attribué",
+  open: "Ouvert",
+  closed: "Clôturé",
+  check: "Chèque",
+  locked: "Verrouillé",
 };
+
+export function frenchStatusLabel(status: string | null | undefined) {
+  if (!status) return "—";
+  return labels[status] ?? status;
+}
 
 const tones: Record<string, StatusTone> = {
   active: "success",
@@ -39,5 +53,5 @@ const tones: Record<string, StatusTone> = {
 };
 
 export function StatusBadge({ status }: { status: string }) {
-  return <Badge tone={tones[status] ?? "neutral"}>{labels[status] ?? status}</Badge>;
+  return <Badge tone={tones[status] ?? "neutral"}>{frenchStatusLabel(status)}</Badge>;
 }

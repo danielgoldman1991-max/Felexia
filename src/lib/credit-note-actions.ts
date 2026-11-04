@@ -154,6 +154,8 @@ export async function validateCustomerCreditNote(prev: CreditNoteActionResult, f
   }
   const { error } = await supabase.from("customer_credit_notes").update({ status: "validated", validated_at: new Date().toISOString(), available_amount: Number(note.total_ttc ?? 0) }).eq("organization_id", workspace.organization.id).eq("id", id);
   if (error) return { success: false, error: creditNoteError(error) };
+  const { autoPostOnValidation } = await import("@/lib/accounting/auto-post");
+  await autoPostOnValidation(workspace.organization.id, "customer_credit_note", id);
   revalidatePath(`/facturation/avoirs/${id}`);
   return { success: true };
 }

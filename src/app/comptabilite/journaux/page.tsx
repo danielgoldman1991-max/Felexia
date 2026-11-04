@@ -21,7 +21,7 @@ export default async function JournalsPage() {
       <PageHeader
         title="Journaux"
         description="Retrouvez les écritures de vos ventes, achats, banques et caisses."
-        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/ecritures">Toutes les écritures</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau"><Plus className="h-4 w-4" aria-hidden="true" />Nouvelle écriture</Link></Button> : null}</>}
+        actions={<><Button variant="secondary" asChild><Link href="/comptabilite/ecritures">Toutes les écritures</Link></Button>{canWrite ? <Button variant="secondary" asChild><Link href="/comptabilite/journaux/new"><Plus className="h-4 w-4" aria-hidden="true" />Nouveau journal</Link></Button> : null}{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau"><Plus className="h-4 w-4" aria-hidden="true" />Nouvelle écriture</Link></Button> : null}</>}
       />
       <JournalsTable rows={journals} />
     </ModulePage>

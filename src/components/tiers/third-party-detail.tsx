@@ -166,7 +166,7 @@ export function ThirdPartyDetail({
             <Info label="Adresse" value={thirdParty.address} />
             <Info label="Ville" value={`${thirdParty.postal_code ?? ""} ${thirdParty.city ?? ""}`} />
             <Info label="Pays" value={getCountryLabel(thirdParty.country)} />
-            <Info label="Telephone" value={thirdParty.phone} />
+            <Info label="Téléphone" value={thirdParty.phone} />
             <Info label="Portable" value={thirdParty.mobile} />
             <Info label="Email" value={thirdParty.email} />
             {!fullAccess ? <Info label="ICE" value={thirdParty.ice} /> : null}
@@ -229,7 +229,7 @@ export function ThirdPartyDetail({
         <CardContent className="space-y-4">
           {contacts.length ? (
             <Table>
-              <thead><tr><Th>Nom</Th><Th>Fonction</Th><Th>Telephone</Th><Th>Email</Th><Th>Principal</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
+              <thead><tr><Th>Nom</Th><Th>Fonction</Th><Th>Téléphone</Th><Th>Email</Th><Th>Principal</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
               <tbody>
                 {contacts.map((contact) => (
                   <tr key={contact.id}>
@@ -260,7 +260,7 @@ export function ThirdPartyDetail({
             <Input name="mobile" placeholder="Portable" />
             <Input name="email" type="email" placeholder="Email" />
             <label className="flex items-center gap-2 text-sm"><input name="is_primary" type="checkbox" /> Contact principal</label>
-            <Input name="phone" placeholder="Telephone" />
+            <Input name="phone" placeholder="Téléphone" />
             <Input name="notes" placeholder="Notes" />
             <Button>Ajouter contact</Button>
             {!createContactState.success && createContactState.error ? (

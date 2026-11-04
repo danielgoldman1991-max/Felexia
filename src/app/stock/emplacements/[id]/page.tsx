@@ -47,7 +47,7 @@ export default async function StockLocationDetailPage({ params }: { params: Prom
           <Info label="Pays" value={location.country} />
           <Info label="Adresse" value={location.address} />
           <Info label="Responsable" value={location.manager_name} />
-          <Info label="Telephone" value={location.phone} />
+          <Info label="Téléphone" value={location.phone} />
           <Info label="Email" value={location.email} />
         </CardContent>
       </Card>

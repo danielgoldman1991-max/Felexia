@@ -505,7 +505,7 @@ function buildAlerts(params: {
     alerts.push({
       severity: "danger",
       title: "Risque de tension de tresorerie",
-      message: `Solde previsionnel negatif le ${firstCritical.date} : ${Math.abs(firstCritical.closingBalance).toLocaleString("fr-FR")} MAD.`,
+      message: `Solde prévisionnel négatif le ${firstCritical.date} : ${Math.abs(firstCritical.closingBalance).toLocaleString("fr-FR")} MAD.`,
       date: firstCritical.date,
       amount: firstCritical.closingBalance,
     });
@@ -556,7 +556,7 @@ function buildAlerts(params: {
     alerts.push({
       severity: "warning",
       title: "Decaissements superieurs aux encaissements",
-      message: `Flux de tresorerie previsionnel negatif de ${Math.abs(netCashFlow).toLocaleString("fr-FR")} MAD sur la periode.`,
+      message: `Flux de trésorerie prévisionnel négatif de ${Math.abs(netCashFlow).toLocaleString("fr-FR")} MAD sur la période.`,
       amount: netCashFlow,
     });
   }

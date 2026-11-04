@@ -167,7 +167,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
       return;
     }
     if (Number(preparedLine.unit_price_ht) < 0) {
-      setError("Le prix ne peut pas etre negatif.");
+      setError("Le prix ne peut pas être négatif.");
       return;
     }
 

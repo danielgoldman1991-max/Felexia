@@ -36,11 +36,13 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
       { id: nextLineId(), account_id: "", account_code: "", account_label: "", debit: 0, credit: 0, label: "" },
     ],
   );
+  const [openAccountLine, setOpenAccountLine] = useState<string | null>(null);
   const [accountSearch, setAccountSearch] = useState("");
+  const [menuBox, setMenuBox] = useState<{ top: number; left: number; width: number } | null>(null);
 
   const filteredAccounts = useMemo(() => {
-    if (!accountSearch) return accounts;
-    const q = accountSearch.toLowerCase();
+    const q = accountSearch.trim().toLowerCase();
+    if (!q) return accounts;
     return accounts.filter((a) => a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
   }, [accounts, accountSearch]);
 
@@ -72,7 +74,14 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
   }, [setLine]);
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form
+      className="space-y-6"
+      onSubmit={(event) => {
+        event.preventDefault();
+        setOpenAccountLine(null);
+        formAction(new FormData(event.currentTarget));
+      }}
+    >
       <input type="hidden" name="journal_id" value={journalId} />
       <input type="hidden" name="entry_date" value={entryDate} />
       <input type="hidden" name="reference" value={reference} />
@@ -167,33 +176,28 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
                     <div className="relative">
                       <input
                         type="text"
-                        value={line.account_code ? `${line.account_code} - ${line.account_label}` : ""}
-                        onChange={(e) => {
-                          setAccountSearch(e.target.value);
-                          if (!e.target.value) setLine(line.id, { account_id: "", account_code: "", account_label: "" });
+                        value={openAccountLine === line.id ? accountSearch : (line.account_code ? `${line.account_code} - ${line.account_label}` : "")}
+                        onChange={(event) => {
+                          setOpenAccountLine(line.id);
+                          setAccountSearch(event.target.value);
+                          if (!event.target.value) setLine(line.id, { account_id: "", account_code: "", account_label: "" });
                         }}
-                        onFocus={() => setAccountSearch("")}
+                        onFocus={(event) => {
+                          const rect = event.currentTarget.getBoundingClientRect();
+                          setMenuBox({ top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 288) });
+                          setOpenAccountLine(line.id);
+                          setAccountSearch("");
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter") return;
+                          event.preventDefault();
+                          const match = filteredAccounts[0];
+                          if (openAccountLine === line.id && match) selectAccount(line.id, match);
+                        }}
                         className="h-8 w-56 rounded-md border border-[var(--border)] bg-white px-2 text-xs outline-none focus:border-[var(--primary)]"
                         placeholder="Chercher un compte..."
+                        aria-label="Compte"
                       />
-                      {accountSearch && (
-                        <div className="absolute left-0 top-full z-10 mt-1 max-h-48 w-72 overflow-auto rounded-md border border-[var(--border)] bg-white shadow-lg">
-                          {filteredAccounts.slice(0, 20).map((acct) => (
-                            <button
-                              key={acct.id}
-                              type="button"
-                              onClick={() => selectAccount(line.id, acct)}
-                              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-slate-50"
-                            >
-                              <span className="font-mono font-medium">{acct.code}</span>
-                              <span className="text-[var(--muted)]">{acct.name}</span>
-                            </button>
-                          ))}
-                          {filteredAccounts.length === 0 && (
-                            <p className="px-3 py-2 text-xs text-[var(--muted)]">Aucun compte trouve</p>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </Td>
                   <Td>
@@ -245,10 +249,10 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
 
           <div className="flex items-center justify-between border-t border-[var(--border)] pt-3">
             <div className="flex gap-6 text-sm">
-              <span className="text-[var(--muted)]">Total Debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={totals.debit} /></strong></span>
-              <span className="text-[var(--muted)]">Total Credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={totals.credit} /></strong></span>
+              <span className="text-[var(--muted)]">Total débit : <strong className="text-[var(--foreground)]"><MoneyDisplay value={totals.debit} /></strong></span>
+              <span className="text-[var(--muted)]">Total crédit : <strong className="text-[var(--foreground)]"><MoneyDisplay value={totals.credit} /></strong></span>
               <span className={`font-medium ${totals.balanced ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
-                {totals.balanced ? "Equilibre" : "Desequilibre"}
+                {totals.balanced ? "Équilibré" : "Déséquilibre"}
               </span>
             </div>
           </div>
@@ -257,6 +261,24 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
 
       {!state.success && state.error ? (
         <p className="rounded-md bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">{state.error}</p>
+      ) : null}
+
+      {openAccountLine && menuBox ? (
+        <div className="fixed z-50 max-h-64 overflow-auto rounded-md border border-[var(--border)] bg-white shadow-lg" style={{ top: menuBox.top, left: menuBox.left, width: menuBox.width }}>
+          {filteredAccounts.map((acct) => (
+            <button
+              key={acct.id}
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => { selectAccount(openAccountLine, acct); setOpenAccountLine(null); }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-slate-50"
+            >
+              <span className="font-mono font-medium">{acct.code}</span>
+              <span className="text-[var(--muted)]">{acct.name}</span>
+            </button>
+          ))}
+          {filteredAccounts.length === 0 ? <p className="px-3 py-2 text-xs text-[var(--muted)]">Aucun compte trouvé</p> : null}
+        </div>
       ) : null}
 
       <div className="flex justify-end gap-3">

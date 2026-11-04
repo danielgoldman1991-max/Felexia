@@ -35,6 +35,7 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "3111", name: "Marchandises", type: "asset" },
   { code: "3421", name: "Clients", type: "third_party" },
   { code: "3455", name: "Etat - TVA recuperable", type: "tax" },
+  { code: "34552", name: "État - TVA récupérable sur charges", type: "tax" },
   { code: "3488", name: "Divers debiteurs", type: "asset" },
   { code: "4411", name: "Fournisseurs", type: "third_party" },
   { code: "4455", name: "Etat - TVA facturée", type: "tax" },
@@ -61,7 +62,12 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "2340", name: "Matériel et outillage", type: "asset" },
   { code: "2351", name: "Mobilier de bureau", type: "asset" },
   { code: "2411", name: "Logiciels", type: "asset" },
-  { code: "2832", name: "Amortissements du matériel de transport", type: "asset" },
+  { code: "2831", name: "Amortissements des terrains", type: "asset" },
+  { code: "2832", name: "Amortissements des constructions", type: "asset" },
+  { code: "2833", name: "Amortissements des installations techniques, matériel et outillage", type: "asset" },
+  { code: "2834", name: "Amortissements du matériel de transport", type: "asset" },
+  { code: "2835", name: "Amortissements du mobilier, matériel de bureau et aménagements", type: "asset" },
+  { code: "2838", name: "Amortissements des autres immobilisations corporelles", type: "asset" },
   { code: "3121", name: "Matières premières", type: "asset" },
   { code: "3131", name: "Fournitures consommables", type: "asset" },
   { code: "3424", name: "Clients douteux ou litigieux", type: "third_party" },
@@ -70,6 +76,9 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "4417", name: "Fournisseurs d'immobilisations", type: "third_party" },
   { code: "4432", name: "Rémunérations dues au personnel", type: "liability" },
   { code: "4441", name: "CNSS", type: "liability" },
+  { code: "4443", name: "Caisses de retraite", type: "liability" },
+  { code: "4452", name: "État - TVA due", type: "tax" },
+  { code: "4711", name: "Compte d'attente", type: "liability" },
   { code: "4448", name: "Autres organismes sociaux", type: "liability" },
   { code: "4456", name: "État - TVA due", type: "tax" },
   { code: "4457", name: "État - crédit de TVA", type: "tax" },
@@ -78,7 +87,8 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "6131", name: "Locations et charges locatives", type: "expense" },
   { code: "6142", name: "Transports", type: "expense" },
   { code: "6174", name: "Charges sociales", type: "expense" },
-  { code: "6193", name: "RRR obtenus sur achats", type: "expense" },
+  { code: "6119", name: "RRR obtenus sur achats", type: "expense" },
+  { code: "6193", name: "Dotations d'exploitation aux amortissements des immobilisations corporelles", type: "expense" },
   { code: "6386", name: "Escomptes accordés", type: "expense" },
   { code: "7181", name: "RRR accordés sur ventes", type: "revenue" },
   { code: "7386", name: "Escomptes obtenus", type: "revenue" },
@@ -909,7 +919,7 @@ export type AccountingReportLine = {
   journal_name: string;
 };
 
-export async function getAccountingReportLines(filters: { dateFrom?: string; dateTo?: string } = {}): Promise<AccountingReportLine[]> {
+export async function getAccountingReportLines(filters: { dateFrom?: string; dateTo?: string; accountCode?: string; thirdParty?: string } = {}): Promise<AccountingReportLine[]> {
   const workspace = await requireActiveWorkspace();
   const organizationId = workspace.organization.id;
   const supabase = await createClient();
@@ -923,9 +933,11 @@ export async function getAccountingReportLines(filters: { dateFrom?: string; dat
 
     if (filters.dateFrom) query = query.gte("entry.entry_date", filters.dateFrom);
     if (filters.dateTo) query = query.lte("entry.entry_date", filters.dateTo);
+    if (filters.accountCode) query = query.ilike("account_code", `${filters.accountCode}%`);
 
     return query.order("id").range(from, to);
   });
+  const needle = filters.thirdParty?.trim().toLocaleLowerCase("fr");
 
   return (data ?? []).map((row) => {
     const entryValue = (row as Record<string, unknown>).entry;
@@ -949,7 +961,8 @@ export async function getAccountingReportLines(filters: { dateFrom?: string; dat
       journal_code: String(journal?.code ?? ""),
       journal_name: String(journal?.name ?? ""),
     };
-  }).sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.entry_number.localeCompare(b.entry_number) || a.line_number - b.line_number);
+  }).filter((line) => !needle || `${line.label ?? ""} ${line.entry_label} ${line.account_label} ${line.entry_reference ?? ""}`.toLocaleLowerCase("fr").includes(needle))
+    .sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.entry_number.localeCompare(b.entry_number) || a.line_number - b.line_number);
 }
 
 export async function isAccountUsedInEntries(accountId: string): Promise<boolean> {

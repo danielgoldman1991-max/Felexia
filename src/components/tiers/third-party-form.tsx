@@ -8,6 +8,7 @@ import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
 import type { CustomerCategory } from "@/lib/customer-categories";
 import { PROSPECT_SOURCES, PROSPECT_STATUSES, normalizeTypes } from "@/lib/third-party-types";
 import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
+import { getPaymentTermsDays } from "@/lib/payment-terms";
 import { COUNTRY_OPTIONS, getCitiesForCountry, getDefaultCountry } from "@/lib/location-options";
 import {
   SUPPLIER_CATEGORY_OPTIONS,
@@ -80,6 +81,8 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
   }, [mode, thirdParty, initialType, customerCategories]);
 
   const [customerCategoryValue, setCustomerCategoryValue] = useState(defaultCustomerCategory);
+  const [paymentTerms, setPaymentTerms] = useState(thirdParty?.payment_terms ?? "");
+  const [paymentTermsDays, setPaymentTermsDays] = useState(String(thirdParty?.payment_terms_days ?? 30));
 
   const toggle = (type: ThirdPartyKind) => {
     setTypes((current) =>
@@ -102,7 +105,13 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
   const hasSupplier = types.includes("supplier");
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form
+      className="space-y-5"
+      onSubmit={(event) => {
+        event.preventDefault();
+        formAction(new FormData(event.currentTarget));
+      }}
+    >
       {thirdParty ? <input type="hidden" name="id" value={thirdParty.id} /> : null}
       <input type="hidden" name="supplier_product_categories" value={selectedCategories.join(",")} />
       <Card>
@@ -265,7 +274,12 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
           <CardContent className="grid gap-4 lg:grid-cols-4">
             <Field label="Conditions de paiement">
-              <Select name="payment_terms" defaultValue={thirdParty?.payment_terms ?? ""}>
+              <Select name="payment_terms" value={paymentTerms} onChange={(event) => {
+                const value = event.target.value;
+                setPaymentTerms(value);
+                const days = getPaymentTermsDays(value);
+                if (days !== null) setPaymentTermsDays(String(days));
+              }}>
                 <option value="">Sélectionner</option>
                 {PAYMENT_TERMS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -281,7 +295,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
               </Select>
             </Field>
             <Field label="Délai de paiement (jours)">
-              <Input name="payment_terms_days" type="number" min="0" defaultValue={thirdParty?.payment_terms_days ?? 30} />
+              <Input name="payment_terms_days" type="number" min="0" value={paymentTermsDays} onChange={(event) => setPaymentTermsDays(event.target.value)} />
             </Field>
             {/* Champs masqués pour simplification PME (données conservées en base) */}
             <input type="hidden" name="custom_payment_terms" value={thirdParty?.custom_payment_terms ?? ""} />

@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { TreasuryTransactionsTable } from "@/components/treasury/treasury-transactions-table";
 import { getTreasuryAccountDetail } from "@/lib/treasury";
 import { TREASURY_ACCOUNT_TYPE_LABELS } from "@/lib/treasury-types";
+import { formatRib } from "@/lib/morocco-rib";
+import { frenchStatusLabel } from "@/components/erp/status-badge";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
@@ -38,9 +40,10 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
             <p><span className="text-[var(--muted)]">Code :</span> {account.code ?? "-"}</p>
             <p><span className="text-[var(--muted)]">Type :</span> {TREASURY_ACCOUNT_TYPE_LABELS[account.account_type]}</p>
             <p><span className="text-[var(--muted)]">Banque :</span> {account.bank_name ?? "-"}</p>
+            <p><span className="text-[var(--muted)]">RIB :</span> {formatRib(account.rib) ?? "-"}</p>
             <p><span className="text-[var(--muted)]">Devise :</span> {account.currency}</p>
             <p><span className="text-[var(--muted)]">Solde actuel :</span> {account.current_balance.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {account.currency}</p>
-            <p><span className="text-[var(--muted)]">Statut :</span> <Badge tone={account.status === "active" ? "success" : "neutral"}>{account.status}</Badge></p>
+            <p><span className="text-[var(--muted)]">Statut :</span> <Badge tone={account.status === "active" ? "success" : "neutral"}>{frenchStatusLabel(account.status)}</Badge></p>
             <p><span className="text-[var(--muted)]">Par defaut :</span> {account.is_default ? "Oui" : "Non"}</p>
             <p><span className="text-[var(--muted)]">Notes :</span> {account.notes ?? "-"}</p>
           </CardContent>

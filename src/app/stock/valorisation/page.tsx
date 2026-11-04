@@ -11,20 +11,23 @@ export const dynamic = "force-dynamic";
 export default async function StockValuationPage() {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
-  const [productsResult, movesResult] = await Promise.all([
-    supabase.from("products").select("id, name, purchase_price_ht, track_stock").eq("organization_id", workspace.organization.id).eq("track_stock", true),
-    supabase.from("stock_moves").select("product_id, direction, quantity, movement_date").eq("organization_id", workspace.organization.id).order("movement_date"),
-  ]);
+  const productsResult = await supabase.from("products").select("id, name, purchase_price_ht, track_stock").eq("organization_id", workspace.organization.id).eq("track_stock", true);
+  const movesWithCost = await supabase.from("stock_moves").select("product_id, direction, quantity, movement_date, unit_cost").eq("organization_id", workspace.organization.id).order("movement_date");
+  const movesResult = movesWithCost.error?.code === "42703"
+    ? await supabase.from("stock_moves").select("product_id, direction, quantity, movement_date").eq("organization_id", workspace.organization.id).order("movement_date")
+    : movesWithCost;
   const movesByProduct = new Map<string, CumpMovement[]>();
   for (const move of movesResult.data ?? []) {
     const list = movesByProduct.get(move.product_id as string) ?? [];
-    list.push({ direction: move.direction === "out" ? "out" : "in", quantity: Number(move.quantity) });
+    const rawCost = (move as { unit_cost?: number | string | null }).unit_cost;
+    const unitCost = rawCost == null || rawCost === "" ? null : Number(rawCost);
+    list.push({ direction: move.direction === "out" ? "out" : "in", quantity: Number(move.quantity), unitCost: Number.isFinite(unitCost) ? unitCost : null });
     movesByProduct.set(move.product_id as string, list);
   }
   const rows = (productsResult.data ?? []).map((product) => {
     const purchase = Number(product.purchase_price_ht ?? 0);
     const moves = (movesByProduct.get(product.id as string) ?? []).map((move) => (
-      move.direction === "in" ? { ...move, unitCost: purchase } : move
+      move.direction === "in" && (move.unitCost == null || !Number.isFinite(move.unitCost)) ? { ...move, unitCost: purchase } : move
     ));
     return { name: product.name as string, ...computeCump(moves), purchase };
   });

@@ -199,36 +199,17 @@ export async function getDashboardData(): Promise<DashboardData> {
   const deliveriesToDoCount = deliveryRows.length;
   const deliveriesToDoAmount = deliveryRows.reduce((sum, row) => sum + (Number(row.total_ttc) || 0), 0);
 
-  // ── 8. Stocks faibles ──
+  // ── 8. Stocks faibles — même règle que /stock : article suivi, stock actuel ≤ minimum ──
   const { data: lowStockData } = await supabase
     .from("products")
-    .select("id, stock_alert_threshold")
+    .select("id, current_stock, min_stock")
     .eq("organization_id", orgId)
-    .gt("stock_alert_threshold", 0)
-    .is("archived_at", null)
-    .limit(DASHBOARD_ROW_CAP);
+    .eq("type", "product")
+    .eq("track_stock", true)
+    .eq("status", "active")
+    .is("archived_at", null);
 
-  let lowStockCount = 0;
-  const lowStockRows = cap(lowStockData);
-  if (lowStockRows.length > 0) {
-    const productIds = lowStockRows.map((p) => p.id);
-    const { data: stockData } = await supabase
-      .from("stock_levels")
-      .select("product_id, quantity")
-      .in("product_id", productIds);
-
-    const stockMap = new Map<string, number>();
-    for (const stock of stockData ?? []) {
-      stockMap.set(
-        stock.product_id,
-        (stockMap.get(stock.product_id) ?? 0) + (Number(stock.quantity) || 0),
-      );
-    }
-    lowStockCount = lowStockRows.filter((p) => {
-      const qty = stockMap.get(p.id) ?? 0;
-      return qty <= Number(p.stock_alert_threshold);
-    }).length;
-  }
+  const lowStockCount = (lowStockData ?? []).filter((product) => Number(product.current_stock ?? 0) <= Number(product.min_stock ?? 0)).length;
 
   // ── 9. Évolution du CA (12 derniers mois, une lecture plafonnée) ──
   const seriesStart = new Date(currentYear, currentMonth - 11, 1).toISOString();

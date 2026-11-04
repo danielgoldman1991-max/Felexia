@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { StockActionResult, StockProductOption } from "@/lib/stock-types";
 import type { WarehouseOption } from "@/lib/stock-types";
@@ -15,6 +16,16 @@ export function StockTransferForm({
   locations: WarehouseOption[];
 }) {
   const [state, formAction, pending] = useActionState(action, { success: true });
+  const toasted = useRef(false);
+  const defaultLocationId = locations.find((location) => location.is_default)?.id ?? "";
+  useEffect(() => {
+    if (pending) toasted.current = false;
+    const message = (state.data as { message?: string } | undefined)?.message;
+    if (!pending && state.success && message && !toasted.current) {
+      toasted.current = true;
+      toast.success(message);
+    }
+  }, [pending, state]);
   return (
     <form action={formAction} className="grid max-w-xl gap-4">
       <label className="grid gap-1 text-sm">
@@ -26,7 +37,7 @@ export function StockTransferForm({
       </label>
       <label className="grid gap-1 text-sm">
         Depuis
-        <select name="from_warehouse_id" required className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
+        <select name="from_warehouse_id" required defaultValue={defaultLocationId} className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
           <option value="">Choisir</option>
           {locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
         </select>

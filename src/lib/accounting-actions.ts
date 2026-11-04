@@ -108,6 +108,19 @@ export async function getAccountingAccount(id: string) {
   return { success: true, data } as AccountingActionResult;
 }
 
+export async function generateAccountingAuxiliaries(prev: AccountingActionResult, _formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  void _formData;
+  const workspace = await requireProWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  const { backfillOrganizationAuxiliaries } = await import("@/lib/accounting/auxiliaries");
+  const supabase = await createClient();
+  const result = await backfillOrganizationAuxiliaries(supabase, workspace.organization.id);
+  if (result.error) return { success: false, error: "Les auxiliaires n’ont pas pu être générés. Réessayez dans un instant." };
+  revalidatePath("/comptabilite/auxiliaires");
+  return { success: true, data: { message: result.created > 0 ? `${result.created} auxiliaire${result.created > 1 ? "s" : ""} ajouté${result.created > 1 ? "s" : ""}.` : "Tous les clients et fournisseurs ont déjà un auxiliaire." } };
+}
+
 export async function listAccountingAuxiliaries(filters?: { query?: string; type?: string }) {
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
@@ -383,7 +396,10 @@ const ACCOUNT_FALLBACKS: Record<string, { name: string; type: string }> = {
   "7121": { name: "Ventes de biens et services produits", type: "revenue" },
   "7124": { name: "Prestations de services", type: "revenue" },
   "3455": { name: "Etat - TVA recuperable", type: "tax" },
-  "34552": { name: "Etat - TVA recuperable sur charges", type: "tax" },
+  "34552": { name: "État - TVA récupérable sur charges", type: "tax" },
+  "4443": { name: "Caisses de retraite", type: "liability" },
+  "4452": { name: "État - TVA due", type: "tax" },
+  "4711": { name: "Compte d'attente", type: "liability" },
   "6147": { name: "Services bancaires", type: "expense" },
   "6311": { name: "Interets des emprunts", type: "expense" },
   "4455": { name: "Etat - TVA facturée", type: "tax" },
@@ -399,7 +415,7 @@ async function ensureAccounts(organizationId: string, codes: string[]) {
   const existingCodes = new Set((existing ?? []).map((a) => a.code));
   const missing = codes.filter((c) => !existingCodes.has(c));
   if (missing.length > 0) {
-    await supabase.from("accounting_accounts").insert(
+    const { error } = await supabase.from("accounting_accounts").insert(
       missing.map((code) => ({
         organization_id: organizationId,
         code,
@@ -409,6 +425,9 @@ async function ensureAccounts(organizationId: string, codes: string[]) {
         is_system: true,
       })),
     );
+    if (error && error.code !== "23505") {
+      console.error("[accounting] ensureAccounts", { code: error.code, message: error.message, missing });
+    }
   }
 }
 
@@ -988,10 +1007,17 @@ export async function updateAccountingSettings(prev: AccountingActionResult, for
     const value = text(formData, field);
     if (value) payload[field] = value;
   }
+  const withFlag: Record<string, string | boolean> = { ...payload, auto_post_on_validation: formData.get("auto_post_on_validation") === "on" };
   const { error } = await supabase
     .from("accounting_settings")
-    .update(payload)
+    .update(withFlag)
     .eq("organization_id", workspace.organization.id);
+  if (error?.code === "42703") {
+    const fallback = await supabase.from("accounting_settings").update(payload).eq("organization_id", workspace.organization.id);
+    if (fallback.error) return { success: false, error: financialErrorMessage(fallback.error) };
+    revalidatePath("/comptabilite/parametres");
+    return { success: false, error: "L’option de comptabilisation automatique nécessite la migration 133." };
+  }
   if (error) return { success: false, error: financialErrorMessage(error) };
   revalidatePath("/comptabilite/parametres");
   return { success: true };
@@ -1056,7 +1082,7 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
   const totalDebit = (totals ?? []).reduce((sum, row) => sum + Number(row.debit ?? 0), 0);
   const totalCredit = (totals ?? []).reduce((sum, row) => sum + Number(row.credit ?? 0), 0);
   if (Math.abs(totalDebit - totalCredit) > 0.01) {
-    return { success: false, error: "La modification a ete enregistree, mais l'écriture est desequilibree. Verifiez les lignes." };
+    return { success: false, error: "La modification a été enregistrée, mais l’écriture est déséquilibrée. Vérifiez les débits et les crédits." };
   }
 
   revalidatePath(`/comptabilite/ecritures/${entry.id}`);
@@ -1197,6 +1223,48 @@ export async function postSupplierPaymentToAccounting(prev: AccountingActionResu
   return { success: true, data: result.data };
 }
 
+const JOURNAL_TYPES = ["sales", "purchases", "bank", "cash", "od"] as const;
+
+export async function createAccountingJournal(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  const workspace = await requireProWorkspace();
+  if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
+  const code = (text(formData, "code") ?? "").toUpperCase();
+  const name = text(formData, "name");
+  const type = text(formData, "type");
+  if (!code) return { success: false, error: "Le code du journal est obligatoire." };
+  if (!/^[A-Z0-9]{1,8}$/.test(code)) return { success: false, error: "Le code du journal contient 1 à 8 lettres ou chiffres." };
+  if (!name) return { success: false, error: "Le nom du journal est obligatoire." };
+  if (!type || !JOURNAL_TYPES.includes(type as (typeof JOURNAL_TYPES)[number])) {
+    return { success: false, error: "Choisissez un type : ventes, achats, banque, caisse ou opérations diverses." };
+  }
+  const treasuryAccountId = text(formData, "treasury_account_id");
+  const supabase = await createClient();
+  if (treasuryAccountId && (type === "bank" || type === "cash")) {
+    const { data: account } = await supabase.from("treasury_accounts").select("id").eq("organization_id", workspace.organization.id).eq("id", treasuryAccountId).is("archived_at", null).maybeSingle();
+    if (!account) return { success: false, error: "Le compte de trésorerie sélectionné est introuvable." };
+  }
+  const { data: existing } = await supabase.from("accounting_journals").select("id").eq("organization_id", workspace.organization.id).eq("code", code).is("archived_at", null).maybeSingle();
+  if (existing) return { success: false, error: "Ce code de journal existe déjà pour votre entreprise." };
+  const payload: Record<string, unknown> = {
+    organization_id: workspace.organization.id,
+    code,
+    name,
+    type,
+    description: text(formData, "description"),
+    is_active: true,
+  };
+  if (treasuryAccountId && (type === "bank" || type === "cash")) payload.treasury_account_id = treasuryAccountId;
+  const { data, error } = await supabase.from("accounting_journals").insert(payload).select("id").single();
+  if (error?.code === "23505") return { success: false, error: "Ce code de journal existe déjà pour votre entreprise." };
+  if (error?.code === "42703" && payload.treasury_account_id) {
+    return { success: false, error: "Le lien vers le compte de trésorerie nécessite la migration 130. Créez le journal sans compte, ou appliquez la migration." };
+  }
+  if (error || !data) return { success: false, error: financialErrorMessage(error, "Le journal n’a pas pu être créé.") };
+  revalidatePath("/comptabilite/journaux");
+  redirect(`/comptabilite/journaux/${data.id}`);
+}
+
 export async function createChartOfAccount(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
   void prev;
   const workspace = await requireProWorkspace();
@@ -1241,9 +1309,11 @@ export async function createChartOfAccount(prev: AccountingActionResult, formDat
     is_auxiliary: isAuxiliary,
     is_active: true,
     notes,
-    created_by: workspace.userId,
   });
-  if (error) return { success: false, error: financialErrorMessage(error) };
+  if (error) {
+    if (error.code === "23505") return { success: false, error: "Ce numéro de compte existe déjà dans le plan comptable." };
+    return { success: false, error: financialErrorMessage(error) };
+  }
 
   revalidatePath("/comptabilite/plan-comptable");
   return { success: true };
@@ -1449,6 +1519,71 @@ export async function openAccountingFiscalYear(prev: AccountingActionResult, for
   await logAudit(workspace.organization.id, "open_fiscal_year", "accounting_fiscal_years", fiscalYear.id, { year });
   revalidatePath("/comptabilite/exercices");
   return { success: true };
+}
+
+export type PendingAccountingDocument = {
+  id: string;
+  kind: "customer_invoice" | "supplier_invoice" | "customer_credit_note" | "supplier_credit_note" | "customer_payment" | "supplier_payment";
+  label: string;
+  number: string;
+};
+
+export async function listPendingAccountingDocuments(): Promise<PendingAccountingDocument[]> {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  const orgId = workspace.organization.id;
+  const [invoices, supplierInvoices, creditNotes, supplierCredits, payments, supplierPayments, entries] = await Promise.all([
+    supabase.from("customer_invoices").select("id, invoice_number").eq("organization_id", orgId).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(80),
+    supabase.from("supplier_invoices").select("id, invoice_number, supplier_invoice_number").eq("organization_id", orgId).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(80),
+    supabase.from("customer_credit_notes").select("id, credit_note_number").eq("organization_id", orgId).not("status", "in", "(draft,cancelled)").limit(80),
+    supabase.from("supplier_credit_notes").select("id, credit_note_number").eq("organization_id", orgId).not("status", "in", "(draft,cancelled)").limit(80),
+    supabase.from("customer_payments").select("id, payment_number").eq("organization_id", orgId).eq("status", "confirmed").is("archived_at", null).limit(80),
+    supabase.from("supplier_payments").select("id, payment_number").eq("organization_id", orgId).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(80),
+    supabase.from("accounting_entries").select("source_document_type, source_document_id").eq("organization_id", orgId).neq("status", "cancelled").limit(2000),
+  ]);
+  const posted = new Set((entries.data ?? []).map((row) => `${row.source_document_type}:${row.source_document_id}`));
+  const rows: PendingAccountingDocument[] = [];
+  for (const row of invoices.data ?? []) if (!posted.has(`customer_invoice:${row.id}`)) rows.push({ id: row.id, kind: "customer_invoice", label: "Facture client", number: row.invoice_number });
+  for (const row of supplierInvoices.data ?? []) if (!posted.has(`supplier_invoice:${row.id}`)) rows.push({ id: row.id, kind: "supplier_invoice", label: "Facture fournisseur", number: row.supplier_invoice_number || row.invoice_number });
+  for (const row of creditNotes.error ? [] : creditNotes.data ?? []) if (!posted.has(`customer_credit_note:${row.id}`)) rows.push({ id: row.id, kind: "customer_credit_note", label: "Avoir client", number: row.credit_note_number });
+  for (const row of supplierCredits.error ? [] : supplierCredits.data ?? []) if (!posted.has(`supplier_credit_note:${row.id}`)) rows.push({ id: row.id, kind: "supplier_credit_note", label: "Avoir fournisseur", number: row.credit_note_number });
+  for (const row of payments.data ?? []) if (!posted.has(`customer_payment:${row.id}`)) rows.push({ id: row.id, kind: "customer_payment", label: "Règlement client", number: row.payment_number ?? row.id.slice(0, 8) });
+  for (const row of supplierPayments.data ?? []) if (!posted.has(`supplier_payment:${row.id}`)) rows.push({ id: row.id, kind: "supplier_payment", label: "Règlement fournisseur", number: row.payment_number ?? row.id.slice(0, 8) });
+  return rows;
+}
+
+export async function postPendingAccountingDocuments(prev: AccountingActionResult, _formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  void _formData;
+  const workspace = await requireActiveWorkspace();
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
+  const pending = await listPendingAccountingDocuments();
+  if (pending.length === 0) return { success: true, data: { message: "Aucune pièce en attente." } };
+  const { postCustomerCreditNote } = await import("@/lib/credit-note-actions");
+  const { postSupplierCreditNoteToAccounting } = await import("@/lib/supplier-credit-note-actions");
+  let posted = 0;
+  const failures: string[] = [];
+  for (const item of pending) {
+    const formData = new FormData();
+    formData.set("id", item.id);
+    const previous = { success: true as const };
+    const result = item.kind === "customer_invoice"
+      ? await postCustomerInvoiceToAccounting(previous, formData)
+      : item.kind === "supplier_invoice"
+        ? await postSupplierInvoiceToAccounting(previous, formData)
+        : item.kind === "customer_payment"
+          ? await postCustomerPaymentToAccounting(previous, formData)
+          : item.kind === "supplier_payment"
+            ? await postSupplierPaymentToAccounting(previous, formData)
+            : item.kind === "customer_credit_note"
+              ? await postCustomerCreditNote(previous, formData)
+              : await postSupplierCreditNoteToAccounting(previous, formData);
+    if (result.success) posted += 1;
+    else failures.push(`${item.label} ${item.number}`);
+  }
+  revalidatePath("/comptabilite/ecritures");
+  const message = `${posted} pièce${posted > 1 ? "s" : ""} comptabilisée${posted > 1 ? "s" : ""}.${failures.length ? ` Non passées : ${failures.slice(0, 3).join(", ")}.` : ""}`;
+  return failures.length && posted === 0 ? { success: false, error: message } : { success: true, data: { message } };
 }
 
 export async function letterAccountingLines(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {

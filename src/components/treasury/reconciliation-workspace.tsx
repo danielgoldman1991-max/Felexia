@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Badge } from "@/components/ui/badge";
@@ -34,9 +35,42 @@ function ReconcileButton({ lineId, transactionId }: { lineId: string; transactio
   return <form action={formAction}><Button type="submit" className="h-8" disabled={pending}>Rapprocher</Button></form>;
 }
 
-function LineButton({ label, lineId, action, variant = "secondary" }: { label: string; lineId: string; action: typeof ignoreStatementLine; variant?: "secondary" | "ghost" }) {
-  const [, formAction, pending] = useActionState(lineAction(action, lineId), { success: true });
-  return <form action={formAction}><Button type="submit" variant={variant} className="h-8" disabled={pending}>{label}</Button></form>;
+function LineButton({ label, lineId, action, variant = "secondary", confirm }: { label: string; lineId: string; action: typeof ignoreStatementLine; variant?: "secondary" | "ghost"; confirm?: string }) {
+  const [state, formAction, pending] = useActionState(lineAction(action, lineId), { success: true });
+  const toasted = useRef(false);
+  useEffect(() => {
+    if (pending) toasted.current = false;
+    const message = (state.data as { message?: string } | undefined)?.message;
+    if (!pending && state.success && message && !toasted.current) {
+      toasted.current = true;
+      toast.success(message);
+    }
+  }, [pending, state]);
+  return (
+    <form onSubmit={(event) => { event.preventDefault(); if (confirm && !window.confirm(confirm)) return; formAction(); }}>
+      <Button type="submit" variant={variant} className="h-8" disabled={pending}>{pending ? "Patientez…" : label}</Button>
+      {!state.success && state.error ? <span className="block text-xs text-red-700">{state.error}</span> : null}
+    </form>
+  );
+}
+
+function CreateMovement({ lineId }: { lineId: string }) {
+  const [state, action, pending] = useActionState(createTransactionFromStatementLine, { success: true });
+  return (
+    <form action={action} className="flex flex-wrap items-center gap-1">
+      <input type="hidden" name="statement_line_id" value={lineId} />
+      <select name="category" defaultValue="bank_fee" aria-label="Catégorie du mouvement" className="h-8 rounded-md border border-[var(--border)] bg-[var(--card)] px-1 text-xs">
+        <option value="bank_fee">Frais bancaires</option>
+        <option value="vat">TVA</option>
+        <option value="agio">Agios</option>
+        <option value="commission">Commission</option>
+        <option value="transfer">Virement</option>
+        <option value="other">Autre</option>
+      </select>
+      <Button type="submit" variant="secondary" className="h-8" disabled={pending}>{pending ? "Création…" : "Créer mouvement"}</Button>
+      {!state.success && state.error ? <span className="w-full text-xs text-red-700">{state.error}</span> : null}
+    </form>
+  );
 }
 
 function AutomaticSuggestionsForm({ suggestions }: { suggestions: ReconciliationSuggestion[] }) {
@@ -147,7 +181,7 @@ export function ReconciliationWorkspace({
                       <Td>
                         <div className="flex flex-wrap gap-2">
                           {suggestion?.transaction ? <ReconcileButton lineId={line.id} transactionId={suggestion.transaction.id} /> : null}
-                          <LineButton label="Créer mouvement" lineId={line.id} action={createTransactionFromStatementLine} />
+                          <CreateMovement lineId={line.id} />
                           <LineButton label="Ignorer" lineId={line.id} action={ignoreStatementLine} variant="ghost" />
                         </div>
                       </Td>
@@ -191,7 +225,7 @@ export function ReconciliationWorkspace({
                     <Td>{line.operation_date}</Td>
                     <Td>{line.label}</Td>
                     <Td><MoneyDisplay value={line.amount} /></Td>
-                    <Td><LineButton label="Annuler le rapprochement" lineId={line.id} action={unreconcileStatementLine} variant="ghost" /></Td>
+                    <Td><LineButton label="Annuler le rapprochement" lineId={line.id} action={unreconcileStatementLine} variant="ghost" confirm="Annuler ce rapprochement ? Le règlement ou le mouvement créé sera extourné." /></Td>
                   </tr>
                 ))}
               </tbody>
