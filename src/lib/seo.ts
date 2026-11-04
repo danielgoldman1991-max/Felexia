@@ -135,8 +135,8 @@ export function getSiteStructuredData() {
         logo: { "@type": "ImageObject", url: canonicalUrl(BRAND.logoMark), width: 512, height: 512 },
         email: LEGAL_CONFIG.supportEmail,
         areaServed: { "@type": "Country", name: "Maroc" },
-        // TODO(owner): add the official LinkedIn and Facebook profile URLs when they exist. Do not invent them.
-        sameAs: ["https://www.instagram.com/felexiaerp/"],
+        // TODO(owner): add the official Facebook profile URL when it exists. Do not invent it.
+        sameAs: ["https://www.instagram.com/felexiaerp/", "https://www.linkedin.com/company/felexiaerp/"],
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "customer support",

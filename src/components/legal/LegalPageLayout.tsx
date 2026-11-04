@@ -233,7 +233,16 @@ export function LegalPageLayout({
             >
               Instagram
             </a>
-            {/* TODO(owner): add the official LinkedIn and Facebook URLs when they exist. Do not invent profiles. */}
+            <a
+              href="https://www.linkedin.com/company/felexiaerp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="FelexiaERP sur LinkedIn (nouvel onglet)"
+              className="text-slate-600 transition-colors hover:text-[#1456B8]"
+            >
+              LinkedIn
+            </a>
+            {/* TODO(owner): add the official Facebook URL when it exists. Do not invent a profile. */}
             <a
               href={`mailto:${LEGAL_CONFIG.legalEmail}`}
               className="inline-flex items-center gap-1.5 text-slate-600 transition-colors hover:text-[#1456B8]"
