@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,8 @@ export default async function PurchaseRequestDetailPage({ params }: { params: Pr
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
-  const { data: request } = await supabase.from("purchase_requests").select("id, request_number, title, status, needed_on, notes").eq("id", id).eq("organization_id", workspace.organization.id).maybeSingle();
+  const { data: request, error } = await supabase.from("purchase_requests").select("id, request_number, title, status, needed_on, notes").eq("id", id).eq("organization_id", workspace.organization.id).maybeSingle();
+  if (isMissingSchema(error)) return <ModulePage><PageHeader title="Demande d'achat" description={SCHEMA_PENDING_MESSAGE} /></ModulePage>;
   if (!request) notFound();
   const { data: lines } = await supabase.from("purchase_request_lines").select("id, description, quantity, unit_name, estimated_unit_price_ht").eq("request_id", id);
   return (

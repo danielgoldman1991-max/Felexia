@@ -6,6 +6,7 @@ import { isReadOnlyRole } from "@/lib/auth/roles";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { rankSupplierQuotes, type SupplierQuote } from "@/lib/purchases/rfq";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export type ProcurementResult = { success: boolean; error?: string };
@@ -29,6 +30,10 @@ async function guard() {
     return { workspace, error: "Votre accès est en lecture seule." };
   }
   return { workspace, error: null as string | null };
+}
+
+function schemaMessage(error: { code?: string; message?: string } | null) {
+  return isMissingSchema(error) ? SCHEMA_PENDING_MESSAGE : error?.message ?? null;
 }
 
 function reference(prefix: string) {
@@ -57,7 +62,7 @@ export async function createPurchaseRequest(prev: ProcurementResult, formData: F
     notes: text(formData, "notes"),
     created_by: workspace.userId,
   }).select("id").single();
-  if (insertError || !data) return { success: false, error: insertError?.message ?? "Demande non enregistrée." };
+  if (insertError || !data) return { success: false, error: schemaMessage(insertError) ?? "Demande non enregistrée." };
   const line = await supabase.from("purchase_request_lines").insert({
     organization_id: workspace.organization.id,
     request_id: data.id,
@@ -66,7 +71,7 @@ export async function createPurchaseRequest(prev: ProcurementResult, formData: F
     unit_name: text(formData, "unit_name"),
     estimated_unit_price_ht: money(formData.get("estimated_unit_price_ht")),
   });
-  if (line.error) return { success: false, error: line.error.message };
+  if (line.error) return { success: false, error: schemaMessage(line.error) ?? line.error.message };
   revalidatePath("/achats/demandes");
   redirect(`/achats/demandes/${data.id}`);
 }
@@ -100,7 +105,7 @@ export async function createPurchaseRfq(prev: ProcurementResult, formData: FormD
     notes: text(formData, "notes"),
     created_by: workspace.userId,
   }).select("id").single();
-  if (insertError || !data) return { success: false, error: insertError?.message ?? "Consultation non enregistrée." };
+  if (insertError || !data) return { success: false, error: schemaMessage(insertError) ?? "Consultation non enregistrée." };
   const rows = ranked.map((quote) => ({
     organization_id: workspace.organization.id,
     rfq_id: data.id,
@@ -111,7 +116,7 @@ export async function createPurchaseRfq(prev: ProcurementResult, formData: FormD
     notes: quote.recommended ? "Offre recommandée" : null,
   }));
   const saved = await supabase.from("purchase_rfq_quotes").insert(rows).select("id, notes");
-  if (saved.error) return { success: false, error: saved.error.message };
+  if (saved.error) return { success: false, error: schemaMessage(saved.error) ?? saved.error.message };
   const winner = saved.data?.find((row) => row.notes === "Offre recommandée");
   if (winner) {
     await supabase.from("purchase_rfqs").update({ awarded_quote_id: winner.id, status: "awarded", updated_at: new Date().toISOString() }).eq("id", data.id);

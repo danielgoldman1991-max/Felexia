@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -14,13 +15,16 @@ export default async function PurchaseRequestsPage() {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("purchase_requests")
     .select("id, request_number, title, status, needed_on")
     .eq("organization_id", workspace.organization.id)
     .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(100);
+  if (isMissingSchema(error)) {
+    return <ModulePage><PageHeader title="Demandes d'achat" description={SCHEMA_PENDING_MESSAGE} /></ModulePage>;
+  }
   return (
     <ModulePage>
       <PageHeader title="Demandes d'achat" description="Besoins internes avant commande ou consultation." actions={<Button asChild><Link href="/achats/demandes/new">Nouvelle demande</Link></Button>} />

@@ -1,4 +1,6 @@
 -- 115: demandes d'achat, consultations fournisseurs et retenue à la source.
+-- Apply order across the domain PRs: 115, then 116, 117, 118, 119.
+-- Do not reuse these numbers.
 -- Additive and idempotent. Existing payment rows keep withholding_amount 0.
 -- Does not rewrite historical documents. Essentiel writes are refused by
 -- assert_pro_write_access. Viewers stay read-only. Operators may write.

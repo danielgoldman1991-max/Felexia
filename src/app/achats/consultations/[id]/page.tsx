@@ -7,6 +7,7 @@ import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { rankSupplierQuotes } from "@/lib/purchases/rfq";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,8 @@ export default async function PurchaseRfqDetailPage({ params }: { params: Promis
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
-  const { data: rfq } = await supabase.from("purchase_rfqs").select("id, rfq_number, title, status, awarded_quote_id").eq("id", id).eq("organization_id", workspace.organization.id).maybeSingle();
+  const { data: rfq, error } = await supabase.from("purchase_rfqs").select("id, rfq_number, title, status, awarded_quote_id").eq("id", id).eq("organization_id", workspace.organization.id).maybeSingle();
+  if (isMissingSchema(error)) return <ModulePage><PageHeader title="Consultation" description={SCHEMA_PENDING_MESSAGE} /></ModulePage>;
   if (!rfq) notFound();
   const { data: quotes } = await supabase.from("purchase_rfq_quotes").select("id, supplier_name, total_ht, total_ttc, lead_days").eq("rfq_id", id);
   const ranked = rankSupplierQuotes((quotes ?? []).map((quote) => ({
