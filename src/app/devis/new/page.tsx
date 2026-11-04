@@ -17,7 +17,7 @@ export default async function NewDevisPage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Nouveau devis" description="Numero genere automatiquement a la sauvegarde." />
+      <PageHeader title="Nouveau devis" description="Numéro genere automatiquement a la sauvegarde." />
       <SalesQuoteForm
         mode="create"
         action={createSalesQuote}

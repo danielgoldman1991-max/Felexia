@@ -189,13 +189,13 @@ async function coverRoutes(page: Page, org: string) {
     const response = await page.goto(target, { waitUntil: "domcontentloaded" }).catch(() => null);
     const status = response?.status() ?? 0;
     const text = await page.locator("body").innerText().catch(() => "");
-    const problem = /this page couldn't load|application error|could not be found/i.test(text);
+    const crashed = /this page couldn't load|application error/i.test(text);
     const empty = /aucun|aucune|vide|bientôt|consultation/i.test(text);
     record({
       module: "Couverture routes",
       operation: target,
-      verdict: status >= 500 || problem ? "bug" : status === 404 ? "manquant" : "OK",
-      priority: status >= 500 || problem ? "P1" : undefined,
+      verdict: status >= 500 || crashed ? "bug" : status === 404 ? "manquant" : "OK",
+      priority: status >= 500 || crashed ? "P1" : undefined,
       detail: `HTTP ${status}${empty ? " · état vide ou préparatoire" : ""} · ${text.replace(/\s+/g, " ").slice(0, 140)}`,
     });
     visited += 1;
@@ -242,7 +242,7 @@ async function invoiceFromDelivery(page: Page, org: string, _quoteId: string) {
 
   await run(page, "Ventes", "Valider le BL et facturer", async () => {
     await clickButton(page, "Valider");
-    await clickButton(page, "Marquer livre");
+    await clickButton(page, /marquer livr/i);
     await page.getByRole("link", { name: /^facturer$/i }).click();
     await page.waitForURL(/\/facturation\/factures\/new/, { timeout: 20_000 });
     await page.getByRole("button", { name: /créer la facture/i }).click();

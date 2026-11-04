@@ -14,7 +14,7 @@ export function CustomerRemindersTable({ rows }: { rows: CustomerReminderRecord[
   return (
     <Table>
       <thead>
-        <tr><Th>Numero</Th><Th>Client</Th><Th>Date</Th><Th>Niveau</Th><Th>Statut</Th><Th>Montant du</Th><Th>En retard</Th><Th>Canal</Th><Th>Actions</Th></tr>
+        <tr><Th>Numéro</Th><Th>Client</Th><Th>Date</Th><Th>Niveau</Th><Th>Statut</Th><Th>Montant du</Th><Th>En retard</Th><Th>Canal</Th><Th>Actions</Th></tr>
       </thead>
       <tbody>
         {rows.map((row) => (

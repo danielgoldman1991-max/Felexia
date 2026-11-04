@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:regressions": "tsx scripts/verify-qa-regressions.ts && tsx scripts/verify-achats-domain.ts && tsx scripts/verify-paie-domain.ts && tsx scripts/verify-compta-domain.ts && tsx scripts/verify-stock-domain.ts && tsx scripts/verify-ventes-domain.ts",
+    "test:regressions": "tsx scripts/verify-qa-regressions.ts && tsx scripts/verify-achats-domain.ts && tsx scripts/verify-paie-domain.ts && tsx scripts/verify-compta-domain.ts && tsx scripts/verify-stock-domain.ts && tsx scripts/verify-ventes-domain.ts && tsx scripts/verify-completion-domain.ts",
     "test:light-launch": "tsx scripts/verify-light-launch.ts",
     "test:e-invoicing": "tsx training/e-invoicing/20261031/verify-domain.ts && node training/e-invoicing/20261031/verify-ui.cjs && node training/e-invoicing/20261031/verify-server-guards.cjs && node training/e-invoicing/20261031/verify-operations-access.cjs",
     "test:e2e:pro": "playwright test --config=playwright.config.ts",

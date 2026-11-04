@@ -86,6 +86,7 @@ export const sections: SidebarSection[] = [
       { label: "Bons de livraison", href: "/vente/livraisons", icon: Truck },
       { label: "Retours client", href: "/vente/retours", icon: RotateCcw },
       { label: "Pipeline", href: "/vente/pipeline", icon: Target },
+      { label: "Listes de prix", href: "/vente/prix", icon: BadgeDollarSign },
     ],
   },
   {
@@ -115,6 +116,7 @@ export const sections: SidebarSection[] = [
       { label: "Paiements reçus", href: "/facturation/paiements", icon: WalletCards },
       { label: "Impayés", href: "/facturation/factures?paymentStatus=unpaid", icon: ShieldAlert },
       { label: "Relances", href: "/facturation/relances", icon: BellRing },
+      { label: "Règles de relance", href: "/facturation/relances/regles", icon: BellRing },
       { label: "Balance âgée", href: "/facturation/balance-agee", icon: ShieldAlert },
     ],
   },
@@ -131,6 +133,7 @@ export const sections: SidebarSection[] = [
       { label: "Transferts", href: "/stock/transferts", icon: ArrowLeftRight },
       { label: "Ajustements", href: "/stock/ajustements/new", icon: Calculator },
       { label: "Inventaire", href: "/stock/inventaire", icon: ShieldAlert },
+      { label: "Inventaire physique", href: "/stock/inventaire/sessions", icon: ClipboardList },
       { label: "Valorisation CMUP", href: "/stock/valorisation", icon: Calculator },
       { label: "Lots et séries", href: "/stock/lots", icon: Package },
     ],

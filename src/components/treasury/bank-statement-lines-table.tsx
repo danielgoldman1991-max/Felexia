@@ -8,7 +8,7 @@ export function BankStatementLinesTable({ rows }: { rows: BankStatementLineRecor
   if (rows.length === 0) return <EmptyState title="Aucune ligne bancaire." description="Les lignes importees du releve apparaitront ici." />;
   return (
     <Table>
-      <thead><tr><Th>Date</Th><Th>Valeur</Th><Th>Libelle</Th><Th>Reference</Th><Th>Sens</Th><Th>Montant</Th><Th>Solde</Th><Th>Statut</Th></tr></thead>
+      <thead><tr><Th>Date</Th><Th>Valeur</Th><Th>Libellé</Th><Th>Reference</Th><Th>Sens</Th><Th>Montant</Th><Th>Solde</Th><Th>Statut</Th></tr></thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>

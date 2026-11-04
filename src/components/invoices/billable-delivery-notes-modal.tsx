@@ -48,7 +48,7 @@ export function BillableDeliveryNotesModal({
           <div>
             <h2 className="text-lg font-semibold">Bons de livraison a facturer</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Selectionnez les bons de livraison valides a integrer dans cette facture.
+              Sélectionnez les bons de livraison valides a integrer dans cette facture.
             </p>
           </div>
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} aria-label="Fermer">
@@ -70,7 +70,7 @@ export function BillableDeliveryNotesModal({
                   <Th>Date</Th>
                   <Th>Commande</Th>
                   <Th>Lignes</Th>
-                  <Th>Quantite</Th>
+                  <Th>Quantité</Th>
                   <Th>Statut</Th>
                 </tr>
               </thead>
@@ -87,7 +87,7 @@ export function BillableDeliveryNotesModal({
                           disabled={disabled}
                           onChange={() => toggle(note.id)}
                           className="h-4 w-4 rounded border-slate-300"
-                          aria-label={`Selectionner ${note.document_number}`}
+                          aria-label={`Sélectionner ${note.document_number}`}
                         />
                       </Td>
                       <Td className="font-medium">{note.document_number}</Td>
@@ -96,7 +96,7 @@ export function BillableDeliveryNotesModal({
                       <Td>{note.lines_count ?? 0}</Td>
                       <Td>{formatNumber(note.total_quantity ?? 0)}</Td>
                       <Td>
-                        {disabled ? <Badge tone="warning">Deja facture</Badge> : <Badge tone="success">{note.status}</Badge>}
+                        {disabled ? <Badge tone="warning">Déjà facture</Badge> : <Badge tone="success">{note.status}</Badge>}
                       </Td>
                     </tr>
                   );

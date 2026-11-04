@@ -5,7 +5,7 @@ import type { StockMoveDirection, StockMoveType } from "@/lib/stock-types";
 export function StockDirectionBadge({ direction }: { direction: StockMoveDirection }) {
   return (
     <Badge tone={direction === "in" ? "success" : "warning"}>
-      {direction === "in" ? "Entree" : "Sortie"}
+      {direction === "in" ? "Entrée" : "Sortie"}
     </Badge>
   );
 }

@@ -170,7 +170,7 @@ export const TREASURY_ACCOUNT_TYPE_LABELS: Record<TreasuryAccountType, string> =
 export const TREASURY_TRANSACTION_TYPE_LABELS: Record<TreasuryTransactionType, string> = {
   customer_payment: "Paiement client",
   supplier_payment: "Paiement fournisseur",
-  manual_in: "Entree manuelle",
+  manual_in: "Entrée manuelle",
   manual_out: "Sortie manuelle",
   bank_fee: "Frais bancaires",
   transfer_in: "Virement entrant",

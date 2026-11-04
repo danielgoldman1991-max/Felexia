@@ -71,7 +71,7 @@ export async function createStockLocation(prev: StockActionResult, formData: For
     .insert({ ...payload, organization_id: workspace.organization.id, created_by: workspace.userId })
     .select("id")
     .single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer l'emplacement." };
+  if (error || !data) return { success: false, error: error?.message ?? "Impossible de créer l'emplacement." };
   if (payload.is_default) {
     const defaultError = await applyDefault(workspace.organization.id, data.id);
     if (defaultError) return { success: false, error: defaultError };

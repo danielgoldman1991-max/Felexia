@@ -23,7 +23,7 @@ export default async function NewLivraisonPage({
 
   return (
     <ModulePage>
-      <PageHeader title="Nouveau bon de livraison" description="Numero genere automatiquement a la sauvegarde." />
+      <PageHeader title="Nouveau bon de livraison" description="Numéro genere automatiquement a la sauvegarde." />
       <DeliveryNoteForm
         mode="create"
         action={createDeliveryNote}

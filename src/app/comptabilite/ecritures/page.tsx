@@ -19,8 +19,8 @@ export default async function EntriesPage() {
   return (
     <ModulePage>
       <PageHeader
-        title="Ecritures comptables"
-        description="Ecritures generees ou saisies manuellement."
+        title="Écritures comptables"
+        description="Écritures generees ou saisies manuellement."
         actions={<><Button variant="secondary" asChild><Link href="/comptabilite/journaux">Journaux</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle écriture</Link></Button> : null}</>}
       />
       <div className="space-y-6">
@@ -28,7 +28,7 @@ export default async function EntriesPage() {
         <EntriesTable rows={entries.entries} />
         {entries.total > 100 ? (
           <p className="text-center text-xs text-[var(--muted)]">
-            Affichage des 100 dernieres ecritures sur {entries.total} au total.
+            Affichage des 100 dernieres écritures sur {entries.total} au total.
           </p>
         ) : null}
       </div>

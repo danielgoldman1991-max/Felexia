@@ -18,7 +18,7 @@ export default async function DeliverSalesOrderPage({ params }: { params: Promis
   return (
     <ModulePage>
       <PageHeader
-        title="Creer une livraison"
+        title="Créer une livraison"
         description={`Commande ${order.document_number}`}
       />
       <DeliveryNoteForm order={order} lines={lines} action={createManualDeliveryNote} />

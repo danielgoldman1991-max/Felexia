@@ -12,7 +12,7 @@ export function QuotesTable({ rows }: { rows: SalesQuoteRecord[] }) {
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th>
+          <Th>Numéro</Th>
           <Th>Client</Th>
           <Th>Date</Th>
           <Th>Validite</Th>

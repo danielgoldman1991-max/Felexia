@@ -125,7 +125,7 @@ export function ChartOfAccountFilters({ total }: { total: number }) {
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
             <input
               type="text"
-              placeholder="Numero ou intitule..."
+              placeholder="Numéro ou intitule..."
               className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[rgb(124_79_242_/_16%)]"
               value={sp.get("q") ?? ""}
               onChange={(e) => setParam("q", e.target.value)}

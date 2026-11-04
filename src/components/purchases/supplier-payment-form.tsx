@@ -128,7 +128,7 @@ export function SupplierPaymentForm({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Nouveau paiement fournisseur" description="Creer un paiement fournisseur" />
+      <PageHeader title="Nouveau paiement fournisseur" description="Créer un paiement fournisseur" />
 
       <form action={handleSubmit}>
         {preselectedInvoice && preselectedPaymentSummary ? (
@@ -187,7 +187,7 @@ export function SupplierPaymentForm({
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Mode de paiement</label>
               <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                <option value="">Selectionner...</option>
+                <option value="">Sélectionner...</option>
                 <option value="check">Cheque</option>
                 <option value="transfer">Virement</option>
                 <option value="cash">Especes</option>
@@ -199,7 +199,7 @@ export function SupplierPaymentForm({
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Compte de decaissement</label>
               <select name="treasury_account_id" value={treasuryAccountId} onChange={(e) => setTreasuryAccountId(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                <option value="">Selectionner...</option>
+                <option value="">Sélectionner...</option>
                 {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
               </select>
               {treasuryAccounts.length === 0 ? <Link href="/tresorerie/comptes/new" className="mt-2 block text-sm text-[var(--primary)] underline">Ajouter un compte bancaire ou une caisse</Link> : null}
@@ -224,7 +224,7 @@ export function SupplierPaymentForm({
               <input value={transferReference} onChange={(e) => setTransferReference(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
-              <DateField label="Echeance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
+              <DateField label="Échéance" value={dueDate} onChange={setDueDate} placeholder="jj/mm/aaaa" />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>

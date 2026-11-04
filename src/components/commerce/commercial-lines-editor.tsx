@@ -107,7 +107,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
     let preparedLine = calculateLine(draftLine);
 
     if (preparedLine.mode === "product" && !preparedLine.product_id) {
-      setError("Selectionnez un article ou service.");
+      setError("Sélectionnez un article ou service.");
       return;
     }
 
@@ -117,7 +117,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
     }
 
     if (Number(preparedLine.quantity) <= 0) {
-      setError("La quantite doit etre superieure a zero.");
+      setError("La quantité doit etre superieure a zero.");
       return;
     }
 
@@ -188,7 +188,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
               value={draftLine.product_id}
               onChange={(event) => handleProductChange(event.target.value)}
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
                   {product.sku ? `[${product.sku}] ` : ""}
@@ -276,7 +276,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
             <Th>#</Th>
             <Th>Produit</Th>
             <Th>Description</Th>
-            <Th>Quantite</Th>
+            <Th>Quantité</Th>
             <Th>Unite</Th>
             <Th>Prix HT</Th>
             <Th>Remise %</Th>

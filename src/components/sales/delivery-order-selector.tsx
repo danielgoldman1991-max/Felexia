@@ -40,7 +40,7 @@ export function DeliveryOrderSelector({ orders, selectedOrderId }: Props) {
         <div>
           <h2 className="font-semibold text-[var(--foreground)]">Commande a livrer</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            Selectionnez une commande confirmee ou partiellement livree avec un reliquat disponible.
+            Sélectionnez une commande confirmee ou partiellement livree avec un reliquat disponible.
           </p>
         </div>
       </CardHeader>

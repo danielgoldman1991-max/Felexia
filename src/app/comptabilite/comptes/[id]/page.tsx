@@ -54,7 +54,7 @@ export default async function AccountDetailPage({ params }: { params: Promise<{ 
         <Card>
           <CardHeader><h2 className="font-semibold">Informations</h2></CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
-            <div><span className="text-[var(--muted)]">Numero:</span> <span className="font-mono font-medium">{account.code}</span></div>
+            <div><span className="text-[var(--muted)]">Numéro:</span> <span className="font-mono font-medium">{account.code}</span></div>
             <div><span className="text-[var(--muted)]">Intitule:</span> {account.name}</div>
             <div><span className="text-[var(--muted)]">Classe:</span> <Badge tone="info">{ACCOUNT_CLASS_LABELS[account.class_number] ?? account.class_number}</Badge></div>
             <div><span className="text-[var(--muted)]">Type:</span> {ACCOUNT_TYPE_LABELS[account.type] ?? account.type}</div>
@@ -74,7 +74,7 @@ export default async function AccountDetailPage({ params }: { params: Promise<{ 
           <CardHeader><h2 className="font-semibold">Utilisation du compte</h2></CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
             <div>
-              <span className="text-[var(--muted)]">Lignes d&apos;ecriture:</span>
+              <span className="text-[var(--muted)]">Lignes d&apos;écriture:</span>
               <div className="mt-1 text-lg font-semibold">{usageStats.lines_count}</div>
             </div>
             <div>
@@ -97,14 +97,14 @@ export default async function AccountDetailPage({ params }: { params: Promise<{ 
 
         {isUsed && (
           <Card>
-            <CardHeader><h2 className="font-semibold">Dernieres lignes d&apos;ecriture</h2></CardHeader>
+            <CardHeader><h2 className="font-semibold">Dernieres lignes d&apos;écriture</h2></CardHeader>
             <CardContent className="p-0">
               <Table>
                 <thead>
                   <tr>
                     <Th>Date</Th>
-                    <Th>Ecriture</Th>
-                    <Th>Libelle</Th>
+                    <Th>Écriture</Th>
+                    <Th>Libellé</Th>
                     <Th>Debit</Th>
                     <Th>Credit</Th>
                   </tr>

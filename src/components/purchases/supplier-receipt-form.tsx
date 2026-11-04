@@ -49,7 +49,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
       .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0);
 
     if (lines.length === 0) {
-      alert("Aucune quantite a receptionner. Saisissez au moins une quantite superieure a zero.");
+      alert("Aucune quantité a receptionner. Saisissez au moins une quantité superieure a zero.");
       return;
     }
 
@@ -84,7 +84,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
           <CardHeader><h2 className="font-semibold">Lignes a receptionner</h2></CardHeader>
           <CardContent>
             <Table>
-              <thead><tr><Th>Article</Th><Th>Description</Th><Th>Unite</Th><Th>Commande</Th><Th>Deja recu</Th><Th>Reste</Th><Th>A recevoir</Th></tr></thead>
+              <thead><tr><Th>Article</Th><Th>Description</Th><Th>Unite</Th><Th>Commande</Th><Th>Déjà recu</Th><Th>Reste</Th><Th>A recevoir</Th></tr></thead>
               <tbody>
                 {order.lines.map((line) => (
                   <tr key={line.id}>
@@ -116,7 +116,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
 
         <div className="mt-6 flex gap-3">
           <Button type="submit" disabled={pending}>
-            Creer reception
+            Créer reception
           </Button>
         </div>
       </form>

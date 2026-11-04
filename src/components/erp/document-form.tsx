@@ -13,10 +13,10 @@ export function DocumentForm({ title }: { title: string }) {
       </CardHeader>
       <CardContent>
         <form className="grid gap-4 md:grid-cols-2">
-          <Input placeholder="Numero automatique" disabled />
+          <Input placeholder="Numéro automatique" disabled />
           <DateField defaultValue="2026-05-08" />
           <Select defaultValue="">
-            <option value="" disabled>Selectionner un tiers</option>
+            <option value="" disabled>Sélectionner un tiers</option>
             <option>Atlas Market SARL</option>
             <option>Nova Industries Maroc</option>
           </Select>

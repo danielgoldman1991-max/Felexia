@@ -59,7 +59,7 @@ export function AccountingJournalFilters({
           </div>
           <div className="xl:col-span-2">
             <label className="text-xs font-medium text-[var(--muted)]">Recherche</label>
-            <input name="q" defaultValue={filters.q ?? ""} placeholder="N ecriture, libelle, compte, source..." className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] px-3 text-sm" />
+            <input name="q" defaultValue={filters.q ?? ""} placeholder="N écriture, libelle, compte, source..." className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] px-3 text-sm" />
           </div>
           <div className="flex items-end gap-2 xl:col-span-4">
             <Button type="submit">Appliquer</Button>

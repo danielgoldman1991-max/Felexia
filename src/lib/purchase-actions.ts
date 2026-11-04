@@ -70,10 +70,10 @@ function validateUnits(lines: Record<string, unknown>[]): string | null {
     const quantity = numberValue(line.quantity);
     const unitName = (line.unit_name as string) ?? "";
     if (unitName.toLowerCase() === "u" && !Number.isInteger(quantity)) {
-      return `La quantite de "${line.description || line.product_name}" doit etre un nombre entier (unite ${unitName}).`;
+      return `La quantité de "${line.description || line.product_name}" doit etre un nombre entier (unite ${unitName}).`;
     }
     if (quantity <= 0) {
-      return `La quantite de "${line.description || line.product_name}" doit etre supérieure a 0.`;
+      return `La quantité de "${line.description || line.product_name}" doit etre supérieure a 0.`;
     }
   }
   return null;
@@ -154,7 +154,7 @@ export async function cancelSupplierOrder(prev: PurchaseActionResult, formData: 
 
   const { data: doc } = await supabase.from("purchase_documents").select("status").eq("id", id).eq("organization_id", workspace.organization.id).single();
   if (!doc) return { success: false, error: "Document introuvable." };
-  if (doc.status === "cancelled") return { success: false, error: "Deja annule." };
+  if (doc.status === "cancelled") return { success: false, error: "Déjà annule." };
   if (doc.status === "received") return { success: false, error: "Impossible d'annuler une commande entierement recue." };
 
   const { error } = await supabase.from("purchase_documents").update({ status: "cancelled" }).eq("id", id);
@@ -173,7 +173,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
   const orgId = workspace.organization.id;
 
   const orderId = text(formData, "order_id");
-  if (!orderId) return { success: false, error: "Veuillez selectionner une commande source." };
+  if (!orderId) return { success: false, error: "Veuillez sélectionner une commande source." };
 
   const { data: order } = await supabase.from("purchase_documents").select("supplier_id, document_number, status").eq("id", orderId).eq("organization_id", orgId).single();
   if (!order) return { success: false, error: "Commande introuvable." };
@@ -183,7 +183,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
   if (lines.length === 0) return { success: false, error: "Ajoutez au moins une ligne." };
 
   const hasQuantity = lines.some((l) => numberValue(l.quantity) > 0);
-  if (!hasQuantity) return { success: false, error: "Au moins une ligne doit avoir une quantite > 0." };
+  if (!hasQuantity) return { success: false, error: "Au moins une ligne doit avoir une quantité > 0." };
 
   // Verify quantities against real remaining from validated receipts
   const progress = await getSupplierOrderLineProgress(supabase as never, orgId, orderId);
@@ -199,7 +199,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
       return { success: false, error: `Impossible de receptionner plus que le reste a recevoir pour ${productName}. Reste disponible : ${p.remaining}.` };
     }
     if (qty !== Math.floor(qty) && (line.unit_name as string)?.toLowerCase() === "u") {
-      return { success: false, error: `La quantite de ${(line.product_name as string) || "l'article"} doit etre un entier (unite U).` };
+      return { success: false, error: `La quantité de ${(line.product_name as string) || "l'article"} doit etre un entier (unite U).` };
     }
   }
 
@@ -275,7 +275,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
 
     if (calculated.length === 0) {
       await supabase.from("purchase_documents").delete().eq("id", doc.id);
-      return { success: false, error: "Aucune quantite a receptionner. Saisissez au moins une quantite superieure a zero." };
+      return { success: false, error: "Aucune quantité a receptionner. Saisissez au moins une quantité superieure a zero." };
     }
 
     // Re-assign line_order after filtering
@@ -320,7 +320,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
       const qty = Number(line.quantity);
       if (qty > p.remaining) {
         const productName = line.product_id ? (await supabase.from("products").select("name").eq("id", line.product_id).maybeSingle()).data?.name ?? "l'article" : "l'article";
-        return { success: false, error: `Validation impossible : la quantite recue depasse la quantite commandee pour ${productName}. Reste disponible : ${p.remaining}.` };
+        return { success: false, error: `Validation impossible : la quantité recue depasse la quantité commandee pour ${productName}. Reste disponible : ${p.remaining}.` };
       }
     }
   }
@@ -332,10 +332,10 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
     if (!line.product_id) continue;
     const quantity = Number(line.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0) {
-      return { success: false, error: "Quantite de reception invalide." };
+      return { success: false, error: "Quantité de reception invalide." };
     }
     if (line.unit_name?.toLowerCase() === "u" && !Number.isInteger(quantity)) {
-      return { success: false, error: `La quantite du produit ${line.product_id} doit etre un entier (unite U).` };
+      return { success: false, error: `La quantité du produit ${line.product_id} doit etre un entier (unite U).` };
     }
     const { data: product } = await supabase.from("products").select("type, track_stock").eq("organization_id", orgId).eq("id", line.product_id).single();
     if (product?.type === "product" && product.track_stock) {
@@ -411,7 +411,7 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   const orgId = workspace.organization.id;
 
   const supplierId = text(formData, "supplier_id");
-  if (!supplierId) return { success: false, error: "Veuillez selectionner un fournisseur." };
+  if (!supplierId) return { success: false, error: "Veuillez sélectionner un fournisseur." };
 
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
   const dueDate = text(formData, "due_date");
@@ -440,7 +440,7 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
       .eq("source_receipt_id", sourceReceiptId)
       .not("status", "eq", "cancelled")
       .maybeSingle();
-    if (existingByReceipt) return { success: false, error: "Cette reception a deja ete facturee." };
+    if (existingByReceipt) return { success: false, error: "Cette reception a deja ete facturée." };
   }
 
   let lines = parseJsonLines(formData, "lines");
@@ -631,7 +631,7 @@ async function getSupplierInvoiceDangerousActionBlockReason(supabase: any, orgId
 
   if (invoiceError) return invoiceError.message;
   if (!invoice) return "Facture introuvable.";
-  if (invoice.status === "cancelled") return "Deja annulee.";
+  if (invoice.status === "cancelled") return "Déjà annulee.";
 
   const { data: lines } = await supabase
     .from("supplier_invoice_lines")
@@ -785,7 +785,7 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const orgId = workspace.organization.id;
 
   const supplierId = text(formData, "supplier_id");
-  if (!supplierId) return { success: false, error: "Veuillez selectionner un fournisseur." };
+  if (!supplierId) return { success: false, error: "Veuillez sélectionner un fournisseur." };
 
   const amount = numberOrZero(formData, "amount");
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a 0." };
@@ -800,7 +800,7 @@ export async function createSupplierPayment(prev: PurchaseActionResult, formData
   const dueDate = text(formData, "due_date");
   const notes = text(formData, "notes");
   const treasuryAccountId = text(formData, "treasury_account_id");
-  if (!treasuryAccountId) return { success: false, error: "Selectionnez un compte de decaissement." };
+  if (!treasuryAccountId) return { success: false, error: "Sélectionnez un compte de decaissement." };
 
   const invoiceContextId = text(formData, "supplier_invoice_id") ?? text(formData, "invoice_id");
   const allocations = parseJsonLines(formData, "allocations");

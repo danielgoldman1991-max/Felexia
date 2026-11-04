@@ -27,8 +27,8 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
   const notes = text(formData, "notes") ?? text(formData, "reason");
   const warehouseIdFromForm = text(formData, "warehouse_id");
 
-  if (!productId) return { success: false, error: "Selectionnez un article." };
-  if (quantity <= 0) return { success: false, error: "La quantite doit etre superieure a zero." };
+  if (!productId) return { success: false, error: "Sélectionnez un article." };
+  if (quantity <= 0) return { success: false, error: "La quantité doit etre superieure a zero." };
 
   const { data: product, error: productError } = await supabase
     .from("products")
@@ -43,7 +43,7 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
   const unit = Array.isArray(product.unit) ? product.unit[0] : product.unit;
   const unitSymbol = String(unit?.symbol ?? unit?.name ?? "").trim().toUpperCase();
   if (unitSymbol === "U" && !Number.isInteger(quantity)) {
-    return { success: false, error: "La quantite doit etre entiere pour l'unite U." };
+    return { success: false, error: "La quantité doit etre entiere pour l'unite U." };
   }
 
   let warehouseId: string;
@@ -61,7 +61,7 @@ async function createStockMovement(formData: FormData, moveType: AtomicStockMove
     .eq("status", "active")
     .is("archived_at", null)
     .maybeSingle();
-  if (!warehouse) return { success: false, error: "Selectionnez un emplacement de stock actif." };
+  if (!warehouse) return { success: false, error: "Sélectionnez un emplacement de stock actif." };
 
   const operationKey = text(formData, "idempotency_key");
   if (!operationKey) return { success: false, error: "Cle de securite du mouvement manquante." };

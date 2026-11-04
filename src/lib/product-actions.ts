@@ -200,7 +200,7 @@ export async function createProduct(
     created_by: workspace.userId,
   }).select("id").single();
 
-  if (error || !created) return { success: false, error: error?.message ?? "Impossible de creer l'article." };
+  if (error || !created) return { success: false, error: error?.message ?? "Impossible de créer l'article." };
 
   if (trackStock && currentStock > 0) {
     try {

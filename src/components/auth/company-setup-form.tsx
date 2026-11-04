@@ -32,7 +32,7 @@ export function CompanySetupForm({ nextPath }: { nextPath?: string }) {
         </p>
       ) : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Creation en cours..." : "Creer mon entreprise"}
+        {pending ? "Creation en cours..." : "Créer mon entreprise"}
       </Button>
     </form>
   );

@@ -26,7 +26,7 @@ export function DashboardChart({ data }: { data: ChartPoint[] }) {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--foreground)]">Evolution du chiffre d&apos;affaires</h2>
-          <p className="text-sm text-[var(--muted)]">Tendance mensuelle des ventes facturees.</p>
+          <p className="text-sm text-[var(--muted)]">Tendance mensuelle des ventes facturées.</p>
         </div>
         <button type="button" className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm font-medium text-[var(--muted)] hover:bg-[var(--surface-soft)]">Par jour</button>
       </div>

@@ -45,16 +45,16 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
           <label className="space-y-2 text-sm">
             <span className="font-medium">Type *</span>
             <Select name="direction" value={direction} onChange={(e) => setDirection(e.target.value === "outflow" ? "outflow" : "inflow")}>
-              <option value="inflow">Entree prevue (encaissement)</option>
-              <option value="outflow">Sortie prevue (decaissement)</option>
+              <option value="inflow">Entrée prévue (encaissement)</option>
+              <option value="outflow">Sortie prévue (decaissement)</option>
             </Select>
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Libelle *</span>
+            <span className="font-medium">Libellé *</span>
             <Input name="label" defaultValue={item?.label ?? ""} placeholder="Ex : Loyer local, Apport du gerant..." required />
           </label>
           <label className="space-y-2 text-sm">
-            <span className="font-medium">Date prevue *</span>
+            <span className="font-medium">Date prévue *</span>
             <Input name="forecast_date" type="date" defaultValue={item?.forecast_date ?? ""} required />
           </label>
           <label className="space-y-2 text-sm">
@@ -100,7 +100,7 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/previsions">Annuler</Link></Button>
-        <Button disabled={pending}>{item?.id ? "Enregistrer" : "Creer la prevision"}</Button>
+        <Button disabled={pending}>{item?.id ? "Enregistrer" : "Créer la prévision"}</Button>
       </div>
     </form>
   );

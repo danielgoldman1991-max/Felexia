@@ -40,10 +40,10 @@ export function SignUpForm({ nextPath }: { nextPath?: string }) {
         </p>
       ) : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Creation en cours..." : "Creer mon compte"}
+        {pending ? "Creation en cours..." : "Créer mon compte"}
       </Button>
       <p className="text-center text-sm text-[var(--muted)]">
-        Deja un compte ?{" "}
+        Déjà un compte ?{" "}
         <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
           Se connecter
         </Link>

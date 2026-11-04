@@ -56,7 +56,7 @@ export function DeliveryNoteDetail({ delivery, lines }: { delivery: DeliveryNote
               <>
                 <form action={deliverAction}>
                   <input type="hidden" name="id" value={delivery.id} />
-                  <Button><Truck className="h-4 w-4" /> Marquer livre</Button>
+                  <Button><Truck className="h-4 w-4" /> Marquer livré</Button>
                   {!deliverState.success && deliverState.error ? <p className="text-xs text-red-600">{deliverState.error}</p> : null}
                 </form>
                 <form action={archiveAction}>
@@ -108,7 +108,7 @@ export function DeliveryNoteDetail({ delivery, lines }: { delivery: DeliveryNote
                 <Th>#</Th>
                 <Th>Produit</Th>
                 <Th>Description</Th>
-                <Th>Quantite</Th>
+                <Th>Quantité</Th>
                 <Th>Unite</Th>
               </tr>
             </thead>

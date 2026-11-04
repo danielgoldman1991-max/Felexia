@@ -61,7 +61,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Motif de retour *</span>
             <Select name="return_reason" defaultValue="">
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {returnReasons.map((reason) => (
                 <option key={reason} value={reason}>{reason}</option>
               ))}

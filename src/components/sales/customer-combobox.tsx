@@ -219,7 +219,7 @@ export function CustomerCombobox({
                   href="/tiers/new?type=prospect"
                   className="mt-2 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-700"
                 >
-                  Creer un client ou prospect
+                  Créer un client ou prospect
                 </Link>
               </div>
             )}

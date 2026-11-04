@@ -162,7 +162,7 @@ export function SalesQuoteForm({
               onChange={(e) => setPaymentTerms(e.target.value)}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {PAYMENT_TERMS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -175,7 +175,7 @@ export function SalesQuoteForm({
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {PAYMENT_METHOD_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -225,7 +225,7 @@ export function SalesQuoteForm({
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={document ? `/vente/devis/${document.id}` : "/vente/devis"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Creer devis" : "Enregistrer"}
+          {mode === "create" ? "Créer devis" : "Enregistrer"}
         </Button>
       </div>
     </form>

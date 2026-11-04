@@ -191,7 +191,7 @@ export function SalesDocumentDetail({
               </>
             ) : null}
             {canWrite && isOrder && ["confirmed", "partially_delivered"].includes(document.status) ? (
-              <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/livrer`}><Truck className="h-4 w-4" /> Creer une livraison</Link></Button>
+              <Button variant="secondary" asChild><Link href={`/vente/commandes/${document.id}/livrer`}><Truck className="h-4 w-4" /> Créer une livraison</Link></Button>
             ) : null}
             {canWrite && isOrder && ["confirmed", "partially_delivered", "delivered"].includes(document.status) && billingGuard?.billableMode === "direct" ? (
               <Button variant="secondary" asChild><Link href={`/facturation/factures/new?sourceType=order&sourceId=${document.id}`}><Receipt className="h-4 w-4" /> Facturer la commande</Link></Button>
@@ -200,7 +200,7 @@ export function SalesDocumentDetail({
               <ActionForm label="Valider" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateDeliveryNote, document.id)} />
             ) : null}
             {canWrite && isDelivery && document.status === "validated" ? (
-              <ActionForm label="Marquer livre" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
+              <ActionForm label="Marquer livré" icon={<Truck className="h-4 w-4" />} action={actionWithId(markDeliveryAsDelivered, document.id)} />
             ) : null}
             {canWrite && isDelivery && ["validated", "delivered"].includes(document.status) ? (
               <Button variant="secondary" asChild><Link href={`/vente/livraisons/${document.id}/retour`}><Truck className="h-4 w-4" /> Créer un retour</Link></Button>
@@ -215,7 +215,7 @@ export function SalesDocumentDetail({
               returnCreditNote ? (
                 <Button variant="secondary" asChild><Link href={`/facturation/avoirs/${returnCreditNote.id}`}><Receipt className="h-4 w-4" /> Voir avoir</Link></Button>
               ) : canWrite ? (
-                <Button variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button>
+                <Button variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Créer avoir</Link></Button>
               ) : null
             ) : null}
             {canWrite && document.status !== "cancelled" && document.status !== "converted" ? (
@@ -304,7 +304,7 @@ export function SalesDocumentDetail({
           <Info label="Client / Prospect" value={document.customer_name} />
           <Info label="Date" value={formatDate(document.document_date)} />
           <Info label="Validite" value={document.valid_until ? formatDate(document.valid_until) : null} />
-          <Info label="Livraison prevue" value={document.expected_delivery_date ? formatDate(document.expected_delivery_date) : null} />
+          <Info label="Livraison prévue" value={document.expected_delivery_date ? formatDate(document.expected_delivery_date) : null} />
           <Info label="Commande liee" value={document.related_order_number} />
           <Info label="BL lie" value={document.related_delivery_number} />
           {isReturn ? <Info label="Motif retour" value={document.return_reason} /> : null}
@@ -342,7 +342,7 @@ export function SalesDocumentDetail({
                     <Th>Designation</Th>
                     <Th>Unite</Th>
                     <Th>Commande</Th>
-                    <Th>Deja livre</Th>
+                    <Th>Déjà livre</Th>
                     <Th>Livre dans ce BL</Th>
                     <Th>Reste</Th>
                     <Th>Stock</Th>
@@ -356,7 +356,7 @@ export function SalesDocumentDetail({
                     <Th>Designation</Th>
                     <Th>Unite</Th>
                     <Th>Livre dans le BL</Th>
-                    <Th>Deja retourne</Th>
+                    <Th>Déjà retourne</Th>
                     <Th>Retourne dans ce bon</Th>
                     <Th>Stock</Th>
                   </tr>
@@ -367,7 +367,7 @@ export function SalesDocumentDetail({
                     <Th>#</Th>
                     <Th>Produit</Th>
                     <Th>Description</Th>
-                    <Th>Quantite</Th>
+                    <Th>Quantité</Th>
                     <Th>Unite</Th>
                     <Th>Prix HT</Th>
                     {discountPresent ? <Th>Remise %</Th> : null}
@@ -471,10 +471,10 @@ export function SalesDocumentDetail({
             ) : document.status === "validated" ? (
               <>
                 <p className="text-[var(--muted)]">Aucun avoir financier n&apos;est encore rattache a ce bon de retour.</p>
-                {canWrite ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Creer avoir</Link></Button> : null}
+                {canWrite ? <Button type="button" variant="secondary" asChild><Link href={`/facturation/avoirs/new?returnId=${document.id}`}><Receipt className="h-4 w-4" /> Créer avoir</Link></Button> : null}
               </>
             ) : (
-              <p className="text-[var(--muted)]">Validez d&apos;abord le bon de retour avant de creer un avoir.</p>
+              <p className="text-[var(--muted)]">Validez d&apos;abord le bon de retour avant de créer un avoir.</p>
             )}
           </CardContent>
         </Card>

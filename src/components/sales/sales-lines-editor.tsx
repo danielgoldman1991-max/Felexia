@@ -151,7 +151,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
     const preparedLine = calculateSalesLine(draftLine);
 
     if (preparedLine.mode === "product" && !preparedLine.product_id) {
-      setError("Selectionnez un article ou service.");
+      setError("Sélectionnez un article ou service.");
       return;
     }
     if (!preparedLine.description.trim()) {
@@ -159,11 +159,11 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
       return;
     }
     if (Number(preparedLine.quantity) <= 0) {
-      setError("La quantite doit etre superieure a zero.");
+      setError("La quantité doit etre superieure a zero.");
       return;
     }
     if (isIndivisibleUnit(preparedLine, units) && !Number.isInteger(Number(preparedLine.quantity))) {
-      setError("La quantite doit etre un nombre entier pour l'unite U.");
+      setError("La quantité doit etre un nombre entier pour l'unite U.");
       return;
     }
     if (Number(preparedLine.unit_price_ht) < 0) {
@@ -289,7 +289,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-[var(--muted)]">Quantite</span>
+            <span className="font-medium text-[var(--muted)]">Quantité</span>
             <Input
               type="number"
               min={draftUsesIndivisibleUnit ? "1" : "0"}
@@ -307,7 +307,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             />
             {draftUsesIndivisibleUnit ? (
               <span className="text-[11px] text-[var(--muted)]">
-                Cette unite est indivisible : saisissez une quantite entiere.
+                Cette unite est indivisible : saisissez une quantité entiere.
               </span>
             ) : null}
           </label>
@@ -347,7 +347,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             <Th>#</Th>
             <Th>Produit</Th>
             <Th>Description</Th>
-            <Th>Quantite</Th>
+            <Th>Quantité</Th>
             <Th>Unite</Th>
             <Th>Prix HT</Th>
             <Th>Remise %</Th>

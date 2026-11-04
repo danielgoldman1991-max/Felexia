@@ -275,7 +275,7 @@ export function ThirdPartyDetail({
         <CardContent className="space-y-4">
           {addresses.length ? (
             <Table>
-              <thead><tr><Th>Libelle</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Defaut</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
+              <thead><tr><Th>Libellé</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Defaut</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
               <tbody>
                 {addresses.map((address) => (
                   <tr key={address.id}>
@@ -301,7 +301,7 @@ export function ThirdPartyDetail({
           ) : null}
           {canWrite ? <form action={createAddressAction} className="grid gap-3 rounded-lg border border-[var(--border)] p-4 md:grid-cols-4">
             <input type="hidden" name="third_party_id" value={thirdParty.id} />
-            <Input name="label" placeholder="Libelle" required />
+            <Input name="label" placeholder="Libellé" required />
             <Select name="type" defaultValue="billing"><option value="billing">Facturation</option><option value="delivery">Livraison</option><option value="other">Autre</option></Select>
             <Input name="address" placeholder="Adresse" required />
             <Input name="city" placeholder="Ville" />

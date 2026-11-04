@@ -17,7 +17,7 @@ export function AccountingJournalSummaryCards({
   const balanced = Math.abs(diff) < 0.01;
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-      <Card><CardContent className="p-4"><p className="text-xs text-[var(--muted)]">Ecritures</p><p className="mt-1 text-2xl font-semibold">{entriesCount}</p></CardContent></Card>
+      <Card><CardContent className="p-4"><p className="text-xs text-[var(--muted)]">Écritures</p><p className="mt-1 text-2xl font-semibold">{entriesCount}</p></CardContent></Card>
       <Card><CardContent className="p-4"><p className="text-xs text-[var(--muted)]">Total debit</p><p className="mt-1 text-xl font-semibold"><MoneyDisplay value={totalDebit} /></p></CardContent></Card>
       <Card><CardContent className="p-4"><p className="text-xs text-[var(--muted)]">Total credit</p><p className="mt-1 text-xl font-semibold"><MoneyDisplay value={totalCredit} /></p></CardContent></Card>
       <Card><CardContent className="p-4"><p className="text-xs text-[var(--muted)]">Difference</p><p className="mt-1 text-xl font-semibold"><MoneyDisplay value={diff} /></p></CardContent></Card>

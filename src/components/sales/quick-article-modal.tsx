@@ -149,7 +149,7 @@ export function QuickArticleModal({ open, onClose, onCreated, categories, units,
         <div className="mt-5 flex justify-end gap-3">
           <Button type="button" variant="secondary" onClick={handleClose}>Annuler</Button>
           <Button type="button" onClick={handleCreate} disabled={saving}>
-            {saving ? "Creation..." : "Creer l'article"}
+            {saving ? "Creation..." : "Créer l'article"}
           </Button>
         </div>
       </div>

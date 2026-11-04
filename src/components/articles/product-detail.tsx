@@ -48,7 +48,7 @@ export function ProductDetail({ product, fullAccess = false }: { product: Produc
             {fullAccess && !isService ? (
               <>
                 <Button variant="secondary" asChild><Link href={`/stock/mouvements?productId=${product.id}`}><History className="h-4 w-4" /> Mouvements stock</Link></Button>
-                <Button variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}><Plus className="h-4 w-4" /> Entree stock</Link></Button>
+                <Button variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}><Plus className="h-4 w-4" /> Entrée stock</Link></Button>
               </>
             ) : null}
             {product.status !== "archived" ? (

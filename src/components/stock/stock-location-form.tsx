@@ -93,7 +93,7 @@ export function StockLocationForm({ location, locations, action }: Props) {
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/stock/emplacements">Annuler</Link></Button>
-        <Button disabled={pending}>{location ? "Enregistrer" : "Creer emplacement"}</Button>
+        <Button disabled={pending}>{location ? "Enregistrer" : "Créer emplacement"}</Button>
       </div>
     </form>
   );

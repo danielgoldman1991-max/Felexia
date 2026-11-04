@@ -185,7 +185,7 @@ export async function globalSearch(query: string): Promise<GlobalSearchResult[]>
   }
   for (const row of treasuryTransactions) {
     const id = str(row.id);
-    results.push({ id: `treasury-transaction-${id}`, title: str(row.label, "Mouvement tresorerie"), subtitle: [row.direction === "in" ? "Entree" : "Sortie", str(row.transaction_date), formatMoney(Number(row.amount ?? 0))].filter(Boolean).join(" · "), href: `/tresorerie/mouvements/${id}`, category: "Tresorerie", type: "record" });
+    results.push({ id: `treasury-transaction-${id}`, title: str(row.label, "Mouvement tresorerie"), subtitle: [row.direction === "in" ? "Entrée" : "Sortie", str(row.transaction_date), formatMoney(Number(row.amount ?? 0))].filter(Boolean).join(" · "), href: `/tresorerie/mouvements/${id}`, category: "Tresorerie", type: "record" });
   }
   for (const row of bankImports) {
     const id = str(row.id);

@@ -69,7 +69,7 @@ function normalizeCommerceLines(rawLines: Record<string, unknown>[]): { lines: C
     }
 
     if (!Number.isFinite(preparedLine.quantity) || preparedLine.quantity <= 0) {
-      return { lines: [], error: "Les quantites doivent etre superieures a 0." };
+      return { lines: [], error: "Les quantités doivent etre superieures a 0." };
     }
 
     if (!Number.isFinite(preparedLine.unit_price_ht) || preparedLine.unit_price_ht < 0) {
@@ -519,7 +519,7 @@ export async function createSalesOrder(
   for (const line of lines) {
     const qty = Number(line.quantity);
     const price = Number(line.unit_price_ht);
-    if (!Number.isFinite(qty) || qty <= 0) return { success: false, error: "Les quantites doivent etre superieures a 0." };
+    if (!Number.isFinite(qty) || qty <= 0) return { success: false, error: "Les quantités doivent etre superieures a 0." };
     if (!Number.isFinite(price) || price < 0) return { success: false, error: "Les prix doivent etre positifs." };
   }
 
@@ -634,7 +634,7 @@ export async function updateSalesOrder(
   for (const line of lines) {
     const qty = Number(line.quantity);
     const price = Number(line.unit_price_ht);
-    if (!Number.isFinite(qty) || qty <= 0) return { success: false, error: "Les quantites doivent etre superieures a 0." };
+    if (!Number.isFinite(qty) || qty <= 0) return { success: false, error: "Les quantités doivent etre superieures a 0." };
     if (!Number.isFinite(price) || price < 0) return { success: false, error: "Les prix doivent etre positifs." };
   }
 

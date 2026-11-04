@@ -6,7 +6,7 @@ export default async function FactureDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   return (
     <ModulePage>
-      <PageHeader title="Detail facture" description="Echeance, paiements et relances." />
+      <PageHeader title="Detail facture" description="Échéance, paiements et relances." />
       <EntityDetail title="Facture client" id={id} />
     </ModulePage>
   );

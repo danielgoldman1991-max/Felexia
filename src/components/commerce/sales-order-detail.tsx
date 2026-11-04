@@ -57,7 +57,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
               </>
             ) : null}
             {canCreateDelivery ? (
-              <Button asChild><Link href={`/livraisons/new?order_id=${order.id}`}><Truck className="h-4 w-4" /> Creer livraison</Link></Button>
+              <Button asChild><Link href={`/livraisons/new?order_id=${order.id}`}><Truck className="h-4 w-4" /> Créer livraison</Link></Button>
             ) : null}
           </>
         }
@@ -79,7 +79,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
             <Info label="Ville" value={order.customer_city} />
             {order.quote_number ? <Info label="Devis lie" value={order.quote_number} /> : null}
             <Info label="Date" value={formatDate(order.document_date)} />
-            <Info label="Livraison prevue" value={order.expected_delivery_date ? formatDate(order.expected_delivery_date) : null} />
+            <Info label="Livraison prévue" value={order.expected_delivery_date ? formatDate(order.expected_delivery_date) : null} />
             <Info label="Delai paiement" value={`${order.payment_terms_days} jours`} />
             <Info label="Monnaie" value={order.currency} />
           </CardContent>
@@ -95,7 +95,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
                 <Th>#</Th>
                 <Th>Produit</Th>
                 <Th>Description</Th>
-                <Th>Quantite</Th>
+                <Th>Quantité</Th>
                 <Th>Unite</Th>
                 <Th>Prix HT</Th>
                 <Th>Remise %</Th>

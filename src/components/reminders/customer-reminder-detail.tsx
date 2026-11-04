@@ -54,7 +54,7 @@ export function CustomerReminderDetail({ reminder, invoices }: { reminder: Custo
         <CardHeader><h2 className="font-semibold">Factures relancees</h2></CardHeader>
         <CardContent>
           <Table>
-            <thead><tr><Th>Facture</Th><Th>Date</Th><Th>Echeance</Th><Th>Retard</Th><Th>Total TTC</Th><Th>Paye</Th><Th>Reste</Th></tr></thead>
+            <thead><tr><Th>Facture</Th><Th>Date</Th><Th>Échéance</Th><Th>Retard</Th><Th>Total TTC</Th><Th>Paye</Th><Th>Reste</Th></tr></thead>
             <tbody>{invoices.map((invoice) => <tr key={invoice.id}><Td>{invoice.invoice_number}</Td><Td>{invoice.invoice_date ? formatDate(invoice.invoice_date) : "-"}</Td><Td>{invoice.due_date ? formatDate(invoice.due_date) : "-"}</Td><Td>{invoice.days_overdue ?? 0} j</Td><Td><MoneyDisplay value={invoice.total_ttc} /></Td><Td><MoneyDisplay value={invoice.paid_amount} /></Td><Td><MoneyDisplay value={invoice.remaining_amount} /></Td></tr>)}</tbody>
           </Table>
         </CardContent>

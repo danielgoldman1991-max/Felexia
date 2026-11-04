@@ -33,10 +33,10 @@ export function SalesDocumentsTable({ rows, type, canWrite = false }: { rows: Sa
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th>
+          <Th>Numéro</Th>
           <Th>Client</Th>
           <Th>Date</Th>
-          {isOrderTable ? <Th>Livraison prevue</Th> : null}
+          {isOrderTable ? <Th>Livraison prévue</Th> : null}
           {isReturnTable ? <Th>Motif</Th> : null}
           <Th>Statut</Th>
           {isLogisticsTable ? <Th>Stock</Th> : <Th>Total TTC</Th>}

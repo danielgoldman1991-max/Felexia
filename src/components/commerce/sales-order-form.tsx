@@ -75,7 +75,7 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={order?.third_party_id ?? ""} required>
-              <option value="">Selectionner un client</option>
+              <option value="">Sélectionner un client</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}{c.city ? ` (${c.city})` : ""}</option>
               ))}
@@ -84,7 +84,7 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
           <Field label="Date document">
             <DateField name="document_date" defaultValue={order?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
-          <Field label="Livraison prevue le">
+          <Field label="Livraison prévue le">
             <DateField name="expected_delivery_date" defaultValue={order?.expected_delivery_date ?? ""} />
           </Field>
           <Field label="Delai paiement (jours)">
@@ -126,7 +126,7 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={order ? `/commandes/${order.id}` : "/commandes"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Creer commande" : "Enregistrer"}
+          {mode === "create" ? "Créer commande" : "Enregistrer"}
         </Button>
       </div>
     </form>

@@ -109,7 +109,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
               value={categoryId}
               onChange={(id) => setCategoryId(id)}
               placeholder="Rechercher une categorie..."
-              createLabel="+ Creer une nouvelle categorie"
+              createLabel="+ Créer une nouvelle categorie"
               onCreate={async () => {
                 const code = window.prompt("Code de la categorie (ex: PF) :");
                 if (!code?.trim()) return;
@@ -136,7 +136,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
               value={unitId}
               onChange={(id) => setUnitId(id)}
               placeholder="Rechercher une unite..."
-              createLabel="+ Creer une nouvelle unite"
+              createLabel="+ Créer une nouvelle unite"
               onCreate={async () => {
                 const name = window.prompt("Nom de l'unite (ex: Kilogramme) :");
                 if (!name?.trim()) return;

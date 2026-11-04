@@ -336,7 +336,7 @@ export async function getTreasuryForecast(
       probability: 100,
       weightedAmount: computeWeightedAmount(remaining, 100, "outflow", scenario),
       status: row.status,
-      category: "Echeance fournisseur",
+      category: "Échéance fournisseur",
       href: `/achats/factures/${row.id}`,
       hasFallbackDate: !row.due_date,
     };
@@ -519,7 +519,7 @@ function buildAlerts(params: {
       alerts.push({
         severity: "warning",
         title: "Sorties importantes sous 7 jours",
-        message: `${sevenDayOutflows.toLocaleString("fr-FR")} MAD de sorties prevues dans les 7 prochains jours (${Math.round((sevenDayOutflows / Math.max(openingBalance, 1)) * 100)}% du solde actuel).`,
+        message: `${sevenDayOutflows.toLocaleString("fr-FR")} MAD de sorties prévues dans les 7 prochains jours (${Math.round((sevenDayOutflows / Math.max(openingBalance, 1)) * 100)}% du solde actuel).`,
         amount: round2(sevenDayOutflows),
       });
     }
@@ -538,16 +538,16 @@ function buildAlerts(params: {
   if (overdueInflows.length >= 5) {
     alerts.push({
       severity: "warning",
-      title: "Nombre eleve de factures echues",
-      message: `${overdueInflows.length} factures clients echue(s) non reglees. Lancez des relances.`,
+      title: "Nombre eleve de factures échues",
+      message: `${overdueInflows.length} factures clients échue(s) non reglees. Lancez des relances.`,
     });
   }
 
   if (overdueOutflows.length > 0) {
     alerts.push({
       severity: "info",
-      title: "Echeances fournisseurs en retard",
-      message: `${overdueOutflows.length} facture(s) fournisseur(s) arrivee(s) a echeance.`,
+      title: "Échéances fournisseurs en retard",
+      message: `${overdueOutflows.length} facture(s) fournisseur(s) arrivee(s) a échéance.`,
       amount: round2(overdueOutflows.reduce((sum, item) => sum + item.remainingAmount, 0)),
     });
   }
@@ -572,8 +572,8 @@ function buildAlerts(params: {
   if (invoiceWithoutDueDateCount > 0) {
     alerts.push({
       severity: "info",
-      title: "Factures sans echeance",
-      message: `${invoiceWithoutDueDateCount} facture(s) sans date d'echeance : echeance estimee a 30 jours par defaut.`,
+      title: "Factures sans échéance",
+      message: `${invoiceWithoutDueDateCount} facture(s) sans date d'échéance : échéance estimee a 30 jours par defaut.`,
     });
   }
 

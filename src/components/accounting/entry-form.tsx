@@ -81,7 +81,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">En-tete</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">En-tête</h2></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -92,7 +92,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
                 className="h-9 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--primary)]"
                 required
               >
-                <option value="">Selectionnez un journal</option>
+                <option value="">Sélectionnez un journal</option>
                 {journals.map((j) => (
                   <option key={j.id} value={j.id}>{j.code} - {j.name}</option>
                 ))}
@@ -148,7 +148,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <h2 className="font-semibold">Lignes d&apos;ecriture</h2>
+          <h2 className="font-semibold">Lignes d&apos;écriture</h2>
           <Button type="button" variant="secondary" className="h-8 px-3 text-xs" onClick={addLine}>
             <Plus className="mr-1 h-3.5 w-3.5" />Ajouter une ligne
           </Button>
@@ -157,7 +157,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
           <Table>
             <thead>
               <tr>
-                <Th>Compte</Th><Th>Libelle ligne</Th><Th>Debit</Th><Th>Credit</Th><Th></Th>
+                <Th>Compte</Th><Th>Libellé ligne</Th><Th>Debit</Th><Th>Credit</Th><Th></Th>
               </tr>
             </thead>
             <tbody>
@@ -202,7 +202,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
                       value={line.label}
                       onChange={(e) => setLine(line.id, { label: e.target.value })}
                       className="h-8 w-40 rounded-md border border-[var(--border)] bg-white px-2 text-xs outline-none focus:border-[var(--primary)]"
-                      placeholder="Libelle ligne"
+                      placeholder="Libellé ligne"
                     />
                   </Td>
                   <Td>
@@ -261,7 +261,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/comptabilite/ecritures">Annuler</Link></Button>
-        <Button disabled={pending}>{pending ? "Enregistrement..." : "Creer l'ecriture"}</Button>
+        <Button disabled={pending}>{pending ? "Enregistrement..." : "Créer l'écriture"}</Button>
       </div>
     </form>
   );

@@ -54,14 +54,14 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
   );
 
   const validationError = useMemo(() => {
-    if (payload.length === 0) return "Selectionnez au moins une quantite a livrer.";
+    if (payload.length === 0) return "Sélectionnez au moins une quantité a livrer.";
 
     for (const line of deliverableLines) {
       const quantity = quantities[line.id] ?? 0;
-      if (quantity < 0) return "Une quantite a livrer ne peut pas etre negative.";
-      if (quantity > line.remaining_to_deliver) return "Une quantite a livrer depasse le reliquat disponible.";
+      if (quantity < 0) return "Une quantité a livrer ne peut pas etre negative.";
+      if (quantity > line.remaining_to_deliver) return "Une quantité a livrer depasse le reliquat disponible.";
       if (isIndivisibleUnit(line) && !Number.isInteger(quantity)) {
-        return "La quantite doit etre entiere pour les lignes en unite U.";
+        return "La quantité doit etre entiere pour les lignes en unite U.";
       }
     }
 
@@ -119,7 +119,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                 <Th>Article / Service</Th>
                 <Th>Description</Th>
                 <Th>Commande</Th>
-                <Th>Deja livre</Th>
+                <Th>Déjà livre</Th>
                 <Th>Reste</Th>
                 <Th>A livrer maintenant</Th>
                 <Th>Stock disponible</Th>
@@ -205,7 +205,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={`/vente/commandes/${order.id}`}>Annuler</Link></Button>
-        <Button disabled={pending || Boolean(validationError)}>Creer le BL</Button>
+        <Button disabled={pending || Boolean(validationError)}>Créer le BL</Button>
       </div>
     </form>
   );

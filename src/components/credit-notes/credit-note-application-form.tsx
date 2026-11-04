@@ -44,7 +44,7 @@ export function CreditNoteApplicationForm({ creditNote, invoices }: { creditNote
               <Link href="/tresorerie/mouvements/new" className="mt-3 inline-flex font-semibold text-[var(--primary)] hover:underline">Enregistrer un remboursement</Link>
             </div>
           ) : <Table>
-            <thead><tr><Th>Facture</Th><Th>Date</Th><Th>Echeance</Th><Th>Total</Th><Th>Paye</Th><Th>Avoirs</Th><Th>Reste</Th><Th>Affecter</Th></tr></thead>
+            <thead><tr><Th>Facture</Th><Th>Date</Th><Th>Échéance</Th><Th>Total</Th><Th>Paye</Th><Th>Avoirs</Th><Th>Reste</Th><Th>Affecter</Th></tr></thead>
             <tbody>{invoices.map((invoice) => <tr key={invoice.id}><Td>{invoice.invoice_number}</Td><Td>{formatDate(invoice.invoice_date)}</Td><Td>{invoice.due_date ? formatDate(invoice.due_date) : "-"}</Td><Td><MoneyDisplay value={invoice.total_ttc} /></Td><Td><MoneyDisplay value={invoice.paid_amount} /></Td><Td><MoneyDisplay value={invoice.credit_amount} /></Td><Td><MoneyDisplay value={invoice.remaining_amount} /></Td><Td><Input type="number" min="0" max={invoice.remaining_amount} step="0.01" value={allocations[invoice.id] ?? 0} onChange={(event) => setAllocations((current) => ({ ...current, [invoice.id]: Number(event.target.value || 0) }))} /></Td></tr>)}</tbody>
           </Table>}
         </CardContent>

@@ -3,6 +3,18 @@ export function inventoryVariance(counted: number, theoretical: number) {
   return { counted, theoretical, variance, matched: Math.abs(variance) < 0.001 };
 }
 
+export function inventoryAdjustments(lines: Array<{ productId: string; theoretical: number; counted: number }>) {
+  return lines.flatMap((line) => {
+    const { variance } = inventoryVariance(line.counted, line.theoretical);
+    if (Math.abs(variance) < 0.001) return [];
+    return [{
+      productId: line.productId,
+      direction: variance > 0 ? "in" as const : "out" as const,
+      quantity: Math.round(Math.abs(variance) * 1000) / 1000,
+    }];
+  });
+}
+
 export function reorderSuggestion(onHand: number, minimum: number, incoming = 0) {
   const shortage = Math.round((minimum - onHand - incoming) * 1000) / 1000;
   return { needed: shortage > 0, quantity: Math.max(0, shortage) };

@@ -200,7 +200,7 @@ export async function createManualTreasuryTransaction(prev: TreasuryActionResult
   const amount = num(formData.get("amount"));
   const direction = (text(formData, "direction") ?? "in") as TreasuryTransactionDirection;
   const label = text(formData, "label");
-  if (!accountId) return { success: false, error: "Selectionnez un compte." };
+  if (!accountId) return { success: false, error: "Sélectionnez un compte." };
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a zero." };
   if (!label) return { success: false, error: "Le libelle est obligatoire." };
   const supabase = await createClient();
@@ -214,7 +214,7 @@ export async function createManualTreasuryTransaction(prev: TreasuryActionResult
 
   if (operationMode === "transfer") {
     const destinationAccountId = text(formData, "destination_account_id");
-    if (!destinationAccountId) return { success: false, error: "Selectionnez le compte de destination." };
+    if (!destinationAccountId) return { success: false, error: "Sélectionnez le compte de destination." };
     if (destinationAccountId === accountId) return { success: false, error: "Les comptes source et destination doivent etre differents." };
     const { data: transfer, error: transferError } = await supabase.rpc("create_treasury_transfer", {
       p_source_account_id: accountId,
@@ -291,8 +291,8 @@ export async function importBankStatement(prev: TreasuryActionResult, formData: 
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const accountId = text(formData, "treasury_account_id");
   const file = formData.get("file");
-  if (!accountId) return { success: false, error: "Selectionnez un compte bancaire." };
-  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Selectionnez un fichier CSV." };
+  if (!accountId) return { success: false, error: "Sélectionnez un compte bancaire." };
+  if (!(file instanceof File) || file.size === 0) return { success: false, error: "Sélectionnez un fichier CSV." };
   const fileContent = await file.text();
   const fileHash = hashValue(fileContent);
   const rows = parseCsv(fileContent);
@@ -431,7 +431,7 @@ export async function confirmAutomaticReconciliations(prev: TreasuryActionResult
   const workspace = await requireProWorkspace();
   if (isOperatorRole(workspace.role) || isReadOnlyRole(workspace.role)) return { success: false, error: isReadOnlyRole(workspace.role) ? "Votre accès est en lecture seule." : OPERATOR_ACCESS_ERROR };
   const selected = formData.getAll("suggestions").map((value) => String(value));
-  if (selected.length === 0) return { success: false, error: "Selectionnez au moins une suggestion." };
+  if (selected.length === 0) return { success: false, error: "Sélectionnez au moins une suggestion." };
   const supabase = await createClient();
   let confirmed = 0;
   let ignored = 0;
@@ -512,5 +512,5 @@ export async function createTransactionFromStatementLine(prev: TreasuryActionRes
 export async function unreconcileStatementLine(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
   void prev;
   void formData;
-  return { success: false, error: "Annulation de rapprochement prevue dans une prochaine iteration." };
+  return { success: false, error: "Annulation de rapprochement prévue dans une prochaine iteration." };
 }

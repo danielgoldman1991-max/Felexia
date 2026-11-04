@@ -21,7 +21,7 @@ export default async function NewDeliveryNotePage({
     <ModulePage>
       <PageHeader
         title="Nouveau bon de livraison"
-        description="Choisissez une commande, ajustez les quantites a livrer, puis creez un BL brouillon."
+        description="Choisissez une commande, ajustez les quantités a livrer, puis creez un BL brouillon."
       />
 
       <div className="space-y-5">

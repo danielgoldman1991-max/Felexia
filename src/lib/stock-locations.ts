@@ -149,7 +149,7 @@ export async function getDefaultStockLocationId(organizationId?: string): Promis
     .insert({ organization_id: orgId, name: "Depot principal", code: "DEPOT-PRINCIPAL", location_type: "depot", is_default: true, status: "active" })
     .select("id")
     .single();
-  if (createError || !created) throw new Error(createError?.message ?? "Impossible de creer l'emplacement par defaut.");
+  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer l'emplacement par defaut.");
   return created.id as string;
 }
 

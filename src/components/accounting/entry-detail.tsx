@@ -31,7 +31,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
     return (
       <Card>
         <CardContent className="p-6 text-center text-[var(--muted)]">
-          Ecriture introuvable.
+          Écriture introuvable.
         </CardContent>
       </Card>
     );
@@ -50,12 +50,12 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           href="/comptabilite/ecritures"
           className="inline-flex items-center gap-1 text-sm text-[var(--muted)] hover:text-[var(--foreground)]"
         >
-          <ArrowLeft className="h-4 w-4" /> Retour aux ecritures
+          <ArrowLeft className="h-4 w-4" /> Retour aux écritures
         </Link>
         <div className="flex items-center gap-2">
           {canManage && entry.status === "draft" ? (
             <ButtonForm action={postAction} entryId={entry.id} variant="secondary">
-              <CheckCircle className="mr-1 h-4 w-4" /> Valider l&apos;ecriture
+              <CheckCircle className="mr-1 h-4 w-4" /> Valider l&apos;écriture
             </ButtonForm>
           ) : null}
         </div>
@@ -82,7 +82,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           {entry.notes ? <div className="col-span-2"><span className="text-[var(--muted)]">Notes:</span> {entry.notes}</div> : null}
           {entry.source_document_type === "customer_invoice" ? (
             <div className="col-span-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-soft)] p-3 text-sm text-[var(--muted)]">
-              Pour corriger cette ecriture issue d&apos;une facture client, creez un avoir client depuis la facture ou utilisez une ecriture corrective.
+              Pour corriger cette écriture issue d&apos;une facture client, creez un avoir client depuis la facture ou utilisez une écriture corrective.
             </div>
           ) : null}
         </CardContent>
@@ -91,9 +91,9 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
       <Card>
         <CardHeader>
           <div>
-            <h2 className="font-semibold">Lignes d&apos;ecriture</h2>
+            <h2 className="font-semibold">Lignes d&apos;écriture</h2>
             {!canEditLineAccounts ? (
-              <p className="mt-1 text-xs text-[var(--muted)]">{canManage ? "Cette ecriture est annulee, les lignes ne sont plus modifiables." : "Consultation des écritures comptables."}</p>
+              <p className="mt-1 text-xs text-[var(--muted)]">{canManage ? "Cette écriture est annulee, les lignes ne sont plus modifiables." : "Consultation des écritures comptables."}</p>
             ) : null}
           </div>
         </CardHeader>
@@ -101,7 +101,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           <Table>
             <thead>
               <tr>
-                <Th>Compte</Th><Th>Libelle</Th><Th>Debit</Th><Th>Credit</Th><Th>Action</Th>
+                <Th>Compte</Th><Th>Libellé</Th><Th>Debit</Th><Th>Credit</Th><Th>Action</Th>
               </tr>
             </thead>
             <tbody>
@@ -150,7 +150,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
               <tr>
                 <td colSpan={5} className="px-4 py-3.5 align-middle">
                   <span className={`text-xs font-medium ${balanced ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
-                    {balanced ? "Ecriture equilibree" : "Ecriture desequilibree"}
+                    {balanced ? "Écriture equilibree" : "Écriture desequilibree"}
                   </span>
                 </td>
               </tr>

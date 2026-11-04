@@ -126,7 +126,7 @@ export function CustomerPaymentForm({
       if (request !== openItemsRequest.current) return;
         if (!result.success) {
           setOpenItems(null);
-          setOpenItemsError(result.error ?? "Impossible de charger les echeances du client.");
+          setOpenItemsError(result.error ?? "Impossible de charger les échéances du client.");
           return;
         }
         setOpenItems(result.data as CustomerOpenItemsType);
@@ -163,7 +163,7 @@ export function CustomerPaymentForm({
           <label className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Compte d&apos;encaissement *</span>
             <Select name="treasury_account_id" defaultValue={initialValues?.treasury_account_id ?? treasuryAccounts.find((account) => account.is_default)?.id ?? treasuryAccounts[0]?.id ?? ""} required>
-              <option value="">Selectionner...</option>
+              <option value="">Sélectionner...</option>
               {treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
             </Select>
             {treasuryAccounts.length === 0 ? <Link href="/tresorerie/comptes/new" className="block text-sm text-[var(--primary)] underline">Ajouter un compte bancaire ou une caisse</Link> : null}
@@ -203,7 +203,7 @@ export function CustomerPaymentForm({
             <Input name="bank_name" defaultValue={initialValues?.bank_name ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Numero cheque</span>
+            <span className="font-medium text-[var(--muted)]">Numéro cheque</span>
             <Input name="check_number" defaultValue={initialValues?.check_number ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm">
@@ -211,7 +211,7 @@ export function CustomerPaymentForm({
             <Input name="transfer_reference" defaultValue={initialValues?.transfer_reference ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Echeance cheque/effet</span>
+            <span className="font-medium text-[var(--muted)]">Échéance cheque/effet</span>
             <DateField name="due_date" defaultValue={initialValues?.due_date ?? ""} />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
@@ -229,7 +229,7 @@ export function CustomerPaymentForm({
 
       {!customerId ? (
         <Card>
-          <CardContent className="p-4 text-sm text-[var(--muted)]">Selectionnez d&apos;abord un client pour voir ses echeances ouvertes.</CardContent>
+          <CardContent className="p-4 text-sm text-[var(--muted)]">Sélectionnez d&apos;abord un client pour voir ses échéances ouvertes.</CardContent>
         </Card>
       ) : (
         <CustomerOpenItems
