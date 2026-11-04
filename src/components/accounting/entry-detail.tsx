@@ -101,7 +101,7 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
           <Table>
             <thead>
               <tr>
-                <Th>Compte</Th><Th>Libellé</Th><Th>Debit</Th><Th>Credit</Th><Th>Action</Th>
+                <Th>Compte</Th><Th>Libellé</Th><Th>Code lettrage</Th><Th>Date lettrage</Th><Th>Debit</Th><Th>Credit</Th><Th>Action</Th>
               </tr>
             </thead>
             <tbody>
@@ -123,6 +123,8 @@ export function EntryDetailView({ detail, postAction, updateLineAccountAction, a
                     )}
                   </Td>
                   <Td>{line.label ?? "-"}</Td>
+                  <Td>{line.lettering_code || "—"}</Td>
+                  <Td>{line.lettering_date ? formatDate(line.lettering_date) : "—"}</Td>
                   <Td>{line.debit > 0 ? <MoneyDisplay value={line.debit} /> : "-"}</Td>
                   <Td>{line.credit > 0 ? <MoneyDisplay value={line.credit} /> : "-"}</Td>
                   <Td>

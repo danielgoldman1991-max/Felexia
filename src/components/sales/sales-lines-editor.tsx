@@ -8,6 +8,7 @@ import { Table, Td, Th } from "@/components/ui/table";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { ProductCombobox } from "@/components/sales/product-combobox";
 import { QuickArticleModal } from "@/components/sales/quick-article-modal";
+import { quantityDraftError } from "@/lib/invoice-calculations";
 import {
   calculateSalesLine,
   calculateSalesTotals,
@@ -158,8 +159,12 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
       setError("Saisissez une description.");
       return;
     }
+    if (Number(preparedLine.quantity) < 0) {
+      setError("La quantité ne peut pas être négative.");
+      return;
+    }
     if (Number(preparedLine.quantity) <= 0) {
-      setError("La quantité doit etre superieure a zero.");
+      setError("La quantité doit être supérieure à zéro.");
       return;
     }
     if (isIndivisibleUnit(preparedLine, units) && !Number.isInteger(Number(preparedLine.quantity))) {
@@ -291,15 +296,22 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Quantité</span>
             <Input
-              type="number"
-              min={draftUsesIndivisibleUnit ? "1" : "0"}
-              step={draftUsesIndivisibleUnit ? "1" : "0.001"}
-              value={draftLine.quantity}
+              type="text"
+              inputMode="decimal"
+              value={String(draftLine.quantity)}
               onChange={(event) => {
-                const quantity = toNumber(event.target.value);
+                const raw = event.target.value;
+                const negative = quantityDraftError(raw);
+                if (negative) {
+                  setError(negative);
+                  const parsed = Number(raw.replace(",", "."));
+                  if (Number.isFinite(parsed)) updateDraft({ ...draftLine, quantity: parsed });
+                  return;
+                }
+                const quantity = toNumber(raw.replace(",", "."));
                 updateDraft({
                   ...draftLine,
-                  quantity: draftUsesIndivisibleUnit
+                  quantity: draftUsesIndivisibleUnit && quantity >= 1
                     ? normalizeIndivisibleQuantity(quantity)
                     : quantity,
                 });

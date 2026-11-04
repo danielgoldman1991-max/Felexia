@@ -11,6 +11,7 @@ import {
   calculateTotals,
   createEmptyDraftLine,
 } from "@/lib/commerce-calculations";
+import { quantityDraftError } from "@/lib/invoice-calculations";
 import type { CommerceLineFormValue, ProductForSelect } from "@/lib/commerce-types";
 
 type UnitForSelect = { id: string; name: string; symbol: string };
@@ -116,7 +117,7 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
       return;
     }
 
-    if (Number(draftLine.quantity) < 0) {
+    if (Number(draftLine.quantity) < 0 || Number(preparedLine.quantity) < 0) {
       setError("La quantité ne peut pas être négative.");
       return;
     }
@@ -235,13 +236,22 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
           </label>
 
           <label className="flex flex-col gap-1 text-xs">
-            <span className="font-medium text-[var(--muted)]">Qte</span>
+            <span className="font-medium text-[var(--muted)]">Quantité</span>
             <Input
-              type="number"
-              min="0"
-              step="0.01"
-              value={draftLine.quantity}
-              onChange={(event) => setCalculatedDraftLine({ ...draftLine, quantity: toNumber(event.target.value) })}
+              type="text"
+              inputMode="decimal"
+              value={String(draftLine.quantity)}
+              onChange={(event) => {
+                const raw = event.target.value;
+                const negative = quantityDraftError(raw);
+                if (negative) {
+                  setError(negative);
+                  const parsed = Number(raw.replace(",", "."));
+                  if (Number.isFinite(parsed)) setCalculatedDraftLine({ ...draftLine, quantity: parsed });
+                  return;
+                }
+                setCalculatedDraftLine({ ...draftLine, quantity: toNumber(raw.replace(",", ".")) });
+              }}
             />
           </label>
 

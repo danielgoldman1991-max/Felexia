@@ -5,13 +5,25 @@ import { redirect } from "next/navigation";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isMissingRelation, notifyOrganization } from "@/lib/hr/notify";
 import { decideLeave, type LeaveDecision, type LeaveStatus } from "@/lib/hr/leave-decision";
-import { leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE, serviceMonthsInYear } from "@/lib/hr/leave-balance";
+import { hrDatabaseErrorMessage, isNextControlFlow, leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE, serviceMonthsInYear } from "@/lib/hr/leave-balance";
 import { createClient } from "@/lib/supabase/server";
 
 const decisions = new Set<LeaveDecision>(["approve", "reject", "cancel"]);
 
-export async function decideHrLeaveAction(formData: FormData) {
+export async function decideHrLeaveAction(previous: { error?: string } | FormData, maybeForm?: FormData): Promise<{ error?: string }> {
+  const formData = maybeForm instanceof FormData ? maybeForm : previous instanceof FormData ? previous : new FormData();
   const workspace = await requireWritableHrWorkspace();
+  try {
+  const outcome = await decideHrLeave(workspace, formData);
+  if (outcome) return outcome;
+  } catch (error) {
+    if (isNextControlFlow(error)) throw error;
+    return { error: hrDatabaseErrorMessage(error instanceof Error ? error.message : "") };
+  }
+  return {};
+}
+
+async function decideHrLeave(workspace: Awaited<ReturnType<typeof requireWritableHrWorkspace>>, formData: FormData): Promise<{ error?: string } | void> {
   const requestId = required(formData, "request_id");
   const decision = required(formData, "decision");
   if (!decisions.has(decision as LeaveDecision)) throw new Error("Décision inconnue.");

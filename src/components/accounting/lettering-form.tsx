@@ -12,16 +12,20 @@ type Line = {
   debit: number;
   credit: number;
   label: string | null;
+  lettering_code?: string | null;
+  lettering_date_label?: string | null;
 };
 
 export function LetteringForm({
   action,
   lines,
   suggestedCode = "A",
+  mode = "open",
 }: {
   action: (state: AccountingActionResult, formData: FormData) => Promise<AccountingActionResult>;
   lines: Line[];
   suggestedCode?: string;
+  mode?: "open" | "lettered";
 }) {
   const [state, formAction, pending] = useActionState(action, { success: true });
   const [localError, setLocalError] = useState<string | null>(null);
@@ -34,7 +38,9 @@ export function LetteringForm({
       toast.success(message);
     }
   }, [pending, state]);
-  if (lines.length === 0) return <p className="text-sm text-[var(--muted)]">Aucune ligne ouverte sur 3421 ou 4411.</p>;
+  if (lines.length === 0) {
+    return <p className="text-sm text-[var(--muted)]">{mode === "lettered" ? "Aucune ligne lettrée sur 3421 ou 4411." : "Aucune ligne ouverte sur 3421 ou 4411."}</p>;
+  }
   return (
     <form
       className="space-y-4"
@@ -43,6 +49,17 @@ export function LetteringForm({
         const chosen = lines.filter((line) => selected.includes(line.id));
         const debit = chosen.reduce((sum, line) => sum + Number(line.debit), 0);
         const credit = chosen.reduce((sum, line) => sum + Number(line.credit), 0);
+        if (mode === "lettered") {
+          if (chosen.length < 1) {
+            event.preventDefault();
+            setLocalError("Sélectionnez au moins une ligne à délettrer.");
+            return;
+          }
+          setLocalError(null);
+          event.preventDefault();
+          formAction(new FormData(event.currentTarget));
+          return;
+        }
         if (chosen.length < 2 || Math.abs(debit - credit) > 0.01) {
           event.preventDefault();
           setLocalError(chosen.length < 2
@@ -55,10 +72,10 @@ export function LetteringForm({
         formAction(new FormData(event.currentTarget));
       }}
     >
-      <label className="grid max-w-xs gap-1 text-sm">
+      {mode === "open" ? <label className="grid max-w-xs gap-1 text-sm">
         Code de lettrage
         <input name="lettering_code" maxLength={6} defaultValue={suggestedCode} className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 uppercase" placeholder="Proposé automatiquement" />
-      </label>
+      </label> : <p className="text-sm text-[var(--muted)]">Ces lignes sont lettrées. Le code et la date restent sur le grand livre et le détail de l’écriture.</p>}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -66,6 +83,8 @@ export function LetteringForm({
               <th className="py-2" />
               <th>Compte</th>
               <th>Libellé</th>
+              {mode === "lettered" ? <th>Code lettrage</th> : null}
+              {mode === "lettered" ? <th>Date lettrage</th> : null}
               <th className="text-right">Débit</th>
               <th className="text-right">Crédit</th>
             </tr>
@@ -76,6 +95,8 @@ export function LetteringForm({
                 <td className="py-2"><input type="checkbox" name="line_ids" value={line.id} /></td>
                 <td>{line.account_code}</td>
                 <td>{line.label || line.account_label}</td>
+                {mode === "lettered" ? <td>{line.lettering_code || "—"}</td> : null}
+                {mode === "lettered" ? <td>{line.lettering_date_label || "—"}</td> : null}
                 <td className="text-right">{Number(line.debit).toFixed(2)}</td>
                 <td className="text-right">{Number(line.credit).toFixed(2)}</td>
               </tr>
@@ -84,7 +105,7 @@ export function LetteringForm({
         </table>
       </div>
       {localError || (!state.success && state.error) ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{localError || state.error}</p> : null}
-      <Button type="submit" disabled={pending}>{pending ? "Lettrage…" : "Lettrer la sélection"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? "Enregistrement…" : mode === "lettered" ? "Délettrer la sélection" : "Lettrer la sélection"}</Button>
     </form>
   );
 }

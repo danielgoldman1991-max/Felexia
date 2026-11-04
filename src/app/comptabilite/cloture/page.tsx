@@ -2,7 +2,7 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { PeriodLockButton } from "@/components/accounting/period-lock-button";
 import { listAccountingPeriods } from "@/lib/accounting-actions";
-import { formatDate } from "@/lib/format";
+import { formatFrenchMonth } from "@/lib/format";
 import type { AccountingPeriodRecord } from "@/lib/accounting-types";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +18,8 @@ export default async function ClosePage() {
           const locked = period.status === "locked" || period.status === "closed" || Boolean((period as { locked_at?: string | null }).locked_at);
           return (
             <li key={period.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <div>
-                <p className="font-medium">{period.name}</p>
-                <p className="text-sm text-[var(--muted)]">{formatDate(period.start_date)} – {formatDate(period.end_date)} · {locked ? "Verrouillée" : "Ouverte"}</p>
-              </div>
-              <PeriodLockButton periodId={period.id} locked={locked} />
+              <p className="font-medium capitalize">{formatFrenchMonth(period.start_date)}</p>
+              <PeriodLockButton periodId={period.id} locked={locked} label={`${period.start_date.split("-").reverse().join("/")} – ${period.end_date.split("-").reverse().join("/")}`} />
             </li>
           );
         })}

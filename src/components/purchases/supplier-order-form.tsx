@@ -10,6 +10,7 @@ import { SupplierCombobox } from "@/components/purchases/supplier-combobox";
 import { PurchaseProductCombobox } from "@/components/purchases/purchase-product-combobox";
 import { createSupplierOrder, updateSupplierOrder } from "@/lib/purchase-actions";
 import { DateField } from "@/components/ui/date-field";
+import { quantityDraftError } from "@/lib/invoice-calculations";
 import type { PurchaseLineFormValue, PurchaseDocumentRecord, PurchaseDocumentLineRecord, PurchaseProductOption } from "@/lib/purchase-types";
 
 export function SupplierOrderForm({
@@ -29,6 +30,7 @@ export function SupplierOrderForm({
   const [expectedReceiptDate, setExpectedReceiptDate] = useState(document?.expected_receipt_date ?? "");
   const [notes, setNotes] = useState(document?.notes ?? "");
   const [internalNotes, setInternalNotes] = useState(document?.internal_notes ?? "");
+  const [lineError, setLineError] = useState<string | null>(null);
   const [lines, setLines] = useState<PurchaseLineFormValue[]>(() => {
     if (initialLines && initialLines.length > 0) return initialLines.map((l) => ({ id: l.id, mode: "product" as const, product_id: l.product_id ?? "", product_name: l.product_name ?? "", description: l.description, quantity: l.quantity, unit_id: l.unit_id ?? "", unit_name: l.unit_name ?? "", unit_price_ht: l.unit_price_ht, discount_rate: l.discount_rate, tax_rate_id: l.tax_rate_id ?? "", tax_rate: l.tax_rate, subtotal_ht: l.subtotal_ht, discount_amount: l.discount_amount, tax_amount: l.tax_amount, total_ttc: l.total_ttc }));
     return [];
@@ -68,6 +70,11 @@ export function SupplierOrderForm({
   }, []);
 
   function handleSubmit(formData: FormData) {
+    if (lines.some((line) => Number(line.quantity) < 0)) {
+      setLineError("La quantité ne peut pas être négative.");
+      return;
+    }
+    setLineError(null);
     if (isEdit) { formData.set("id", document!.id); formData.set("expected_updated_at", document!.updated_at); }
     formData.set("supplier_id", supplierId);
     formData.set("document_date", documentDate);
@@ -125,7 +132,7 @@ export function SupplierOrderForm({
                     <tr key={line.id}>
                       <Td>{line.product_name || "Ligne libre"}</Td>
                       <Td><input value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-32 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input type="number" step="1" value={line.quantity} onChange={(e) => updateLine(i, "quantity", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input type="text" inputMode="decimal" value={line.quantity} onChange={(e) => { if (quantityDraftError(e.target.value)) updateLine(i, "quantity", Number(e.target.value.replace(",", "."))); else updateLine(i, "quantity", e.target.value); }} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td><input type="number" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td><input type="number" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
@@ -141,6 +148,7 @@ export function SupplierOrderForm({
           </CardContent>
         </Card>
 
+        {lineError ? <p role="alert" className="mt-2 text-sm text-red-600">{lineError}</p> : null}
         {!state.success && state.error ? (
           <p className="mt-2 text-sm text-red-600">{state.error}</p>
         ) : null}

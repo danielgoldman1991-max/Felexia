@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Table, Td, Th } from "@/components/ui/table";
-import { calculateInvoiceLine, calculateInvoiceTotals, createEmptyInvoiceLine } from "@/lib/invoice-calculations";
+import { calculateInvoiceLine, calculateInvoiceTotals, createEmptyInvoiceLine, quantityDraftError } from "@/lib/invoice-calculations";
 import { isIndivisibleUnit, normalizeIndivisibleQuantity } from "@/lib/sales-calculations";
 import type { InvoiceLineFormValue, InvoiceProductOption } from "@/lib/invoice-types";
 import type { TaxRateForSalesSelect, UnitForSalesSelect } from "@/lib/sales-types";
@@ -67,6 +67,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
     let prepared = calculateInvoiceLine(draft);
     if (prepared.mode === "product" && !prepared.product_id) return setError("Sélectionnez un article ou un service.");
     if (!prepared.description.trim()) return setError("Saisissez une description.");
+    if (prepared.quantity < 0) return setError("La quantité ne peut pas être négative.");
     if (prepared.quantity <= 0) return setError("La quantité doit être supérieure à zéro.");
     if (isIndivisibleUnit(prepared, units) && !Number.isInteger(prepared.quantity)) return setError("La quantité doit être entière pour l’unité U.");
     if (prepared.unit_price_ht < 0) return setError("Le prix ne peut pas être négatif.");
@@ -118,7 +119,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
             <Select value={draft.unit_id} onChange={(event) => {
               const unit = units.find((item) => item.id === event.target.value);
               const next = { ...draft, unit_id: event.target.value, unit_name: unit?.symbol ?? unit?.name ?? "" };
-              update({ ...next, quantity: isIndivisibleUnit(next, units) ? normalizeIndivisibleQuantity(next.quantity) : next.quantity });
+              update({ ...next, quantity: isIndivisibleUnit(next, units) && next.quantity >= 1 ? normalizeIndivisibleQuantity(next.quantity) : next.quantity });
             }}>
               <option value="">--</option>
               {units.map((unit) => <option key={unit.id} value={unit.id}>{unit.symbol}</option>)}
@@ -130,9 +131,17 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
           </label>
           <label className="flex flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Quantité</span>
-            <Input type="number" min={indivisible ? "1" : "0"} step={indivisible ? "1" : "0.001"} value={draft.quantity} onChange={(event) => {
-              const quantity = toNumber(event.target.value);
-              update({ ...draft, quantity: indivisible ? normalizeIndivisibleQuantity(quantity) : quantity });
+            <Input type="text" inputMode="decimal" value={String(draft.quantity)} onChange={(event) => {
+              const raw = event.target.value;
+              const negative = quantityDraftError(raw);
+              if (negative) {
+                setError(negative);
+                const parsed = Number(raw.replace(",", "."));
+                if (Number.isFinite(parsed)) update({ ...draft, quantity: parsed });
+                return;
+              }
+              const quantity = toNumber(raw.replace(",", "."));
+              update({ ...draft, quantity: indivisible && quantity >= 1 ? normalizeIndivisibleQuantity(quantity) : quantity });
             }} />
           </label>
           {fullAccess ? <label className="flex flex-col gap-1 text-xs">

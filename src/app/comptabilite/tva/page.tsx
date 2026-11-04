@@ -81,23 +81,6 @@ export default async function AccountingVatPage() {
         description="Préparation des déclarations de TVA, contrôles et exports fiscaux."
       />
 
-      <Card className="mb-8 border-dashed bg-[linear-gradient(180deg,#fff_0%,#fbfcff_100%)]">
-        <CardContent className="flex flex-col items-center py-12 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
-            <Calculator className="h-7 w-7 text-blue-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-[var(--foreground)]">
-            Module TVA en préparation
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            Les déclarations de TVA, états de contrôle et exports vers la DGI seront disponibles dans une prochaine itération.
-          </p>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-[var(--muted)]">
-            Cette rubrique centralisera prochainement la TVA collectée, la TVA récupérable, les soldes de TVA, les périodes déclaratives et les contrôles avant déclaration.
-          </p>
-        </CardContent>
-      </Card>
-
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
         Synthèse TVA
       </h3>

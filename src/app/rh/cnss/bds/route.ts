@@ -11,13 +11,15 @@ export async function GET(request: Request) {
   const year = Number(url.searchParams.get("year") ?? new Date().getFullYear());
   const month = Number(url.searchParams.get("month") ?? new Date().getMonth() + 1);
   const supabase = await createClient();
-  const { data: period } = await supabase.from("hr_payroll_periods").select("id").eq("organization_id", workspace.organization.id).eq("year", year).eq("month", month).maybeSingle();
-  const { data: slips } = period
-    ? await supabase.from("hr_payslips").select("employee_id, gross_salary, status").eq("organization_id", workspace.organization.id).eq("payroll_period_id", period.id).in("status", ["calculated", "validated", "paid"])
-    : { data: [] };
+  const { data: periods } = await supabase.from("hr_payroll_periods").select("id").eq("organization_id", workspace.organization.id).eq("year", year).eq("month", month);
+  const periodIds = (periods ?? []).map((row) => row.id as string);
+  const loaded = periodIds.length
+    ? await supabase.from("hr_payslips").select("employee_id, gross_salary, status").eq("organization_id", workspace.organization.id).in("payroll_period_id", periodIds)
+    : { data: [] as Array<{ employee_id: string; gross_salary: number | null; status: string | null }> };
+  const slips = (loaded.data ?? []).filter((slip) => ["calculated", "validated", "paid"].includes(String(slip.status)));
   const ids = (slips ?? []).map((slip) => slip.employee_id as string);
   const { data: people } = ids.length
-    ? await supabase.from("hr_employees").select("id, first_name, last_name, cnss_number").in("id", ids)
+    ? await supabase.from("hr_employees").select("id, first_name, last_name, cnss_number").eq("organization_id", workspace.organization.id).in("id", ids)
     : { data: [] };
   const names = new Map((people ?? []).map((employee) => [employee.id as string, employee]));
   const rows = (slips ?? []).map((slip) => {

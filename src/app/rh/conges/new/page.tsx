@@ -1,6 +1,7 @@
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
+import { HrBoundForm } from "@/components/hr/hr-entry-form";
 import { createHrLeaveRequestAction } from "@/lib/hr/actions";
 import { listHrEmployees } from "@/lib/hr/hr";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
@@ -22,7 +23,7 @@ export default async function NewHrLeavePage() {
   return (
     <ModulePage>
       <PageHeader title="Nouvelle demande de congé" description="La demande reste en attente jusqu'à validation. Le calcul des droits légaux reste préparatoire." />
-      <form action={createHrLeaveRequestAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
+      <HrBoundForm action={createHrLeaveRequestAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
         <label className="space-y-1 text-sm md:col-span-2">
           <span className="font-medium">Salarié</span>
           <select name="employee_id" required className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
@@ -56,7 +57,7 @@ export default async function NewHrLeavePage() {
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit">Enregistrer la demande</Button>
         </div>
-      </form>
+      </HrBoundForm>
     </ModulePage>
   );
 }

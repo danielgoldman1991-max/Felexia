@@ -51,7 +51,7 @@ function parseLines(formData: FormData): AccountingEntryLineFormValue[] {
 
 
 async function saveAtomicAccountingEntry(supabase: Awaited<ReturnType<typeof createClient>>, header: Record<string, unknown>, lines: Record<string, unknown>[]) {
-  if (header.status === "posted" && header.organization_id) {
+  if (header.organization_id && header.entry_date) {
     try {
       const { assertDateInOpenPeriod } = await import("@/lib/accounting/period-lock");
       await assertDateInOpenPeriod(supabase, String(header.organization_id), String(header.entry_date ?? ""));
@@ -209,7 +209,16 @@ export async function listAccountingEntries(filters?: {
     .range(from, to);
 
   if (error) return { success: false, error: financialErrorMessage(error) } as AccountingActionResult;
-  return { success: true, data: { entries: data ?? [], total: count ?? 0 } } as AccountingActionResult;
+  const entries = (data ?? []).map((entry) => {
+    const journalValue = (entry as { journal?: { code?: string; name?: string } | Array<{ code?: string; name?: string }> }).journal;
+    const journal = Array.isArray(journalValue) ? journalValue[0] : journalValue;
+    return {
+      ...entry,
+      journal_code: journal?.code ?? null,
+      journal_name: journal?.name ?? null,
+    };
+  });
+  return { success: true, data: { entries, total: count ?? 0 } } as AccountingActionResult;
 }
 
 export async function getAccountingEntry(id: string) {
@@ -1626,7 +1635,28 @@ export async function letterAccountingLines(prev: AccountingActionResult, formDa
   if (updateError) return { success: false, error: financialErrorMessage(updateError) };
   await logAudit(workspace.organization.id, "letter_accounting_lines", "accounting_entry_lines", ids[0], { code, count: ids.length });
   revalidatePath("/comptabilite/lettrage");
+  revalidatePath("/comptabilite/grand-livre");
+  revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { message: `Lettrage ${code} enregistré.` } };
+}
+
+export async function unletterAccountingLines(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  const workspace = await requireProWorkspace();
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "Le délettrage est réservé au propriétaire, à l’administrateur ou au comptable." };
+  const ids = formData.getAll("line_ids").map((value) => String(value).trim()).filter(Boolean);
+  if (ids.length === 0) return { success: false, error: "Sélectionnez au moins une ligne lettrée." };
+  const supabase = await createClient();
+  let updateError = (await supabase.from("accounting_entry_lines").update({ lettering_code: null, lettering_date: null }).eq("organization_id", workspace.organization.id).in("id", ids)).error;
+  if (updateError && (updateError.code === "42703" || updateError.code === "PGRST204")) {
+    updateError = (await supabase.from("accounting_entry_lines").update({ lettering_code: null }).eq("organization_id", workspace.organization.id).in("id", ids)).error;
+  }
+  if (updateError) return { success: false, error: financialErrorMessage(updateError) };
+  await logAudit(workspace.organization.id, "unletter_accounting_lines", "accounting_entry_lines", ids[0], { count: ids.length });
+  revalidatePath("/comptabilite/lettrage");
+  revalidatePath("/comptabilite/grand-livre");
+  revalidatePath("/comptabilite/ecritures");
+  return { success: true, data: { message: "Lettrage retiré." } };
 }
 
 export async function setAccountingPeriodLock(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {

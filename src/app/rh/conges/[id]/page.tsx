@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/erp/status-badge";
 import { Button } from "@/components/ui/button";
 import { HrManagementAction } from "@/components/hr/hr-management-action";
 import { requireHrWorkspace } from "@/lib/hr/access";
+import { HrBoundForm } from "@/components/hr/hr-entry-form";
 import { decideHrLeaveAction } from "@/lib/hr/leave-actions";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
@@ -50,7 +51,7 @@ export default async function HrLeaveDetailPage({ params }: { params: Promise<{ 
       </div>
       {pending || approved ? (
         <HrManagementAction>
-          <form action={decideHrLeaveAction} className="mt-4 grid max-w-3xl gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-5">
+          <HrBoundForm action={decideHrLeaveAction} className="mt-4 grid max-w-3xl gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-5">
             <input type="hidden" name="request_id" value={request.id} />
             <label className="space-y-1 text-sm">
               <span className="font-medium">Commentaire</span>
@@ -62,7 +63,7 @@ export default async function HrLeaveDetailPage({ params }: { params: Promise<{ 
               <Button name="decision" value="cancel" variant="ghost">Annuler la demande</Button>
             </div>
             <p className="text-sm text-[var(--muted)]">L&apos;acceptation décompte le solde des congés payés. Le refus le laisse inchangé. L&apos;annulation d&apos;un congé déjà accepté recrédite les jours.</p>
-          </form>
+          </HrBoundForm>
         </HrManagementAction>
       ) : null}
       <section className="mt-6">

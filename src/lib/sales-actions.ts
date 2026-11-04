@@ -80,8 +80,11 @@ function normalizeLines(rawLines: Record<string, unknown>[]): { lines: SalesLine
     if (!line.description.trim()) {
       return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
     }
+    if (line.quantity < 0) {
+      return { lines: [], error: "La quantité ne peut pas être négative." };
+    }
     if (line.quantity <= 0) {
-      return { lines: [], error: "Les quantités doivent etre superieures a zero." };
+      return { lines: [], error: "Les quantités doivent être supérieures à zéro." };
     }
     if (line.unit_price_ht < 0) {
       return { lines: [], error: "Le prix ne peut pas être négatif." };

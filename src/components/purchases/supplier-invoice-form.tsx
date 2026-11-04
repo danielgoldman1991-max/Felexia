@@ -14,7 +14,7 @@ import { DateField } from "@/components/ui/date-field";
 import { createSupplierInvoice, updateSupplierInvoice } from "@/lib/purchase-actions";
 import { calculateSupplierInvoiceLine } from "@/lib/purchase-line-amounts";
 import { dueDateFromTerms } from "@/lib/payment-terms";
-import { roundInvoice2 } from "@/lib/invoice-calculations";
+import { quantityDraftError, roundInvoice2 } from "@/lib/invoice-calculations";
 import type { SupplierInvoiceLineFormValue, BillableSupplierReceipt, SupplierInvoiceRecord, SupplierInvoiceLineRecord, PurchaseProductOption } from "@/lib/purchase-types";
 
 export function SupplierInvoiceForm({
@@ -54,6 +54,7 @@ export function SupplierInvoiceForm({
   const [sourceReceiptId, setSourceReceiptId] = useState(invoice?.source_receipt_id ?? prefilledSourceReceiptId ?? "");
   const [showReceiptsModal, setShowReceiptsModal] = useState(false);
 
+  const [lineError, setLineError] = useState<string | null>(null);
   const [lines, setLines] = useState<SupplierInvoiceLineFormValue[]>(() => {
     if (initialLines && initialLines.length > 0) return initialLines.map((l) => ({ id: l.id, mode: "product" as const, product_id: l.product_id ?? "", product_name: l.product_name ?? "", description: l.description, quantity: l.quantity, unit_id: l.unit_id ?? "", unit_name: l.unit_name ?? "", unit_price_ht: l.unit_price_ht, discount_rate: l.discount_rate, tax_rate_id: l.tax_rate_id ?? "", tax_rate: l.tax_rate, subtotal_ht: l.subtotal_ht, discount_amount: l.discount_amount, tax_amount: l.tax_amount, total_ttc: l.total_ttc, source_line_id: l.source_line_id, source_document_id: l.source_document_id }));
     if (prefillLines && prefillLines.length > 0) return prefillLines;
@@ -122,6 +123,11 @@ export function SupplierInvoiceForm({
   }, []);
 
   function handleSubmit(formData: FormData) {
+    if (lines.some((line) => Number(line.quantity) < 0)) {
+      setLineError("La quantité ne peut pas être négative.");
+      return;
+    }
+    setLineError(null);
     if (isEdit) formData.set("id", invoice!.id);
     formData.set("supplier_id", supplierId);
     formData.set("invoice_date", invoiceDate);
@@ -208,7 +214,7 @@ export function SupplierInvoiceForm({
                     <tr key={line.id}>
                       {fullAccess ? <Td>{line.product_name || "Ligne libre"}</Td> : null}
                       <Td><input aria-label={`Description de la ligne ${i + 1}`} required value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-48 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
-                      <Td><input aria-label={`Quantité de la ligne ${i + 1}`} type="number" min="0.001" step="0.001" value={line.quantity} onChange={(e) => updateLine(i, "quantity", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
+                      <Td><input aria-label={`Quantité de la ligne ${i + 1}`} type="text" inputMode="decimal" value={line.quantity} onChange={(e) => { if (quantityDraftError(e.target.value)) updateLine(i, "quantity", Number(e.target.value.replace(",", "."))); else updateLine(i, "quantity", e.target.value); }} className="w-20 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
                       {fullAccess ? <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.unit_name ? <Badge tone="warning">À compléter</Badge> : null}</Td> : null}
                       <Td><input aria-label={`Prix HT de la ligne ${i + 1}`} type="number" min="0.01" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-24 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
                       {fullAccess ? <Td><input type="number" min="0" max="100" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td> : null}
@@ -225,6 +231,7 @@ export function SupplierInvoiceForm({
           <CardContent className="flex flex-wrap justify-end gap-4 border-t border-[var(--border)] pt-4 text-sm"><span>Total HT : {totals.ht.toFixed(2)} MAD</span><span>TVA : {totals.tax.toFixed(2)} MAD</span><strong>Total TTC : {totals.ttc.toFixed(2)} MAD</strong></CardContent>
         </Card>
 
+        {lineError ? <p role="alert" className="mt-2 text-sm text-red-600">{lineError}</p> : null}
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
         <div className="mt-6 flex gap-3">

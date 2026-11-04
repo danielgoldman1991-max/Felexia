@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { PageHeader } from "@/components/erp/page-header";
@@ -23,7 +24,7 @@ export default async function SecuritePage() {
 
   return (
     <div>
-      <PageHeader title="Sécurité" description="Mot de passe, sessions et journal d'activité." />
+      <PageHeader title="Sécurité" description="Mot de passe, sessions et journal d'activité." actions={<Link className="text-sm font-semibold text-[var(--primary)]" href="/parametres/audit">Journal d’audit</Link>} />
       <SecuritySettings
         userEmail={profile?.email ?? user?.email ?? ""}
         userName={profile?.full_name ?? ""}

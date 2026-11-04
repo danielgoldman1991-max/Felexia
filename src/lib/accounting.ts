@@ -919,6 +919,8 @@ export type AccountingReportLine = {
   entry_reference: string | null;
   journal_code: string;
   journal_name: string;
+  lettering_code: string | null;
+  lettering_date: string | null;
 };
 
 export async function getAccountingReportLines(filters: { dateFrom?: string; dateTo?: string; accountCode?: string; thirdParty?: string } = {}): Promise<AccountingReportLine[]> {
@@ -929,7 +931,7 @@ export async function getAccountingReportLines(filters: { dateFrom?: string; dat
   const data = await readAllPages((from, to) => {
     let query = supabase
       .from("accounting_entry_lines")
-      .select("id, line_number, account_id, account_code, account_label, debit, credit, label, entry:accounting_entries!inner(id, entry_number, entry_date, reference, label, status, journal:accounting_journals(code, name))")
+      .select("id, line_number, account_id, account_code, account_label, debit, credit, label, lettering_code, lettering_date, entry:accounting_entries!inner(id, entry_number, entry_date, reference, label, status, journal:accounting_journals(code, name))")
       .eq("organization_id", organizationId)
       .eq("entry.status", "posted");
 
@@ -962,6 +964,8 @@ export async function getAccountingReportLines(filters: { dateFrom?: string; dat
       entry_reference: entry?.reference ? String(entry.reference) : null,
       journal_code: String(journal?.code ?? ""),
       journal_name: String(journal?.name ?? ""),
+      lettering_code: row.lettering_code ? String(row.lettering_code) : null,
+      lettering_date: row.lettering_date ? String(row.lettering_date) : null,
     };
   }).filter((line) => !needle || `${line.label ?? ""} ${line.entry_label} ${line.account_label} ${line.entry_reference ?? ""}`.toLocaleLowerCase("fr").includes(needle))
     .sort((a, b) => a.entry_date.localeCompare(b.entry_date) || a.entry_number.localeCompare(b.entry_number) || a.line_number - b.line_number);

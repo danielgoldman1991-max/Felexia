@@ -15,7 +15,7 @@ export function declarationToSimplLines(lines: Array<{ code: string; amountMad: 
     { code: "130", base: 0, tax: amounts.get("130") ?? 0 },
     { code: "190", base: 0, tax: amounts.get("190") ?? 0 },
   ];
-  return pairs.filter((line) => line.base !== 0 || line.tax !== 0);
+  return pairs.filter((line) => line.code === "092" || line.base !== 0 || line.tax !== 0);
 }
 
 export function validateSimpl(ice: string, period: string, lines: SimplLine[]): string[] {
