@@ -28,7 +28,7 @@ export function StockMovementsTable({ movements, unitSymbol }: { movements: Stoc
           <Th>Date</Th>
           <Th>Type</Th>
           <Th>Direction</Th>
-          <Th>Quantite</Th>
+          <Th>Quantité</Th>
           <Th>Solde apres</Th>
           <Th>Depot</Th>
           <Th>Document source</Th>

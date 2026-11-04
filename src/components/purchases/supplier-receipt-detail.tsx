@@ -74,7 +74,7 @@ export function SupplierReceiptDetail({
             {isInvoiced ? (
               <Button variant="secondary" asChild><Link href={`/achats/factures/${existingInvoice!.id}`}><FileText className="h-4 w-4" /> Voir facture</Link></Button>
             ) : canWrite && document.status === "validated" ? (
-              <Button variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer facture</Link></Button>
+              <Button variant="secondary" asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Créer facture</Link></Button>
             ) : null}
             {canValidate ? (
               <ActionForm label="Valider reception" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(validateSupplierReceipt, document.id)} />
@@ -197,7 +197,7 @@ export function SupplierReceiptDetail({
           </CardHeader>
           <CardContent>
             <Table>
-              <thead><tr><Th>Produit</Th><Th>Quantite</Th><Th>Direction</Th><Th>Type</Th><Th>Entrepot</Th><Th>Date</Th></tr></thead>
+              <thead><tr><Th>Produit</Th><Th>Quantité</Th><Th>Direction</Th><Th>Type</Th><Th>Entrepot</Th><Th>Date</Th></tr></thead>
               <tbody>
                 {stockMoves.map((move) => (
                   <tr key={move.id}>
@@ -205,7 +205,7 @@ export function SupplierReceiptDetail({
                     <Td className="text-right">{formatNumber(move.quantity)}</Td>
                     <Td>
                       {move.direction === "in" ? (
-                        <Badge tone="success">Entree</Badge>
+                        <Badge tone="success">Entrée</Badge>
                       ) : (
                         <Badge tone="danger">Sortie</Badge>
                       )}
@@ -242,7 +242,7 @@ export function SupplierReceiptDetail({
             </div>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-            <Info label="Numero" value={existingInvoice.invoice_number} />
+            <Info label="Numéro" value={existingInvoice.invoice_number} />
             <Info label="Date" value={formatDate(existingInvoice.invoice_date)} />
             <Info label="Total TTC" value={<MoneyDisplay value={existingInvoice.total_ttc} />} />
             <Info label="Reste a payer" value={<MoneyDisplay value={existingInvoice.remaining_amount} />} />
@@ -260,9 +260,9 @@ export function SupplierReceiptDetail({
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-[var(--muted)]">Cette reception n&apos;est pas encore facturee.</p>
+            <p className="text-sm text-[var(--muted)]">Cette reception n&apos;est pas encore facturée.</p>
             {canWrite ? <div className="mt-3">
-              <Button asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Creer la facture fournisseur</Link></Button>
+              <Button asChild><Link href={`/achats/factures/new?receiptId=${document.id}`}><FileText className="h-4 w-4" /> Créer la facture fournisseur</Link></Button>
             </div> : null}
           </CardContent>
         </Card>

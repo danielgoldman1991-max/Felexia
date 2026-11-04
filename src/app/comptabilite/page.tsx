@@ -23,7 +23,7 @@ export default async function AccountingPage() {
   const sections = [
     { title: "Plan comptable", href: "/comptabilite/plan-comptable", count: accounts.length, description: "Comptes comptables" },
     { title: "Journaux", href: "/comptabilite/journaux", count: journals.length, description: "Journaux de saisie" },
-    { title: "Ecritures", href: "/comptabilite/ecritures", count: entries.total, description: "Saisie et consultation" },
+    { title: "Écritures", href: "/comptabilite/ecritures", count: entries.total, description: "Saisie et consultation" },
     { title: "Auxiliaires", href: "/comptabilite/auxiliaires", count: 0, description: "Tiers comptables" },
     { title: "Exercices", href: "/comptabilite/exercices", count: 0, description: "Exercices et periodes" },
     { title: "Balance", href: "/comptabilite/balance", count: 0, description: "Balance des comptes" },

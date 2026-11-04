@@ -98,14 +98,14 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
       <details open={fullAccess} className="rounded-xl border border-[var(--border)] p-4">
         <summary className="cursor-pointer text-sm font-medium">{canPostAccounting && !accountingEntry?.entry && !["draft", "cancelled"].includes(payment.status) ? "Journal comptable · Comptabiliser" : "Journal comptable"}</summary>
         <Card className="mt-3">
-        <CardHeader><h2 className="font-semibold">Comptabilite</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Comptabilité</h2></CardHeader>
         <CardContent>
           {accountingEntry?.entry ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm">
-                    Ecriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
+                    Écriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
                   </p>
                   <p className="text-xs text-[var(--muted)]">
                     Journal: {String(accountingEntry.entry.journal_code ?? "-")} | {formatDate(String(accountingEntry.entry.entry_date ?? ""))}
@@ -119,13 +119,13 @@ export function CustomerPaymentDetail({ payment, allocations, accountingEntry, f
                 <span className="text-[var(--muted)]">Total debit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_debit ?? 0)} /></strong></span>
                 <span className="text-[var(--muted)]">Total credit: <strong className="text-[var(--foreground)]"><MoneyDisplay value={Number(accountingEntry.entry.total_credit ?? 0)} /></strong></span>
               </div>
-              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;ecriture</Link></Button>
+              <Button variant="secondary" className="h-8 px-3 text-xs" asChild><Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`}>Voir l&apos;écriture</Link></Button>
             </div>
           ) : payment.status === "draft" || payment.status === "cancelled" ? (
             <p className="text-sm text-[var(--muted)]">Confirmez d&apos;abord le paiement client avant de le comptabiliser.</p>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-[var(--muted)]">Aucune ecriture comptable generee pour ce paiement.</p>
+              <p className="text-sm text-[var(--muted)]">Aucune écriture comptable generee pour ce paiement.</p>
               {canPostAccounting ? <ActionForm label="Comptabiliser" icon={<BookOpenCheck className="h-4 w-4" />} action={accountingActionWithPaymentId(postCustomerPaymentToAccounting, payment.id)} /> : null}
             </div>
           )}

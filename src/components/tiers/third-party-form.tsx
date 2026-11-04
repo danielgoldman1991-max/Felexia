@@ -410,7 +410,15 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       </OptionalSection>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          <p>{state.error}</p>
+          {state.data?.duplicate ? (
+            <label className="flex items-start gap-2">
+              <input type="checkbox" name="confirm_duplicate" className="mt-1" />
+              <span>Je confirme l’enregistrement malgré ce doublon. Les fiches ne seront pas fusionnées.</span>
+            </label>
+          ) : null}
+        </div>
       ) : null}
 
       <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow-sm)]">

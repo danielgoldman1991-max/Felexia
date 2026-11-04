@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     "Source",
     "Tiers",
     "Document",
-    "Libelle",
+    "Libellé",
     "Montant (MAD)",
     "Probabilite (%)",
     "Montant pondere (MAD)",
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     const balance = balanceByDate.get(item.dueDate < from ? from : item.dueDate);
     return [
       item.dueDate,
-      item.direction === "inflow" ? "Entree" : "Sortie",
+      item.direction === "inflow" ? "Entrée" : "Sortie",
       sourceLabel(item.sourceType),
       item.thirdPartyName ?? "",
       item.documentNumber ?? "",

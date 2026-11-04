@@ -9,6 +9,7 @@ import { PAYMENT_TERMS_OPTIONS, PAYMENT_METHOD_OPTIONS } from "@/lib/payment-opt
 import { COUNTRY_OPTIONS } from "@/lib/location-options";
 import { SUPPLIER_PURCHASE_TERMS_OPTIONS, SUPPLIER_PAYMENT_METHOD_OPTIONS } from "@/lib/supplier-options";
 import type { ThirdPartyKind } from "@/lib/third-party-types";
+import { duplicateThirdWarning } from "@/lib/tiers/duplicate-third";
 
 const ATTACHMENTS_BUCKET = "third-party-attachments";
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
@@ -25,7 +26,7 @@ const ALLOWED_ATTACHMENT_EXTENSIONS = new Set(["pdf", "jpg", "jpeg", "png", "web
 export type ThirdPartyActionResult = {
   success: boolean;
   error?: string;
-  data?: unknown;
+  data?: { duplicate?: boolean };
 };
 
 function text(formData: FormData, key: string) {
@@ -137,7 +138,7 @@ function validateThirdParty(formData: FormData): ParsedThirdParty {
   }
 
   if (types.length === 0) {
-    return { error: "Selectionnez au moins un type: Prospect, Client ou Fournisseur." };
+    return { error: "Sélectionnez au moins un type: Prospect, Client ou Fournisseur." };
   }
 
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -273,6 +274,27 @@ function thirdPartyPayload(
   };
 }
 
+async function warnDuplicateThird(organizationId: string, formData: FormData, ignoreId?: string) {
+  if (formData.get("confirm_duplicate") === "on") return null;
+  const name = text(formData, "name") ?? "";
+  const ice = text(formData, "ice");
+  if (!name) return null;
+  const supabase = await createClient();
+  const escaped = name.replace(/[%_\\]/g, "\\$&");
+  const [byIce, byName] = await Promise.all([
+    ice ? supabase.from("third_parties").select("id, name, ice").eq("organization_id", organizationId).eq("ice", ice).is("archived_at", null).limit(5) : Promise.resolve({ data: [], error: null }),
+    supabase.from("third_parties").select("id, name, ice").eq("organization_id", organizationId).ilike("name", escaped).is("archived_at", null).limit(5),
+  ]);
+  if (byIce.error || byName.error) return null;
+  const seen = new Set<string>();
+  const matches = [...(byIce.data ?? []), ...(byName.data ?? [])].filter((row) => {
+    if (seen.has(row.id)) return false;
+    seen.add(row.id);
+    return true;
+  });
+  return duplicateThirdWarning(matches, { name, ice }, ignoreId);
+}
+
 export async function createThirdParty(
   previousState: ThirdPartyActionResult,
   formData: FormData,
@@ -285,6 +307,8 @@ export async function createThirdParty(
   }
 
   const supabase = await createClient();
+  const duplicate = await warnDuplicateThird(workspace.organization.id, formData);
+  if (duplicate) return { success: false, error: duplicate, data: { duplicate: true } };
   const payload = thirdPartyPayload(formData, workspace.organization.id, workspace.userId, parsed);
   const { data, error } = await supabase.from("third_parties").insert(payload).select("id").single();
 
@@ -711,7 +735,7 @@ export async function uploadThirdPartyAttachment(
   }
 
   if (!(file instanceof File) || file.size === 0) {
-    return { success: false, error: "Selectionnez un fichier a joindre." };
+    return { success: false, error: "Sélectionnez un fichier a joindre." };
   }
 
   if (file.size > MAX_ATTACHMENT_SIZE) {

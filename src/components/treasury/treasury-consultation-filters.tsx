@@ -64,7 +64,7 @@ export function TreasuryConsultationFilters({ accounts }: { accounts: TreasuryAc
           <label className="mb-1 block text-xs font-semibold text-[var(--muted)]">Sens</label>
           <Select value={sp.get("direction") ?? ""} onChange={(e) => setParam("direction", e.target.value)}>
             <option value="">Tous</option>
-            <option value="in">Entree</option>
+            <option value="in">Entrée</option>
             <option value="out">Sortie</option>
           </Select>
         </div>
@@ -88,7 +88,7 @@ export function TreasuryConsultationFilters({ accounts }: { accounts: TreasuryAc
             <option value="">Tous</option>
             <option value="posted">Comptabilise</option>
             <option value="not_posted">Non comptabilise</option>
-            <option value="not_applicable">Sans ecriture</option>
+            <option value="not_applicable">Sans écriture</option>
           </Select>
         </div>
         <div>
@@ -109,7 +109,7 @@ export function TreasuryConsultationFilters({ accounts }: { accounts: TreasuryAc
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
             <input
               type="text"
-              placeholder="Libelle, reference, tiers..."
+              placeholder="Libellé, reference, tiers..."
               className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[rgb(124_79_242_/_16%)]"
               value={sp.get("q") ?? ""}
               onChange={(e) => setParam("q", e.target.value)}

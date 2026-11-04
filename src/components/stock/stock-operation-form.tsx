@@ -53,7 +53,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
   function handleQuantityChange(value: string) {
     setQuantity(value);
     if (isUnitU && value.includes(".")) {
-      setQtyError("La quantite doit etre un nombre entier pour l'unite U.");
+      setQtyError("La quantité doit etre un nombre entier pour l'unite U.");
     } else {
       setQtyError(null);
     }
@@ -70,7 +70,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
       <input type="hidden" name="product_id" value={productId} />
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">{mode === "entry" ? "Entree manuelle" : "Ajustement stock"}</h2>
+          <h2 className="font-semibold">{mode === "entry" ? "Entrée manuelle" : "Ajustement stock"}</h2>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <div className="space-y-2 lg:col-span-2">
@@ -92,7 +92,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
             <label className="space-y-2 text-sm">
               <span className="font-medium text-[var(--foreground)]">Type d&apos;ajustement</span>
               <Select name="direction" defaultValue="in">
-                <option value="in">Entree / correction positive</option>
+                <option value="in">Entrée / correction positive</option>
                 <option value="out">Sortie / correction negative</option>
               </Select>
             </label>
@@ -109,7 +109,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
           </label>
 
           <label className="space-y-2 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Quantite</span>
+            <span className="font-medium text-[var(--foreground)]">Quantité</span>
             <Input
               name="quantity"
               type="number"

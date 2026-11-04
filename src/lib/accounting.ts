@@ -37,7 +37,7 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
   { code: "3455", name: "Etat - TVA recuperable", type: "tax" },
   { code: "3488", name: "Divers debiteurs", type: "asset" },
   { code: "4411", name: "Fournisseurs", type: "third_party" },
-  { code: "4455", name: "Etat - TVA facturee", type: "tax" },
+  { code: "4455", name: "Etat - TVA facturée", type: "tax" },
   { code: "4488", name: "Divers crediteurs", type: "liability" },
   { code: "4501", name: "Etat - Impots et taxes", type: "liability" },
   { code: "5141", name: "Banques", type: "treasury" },
@@ -85,11 +85,11 @@ export const DEFAULT_CHART_OF_ACCOUNTS = [
 ] as const;
 
 export const DEFAULT_ACCOUNTING_JOURNALS = [
-  { code: "VE", name: "Journal des ventes", type: "sales", description: "Ecritures de ventes et facturation client" },
-  { code: "AC", name: "Journal des achats", type: "purchases", description: "Ecritures d'achats et facturation fournisseur" },
+  { code: "VE", name: "Journal des ventes", type: "sales", description: "Écritures de ventes et facturation client" },
+  { code: "AC", name: "Journal des achats", type: "purchases", description: "Écritures d'achats et facturation fournisseur" },
   { code: "BQ", name: "Journal banque", type: "bank", description: "Operations bancaires" },
   { code: "CA", name: "Journal caisse", type: "cash", description: "Operations de caisse" },
-  { code: "OD", name: "Operations diverses", type: "od", description: "Ecritures diverses et corrections" },
+  { code: "OD", name: "Operations diverses", type: "od", description: "Écritures diverses et corrections" },
 ] as const;
 
 function round2(value: number) {
@@ -415,7 +415,7 @@ export async function getEntryWithLinesBySource(
 
 function accountingEntryStep(entry: { id: string; entry_number: string; status: string | null }): DocumentFlowStep {
   return {
-    label: "Ecriture",
+    label: "Écriture",
     number: entry.entry_number,
     href: `/comptabilite/ecritures/${entry.id}`,
     status: entry.status,
@@ -542,7 +542,7 @@ export async function getOrCreateAccountId(
     })
     .select("id")
     .single();
-  if (!data) throw new Error(`Impossible de creer le compte ${accountNumber}`);
+  if (!data) throw new Error(`Impossible de créer le compte ${accountNumber}`);
   return data.id;
 }
 
@@ -612,7 +612,7 @@ export function buildCustomerInvoiceLines(
       account_name: "TVA collectee",
       debit: 0,
       credit: round2(totalVat),
-      label: "TVA facturee",
+      label: "TVA facturée",
     });
   }
 

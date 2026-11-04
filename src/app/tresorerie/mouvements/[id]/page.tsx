@@ -32,7 +32,7 @@ export default async function TreasuryTransactionDetailPage({ params }: { params
           <CardContent className="grid gap-3 text-sm md:grid-cols-2">
             <p><span className="text-[var(--muted)]">Compte :</span> {tx.account_name ?? tx.treasury_account_id}</p>
             <p><span className="text-[var(--muted)]">Type :</span> {TREASURY_TRANSACTION_TYPE_LABELS[tx.transaction_type]}</p>
-            <p><span className="text-[var(--muted)]">Sens :</span> <Badge tone={tx.direction === "in" ? "success" : "warning"}>{tx.direction === "in" ? "Entree" : "Sortie"}</Badge></p>
+            <p><span className="text-[var(--muted)]">Sens :</span> <Badge tone={tx.direction === "in" ? "success" : "warning"}>{tx.direction === "in" ? "Entrée" : "Sortie"}</Badge></p>
             <p><span className="text-[var(--muted)]">Montant :</span> <MoneyDisplay value={tx.amount} /></p>
             <p><span className="text-[var(--muted)]">Date :</span> {tx.transaction_date}</p>
             <p><span className="text-[var(--muted)]">Reference :</span> {tx.reference ?? "-"}</p>

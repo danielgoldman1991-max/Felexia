@@ -25,6 +25,7 @@ export default async function InventoryPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" asChild><Link href="/stock/transferts">Transférer</Link></Button>
             <Button asChild><Link href="/stock/ajustements/new">Nouvel ajustement</Link></Button>
+            <Button variant="secondary" asChild><Link href="/stock/inventaire/sessions">Inventaire physique</Link></Button>
           </div>
         ) : null}
       />

@@ -35,7 +35,7 @@ export function ChartOfAccountForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Numero de compte *</label>
+          <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Numéro de compte *</label>
           <input
             type="text"
             name="code"
@@ -78,7 +78,7 @@ export function ChartOfAccountForm({
         <div>
           <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Type de compte</label>
           <Select name="type" defaultValue={account?.type ?? ""}>
-            <option value="">Selectionnez...</option>
+            <option value="">Sélectionnez...</option>
             {ACCOUNT_TYPE_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </Select>
         </div>
@@ -115,7 +115,7 @@ export function ChartOfAccountForm({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={pending}><Save className="h-4 w-4" /> {isEdit ? "Enregistrer les modifications" : "Creer le compte"}</Button>
+        <Button type="submit" disabled={pending}><Save className="h-4 w-4" /> {isEdit ? "Enregistrer les modifications" : "Créer le compte"}</Button>
         <Button type="button" variant="secondary" onClick={() => router.push("/comptabilite/plan-comptable")}><ArrowLeft className="h-4 w-4" /> Annuler</Button>
       </div>
     </form>

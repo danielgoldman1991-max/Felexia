@@ -78,7 +78,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={quote?.third_party_id ?? ""} required>
-              <option value="">Selectionner un client</option>
+              <option value="">Sélectionner un client</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}{c.city ? ` (${c.city})` : ""}</option>
               ))}
@@ -129,7 +129,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={quote ? `/devis/${quote.id}` : "/devis"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Creer devis" : "Enregistrer"}
+          {mode === "create" ? "Créer devis" : "Enregistrer"}
         </Button>
       </div>
     </form>

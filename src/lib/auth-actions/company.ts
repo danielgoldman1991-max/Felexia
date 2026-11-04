@@ -46,7 +46,7 @@ export async function createCompanyAction(
   }
 
   if (!orgId) {
-    return { error: "Impossible de creer l'entreprise. Veuillez reessayer." };
+    return { error: "Impossible de créer l'entreprise. Veuillez reessayer." };
   }
 
   await initializeOrganizationDefaults(orgId);

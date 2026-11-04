@@ -130,7 +130,7 @@ export default async function TreasuryForecastPage({
     <ModulePage>
       <PageHeader
         title="Previsions de tresorerie"
-        description="Anticipez vos encaissements, decaissements et soldes previsionnels a partir des factures ouvertes, echeances fournisseurs et comptes de tresorerie."
+        description="Anticipez vos encaissements, decaissements et soldes previsionnels a partir des factures ouvertes, échéances fournisseurs et comptes de tresorerie."
         actions={
           <>
             <Button variant="secondary" asChild><Link href={exportHref}><Download className="h-4 w-4" /> Exporter CSV</Link></Button>
@@ -221,12 +221,12 @@ export default async function TreasuryForecastPage({
         <Card><CardContent>
           <EmptyState
             title="Aucune prevision disponible pour cette periode."
-            description="Creez des factures, ajoutez des echeances fournisseur ou saisissez une prevision manuelle pour commencer a piloter votre tresorerie."
+            description="Creez des factures, ajoutez des échéances fournisseur ou saisissez une prevision manuelle pour commencer a piloter votre tresorerie."
             action={
               <div className="flex flex-wrap justify-center gap-2">
                 <Button asChild><Link href="/tresorerie/previsions/nouveau"><Plus className="h-4 w-4" /> Ajouter une prevision manuelle</Link></Button>
-                <Button variant="secondary" asChild><Link href="/facturation/factures/new">Creer une facture client</Link></Button>
-                <Button variant="secondary" asChild><Link href="/achats/factures/new">Creer une facture fournisseur</Link></Button>
+                <Button variant="secondary" asChild><Link href="/facturation/factures/new">Créer une facture client</Link></Button>
+                <Button variant="secondary" asChild><Link href="/achats/factures/new">Créer une facture fournisseur</Link></Button>
               </div>
             }
           />
@@ -252,8 +252,8 @@ export default async function TreasuryForecastPage({
                       <Th>Type</Th>
                       <Th>Tiers</Th>
                       <Th>Document</Th>
-                      <Th>Libelle</Th>
-                      <Th>Entree</Th>
+                      <Th>Libellé</Th>
+                      <Th>Entrée</Th>
                       <Th>Sortie</Th>
                       <Th>Proba</Th>
                       <Th>Montant pondere</Th>
@@ -278,7 +278,7 @@ export default async function TreasuryForecastPage({
                               ) : (
                                 <span className="block truncate">{item.label}</span>
                               )}
-                              {item.hasFallbackDate ? <span className="block text-xs text-[var(--warning)]">Echeance estimee (30j)</span> : null}
+                              {item.hasFallbackDate ? <span className="block text-xs text-[var(--warning)]">Échéance estimee (30j)</span> : null}
                             </Td>
                             <Td>{item.direction === "inflow" ? <span className="font-medium text-[var(--success)]">{formatMoney(item.weightedAmount)}</span> : <span className="text-[var(--muted)]">-</span>}</Td>
                             <Td>{item.direction === "outflow" ? <span className="font-medium text-[var(--danger)]">{formatMoney(item.weightedAmount)}</span> : <span className="text-[var(--muted)]">-</span>}</Td>
@@ -373,7 +373,7 @@ export default async function TreasuryForecastPage({
                       <tr>
                         <Th>Date</Th>
                         <Th>Sens</Th>
-                        <Th>Libelle</Th>
+                        <Th>Libellé</Th>
                         <Th>Montant</Th>
                         <Th>Proba</Th>
                         <Th>Pondere</Th>
@@ -410,9 +410,9 @@ export default async function TreasuryForecastPage({
                 <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-soft)]/40 p-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">Scenario : {SCENARIO_LABELS[scenario]}</p>
                   <p className="mt-1 font-medium">
-                    {scenario === "prudent" ? "Encaissements ponderes a 70 %, decaissements a 100 %." : scenario === "optimistic" ? "Encaissements et decaissements a 100 %." : "Probabilites normales (echues : 70 %)."}
+                    {scenario === "prudent" ? "Encaissements ponderes a 70 %, decaissements a 100 %." : scenario === "optimistic" ? "Encaissements et decaissements a 100 %." : "Probabilites normales (échues : 70 %)."}
                   </p>
-                  <p className="text-xs text-[var(--muted)]">{forecast.hypothesis.invoiceWithoutDueDateCount} facture(s) sans echeance estimee a 30 jours.</p>
+                  <p className="text-xs text-[var(--muted)]">{forecast.hypothesis.invoiceWithoutDueDateCount} facture(s) sans échéance estimee a 30 jours.</p>
                 </div>
               </div>
             </CardContent>

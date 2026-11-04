@@ -125,7 +125,7 @@ export function SalesOrderForm({
           <Field label="Date commande">
             <DateField name="document_date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
-          <Field label="Livraison prevue">
+          <Field label="Livraison prévue">
             <DateField name="expected_delivery_date" defaultValue={document?.expected_delivery_date ?? ""} placeholder="jj/mm/aaaa" />
           </Field>
         </CardContent>
@@ -155,7 +155,7 @@ export function SalesOrderForm({
               onChange={(e) => setPaymentTerms(e.target.value)}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {PAYMENT_TERMS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -168,7 +168,7 @@ export function SalesOrderForm({
               onChange={(e) => setPaymentMethod(e.target.value)}
               className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
             >
-              <option value="">-- Selectionner --</option>
+              <option value="">-- Sélectionner --</option>
               {PAYMENT_METHOD_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -218,7 +218,7 @@ export function SalesOrderForm({
       <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={document ? `/vente/commandes/${document.id}` : "/vente/commandes"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Creer commande" : "Enregistrer"}
+          {mode === "create" ? "Créer commande" : "Enregistrer"}
         </Button>
       </div>
     </form>

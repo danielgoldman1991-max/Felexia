@@ -89,7 +89,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <Info label="Client" value={invoice.customer_name} />
           <Info label="Date facture" value={formatDate(invoice.invoice_date)} />
-          <Info label="Echeance" value={invoice.due_date ? formatDate(invoice.due_date) : null} />
+          <Info label="Échéance" value={invoice.due_date ? formatDate(invoice.due_date) : null} />
           {fullAccess ? <Info label="Source" value={invoice.source_order_number ?? invoice.source_delivery_number ?? invoice.source_document_number ?? invoice.source_type ?? "manual"} /> : null}
           {invoice.payment_terms || invoice.payment_method ? (
             <>
@@ -106,7 +106,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
         <CardContent>
           {lines.length === 0 ? <EmptyState title="Aucune ligne" description="Cette facture ne contient aucune ligne." /> : (
             <Table>
-              <thead><tr><Th>#</Th><Th>Produit</Th><Th>Description</Th><Th>Quantite</Th><Th>Unite</Th><Th>Prix HT</Th>{discountPresent ? <Th>Remise</Th> : null}<Th>Total HT</Th><Th>TVA</Th><Th>Total TTC</Th></tr></thead>
+              <thead><tr><Th>#</Th><Th>Produit</Th><Th>Description</Th><Th>Quantité</Th><Th>Unite</Th><Th>Prix HT</Th>{discountPresent ? <Th>Remise</Th> : null}<Th>Total HT</Th><Th>TVA</Th><Th>Total TTC</Th></tr></thead>
               <tbody>{lines.map((line, index) => <tr key={line.id}><Td>{index + 1}</Td><Td>{line.product_name || "Ligne libre"}</Td><Td>{line.description}</Td><Td>{line.quantity}</Td><Td>{line.unit_name ?? "-"}</Td><Td><MoneyDisplay value={line.unit_price_ht} /></Td>{discountPresent ? <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td> : null}<Td><MoneyDisplay value={line.subtotal_ht} /></Td><Td>{line.tax_rate > 0 ? `${line.tax_rate}%` : "-"}</Td><Td><MoneyDisplay value={line.total_ttc} /></Td></tr>)}</tbody>
             </Table>
           )}
@@ -133,7 +133,7 @@ export function CustomerInvoiceDetail({ invoice, lines, accountingEntry, documen
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm">
-                    Ecriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
+                    Écriture <Link href={`/comptabilite/ecritures/${accountingEntry.entry.id}`} className="font-medium text-indigo-700 hover:text-indigo-900 hover:underline">{String(accountingEntry.entry.entry_number ?? "")}</Link>
                   </p>
                   <p className="text-xs text-[var(--muted)]">
                     Journal: {String(accountingEntry.entry.journal_code ?? "-")} | {formatDate(String(accountingEntry.entry.entry_date ?? ""))}

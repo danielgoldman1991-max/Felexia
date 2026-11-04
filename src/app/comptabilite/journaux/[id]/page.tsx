@@ -70,7 +70,7 @@ export default async function AccountingJournalDetailPage({ params, searchParams
     <ModulePage>
       <PageHeader
         title={`Journal ${detail.journal.code} - ${detail.journal.name}`}
-        description="Detail des ecritures comptables du journal."
+        description="Detail des écritures comptables du journal."
         actions={(
           <>
             <Button type="button" variant="secondary" asChild><Link href="/comptabilite/journaux"><ArrowLeft className="h-4 w-4" /> Retour</Link></Button>

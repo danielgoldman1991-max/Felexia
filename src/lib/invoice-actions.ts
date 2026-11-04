@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { calculateInvoiceLine, calculateInvoiceTotals } from "@/lib/invoice-calculations";
+import { applyStoredCustomerPrices } from "@/lib/sales/customer-terms";
 import { assertDirectOrderInvoiceAllowed, getDeliveryNotesInvoicePreparation, listBillableDeliveryNotesByCustomer, validateInvoiceSourceBillingLock } from "@/lib/invoices";
 import { logAudit } from "@/lib/audit";
 import { isIndivisibleUnit } from "@/lib/sales-calculations";
@@ -66,7 +67,7 @@ function normalizeInvoiceLines(rawLines: Record<string, unknown>[]) {
     });
 
     if (!line.description) return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
-    if (line.quantity <= 0) return { lines: [], error: "Les quantites doivent etre superieures a zero." };
+    if (line.quantity <= 0) return { lines: [], error: "Les quantités doivent etre superieures a zero." };
     if (line.unit_price_ht < 0) return { lines: [], error: "Le prix ne peut pas etre negatif." };
     if (line.discount_rate < 0 || line.discount_rate > 100) return { lines: [], error: "La remise doit etre comprise entre 0 et 100%." };
     lines.push(line);
@@ -82,7 +83,7 @@ async function validateUnits(organizationId: string, lines: InvoiceLineFormValue
   const { data, error } = await supabase.from("units").select("id, name, symbol").eq("organization_id", organizationId).in("id", unitIds);
   if (error) return { error: "Impossible de verifier les unites." };
   if (lines.some((line) => isIndivisibleUnit(line, data ?? []) && !Number.isInteger(Number(line.quantity)))) {
-    return { error: "La quantite doit etre entiere pour les lignes en unite U." };
+    return { error: "La quantité doit etre entiere pour les lignes en unite U." };
   }
   return {};
 }
@@ -147,6 +148,7 @@ async function buildInvoicePayload(formData: FormData) {
   if (!customerId) return { workspace, error: "Sélectionnez un client." };
   if (normalized.error) return { workspace, error: normalized.error };
   const supabase = await createClient();
+  normalized.lines = (await applyStoredCustomerPrices(supabase as never, workspace.organization.id, customerId, normalized.lines)).map((line) => calculateInvoiceLine(line));
   const { data: customer, error: customerError } = await supabase.from("third_parties")
     .select("id").eq("organization_id", workspace.organization.id).eq("id", customerId).is("archived_at", null).maybeSingle();
   if (customerError || !customer) return { workspace, error: "Sélectionnez un client actif de votre entreprise." };

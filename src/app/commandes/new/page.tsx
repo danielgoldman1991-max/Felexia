@@ -23,7 +23,7 @@ export default async function NewCommandePage({
 
   return (
     <ModulePage>
-      <PageHeader title="Nouvelle commande client" description="Numero genere automatiquement a la sauvegarde." />
+      <PageHeader title="Nouvelle commande client" description="Numéro genere automatiquement a la sauvegarde." />
       <SalesOrderForm
         mode="create"
         action={createSalesOrder}

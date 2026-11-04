@@ -55,7 +55,7 @@ export function SupplierPaymentAllocateForm({
       <Card>
         <CardContent className="grid gap-3 md:grid-cols-3">
           <div><span className="text-xs font-medium uppercase text-[var(--muted)]">Montant</span><p className="mt-1"><MoneyDisplay value={payment.amount} /></p></div>
-          <div><span className="text-xs font-medium uppercase text-[var(--muted)]">Deja affecte</span><p className="mt-1"><MoneyDisplay value={payment.allocated_amount} /></p></div>
+          <div><span className="text-xs font-medium uppercase text-[var(--muted)]">Déjà affecte</span><p className="mt-1"><MoneyDisplay value={payment.allocated_amount} /></p></div>
           <div><span className="text-xs font-medium uppercase text-[var(--muted)]">Disponible</span><p className="mt-1"><MoneyDisplay value={payment.available_amount} /></p></div>
         </CardContent>
       </Card>

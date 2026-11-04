@@ -20,7 +20,7 @@ export default async function NewStockEntryPage({
   return (
     <ModulePage>
       <PageHeader
-        title="Entree manuelle de stock"
+        title="Entrée manuelle de stock"
         description="Ajoutez une entree de stock rattachee a un emplacement de stock."
       />
       <StockOperationForm

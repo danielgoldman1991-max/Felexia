@@ -29,7 +29,7 @@ export async function createTreasuryForecastItem(prev: TreasuryActionResult, for
   const directionRaw = text(formData, "direction");
   if (directionRaw !== "inflow" && directionRaw !== "outflow") return { success: false, error: "Type invalide." };
   const forecastDate = text(formData, "forecast_date");
-  if (!forecastDate) return { success: false, error: "La date prevue est obligatoire." };
+  if (!forecastDate) return { success: false, error: "La date prévue est obligatoire." };
   const amount = num(formData.get("amount"));
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a 0." };
   const probability = clampProbability(num(formData.get("probability")) || 100);
@@ -60,7 +60,7 @@ export async function createTreasuryForecastItem(prev: TreasuryActionResult, for
     })
     .select("id")
     .single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer la prevision." };
+  if (error || !data) return { success: false, error: error?.message ?? "Impossible de créer la prevision." };
   revalidatePath("/tresorerie/previsions");
   redirect(`/tresorerie/previsions?created=${data.id}`);
 }
@@ -75,7 +75,7 @@ export async function updateTreasuryForecastItem(prev: TreasuryActionResult, for
   const directionRaw = text(formData, "direction");
   if (directionRaw !== "inflow" && directionRaw !== "outflow") return { success: false, error: "Type invalide." };
   const forecastDate = text(formData, "forecast_date");
-  if (!forecastDate) return { success: false, error: "La date prevue est obligatoire." };
+  if (!forecastDate) return { success: false, error: "La date prévue est obligatoire." };
   const amount = num(formData.get("amount"));
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a 0." };
   const probability = clampProbability(num(formData.get("probability")) || 100);

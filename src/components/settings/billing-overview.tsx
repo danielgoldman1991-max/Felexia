@@ -120,7 +120,7 @@ export function BillingOverview({
                     </p>
                     {subscription.currentPeriodEnd && (
                       <p>
-                        Prochaine echeance:{" "}
+                        Prochaine échéance:{" "}
                         <span className="font-medium text-[var(--foreground)]">
                           {formatDate(subscription.currentPeriodEnd)}
                         </span>

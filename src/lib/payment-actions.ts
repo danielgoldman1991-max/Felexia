@@ -36,12 +36,12 @@ function parseAllocations(formData: FormData): { invoice_id: string; amount: num
 }
 
 export async function getCustomerOpenItemsAction(thirdPartyId: string): Promise<PaymentActionResult> {
-  if (!thirdPartyId) return { success: false, error: "Selectionnez un client." };
+  if (!thirdPartyId) return { success: false, error: "Sélectionnez un client." };
   try {
     const data = await getCustomerOpenItems(thirdPartyId);
     return { success: true, data };
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : "Impossible de charger les echeances du client." };
+    return { success: false, error: error instanceof Error ? error.message : "Impossible de charger les échéances du client." };
   }
 }
 
@@ -87,10 +87,10 @@ export async function createCustomerPayment(prev: PaymentActionResult, formData:
   const amount = numberValue(formData.get("amount"));
   const paymentMethod = text(formData, "payment_method");
   const treasuryAccountId = text(formData, "treasury_account_id");
-  if (!thirdPartyId) return { success: false, error: "Selectionnez un client." };
+  if (!thirdPartyId) return { success: false, error: "Sélectionnez un client." };
   if (amount <= 0) return { success: false, error: "Le montant doit etre superieur a zero." };
-  if (!paymentMethod) return { success: false, error: "Selectionnez une modalite de paiement." };
-  if (!treasuryAccountId) return { success: false, error: "Selectionnez un compte d encaissement." };
+  if (!paymentMethod) return { success: false, error: "Sélectionnez une modalite de paiement." };
+  if (!treasuryAccountId) return { success: false, error: "Sélectionnez un compte d encaissement." };
   const thirdPartyValidation = await validateThirdParty(workspace.organization.id, thirdPartyId);
   if (thirdPartyValidation.error) return { success: false, error: thirdPartyValidation.error };
 

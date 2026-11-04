@@ -11,7 +11,7 @@ export function DeliveriesTable({ rows }: { rows: DeliveryNoteRecord[] }) {
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th>
+          <Th>Numéro</Th>
           <Th>Client</Th>
           <Th>Commande liee</Th>
           <Th>Date livraison</Th>

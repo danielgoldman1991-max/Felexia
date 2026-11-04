@@ -73,18 +73,18 @@ export function CustomerOpenItems({ openItems, paymentAmount, allocations, loadi
     <Card>
       <CardHeader>
         <div className="space-y-1">
-          <h2 className="font-semibold">Echeances du client</h2>
+          <h2 className="font-semibold">Échéances du client</h2>
           <p className="text-sm text-[var(--muted)]">
-            Selectionnez les factures a regler, ou laissez vide pour creer un paiement non affecte.
+            Sélectionnez les factures a regler, ou laissez vide pour créer un paiement non affecte.
           </p>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {loading ? <p className="text-sm text-[var(--muted)]">Chargement des echeances...</p> : null}
+        {loading ? <p className="text-sm text-[var(--muted)]">Chargement des échéances...</p> : null}
         {error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
         {!loading && invoices.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] bg-[#f8fafc] p-4 text-sm text-[var(--muted)]">
-            Aucune echeance ouverte pour ce client. Vous pouvez creer un paiement non affecte, il restera disponible pour une affectation ulterieure.
+            Aucune échéance ouverte pour ce client. Vous pouvez créer un paiement non affecte, il restera disponible pour une affectation ulterieure.
           </div>
         ) : null}
         {invoices.length > 0 ? (
@@ -113,7 +113,7 @@ export function CustomerOpenItems({ openItems, paymentAmount, allocations, loadi
                   <Th>Selection</Th>
                   <Th>Facture</Th>
                   <Th>Date</Th>
-                  <Th>Echeance</Th>
+                  <Th>Échéance</Th>
                   <Th>Statut</Th>
                   <Th>Total TTC</Th>
                   <Th>Paye</Th>
@@ -133,7 +133,7 @@ export function CustomerOpenItems({ openItems, paymentAmount, allocations, loadi
                           type="checkbox"
                           checked={checked}
                           onChange={(event) => toggleInvoice(invoice.id, event.target.checked)}
-                          aria-label={`Selectionner ${invoice.invoice_number}`}
+                          aria-label={`Sélectionner ${invoice.invoice_number}`}
                         />
                       </Td>
                       <Td>

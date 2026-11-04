@@ -149,7 +149,7 @@ export function CustomerInvoiceForm({
 
   function openDeliveryNotesModal() {
     if (!customerId) {
-      setDeliveryError("Selectionnez d'abord un client.");
+      setDeliveryError("Sélectionnez d'abord un client.");
       return;
     }
     setDeliveryError(null);

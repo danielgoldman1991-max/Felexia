@@ -202,7 +202,7 @@ export async function getAccountingEntry(id: string) {
     .in("status", ["draft", "posted"])
     .maybeSingle();
   if (entryError) return { success: false, error: entryError.message } as AccountingActionResult;
-  if (!entry) return { success: false, error: "Ecriture introuvable." } as AccountingActionResult;
+  if (!entry) return { success: false, error: "Écriture introuvable." } as AccountingActionResult;
 
   const { data: lines, error: linesError } = await supabase
     .from("accounting_entry_lines")
@@ -248,10 +248,10 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
   const notes = text(formData, "notes");
   const lines = parseLines(formData);
 
-  if (!journalId) return { success: false, error: "Selectionnez un journal." };
-  if (!entryDate) return { success: false, error: "La date d'ecriture est obligatoire." };
+  if (!journalId) return { success: false, error: "Sélectionnez un journal." };
+  if (!entryDate) return { success: false, error: "La date d'écriture est obligatoire." };
   if (!label) return { success: false, error: "Le libelle est obligatoire." };
-  if (lines.length < 2) return { success: false, error: "Une ecriture doit avoir au moins 2 lignes." };
+  if (lines.length < 2) return { success: false, error: "Une écriture doit avoir au moins 2 lignes." };
 
   let totalDebit = 0;
   let totalCredit = 0;
@@ -299,7 +299,7 @@ export async function createAccountingEntry(prev: AccountingActionResult, formDa
       label: line.label || null,
     })));
 
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture." };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de créer l'écriture." };
 
   revalidatePath("/comptabilite/ecritures");
   redirect(`/comptabilite/ecritures/${entry.id}`);
@@ -310,7 +310,7 @@ export async function postAccountingEntry(prev: AccountingActionResult, formData
   const workspace = await requireActiveWorkspace();
   if (!isAccountingRole(workspace.role)) return { success: false, error: "La comptabilisation est réservée au propriétaire, à l’administrateur ou au comptable." };
   const id = text(formData, "id");
-  if (!id) return { success: false, error: "Ecriture introuvable." };
+  if (!id) return { success: false, error: "Écriture introuvable." };
   const supabase = await createClient();
   const { data: entry, error: fetchError } = await supabase
     .from("accounting_entries")
@@ -318,9 +318,9 @@ export async function postAccountingEntry(prev: AccountingActionResult, formData
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
-  if (fetchError || !entry) return { success: false, error: "Ecriture introuvable." };
-  if (entry.status !== "draft") return { success: false, error: "Seule une ecriture brouillon peut etre validee." };
-  if (Math.abs(Number(entry.total_debit) - Number(entry.total_credit)) > 0.01) return { success: false, error: "L'ecriture n'est pas equilibree." };
+  if (fetchError || !entry) return { success: false, error: "Écriture introuvable." };
+  if (entry.status !== "draft") return { success: false, error: "Seule une écriture brouillon peut etre validee." };
+  if (Math.abs(Number(entry.total_debit) - Number(entry.total_credit)) > 0.01) return { success: false, error: "L'écriture n'est pas equilibree." };
   const { error: updateError } = await supabase
     .from("accounting_entries")
     .update({ status: "posted", posted_by: workspace.userId, posted_at: new Date().toISOString() })
@@ -337,7 +337,7 @@ export async function cancelAccountingEntry(prev: AccountingActionResult, formDa
   const workspace = await requireActiveWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
-  if (!id) return { success: false, error: "Ecriture introuvable." };
+  if (!id) return { success: false, error: "Écriture introuvable." };
   const supabase = await createClient();
   const { data: entry, error: fetchError } = await supabase
     .from("accounting_entries")
@@ -345,11 +345,11 @@ export async function cancelAccountingEntry(prev: AccountingActionResult, formDa
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
-  if (fetchError || !entry) return { success: false, error: "Ecriture introuvable." };
+  if (fetchError || !entry) return { success: false, error: "Écriture introuvable." };
   if (entry.status === "posted") {
-    return { success: false, error: "Une ecriture comptabilisee ne peut pas etre annulee directement. Utilisez un avoir ou une ecriture corrective." };
+    return { success: false, error: "Une écriture comptabilisee ne peut pas etre annulee directement. Utilisez un avoir ou une écriture corrective." };
   }
-  return { success: false, error: "L'annulation directe des ecritures comptables est desactivee. Utilisez une ecriture corrective si necessaire." };
+  return { success: false, error: "L'annulation directe des écritures comptables est desactivee. Utilisez une écriture corrective si necessaire." };
 }
 
 export async function archiveAccountingEntry(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
@@ -357,7 +357,7 @@ export async function archiveAccountingEntry(prev: AccountingActionResult, formD
   const workspace = await requireActiveWorkspace();
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const id = text(formData, "id");
-  if (!id) return { success: false, error: "Ecriture introuvable." };
+  if (!id) return { success: false, error: "Écriture introuvable." };
   const supabase = await createClient();
   const { data: entry, error: fetchError } = await supabase
     .from("accounting_entries")
@@ -365,11 +365,11 @@ export async function archiveAccountingEntry(prev: AccountingActionResult, formD
     .eq("organization_id", workspace.organization.id)
     .eq("id", id)
     .maybeSingle();
-  if (fetchError || !entry) return { success: false, error: "Ecriture introuvable." };
+  if (fetchError || !entry) return { success: false, error: "Écriture introuvable." };
   if (entry.status === "posted") {
-    return { success: false, error: "Une ecriture comptabilisee ne peut pas etre archivee directement. Utilisez un avoir ou une ecriture corrective." };
+    return { success: false, error: "Une écriture comptabilisee ne peut pas etre archivee directement. Utilisez un avoir ou une écriture corrective." };
   }
-  return { success: false, error: "L'archivage direct des ecritures comptables est desactive." };
+  return { success: false, error: "L'archivage direct des écritures comptables est desactive." };
 }
 
 const ACCOUNT_FALLBACKS: Record<string, { name: string; type: string }> = {
@@ -384,7 +384,7 @@ const ACCOUNT_FALLBACKS: Record<string, { name: string; type: string }> = {
   "7124": { name: "Prestations de services", type: "revenue" },
   "3455": { name: "Etat - TVA recuperable", type: "tax" },
   "34552": { name: "Etat - TVA recuperable sur charges", type: "tax" },
-  "4455": { name: "Etat - TVA facturee", type: "tax" },
+  "4455": { name: "Etat - TVA facturée", type: "tax" },
 };
 
 async function ensureAccounts(organizationId: string, codes: string[]) {
@@ -511,7 +511,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
   );
 
   const { totalDebit, totalCredit, balanced } = verifyBalanced(accountLines);
-  if (!balanced) return { success: false, error: "Validation impossible : l'ecriture comptable generee n'est pas equilibree." };
+  if (!balanced) return { success: false, error: "Validation impossible : l'écriture comptable generee n'est pas equilibree." };
 
   const label = `Facture client ${invoice.invoice_number} - ${customer?.name ?? "Client"}`;
   const accountLabels = new Map([
@@ -547,7 +547,7 @@ export async function generateCustomerInvoiceAccountingEntry(invoiceId: string):
       label: l.label,
     })));
 
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de créer l'écriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -629,7 +629,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
   );
 
   const { totalDebit, totalCredit, balanced } = verifyBalanced(accountLines);
-  if (!balanced) return { success: false, error: "Validation impossible : l'ecriture comptable generee n'est pas equilibree." };
+  if (!balanced) return { success: false, error: "Validation impossible : l'écriture comptable generee n'est pas equilibree." };
 
   const displayNumber = invoice.supplier_invoice_number || invoice.invoice_number;
   const label = `Facture fournisseur ${displayNumber} - ${supplierName ?? "Fournisseur"}`;
@@ -667,7 +667,7 @@ export async function generateSupplierInvoiceAccountingEntry(invoiceId: string):
       label: l.label,
     })));
 
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de créer l'écriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -724,7 +724,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
   ];
 
   const { totalDebit, totalCredit, balanced } = verifyBalanced(lines);
-  if (!balanced) return { success: false, error: "L'ecriture generee n'est pas equilibree." };
+  if (!balanced) return { success: false, error: "L'écriture generee n'est pas equilibree." };
 
   const label = `Encaissement client ${payment.payment_number} - ${customer?.name ?? "Client"}`;
 
@@ -755,7 +755,7 @@ export async function generateCustomerPaymentAccountingEntry(paymentId: string):
       label: l.label,
     })));
 
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de créer l'écriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -812,7 +812,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
   ];
 
   const { totalDebit, totalCredit, balanced } = verifyBalanced(lines);
-  if (!balanced) return { success: false, error: "L'ecriture generee n'est pas equilibree." };
+  if (!balanced) return { success: false, error: "L'écriture generee n'est pas equilibree." };
 
   const label = `Paiement fournisseur ${payment.payment_number} - ${supplier?.name ?? "Fournisseur"}`;
 
@@ -843,7 +843,7 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
       label: l.label,
     })));
 
-  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de creer l'ecriture comptable." };
+  if (insertError || !entry) return { success: false, error: insertError?.message ?? "Impossible de créer l'écriture comptable." };
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
@@ -881,8 +881,8 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
   if (isOperatorRole(workspace.role)) return { success: false, error: OPERATOR_ACCESS_ERROR };
   const lineId = text(formData, "entry_line_id");
   const accountId = text(formData, "account_id");
-  if (!lineId) return { success: false, error: "Ligne d'ecriture introuvable." };
-  if (!accountId) return { success: false, error: "Selectionnez un compte comptable." };
+  if (!lineId) return { success: false, error: "Ligne d'écriture introuvable." };
+  if (!accountId) return { success: false, error: "Sélectionnez un compte comptable." };
 
   const supabase = await createClient();
   const { data: line, error: lineError } = await supabase
@@ -892,7 +892,7 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
     .eq("id", lineId)
     .maybeSingle();
   if (lineError) return { success: false, error: lineError.message };
-  if (!line) return { success: false, error: "Ligne d'ecriture introuvable." };
+  if (!line) return { success: false, error: "Ligne d'écriture introuvable." };
 
   const { data: entry, error: entryError } = await supabase
     .from("accounting_entries")
@@ -901,8 +901,8 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
     .eq("id", line.entry_id)
     .maybeSingle();
   if (entryError) return { success: false, error: entryError.message };
-  if (!entry) return { success: false, error: "Ecriture introuvable." };
-  if (entry.status === "cancelled") return { success: false, error: "Cette ecriture est annulee, les lignes ne sont plus modifiables." };
+  if (!entry) return { success: false, error: "Écriture introuvable." };
+  if (entry.status === "cancelled") return { success: false, error: "Cette écriture est annulee, les lignes ne sont plus modifiables." };
 
   const { data: account, error: accountError } = await supabase
     .from("accounting_accounts")
@@ -934,7 +934,7 @@ export async function updateAccountingEntryLineAccount(prev: AccountingActionRes
   const totalDebit = (totals ?? []).reduce((sum, row) => sum + Number(row.debit ?? 0), 0);
   const totalCredit = (totals ?? []).reduce((sum, row) => sum + Number(row.credit ?? 0), 0);
   if (Math.abs(totalDebit - totalCredit) > 0.01) {
-    return { success: false, error: "La modification a ete enregistree, mais l'ecriture est desequilibree. Verifiez les lignes." };
+    return { success: false, error: "La modification a ete enregistree, mais l'écriture est desequilibree. Verifiez les lignes." };
   }
 
   revalidatePath(`/comptabilite/ecritures/${entry.id}`);
@@ -1156,7 +1156,7 @@ export async function updateChartOfAccount(prev: AccountingActionResult, formDat
   const isUsed = (lines?.length ?? 0) > 0;
 
   if (newCode && newCode !== account.code) {
-    if (isUsed) return { success: false, error: "Ce compte est deja utilise dans des ecritures. Son numero ne peut pas etre modifie." };
+    if (isUsed) return { success: false, error: "Ce compte est deja utilise dans des écritures. Son numero ne peut pas etre modifie." };
     if (!/^\d+$/.test(newCode)) return { success: false, error: "Le numero de compte doit contenir uniquement des chiffres." };
     const { data: dup } = await supabase
       .from("accounting_accounts")
@@ -1233,7 +1233,7 @@ export async function archiveChartOfAccount(prev: AccountingActionResult, formDa
     .eq("account_id", id)
     .limit(1);
   if ((lines?.length ?? 0) > 0) {
-    return { success: false, error: "Ce compte est utilise dans des ecritures. Il peut etre desactive mais pas archive." };
+    return { success: false, error: "Ce compte est utilise dans des écritures. Il peut etre desactive mais pas archive." };
   }
 
   const { error } = await supabase

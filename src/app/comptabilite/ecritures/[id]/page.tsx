@@ -25,7 +25,7 @@ export default async function EntryDetailPage({ params }: { params: Promise<{ id
 
   return (
     <ModulePage>
-      <PageHeader title="Ecriture comptable" description="Detail de l'ecriture et lignes associees." />
+      <PageHeader title="Écriture comptable" description="Detail de l'écriture et lignes associees." />
       <EntryDetailView
         fullAccess={fullAccess}
         canManage={canManage}

@@ -396,7 +396,8 @@ test("inscription, entreprise, activation PRO et parcours métier", async ({ pag
     if (await type.count()) await type.selectOption("free");
     const description = page.getByText("Description", { exact: true }).locator("xpath=following::input[1]");
     await description.fill("Câble électrique 2,5 mm");
-    const qty = page.getByText("Quantite", { exact: true }).locator("xpath=following::input[1]");
+    const qtyLabel = (await page.getByText("Quantité", { exact: true }).count()) ? "Quantité" : "Quantite";
+    const qty = page.getByText(qtyLabel, { exact: true }).locator("xpath=following::input[1]");
     await qty.fill("2");
     const price = page.getByText("Prix unitaire HT", { exact: true }).locator("xpath=following::input[1]");
     await price.fill("120");

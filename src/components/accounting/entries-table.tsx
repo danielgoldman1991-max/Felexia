@@ -18,14 +18,14 @@ export function EntriesTable({
   basePath?: string;
 }) {
   if (rows.length === 0) {
-    return <EmptyState title="Aucune ecriture" description="Les ecritures comptables apparaitront ici." />;
+    return <EmptyState title="Aucune écriture" description="Les écritures comptables apparaitront ici." />;
   }
 
   return (
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th><Th>Date</Th><Th>Journal</Th><Th>Libelle</Th><Th>Debit</Th><Th>Credit</Th><Th>Statut</Th><Th>Actions</Th>
+          <Th>Numéro</Th><Th>Date</Th><Th>Journal</Th><Th>Libellé</Th><Th>Debit</Th><Th>Credit</Th><Th>Statut</Th><Th>Actions</Th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +51,7 @@ export function EntriesTable({
               <Link
                 href={`${basePath}/${row.id}`}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                title="Consulter l'ecriture"
+                title="Consulter l'écriture"
               >
                 <Eye className="h-4 w-4" />
               </Link>
@@ -76,7 +76,7 @@ export function EntriesSummaryCards({
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <Card>
         <CardContent className="p-4">
-          <p className="text-xs text-[var(--muted)]">Total ecritures</p>
+          <p className="text-xs text-[var(--muted)]">Total écritures</p>
           <p className="mt-1 text-2xl font-semibold">{entries.length}</p>
         </CardContent>
       </Card>

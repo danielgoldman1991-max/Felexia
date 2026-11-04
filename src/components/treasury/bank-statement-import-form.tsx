@@ -22,7 +22,7 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
           <label className="space-y-2 text-sm">
             <span className="font-medium">Compte bancaire *</span>
             <Select name="treasury_account_id" required defaultValue={accounts[0]?.id ?? ""}>
-              <option value="">Selectionner</option>
+              <option value="">Sélectionner</option>
               {accounts.map((account) => <option key={account.id} value={account.id}>{account.name}</option>)}
             </Select>
           </label>

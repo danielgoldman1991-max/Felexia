@@ -162,7 +162,7 @@ export async function getDefaultTreasuryAccountId(): Promise<string> {
   if (error) throw new Error(error.message);
   if (data?.id) return data.id as string;
   const { data: created, error: createError } = await supabase.from("treasury_accounts").insert({ organization_id: workspace.organization.id, name: "Banque principale", code: "BANK-MAIN", account_type: "bank", is_default: true, status: "active", created_by: workspace.userId }).select("id").single();
-  if (createError || !created) throw new Error(createError?.message ?? "Impossible de creer le compte de tresorerie par defaut.");
+  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer le compte de tresorerie par defaut.");
   return created.id as string;
 }
 

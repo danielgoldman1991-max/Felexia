@@ -10,7 +10,7 @@ export default function FacturesPage() {
     <ModulePage>
       <PageHeader
         title="Factures clients"
-        description="Factures, paiements, echeances et suivi des impayes."
+        description="Factures, paiements, échéances et suivi des impayes."
         actions={<Button asChild><Link href="/factures/new">Nouvelle facture</Link></Button>}
       />
       <DocumentTable rows={invoices} basePath="/factures" />

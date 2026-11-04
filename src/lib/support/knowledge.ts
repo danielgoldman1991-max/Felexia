@@ -111,7 +111,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   },
   {
     id: "customer-payments", title: "Encaissements, paiements et affectation aux factures",
-    keywords: ["règlement", "reglement", "encaissement", "paiement", "payer", "solde", "affectation", "payment", "paid", "collect", "outstanding", "خلص", "خلاص", "دفعة", "khlass"],
+    keywords: ["règlement", "règlement", "encaissement", "paiement", "payer", "solde", "affectation", "payment", "paid", "collect", "outstanding", "خلص", "خلاص", "دفعة", "khlass"],
     content: "Enregistrez un règlement reçu dans la fiche facture ou les règlements clients, en vérifiant le compte bancaire/caisse, la date, le montant et la facture concernée. Les affectations relient le paiement aux factures et mettent à jour leur solde. Les montants à encaisser et paiements partiels se consultent dans les fiches. Ces enregistrements de gestion ne réalisent pas un transfert bancaire réel. L’assistant ne peut ni effectuer ni confirmer un paiement ou voir le solde de votre entreprise.",
     href: "/facturation/paiements",
   },
@@ -129,7 +129,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   },
   {
     id: "supplier-payments", title: "Régler et suivre les fournisseurs",
-    keywords: ["paiement fournisseur", "règlement fournisseur", "reglement fournisseur", "supplier payment", "vendor payment", "payer fournisseur", "خلاص المورد"],
+    keywords: ["paiement fournisseur", "règlement fournisseur", "règlement fournisseur", "supplier payment", "vendor payment", "payer fournisseur", "خلاص المورد"],
     content: "Les paiements fournisseurs sont enregistrés dans Achats → Paiements. Vérifiez le fournisseur, le compte bancaire/caisse, le montant, la date et les affectations aux factures. La fiche de paiement et son justificatif permettent de suivre le règlement. Saisir un paiement dans Felexia est une opération de gestion ; cela ne constitue pas un virement bancaire exécuté par le service ou par le chatbot.",
     href: "/achats/paiements",
   },
@@ -165,7 +165,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   },
   {
     id: "accounting", title: "Journaux et comptabilité générale",
-    keywords: ["comptabilité", "comptabilite", "journal", "journaux", "écriture", "ecriture", "grand livre", "balance", "plan comptable", "accounting", "ledger", "bookkeeping", "محاسبة", "دفتر"],
+    keywords: ["comptabilité", "comptabilite", "journal", "journaux", "écriture", "écriture", "grand livre", "balance", "plan comptable", "accounting", "ledger", "bookkeeping", "محاسبة", "دفتر"],
     content: "ESSENTIEL donne accès aux journaux de vente, d’achat, de banque et de caisse et aux écritures liées aux opérations. PRO ajoute le plan comptable, les comptes, le grand livre, la balance et les écrans de comptabilité étendue. Les autorisations dépendent du rôle de l’utilisateur ; un opérateur commercial n’a pas les droits de saisie comptable de l’administrateur. Le logiciel aide à préparer et suivre la comptabilité ; il ne remplace pas la validation d’un expert-comptable.",
     href: "/comptabilite",
   },
@@ -225,7 +225,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   },
   {
     id: "subscription", title: "Abonnement, facturation et fin d’essai",
-    keywords: ["abonnement", "renouveler", "renouvellement", "échéance", "echeance", "expiré", "expire", "résilier", "resilier", "annuler abonnement", "stripe", "subscription", "renew", "expired", "cancel subscription", "اشتراك", "تجديد", "انتهى"],
+    keywords: ["abonnement", "renouveler", "renouvellement", "échéance", "échéance", "expiré", "expire", "résilier", "resilier", "annuler abonnement", "stripe", "subscription", "renew", "expired", "cancel subscription", "اشتراك", "تجديد", "انتهى"],
     content: "L’administrateur gère l’offre et la facturation depuis Paramètres → Abonnement. ESSENTIEL propose la souscription mensuelle ou annuelle ; PRO nécessite un devis et une prise en charge par l’équipe. Les paiements en ligne utilisent Stripe lorsque le parcours est disponible. Après échéance d’essai ou d’abonnement, l’espace passe en consultation et les créations/modifications nécessitent un renouvellement ; l’assistant ne doit pas promettre la suppression immédiate des données. Consultez l’état et les dates dans l’espace connecté. Toute résiliation, modification ou demande de remboursement doit être vérifiée selon le contrat et les conditions applicables, sans garantie inventée par le chatbot.",
     href: "/parametres/abonnement",
   },

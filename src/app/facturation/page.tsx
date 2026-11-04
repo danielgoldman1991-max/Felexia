@@ -25,7 +25,7 @@ export default async function BillingDashboardPage() {
         <StatCard title="Brouillons" value={counters.draft} caption="Factures a valider" icon={<FileText className="h-5 w-5" />} />
         <StatCard title="Validees" value={counters.validated} caption="Documents officiels" icon={<FileCheck2 className="h-5 w-5" />} />
         <StatCard title="Envoyees" value={counters.sent} caption="En attente paiement" icon={<Send className="h-5 w-5" />} />
-        <StatCard title="En retard" value={counters.overdue} caption="Echeance depassee" icon={<Clock className="h-5 w-5" />} />
+        <StatCard title="En retard" value={counters.overdue} caption="Échéance depassee" icon={<Clock className="h-5 w-5" />} />
       </div>
       <Card>
         <CardHeader><h2 className="font-semibold">Synthese financiere</h2></CardHeader>

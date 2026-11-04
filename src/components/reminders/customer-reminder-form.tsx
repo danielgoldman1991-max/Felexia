@@ -30,17 +30,21 @@ export function CustomerReminderForm({
   invoices,
   initialCustomerId,
   suggestedLevel,
+  initialMessage,
+  initialSubject,
 }: {
   customers: ReminderCustomerOption[];
   invoices: OverdueInvoiceForReminder[];
   initialCustomerId: string;
   suggestedLevel: number;
+  initialMessage?: string;
+  initialSubject?: string;
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<ReminderActionResult, FormData>(createCustomerReminder, { success: true });
   const [customerId, setCustomerId] = useState(initialCustomerId);
   const [level, setLevel] = useState(suggestedLevel);
-  const [message, setMessage] = useState(defaultMessage(suggestedLevel));
+  const [message, setMessage] = useState(initialMessage || defaultMessage(suggestedLevel));
   const [selected, setSelected] = useState<Record<string, boolean>>(() => Object.fromEntries(invoices.map((invoice) => [invoice.id, true])));
   const selectedIds = useMemo(() => invoices.filter((invoice) => selected[invoice.id]).map((invoice) => invoice.id), [invoices, selected]);
   const total = invoices.filter((invoice) => selected[invoice.id]).reduce((sum, invoice) => sum + invoice.remaining_amount, 0);
@@ -62,7 +66,7 @@ export function CustomerReminderForm({
                 router.push(value ? `/facturation/relances/new?customerId=${value}` : "/facturation/relances/new");
               }}
             >
-              <option value="">Selectionner un client</option>
+              <option value="">Sélectionner un client</option>
               {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name} - {customer.overdue_invoices_count} facture(s)</option>)}
             </Select>
           </label>
@@ -99,7 +103,7 @@ export function CustomerReminderForm({
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Objet</span>
-            <Input name="subject" defaultValue="Relance de factures échues" />
+            <Input name="subject" defaultValue={initialSubject || "Relance de factures échues"} />
           </label>
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Message</span>
@@ -115,9 +119,9 @@ export function CustomerReminderForm({
       <Card>
         <CardHeader><h2 className="font-semibold">Factures échues</h2></CardHeader>
         <CardContent className="space-y-3">
-          {invoices.length === 0 ? <p className="text-sm text-[var(--muted)]">Selectionnez un client avec des factures echues depuis la liste.</p> : (
+          {invoices.length === 0 ? <p className="text-sm text-[var(--muted)]">Sélectionnez un client avec des factures échues depuis la liste.</p> : (
             <Table>
-              <thead><tr><Th>Selection</Th><Th>Facture</Th><Th>Date</Th><Th>Echeance</Th><Th>Retard</Th><Th>Reste</Th></tr></thead>
+              <thead><tr><Th>Selection</Th><Th>Facture</Th><Th>Date</Th><Th>Échéance</Th><Th>Retard</Th><Th>Reste</Th></tr></thead>
               <tbody>{invoices.map((invoice) => (
                 <tr key={invoice.id}>
                   <Td><input type="checkbox" checked={Boolean(selected[invoice.id])} onChange={(event) => setSelected((current) => ({ ...current, [invoice.id]: event.target.checked }))} /></Td>

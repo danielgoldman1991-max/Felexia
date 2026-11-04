@@ -90,10 +90,10 @@ export function DocumentTable({ rows, basePath }: { rows: DocumentRow[]; basePat
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th>
+          <Th>Numéro</Th>
           <Th>Tiers</Th>
           <Th>Date</Th>
-          <Th>Echeance</Th>
+          <Th>Échéance</Th>
           <Th>Montant</Th>
           <Th>Paye</Th>
           <Th>Statut</Th>

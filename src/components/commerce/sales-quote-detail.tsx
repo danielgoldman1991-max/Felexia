@@ -137,7 +137,7 @@ export function SalesQuoteDetail({ quote, lines }: { quote: SalesQuoteRecord; li
                 <Th>#</Th>
                 <Th>Produit</Th>
                 <Th>Description</Th>
-                <Th>Quantite</Th>
+                <Th>Quantité</Th>
                 <Th>Unite</Th>
                 <Th>Prix HT</Th>
                 <Th>Remise %</Th>

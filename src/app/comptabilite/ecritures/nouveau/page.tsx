@@ -23,8 +23,8 @@ export default async function NewEntryPage({ searchParams }: { searchParams: Pro
   return (
     <ModulePage>
       <PageHeader
-        title="Nouvelle ecriture"
-        description="Saisie manuelle d'une ecriture comptable."
+        title="Nouvelle écriture"
+        description="Saisie manuelle d'une écriture comptable."
         actions={<Button variant="secondary" asChild><Link href="/comptabilite/journaux">Retour aux journaux</Link></Button>}
       />
       <EntryForm

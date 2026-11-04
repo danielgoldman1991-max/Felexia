@@ -14,7 +14,7 @@ export default async function InvoiceRemindersPage() {
     <ModulePage>
       <PageHeader
         title="Relances"
-        description="Suivi des factures echues et relances par niveau."
+        description="Suivi des factures échues et relances par niveau."
         actions={<Button asChild><Link href="/facturation/relances/new">Nouvelle relance</Link></Button>}
       />
       <Card><CardContent><CustomerRemindersTable rows={rows} /></CardContent></Card>

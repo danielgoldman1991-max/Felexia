@@ -31,7 +31,7 @@ const concepts: Array<{ terms: string[]; expand: string[] }> = [
   { terms: ["certified", "compliance", "conforme", "certifie", "dgi", "توقيع", "مطابق", "اعتماد"], expand: ["conformite", "dgi"] },
   { terms: ["password", "login", "connexion", "mot de passe", "كلمه السر", "كلمة السر", "نسيت", "دخول", "ndkhel"], expand: ["connexion"] },
   { terms: ["subscription", "abonnement", "renew", "expired", "renouveler", "اشتراك", "تجديد", "انتهى"], expand: ["abonnement"] },
-  { terms: ["payment", "paiement", "reglement", "khlass", "khelles", "خلص", "خلاص", "دفعة"], expand: ["reglement"] },
+  { terms: ["payment", "paiement", "règlement", "khlass", "khelles", "خلص", "خلاص", "دفعة"], expand: ["règlement"] },
   { terms: ["human", "conseiller", "support", "contact", "agent humain", "bghit nhder", "تواصل", "مساعده", "مساعدة", "انسان"], expand: ["contact"] },
   { terms: ["error", "bug", "probleme", "not working", "broken", "makhdamch", "مشكل", "خطا", "ماخدامش"], expand: ["erreur"] },
   { terms: ["security", "privacy", "confidentialite", "securite", "data", "خصوصيه", "خصوصية", "امان", "بيانات"], expand: ["confidentialite", "securite"] },

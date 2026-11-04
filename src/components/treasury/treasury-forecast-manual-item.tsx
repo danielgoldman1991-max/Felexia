@@ -60,7 +60,7 @@ export function TreasuryForecastManualItem({
       <td className="p-3 text-sm text-[var(--muted)]">{formatDate(item.dueDate)}</td>
       <td className="p-3">
         <Badge tone={item.direction === "inflow" ? "success" : "danger"}>
-          {item.direction === "inflow" ? "Entree" : "Sortie"}
+          {item.direction === "inflow" ? "Entrée" : "Sortie"}
         </Badge>
       </td>
       <td className="max-w-[260px] p-3">

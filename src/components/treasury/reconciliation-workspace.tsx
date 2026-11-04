@@ -129,7 +129,7 @@ export function ReconciliationWorkspace({
           <CardHeader><h2 className="font-semibold">Lignes bancaires non rapprochees</h2></CardHeader>
           <CardContent>
             <Table>
-              <thead><tr><Th>Date</Th><Th>Libelle</Th><Th>Sens</Th><Th>Montant</Th><Th>Suggestion</Th><Th>Actions</Th></tr></thead>
+              <thead><tr><Th>Date</Th><Th>Libellé</Th><Th>Sens</Th><Th>Montant</Th><Th>Suggestion</Th><Th>Actions</Th></tr></thead>
               <tbody>
                 {statementLines.map((line) => {
                   const suggestion = suggestions.find((item) => item.statementLine.id === line.id);
@@ -143,7 +143,7 @@ export function ReconciliationWorkspace({
                       <Td>
                         <div className="flex flex-wrap gap-2">
                           {suggestion?.transaction ? <ReconcileButton lineId={line.id} transactionId={suggestion.transaction.id} /> : null}
-                          <LineButton label="Creer mouvement" lineId={line.id} action={createTransactionFromStatementLine} />
+                          <LineButton label="Créer mouvement" lineId={line.id} action={createTransactionFromStatementLine} />
                           <LineButton label="Ignorer" lineId={line.id} action={ignoreStatementLine} variant="ghost" />
                         </div>
                       </Td>
@@ -159,13 +159,13 @@ export function ReconciliationWorkspace({
           <CardHeader><h2 className="font-semibold">Mouvements internes non rapproches</h2></CardHeader>
           <CardContent>
             <Table>
-              <thead><tr><Th>Date</Th><Th>Libelle</Th><Th>Sens</Th><Th>Montant</Th><Th>Reference</Th></tr></thead>
+              <thead><tr><Th>Date</Th><Th>Libellé</Th><Th>Sens</Th><Th>Montant</Th><Th>Reference</Th></tr></thead>
               <tbody>
                 {transactions.map((tx) => (
                   <tr key={tx.id}>
                     <Td>{tx.transaction_date}</Td>
                     <Td>{tx.label}</Td>
-                    <Td><Badge tone={tx.direction === "in" ? "success" : "warning"}>{tx.direction === "in" ? "Entree" : "Sortie"}</Badge></Td>
+                    <Td><Badge tone={tx.direction === "in" ? "success" : "warning"}>{tx.direction === "in" ? "Entrée" : "Sortie"}</Badge></Td>
                     <Td><MoneyDisplay value={tx.amount} /></Td>
                     <Td>{tx.reference ?? "-"}</Td>
                   </tr>

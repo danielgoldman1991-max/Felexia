@@ -34,7 +34,7 @@ export function ProductStockSummary({ summary, canWrite = false }: { summary: St
               </p>
             </div>
             {canWrite ? <div className="flex gap-2">
-              <Button type="button" variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}>Entree stock</Link></Button>
+              <Button type="button" variant="secondary" asChild><Link href={`/stock/entrees/new?productId=${product.id}`}>Entrée stock</Link></Button>
               <Button type="button" variant="secondary" asChild><Link href={`/stock/ajustements/new?productId=${product.id}`}>Ajuster</Link></Button>
             </div> : null}
           </div>

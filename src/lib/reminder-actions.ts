@@ -26,8 +26,8 @@ export async function createCustomerReminder(prev: ReminderActionResult, formDat
   const workspace = await requireActiveWorkspace();
   const customerId = text(formData, "customer_id");
   const invoiceIds = parseIds(formData, "invoice_ids");
-  if (!customerId) return { success: false, error: "Selectionnez un client." };
-  if (invoiceIds.length === 0) return { success: false, error: "Selectionnez au moins une facture a relancer." };
+  if (!customerId) return { success: false, error: "Sélectionnez un client." };
+  if (invoiceIds.length === 0) return { success: false, error: "Sélectionnez au moins une facture a relancer." };
 
   const invoices = (await listOverdueInvoicesByCustomer(customerId)).filter((invoice) => invoiceIds.includes(invoice.id));
   if (invoices.length !== invoiceIds.length) return { success: false, error: "Certaines factures ne sont plus relancables." };
@@ -53,7 +53,7 @@ export async function createCustomerReminder(prev: ReminderActionResult, formDat
     })
     .select("id")
     .single();
-  if (error || !data) return { success: false, error: error?.message ?? "Impossible de creer la relance." };
+  if (error || !data) return { success: false, error: error?.message ?? "Impossible de créer la relance." };
 
   const { error: lineError } = await supabase.from("customer_reminder_invoices").insert(
     invoices.map((invoice) => ({

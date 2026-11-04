@@ -62,7 +62,7 @@ export default async function StockMovesPage({ searchParams }: { searchParams: P
         </Card>
 
         {!productId ? (
-          <EmptyState title="Selectionnez un article" description="Choisissez un produit pour afficher son historique de stock." />
+          <EmptyState title="Sélectionnez un article" description="Choisissez un produit pour afficher son historique de stock." />
         ) : summary?.product ? (
           <>
             <ProductStockSummary canWrite={canWrite} summary={summary} />

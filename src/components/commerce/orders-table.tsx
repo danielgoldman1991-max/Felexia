@@ -12,10 +12,10 @@ export function OrdersTable({ rows }: { rows: SalesOrderRecord[] }) {
     <Table>
       <thead>
         <tr>
-          <Th>Numero</Th>
+          <Th>Numéro</Th>
           <Th>Client</Th>
           <Th>Date</Th>
-          <Th>Livraison prevue</Th>
+          <Th>Livraison prévue</Th>
           <Th>Statut</Th>
           <Th>Total TTC</Th>
           <Th>Actions</Th>

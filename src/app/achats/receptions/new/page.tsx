@@ -30,7 +30,7 @@ export default async function NewSupplierReceiptPage({ searchParams }: { searchP
 
   return (
     <ModulePage>
-      <h1 className="text-xl font-semibold mb-4">Selectionner une commande a receptionner</h1>
+      <h1 className="text-xl font-semibold mb-4">Sélectionner une commande a receptionner</h1>
       <div className="space-y-2">
         {orders.map((o) => (
           <a key={o.id} href={`/achats/receptions/new?orderId=${o.id}`} className="block rounded-lg border border-border p-4 hover:bg-accent transition">

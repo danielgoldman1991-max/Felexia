@@ -28,7 +28,7 @@ export function CreatableCombobox({
   options,
   value: controlledValue,
   defaultValue,
-  placeholder = "Selectionner...",
+  placeholder = "Sélectionner...",
   onChange,
 }: CreatableComboboxProps) {
   const isControlled = controlledValue !== undefined;
@@ -192,7 +192,7 @@ export function CreatableCombobox({
             ) : query.trim() ? (
               <div className="px-3 py-3">
                 <p className="text-sm text-slate-500">
-                  Appuyez sur <kbd className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">Entree</kbd> pour valider &ldquo;{query.trim()}&rdquo;
+                  Appuyez sur <kbd className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">Entrée</kbd> pour valider &ldquo;{query.trim()}&rdquo;
                 </p>
               </div>
             ) : (

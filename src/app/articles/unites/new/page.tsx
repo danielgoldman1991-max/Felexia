@@ -6,7 +6,7 @@ import { createUnit } from "@/lib/product-actions";
 export default function NewUnitPage() {
   return (
     <ModulePage>
-      <PageHeader title="Nouvelle unite" description="Ajouter une unite de mesure ou de quantite." />
+      <PageHeader title="Nouvelle unite" description="Ajouter une unite de mesure ou de quantité." />
       <UnitForm mode="create" action={createUnit} />
     </ModulePage>
   );

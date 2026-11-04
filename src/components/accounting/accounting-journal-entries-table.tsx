@@ -10,13 +10,13 @@ import type { AccountingJournalEntryRow } from "@/lib/accounting-types";
 
 export function AccountingJournalEntriesTable({ entries }: { entries: AccountingJournalEntryRow[] }) {
   if (entries.length === 0) {
-    return <EmptyState title="Aucune ecriture" description="Aucune ecriture ne correspond aux filtres." />;
+    return <EmptyState title="Aucune écriture" description="Aucune écriture ne correspond aux filtres." />;
   }
   return (
     <Table>
       <thead>
         <tr>
-          <Th>Date</Th><Th>N ecriture</Th><Th>Source</Th><Th>Reference</Th><Th>Libelle</Th><Th>Debit</Th><Th>Credit</Th><Th>Statut</Th><Th>Actions</Th>
+          <Th>Date</Th><Th>N écriture</Th><Th>Source</Th><Th>Reference</Th><Th>Libellé</Th><Th>Debit</Th><Th>Credit</Th><Th>Statut</Th><Th>Actions</Th>
         </tr>
       </thead>
       <tbody>
@@ -35,7 +35,7 @@ export function AccountingJournalEntriesTable({ entries }: { entries: Accounting
             <Td><MoneyDisplay value={entry.total_credit} /></Td>
             <Td><EntryStatusBadge status={entry.status} /></Td>
             <Td>
-              <Link href={`/comptabilite/ecritures/${entry.id}`} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900" title="Voir ecriture">
+              <Link href={`/comptabilite/ecritures/${entry.id}`} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900" title="Voir écriture">
                 <Eye className="h-4 w-4" />
               </Link>
             </Td>

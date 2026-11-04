@@ -28,7 +28,7 @@ export default async function StockPage() {
           <>
             <Button type="button" variant="secondary" asChild><Link href="/stock/emplacements">Emplacements stock</Link></Button>
             <Button type="button" variant="secondary" asChild><Link href="/stock/mouvements">Mouvements par article</Link></Button>
-            {canWrite ? <Button type="button" asChild><Link href="/stock/entrees/new">Entree manuelle</Link></Button> : null}
+            {canWrite ? <Button type="button" asChild><Link href="/stock/entrees/new">Entrée manuelle</Link></Button> : null}
           </>
         )}
       />

@@ -9,6 +9,7 @@ import { calculateSalesLine, calculateSalesTotals, isIndivisibleUnit } from "@/l
 import { resolveDefaultTaxRate } from "@/lib/tax-reference";
 import type { SalesActionResult, SalesDocumentType, SalesLineFormValue } from "@/lib/sales-types";
 import { recordStockMovementsAtomic, type AtomicStockMovement } from "@/lib/stock/record-stock-movements";
+import { applyStoredCustomerPrices } from "@/lib/sales/customer-terms";
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -80,7 +81,7 @@ function normalizeLines(rawLines: Record<string, unknown>[]): { lines: SalesLine
       return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
     }
     if (line.quantity <= 0) {
-      return { lines: [], error: "Les quantites doivent etre superieures a zero." };
+      return { lines: [], error: "Les quantités doivent etre superieures a zero." };
     }
     if (line.unit_price_ht < 0) {
       return { lines: [], error: "Le prix ne peut pas etre negatif." };
@@ -140,7 +141,7 @@ async function validateIndivisibleLineQuantities(organizationId: string, lines: 
   );
 
   if (hasInvalidQuantity) {
-    return { error: "La quantite doit etre un nombre entier pour les articles en unite U." };
+    return { error: "La quantité doit etre un nombre entier pour les articles en unite U." };
   }
 
   return {};
@@ -364,7 +365,7 @@ async function applyStockMovesForDocument(
     if (!product || product.type === "service" || !product.track_stock) continue;
 
     const quantity = Number(line.quantity ?? 0);
-    if (!Number.isFinite(quantity) || quantity <= 0) return { error: "Quantite de stock invalide." };
+    if (!Number.isFinite(quantity) || quantity <= 0) return { error: "Quantité de stock invalide." };
     stockMoves.push({
       warehouse_id: warehouseResult.warehouseId,
       product_id: productId,
@@ -399,11 +400,12 @@ async function saveSalesDraft(formData: FormData, kind: "quote" | "order", editi
   if (!customerId) return { success: false, error: "Sélectionnez un client ou un prospect." };
   const normalized = normalizeLines(parseLines(formData));
   if (normalized.error) return { success: false, error: normalized.error };
-  const lines = await resolveLineTaxRates(normalized.lines);
+  const supabase = await createClient();
+  const priced = (await applyStoredCustomerPrices(supabase as never, workspace.organization.id, customerId, normalized.lines)).map((line) => calculateSalesLine(line));
+  const lines = await resolveLineTaxRates(priced);
   const unitValidation = await validateIndivisibleLineQuantities(workspace.organization.id, lines);
   if (unitValidation.error) return { success: false, error: unitValidation.error };
   const header = Object.fromEntries(["document_date", "valid_until", "expected_delivery_date", "notes", "internal_notes", "payment_terms", "payment_method", "payment_terms_days", "custom_payment_terms", "custom_payment_method"].map(key => [key, text(formData, key)]));
-  const supabase = await createClient();
   const { data, error } = await supabase.rpc("save_pro_commercial_document_atomic", {
     p_organization_id: workspace.organization.id, p_document_id: id, p_kind: kind,
     p_expected_updated_at: expected, p_header: { ...header, customer_id: customerId }, p_lines: lines,
@@ -575,7 +577,7 @@ export async function createDeliveryNoteFromOrder(
   if (!id) return { success: false, error: "Commande introuvable." };
   const supabase = await createClient();
   const requestedLines = parseQuantityLines(formData);
-  if (requestedLines.length === 0) return { success: false, error: "Selectionnez au moins une quantite a livrer." };
+  if (requestedLines.length === 0) return { success: false, error: "Sélectionnez au moins une quantité a livrer." };
 
   const { data: order, error: orderError } = await supabase
     .from("sales_documents")
@@ -616,7 +618,7 @@ export async function createDeliveryNoteFromOrder(
 
     const remaining = Number(sourceLine.quantity ?? 0) - (deliveredByLine[sourceLine.id] ?? 0);
     if (requestedLine.quantity <= 0 || requestedLine.quantity > remaining) {
-      return { success: false, error: "Une quantite a livrer depasse le reliquat disponible." };
+      return { success: false, error: "Une quantité a livrer depasse le reliquat disponible." };
     }
 
     const line = calculateSalesLine({
@@ -677,7 +679,7 @@ export async function createDeliveryNoteFromOrder(
     .select("id")
     .single();
 
-  if (deliveryError || !delivery) return { success: false, error: deliveryError?.message ?? "Impossible de creer le bon de livraison." };
+  if (deliveryError || !delivery) return { success: false, error: deliveryError?.message ?? "Impossible de créer le bon de livraison." };
 
   const { error: lineError } = await supabase
     .from("sales_document_lines")
@@ -743,7 +745,7 @@ export async function validateDeliveryNote(prev: SalesActionResult, formData: Fo
     if (!sourceLine) return { success: false, error: "Une ligne source est introuvable." };
     const remaining = Number(sourceLine.quantity ?? 0) - (deliveredByLine[sourceLineId ?? ""] ?? 0);
     if (Number(line.quantity ?? 0) <= 0 || Number(line.quantity ?? 0) > remaining) {
-      return { success: false, error: "Une quantite de BL depasse le reliquat de commande." };
+      return { success: false, error: "Une quantité de BL depasse le reliquat de commande." };
     }
   }
 
@@ -794,7 +796,7 @@ export async function createReturnFromDelivery(
   if (!returnReason) return { success: false, error: "Indiquez un motif de retour." };
 
   const requestedLines = parseQuantityLines(formData);
-  if (requestedLines.length === 0) return { success: false, error: "Selectionnez au moins une quantite a retourner." };
+  if (requestedLines.length === 0) return { success: false, error: "Sélectionnez au moins une quantité a retourner." };
 
   const supabase = await createClient();
   const { data: delivery, error: deliveryError } = await supabase
@@ -831,7 +833,7 @@ export async function createReturnFromDelivery(
 
     const returnable = Number(sourceLine.quantity ?? 0) - (returnedByLine[sourceLine.id] ?? 0);
     if (requestedLine.quantity <= 0 || requestedLine.quantity > returnable) {
-      return { success: false, error: "Une quantite retour depasse le retournable disponible." };
+      return { success: false, error: "Une quantité retour depasse le retournable disponible." };
     }
 
     const line = calculateSalesLine({
@@ -881,7 +883,7 @@ export async function createReturnFromDelivery(
     .select("id")
     .single();
 
-  if (returnError || !returnNote) return { success: false, error: returnError?.message ?? "Impossible de creer le retour." };
+  if (returnError || !returnNote) return { success: false, error: returnError?.message ?? "Impossible de créer le retour." };
 
   const { error: lineError } = await supabase
     .from("sales_document_lines")
@@ -930,7 +932,7 @@ export async function validateReturnNote(prev: SalesActionResult, formData: Form
     .eq("organization_id", workspace.organization.id)
     .in("id", sourceLineIds);
 
-  if (deliveryLineError || !deliveryLines) return { success: false, error: "Impossible de verifier les quantites retournables." };
+  if (deliveryLineError || !deliveryLines) return { success: false, error: "Impossible de verifier les quantités retournables." };
   const returnedResult = await getValidatedDeliveredQuantityBySourceLine(workspace.organization.id, sourceLineIds, "return_note");
   if ("error" in returnedResult) return { success: false, error: returnedResult.error };
   const returnedByLine = returnedResult.quantities ?? {};
@@ -941,7 +943,7 @@ export async function validateReturnNote(prev: SalesActionResult, formData: Form
     if (!sourceLine) return { success: false, error: "Une ligne de livraison est introuvable." };
     const returnable = Number(sourceLine.quantity ?? 0) - (returnedByLine[sourceLineId ?? ""] ?? 0);
     if (Number(line.quantity ?? 0) <= 0 || Number(line.quantity ?? 0) > returnable) {
-      return { success: false, error: "Une quantite retour depasse le retournable disponible." };
+      return { success: false, error: "Une quantité retour depasse le retournable disponible." };
     }
   }
 

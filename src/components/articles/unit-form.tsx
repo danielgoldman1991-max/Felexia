@@ -57,7 +57,7 @@ export function UnitForm({ mode, unit, action }: Props) {
 
       <div className="flex items-center justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/articles/unites">Annuler</Link></Button>
-        <Button disabled={pending}>{mode === "create" ? "Creer l'unite" : "Enregistrer"}</Button>
+        <Button disabled={pending}>{mode === "create" ? "Créer l'unite" : "Enregistrer"}</Button>
       </div>
     </form>
   );

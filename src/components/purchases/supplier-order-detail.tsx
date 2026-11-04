@@ -62,7 +62,7 @@ export function SupplierOrderDetail({ document, lines, documentFlow, canWrite = 
               <ActionForm label="Confirmer" icon={<CheckCircle2 className="h-4 w-4" />} action={actionWithId(confirmSupplierOrder, document.id)} />
             ) : null}
             {canCreateReceipt ? (
-              <Button variant="secondary" asChild><Link href={`/achats/receptions/new?orderId=${document.id}`}><Truck className="h-4 w-4" /> Creer reception</Link></Button>
+              <Button variant="secondary" asChild><Link href={`/achats/receptions/new?orderId=${document.id}`}><Truck className="h-4 w-4" /> Créer reception</Link></Button>
             ) : null}
             <Button variant="secondary" asChild><Link href={`/achats/commandes/${document.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
             {canWrite ? <SupplierOrderSendActions document={document} /> : null}
@@ -94,7 +94,7 @@ export function SupplierOrderDetail({ document, lines, documentFlow, canWrite = 
         <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <Info label="Fournisseur" value={document.supplier_name} />
           <Info label="Date commande" value={formatDate(document.document_date)} />
-          <Info label="Reception prevue" value={document.expected_receipt_date ? formatDate(document.expected_receipt_date) : null} />
+          <Info label="Reception prévue" value={document.expected_receipt_date ? formatDate(document.expected_receipt_date) : null} />
         </CardContent>
       </Card>
 
@@ -103,7 +103,7 @@ export function SupplierOrderDetail({ document, lines, documentFlow, canWrite = 
         <CardContent>
           {lines.length === 0 ? <EmptyState title="Aucune ligne" description="Cette commande ne contient aucune ligne." /> : (
             <Table>
-              <thead><tr><Th>#</Th><Th>Produit</Th><Th>Description</Th><Th>Quantite</Th><Th>Unite</Th><Th>Prix HT</Th><Th>Remise %</Th><Th>Total HT</Th><Th>TVA %</Th><Th>Total TTC</Th></tr></thead>
+              <thead><tr><Th>#</Th><Th>Produit</Th><Th>Description</Th><Th>Quantité</Th><Th>Unite</Th><Th>Prix HT</Th><Th>Remise %</Th><Th>Total HT</Th><Th>TVA %</Th><Th>Total TTC</Th></tr></thead>
               <tbody>
                 {lines.map((line, index) => (
                   <tr key={line.id}>

@@ -75,14 +75,14 @@ export default async function StockLocationDetailPage({ params }: { params: Prom
         <CardHeader><h2 className="font-semibold">Derniers mouvements</h2></CardHeader>
         <CardContent>
           <Table>
-            <thead><tr><Th>Date</Th><Th>Article</Th><Th>Type</Th><Th>Direction</Th><Th>Quantite</Th><Th>Notes</Th></tr></thead>
+            <thead><tr><Th>Date</Th><Th>Article</Th><Th>Type</Th><Th>Direction</Th><Th>Quantité</Th><Th>Notes</Th></tr></thead>
             <tbody>
               {movements.length === 0 ? <tr><td colSpan={6} className="px-4 py-8 text-center text-sm text-[var(--muted)]">Aucun mouvement recent.</td></tr> : movements.map((movement) => (
                 <tr key={movement.id}>
                   <Td>{formatDate(movement.movement_date)}</Td>
                   <Td>{movement.product_name ?? "-"}</Td>
                   <Td>{STOCK_MOVE_TYPE_LABELS[movement.move_type as StockMoveType] ?? movement.move_type}</Td>
-                  <Td>{movement.direction === "in" ? "Entree" : "Sortie"}</Td>
+                  <Td>{movement.direction === "in" ? "Entrée" : "Sortie"}</Td>
                   <Td>{formatNumber(movement.quantity)}</Td>
                   <Td>{movement.notes ?? "-"}</Td>
                 </tr>

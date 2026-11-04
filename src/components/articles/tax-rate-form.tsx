@@ -61,7 +61,7 @@ export function TaxRateForm({ mode, taxRate, action }: Props) {
 
       <div className="flex items-center justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/articles/tva">Annuler</Link></Button>
-        <Button disabled={pending}>{mode === "create" ? "Creer le taux" : "Enregistrer"}</Button>
+        <Button disabled={pending}>{mode === "create" ? "Créer le taux" : "Enregistrer"}</Button>
       </div>
     </form>
   );

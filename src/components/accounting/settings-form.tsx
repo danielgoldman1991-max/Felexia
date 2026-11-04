@@ -23,12 +23,12 @@ export function SettingsForm({ action, settings }: Props) {
     { label: "Compte fournisseur", name: "default_supplier_account_code", defaultValue: settings?.default_supplier_account_code ?? "4411", description: "Compte par defaut pour les fournisseurs" },
     { label: "Compte ventes", name: "default_sales_account_code", defaultValue: settings?.default_sales_account_code ?? "7111", description: "Compte par defaut pour les ventes" },
     { label: "Compte achats", name: "default_purchase_account_code", defaultValue: settings?.default_purchase_account_code ?? "6111", description: "Compte par defaut pour les achats" },
-    { label: "Compte TVA collectee", name: "default_sales_vat_account_code", defaultValue: settings?.default_sales_vat_account_code ?? "4455", description: "Compte de TVA facturee" },
+    { label: "Compte TVA collectee", name: "default_sales_vat_account_code", defaultValue: settings?.default_sales_vat_account_code ?? "4455", description: "Compte de TVA facturée" },
     { label: "Compte TVA recuperable", name: "default_purchase_vat_account_code", defaultValue: settings?.default_purchase_vat_account_code ?? "34552", description: "Compte de TVA recuperable" },
     { label: "Compte banque", name: "default_bank_account_code", defaultValue: settings?.default_bank_account_code ?? "5141", description: "Compte bancaire par defaut" },
     { label: "Compte caisse", name: "default_cash_account_code", defaultValue: settings?.default_cash_account_code ?? "5161", description: "Compte de caisse par defaut" },
     { label: "Compte frais bancaires", name: "default_bank_fees_account_code", defaultValue: settings?.default_bank_fees_account_code ?? "6147", description: "Compte des frais bancaires" },
-    { label: "Prefixe numerotation", name: "numbering_prefix", defaultValue: settings?.numbering_prefix ?? "PC", description: "Prefixe pour les numeros d'ecritures" },
+    { label: "Prefixe numerotation", name: "numbering_prefix", defaultValue: settings?.numbering_prefix ?? "PC", description: "Prefixe pour les numeros d'écritures" },
   ];
 
   return (

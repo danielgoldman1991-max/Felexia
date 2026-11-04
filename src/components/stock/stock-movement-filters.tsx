@@ -27,8 +27,8 @@ export function StockMovementFilters({
         ))}
       </Select>
       <Select name="direction" defaultValue={values.direction ?? "all"}>
-        <option value="all">Entrees et sorties</option>
-        <option value="in">Entrees</option>
+        <option value="all">Entrées et sorties</option>
+        <option value="in">Entrées</option>
         <option value="out">Sorties</option>
       </Select>
       <Select name="warehouseId" defaultValue={values.warehouseId ?? ""}>
