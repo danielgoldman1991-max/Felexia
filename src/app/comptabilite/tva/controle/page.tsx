@@ -1,126 +1,49 @@
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, Th } from "@/components/ui/table";
-import { EmptyState } from "@/components/erp/empty-state";
-import { cn } from "@/lib/utils";
-import { ShieldCheck, Search, AlertTriangle, FileText, ArrowLeftRight } from "lucide-react";
+import { MoneyDisplay } from "@/components/erp/money-display";
+import { requireActiveWorkspace } from "@/lib/auth";
+import { compareVatToLedger } from "@/lib/accounting/vat-control";
+import { createClient } from "@/lib/supabase/server";
 
-const futureSections = [
-  {
-    title: "Contrôle TVA collectée",
-    description: "Vérification de la TVA facturée aux clients vs comptes 4455.",
-    icon: Search,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    title: "Contrôle TVA récupérable",
-    description: "Vérification de la TVA sur achats vs comptes 3455.",
-    icon: Search,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    title: "Factures sans TVA",
-    description: "Factures validées sans ligne de TVA associée.",
-    icon: AlertTriangle,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-  },
-  {
-    title: "Écritures TVA sans facture source",
-    description: "Lignes d'écriture sur comptes TVA sans document source.",
-    icon: FileText,
-    color: "text-rose-600",
-    bg: "bg-rose-50",
-  },
-  {
-    title: "Écarts facturation / comptabilité",
-    description: "Comparaison entre TVA des factures et écritures comptabilisées.",
-    icon: ArrowLeftRight,
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function VatControlPage() {
+export default async function VatControlPage() {
+  const workspace = await requireActiveWorkspace();
+  const supabase = await createClient();
+  const orgId = workspace.organization.id;
+  const [customers, credits, suppliers, lines] = await Promise.all([
+    supabase.from("customer_invoices").select("tax_total, status").eq("organization_id", orgId).is("archived_at", null).in("status", ["validated", "sent", "partially_paid", "paid", "overdue"]).limit(2000),
+    supabase.from("customer_credit_notes").select("tax_total, status").eq("organization_id", orgId).in("status", ["validated", "applied", "partially_applied"]).limit(2000),
+    supabase.from("supplier_invoices").select("tax_total, status").eq("organization_id", orgId).is("archived_at", null).in("status", ["validated", "partially_paid", "paid"]).limit(2000),
+    supabase.from("accounting_entry_lines").select("account_code, debit, credit").eq("organization_id", orgId).or("account_code.like.4455%,account_code.like.3455%").limit(5000),
+  ]);
+  const sum = (rows: Array<{ tax_total?: number | null }> | null) => (rows ?? []).reduce((total, row) => total + Number(row.tax_total ?? 0), 0);
+  let collectedLedger = 0;
+  let deductibleLedger = 0;
+  for (const line of lines.data ?? []) {
+    const code = String(line.account_code ?? "");
+    const net = Number(line.debit ?? 0) - Number(line.credit ?? 0);
+    if (code.startsWith("4455")) collectedLedger += -net;
+    if (code.startsWith("3455")) deductibleLedger += net;
+  }
+  const checks = compareVatToLedger({
+    invoiceCollected: sum(customers.data) - sum(credits.error ? [] : credits.data),
+    ledgerCollected: collectedLedger,
+    invoiceDeductible: sum(suppliers.data),
+    ledgerDeductible: deductibleLedger,
+  });
   return (
     <ModulePage>
-      <PageHeader
-        title="États de contrôle TVA"
-        description="Contrôlez la cohérence entre factures, écritures comptables et comptes TVA."
-      />
-
-      <Card className="mb-6 border-dashed bg-[linear-gradient(180deg,#fff_0%,#fbfcff_100%)]">
-        <CardContent className="flex items-start gap-4 p-5">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50">
-            <ShieldCheck className="h-6 w-6 text-amber-600" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-[var(--foreground)]">
-              Contrôles TVA en préparation
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-              Cette page permettra de vérifier les écarts entre la TVA issue des factures, la TVA comptabilisée et les soldes des comptes de TVA.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-        Contrôles disponibles
-      </h3>
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {futureSections.map((section) => {
-          const Icon = section.icon;
-          return (
-            <Card key={section.title}>
-              <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                  <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", section.bg)}>
-                    <Icon className={cn("h-5 w-5", section.color)} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="truncate font-medium text-[var(--foreground)]">{section.title}</h4>
-                    </div>
-                    <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{section.description}</p>
-                    <Badge tone="warning" className="mt-2">Bientôt disponible</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-        Résultats de contrôle
-      </h3>
-      <Table>
-        <thead>
-          <tr>
-            <Th>Type contrôle</Th>
-            <Th>Période</Th>
-            <Th>Écart détecté</Th>
-            <Th>Gravité</Th>
-            <Th>Statut</Th>
-            <Th>Actions</Th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colSpan={6} className="border-t border-[var(--border)] px-4 py-8">
-              <EmptyState
-                title="Aucun contrôle TVA lancé"
-                description="Aucun contrôle TVA lancé pour le moment."
-              />
-            </td>
-          </tr>
-        </tbody>
-      </Table>
+      <PageHeader title="Contrôle TVA" description="Compare la TVA des factures validées au solde des comptes 4455 (collectée) et 3455 (récupérable)." />
+      <ul className="grid gap-4 md:grid-cols-2">
+        {checks.map((check) => (
+          <li key={check.label} className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
+            <p className="font-semibold">{check.label}</p>
+            <p className="mt-2 text-sm">Factures <MoneyDisplay value={check.invoice} /> · Comptes <MoneyDisplay value={check.ledger} /></p>
+            <p className={`mt-2 text-sm font-medium ${check.ok ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>{check.ok ? "Écart nul." : `Écart ${check.gap.toFixed(2)} MAD.`}</p>
+          </li>
+        ))}
+      </ul>
     </ModulePage>
   );
 }

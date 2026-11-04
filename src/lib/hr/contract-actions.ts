@@ -8,6 +8,7 @@ import { isMissingRelation, notifyOrganization } from "@/lib/hr/notify";
 import { leaveBalance, serviceMonthsInYear } from "@/lib/hr/leave-balance";
 import { SETTLEMENT_REASONS, computeFinalSettlement, type SettlementReason } from "@/lib/hr/settlement";
 import { createClient } from "@/lib/supabase/server";
+import { amountsFromTtc } from "@/lib/hr/expense-amounts";
 
 const reasons = new Set(SETTLEMENT_REASONS.map((item) => item.value));
 
@@ -73,6 +74,7 @@ export async function endHrContractAction(formData: FormData) {
     noticeDays,
     noticePaid,
     lastNet: Number(lastSlip?.net_to_pay ?? lastSlip?.net_salary ?? 0),
+    daysWorked: numberValue(formData, "days_worked"),
   });
 
   const closed = await supabase
@@ -94,7 +96,8 @@ export async function endHrContractAction(formData: FormData) {
   if (employeeUpdate.error) throw new Error(employeeUpdate.error.message);
 
   const number = `STC-${exitDate.replaceAll("-", "")}-${employee.employee_number ?? employee.id.slice(0, 8)}`;
-  const saved = await supabase.from("hr_final_settlements").insert({
+  const settlementNotes = [notes, settlement.daysWorked ? `Prorata dernier mois : ${settlement.daysWorked} jour(s) = ${settlement.salaryProrata.toFixed(2)} MAD.` : "", ...settlement.notes].filter(Boolean).join("\n");
+  const settlementPayload = {
     organization_id: workspace.organization.id,
     employee_id: employee.id,
     contract_id: contract.id,
@@ -109,11 +112,19 @@ export async function endHrContractAction(formData: FormData) {
     notice_indemnity: settlement.noticeIndemnity,
     dismissal_indemnity: settlement.dismissalIndemnity,
     last_net: settlement.lastNet,
+    salary_prorata: settlement.salaryProrata,
+    days_worked: settlement.daysWorked,
     total_amount: settlement.total,
-    notes: [notes, ...settlement.notes].filter(Boolean).join("\n"),
+    notes: settlementNotes,
     official_claim: false,
     created_by: workspace.userId,
-  }).select("id").single();
+  };
+  let saved = await supabase.from("hr_final_settlements").insert(settlementPayload).select("id").single();
+  if (saved.error && /salary_prorata|days_worked|schema cache|42703/i.test(saved.error.message ?? "")) {
+    const { salary_prorata, days_worked, ...withoutProrata } = settlementPayload;
+    void salary_prorata; void days_worked;
+    saved = await supabase.from("hr_final_settlements").insert(withoutProrata).select("id").single();
+  }
   if (saved.error || !saved.data) throw new Error(saved.error?.message ?? "Le solde de tout compte n'a pas pu être enregistré.");
 
   await notifyOrganization(supabase, workspace.organization.id, {
@@ -234,6 +245,8 @@ export async function createHrOperationalRecordAction(formData: FormData) {
       request_date: required(formData, "request_date"),
       amount,
       status: "draft",
+      deduction_month: Number(optional(formData, "deduction_month") ?? new Date().getMonth() + 1),
+      deduction_year: Number(optional(formData, "deduction_year") ?? new Date().getFullYear()),
       notes: optional(formData, "notes"),
     }).select("id").single();
     if (saved.error) throw new Error(saved.error.message);
@@ -259,8 +272,11 @@ export async function createHrOperationalRecordAction(formData: FormData) {
     redirect(`/rh/prets/${saved.data.id}`);
   }
   if (kind === "expense") {
-    const amountHt = money(formData, "amount_ht");
-    const tax = money(formData, "tax_amount");
+    const ttcRaw = optional(formData, "amount_ttc");
+    const rate = Number(optional(formData, "tax_rate") ?? 20);
+    const split = ttcRaw ? amountsFromTtc(Number(ttcRaw.replace(",", ".")), rate) : null;
+    const amountHt = split ? split.amountHt : money(formData, "amount_ht");
+    const tax = split ? split.taxAmount : money(formData, "tax_amount");
     const saved = await supabase.from("hr_expense_reports").insert({
       organization_id: workspace.organization.id,
       employee_id: employeeId,
@@ -269,7 +285,8 @@ export async function createHrOperationalRecordAction(formData: FormData) {
       category: required(formData, "category"),
       amount_ht: amountHt,
       tax_amount: tax,
-      amount_ttc: Math.round((amountHt + tax) * 100) / 100,
+      tax_rate: split?.taxRate ?? rate,
+      amount_ttc: split ? split.amountTtc : Math.round((amountHt + tax) * 100) / 100,
       status: "submitted",
       notes: optional(formData, "notes"),
     }).select("id").single();

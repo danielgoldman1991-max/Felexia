@@ -576,6 +576,7 @@ export function buildCustomerInvoiceLines(
     tax_amount: number;
     total_ttc: number;
     tax_rate: number;
+    sales_account_id?: string | null;
   }>,
   accountIds: {
     sales_product: string;
@@ -590,7 +591,7 @@ export function buildCustomerInvoiceLines(
 
   const grouped: Record<string, { ht: number; label: string }> = {};
   for (const line of lines) {
-    const accountId = line.product_id ? accountIds.sales_product : accountIds.sales_service;
+    const accountId = line.sales_account_id || (line.product_id ? accountIds.sales_product : accountIds.sales_service);
     // Customer invoice subtotals are already net of the line discount.
     // Subtracting discount_amount here a second time understates both revenue
     // and the customer receivable.
@@ -649,6 +650,7 @@ export function buildSupplierInvoiceLines(
     tax_amount: number;
     total_ttc: number;
     tax_rate: number;
+    purchase_account_id?: string | null;
   }>,
   accountIds: {
     purchase_product: string;
@@ -663,7 +665,7 @@ export function buildSupplierInvoiceLines(
 
   const grouped: Record<string, { ht: number; label: string }> = {};
   for (const line of lines) {
-    const accountId = line.product_id ? accountIds.purchase_product : accountIds.purchase_service;
+    const accountId = line.purchase_account_id || (line.product_id ? accountIds.purchase_product : accountIds.purchase_service);
     const ht = round2(line.subtotal_ht - (line.discount_amount ?? 0));
     if (grouped[accountId]) {
       grouped[accountId].ht += ht;

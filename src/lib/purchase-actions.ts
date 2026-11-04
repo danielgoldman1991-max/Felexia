@@ -573,7 +573,7 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
 
   const { data: inv, error: invoiceError } = await supabase
     .from("supplier_invoices")
-    .select("id, status, supplier_id, total_ttc, paid_amount, archived_at, supplier_invoice_number")
+    .select("id, status, supplier_id, total_ttc, paid_amount, archived_at, supplier_invoice_number, invoice_date")
     .eq("id", id)
     .eq("organization_id", orgId)
     .maybeSingle();
@@ -616,6 +616,12 @@ export async function validateSupplierInvoice(prev: PurchaseActionResult, formDa
   const taxTotal = lines.reduce((sum, line) => sum + Number(line.tax_amount ?? 0), 0);
   const totalTtc = lines.reduce((sum, line) => sum + Number(line.total_ttc ?? 0), 0);
   if (totalTtc <= 0) return { success: false, error: "Total facture invalide." };
+  try {
+    const { assertDateInOpenPeriod } = await import("@/lib/accounting/period-lock");
+    await assertDateInOpenPeriod(supabase, orgId, String(inv.invoice_date ?? ""));
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Période verrouillée." };
+  }
 
   const paidAmount = Math.max(Number(inv.paid_amount ?? 0), 0);
   const remainingAmount = Math.max(totalTtc - paidAmount, 0);

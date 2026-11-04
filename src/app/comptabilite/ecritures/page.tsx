@@ -24,7 +24,7 @@ export default async function EntriesPage() {
     <ModulePage>
       <PageHeader
         title="Écritures comptables"
-        description="Écritures generees ou saisies manuellement."
+        description="Écritures générées ou saisies manuellement. Le numéro suit le mois de la date, dans l'ordre de comptabilisation : le FEC les reclasse par date."
         actions={<><Button variant="secondary" asChild><Link href="/comptabilite/journaux">Journaux</Link></Button>{canWrite ? <Button asChild><Link href="/comptabilite/ecritures/nouveau">Nouvelle écriture</Link></Button> : null}</>}
       />
       <div className="space-y-6">

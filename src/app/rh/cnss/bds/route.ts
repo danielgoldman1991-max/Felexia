@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: period } = await supabase.from("hr_payroll_periods").select("id").eq("organization_id", workspace.organization.id).eq("year", year).eq("month", month).maybeSingle();
   const { data: slips } = period
-    ? await supabase.from("hr_payslips").select("employee_id, gross_salary").eq("organization_id", workspace.organization.id).eq("payroll_period_id", period.id)
+    ? await supabase.from("hr_payslips").select("employee_id, gross_salary, status").eq("organization_id", workspace.organization.id).eq("payroll_period_id", period.id).in("status", ["calculated", "validated", "paid"])
     : { data: [] };
   const ids = (slips ?? []).map((slip) => slip.employee_id as string);
   const { data: people } = ids.length
@@ -32,7 +32,11 @@ export async function GET(request: Request) {
       capped: Math.min(gross, MA_PAYROLL_2026.cnssMonthlyCeiling),
     };
   });
-  const body = `${buildPreparatoryBds(`${year}${String(month).padStart(2, "0")}`, rows)}${controlTrailer(bdsIssues(rows, MA_PAYROLL_2026.cnssMonthlyCeiling))}`;
+  const issues = bdsIssues(rows, MA_PAYROLL_2026.cnssMonthlyCeiling);
+  rows.forEach((row, index) => {
+    if (!/^\d{9}$/.test(row.cnssNumber)) issues.push(`Ligne ${index + 1} : numéro CNSS invalide (${row.cnssNumber || "absent"}, 9 chiffres attendus).`);
+  });
+  const body = `${buildPreparatoryBds(`${year}${String(month).padStart(2, "0")}`, rows)}${controlTrailer(issues)}`;
   return new NextResponse(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",

@@ -9,7 +9,7 @@ import { HrManagementAction } from "@/components/hr/hr-management-action";
 
 type Row = Record<string, string | number | boolean | null>;
 type DetailBasePath = "/rh/contrats" | "/rh/paie/periodes" | "/rh/paie/bulletins" | "/rh/conges" | "/rh/absences" | "/rh/avances" | "/rh/prets" | "/rh/notes-de-frais";
-const detailBases = new Set<DetailBasePath>(["/rh/contrats", "/rh/paie/periodes", "/rh/paie/bulletins", "/rh/conges", "/rh/absences", "/rh/avances", "/rh/prets", "/rh/notes-de-frais"]);
+const detailBases = new Set<string>(["/rh/contrats", "/rh/paie/periodes", "/rh/paie/bulletins", "/rh/conges", "/rh/absences", "/rh/avances", "/rh/prets", "/rh/notes-de-frais"]);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function HrSectionPage({

@@ -106,6 +106,11 @@ export async function createSalesQuote(
 
   const contact_id = text(formData, "contact_id");
   const document_date = text(formData, "document_date") ?? new Date().toISOString().split("T")[0];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(document_date)) return { success: false, error: "La date du devis n’est pas valide." };
+  const parsedQuoteDate = new Date(`${document_date}T00:00:00Z`);
+  if (Number.isNaN(parsedQuoteDate.getTime()) || parsedQuoteDate.toISOString().slice(0, 10) !== document_date) {
+    return { success: false, error: "La date du devis n’existe pas. Vérifiez le jour et le mois." };
+  }
   const valid_until = text(formData, "valid_until");
   const payment_terms_days = numberOrZero(formData, "payment_terms_days");
   const notes = text(formData, "notes");
@@ -139,7 +144,7 @@ export async function createSalesQuote(
     .select("id")
     .single();
 
-  if (quoteError) return { success: false, error: quoteError.message };
+  if (quoteError) return { success: false, error: "Le devis n’a pas pu être créé. Vérifiez le client, la date et les lignes, puis réessayez." };
 
   for (const [idx, line] of lines.entries()) {
     const { error: lineError } = await supabase

@@ -31,9 +31,10 @@ const categoryIcons: Record<GlobalSearchCategory, ComponentType<{ className?: st
   Achats: ShoppingCart,
   Stock: ArrowLeftRight,
   Tresorerie: Banknote,
+  RH: Users,
 };
 
-const categoryOrder: GlobalSearchCategory[] = ["Acces rapide", "Tiers", "Articles", "Vente", "Facturation", "Achats", "Stock", "Tresorerie"];
+const categoryOrder: GlobalSearchCategory[] = ["Acces rapide", "Tiers", "Articles", "Vente", "Facturation", "Achats", "Stock", "Tresorerie", "RH"];
 
 function groupedResults(results: GlobalSearchResult[]) {
   return categoryOrder
@@ -138,6 +139,12 @@ export function GlobalSearch({ fullAccess = false, readOnly = false, operator = 
     }
     if (event.key === "Enter") {
       event.preventDefault();
+      const term = query.trim();
+      if (term.length >= 2) {
+        setOpen(false);
+        router.push(`/recherche?q=${encodeURIComponent(term)}`);
+        return;
+      }
       openResult(flatResults[activeIndex] ?? flatResults[0]);
     }
   }

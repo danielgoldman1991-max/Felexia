@@ -28,8 +28,11 @@ export async function GET(request: Request) {
   } catch {
     const { data: org } = await supabase.from("organizations").select("ice").eq("id", workspace.organization.id).maybeSingle();
     ice = String(org?.ice ?? "");
+    const { data: company } = await supabase.from("organizations").select("ice, if_number").eq("id", workspace.organization.id).maybeSingle();
+    ice = ice || String(company?.ice ?? "");
   }
+  const { data: identity } = await supabase.from("organizations").select("if_number").eq("id", workspace.organization.id).maybeSingle();
   const issues = validateSimpl(ice, period, lines);
-  const body = `${buildEdiSimpl(ice, period, lines)}${controlTrailer(issues)}`;
+  const body = `${buildEdiSimpl(ice, period, lines, identity?.if_number)}${controlTrailer(issues)}`;
   return new NextResponse(body, { headers: { "Content-Type": "text/plain; charset=utf-8", "Content-Disposition": `attachment; filename=edi-simpl-${period}.txt` } });
 }

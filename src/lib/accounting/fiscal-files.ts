@@ -31,10 +31,37 @@ export function validateSimpl(ice: string, period: string, lines: SimplLine[]): 
   return issues;
 }
 
-export function buildIsFile(ice: string, year: number, accountingResult: number, ratePercent: number | null): string {
+export type IsPreviewInput = {
+  turnover?: number | null;
+  priorYearTax?: number | null;
+};
+
+const MINIMUM_CONTRIBUTION = 3000;
+const MINIMUM_CONTRIBUTION_RATE = 0.0025;
+
+/** Cotisation minimale : 0,25 % du chiffre d'affaires, plancher 3 000 MAD. */
+export function minimumContribution(turnover: number) {
+  return round2(Math.max(MINIMUM_CONTRIBUTION, Math.max(0, turnover) * MINIMUM_CONTRIBUTION_RATE));
+}
+
+/** Quatre acomptes de 25 % de l'impôt de référence. Le dernier absorbe l'arrondi. */
+export function quarterlyInstallments(referenceTax: number) {
+  const total = round2(Math.max(0, referenceTax));
+  const slice = round2(total / 4);
+  const last = round2(total - slice * 3);
+  return [slice, slice, slice, last];
+}
+
+export function buildIsFile(ice: string, year: number, accountingResult: number, ratePercent: number | null, options: IsPreviewInput = {}): string {
   const result = round2(accountingResult);
   const rate = ratePercent === null ? null : round2(ratePercent);
   const tax = rate === null ? null : round2(Math.max(0, result) * rate / 100);
+  const turnover = options.turnover === null || options.turnover === undefined ? null : round2(options.turnover);
+  const contribution = turnover === null ? null : minimumContribution(turnover);
+  const due = tax === null ? null : round2(Math.max(tax, contribution ?? 0));
+  const reference = options.priorYearTax === null || options.priorYearTax === undefined ? tax : round2(Math.max(0, options.priorYearTax));
+  const installments = reference === null ? null : quarterlyInstallments(reference);
+  const installmentBase = options.priorYearTax === null || options.priorYearTax === undefined ? "IS_ESTIME_EXERCICE" : "IS_N_MOINS_1";
   return [
     "IS;PREPARATOIRE",
     `ICE;${ice || "A_COMPLETER"}`,
@@ -42,6 +69,15 @@ export function buildIsFile(ice: string, year: number, accountingResult: number,
     `RESULTAT_COMPTABLE;${result.toFixed(2)}`,
     `TAUX_POURCENT;${rate === null ? "NON_RENSEIGNE" : rate.toFixed(3)}`,
     `IS_ESTIME;${tax === null ? "NON_CALCULE" : tax.toFixed(2)}`,
+    `CHIFFRE_AFFAIRES;${turnover === null ? "NON_RENSEIGNE" : turnover.toFixed(2)}`,
+    `COTISATION_MINIMALE;${contribution === null ? "NON_CALCULE" : contribution.toFixed(2)}`,
+    "COTISATION_MINIMALE_REGLE;0,25% du CA, minimum 3000 MAD",
+    `IS_DU;${due === null ? "NON_CALCULE" : due.toFixed(2)}`,
+    `ACOMPTE_BASE;${installments === null ? "NON_CALCULE" : installmentBase}`,
+    `ACOMPTE_1_MARS;${installments === null ? "NON_CALCULE" : installments[0].toFixed(2)}`,
+    `ACOMPTE_2_JUIN;${installments === null ? "NON_CALCULE" : installments[1].toFixed(2)}`,
+    `ACOMPTE_3_SEPTEMBRE;${installments === null ? "NON_CALCULE" : installments[2].toFixed(2)}`,
+    `ACOMPTE_4_DECEMBRE;${installments === null ? "NON_CALCULE" : installments[3].toFixed(2)}`,
     "DEPOT;MANUEL",
     "",
   ].join("\n");

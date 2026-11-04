@@ -116,8 +116,12 @@ export function CommercialLinesEditor({ lines, onChange, products, units, taxRat
       return;
     }
 
+    if (Number(draftLine.quantity) < 0) {
+      setError("La quantité ne peut pas être négative.");
+      return;
+    }
     if (Number(preparedLine.quantity) <= 0) {
-      setError("La quantité doit etre superieure a zero.");
+      setError("La quantité doit être supérieure à zéro.");
       return;
     }
 

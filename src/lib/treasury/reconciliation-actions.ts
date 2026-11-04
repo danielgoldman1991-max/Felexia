@@ -280,16 +280,25 @@ async function applyProposal(organizationId: string, userId: string, line: Exper
       amount: target.amount,
     })));
   }
-  const event = await supabase.from("bank_reconciliation_events").insert({
+  const eventPayload = {
     organization_id: organizationId,
     treasury_account_id: line.accountId,
     statement_line_id: line.id,
     action: fee ? "fee_booked" : action,
     score: proposal.score,
     reason: proposal.reason,
-    payload: { createdPaymentId, paymentKind, feeTransactionId: fee ? transactionId : null, accountingEntryId },
+    payload: { createdPaymentId, paymentKind, feeTransactionId: fee ? transactionId : null, accountingEntryId, createdTransactionId: transactionId },
+    created_payment_id: createdPaymentId,
+    created_transaction_id: transactionId,
+    payment_kind: paymentKind,
     created_by: userId,
-  });
+  };
+  let event = await supabase.from("bank_reconciliation_events").insert(eventPayload);
+  if (event.error && isMissingSchema(event.error)) {
+    const { created_payment_id, created_transaction_id, payment_kind, ...legacy } = eventPayload;
+    void created_payment_id; void created_transaction_id; void payment_kind;
+    event = await supabase.from("bank_reconciliation_events").insert(legacy);
+  }
   if (event.error && !isMissingSchema(event.error)) warnings.push("Le journal du rapprochement n'a pas été écrit.");
   return { success: true, data: { message: warnings[0] } };
 }

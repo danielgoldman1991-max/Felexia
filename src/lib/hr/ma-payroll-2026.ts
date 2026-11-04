@@ -47,6 +47,28 @@ export function seniorityRate(completedYears: number): number {
   return 0;
 }
 
+/** Taux horaire = salaire mensuel / (heures hebdomadaires × 52 / 12). */
+export function hourlyRateFromMonthly(baseSalary: number, weeklyHours = 44) {
+  const hours = weeklyHours > 0 ? weeklyHours : 44;
+  const monthlyHours = hours * 52 / 12;
+  return roundMoney(Math.max(0, baseSalary) / monthlyHours);
+}
+
+/** Heures supplémentaires : +25 %, +50 % et +100 % du taux horaire. */
+export function overtimePayFromHours(baseSalary: number, hours: { at25?: number; at50?: number; at100?: number }, weeklyHours = 44) {
+  const hourly = hourlyRateFromMonthly(baseSalary, weeklyHours);
+  const at25 = Math.max(0, hours.at25 ?? 0);
+  const at50 = Math.max(0, hours.at50 ?? 0);
+  const at100 = Math.max(0, hours.at100 ?? 0);
+  return {
+    hourly,
+    at25,
+    at50,
+    at100,
+    amount: roundMoney(hourly * (at25 * 1.25 + at50 * 1.5 + at100 * 2)),
+  };
+}
+
 export function completedYears(hireDate: string, onDate: string): number {
   const hire = new Date(`${hireDate}T00:00:00Z`);
   const on = new Date(`${onDate}T00:00:00Z`);
@@ -110,6 +132,7 @@ export function calculateMoroccanPayslip2026(input: MoroccanPayslipInput) {
   const employerCost = roundMoney(gross + cnssEmployerSocial + cnssEmployerFamily + trainingTax + amoEmployer);
 
   return {
+    dependents,
     baseSalary,
     seniorityYears: years,
     seniorityPercent,

@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DateField } from "@/components/ui/date-field";
+import { FrenchForm } from "@/components/ui/french-form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,7 +67,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
   const totals = calculateTotals(lines);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <FrenchForm action={formAction} className="space-y-5">
       {quote ? <input type="hidden" name="id" value={quote.id} /> : null}
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <input type="hidden" name="subtotal_ht" value={totals.subtotal_ht} />
@@ -132,6 +133,6 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
           {mode === "create" ? "Créer devis" : "Enregistrer"}
         </Button>
       </div>
-    </form>
+    </FrenchForm>
   );
 }

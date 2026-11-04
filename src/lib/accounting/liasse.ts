@@ -43,11 +43,13 @@ const PREFIX_LABELS: Record<string, string> = {
 /** Liasse de gestion CGNC. Ce n'est pas une liasse certifiée ni un dépôt fiscal. */
 export function buildLiasse(lines: StatementLine[], openingEquity: number): Liasse {
   const statements = buildFinancialStatements(lines);
-  const treasury = lines
+  // Variation de trésorerie = mouvement net des comptes de classe 5 (débit − crédit).
+  // Elle doit égaler le solde de trésorerie lu sur les mêmes écritures, sans y ajouter le résultat.
+  const treasury = round2(lines
     .filter((line) => line.accountCode.trim().startsWith("5"))
-    .reduce((sum, line) => sum + (Number(line.debit) || 0) - (Number(line.credit) || 0), 0);
+    .reduce((sum, line) => sum + (Number(line.debit) || 0) - (Number(line.credit) || 0), 0));
   const emplois = Math.max(0, -treasury);
-  const ressources = Math.max(0, treasury) + Math.max(0, statements.resultat);
+  const ressources = Math.max(0, treasury);
   const postes = buildPostes(lines, openingEquity, statements.resultat);
   return {
     bilan: { actif: statements.actif, passif: statements.passif, balanced: statements.balanced },

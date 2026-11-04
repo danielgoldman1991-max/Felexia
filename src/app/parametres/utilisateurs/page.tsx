@@ -26,7 +26,7 @@ export default async function UsersSettingsPage() {
       .order("created_at"),
     supabase
       .from("roles")
-      .select("id, name")
+      .select("id, name, description")
       .eq("organization_id", workspace.organization.id)
       .order("name"),
     checkUserLimit(),
@@ -51,7 +51,7 @@ export default async function UsersSettingsPage() {
     expiresAt: inv.expires_at,
   }));
 
-  const roles = (rolesResult.data ?? []).map((r) => ({ id: r.id, name: r.name }));
+  const roles = (rolesResult.data ?? []).map((r) => ({ id: r.id, name: r.name, description: r.description }));
 
   return (
     <div>

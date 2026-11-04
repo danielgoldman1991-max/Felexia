@@ -215,6 +215,7 @@ export const sections: SidebarSection[] = [
       { label: "Bilan et CPC", href: "/comptabilite/etats", icon: BarChart3 },
       { label: "Lettrage", href: "/comptabilite/lettrage", icon: ClipboardList },
       { label: "Exercices", href: "/comptabilite/exercices", icon: CalendarDays },
+      { label: "Clôture", href: "/comptabilite/cloture", icon: CalendarDays },
       { label: "TVA", href: "/comptabilite/tva", icon: Calculator },
       { label: "Liasse", href: "/comptabilite/liasse", icon: FileText },
       { label: "Dépôt fiscal", href: "/comptabilite/parametres-fiscaux", icon: Settings },

@@ -9,6 +9,7 @@ import type { CreditNoteActionResult, CreditNoteLineFormValue } from "@/lib/cred
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
 import { isAccountingRole } from "@/lib/auth/roles";
 import { buildCustomerInvoiceLines, getAccountByNumber, getAccountingSettings, getExistingEntryBySource, getJournalByCode } from "@/lib/accounting";
+import { allocateByWeight } from "@/lib/accounting/posting-accounts";
 import { financialErrorMessage } from "@/lib/financial-errors";
 
 function text(formData: FormData, key: string) {
@@ -231,7 +232,19 @@ export async function postCustomerCreditNote(prev: CreditNoteActionResult, formD
     getAccountByNumber(workspace.organization.id, String(settings?.default_sales_vat_account_code || "4455")),
   ]);
   if (!journal || !customer || !product || !service || !vat) return { success: false, error: "Le journal des ventes ou les comptes nécessaires ne sont pas configurés. Contactez l’assistance." };
-  const accountingLines = buildCustomerInvoiceLines(lines, { sales_product: product.id, sales_service: service.id, customer: customer.id, sales_vat: vat.id }).map((line) => ({ account_id: line.account_id, label: `Avoir ${creditNote.credit_note_number} · ${line.label}`, debit: line.credit, credit: line.debit }));
+  const originalEntry = creditNote.source_invoice_id ? await getExistingEntryBySource(workspace.organization.id, "customer_invoice", creditNote.source_invoice_id) : null;
+  const originalLines = originalEntry ? await (await createClient()).from("accounting_entry_lines").select("account_id, account_code, debit, credit").eq("organization_id", workspace.organization.id).eq("entry_id", originalEntry.id) : { data: [] };
+  const revenue = (originalLines.data ?? []).filter((line) => String(line.account_code ?? "").startsWith("7") && Number(line.credit) > Number(line.debit));
+  const ht = lines.reduce((sum, line) => sum + Number(line.subtotal_ht ?? 0), 0);
+  const allocated = allocateByWeight(ht, revenue.map((line) => ({ accountId: String(line.account_id), weight: Number(line.credit) - Number(line.debit) })));
+  const baseLines = allocated.length
+    ? [
+        { account_id: customer.id, label: "Avoir client", debit: 0, credit: Number(creditNote.total_ttc) },
+        ...allocated.map((part) => ({ account_id: part.accountId, label: "Reprise du produit de la facture", debit: part.amount, credit: 0 })),
+        ...(Number(creditNote.tax_total ?? 0) > 0 ? [{ account_id: vat.id, label: "TVA", debit: Number(creditNote.tax_total), credit: 0 }] : []),
+      ].map((line) => ({ account_id: line.account_id, label: `Avoir ${creditNote.credit_note_number} · ${line.label}`, debit: line.debit, credit: line.credit }))
+    : buildCustomerInvoiceLines(lines, { sales_product: product.id, sales_service: service.id, customer: customer.id, sales_vat: vat.id }).map((line) => ({ account_id: line.account_id, label: `Avoir ${creditNote.credit_note_number} · ${line.label}`, debit: line.credit, credit: line.debit }));
+  const accountingLines = baseLines;
   if (Math.abs(accountingLines.reduce((sum, line) => sum + line.debit, 0) - creditNote.total_ttc) > 0.005) return { success: false, error: "Les totaux de cet avoir nécessitent une vérification avant comptabilisation." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_accounting_entry_atomic", { p_organization_id: workspace.organization.id, p_entry_id: null, p_header: { journal_id: journal.id, entry_date: creditNote.credit_note_date, label: `Avoir client ${creditNote.credit_note_number}`, reference: creditNote.credit_note_number, status: "posted", source_module: "invoicing", source_document_type: "customer_credit_note", source_document_id: id, source_number: creditNote.credit_note_number }, p_lines: accountingLines });

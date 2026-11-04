@@ -26,6 +26,7 @@ export type SettlementInput = {
   noticeDays: number;
   noticePaid: boolean;
   lastNet: number;
+  daysWorked?: number;
 };
 
 export type SettlementResult = {
@@ -38,6 +39,8 @@ export type SettlementResult = {
   noticeIndemnity: number;
   dismissalIndemnity: number;
   lastNet: number;
+  salaryProrata: number;
+  daysWorked: number;
   total: number;
   eligibleForDismissal: boolean;
   notes: string[];
@@ -66,16 +69,18 @@ export function computeFinalSettlement(input: SettlementInput): SettlementResult
   const months = calendarMonths(input.hireDate, input.exitDate);
   const years = round2(months / 12);
   const hourly = round2(monthly / HOURLY_DIVISOR);
-  const daily = round2(monthly / DAILY_DIVISOR);
-  const leaveDays = round2(Math.max(0, input.remainingLeaveDays));
-  const noticeDays = round2(Math.max(0, input.noticeDays));
+  const daily = monthly / DAILY_DIVISOR;
+  const leaveDays = Math.max(0, input.remainingLeaveDays);
+  const noticeDays = Math.max(0, input.noticeDays);
+  const daysWorked = Math.max(0, input.daysWorked ?? 0);
   const leaveIndemnity = round2(leaveDays * daily);
   const noticeIndemnity = input.noticePaid ? 0 : round2(noticeDays * daily);
+  const salaryProrata = round2(daysWorked * daily);
   const eligible = input.reason === "licenciement" && months >= 6;
   const dismissalHours = eligible ? round2(bracketHours(years)) : 0;
   const dismissalIndemnity = round2(dismissalHours * hourly);
   const lastNet = round2(Math.max(0, input.lastNet));
-  const total = round2(leaveIndemnity + noticeIndemnity + dismissalIndemnity + lastNet);
+  const total = round2(leaveIndemnity + noticeIndemnity + dismissalIndemnity + lastNet + salaryProrata);
   const notes = [
     "Préparation interne. Elle ne remplace pas le reçu pour solde de tout compte signé ni l'avis du conseil social.",
     `Journée retenue : salaire mensuel / ${DAILY_DIVISOR}. Heure retenue : salaire mensuel / ${HOURLY_DIVISOR}.`,
@@ -87,12 +92,14 @@ export function computeFinalSettlement(input: SettlementInput): SettlementResult
     monthsOfService: months,
     yearsOfService: years,
     hourlyRate: hourly,
-    dailyRate: daily,
+    dailyRate: round2(daily),
     dismissalHours,
     leaveIndemnity,
     noticeIndemnity,
     dismissalIndemnity,
     lastNet,
+    salaryProrata,
+    daysWorked,
     total,
     eligibleForDismissal: eligible,
     notes,

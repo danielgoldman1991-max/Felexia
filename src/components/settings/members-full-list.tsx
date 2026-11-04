@@ -51,7 +51,7 @@ export function MembersFullList({
 }: {
   members: Member[];
   invitations: Invitation[];
-  roles: { id: string; name: string }[];
+  roles: { id: string; name: string; description?: string | null }[];
   isOwner: boolean;
   currentUserId: string;
   limit: { allowed: boolean; current: number; max: number };
@@ -61,7 +61,8 @@ export function MembersFullList({
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string | null>(null);
   const resolvedInviteRole = getInvitationRoleId(roles, inviteRole);
-  const inviteRoleDescription = getRoleDescription(roles.find((role) => role.id === resolvedInviteRole)?.name ?? "viewer");
+  const selectedInviteRole = roles.find((role) => role.id === resolvedInviteRole);
+  const inviteRoleDescription = selectedInviteRole?.description?.trim() || getRoleDescription(selectedInviteRole?.name ?? "viewer");
   const [inviteFullName, setInviteFullName] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);

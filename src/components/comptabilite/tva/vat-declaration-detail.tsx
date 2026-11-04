@@ -206,24 +206,22 @@ export function VatDeclarationDetail({ declaration, canWrite = false }: { declar
       <Card>
         <CardHeader><h2 className="font-semibold">Totaux par taux TVA</h2></CardHeader>
         <CardContent>
-          {Object.keys(declaration.totals_by_rate ?? {}).length === 0 ? (
-            <p className="text-sm text-[var(--muted)]">Aucun détail par taux disponible.</p>
-          ) : (
-            <Table>
+          <Table>
               <thead>
                 <tr><Th>Taux</Th><Th className="text-right">TVA collectée</Th><Th className="text-right">TVA récupérable</Th></tr>
               </thead>
               <tbody>
-                {Object.entries(declaration.totals_by_rate as Record<string, { collected: number; deductible: number }>).map(([rate, totals]) => (
+                {["20", "14", "10", "7"].concat(Object.keys(declaration.totals_by_rate as Record<string, unknown>).filter((rate) => !["20", "14", "10", "7"].includes(rate))).map((rate) => {
+                  const totals = (declaration.totals_by_rate as Record<string, { collected: number; deductible: number }>)[rate] ?? { collected: 0, deductible: 0 };
+                  return (
                   <tr key={rate}>
                     <Td>{rate}%</Td>
                     <Td className="text-right"><MoneyDisplay value={totals.collected} /></Td>
                     <Td className="text-right"><MoneyDisplay value={totals.deductible} /></Td>
                   </tr>
-                ))}
+                );})}
               </tbody>
             </Table>
-          )}
         </CardContent>
       </Card>
 

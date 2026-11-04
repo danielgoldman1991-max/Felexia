@@ -7,15 +7,24 @@ import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { StatCard } from "@/components/erp/stat-card";
 import { listStockProductsForSelect } from "@/lib/stock";
+import { createClient } from "@/lib/supabase/server";
+import { MoneyDisplay } from "@/components/erp/money-display";
 import { getStockLocationCounters } from "@/lib/stock-locations";
 import { formatNumber } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function StockPage() {
-  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
-  const [products, locationCounters] = await Promise.all([listStockProductsForSelect(), getStockLocationCounters()]);
+  const workspace = await requireActiveWorkspace();
+  const canWrite = canWriteProWorkspace(workspace);
+  const supabase = await createClient();
+  const [products, locationCounters, valued] = await Promise.all([
+    listStockProductsForSelect(),
+    getStockLocationCounters(),
+    supabase.from("products").select("current_stock, purchase_price_ht, track_stock").eq("organization_id", workspace.organization.id).eq("track_stock", true).is("archived_at", null),
+  ]);
   const stockable = products.filter((product) => product.track_stock);
+  const stockValue = (valued.data ?? []).reduce((sum, product) => sum + Number(product.current_stock ?? 0) * Number(product.purchase_price_ht ?? 0), 0);
   const lowStock = stockable.filter((product) => product.current_stock <= product.min_stock);
   const totalStock = stockable.reduce((sum, product) => sum + Number(product.current_stock ?? 0), 0);
 
@@ -37,6 +46,7 @@ export default async function StockPage() {
         <StatCard title="Articles suivis" value={stockable.length} />
         <StatCard title="Emplacements actifs" value={locationCounters.active} />
         <StatCard title="Alertes stock" value={lowStock.length} />
+        <StatCard title="Valeur CMUP" value={<MoneyDisplay value={stockValue} />} />
       </div>
       <Card className="mt-5">
         <CardContent className="text-sm text-[var(--muted)]">

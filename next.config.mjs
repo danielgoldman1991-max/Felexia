@@ -11,7 +11,7 @@ const nextConfig = {
     return [{
       // Keep authentication/private responses out of search, without redirects,
       // cookie changes or a rule touching public assets/Google's ownership file.
-      source: "/:privateRoot(abonnement|achats|agenda|api|articles|auth|avoirs|banques|bienvenue|caisses|clients|commandes|commerce|comptabilite|dashboard|decaissements|devis|documents|encaissements|facturation|factures|fournisseurs|invitation|livraisons|login|newsletter|mot-de-passe-oublie|onboarding|outils|paiements|parametres|rapports|reinitialiser-mot-de-passe|relances|rh|stock|tiers|tresorerie|vente|ventes)/:path*",
+      source: "/:privateRoot(abonnement|achats|agenda|api|articles|auth|avoirs|banques|bienvenue|caisses|clients|commandes|commerce|comptabilite|dashboard|decaissements|devis|documents|encaissements|facturation|factures|fournisseurs|invitation|livraisons|login|newsletter|mot-de-passe-oublie|onboarding|outils|paiements|parametres|rapports|recherche|reinitialiser-mot-de-passe|relances|rh|stock|supervision|tiers|tresorerie|vente|ventes)/:path*",
       headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive, nosnippet" }],
     }];
   },

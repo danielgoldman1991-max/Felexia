@@ -33,6 +33,7 @@ export function DateField({
     return defaultValue ?? "";
   });
   const [rawOverride, setRawOverride] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const hiddenRef = useRef<HTMLInputElement>(null);
   const nativePickerRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,7 @@ export function DateField({
       const raw = e.target.value;
       setRawOverride(raw);
       const iso = parseFrDateToIso(raw);
+      setError(raw.trim() && !iso && raw.replace(/\D/g, "").length >= 8 ? "Cette date n’existe pas. Vérifiez le jour et le mois." : null);
       if (!isControlled && iso) {
         setInternalIso(iso);
       }
@@ -58,8 +60,13 @@ export function DateField({
   );
 
   const handleBlur = useCallback(() => {
+    if (rawOverride && rawOverride.trim() && !parseFrDateToIso(rawOverride)) {
+      setError("Cette date n’existe pas. Vérifiez le jour et le mois.");
+      return;
+    }
+    setError(null);
     setRawOverride(null);
-  }, []);
+  }, [rawOverride]);
 
   function handleNativePickerChange(e: React.ChangeEvent<HTMLInputElement>) {
     const iso = e.target.value;
@@ -115,6 +122,7 @@ export function DateField({
           aria-hidden="true"
         />
       </div>
+      {error ? <p role="alert" className="mt-1 text-xs text-red-700">{error}</p> : null}
       {name ? (
         <input ref={hiddenRef} type="hidden" name={name} value={currentIso} />
       ) : null}

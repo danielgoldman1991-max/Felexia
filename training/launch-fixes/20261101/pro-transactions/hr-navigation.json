@@ -27,7 +27,7 @@
     "src/app/rh/paie/bulletins/page.tsx invalid ID remains text, never navigates",
     "src/app/rh/paie/bulletins/page.tsx empty state has no invented record link",
     "Runtime route allowlist and escaped reference prevent untrusted navigation/markup",
-    "Payroll home states base-only scope and consultative settings without final-validation promise",
+    "Payroll home states the 2026 reference scope, period validation and payment, and that it is not a CNSS or tax filing",
     "Four pages use existing read helper once per render, no new data access path"
   ],
   "scope": "Actual RH pages and shared table SSR; controlled list read and management-role boundary. Native links, valid UUID/route allowlist, empty state and read-only affordances. No SQL, network, data mutation or browser navigation."

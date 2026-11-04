@@ -1,6 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
+import { logAudit } from "@/lib/audit";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveWorkspace } from "@/lib/auth";
 import { getAppUrl } from "@/lib/app-url";
@@ -122,6 +123,7 @@ export async function inviteOrganizationUser(input: {
     console.error("[INVITE] auth linkage failed after email dispatch", { invitationId, code: linkError.code, message: linkError.message });
     throw new InvitationError("SUPABASE_UNKNOWN", "L'email a été envoyé, mais sa confirmation est momentanément indisponible. Contactez l'assistance.", 500);
   }
+  await logAudit(organizationId, "invite_user", "invitations", invitationId, { email });
   if (!linked) {
     const { data: current } = await serviceClient.from("invitations").select("status")
       .eq("id", invitationId).maybeSingle();

@@ -51,6 +51,14 @@ function parseLines(formData: FormData): AccountingEntryLineFormValue[] {
 
 
 async function saveAtomicAccountingEntry(supabase: Awaited<ReturnType<typeof createClient>>, header: Record<string, unknown>, lines: Record<string, unknown>[]) {
+  if (header.status === "posted" && header.organization_id) {
+    try {
+      const { assertDateInOpenPeriod } = await import("@/lib/accounting/period-lock");
+      await assertDateInOpenPeriod(supabase, String(header.organization_id), String(header.entry_date ?? ""));
+    } catch (error) {
+      return { error: { message: error instanceof Error ? error.message : "Période verrouillée." }, entry: null };
+    }
+  }
   const result = await supabase.rpc("save_accounting_entry_atomic", {
     p_organization_id: header.organization_id,
     p_entry_id: null,
@@ -1590,11 +1598,13 @@ export async function letterAccountingLines(prev: AccountingActionResult, formDa
   void prev;
   const workspace = await requireProWorkspace();
   if (!isAccountingRole(workspace.role)) return { success: false, error: "Le lettrage est réservé au propriétaire, à l’administrateur ou au comptable." };
-  const code = (text(formData, "lettering_code") ?? "").toUpperCase();
+  const requested = (text(formData, "lettering_code") ?? "").toUpperCase();
   const ids = formData.getAll("line_ids").map((value) => String(value).trim()).filter(Boolean);
-  if (!/^[A-Z0-9]{1,6}$/.test(code)) return { success: false, error: "Le code de lettrage doit contenir 1 à 6 lettres ou chiffres." };
   if (ids.length < 2) return { success: false, error: "Sélectionnez au moins deux lignes." };
   const supabase = await createClient();
+  const { nextLetteringCode } = await import("@/lib/accounting-lettering");
+  const { data: usedCodes } = await supabase.from("accounting_entry_lines").select("lettering_code").eq("organization_id", workspace.organization.id).not("lettering_code", "is", null).limit(500);
+  const code = /^[A-Z0-9]{1,6}$/.test(requested) ? requested : nextLetteringCode((usedCodes ?? []).map((row) => row.lettering_code as string | null));
   const { data, error } = await supabase
     .from("accounting_entry_lines")
     .select("id, account_code, debit, credit, lettering_code")
@@ -1608,13 +1618,34 @@ export async function letterAccountingLines(prev: AccountingActionResult, formDa
   if (!canLetterLines(lines.map((line) => ({ accountCode: String(line.account_code), debit: Number(line.debit), credit: Number(line.credit) })))) {
     return { success: false, error: "Le lettrage exige un même compte 3421 ou 4411, et un total débit égal au total crédit." };
   }
-  const { error: updateError } = await supabase
-    .from("accounting_entry_lines")
-    .update({ lettering_code: code })
-    .eq("organization_id", workspace.organization.id)
-    .in("id", ids);
+  const today = new Date().toISOString().slice(0, 10);
+  let updateError = (await supabase.from("accounting_entry_lines").update({ lettering_code: code, lettering_date: today }).eq("organization_id", workspace.organization.id).in("id", ids)).error;
+  if (updateError && (updateError.code === "42703" || updateError.code === "PGRST204")) {
+    updateError = (await supabase.from("accounting_entry_lines").update({ lettering_code: code }).eq("organization_id", workspace.organization.id).in("id", ids)).error;
+  }
   if (updateError) return { success: false, error: financialErrorMessage(updateError) };
   await logAudit(workspace.organization.id, "letter_accounting_lines", "accounting_entry_lines", ids[0], { code, count: ids.length });
   revalidatePath("/comptabilite/lettrage");
-  return { success: true };
+  return { success: true, data: { message: `Lettrage ${code} enregistré.` } };
+}
+
+export async function setAccountingPeriodLock(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {
+  void prev;
+  const workspace = await requireProWorkspace();
+  if (!isAccountingRole(workspace.role)) return { success: false, error: "Le verrouillage est réservé au propriétaire, à l’administrateur ou au comptable." };
+  const id = text(formData, "period_id");
+  const lock = formData.get("locked") === "1";
+  if (!id) return { success: false, error: "Période introuvable." };
+  const supabase = await createClient();
+  const patch = lock
+    ? { status: "locked", locked_at: new Date().toISOString(), lock_reason: text(formData, "lock_reason") ?? "Verrouillage manuel" }
+    : { status: "open", locked_at: null, lock_reason: null };
+  let updated = await supabase.from("accounting_periods").update(patch).eq("organization_id", workspace.organization.id).eq("id", id);
+  if (updated.error && (updated.error.code === "42703" || updated.error.code === "PGRST204")) {
+    updated = await supabase.from("accounting_periods").update({ status: lock ? "locked" : "open" }).eq("organization_id", workspace.organization.id).eq("id", id);
+  }
+  if (updated.error) return { success: false, error: financialErrorMessage(updated.error) };
+  revalidatePath("/comptabilite/exercices");
+  revalidatePath("/comptabilite/cloture");
+  return { success: true, data: { message: lock ? "Période verrouillée." : "Période rouverte." } };
 }
