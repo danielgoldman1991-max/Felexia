@@ -74,8 +74,11 @@ function validateUnits(lines: Record<string, unknown>[]): string | null {
     if (unitName.toLowerCase() === "u" && !Number.isInteger(quantity)) {
       return `La quantité de "${line.description || line.product_name}" doit etre un nombre entier (unite ${unitName}).`;
     }
+    if (quantity < 0) {
+      return `La quantité de "${line.description || line.product_name}" ne peut pas être négative.`;
+    }
     if (quantity <= 0) {
-      return `La quantité de "${line.description || line.product_name}" doit etre supérieure a 0.`;
+      return `La quantité de "${line.description || line.product_name}" doit être supérieure à zéro.`;
     }
   }
   return null;
@@ -274,6 +277,10 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
         };
       })
       .filter((line) => Number.isFinite(line.quantity) && line.quantity > 0);
+    if (lines.some((line) => numberValue(line.quantity) < 0)) {
+      await supabase.from("purchase_documents").delete().eq("id", doc.id);
+      return { success: false, error: "La quantité ne peut pas être négative." };
+    }
 
     if (calculated.length === 0) {
       await supabase.from("purchase_documents").delete().eq("id", doc.id);
@@ -438,6 +445,14 @@ export async function createSupplierInvoice(prev: PurchaseActionResult, formData
   if (!supplierId) return { success: false, error: "Veuillez sélectionner un fournisseur." };
 
   const invoiceDate = text(formData, "invoice_date") ?? new Date().toISOString().slice(0, 10);
+  try {
+    const { assertDateInOpenPeriod } = await import("@/lib/accounting/period-lock");
+    await assertDateInOpenPeriod(supabase, orgId, invoiceDate);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (!message.includes("verrouillée")) throw error;
+    return { success: false, error: message };
+  }
   const dueDate = await supplierDueDate(supabase, orgId, supplierId, invoiceDate, text(formData, "due_date"));
   const supplierInvoiceNumber = text(formData, "supplier_invoice_number");
   if (!supplierInvoiceNumber) return { success: false, error: "Le numéro de facture fournisseur est obligatoire." };

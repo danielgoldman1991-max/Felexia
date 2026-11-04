@@ -175,6 +175,8 @@ export type AccountingEntryLineRecord = {
   debit: number;
   credit: number;
   label: string | null;
+  lettering_code?: string | null;
+  lettering_date?: string | null;
   due_date: string | null;
   reconciliation_status: AccountingReconciliationStatus;
   created_at: string;

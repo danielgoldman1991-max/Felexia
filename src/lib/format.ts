@@ -14,6 +14,16 @@ export function formatNumber(value: number | null | undefined) {
   return numberFormatter.format(value ?? 0);
 }
 
+const FRENCH_MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+/** Month name from the calendar date itself. fr-MA short labels collapse juin into « jui. ». */
+export function formatFrenchMonth(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return value;
+  const name = FRENCH_MONTHS[Number(match[2]) - 1];
+  return name ? `${name} ${match[1]}` : value;
+}
+
 export function formatDate(value: string | Date) {
   // SQL DATE values are calendar dates, not instants. Keep their day intact
   // when the same document is rendered on the server and in the browser.

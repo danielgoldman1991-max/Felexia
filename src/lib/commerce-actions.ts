@@ -68,8 +68,11 @@ function normalizeCommerceLines(rawLines: Record<string, unknown>[]): { lines: C
       return { lines: [], error: `La description de la ligne ${index + 1} est obligatoire.` };
     }
 
+    if (Number.isFinite(preparedLine.quantity) && preparedLine.quantity < 0) {
+      return { lines: [], error: "La quantité ne peut pas être négative." };
+    }
     if (!Number.isFinite(preparedLine.quantity) || preparedLine.quantity <= 0) {
-      return { lines: [], error: "Les quantités doivent etre superieures a 0." };
+      return { lines: [], error: "Les quantités doivent être supérieures à zéro." };
     }
 
     if (!Number.isFinite(preparedLine.unit_price_ht) || preparedLine.unit_price_ht < 0) {

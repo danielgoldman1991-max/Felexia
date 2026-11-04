@@ -15,7 +15,7 @@ export function financialErrorMessage(error: { code?: string; message?: string; 
   if (message.includes("FINANCE_RELATED_RECORD_INVALID")) return "Sélectionnez des clients, fournisseurs, articles et comptes appartenant à votre entreprise.";
   if (message.includes("FINANCE_SUPPLIER_REFERENCE_EXISTS")) return "Une facture avec ce numéro existe déjà pour ce fournisseur.";
   if (message.includes("FINANCE_ENTRY_UNBALANCED")) return "L’écriture doit avoir des débits et crédits équilibrés.";
-  if (message.includes("FINANCE_PERIOD_LOCKED")) return "Cette période est verrouillée. Déverrouillez le mois dans Exercices avant de valider ou de comptabiliser une pièce à cette date.";
+  if (message.includes("FINANCE_PERIOD_LOCKED")) return "Cette période est verrouillée. Déverrouillez le mois dans Clôture avant de créer ou de valider une pièce à cette date.";
   if (message.includes("FINANCE_POSTED_ENTRY_READ_ONLY")) return "Une écriture comptabilisée se corrige par une nouvelle écriture. Ses montants et son statut restent conservés. Le lettrage du code et de la date reste possible.";
   if (message.includes("FINANCE_SOURCE_NOT_POSTABLE")) return "Le document source doit être validé et actif avant sa comptabilisation.";
   if (message.includes("FINANCE_SOURCE_AMOUNT_MISMATCH")) return "Le montant de l’écriture doit correspondre au document source. Vérifiez les lignes et les arrondis avant de comptabiliser.";

@@ -41,7 +41,7 @@ export function EntriesTable({
             </Td>
             <Td>{formatDate(row.entry_date)}</Td>
             <Td>
-              <span className="text-xs text-[var(--muted)]">{row.journal_code ?? "-"}</span>
+              <span className="text-xs">{row.journal_code ? `${row.journal_code}${row.journal_name ? ` · ${row.journal_name}` : ""}` : "—"}</span>
             </Td>
             <Td className="max-w-xs truncate">{row.label}</Td>
             <Td><MoneyDisplay value={row.total_debit} /></Td>

@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isMissingSchema } from "@/lib/optional-schema";
 
-export const PERIOD_LOCKED_MESSAGE = "Cette période est verrouillée. Déverrouillez le mois dans Exercices avant de valider ou de comptabiliser une pièce à cette date.";
+export const PERIOD_LOCKED_MESSAGE = "Cette période est verrouillée. Déverrouillez le mois dans Clôture avant de créer ou de valider une pièce à cette date.";
 
 export function periodLockedMessage(name?: string | null) {
   if (!name) return PERIOD_LOCKED_MESSAGE;
-  return `La période ${name} est verrouillée. Déverrouillez-la dans Exercices avant de valider ou de comptabiliser une pièce à cette date.`;
+  return `La période ${name} est verrouillée. Déverrouillez-la dans Clôture avant de créer ou de valider une pièce à cette date.`;
 }
 
 export function isPeriodLocked(period: { status?: string | null; locked_at?: string | null } | null | undefined) {

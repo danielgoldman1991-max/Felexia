@@ -59,7 +59,7 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
           {earnings.map((line, index) => (
             <tr key={`e-${index}`}><td>{line.label ?? "Gain"}</td><td className="right">{formatMoney(Number(line.amount ?? 0))}</td></tr>
           ))}
-          {deductions.map((line, index) => (
+          {deductions.filter((line) => !/frais professionnels|charges de famille/i.test(line.label ?? "")).map((line, index) => (
             <tr key={`d-${index}`}><td>{line.label ?? "Retenue"}</td><td className="right">{formatMoney(Number(line.amount ?? 0))}</td></tr>
           ))}
         </PrintLineTable>
@@ -68,7 +68,7 @@ export default async function HrPayslipPrintPage({ params }: { params: Promise<{
             { label: "Salaire brut", value: formatMoney(Number(slip?.gross_salary ?? 0)) },
             { label: "CNSS salarié", value: formatMoney(Number(slip?.cnss_employee ?? 0)) },
             { label: "AMO salarié", value: formatMoney(Number(slip?.amo_employee ?? 0)) },
-            { label: "Frais professionnels", value: formatMoney(Number((slip?.calculation_details as { slip?: { professionalExpense?: number } } | null)?.slip?.professionalExpense ?? 0)) },
+            { label: "Abattement frais professionnels", value: formatMoney(Number((slip?.calculation_details as { slip?: { professionalExpense?: number } } | null)?.slip?.professionalExpense ?? 0)) },
             { label: "Net imposable", value: formatMoney(Number(slip?.taxable_gross ?? 0)) },
             { label: "IR", value: formatMoney(Number(slip?.ir_amount ?? 0)) },
             { label: "Charges de famille", value: formatMoney(Number((slip?.calculation_details as { slip?: { familyReduction?: number } } | null)?.slip?.familyReduction ?? 0)) },

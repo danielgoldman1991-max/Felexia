@@ -1,5 +1,15 @@
 import type { InvoiceLineFormValue } from "@/lib/invoice-types";
 
+export const NEGATIVE_QUANTITY_MESSAGE = "La quantité ne peut pas être négative.";
+
+export function quantityDraftError(raw: string) {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("-") || trimmed.startsWith("−")) return NEGATIVE_QUANTITY_MESSAGE;
+  const parsed = Number(trimmed.replace(",", "."));
+  if (trimmed !== "" && Number.isFinite(parsed) && parsed < 0) return NEGATIVE_QUANTITY_MESSAGE;
+  return null;
+}
+
 export function roundInvoice2(value: number) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }

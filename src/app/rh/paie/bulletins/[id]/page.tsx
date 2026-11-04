@@ -35,8 +35,8 @@ export default async function HrPayslipDetailPage({ params }: { params: Promise<
         <Card label="Net à payer" value={Number(slip.net_to_pay ?? 0)} />
       </section>
       <Lines title="Gains" rows={earnings} />
-      <Lines title="Retenues" rows={[
-        ...deductions,
+      <Lines title="Retenues" rows={deductions.filter((row) => row.code !== "FRAIS_PRO" && row.code !== "FAMILLE" && Number(row.amount ?? 0) !== 0)} />
+      <Lines title="Abattements IR" rows={[
         { label: "Frais professionnels", amount: details?.slip?.professionalExpense },
         { label: "Charges de famille", amount: details?.slip?.familyReduction },
       ].filter((row) => Number(row.amount ?? 0) !== 0)} />

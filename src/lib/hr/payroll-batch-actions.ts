@@ -6,7 +6,7 @@ import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isMissingSchema } from "@/lib/optional-schema";
 import { calculateMoroccanPayslip2026 } from "@/lib/hr/ma-payroll-2026";
 import { payrollReference2026Settings } from "@/lib/hr/payroll-reference";
-import { postPayrollPaymentEntry } from "@/lib/hr/payroll-posting";
+import { postPayrollAccrualEntry, postPayrollPaymentEntry } from "@/lib/hr/payroll-posting";
 import { createClient } from "@/lib/supabase/server";
 
 function monthEnd(year: number, month: number) {
@@ -45,25 +45,48 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
     if (!["draft", "calculated"].includes(period.status)) return { success: false, error: "Cette période est figée." };
     const { data: employees, error: employeeError } = await supabase
       .from("hr_employees")
-      .select("id, employee_number, first_name, last_name, base_salary, hire_date, dependents_count")
+      .select("id, employee_number, first_name, last_name, base_salary, hire_date, dependents_count, employment_status")
       .eq("organization_id", workspace.organization.id)
       .is("archived_at", null)
-      .in("employment_status", ["active", "trial_period", "on_leave"]);
+      .neq("employment_status", "terminated");
     if (employeeError) return { success: false, error: employeeError.message };
+    const { data: contracts } = await supabase.from("hr_contracts").select("employee_id, base_salary, status").eq("organization_id", workspace.organization.id).eq("status", "active");
+    const contractSalary = new Map((contracts ?? []).map((row) => [row.employee_id as string, Number(row.base_salary ?? 0)]));
+    const { data: existingSlips } = await supabase.from("hr_payslips").select("employee_id, payslip_number").eq("organization_id", workspace.organization.id).eq("payroll_period_id", periodId);
+    const usedNumbers = new Set((existingSlips ?? []).map((row) => String(row.payslip_number ?? "")));
+    const numberByEmployee = new Map((existingSlips ?? []).map((row) => [row.employee_id as string, String(row.payslip_number ?? "")]));
     const periodDate = `${period.year}-${String(period.month).padStart(2, "0")}-01`;
+    const periodEnd = monthEnd(period.year, period.month);
+    const skipped: Array<{ name: string; reason: string }> = [];
     let totalGross = 0;
     let totalNet = 0;
     let totalCost = 0;
+    let count = 0;
     for (const employee of employees ?? []) {
+      const name = `${employee.first_name ?? ""} ${employee.last_name ?? ""}`.trim() || employee.employee_number || "Salarié";
+      if (!["active", "trial_period", "on_leave"].includes(String(employee.employment_status))) {
+        skipped.push({ name, reason: employee.employment_status === "suspended" ? "Statut suspendu : exclu de la paie du mois." : `Statut « ${employee.employment_status} » : exclu de la paie.` });
+        continue;
+      }
+      if (employee.hire_date && String(employee.hire_date) > periodEnd) {
+        skipped.push({ name, reason: `Date d'entrée ${employee.hire_date} postérieure à la période.` });
+        continue;
+      }
+      const salary = Number(employee.base_salary ?? 0) > 0 ? Number(employee.base_salary) : Number(contractSalary.get(employee.id) ?? 0);
+      if (!(salary > 0)) {
+        skipped.push({ name, reason: "Salaire de base absent sur la fiche et sur le contrat actif." });
+        continue;
+      }
       const scheduled = await scheduledDeductions(supabase, workspace.organization.id, employee.id, period.year, period.month);
       const slip = calculateMoroccanPayslip2026({
-        baseSalary: Number(employee.base_salary ?? 0),
+        baseSalary: salary,
         hireDate: employee.hire_date,
         periodDate,
         dependents: Number(employee.dependents_count ?? 0),
         advanceDeduction: scheduled.advances + scheduled.loans,
       });
-      const payslipNumber = `BUL-${period.year}-${String(period.month).padStart(2, "0")}-${employee.id}`;
+      const currentNumber = numberByEmployee.get(employee.id);
+      const payslipNumber = currentNumber && /^BUL-\d{4}-\d{2}-\d{4}$/.test(currentNumber) ? currentNumber : nextBulletinNumber(period.year, period.month, usedNumbers);
       const saved = await supabase.from("hr_payslips").upsert({
         organization_id: workspace.organization.id,
         payroll_period_id: periodId,
@@ -88,9 +111,7 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         deductions: [
           { code: "CNSS", label: "CNSS salarié", amount: slip.cnssEmployee },
           { code: "AMO", label: "AMO salarié", amount: slip.amoEmployee },
-          { code: "FRAIS_PRO", label: "Frais professionnels", amount: slip.professionalExpense },
           { code: "IR", label: "IR", amount: slip.ir },
-          { code: "FAMILLE", label: "Charges de famille", amount: slip.familyReduction },
           { code: "AVANCE", label: "Avances et prêts", amount: scheduled.advances + scheduled.loans },
         ],
         employer_contributions: [
@@ -101,22 +122,27 @@ export async function prepareReferencePayrollAction(periodId: string, _previous:
         calculation_details: { scope: "reference_2026", dependents: slip.dependents, advanceIds: scheduled.advanceIds, slip, officialConformityClaim: false },
         status: "calculated",
       }, { onConflict: "payroll_period_id,employee_id" });
-      if (saved.error) return { success: false, error: saved.error.message };
+      if (saved.error) {
+        skipped.push({ name, reason: saved.error.message.includes("duplicate") || saved.error.code === "23505" ? "Numéro de bulletin déjà utilisé." : "Le bulletin n'a pas pu être enregistré." });
+        continue;
+      }
+      count += 1;
       totalGross += slip.gross;
       totalNet += slip.netToPay;
       totalCost += slip.employerCost;
     }
     await supabase.from("hr_payroll_periods").update({
       status: "calculated",
-      employees_count: (employees ?? []).length,
+      employees_count: count,
       total_gross: Math.round(totalGross * 100) / 100,
       total_net: Math.round(totalNet * 100) / 100,
       total_employer_cost: Math.round(totalCost * 100) / 100,
     }).eq("organization_id", workspace.organization.id).eq("id", periodId);
-    await logAudit(workspace.organization.id, "payroll_calculated", "hr_payroll_periods", periodId, { employees: (employees ?? []).length });
+    await logAudit(workspace.organization.id, "payroll_calculated", "hr_payroll_periods", periodId, { employees: count, skipped: skipped.length });
     revalidatePath(`/rh/paie/periodes/${periodId}`);
+    revalidatePath("/rh/paie");
     revalidatePath("/rh/paie/bulletins");
-    return { success: true };
+    return { success: true, count, skipped };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : "Le calcul n'a pas abouti." };
   }
@@ -131,11 +157,31 @@ export async function setPayrollPeriodStatusAction(periodId: string, next: "vali
   const rows = slips ?? [];
   if (rows.length === 0) return { success: false, error: "Calculez d'abord les bulletins." };
   if (next === "validated") {
+    const payDate = monthEnd(period.year, period.month);
     for (const slip of rows) {
+      const { data: employee } = await supabase.from("hr_employees").select("first_name, last_name").eq("id", slip.employee_id).maybeSingle();
+      const posted = await postPayrollAccrualEntry(workspace.organization.id, {
+        id: slip.id,
+        payslipNumber: slip.payslip_number,
+        employeeName: `${employee?.first_name ?? ""} ${employee?.last_name ?? ""}`.trim() || "Salarié",
+        gross: Number(slip.gross_salary ?? 0),
+        employerCost: Number(slip.employer_cost ?? 0),
+        cnssEmployee: Number(slip.cnss_employee ?? 0),
+        cnssEmployer: Number(slip.cnss_employer ?? 0),
+        amoEmployee: Number(slip.amo_employee ?? 0),
+        amoEmployer: Number(slip.amo_employer ?? 0),
+        ir: Number(slip.ir_amount ?? 0),
+        advances: Number(slip.advance_deduction ?? 0),
+        loans: 0,
+        netToPay: Number(slip.net_to_pay ?? 0),
+        date: payDate,
+      });
+      if (!posted.success) return { success: false, error: posted.error };
       if (slip.status === "paid" || slip.status === "validated") continue;
       const updated = await supabase.from("hr_payslips").update({ status: "validated" }).eq("organization_id", workspace.organization.id).eq("id", slip.id);
       if (updated.error) return { success: false, error: updated.error.message };
     }
+    await logAudit(workspace.organization.id, "payroll_validated", "hr_payroll_periods", periodId, { slips: rows.length });
     const periodUpdate = await supabase.from("hr_payroll_periods").update({ status: "validated" }).eq("organization_id", workspace.organization.id).eq("id", periodId);
     if (periodUpdate.error) return { success: false, error: periodUpdate.error.message };
   } else {
@@ -199,4 +245,13 @@ async function scheduledDeductions(supabase: Awaited<ReturnType<typeof createCli
     loans: Math.round(loanTotal * 100) / 100,
     advanceIds,
   };
+}
+
+function nextBulletinNumber(year: number, month: number, used: Set<string>) {
+  const prefix = `BUL-${year}-${String(month).padStart(2, "0")}-`;
+  let sequence = 1;
+  while (used.has(`${prefix}${String(sequence).padStart(4, "0")}`)) sequence += 1;
+  const number = `${prefix}${String(sequence).padStart(4, "0")}`;
+  used.add(number);
+  return number;
 }

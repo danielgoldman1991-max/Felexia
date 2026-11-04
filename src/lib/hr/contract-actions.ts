@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
 import { isCheckKey } from "@/lib/hr/checks";
 import { isMissingRelation, notifyOrganization } from "@/lib/hr/notify";
-import { leaveBalance, serviceMonthsInYear } from "@/lib/hr/leave-balance";
+import { hrDatabaseErrorMessage, isNextControlFlow, leaveBalance, serviceMonthsInYear } from "@/lib/hr/leave-balance";
 import { SETTLEMENT_REASONS, computeFinalSettlement, type SettlementReason } from "@/lib/hr/settlement";
 import { createClient } from "@/lib/supabase/server";
 import { amountsFromTtc } from "@/lib/hr/expense-amounts";
@@ -193,8 +193,10 @@ function numberValue(formData: FormData, key: string) {
   return value;
 }
 
-export async function createHrOperationalRecordAction(formData: FormData) {
+export async function createHrOperationalRecordAction(previous: { error?: string } | FormData, maybeForm?: FormData): Promise<{ error?: string }> {
+  const formData = maybeForm instanceof FormData ? maybeForm : previous instanceof FormData ? previous : new FormData();
   const workspace = await requireWritableHrWorkspace();
+  try {
   const kind = required(formData, "kind");
   const supabase = await createClient();
   const employeeId = required(formData, "employee_id");
@@ -295,6 +297,10 @@ export async function createHrOperationalRecordAction(formData: FormData) {
     redirect(`/rh/notes-de-frais/${saved.data.id}`);
   }
   throw new Error("Opération RH inconnue.");
+  } catch (error) {
+    if (isNextControlFlow(error)) throw error;
+    return { error: hrDatabaseErrorMessage(error instanceof Error ? error.message : "") };
+  }
 }
 
 export async function setHrRecordStatusAction(formData: FormData) {

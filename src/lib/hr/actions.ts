@@ -9,7 +9,7 @@ import { proTransactionError } from "@/lib/pro-transaction-errors";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
 import { isBaseOnlyPayrollAcknowledgement } from "@/lib/hr/payroll-engine";
 import { calculateMoroccanPayslip2026, overtimePayFromHours } from "@/lib/hr/ma-payroll-2026";
-import { leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE } from "@/lib/hr/leave-balance";
+import { hrDatabaseErrorMessage, isNextControlFlow, leaveBalance, leaveRangesOverlap, LEAVE_OVERLAP_MESSAGE } from "@/lib/hr/leave-balance";
 
 export async function createHrEmployeeAction(formData: FormData) {
   const workspace = await requireWritableHrWorkspace();
@@ -117,29 +117,33 @@ export async function createHrContractAction(formData: FormData) {
   redirect(`/rh/contrats/${data.id}`);
 }
 
-export async function createHrLeaveRequestAction(formData: FormData) {
+export async function createHrLeaveRequestAction(previous: { error?: string } | FormData, maybeForm?: FormData): Promise<{ error?: string }> {
+  const formData = maybeForm instanceof FormData ? maybeForm : previous instanceof FormData ? previous : new FormData();
   const workspace = await requireWritableHrWorkspace();
-  const supabase = await createClient();
-
-  const employeeId = requiredString(formData, "employee_id");
-  const startDate = requiredString(formData, "start_date");
-  const endDate = requiredString(formData, "end_date");
-  const { data: existingLeaves } = await supabase.from("hr_leave_requests").select("start_date, end_date, status").eq("organization_id", workspace.organization.id).eq("employee_id", employeeId).in("status", ["pending", "approved"]);
-  if ((existingLeaves ?? []).some((row) => leaveRangesOverlap(startDate, endDate, String(row.start_date), String(row.end_date)))) {
-    throw new Error(LEAVE_OVERLAP_MESSAGE);
+  try {
+    const supabase = await createClient();
+    const employeeId = requiredString(formData, "employee_id");
+    const startDate = requiredString(formData, "start_date");
+    const endDate = requiredString(formData, "end_date");
+    const { data: existingLeaves } = await supabase.from("hr_leave_requests").select("start_date, end_date, status").eq("organization_id", workspace.organization.id).eq("employee_id", employeeId).in("status", ["pending", "approved"]);
+    if ((existingLeaves ?? []).some((row) => leaveRangesOverlap(startDate, endDate, String(row.start_date), String(row.end_date)))) {
+      return { error: LEAVE_OVERLAP_MESSAGE };
+    }
+    const { error } = await supabase.from("hr_leave_requests").insert({
+      organization_id: workspace.organization.id,
+      employee_id: employeeId,
+      leave_type_id: requiredString(formData, "leave_type_id"),
+      start_date: startDate,
+      end_date: endDate,
+      days_count: numberValue(formData, "days_count", 1),
+      reason: optionalString(formData, "reason"),
+      status: "pending",
+    });
+    if (error) return { error: hrDatabaseErrorMessage(error.message) };
+  } catch (error) {
+    if (isNextControlFlow(error)) throw error;
+    return { error: hrDatabaseErrorMessage(error instanceof Error ? error.message : "") };
   }
-  const { error } = await supabase.from("hr_leave_requests").insert({
-    organization_id: workspace.organization.id,
-    employee_id: employeeId,
-    leave_type_id: requiredString(formData, "leave_type_id"),
-    start_date: startDate,
-    end_date: endDate,
-    days_count: numberValue(formData, "days_count", 1),
-    reason: optionalString(formData, "reason"),
-    status: "pending",
-  });
-
-  if (error) throw new Error(error.message.includes("HR_LEAVE_OVERLAP") ? LEAVE_OVERLAP_MESSAGE : error.message);
   revalidatePath("/rh/conges");
   redirect("/rh/conges");
 }

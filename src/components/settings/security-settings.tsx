@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
+import { auditActionLabel, formatAuditTimestamp } from "@/lib/audit-labels";
 
 export function SecuritySettings({
   userEmail,
@@ -47,18 +48,6 @@ export function SecuritySettings({
       setPasswordError((err as Error).message);
     }
   }
-
-  const actionLabels: Record<string, string> = {
-    update_company_settings: "Modification des informations entreprise",
-    update_document_settings: "Modification des paramètres documents",
-    create_role: "Création d'un rôle",
-    delete_role: "Suppression d'un rôle",
-    update_role_permissions: "Modification des permissions d'un rôle",
-    invite_user: "Invitation d'un utilisateur",
-    disable_user: "Désactivation d'un utilisateur",
-    remove_user: "Suppression d'un utilisateur",
-    change_subscription: "Changement d'abonnement",
-  };
 
   return (
     <div className="space-y-6">
@@ -111,11 +100,9 @@ export function SecuritySettings({
             <div className="space-y-2">
               {auditLogs.map((log) => (
                 <div key={String(log.id)} className="flex items-center justify-between rounded-lg border border-[var(--border)] px-3 py-2 text-sm">
-                  <span>{actionLabels[String(log.action)] || String(log.action)}</span>
+                  <span>{auditActionLabel(String(log.action))}</span>
                   <span className="text-xs text-[var(--muted)]">
-                    {new Date(String(log.created_at)).toLocaleDateString("fr-FR", {
-                      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-                    })}
+                    {formatAuditTimestamp(String(log.created_at))}
                   </span>
                 </div>
               ))}

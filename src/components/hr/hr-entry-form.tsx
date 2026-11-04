@@ -1,6 +1,26 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+"use client";
+
+import { useActionState, type InputHTMLAttributes, type ReactNode } from "react";
 
 const fieldClass = "h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3";
+
+export function HrBoundForm({
+  action,
+  className,
+  children,
+}: {
+  action: (state: { error?: string }, formData: FormData) => Promise<{ error?: string }>;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [state, formAction] = useActionState(action, { error: undefined });
+  return (
+    <form action={formAction} className={className}>
+      {children}
+      {state.error ? <p role="alert" className="text-sm text-red-700 md:col-span-2">{state.error}</p> : null}
+    </form>
+  );
+}
 
 export function HrEntryForm({ action, children }: { action: (formData: FormData) => Promise<void>; children: ReactNode }) {
   return <form action={action} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">{children}</form>;

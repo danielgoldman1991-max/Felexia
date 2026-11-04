@@ -1,7 +1,7 @@
 import { ModulePage } from "@/components/erp/module-page";
 import { PageHeader } from "@/components/erp/page-header";
 import { Button } from "@/components/ui/button";
-import { EmployeeOptions, HrEntryForm, HrField, HrInput, HrSelect, HrTextarea } from "@/components/hr/hr-entry-form";
+import { EmployeeOptions, HrBoundForm, HrField, HrInput, HrSelect, HrTextarea } from "@/components/hr/hr-entry-form";
 import { createHrOperationalRecordAction } from "@/lib/hr/contract-actions";
 import { listHrEmployees } from "@/lib/hr/hr";
 
@@ -12,7 +12,7 @@ export default async function NewAttendancePage() {
   return (
     <ModulePage>
       <PageHeader title="Pointage manuel" description="Une ligne par salarié et par jour. Ce n'est pas une pointeuse." />
-      <HrEntryForm action={createHrOperationalRecordAction}>
+      <HrBoundForm action={createHrOperationalRecordAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
         <input type="hidden" name="kind" value="attendance" />
         <HrField label="Salarié" wide><HrSelect name="employee_id" required><EmployeeOptions employees={employees} /></HrSelect></HrField>
         <HrField label="Date"><HrInput name="attendance_date" type="date" required /></HrField>
@@ -32,7 +32,7 @@ export default async function NewAttendancePage() {
         <HrField label="Heures supplémentaires"><HrInput name="overtime_hours" type="number" min="0" max="24" step="0.5" defaultValue="0" /></HrField>
         <HrField label="Note" wide><HrTextarea name="notes" /></HrField>
         <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
-      </HrEntryForm>
+      </HrBoundForm>
     </ModulePage>
   );
 }
