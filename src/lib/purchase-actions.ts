@@ -314,7 +314,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
   if (!doc) return { success: false, error: "Document introuvable." };
   if (doc.document_type !== "supplier_receipt") return { success: false, error: "Ce n'est pas une reception." };
   if (doc.status !== "draft") return { success: false, error: "Seules les receptions brouillon peuvent etre validees." };
-  if (doc.stock_updated_at) return { success: false, error: "Le stock a deja ete mis a jour pour cette reception." };
+  if (doc.stock_updated_at) return { success: false, error: "Le stock a déjà été mis à jour pour cette réception." };
 
   const { data: lines } = await supabase.from("purchase_document_lines").select("id, product_id, quantity, unit_name, source_line_id, unit_price_ht").eq("document_id", id);
   if (!lines || lines.length === 0) return { success: false, error: "Aucune ligne a receptionner." };

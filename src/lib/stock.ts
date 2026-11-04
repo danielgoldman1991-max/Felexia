@@ -77,7 +77,7 @@ export async function listWarehouses(): Promise<WarehouseOption[]> {
   if (error) throw new Error(error.message);
   return (data ?? []).map((row) => ({
     id: row.id as string,
-    name: row.is_default ? `${row.name as string} (par defaut)` : row.name as string,
+    name: row.is_default ? `${row.name as string} (par défaut)` : row.name as string,
     code: (row.code as string) ?? null,
     location_type: row.location_type as WarehouseOption["location_type"],
     is_default: Boolean(row.is_default),

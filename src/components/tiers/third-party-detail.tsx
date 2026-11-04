@@ -154,7 +154,7 @@ export function ThirdPartyDetail({
 
       <div className="grid gap-6 xl:grid-cols-2">
         {fullAccess ? <Card>
-          <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Nom commercial" value={thirdParty.commercial_name} />
             <Info label="Code tiers" value={thirdParty.code} />
@@ -307,7 +307,7 @@ export function ThirdPartyDetail({
             <Input name="city" placeholder="Ville" />
             <Input name="postal_code" placeholder="Code postal" />
             <Input name="country" defaultValue="MA" placeholder="Pays" />
-            <label className="flex items-center gap-2 text-sm"><input name="is_default" type="checkbox" /> Adresse par defaut</label>
+            <label className="flex items-center gap-2 text-sm"><input name="is_default" type="checkbox" /> Adresse par défaut</label>
             <Button>Ajouter adresse</Button>
             {!createAddressState.success && createAddressState.error ? (
               <p className="col-span-full text-xs text-red-600">{createAddressState.error}</p>

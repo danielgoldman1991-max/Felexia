@@ -111,7 +111,7 @@ export function SalesOrderForm({
       <input type="hidden" name="payment_terms_days" value={paymentTermsDays ?? ""} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Client / Prospect *</span>

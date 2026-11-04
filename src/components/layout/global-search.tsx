@@ -23,7 +23,7 @@ import { isLaunchPathAvailable } from "@/lib/launch-profile";
 import { isOperatorPathAllowed } from "@/lib/auth/operator-access";
 
 const categoryIcons: Record<GlobalSearchCategory, ComponentType<{ className?: string }>> = {
-  "Acces rapide": Sparkles,
+  "Accès rapide": Sparkles,
   Tiers: Users,
   Articles: Package,
   Vente: FileText,
@@ -34,7 +34,7 @@ const categoryIcons: Record<GlobalSearchCategory, ComponentType<{ className?: st
   RH: Users,
 };
 
-const categoryOrder: GlobalSearchCategory[] = ["Acces rapide", "Tiers", "Articles", "Vente", "Facturation", "Achats", "Stock", "Tresorerie", "RH"];
+const categoryOrder: GlobalSearchCategory[] = ["Accès rapide", "Tiers", "Articles", "Vente", "Facturation", "Achats", "Stock", "Tresorerie", "RH"];
 
 function groupedResults(results: GlobalSearchResult[]) {
   return categoryOrder

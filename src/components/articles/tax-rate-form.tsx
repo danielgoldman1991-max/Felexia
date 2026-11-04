@@ -37,7 +37,7 @@ export function TaxRateForm({ mode, taxRate, action }: Props) {
           </label>
           <label className="flex items-center gap-2 space-y-0 text-sm">
             <input name="is_default" type="checkbox" defaultChecked={taxRate?.is_default ?? false} />
-            <span className="font-medium text-[var(--muted)]">TVA par defaut</span>
+            <span className="font-medium text-[var(--muted)]">TVA par défaut</span>
           </label>
           {taxRate ? (
             <label className="space-y-1.5 text-sm">

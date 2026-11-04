@@ -27,7 +27,7 @@ export default async function AuxiliariesPage() {
         <Table>
           <thead>
             <tr>
-              <Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Compte general</Th><Th>ICE</Th><Th>Statut</Th>
+              <Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Compte général</Th><Th>ICE</Th><Th>Statut</Th>
             </tr>
           </thead>
           <tbody>

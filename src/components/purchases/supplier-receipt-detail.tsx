@@ -228,7 +228,7 @@ export function SupplierReceiptDetail({
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-[var(--muted)]">Le stock a ete mis a jour le {formatDate(document.stock_updated_at)}, mais les mouvements detailles ne sont pas disponibles.</p>
+            <p className="text-sm text-[var(--muted)]">Le stock a été mis à jour le {formatDate(document.stock_updated_at)}, mais les mouvements détaillés ne sont pas disponibles.</p>
           </CardContent>
         </Card>
       ) : null}

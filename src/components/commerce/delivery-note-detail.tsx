@@ -80,7 +80,7 @@ export function DeliveryNoteDetail({ delivery, lines }: { delivery: DeliveryNote
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
-          <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Client" value={delivery.customer_name} />
             <Info label="Commande liee" value={delivery.order_number ?? "-"} />

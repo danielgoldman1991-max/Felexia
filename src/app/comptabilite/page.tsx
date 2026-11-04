@@ -27,11 +27,11 @@ export default async function AccountingPage() {
     { title: "Auxiliaires", href: "/comptabilite/auxiliaires", count: 0, description: "Tiers comptables" },
     { title: "Exercices", href: "/comptabilite/exercices", count: 0, description: "Exercices et periodes" },
     { title: "Balance", href: "/comptabilite/balance", count: 0, description: "Balance des comptes" },
-    { title: "Grand livre", href: "/comptabilite/grand-livre", count: 0, description: "Grand livre general" },
-    { title: "Journal general", href: "/comptabilite/journal-general", count: 0, description: "Journal chronologique" },
+    { title: "Grand livre", href: "/comptabilite/grand-livre", count: 0, description: "Grand livre général" },
+    { title: "Journal général", href: "/comptabilite/journal-general", count: 0, description: "Journal chronologique" },
     { title: "TVA", href: "/comptabilite/tva", count: 0, description: "Declaration et controle" },
     { title: "Exports", href: "/comptabilite/exports", count: 0, description: "Export cabinet comptable" },
-    { title: "Parametres", href: "/comptabilite/parametres", count: 0, description: "Configuration" },
+    { title: "Paramètres", href: "/comptabilite/parametres", count: 0, description: "Configuration" },
   ];
 
   return (

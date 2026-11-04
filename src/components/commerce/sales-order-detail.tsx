@@ -73,7 +73,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
-          <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Client" value={order.customer_name} />
             <Info label="Ville" value={order.customer_city} />

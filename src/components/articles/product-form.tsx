@@ -81,7 +81,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
       <input type="hidden" name="default_discount_rate" value={product?.default_discount_rate ?? 0} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Type *">
             <Select name="type" value={type} onChange={(e) => setType(e.target.value as ProductType)} disabled={!fullAccess && mode === "edit"}>
@@ -289,7 +289,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             <input type="checkbox" checked={purchasable} onChange={(event) => setPurchasable(event.target.checked)} />
             Achetable
           </label>
-          {/* Remise par defaut masquée pour simplification PME */}
+          {/* Remise par défaut masquée pour simplification PME */}
           <Field label="Notes internes">
             <Textarea name="notes" defaultValue={product?.notes ?? ""} />
           </Field>

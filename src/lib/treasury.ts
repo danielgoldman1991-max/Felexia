@@ -162,7 +162,7 @@ export async function getDefaultTreasuryAccountId(): Promise<string> {
   if (error) throw new Error(error.message);
   if (data?.id) return data.id as string;
   const { data: created, error: createError } = await supabase.from("treasury_accounts").insert({ organization_id: workspace.organization.id, name: "Banque principale", code: "BANK-MAIN", account_type: "bank", is_default: true, status: "active", created_by: workspace.userId }).select("id").single();
-  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer le compte de tresorerie par defaut.");
+  if (createError || !created) throw new Error(createError?.message ?? "Impossible de créer le compte de trésorerie par défaut.");
   return created.id as string;
 }
 
@@ -186,23 +186,29 @@ export async function getTreasuryAccountBalance(accountId: string) {
   return detail.account?.current_balance ?? 0;
 }
 
-export type TreasuryListFilters = { accountId?: string; direction?: string; type?: string; status?: string; dateFrom?: string; dateTo?: string; q?: string };
+export type TreasuryListFilters = { accountId?: string; direction?: string; type?: string; status?: string; dateFrom?: string; dateTo?: string; q?: string; limit?: number };
 
 export async function listTreasuryTransactions(filters: TreasuryListFilters = {}) {
   const orgId = await activeOrgId();
   const supabase = await createClient();
-  return readAllPages((from, to) => {
-  let query = supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }).order("id");
-  if (filters.accountId) query = query.eq("treasury_account_id", filters.accountId);
-  if (filters.direction && filters.direction !== "all") query = query.eq("direction", filters.direction);
-  if (filters.type && filters.type !== "all") query = query.eq("transaction_type", filters.type);
-  if (filters.status && filters.status !== "all") query = query.eq("reconciliation_status", filters.status);
-  if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("transaction_date", filters.dateFrom);
-  if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("transaction_date", filters.dateTo);
-  const value = (filters.q ?? "").replace(/[(),]/g, " ").trim();
-  if (value) query = query.or(`label.ilike.%${value}%,reference.ilike.%${value}%`);
-  return query.range(from, to);
-  }).then((data) => data.map(mapTransaction));
+  const build = (from: number, to: number) => {
+    let query = supabase.from("treasury_transactions").select(TRANSACTION_SELECT).eq("organization_id", orgId).is("archived_at", null).order("transaction_date", { ascending: false }).order("created_at", { ascending: false }).order("id");
+    if (filters.accountId) query = query.eq("treasury_account_id", filters.accountId);
+    if (filters.direction && filters.direction !== "all") query = query.eq("direction", filters.direction);
+    if (filters.type && filters.type !== "all") query = query.eq("transaction_type", filters.type);
+    if (filters.status && filters.status !== "all") query = query.eq("reconciliation_status", filters.status);
+    if (filters.dateFrom && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateFrom)) query = query.gte("transaction_date", filters.dateFrom);
+    if (filters.dateTo && /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo)) query = query.lte("transaction_date", filters.dateTo);
+    const value = (filters.q ?? "").replace(/[(),]/g, " ").trim();
+    if (value) query = query.or(`label.ilike.%${value}%,reference.ilike.%${value}%`);
+    return query.range(from, to);
+  };
+  if (filters.limit && filters.limit > 0) {
+    const { data, error } = await build(0, filters.limit - 1);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map(mapTransaction);
+  }
+  return readAllPages(build).then((data) => data.map(mapTransaction));
 }
 
 export async function getTreasuryTransactionDetail(id: string) {

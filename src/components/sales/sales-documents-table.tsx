@@ -57,7 +57,7 @@ export function SalesDocumentsTable({ rows, type, canWrite = false }: { rows: Sa
             {isReturnTable ? <Td>{row.return_reason ?? "-"}</Td> : null}
             <Td><SalesStatusBadge status={row.status} /></Td>
             {isLogisticsTable ? (
-              <Td>{row.stock_updated_at ? "Mis a jour" : "En attente"}</Td>
+              <Td>{row.stock_updated_at ? "Mis à jour" : "En attente"}</Td>
             ) : (
               <Td><MoneyDisplay value={row.total_ttc} /></Td>
             )}

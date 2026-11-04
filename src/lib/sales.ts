@@ -19,6 +19,16 @@ import type {
 } from "@/lib/sales-types";
 import type { DocumentFlowStep } from "@/lib/document-flow-types";
 
+const SALES_DOCUMENT_LIST_SELECT = `
+  id, organization_id, document_type, document_number, customer_id,
+  source_document_id, related_order_id, related_delivery_id,
+  document_date, valid_until, expected_delivery_date,
+  status, total_ttc, return_reason, stock_updated_at,
+  created_at, updated_at, archived_at,
+  customer:customer_id (name),
+  source_document:source_document_id (document_number, document_type)
+`;
+
 const SALES_DOCUMENT_SELECT = `
   id, organization_id, document_type, document_number, customer_id,
   source_document_id, related_order_id, related_delivery_id,
@@ -375,7 +385,7 @@ export async function listSalesDocuments(
 
   let query = supabase
     .from("sales_documents")
-    .select(SALES_DOCUMENT_SELECT, { count: "exact" })
+    .select(SALES_DOCUMENT_LIST_SELECT, { count: "exact" })
     .eq("organization_id", organizationId)
     .is("archived_at", null)
     .order("created_at", { ascending: false })

@@ -573,7 +573,7 @@ function buildAlerts(params: {
     alerts.push({
       severity: "info",
       title: "Factures sans échéance",
-      message: `${invoiceWithoutDueDateCount} facture(s) sans date d'échéance : échéance estimee a 30 jours par defaut.`,
+      message: `${invoiceWithoutDueDateCount} facture(s) sans date d'échéance : échéance estimée à 30 jours par défaut.`,
     });
   }
 

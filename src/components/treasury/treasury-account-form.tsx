@@ -89,7 +89,7 @@ export function TreasuryAccountForm({ account, action, fullAccess = false }: Pro
           </label>
           <label className="flex items-center gap-2 pt-7 text-sm">
             <input type="checkbox" name="is_default" defaultChecked={Boolean(account?.is_default)} />
-            <span className="font-medium">Compte par defaut</span>
+            <span className="font-medium">Compte par défaut</span>
           </label>
           <label className="space-y-2 text-sm md:col-span-2">
             <span className="font-medium">Notes</span>

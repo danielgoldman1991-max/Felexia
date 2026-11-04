@@ -1009,7 +1009,7 @@ export async function ensureDefaultChartOfAccounts(organizationId: string) {
         is_system: true,
       })),
     );
-    if (error) throw new Error(`Erreur lors de la creation des comptes par defaut: ${error.message}`);
+    if (error) throw new Error(`Erreur lors de la création des comptes par défaut : ${error.message}`);
   }
 
   return { created: missing.length, existing: existingCodes.size, total: DEFAULT_CHART_OF_ACCOUNTS.length };
@@ -1035,7 +1035,7 @@ export async function ensureDefaultAccountingJournals(organizationId: string) {
         is_active: true,
       })),
     );
-    if (error) throw new Error(`Erreur lors de la creation des journaux par defaut: ${error.message}`);
+    if (error) throw new Error(`Erreur lors de la création des journaux par défaut : ${error.message}`);
   }
 
   return { created: missing.length, existing: existingCodes.size, total: DEFAULT_ACCOUNTING_JOURNALS.length };

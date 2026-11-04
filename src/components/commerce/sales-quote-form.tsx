@@ -75,7 +75,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
       <input type="hidden" name="total_ttc" value={totals.total_ttc} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations generales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={quote?.third_party_id ?? ""} required>

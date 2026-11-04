@@ -39,13 +39,14 @@ export async function loadManualMatchBoard(accountId: string): Promise<ManualMat
   const workspace = await requireActiveWorkspace();
   const supabase = await createClient();
   const orgId = workspace.organization.id;
-  const [linesResult, transactionsResult, customersResult, suppliersResult, allocationsResult, matchesResult] = await Promise.all([
+  const [linesResult, transactionsResult, customersResult, suppliersResult, allocationsResult, matchesResult, documentUse] = await Promise.all([
     supabase.from("bank_statement_lines").select("id, operation_date, label, amount, direction").eq("organization_id", orgId).eq("treasury_account_id", accountId).eq("reconciliation_status", "unreconciled").order("operation_date", { ascending: false }).limit(80),
     supabase.from("treasury_transactions").select("id, transaction_date, label, amount, direction, third_party_id").eq("organization_id", orgId).eq("treasury_account_id", accountId).eq("reconciliation_status", "unreconciled").is("archived_at", null).limit(80),
     supabase.from("customer_invoices").select("id, invoice_number, invoice_date, remaining_amount, customer_id").eq("organization_id", orgId).gt("remaining_amount", 0).not("status", "in", "(draft,cancelled)").is("archived_at", null).limit(80),
     supabase.from("supplier_invoices").select("id, invoice_number, supplier_invoice_number, invoice_date, remaining_amount, supplier_id").eq("organization_id", orgId).gt("remaining_amount", 0).in("status", ["validated", "partially_paid"]).is("archived_at", null).limit(80),
     supabase.from("bank_manual_match_lines").select("statement_line_id, amount, match:match_id(status)").eq("organization_id", orgId),
     supabase.from("bank_manual_matches").select("id, kind, is_partial, total_amount, created_at, status").eq("organization_id", orgId).eq("treasury_account_id", accountId).eq("status", "confirmed").order("created_at", { ascending: false }).limit(20),
+    usedDocuments(orgId),
   ]);
   const pendingMigration = [allocationsResult.error, matchesResult.error].some((error) => isMissingSchema(error));
   const usedLines = new Map<string, number>();
@@ -58,7 +59,7 @@ export async function loadManualMatchBoard(accountId: string): Promise<ManualMat
       usedLines.set(id, (usedLines.get(id) ?? 0) + Number(row.amount ?? 0));
     }
   }
-  const documentUse = pendingMigration ? new Map<string, number>() : await usedDocuments(orgId);
+  const confirmedDocumentUse = pendingMigration ? new Map<string, number>() : documentUse;
   const partyIds = [
     ...(transactionsResult.data ?? []).map((row) => row.third_party_id),
     ...(customersResult.data ?? []).map((row) => row.customer_id),
@@ -73,9 +74,9 @@ export async function loadManualMatchBoard(accountId: string): Promise<ManualMat
     return { id: String(row.id), date: String(row.operation_date), label: String(row.label ?? ""), direction: row.direction === "out" ? "out" as const : "in" as const, remaining };
   }).filter((line) => line.remaining > 0.009);
   const documents: ManualBoardDocument[] = [
-    ...(transactionsResult.data ?? []).map((row) => boardDocument("transaction", String(row.id), String(row.transaction_date), String(row.label ?? "Mouvement"), row.direction === "out" ? "out" : "in", Number(row.amount), partyName.get(String(row.third_party_id ?? "")) ?? "", documentUse)),
-    ...(customersResult.data ?? []).map((row) => boardDocument("customer_invoice", String(row.id), String(row.invoice_date ?? ""), String(row.invoice_number ?? "Facture"), "in", Number(row.remaining_amount), partyName.get(String(row.customer_id ?? "")) ?? "", documentUse)),
-    ...(suppliersResult.data ?? []).map((row) => boardDocument("supplier_invoice", String(row.id), String(row.invoice_date ?? ""), String(row.supplier_invoice_number || row.invoice_number || "Facture"), "out", Number(row.remaining_amount), partyName.get(String(row.supplier_id ?? "")) ?? "", documentUse)),
+    ...(transactionsResult.data ?? []).map((row) => boardDocument("transaction", String(row.id), String(row.transaction_date), String(row.label ?? "Mouvement"), row.direction === "out" ? "out" : "in", Number(row.amount), partyName.get(String(row.third_party_id ?? "")) ?? "", confirmedDocumentUse)),
+    ...(customersResult.data ?? []).map((row) => boardDocument("customer_invoice", String(row.id), String(row.invoice_date ?? ""), String(row.invoice_number ?? "Facture"), "in", Number(row.remaining_amount), partyName.get(String(row.customer_id ?? "")) ?? "", confirmedDocumentUse)),
+    ...(suppliersResult.data ?? []).map((row) => boardDocument("supplier_invoice", String(row.id), String(row.invoice_date ?? ""), String(row.supplier_invoice_number || row.invoice_number || "Facture"), "out", Number(row.remaining_amount), partyName.get(String(row.supplier_id ?? "")) ?? "", confirmedDocumentUse)),
   ].filter((document) => document.remaining > 0.009);
   const matchIds = (matchesResult.data ?? []).map((row) => String(row.id));
   const summaries = matchIds.length && !pendingMigration ? await matchSummaries(orgId, matchIds) : new Map<string, string>();

@@ -20,3 +20,12 @@ export function hrCatalogDeleteDecision(kind: HrCatalogKind, used: number) {
   }
   return { ok: true as const };
 }
+
+/** A delete that matches no row must not be reported as a success. */
+export function hrCatalogDeleteOutcome(removed: number) {
+  if (removed > 0) return { success: true as const };
+  return {
+    success: false as const,
+    error: "La suppression n'a rien retiré. Vos droits ne permettent pas encore de supprimer cet élément, ou il a déjà disparu.",
+  };
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MoneyDisplay } from "@/components/erp/money-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PendingButton } from "@/components/ui/pending-button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, Td, Th } from "@/components/ui/table";
@@ -20,7 +21,7 @@ function LineConfirm({ line, accountId }: { line: ExpertLineView; accountId: str
     <form action={action} className="flex flex-col gap-1">
       <input type="hidden" name="account_id" value={accountId} />
       <input type="hidden" name="statement_line_id" value={line.lineId} />
-      <Button type="submit" className="h-8" disabled={pending} aria-busy={pending}>{pending ? "Validation…" : "Valider"}</Button>
+      <PendingButton className="h-8" disabled={pending} idle="Valider" pendingLabel="Validation…" />
       {!state.success && state.error ? <span className="text-xs text-red-700">{state.error}</span> : null}
     </form>
   );
@@ -80,7 +81,7 @@ export function ExpertReconciliationPanel({ view }: { view: ExpertReconciliation
         <CardContent className="flex flex-wrap gap-2">
           <form action={autoAction}>
             <input type="hidden" name="account_id" value={view.accountId} />
-            <Button type="submit" disabled={autoPending || !view.settings.autoEnabled || view.counts.auto === 0} aria-busy={autoPending}>{autoPending ? "Rapprochement…" : "Rapprocher les scores élevés"}</Button>
+            <PendingButton disabled={autoPending || !view.settings.autoEnabled || view.counts.auto === 0} idle="Rapprocher les scores élevés" pendingLabel="Rapprochement…" />
           </form>
           <Button variant="secondary" asChild><Link href={`/tresorerie/rapprochement/etat?accountId=${view.accountId}`}>État PDF</Link></Button>
           <Button variant="secondary" asChild><Link href={`/tresorerie/rapprochement/export?accountId=${view.accountId}`}>Excel</Link></Button>
@@ -100,7 +101,7 @@ export function ExpertReconciliationPanel({ view }: { view: ExpertReconciliation
             <label className="text-sm">Score suggestion<Input name="suggest_threshold" type="number" min="40" max="90" defaultValue={view.settings.suggestThreshold} className="mt-1" /></label>
             <label className="text-sm">Fenêtre de date (jours)<Input name="date_window_days" type="number" min="0" max="15" defaultValue={view.settings.dateWindowDays} className="mt-1" /></label>
             <label className="flex items-end gap-2 text-sm"><input type="checkbox" name="auto_enabled" defaultChecked={view.settings.autoEnabled} /> Autoriser le lot automatique</label>
-            <div className="sm:col-span-2 lg:col-span-4"><Button type="submit" variant="secondary" disabled={settingsPending} aria-busy={settingsPending}>{settingsPending ? "Enregistrement…" : "Enregistrer les seuils"}</Button></div>
+            <div className="sm:col-span-2 lg:col-span-4"><PendingButton variant="secondary" disabled={settingsPending} idle="Enregistrer les seuils" pendingLabel="Enregistrement…" /></div>
             {!settingsState.success && settingsState.error ? <p className="text-sm text-red-700 sm:col-span-2">{settingsState.error}</p> : null}
           </form>
         </CardContent>
