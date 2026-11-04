@@ -57,18 +57,54 @@ export type EmployeeCsvRow = {
 };
 
 const CSV_COLUMNS = {
-  matricule: ["matricule"],
-  prenom: ["prenom"],
-  nom: ["nom"],
-  date: ["date d embauche", "date embauche"],
-  salaire: ["salaire", "salaire de base"],
+  matricule: ["matricule", "employee number"],
+  prenom: ["prenom", "first name"],
+  nom: ["nom", "last name"],
+  date: ["date d embauche", "date embauche", "hire date"],
+  salaire: ["salaire", "salaire de base", "base salary"],
   cin: ["cin"],
-  cnss: ["cnss", "numero cnss", "n cnss"],
+  cnss: ["cnss", "numero cnss", "n cnss", "cnss number"],
   rib: ["rib"],
   email: ["email", "e mail"],
-  ville: ["ville"],
-  dependents: ["personnes a charge"],
+  ville: ["ville", "city"],
+  dependents: ["personnes a charge", "dependents"],
 } as const;
+
+type CsvField = keyof typeof CSV_COLUMNS;
+
+const REQUIRED_FIELDS: CsvField[] = ["matricule", "prenom", "nom", "date", "salaire"];
+const FIELD_LABELS: Record<CsvField, string> = {
+  matricule: "Matricule",
+  prenom: "Prénom",
+  nom: "Nom",
+  date: "Date d'embauche",
+  salaire: "Salaire",
+  cin: "CIN",
+  cnss: "CNSS",
+  rib: "RIB",
+  email: "Email",
+  ville: "Ville",
+  dependents: "Personnes à charge",
+};
+
+export const EMPLOYEE_CSV_HEADERS = ["Matricule", "Prénom", "Nom", "Date d'embauche", "Salaire", "CIN", "CNSS", "RIB", "Email", "Ville", "Personnes à charge"] as const;
+
+export function employeeCsvTemplate() {
+  const example = ["E001", "Sara", "Alami", "2024-01-15", "8000,00", "AB123456", "123456789", "000000000000000000000097", "sara@example.com", "Casablanca", "1"];
+  return `${EMPLOYEE_CSV_HEADERS.join(";")}\n${example.join(";")}\n`;
+}
+
+function fieldForHeader(header: string): CsvField | null {
+  const fields = Object.keys(CSV_COLUMNS) as CsvField[];
+  return fields.find((field) => (CSV_COLUMNS[field] as readonly string[]).includes(header)) ?? null;
+}
+
+function headerProblem(missing: string[], unknown: string[]) {
+  const parts = ["Les en-têtes du fichier ne sont pas reconnus."];
+  if (missing.length > 0) parts.push(`Colonnes manquantes : ${missing.join(", ")}.`);
+  if (unknown.length > 0) parts.push(`Colonnes inconnues : ${unknown.join(", ")}.`);
+  return parts.join(" ");
+}
 
 function foldHeader(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -76,10 +112,6 @@ function foldHeader(value: string) {
 
 function splitCsvLine(line: string) {
   return line.split(";").map((cell) => cell.trim().replace(/^"(.*)"$/, "$1").trim());
-}
-
-function headerIndex(headers: string[], names: readonly string[]) {
-  return headers.findIndex((header) => names.includes(header));
 }
 
 function parseHireDate(value: string) {
@@ -114,30 +146,27 @@ export function parseEmployeeCsv(text: string): { rows: EmployeeCsvRow[]; errors
   const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   const errors: string[] = [];
   const rows: EmployeeCsvRow[] = [];
-  const folded = splitCsvLine(lines[0] ?? "").map(foldHeader);
-  const mapped = folded.includes("matricule") && folded.includes("nom");
-  const index = mapped
-    ? {
-      matricule: headerIndex(folded, CSV_COLUMNS.matricule),
-      prenom: headerIndex(folded, CSV_COLUMNS.prenom),
-      nom: headerIndex(folded, CSV_COLUMNS.nom),
-      date: headerIndex(folded, CSV_COLUMNS.date),
-      salaire: headerIndex(folded, CSV_COLUMNS.salaire),
-      cin: headerIndex(folded, CSV_COLUMNS.cin),
-      cnss: headerIndex(folded, CSV_COLUMNS.cnss),
-      rib: headerIndex(folded, CSV_COLUMNS.rib),
-      email: headerIndex(folded, CSV_COLUMNS.email),
-      ville: headerIndex(folded, CSV_COLUMNS.ville),
-      dependents: headerIndex(folded, CSV_COLUMNS.dependents),
+  const originalHeaders = splitCsvLine(lines[0] ?? "");
+  const folded = originalHeaders.map(foldHeader);
+  const index = { matricule: -1, prenom: -1, nom: -1, date: -1, salaire: -1, cin: -1, cnss: -1, rib: -1, email: -1, ville: -1, dependents: -1 };
+  const unknown: string[] = [];
+  folded.forEach((header, position) => {
+    if (!header) return;
+    const field = fieldForHeader(header);
+    if (!field) {
+      unknown.push(originalHeaders[position] || header);
+      return;
     }
-    : { matricule: 0, prenom: 1, nom: 2, date: 3, salaire: 4, cin: 5, cnss: 6, rib: 7, email: 8, ville: 9, dependents: 10 };
-  if (mapped && (index.prenom < 0 || index.date < 0 || index.salaire < 0)) {
-    return { rows: [], errors: ["La première ligne doit contenir les colonnes Matricule, Prénom, Nom, Date d'embauche et Salaire."] };
+    if (index[field] < 0) index[field] = position;
+  });
+  const missing = REQUIRED_FIELDS.filter((field) => index[field] < 0).map((field) => FIELD_LABELS[field]);
+  if (missing.length > 0 || unknown.length > 0) {
+    return { rows: [], errors: [headerProblem(missing, unknown)] };
   }
   const seen = new Set<string>();
-  lines.slice(mapped ? 1 : 0).forEach((line, offset) => {
+  lines.slice(1).forEach((line, offset) => {
     const cells = splitCsvLine(line);
-    const lineNumber = offset + (mapped ? 2 : 1);
+    const lineNumber = offset + 2;
     const cell = (position: number) => (position >= 0 ? cells[position] ?? "" : "");
     const problems: string[] = [];
     function readField(parse: () => string | number | null, fallback: string | number | null) {
@@ -186,6 +215,9 @@ export function parseEmployeeCsv(text: string): { rows: EmployeeCsvRow[]; errors
 /** Any line error refuses the whole file. Nothing is written. */
 export function employeeImportDecision(parsed: { rows: EmployeeCsvRow[]; errors: string[] }) {
   if (parsed.errors.length > 0) {
+    if (parsed.errors.length === 1 && parsed.errors[0].startsWith("Les en-têtes")) {
+      return { ok: false as const, error: parsed.errors[0] };
+    }
     return { ok: false as const, error: "Aucune ligne n'a été importée. Corrigez toutes les lignes signalées avant de recommencer." };
   }
   if (parsed.rows.length === 0) return { ok: false as const, error: "Le fichier ne contient aucun salarié." };

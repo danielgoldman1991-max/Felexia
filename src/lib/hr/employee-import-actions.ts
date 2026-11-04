@@ -29,7 +29,7 @@ export async function previewEmployeeImportAction(_prev: EmployeeImportState, fo
   return {
     success: decision.ok,
     error: decision.ok ? undefined : decision.error,
-    errors: parsed.errors,
+    errors: decision.ok ? [] : parsed.errors.filter((item) => item !== decision.error),
     rows: parsed.rows,
   };
 }
@@ -38,7 +38,7 @@ export async function importEmployeesAction(_prev: EmployeeImportState, formData
   const workspace = await requireWritableHrWorkspace();
   const parsed = parseEmployeeCsv(await csvText(formData));
   const decision = employeeImportDecision(parsed);
-  if (!decision.ok) return { success: false, error: decision.error, errors: parsed.errors, rows: parsed.rows };
+  if (!decision.ok) return { success: false, error: decision.error, errors: parsed.errors.filter((item) => item !== decision.error), rows: parsed.rows };
   const supabase = await createClient();
   const saved = await supabase.rpc("import_hr_employees_batch", {
     p_organization_id: workspace.organization.id,

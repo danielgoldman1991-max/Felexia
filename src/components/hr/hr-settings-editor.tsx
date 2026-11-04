@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { saveHrDepartmentAction, saveHrLeaveTypeAction, saveHrPositionAction, saveHrScheduleAction, type HrSettingState } from "@/lib/hr/settings-actions";
+import { HR_DELETE_CONFIRM, type HrCatalogKind } from "@/lib/hr/settings-catalog";
+import { archiveHrDepartmentAction, archiveHrLeaveTypeAction, archiveHrPositionAction, archiveHrScheduleAction, deleteHrDepartmentAction, deleteHrLeaveTypeAction, deleteHrPositionAction, deleteHrScheduleAction, saveHrDepartmentAction, saveHrLeaveTypeAction, saveHrPositionAction, saveHrScheduleAction, type HrSettingState } from "@/lib/hr/settings-actions";
 
 const initial: HrSettingState = { success: false };
 
@@ -51,64 +52,109 @@ function Result({ state }: { state: HrSettingState }) {
 function DepartmentForm({ item, canWrite }: { item?: HrCatalog["departments"][number]; canWrite: boolean }) {
   const [state, action, pending] = useActionState(saveHrDepartmentAction, initial);
   return (
-    <form action={action} className="grid gap-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3 sm:grid-cols-[1fr_8rem_auto_auto] sm:items-end">
-      {item ? <input type="hidden" name="id" value={item.id} /> : null}
-      <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
-      <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} disabled={!canWrite} /></label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
-      {canWrite ? <Button type="submit" variant="secondary" disabled={pending}>{pending ? "…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
-      <Result state={state} />
-    </form>
+    <div className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3">
+      <form action={action} className="grid gap-2 sm:grid-cols-[1fr_8rem_auto_auto] sm:items-end">
+        {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
+        <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} disabled={!canWrite} /></label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
+        {canWrite ? <Button type="submit" variant="secondary" disabled={pending} aria-busy={pending}>{pending ? "Enregistrement…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
+        <Result state={state} />
+      </form>
+      {item && canWrite ? <CatalogActions id={item.id} active={item.is_active} kind="department" /> : null}
+    </div>
   );
 }
 
 function PositionForm({ item, departments, canWrite }: { item?: HrCatalog["positions"][number]; departments: HrCatalog["departments"]; canWrite: boolean }) {
   const [state, action, pending] = useActionState(saveHrPositionAction, initial);
   return (
-    <form action={action} className="grid gap-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3 sm:grid-cols-[1fr_8rem_1fr_auto_auto] sm:items-end">
-      {item ? <input type="hidden" name="id" value={item.id} /> : null}
-      <label className="text-sm">Intitulé<Input className="mt-1" name="title" defaultValue={item?.title ?? ""} required disabled={!canWrite} /></label>
-      <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} disabled={!canWrite} /></label>
-      <label className="text-sm">Département
-        <select name="department_id" defaultValue={item?.department_id ?? ""} disabled={!canWrite} className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
-          <option value="">Aucun</option>
-          {departments.filter((department) => department.is_active || department.id === item?.department_id).map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}
-        </select>
-      </label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
-      {canWrite ? <Button type="submit" variant="secondary" disabled={pending}>{pending ? "…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
-      <Result state={state} />
-    </form>
+    <div className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3">
+      <form action={action} className="grid gap-2 sm:grid-cols-[1fr_8rem_1fr_auto_auto] sm:items-end">
+        {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <label className="text-sm">Intitulé<Input className="mt-1" name="title" defaultValue={item?.title ?? ""} required disabled={!canWrite} /></label>
+        <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} disabled={!canWrite} /></label>
+        <label className="text-sm">Département
+          <select name="department_id" defaultValue={item?.department_id ?? ""} disabled={!canWrite} className="mt-1 h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
+            <option value="">Aucun</option>
+            {departments.filter((department) => department.is_active || department.id === item?.department_id).map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
+        {canWrite ? <Button type="submit" variant="secondary" disabled={pending} aria-busy={pending}>{pending ? "Enregistrement…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
+        <Result state={state} />
+      </form>
+      {item && canWrite ? <CatalogActions id={item.id} active={item.is_active} kind="position" /> : null}
+    </div>
   );
 }
 
 function LeaveForm({ item, canWrite }: { item?: HrCatalog["leaveTypes"][number]; canWrite: boolean }) {
   const [state, action, pending] = useActionState(saveHrLeaveTypeAction, initial);
   return (
-    <form action={action} className="grid gap-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3 sm:grid-cols-[1fr_8rem_8rem_auto_auto_auto] sm:items-end">
-      {item ? <input type="hidden" name="id" value={item.id} /> : null}
-      <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
-      <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} required disabled={!canWrite} /></label>
-      <label className="text-sm">Jours / an<Input className="mt-1" name="annual_entitlement_days" inputMode="decimal" defaultValue={item?.annual_entitlement_days ?? ""} disabled={!canWrite} /></label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_paid" defaultChecked={item ? item.is_paid : true} disabled={!canWrite} /> Payé</label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
-      {canWrite ? <Button type="submit" variant="secondary" disabled={pending}>{pending ? "…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
-      <Result state={state} />
-    </form>
+    <div className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3">
+      <form action={action} className="grid gap-2 sm:grid-cols-[1fr_8rem_8rem_auto_auto_auto] sm:items-end">
+        {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
+        <label className="text-sm">Code<Input className="mt-1" name="code" defaultValue={item?.code ?? ""} required disabled={!canWrite} /></label>
+        <label className="text-sm">Jours / an<Input className="mt-1" name="annual_entitlement_days" inputMode="decimal" defaultValue={item?.annual_entitlement_days ?? ""} disabled={!canWrite} /></label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_paid" defaultChecked={item ? item.is_paid : true} disabled={!canWrite} /> Payé</label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
+        {canWrite ? <Button type="submit" variant="secondary" disabled={pending} aria-busy={pending}>{pending ? "Enregistrement…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
+        <Result state={state} />
+      </form>
+      {item && canWrite ? <CatalogActions id={item.id} active={item.is_active} kind="leave" /> : null}
+    </div>
   );
 }
 
 function ScheduleForm({ item, canWrite }: { item?: HrCatalog["schedules"][number]; canWrite: boolean }) {
   const [state, action, pending] = useActionState(saveHrScheduleAction, initial);
   return (
-    <form action={action} className="grid gap-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3 sm:grid-cols-[1fr_7rem_1fr_1fr_auto_auto] sm:items-end">
-      {item ? <input type="hidden" name="id" value={item.id} /> : null}
-      <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
-      <label className="text-sm">Heures<Input className="mt-1" name="weekly_hours" inputMode="decimal" defaultValue={item?.weekly_hours ?? 44} required disabled={!canWrite} /></label>
-      <label className="text-sm">Jours<Input className="mt-1" name="work_days" defaultValue={item?.work_days ?? "lundi-vendredi"} required disabled={!canWrite} /></label>
-      <label className="text-sm">Notes<Input className="mt-1" name="notes" defaultValue={item?.notes ?? ""} disabled={!canWrite} /></label>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
-      {canWrite ? <Button type="submit" variant="secondary" disabled={pending}>{pending ? "…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
+    <div className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border)] p-3">
+      <form action={action} className="grid gap-2 sm:grid-cols-[1fr_7rem_1fr_1fr_auto_auto] sm:items-end">
+        {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <label className="text-sm">Nom<Input className="mt-1" name="name" defaultValue={item?.name ?? ""} required disabled={!canWrite} /></label>
+        <label className="text-sm">Heures<Input className="mt-1" name="weekly_hours" inputMode="decimal" defaultValue={item?.weekly_hours ?? 44} required disabled={!canWrite} /></label>
+        <label className="text-sm">Jours<Input className="mt-1" name="work_days" defaultValue={item?.work_days ?? "lundi-vendredi"} required disabled={!canWrite} /></label>
+        <label className="text-sm">Notes<Input className="mt-1" name="notes" defaultValue={item?.notes ?? ""} disabled={!canWrite} /></label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" defaultChecked={item?.is_active !== false} disabled={!canWrite} /> Actif</label>
+        {canWrite ? <Button type="submit" variant="secondary" disabled={pending} aria-busy={pending}>{pending ? "Enregistrement…" : item ? "Mettre à jour" : "Ajouter"}</Button> : null}
+        <Result state={state} />
+      </form>
+      {item && canWrite ? <CatalogActions id={item.id} active={item.is_active} kind="schedule" /> : null}
+    </div>
+  );
+}
+
+const archiveAction = {
+  department: archiveHrDepartmentAction,
+  position: archiveHrPositionAction,
+  leave: archiveHrLeaveTypeAction,
+  schedule: archiveHrScheduleAction,
+} as const;
+const deleteAction = {
+  department: deleteHrDepartmentAction,
+  position: deleteHrPositionAction,
+  leave: deleteHrLeaveTypeAction,
+  schedule: deleteHrScheduleAction,
+} as const;
+
+function CatalogActions({ id, active, kind }: { id: string; active: boolean; kind: HrCatalogKind }) {
+  return (
+    <div className="flex flex-wrap gap-2 sm:col-span-full">
+      {active ? <CatalogButton id={id} action={archiveAction[kind]} label="Archiver" pendingLabel="Archivage…" /> : null}
+      <CatalogButton id={id} action={deleteAction[kind]} label="Supprimer" pendingLabel="Suppression…" confirm={HR_DELETE_CONFIRM[kind]} />
+    </div>
+  );
+}
+
+function CatalogButton({ id, action, label, pendingLabel, confirm }: { id: string; action: (state: HrSettingState, formData: FormData) => Promise<HrSettingState>; label: string; pendingLabel: string; confirm?: string }) {
+  const [state, formAction, pending] = useActionState(action, initial);
+  return (
+    <form action={formAction} onSubmit={(event) => { if (confirm && !window.confirm(confirm)) event.preventDefault(); }}>
+      <input type="hidden" name="id" value={id} />
+      <Button type="submit" variant="ghost" disabled={pending} aria-busy={pending}>{pending ? pendingLabel : label}</Button>
       <Result state={state} />
     </form>
   );

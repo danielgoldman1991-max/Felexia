@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { deflateRawSync } from "node:zlib";
 import { planManualMatch } from "../src/lib/treasury/manual-match";
-import { deductionPeriod, deductionTable, paymentModeLabel } from "../src/lib/tax/vat-deduction-report";
+import { deductionPeriod, deductionTable, linkAllocationPayments, paymentModeLabel } from "../src/lib/tax/vat-deduction-report";
 import { writeXlsx } from "../src/lib/spreadsheet/minimal-xlsx";
 import { matchStatementLines, nameScore, reconciliationGap, scoreCandidate, splitBankCharge, DEFAULT_RECONCILIATION_SETTINGS, type MatchCandidate, type StatementLineInput } from "../src/lib/treasury/match-engine";
 import { parseBankFile, parseMoroccanAmount, parseMoroccanDate, readXlsxGrid, statementLineHash } from "../src/lib/treasury/statement-parse";
@@ -203,6 +203,18 @@ const grid = readXlsxGrid(writeXlsx(table));
 assert.equal(grid[0]?.[0], "Fournisseur");
 assert.equal(grid[1]?.[3], "FF-1");
 assert.equal(grid[1]?.[8], "Chèque");
+const linked = linkAllocationPayments(
+  [{ invoice_id: "inv-1", payment_id: "pay-1", amount: 120, allocation_date: "2026-11-02" }],
+  [{ id: "pay-1", payment_date: "2026-11-03", payment_method: "virement", status: "confirmed", reference: "VIR1" }],
+);
+assert.equal(linked[0]?.payment?.date, "2026-11-03");
+assert.equal(linked[0]?.payment?.mode, "virement");
+assert.equal(linked[0]?.invoiceId, "inv-1");
+for (const file of ["src/lib/tax/vat-deduction-query.ts", "src/lib/tax/dgi-vat-query.ts"]) {
+  assert.doesNotMatch(readFileSync(file, "utf8"), /payment:payment_id/, `${file} ne doit pas embarquer payment_id`);
+}
+assert.match(readFileSync("src/lib/tax/vat-deduction-query.ts", "utf8"), /from\("supplier_payments"\)/);
+assert.match(readFileSync("src/app/comptabilite/tva/deductions/page.tsx", "utf8"), /DEDUCTION_HEADERS/);
 
 console.log("Rapprochement automatique : formats marocains, scores, groupes, frais et dédoublonnage vérifiés.");
 

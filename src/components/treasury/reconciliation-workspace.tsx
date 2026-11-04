@@ -32,7 +32,7 @@ function lineAction(action: typeof ignoreStatementLine, lineId: string) {
 
 function ReconcileButton({ lineId, transactionId }: { lineId: string; transactionId: string }) {
   const [, formAction, pending] = useActionState(reconcileAction(lineId, transactionId), { success: true });
-  return <form action={formAction}><Button type="submit" className="h-8" disabled={pending}>Rapprocher</Button></form>;
+  return <form action={formAction}><Button type="submit" className="h-8" disabled={pending} aria-busy={pending}>{pending ? "Rapprochement…" : "Rapprocher"}</Button></form>;
 }
 
 function LineButton({ label, lineId, action, variant = "secondary", confirm }: { label: string; lineId: string; action: typeof ignoreStatementLine; variant?: "secondary" | "ghost"; confirm?: string }) {
@@ -104,7 +104,7 @@ function AutomaticSuggestionsForm({ suggestions }: { suggestions: Reconciliation
       {state.success && (state.data as { message?: string } | undefined)?.message ? <p className="text-sm text-emerald-700">{(state.data as { message: string }).message}</p> : null}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/rapprochement">Annuler</Link></Button>
-        <Button disabled={pending}>Confirmer les rapprochements selectionnes</Button>
+        <Button disabled={pending} aria-busy={pending}>{pending ? "Rapprochement…" : "Confirmer les rapprochements selectionnes"}</Button>
       </div>
     </form>
   );

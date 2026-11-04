@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireWritableHrWorkspace } from "@/lib/hr/access";
+import { hrCatalogDeleteDecision, type HrCatalogKind } from "@/lib/hr/settings-catalog";
+import { isMissingSchema } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export type HrSettingState = { success: boolean; error?: string };
@@ -105,4 +107,89 @@ export async function saveHrScheduleAction(_prev: HrSettingState, formData: Form
   if (error) return { success: false, error };
   revalidatePath("/rh/parametres");
   return { success: true };
+}
+
+async function countUsed(kind: HrCatalogKind, id: string, organizationId: string) {
+  const supabase = await createClient();
+  const checks: Array<PromiseLike<{ count: number | null; error: { message?: string; code?: string } | null }>> = [];
+  if (kind === "department") {
+    checks.push(supabase.from("hr_positions").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("department_id", id));
+    checks.push(supabase.from("hr_employees").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("department_id", id));
+  } else if (kind === "position") {
+    checks.push(supabase.from("hr_employees").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("position_id", id));
+  } else if (kind === "leave") {
+    checks.push(supabase.from("hr_leave_requests").select("id", { count: "exact", head: true }).eq("organization_id", organizationId).eq("leave_type_id", id));
+  }
+  let used = 0;
+  for (const check of checks) {
+    const result = await check;
+    if (result.error && !isMissingSchema(result.error)) return { error: "Impossible de vérifier si cet élément est utilisé." as const };
+    used += result.count ?? 0;
+  }
+  return { used };
+}
+
+async function archiveCatalog(kind: HrCatalogKind, formData: FormData): Promise<HrSettingState> {
+  const current = await workspace();
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "Élément introuvable." };
+  const supabase = await createClient();
+  const saved = await supabase.from(tableFor(kind)).update({ is_active: false }).eq("organization_id", current.organization.id).eq("id", id);
+  if (saved.error) {
+    if (isMissingSchema(saved.error)) return { success: false, error: "Cet élément n'est pas encore disponible." };
+    return { success: false, error: "L'archivage n'a pas abouti." };
+  }
+  revalidatePath("/rh/parametres");
+  return { success: true };
+}
+
+async function deleteCatalog(kind: HrCatalogKind, formData: FormData): Promise<HrSettingState> {
+  const current = await workspace();
+  const id = text(formData, "id");
+  if (!id) return { success: false, error: "Élément introuvable." };
+  const usage = await countUsed(kind, id, current.organization.id);
+  if ("error" in usage) return { success: false, error: usage.error };
+  const decision = hrCatalogDeleteDecision(kind, usage.used);
+  if (!decision.ok) return { success: false, error: decision.error };
+  const supabase = await createClient();
+  const removed = await supabase.from(tableFor(kind)).delete().eq("organization_id", current.organization.id).eq("id", id);
+  if (removed.error) {
+    const blocked = hrCatalogDeleteDecision(kind, 1);
+    if (removed.error.code === "23503" && !blocked.ok) return { success: false, error: blocked.error };
+    return { success: false, error: "La suppression n'a pas abouti. Archivez l'élément s'il est encore utilisé." };
+  }
+  revalidatePath("/rh/parametres");
+  return { success: true };
+}
+
+function tableFor(kind: HrCatalogKind) {
+  if (kind === "department") return "hr_departments";
+  if (kind === "position") return "hr_positions";
+  if (kind === "leave") return "hr_leave_types";
+  return "hr_work_schedules";
+}
+
+export async function archiveHrDepartmentAction(_prev: HrSettingState, formData: FormData) {
+  return archiveCatalog("department", formData);
+}
+export async function archiveHrPositionAction(_prev: HrSettingState, formData: FormData) {
+  return archiveCatalog("position", formData);
+}
+export async function archiveHrLeaveTypeAction(_prev: HrSettingState, formData: FormData) {
+  return archiveCatalog("leave", formData);
+}
+export async function archiveHrScheduleAction(_prev: HrSettingState, formData: FormData) {
+  return archiveCatalog("schedule", formData);
+}
+export async function deleteHrDepartmentAction(_prev: HrSettingState, formData: FormData) {
+  return deleteCatalog("department", formData);
+}
+export async function deleteHrPositionAction(_prev: HrSettingState, formData: FormData) {
+  return deleteCatalog("position", formData);
+}
+export async function deleteHrLeaveTypeAction(_prev: HrSettingState, formData: FormData) {
+  return deleteCatalog("leave", formData);
+}
+export async function deleteHrScheduleAction(_prev: HrSettingState, formData: FormData) {
+  return deleteCatalog("schedule", formData);
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
 import { importEmployeesAction, previewEmployeeImportAction, type EmployeeImportState } from "@/lib/hr/employee-import-actions";
@@ -15,6 +16,7 @@ export function EmployeeImportForm() {
     <div className="space-y-4">
       <form action={previewAction} className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
         <p className="text-sm text-[var(--muted)]">Fichier point-virgule. En-têtes : Matricule, Prénom, Nom, Date d&apos;embauche, Salaire, CIN, CNSS, RIB, Email, Ville, Personnes à charge. Une ligne invalide bloque tout le fichier.</p>
+        <Link className="text-sm font-medium text-[var(--primary)] hover:underline" href="/rh/employes/import/modele">Télécharger le modèle CSV</Link>
         <input name="file" type="file" accept=".csv,text/csv" required className="block text-sm" />
         <Button type="submit" variant="secondary" disabled={previewPending}>{previewPending ? "Lecture…" : "Prévisualiser"}</Button>
         {preview.error ? <p className="text-sm text-red-700">{preview.error}</p> : null}

@@ -79,3 +79,37 @@ const COUNTED_PAYMENT = new Set(["confirmed", "partially_allocated", "allocated"
 export function countedPayment(status: string | null | undefined) {
   return COUNTED_PAYMENT.has(String(status ?? "").toLowerCase());
 }
+
+export type AllocationPaymentLink = {
+  invoiceId: string;
+  paymentId: string;
+  amount: number | null;
+  allocationDate: string | null;
+  payment: { date: string | null; mode: string | null; status: string | null; reference: string | null } | null;
+};
+
+/** Join allocations to payments by id. Production has no FK, so PostgREST cannot embed payment_id. */
+export function linkAllocationPayments(
+  allocations: Array<{ invoice_id?: string | null; payment_id?: string | null; amount?: number | null; allocation_date?: string | null }>,
+  payments: Array<{ id?: string | null; payment_date?: string | null; payment_method?: string | null; status?: string | null; reference?: string | null }>,
+): AllocationPaymentLink[] {
+  const byId = new Map(payments.filter((payment) => payment.id).map((payment) => [String(payment.id), payment]));
+  return allocations.flatMap((allocation) => {
+    if (!allocation.invoice_id || !allocation.payment_id) return [];
+    const payment = byId.get(String(allocation.payment_id));
+    return [{
+      invoiceId: String(allocation.invoice_id),
+      paymentId: String(allocation.payment_id),
+      amount: allocation.amount == null ? null : Number(allocation.amount),
+      allocationDate: allocation.allocation_date ?? null,
+      payment: payment
+        ? {
+          date: payment.payment_date ?? null,
+          mode: payment.payment_method ?? null,
+          status: payment.status ?? null,
+          reference: payment.reference ?? null,
+        }
+        : null,
+    }];
+  });
+}
