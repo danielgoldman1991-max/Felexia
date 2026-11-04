@@ -17,6 +17,11 @@ async function requireCommercialWrite() {
   return workspace;
 }
 
+function clampDays(value: number) {
+  if (!Number.isFinite(value)) return 7;
+  return Math.min(180, Math.max(-30, Math.round(value)));
+}
+
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
   return value.length > 0 ? value : null;
@@ -91,8 +96,8 @@ export async function saveReminderRuleAction(_previous: FormState, formData: For
     const payload = {
       organization_id: workspace.organization.id,
       name: text(formData, "name") ?? "Règle de relance",
-      days_after_due: Math.max(0, Math.round(Number(formData.get("days_after_due") ?? 7))),
-      level: Math.min(3, Math.max(1, Math.round(Number(formData.get("level") ?? 1)))),
+      days_after_due: clampDays(Number(formData.get("days_after_due") ?? 7)),
+      level: Math.min(4, Math.max(1, Math.round(Number(formData.get("level") ?? 1)))),
       channel: text(formData, "channel") ?? "email",
       subject: text(formData, "subject"),
       message: text(formData, "message"),

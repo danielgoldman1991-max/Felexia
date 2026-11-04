@@ -116,6 +116,7 @@ export const sections: SidebarSection[] = [
       { label: "Paiements reçus", href: "/facturation/paiements", icon: WalletCards },
       { label: "Impayés", href: "/facturation/factures?paymentStatus=unpaid", icon: ShieldAlert },
       { label: "Relances", href: "/facturation/relances", icon: BellRing },
+      { label: "Recouvrement", href: "/facturation/relances/file", icon: BellRing },
       { label: "Règles de relance", href: "/facturation/relances/regles", icon: BellRing },
       { label: "Balance âgée", href: "/facturation/balance-agee", icon: ShieldAlert },
     ],

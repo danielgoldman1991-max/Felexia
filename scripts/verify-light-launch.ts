@@ -27,7 +27,8 @@ const onRequestPaths = [
   "/achats/demandes", "/achats/consultations", "/achats/balance-agee",
   "/comptabilite/plan-comptable", "/comptabilite/grand-livre", "/comptabilite/balance",
   "/comptabilite/tva/declarations/new", "/comptabilite/plan-comptable/init",
-  "/tresorerie/previsions/export", "/tresorerie/rapprochement", "/tresorerie/rapprochement/regles", "/tiers/prospects",
+  "/tresorerie/previsions/export", "/tresorerie/rapprochement", "/tresorerie/rapprochement/regles",
+  "/facturation/relances/file", "/tiers/prospects",
   "/tiers/new?type=prospect",
 ];
 for (const path of onRequestPaths) {

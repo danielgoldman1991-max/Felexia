@@ -26,6 +26,7 @@ Légende des décisions : **implémenté** (parcours réel dans l'application), 
 | Liasse CGNC | `src/lib/accounting/liasse.ts`, `/comptabilite/liasse` | Quatre totaux, 5 000 lignes, pas d'export | **Implémenté** comme liasse de gestion : postes, impression, Excel. Capitaux d'ouverture non repris d'un bilan N-1. Pas une liasse certifiée. |
 | FEC | `/comptabilite/fec` | Journal forcé à OD, plafond 5 000 | **Implémenté** : code journal réel, lecture paginée jusqu'à 20 000 lignes. Export de type FEC, pas un dépôt. |
 | Relevés et rapprochement | `/tresorerie/releves`, `/tresorerie/rapprochement` | CSV seulement, annulation absente | **Implémenté** : OFX/QFX, CSV/Excel des banques marocaines, score, suggestions, lot au-dessus du seuil, journal et annulation. Pas de connexion directe aux banques. |
+| Relances clients | `/facturation/relances`, `/facturation/relances/file` | Création manuelle | **Implémenté** : balance âgée, DSO de gestion, scénarios J-3 à J+30, file du jour, WhatsApp, courrier, journal d'e-mail. L'envoi automatique est désactivé par défaut. Pas d'expéditeur inventé. |
 | Bilan et CPC | `/comptabilite/etats` | Synthèse des classes 1 à 7 | Conservé comme synthèse. Le détail est sur la liasse. |
 | Lettrage comptable | `/comptabilite/lettrage` | 3421 / 4411 | Déjà en place. |
 | Déclaration TVA | `/comptabilite/tva` | CRUD, contrôle, XML/CSV préparatoires vers Storage | Déjà en place, non homologué DGI. |
