@@ -91,6 +91,13 @@ const workspace = (role) => ({ userId: "user-1", organization: { id: "org-1" }, 
     "@/lib/auth/roles": compile("src/lib/auth/roles.ts", {}),
   });
   check(await failed.modulePermissionDecision(workspace("commercial"), "stock", "write") === "legacy", "A permission lookup failure keeps the legacy checks");
+  const noRole = compile("src/lib/auth/module-permission.ts", {
+    "@/lib/supabase/server": { createClient: async () => permissionClient([], { missingRole: true }) },
+    "@/lib/auth/module-catalog": catalog,
+    "@/lib/auth/roles": compile("src/lib/auth/roles.ts", {}),
+  });
+  check(await noRole.modulePermissionDecision(workspace(null), "ventes", "read") === "legacy", "A member without a role row keeps the legacy checks instead of being locked out");
+  check(await noRole.moduleAccessErrorAny(workspace(null), ["rh", "paie"], "read") === null, "A member without a role row can still read grouped modules");
   const report = { passed: true, checks: results.length, results };
   fs.writeFileSync(path.join(__dirname, "module-access.json"), JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify(report));

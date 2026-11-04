@@ -39,7 +39,8 @@ export async function modulePermissionDecision(workspace: ActiveWorkspace, modul
   if (isBuiltInAdminRole(workspace.role)) return "allow" as const;
   const loaded = await rolePermissionCodes(workspace);
   if (loaded.failed) return "legacy" as const;
-  if (loaded.missingRole) return "deny" as const;
+  // A membership with no role row (2 real members in prod) has no matrix to enforce: keep the legacy checks.
+  if (loaded.missingRole) return "legacy" as const;
   return decideModuleAccess(workspace.role, loaded.codes, module, level);
 }
 
@@ -62,11 +63,9 @@ export async function moduleAccessError(workspace: ActiveWorkspace, module: Modu
 export async function moduleAccessErrorAny(workspace: ActiveWorkspace, modules: ModuleKey[], level: "read" | "write") {
   if (isBuiltInAdminRole(workspace.role)) return null;
   const loaded = await rolePermissionCodes(workspace);
-  if (loaded.failed) return null;
-  if (!loaded.missingRole) {
-    const decisions = modules.map((module) => decideModuleAccess(workspace.role, loaded.codes, module, level));
-    if (decisions.some((decision) => decision === "allow" || decision === "legacy")) return null;
-  }
+  if (loaded.failed || loaded.missingRole) return null;
+  const decisions = modules.map((module) => decideModuleAccess(workspace.role, loaded.codes, module, level));
+  if (decisions.some((decision) => decision === "allow" || decision === "legacy")) return null;
   return level === "write"
     ? "Votre rôle ne permet pas de modifier ce module."
     : "Votre rôle ne permet pas de consulter ce module.";
