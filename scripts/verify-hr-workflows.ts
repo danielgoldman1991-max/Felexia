@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { employeeImportDecision, parseEmployeeCsv } from "../src/lib/hr/validation";
 import { decideLeave } from "../src/lib/hr/leave-decision";
 import { serviceMonthsInYear } from "../src/lib/hr/leave-balance";
 import { computeFinalSettlement } from "../src/lib/hr/settlement";
@@ -86,5 +87,28 @@ assert.match(migration, /aa_pro_member_write/);
 assert.match(migration, /pro_read_guard_110/);
 assert.match(migration, /official_claim = false/);
 assert.match(readFileSync("supabase/rollbacks/123_hr_leave_settlements_and_checks_rollback.sql", "utf8"), /drop table if exists public.hr_final_settlements/);
+
+const validRib = "000000000000000000000097";
+const frenchCsv = [
+  "Matricule;Prénom;Nom;Date d'embauche;Salaire;CIN;CNSS;RIB;Email;Ville;Personnes à charge",
+  `E001;Sara;Alami;15/01/2024;8 000,00;AB123456;123456789;${validRib};sara@example.com;Casablanca;1`,
+].join("\n");
+const accepted = parseEmployeeCsv(frenchCsv);
+assert.deepEqual(accepted.errors, []);
+assert.equal(accepted.rows[0]?.hireDate, "2024-01-15");
+assert.equal(accepted.rows[0]?.baseSalary, 8000);
+assert.equal(accepted.rows[0]?.dependents, 1);
+assert.equal(employeeImportDecision(accepted).ok, true);
+
+const invalidFile = parseEmployeeCsv(`${frenchCsv}\nE001;Omar;Bennani;2024-02-01;1000;12;12345;123;mauvais;Rabat;9`);
+assert.ok(invalidFile.errors.some((error) => error.includes("matricule")));
+assert.ok(invalidFile.errors.some((error) => error.includes("CIN")));
+assert.ok(invalidFile.errors.some((error) => error.includes("CNSS")));
+assert.ok(invalidFile.errors.some((error) => error.includes("RIB")));
+assert.ok(invalidFile.errors.some((error) => error.includes("email")));
+assert.ok(invalidFile.errors.some((error) => error.includes("personnes")));
+assert.equal(employeeImportDecision(invalidFile).ok, false);
+assert.match(readFileSync("supabase/migrations/142_hr_employee_import.sql", "utf8"), /import_hr_employees_batch/);
+assert.match(readFileSync("supabase/rollbacks/142_hr_employee_import_rollback.sql", "utf8"), /drop function if exists public.import_hr_employees_batch/);
 
 console.log("RH : décisions de congé, solde de tout compte et contrôles d'accès vérifiés.");

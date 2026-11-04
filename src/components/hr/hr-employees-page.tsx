@@ -15,10 +15,13 @@ export function HrEmployeesPage({ employees }: { employees: HrEmployee[] }) {
         description="Fiches salariés, contrats, paie, congés, documents RH et alertes administratives."
         actions={
           <HrManagementAction>
-          <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
-            <UserPlus className="mr-2 h-4 w-4" />
-            Nouvel employé
-          </Link>
+          <span className="flex flex-wrap gap-2">
+            <Link href="/rh/employes/import" className="inline-flex h-10 items-center rounded-[var(--radius-md)] border border-[var(--border)] px-4 text-sm font-medium">Importer un CSV</Link>
+            <Link href="/rh/employes/new" className="inline-flex h-10 items-center rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)] transition hover:brightness-110">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Nouvel employé
+            </Link>
+          </span>
           </HrManagementAction>
         }
       />

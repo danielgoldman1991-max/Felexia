@@ -6,6 +6,8 @@ import { generateBankFeeAccountingEntry, generateCustomerPaymentAccountingEntry,
 import { requireProWorkspace } from "@/lib/pro-access";
 import { isMissingSchema } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
+import { manualMatchError, planManualMatch } from "@/lib/treasury/manual-match";
+import { loadManualMatchBoard } from "@/lib/treasury/manual-match-data";
 import { labelKey, splitBankCharge, type ProposedMatch } from "@/lib/treasury/match-engine";
 import { buildExpertState, type ExpertLineRecord } from "@/lib/treasury/reconciliation-view";
 import type { TreasuryActionResult } from "@/lib/treasury-types";
@@ -360,6 +362,70 @@ function round2(value: number) {
 function clamp(value: number, min: number, max: number, fallback: number) {
   if (!Number.isFinite(value)) return fallback;
   return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+export async function saveManualMatch(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
+  void prev;
+  try {
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
+    const accountId = text(formData, "account_id");
+    if (!accountId) return { success: false, error: "Sélectionnez un compte." };
+    const board = await loadManualMatchBoard(accountId);
+    if (board.pendingMigration) return { success: false, error: manualMatchError("PGRST202") };
+    const lines = formData.getAll("line_id").map(String).filter(Boolean).map((id) => {
+      const line = board.lines.find((item) => item.id === id);
+      return line ? { ...line, amount: numberAmount(formData.get(`line_amount_${id}`)) } : null;
+    });
+    const documents = formData.getAll("document_id").map(String).filter(Boolean).map((key) => {
+      const [kind, id] = key.split(":");
+      const document = board.documents.find((item) => item.kind === kind && item.id === id);
+      return document ? { ...document, amount: numberAmount(formData.get(`document_amount_${kind}_${id}`)) } : null;
+    });
+    if (lines.some((line) => !line) || documents.some((document) => !document)) {
+      return { success: false, error: "Une ligne ou une pièce n'est plus disponible. Actualisez la page." };
+    }
+    const planned = planManualMatch(lines.flatMap((line) => line ? [line] : []), documents.flatMap((document) => document ? [document] : []));
+    if (!planned.ok) return { success: false, error: planned.error };
+    const supabase = await createClient();
+    const saved = await supabase.rpc("save_bank_manual_match", {
+      p_organization_id: workspace.organization.id,
+      p_treasury_account_id: accountId,
+      p_lines: planned.plan.lines,
+      p_documents: planned.plan.documents,
+    });
+    if (saved.error) return { success: false, error: manualMatchError(`${saved.error.code ?? ""} ${saved.error.message ?? ""}`) };
+    revalidateReconciliation();
+    const label = planned.plan.kind === "grouped" ? "groupé" : "partiel";
+    return { success: true, data: { message: `Rapprochement ${label} enregistré${planned.plan.partial ? " pour une partie des montants" : ""}.` } };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return { success: false, error: error instanceof Error ? error.message : "Le rapprochement manuel n'a pas abouti." };
+  }
+}
+
+export async function undoManualMatch(prev: TreasuryActionResult, formData: FormData): Promise<TreasuryActionResult> {
+  void prev;
+  try {
+    const workspace = await requireProWorkspace({ module: "tresorerie" });
+    const matchId = text(formData, "match_id");
+    if (!matchId) return { success: false, error: "Rapprochement introuvable." };
+    const supabase = await createClient();
+    const undone = await supabase.rpc("undo_bank_manual_match", {
+      p_organization_id: workspace.organization.id,
+      p_match_id: matchId,
+    });
+    if (undone.error) return { success: false, error: manualMatchError(`${undone.error.code ?? ""} ${undone.error.message ?? ""}`) };
+    revalidateReconciliation();
+    return { success: true, data: { message: "Le rapprochement manuel est annulé. Les lignes couvertes seulement en partie redeviennent ouvertes." } };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return { success: false, error: error instanceof Error ? error.message : "L'annulation n'a pas abouti." };
+  }
+}
+
+function numberAmount(value: FormDataEntryValue | null) {
+  const parsed = Number(String(value ?? "").replace(/\s/g, "").replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function revalidateReconciliation() {

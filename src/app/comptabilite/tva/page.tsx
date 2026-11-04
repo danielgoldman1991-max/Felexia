@@ -37,6 +37,13 @@ export default async function AccountingVatPage() {
       icon: Download,
       color: "bg-emerald-50 text-emerald-600",
     },
+    {
+      title: "Relevé des déductions",
+      description: "Exportez les factures fournisseurs d'une période en CSV ou Excel.",
+      href: "/comptabilite/tva/deductions",
+      icon: Calendar,
+      color: "bg-violet-50 text-violet-700",
+    },
   ];
 
   const summaryCards = [
