@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
+import { loadSupplierAllocationPayments } from "@/lib/tax/vat-deduction-query";
 import { buildDeclarationLines, DGI_VAT_SCHEMA_VERSION, roundMad, toMadAmount } from "@/lib/tax/dgi-vat-mapping";
 import type {
   DgiVatExportData,
@@ -157,7 +158,7 @@ export async function getDgiVatExportData({
     { data: customerLines },
     { data: creditNoteLines },
     { data: supplierLines },
-    { data: paymentAllocations },
+    paymentAllocations,
     customerPostedIds,
     creditNotePostedIds,
     supplierPostedIds,
@@ -183,14 +184,7 @@ export async function getDgiVatExportData({
           .eq("organization_id", organizationId)
           .in("invoice_id", supplierInvoiceIds)
       : Promise.resolve({ data: [] }),
-    supplierInvoiceIds.length
-      ? supabase
-          .from("supplier_payment_allocations")
-          .select("invoice_id, amount, allocation_date, payment:payment_id(payment_date, payment_method, reference, status)")
-          .eq("organization_id", organizationId)
-          .in("invoice_id", supplierInvoiceIds)
-          .is("cancelled_at", null)
-      : Promise.resolve({ data: [] }),
+    loadSupplierAllocationPayments(supabase, organizationId, supplierInvoiceIds),
     getPostedDocumentIds(organizationId, "customer_invoice", customerInvoiceIds),
     getPostedDocumentIds(organizationId, "credit_note", creditNoteIds),
     getPostedDocumentIds(organizationId, "supplier_invoice", supplierInvoiceIds),
@@ -218,14 +212,13 @@ export async function getDgiVatExportData({
   }
 
   const paymentByInvoice = new Map<string, { paid: number; mode: string | null; reference: string | null; date: string | null }>();
-  for (const allocation of (paymentAllocations ?? []) as RecordLike[]) {
-    const invoiceId = String(allocation.invoice_id);
+  for (const allocation of paymentAllocations) {
+    const invoiceId = allocation.invoiceId;
     const current = paymentByInvoice.get(invoiceId) ?? { paid: 0, mode: null, reference: null, date: null };
-    const payment = relationObject(allocation.payment);
     current.paid += toMadAmount(allocation.amount);
-    current.mode = current.mode ?? textValue(payment?.payment_method);
-    current.reference = current.reference ?? textValue(payment?.reference);
-    current.date = current.date ?? (dateValue(payment?.payment_date) || dateValue(allocation.allocation_date) || null);
+    current.mode = current.mode ?? allocation.payment?.mode ?? null;
+    current.reference = current.reference ?? allocation.payment?.reference ?? null;
+    current.date = current.date ?? (dateValue(allocation.payment?.date) || dateValue(allocation.allocationDate) || null);
     paymentByInvoice.set(invoiceId, current);
   }
 
@@ -291,7 +284,8 @@ export async function getDgiVatExportData({
     const invoiceId = String(invoice.id);
     const payment = paymentByInvoice.get(invoiceId);
     const totalTtc = toMadAmount(invoice.total_ttc);
-    const paid = Math.max(payment?.paid ?? toMadAmount(invoice.paid_amount), 0);
+    // Keep the stored paid amount: the old embed never returned allocations in prod, so totals came from paid_amount.
+    const paid = Math.max(toMadAmount(invoice.paid_amount), 0);
     const prorata = totalTtc > 0 ? Math.min(paid / totalTtc, 1) : 0;
     const lines = supplierLinesByInvoice.get(invoiceId) ?? [];
 

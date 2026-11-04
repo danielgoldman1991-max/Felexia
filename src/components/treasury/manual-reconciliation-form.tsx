@@ -42,7 +42,7 @@ export function ManualReconciliationForm({ board }: { board: ManualMatchBoard })
             detail: `${document.party || "Sans tiers"} · ${document.date} · ${document.kind === "transaction" ? "Mouvement" : document.kind === "customer_invoice" ? "Facture client" : "Facture fournisseur"}`,
             remaining: document.remaining,
           }))} />
-          <Button type="submit" disabled={pending || board.pendingMigration || !board.accountId}>{pending ? "Rapprochement…" : "Rapprocher la sélection"}</Button>
+          <Button type="submit" disabled={pending || board.pendingMigration || !board.accountId} aria-busy={pending}>{pending ? "Rapprochement…" : "Rapprocher la sélection"}</Button>
           {state.success && message ? <p className="text-sm text-emerald-700">{message}</p> : null}
           {!state.success && state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
         </form>
