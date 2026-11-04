@@ -8,6 +8,7 @@ import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import { PIPELINE_STAGES, forecastOpportunities, type PipelineStage } from "@/lib/sales/pipeline";
+import { isMissingSchema, SCHEMA_PENDING_MESSAGE } from "@/lib/optional-schema";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,8 @@ export default async function PipelinePage() {
   const workspace = await requireActiveWorkspace();
   if (!(await hasFullErpAccess(workspace.organization.id))) return <ModulePage><ModuleUpgradePage /></ModulePage>;
   const supabase = await createClient();
-  const { data } = await supabase.from("crm_opportunities").select("id, title, customer_name, stage, amount, expected_on").eq("organization_id", workspace.organization.id).order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("crm_opportunities").select("id, title, customer_name, stage, amount, expected_on").eq("organization_id", workspace.organization.id).order("created_at", { ascending: false });
+  if (isMissingSchema(error)) return <ModulePage><PageHeader title="Pipeline commercial" description={SCHEMA_PENDING_MESSAGE} /></ModulePage>;
   const forecast = forecastOpportunities((data ?? []).map((row) => ({ stage: row.stage as PipelineStage, amount: Number(row.amount ?? 0) })));
   return (
     <ModulePage>

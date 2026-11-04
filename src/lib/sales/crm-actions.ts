@@ -24,6 +24,9 @@ export async function createOpportunity(previous: { error?: string }, formData: 
     amount,
     expected_on: String(formData.get("expected_on") ?? "").trim() || null,
   });
+  if (error && (error.code === "42P01" || error.code === "PGRST205" || /does not exist|schema cache/i.test(error.message))) {
+    return { error: "Le pipeline attend la migration 119. Le reste de l'application continue de fonctionner." };
+  }
   if (error) return { error: error.message };
   revalidatePath("/vente/pipeline");
   redirect("/vente/pipeline");

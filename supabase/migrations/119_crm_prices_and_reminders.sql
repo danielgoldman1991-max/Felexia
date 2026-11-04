@@ -1,4 +1,5 @@
 -- 119: pipeline commercial, listes de prix et règles de relance.
+-- Apply after 118. Do not reuse this number.
 -- Additive. Existing quotes, invoices and reminders are unchanged.
 --
 -- Rollback:
