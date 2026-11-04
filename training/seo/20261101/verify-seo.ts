@@ -20,7 +20,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 14 && new Set(PUBLIC_SITE_PATHS).size === 14, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 15 && new Set(PUBLIC_SITE_PATHS).size === 15, "Public routes are explicit and unique");
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);
