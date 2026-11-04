@@ -89,13 +89,22 @@ export async function loadAccountingAuxiliaries(supabase: SupabaseClient, organi
   return found;
 }
 
+export type EntryHeader = {
+  number: string;
+  date: string;
+  journalCode: string;
+  journalLabel: string;
+  sourceType: string | null;
+  sourceId: string | null;
+};
+
 export async function loadEntryHeaders(supabase: SupabaseClient, organizationId: string, entryIds: string[]) {
-  const headers = new Map<string, { number: string; date: string; journalCode: string; journalLabel: string }>();
+  const headers = new Map<string, EntryHeader>();
   for (let index = 0; index < entryIds.length; index += 200) {
     const slice = entryIds.slice(index, index + 200);
     const { data, error } = await supabase
       .from("accounting_entries")
-      .select("id, entry_number, entry_date, journal:accounting_journals(code, name)")
+      .select("id, entry_number, entry_date, source_document_type, source_document_id, journal:accounting_journals(code, name)")
       .eq("organization_id", organizationId)
       .in("id", slice);
     if (error) return { headers, error: error.message };
@@ -107,6 +116,8 @@ export async function loadEntryHeaders(supabase: SupabaseClient, organizationId:
         date: String(entry.entry_date ?? "").slice(0, 10),
         journalCode: journalRow?.code || "OD",
         journalLabel: journalRow?.name || "Journal",
+        sourceType: entry.source_document_type ? String(entry.source_document_type) : null,
+        sourceId: entry.source_document_id ? String(entry.source_document_id) : null,
       });
     }
   }

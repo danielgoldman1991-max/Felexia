@@ -9,6 +9,7 @@ const exportOptions = [
   { title: "Journaux", href: "/comptabilite/journaux", action: "Choisir un journal", download: false, description: "Choisir un journal et une période, puis utiliser ses exports CSV ou Excel." },
   { title: "Balance", href: "/comptabilite/balance", action: "Consulter la balance", download: false, description: "Consulter les mouvements et soldes par compte sur la période choisie." },
   { title: "Grand livre", href: "/comptabilite/grand-livre", action: "Consulter le grand livre", download: false, description: "Consulter le détail chronologique des écritures par compte." },
+  { title: "FEC préparatoire", href: "/comptabilite/fec", action: "Télécharger le FEC", download: true, description: "Télécharger le fichier des écritures. Ce n'est pas une transmission officielle." },
 ];
 
 export default function AccountingExportsPage() {
@@ -33,7 +34,7 @@ export default function AccountingExportsPage() {
           </Card>
         ))}
       </div>
-      <p className="text-sm text-[var(--muted)]">Un fichier FEC et une transmission officielle DGI ne sont pas disponibles depuis cet écran. Les exports destinés à une déclaration restent à valider avec votre conseil.</p>
+      <p className="text-sm text-[var(--muted)]">Le <Link href="/comptabilite/fec" className="font-medium text-[var(--primary)] hover:underline">FEC préparatoire</Link> se télécharge depuis cette page. Ce n&apos;est pas une transmission officielle DGI. Les exports destinés à une déclaration restent à valider avec votre conseil.</p>
     </ModulePage>
   );
 }

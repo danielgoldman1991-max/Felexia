@@ -25,7 +25,7 @@ export function QuotesTable({ rows }: { rows: SalesQuoteRecord[] }) {
         {rows.length === 0 ? (
           <tr>
             <td colSpan={7} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
-              Aucun devis trouve.
+              Aucun devis trouvé.
             </td>
           </tr>
         ) : null}
