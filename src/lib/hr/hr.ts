@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { canManageHrWorkspace, requireHrWorkspace } from "@/lib/hr/access";
 import { ensureHrReferenceData } from "@/lib/hr/reference-data";
-import { isMissingSchema } from "@/lib/optional-schema";
 import type { HrDashboardData, HrEmployee, HrSettings } from "@/lib/hr/types";
 
 type CountableTable =
@@ -26,10 +25,7 @@ export async function ensureCurrentWorkspaceHrReferenceData() {
   const workspace = await requireHrWorkspace();
   if (canManageHrWorkspace(workspace)) {
     const supabase = await createClient();
-    const existing = await supabase.from("hr_settings").select("organization_id").eq("organization_id", workspace.organization.id).maybeSingle();
-    if (!existing.data && !isMissingSchema(existing.error)) {
-      await ensureHrReferenceData(supabase, workspace.organization.id);
-    }
+    await ensureHrReferenceData(supabase, workspace.organization.id);
   }
   return workspace;
 }
