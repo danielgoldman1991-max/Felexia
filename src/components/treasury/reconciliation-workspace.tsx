@@ -83,6 +83,7 @@ export function ReconciliationWorkspace({
   transactions,
   suggestions,
   reconciledLines = [],
+  hideLegacyAuto = false,
 }: {
   accounts: TreasuryAccountRecord[];
   selectedAccountId: string;
@@ -90,6 +91,7 @@ export function ReconciliationWorkspace({
   transactions: TreasuryTransactionRecord[];
   suggestions: ReconciliationSuggestion[];
   reconciledLines?: BankStatementLineRecord[];
+  hideLegacyAuto?: boolean;
 }) {
   return (
     <div className="space-y-5">
@@ -107,7 +109,7 @@ export function ReconciliationWorkspace({
         </CardContent>
       </Card>
 
-      <Card>
+      {hideLegacyAuto ? null : <Card>
         <CardHeader>
           <h2 className="font-semibold">Rapprochement automatique</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">Voulez-vous lancer une proposition de rapprochement automatique basee sur les dates, montants, sens, compte et references ?</p>
@@ -124,7 +126,7 @@ export function ReconciliationWorkspace({
           </div>
           {suggestions.length > 0 ? <AutomaticSuggestionsForm suggestions={suggestions} /> : null}
         </CardContent>
-      </Card>
+      </Card>}
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card>

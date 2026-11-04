@@ -151,6 +151,7 @@ export const sections: SidebarSection[] = [
       { label: "Mouvements", href: "/tresorerie/mouvements", icon: ArrowLeftRight },
       { label: "Relevés bancaires", href: "/tresorerie/releves", icon: FileText },
       { label: "Rapprochement", href: "/tresorerie/rapprochement", icon: BarChart3 },
+      { label: "Règles de rapprochement", href: "/tresorerie/rapprochement/regles", icon: BookOpen },
       { label: "Prévisions", href: "/tresorerie/previsions", icon: Sparkles },
     ],
   },

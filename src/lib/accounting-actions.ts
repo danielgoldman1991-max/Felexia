@@ -384,6 +384,8 @@ const ACCOUNT_FALLBACKS: Record<string, { name: string; type: string }> = {
   "7124": { name: "Prestations de services", type: "revenue" },
   "3455": { name: "Etat - TVA recuperable", type: "tax" },
   "34552": { name: "Etat - TVA recuperable sur charges", type: "tax" },
+  "6147": { name: "Services bancaires", type: "expense" },
+  "6311": { name: "Interets des emprunts", type: "expense" },
   "4455": { name: "Etat - TVA facturée", type: "tax" },
 };
 
@@ -847,6 +849,126 @@ export async function generateSupplierPaymentAccountingEntry(paymentId: string):
 
   revalidatePath("/comptabilite/ecritures");
   return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
+}
+
+export async function generateBankFeeAccountingEntry(input: {
+  statementLineId: string;
+  date: string;
+  label: string;
+  amount: number;
+  treasuryAccountId: string;
+  category: string;
+  accountCode?: string | null;
+  net: number;
+  vat: number;
+  expenseAccount: string;
+}): Promise<{ success: boolean; error?: string; data?: { entry_id: string; entry_number: string } }> {
+  const workspace = await requireProWorkspace();
+  const orgId = workspace.organization.id;
+  const supabase = await createClient();
+  const existing = await getExistingEntryBySource(orgId, "bank_statement_fee", input.statementLineId);
+  if (existing) return { success: true, data: { entry_id: existing.id, entry_number: existing.entry_number } };
+  const amount = Math.round(input.amount * 100) / 100;
+  if (amount <= 0) return { success: false, error: "Montant de frais invalide." };
+  const { journalCode, accountCode: treasuryAccountCode } = await getTreasuryPostingSetup(orgId, input.treasuryAccountId);
+  const journal = await getJournalByCode(orgId, journalCode);
+  if (!journal) return { success: false, error: `Journal ${journalCode} introuvable.` };
+  const settings = await getAccountingSettingsFromLib(orgId);
+  const expenseCode = input.category === "agio"
+    ? "6311"
+    : input.accountCode || (settings?.default_bank_fees_account_code as string | undefined) || input.expenseAccount;
+  const vatCode = "3455";
+  const codes = [expenseCode, treasuryAccountCode, ...(input.vat > 0 ? [vatCode] : [])];
+  await ensureAccounts(orgId, codes);
+  const expense = await getAccountByNumber(orgId, expenseCode);
+  const treasury = await getAccountByNumber(orgId, treasuryAccountCode);
+  const vat = input.vat > 0 ? await getAccountByNumber(orgId, vatCode) : null;
+  if (!expense || !treasury || (input.vat > 0 && !vat)) return { success: false, error: "Le compte de frais ou de banque est introuvable." };
+  const lines = [
+    ...(input.net > 0 ? [{ account_id: expense.id, account_code: expense.code, account_name: expense.name, debit: input.net, credit: 0, label: input.label }] : []),
+    ...(input.vat > 0 && vat ? [{ account_id: vat.id, account_code: vat.code, account_name: vat.name, debit: input.vat, credit: 0, label: "TVA sur frais bancaires" }] : []),
+    { account_id: treasury.id, account_code: treasury.code, account_name: treasury.name, debit: 0, credit: amount, label: input.label },
+  ];
+  const { totalDebit, totalCredit, balanced } = verifyBalanced(lines);
+  if (!balanced) return { success: false, error: "L'écriture de frais n'est pas équilibrée." };
+  const { entry, error } = await saveAtomicAccountingEntry(supabase, {
+    organization_id: orgId,
+    entry_number: null,
+    journal_id: journal.id,
+    entry_date: input.date,
+    label: input.label,
+    source_module: "treasury",
+    source_document_type: "bank_statement_fee",
+    source_document_id: input.statementLineId,
+    source_number: input.statementLineId.slice(0, 8),
+    status: "posted",
+    total_debit: totalDebit,
+    total_credit: totalCredit,
+    posted_at: new Date().toISOString(),
+    created_by: workspace.userId,
+  }, lines.map((line, index) => ({
+    organization_id: orgId,
+    line_number: index + 1,
+    account_id: line.account_id,
+    account_code: line.account_code,
+    account_label: line.account_name,
+    debit: line.debit,
+    credit: line.credit,
+    label: line.label,
+  })));
+  if (error || !entry) return { success: false, error: error?.message ?? "Impossible de comptabiliser le frais." };
+  revalidatePath("/comptabilite/ecritures");
+  return { success: true, data: { entry_id: entry.id, entry_number: entry.entry_number } };
+}
+
+export async function reverseAccountingEntry(entryId: string): Promise<{ success: boolean; error?: string }> {
+  const workspace = await requireProWorkspace();
+  const orgId = workspace.organization.id;
+  const supabase = await createClient();
+  const existing = await getExistingEntryBySource(orgId, "bank_reconciliation_reversal", entryId);
+  if (existing) return { success: true };
+  const { data: entry } = await supabase.from("accounting_entries").select("id, journal_id, entry_date, label, entry_number").eq("organization_id", orgId).eq("id", entryId).maybeSingle();
+  if (!entry) return { success: true };
+  const { data: lines } = await supabase.from("accounting_entry_lines").select("account_id, account_code, account_label, debit, credit, label, line_number").eq("organization_id", orgId).eq("entry_id", entryId).order("line_number");
+  if (!lines?.length) return { success: false, error: "L'écriture d'origine n'a pas de lignes." };
+  const swapped = lines.map((line) => ({
+    account_id: line.account_id as string,
+    account_code: line.account_code as string,
+    account_name: line.account_label as string,
+    debit: Number(line.credit ?? 0),
+    credit: Number(line.debit ?? 0),
+    label: `Extourne ${line.label ?? ""}`.trim(),
+  }));
+  const { totalDebit, totalCredit, balanced } = verifyBalanced(swapped);
+  if (!balanced) return { success: false, error: "L'extourne n'est pas équilibrée." };
+  const saved = await saveAtomicAccountingEntry(supabase, {
+    organization_id: orgId,
+    entry_number: null,
+    journal_id: entry.journal_id,
+    entry_date: new Date().toISOString().slice(0, 10),
+    label: `Extourne ${entry.entry_number ?? ""} ${entry.label ?? ""}`.trim(),
+    source_module: "treasury",
+    source_document_type: "bank_reconciliation_reversal",
+    source_document_id: entryId,
+    source_number: entry.entry_number,
+    status: "posted",
+    total_debit: totalDebit,
+    total_credit: totalCredit,
+    posted_at: new Date().toISOString(),
+    created_by: workspace.userId,
+  }, swapped.map((line, index) => ({
+    organization_id: orgId,
+    line_number: index + 1,
+    account_id: line.account_id,
+    account_code: line.account_code,
+    account_label: line.account_name,
+    debit: line.debit,
+    credit: line.credit,
+    label: line.label,
+  })));
+  if (saved.error) return { success: false, error: saved.error.message };
+  revalidatePath("/comptabilite/ecritures");
+  return { success: true };
 }
 
 export async function updateAccountingSettings(prev: AccountingActionResult, formData: FormData): Promise<AccountingActionResult> {

@@ -10,7 +10,7 @@ export default async function ImportBankStatementPage() {
   const accounts = await listActiveTreasuryAccounts();
   return (
     <ModulePage>
-      <PageHeader title="Import de relevé bancaire" description="CSV, OFX ou QFX. L'import ne crée pas de mouvement interne." />
+      <PageHeader title="Import de relevé bancaire" description="CSV, Excel, OFX ou QFX. Les lignes déjà connues sont ignorées. L'import ne crée pas encore le règlement." />
       <BankStatementImportForm accounts={accounts} />
     </ModulePage>
   );
