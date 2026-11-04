@@ -282,7 +282,7 @@ export async function getReconciliationWorkspace(accountId?: string, options: { 
   const accounts = await listActiveTreasuryAccounts();
   const selectedAccountId = accountId || accounts[0]?.id || "";
   const [statementLines, transactions, reconciledLines] = selectedAccountId
-    ? await Promise.all([listUnreconciledStatementLines(selectedAccountId), listTreasuryTransactions({ accountId: selectedAccountId, status: "unreconciled", limit: 100 }), listReconciledStatementLines(selectedAccountId)])
+    ? await Promise.all([listUnreconciledStatementLines(selectedAccountId), listUnreconciledTreasuryTransactions(selectedAccountId), listReconciledStatementLines(selectedAccountId)])
     : [[], [], []];
   return { accounts, selectedAccountId, statementLines, transactions, reconciledLines, suggestions: options.includeSuggestions ? suggestMatches(statementLines, transactions) : [] };
 }
