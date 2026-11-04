@@ -584,13 +584,15 @@ export async function unreconcileStatementLine(prev: TreasuryActionResult, formD
     const createdAt = tx.data?.created_at ? new Date(tx.data.created_at).getTime() : 0;
     const reconciledAt = tx.data?.reconciled_at ? new Date(tx.data.reconciled_at).getTime() : createdAt;
     const createdWithLine = Boolean(tx.data) && !tx.data?.customer_payment_id && !tx.data?.supplier_payment_id && Math.abs(reconciledAt - createdAt) < 15000;
-    if (tx.data?.customer_payment_id || tx.data?.supplier_payment_id || createdWithLine) {
-      await undoExpertReconciliation(workspace.organization.id, workspace.userId, id, {
-        createdPaymentId: (tx.data?.customer_payment_id as string | null) ?? (tx.data?.supplier_payment_id as string | null) ?? undefined,
-        paymentKind: tx.data?.customer_payment_id ? "customer" : tx.data?.supplier_payment_id ? "supplier" : undefined,
-        createdTransactionId: createdWithLine ? line.matched_transaction_id : undefined,
-      });
-    } else {
+    // A payment is only cancelled when it was created together with the reconciliation (transaction created
+    // within seconds of the match). A match against a pre-existing payment must never cancel that payment.
+    const paymentCreatedWithLine = Boolean(tx.data) && Boolean(tx.data?.customer_payment_id || tx.data?.supplier_payment_id) && Math.abs(reconciledAt - createdAt) < 15000;
+    await undoExpertReconciliation(workspace.organization.id, workspace.userId, id, {
+      createdPaymentId: paymentCreatedWithLine ? ((tx.data?.customer_payment_id as string | null) ?? (tx.data?.supplier_payment_id as string | null) ?? undefined) : undefined,
+      paymentKind: paymentCreatedWithLine ? (tx.data?.customer_payment_id ? "customer" : "supplier") : undefined,
+      createdTransactionId: createdWithLine ? line.matched_transaction_id : undefined,
+    });
+    if (!paymentCreatedWithLine && !createdWithLine) {
       await supabase.from("treasury_transactions").update({ reconciliation_status: "unreconciled", reconciled_at: null, reconciled_by: null }).eq("organization_id", workspace.organization.id).eq("id", line.matched_transaction_id);
     }
   } else {
