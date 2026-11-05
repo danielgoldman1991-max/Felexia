@@ -27,7 +27,7 @@ export default async function TreasuryAccountsPage() {
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <StatCard title="Comptes" value={counters.total} />
         <StatCard title="Actifs" value={counters.active} />
-        <StatCard title="Par defaut" value={counters.defaultAccount?.name ?? "-"} />
+        <StatCard title="Par défaut" value={counters.defaultAccount?.name ?? "-"} />
       </div>
       <Card><CardContent><TreasuryAccountsTable rows={rows} canManage={canWrite} /></CardContent></Card>
     </ModulePage>

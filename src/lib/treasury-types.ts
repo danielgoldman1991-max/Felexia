@@ -181,7 +181,7 @@ export const TREASURY_TRANSACTION_TYPE_LABELS: Record<TreasuryTransactionType, s
 };
 
 export const RECONCILIATION_STATUS_LABELS: Record<string, string> = {
-  unreconciled: "Non rapproche",
+  unreconciled: "Non rapproché",
   partially_reconciled: "Partiellement rapproche",
   suggested: "Suggestion",
   reconciled: "Rapproche",

@@ -44,7 +44,7 @@ export default async function TreasuryAccountDetailPage({ params }: { params: Pr
             <p><span className="text-[var(--muted)]">Devise :</span> {account.currency}</p>
             <p><span className="text-[var(--muted)]">Solde actuel :</span> {account.current_balance.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {account.currency}</p>
             <p><span className="text-[var(--muted)]">Statut :</span> <Badge tone={account.status === "active" ? "success" : "neutral"}>{frenchStatusLabel(account.status)}</Badge></p>
-            <p><span className="text-[var(--muted)]">Par defaut :</span> {account.is_default ? "Oui" : "Non"}</p>
+            <p><span className="text-[var(--muted)]">Par défaut :</span> {account.is_default ? "Oui" : "Non"}</p>
             <p><span className="text-[var(--muted)]">Notes :</span> {account.notes ?? "-"}</p>
           </CardContent>
         </Card>
