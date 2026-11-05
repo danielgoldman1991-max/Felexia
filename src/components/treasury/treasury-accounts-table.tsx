@@ -28,7 +28,7 @@ export function TreasuryAccountsTable({ rows, canManage = true }: { rows: Treasu
   if (rows.length === 0) return <EmptyState title="Aucun compte de tresorerie." description={canManage ? "Creez une banque, une caisse ou une passerelle de paiement." : "Votre administrateur peut ajouter un compte de trésorerie."} />;
   return (
     <Table>
-      <thead><tr><Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Banque</Th><Th>Devise</Th><Th>Solde actuel</Th><Th>Statut</Th><Th>Par defaut</Th><Th>Actions</Th></tr></thead>
+      <thead><tr><Th>Code</Th><Th>Nom</Th><Th>Type</Th><Th>Banque</Th><Th>Devise</Th><Th>Solde actuel</Th><Th>Statut</Th><Th>Par défaut</Th><Th>Actions</Th></tr></thead>
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>
@@ -39,7 +39,7 @@ export function TreasuryAccountsTable({ rows, canManage = true }: { rows: Treasu
             <Td>{row.currency}</Td>
             <Td><span className="font-mono tabular-nums">{row.current_balance.toLocaleString("fr-MA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {row.currency}</span></Td>
             <Td><Badge tone={row.status === "active" ? "success" : "neutral"}>{row.status === "active" ? "Actif" : row.status === "inactive" ? "Inactif" : "Archive"}</Badge></Td>
-            <Td>{row.is_default ? <Badge tone="info">Par defaut</Badge> : "-"}</Td>
+            <Td>{row.is_default ? <Badge tone="info">Par défaut</Badge> : "-"}</Td>
             <Td>
               <div className="flex items-center gap-1">
                 <Button type="button" variant="ghost" className="h-9 w-9 px-0" title="Voir" asChild><Link href={`/tresorerie/comptes/${row.id}`}><Eye className="h-4 w-4" /></Link></Button>
