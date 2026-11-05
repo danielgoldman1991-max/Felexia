@@ -15,8 +15,11 @@ export const dynamic = "force-dynamic";
 export default async function SalesOrdersPage({ searchParams }: { searchParams?: Promise<Record<string, string | undefined>> }) {
   const params = searchParams ? await searchParams : {};
   const page = Number(params.page || 1);
-  const canWrite = canWriteProWorkspace(await requireActiveWorkspace());
-  const result = await listSalesDocuments({ type: "order", page: Number.isFinite(page) ? page : 1 });
+  const [workspace, result] = await Promise.all([
+    requireActiveWorkspace(),
+    listSalesDocuments({ type: "order", page: Number.isFinite(page) ? page : 1 }),
+  ]);
+  const canWrite = canWriteProWorkspace(workspace);
 
   return (
     <ModulePage>

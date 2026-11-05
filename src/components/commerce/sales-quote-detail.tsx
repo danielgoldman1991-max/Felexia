@@ -56,7 +56,7 @@ export function SalesQuoteDetail({ quote, lines }: { quote: SalesQuoteRecord; li
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Devis ${quote.number ?? "(sans numero)"}`}
+        title={`Devis ${quote.number ?? "(sans numéro)"}`}
         description={quote.customer_name ?? ""}
         actions={
           <>

@@ -130,7 +130,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
             />
             <input type="hidden" name="category_id" value={categoryId} />
           </Field>
-          <Field label="Unite">
+          <Field label="Unité">
             <ComboboxCreate
               options={unitList.map((u) => ({ id: u.id, label: `${u.name} (${u.symbol})` }))}
               value={unitId}

@@ -84,7 +84,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
           <CardHeader><h2 className="font-semibold">Lignes a receptionner</h2></CardHeader>
           <CardContent>
             <Table>
-              <thead><tr><Th>Article</Th><Th>Description</Th><Th>Unite</Th><Th>Commande</Th><Th>Déjà recu</Th><Th>Reste</Th><Th>A recevoir</Th></tr></thead>
+              <thead><tr><Th>Article</Th><Th>Description</Th><Th>Unité</Th><Th>Commande</Th><Th>Déjà reçu</Th><Th>Reste</Th><Th>À recevoir</Th></tr></thead>
               <tbody>
                 {order.lines.map((line) => (
                   <tr key={line.id}>

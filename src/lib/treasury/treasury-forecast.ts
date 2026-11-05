@@ -539,7 +539,7 @@ function buildAlerts(params: {
     alerts.push({
       severity: "warning",
       title: "Nombre eleve de factures échues",
-      message: `${overdueInflows.length} factures clients échue(s) non reglees. Lancez des relances.`,
+      message: `${overdueInflows.length} factures clients échue(s) non réglées. Lancez des relances.`,
     });
   }
 

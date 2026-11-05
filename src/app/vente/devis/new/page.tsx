@@ -27,7 +27,7 @@ export default async function NewSalesQuotePage() {
 
   return (
     <ModulePage>
-      <PageHeader title="Nouveau devis" description="Creation d'un devis client avec lignes commerciales." />
+      <PageHeader title="Nouveau devis" description="Création d'un devis client avec lignes commerciales." />
       <SalesQuoteForm
         mode="create"
         customers={customers}

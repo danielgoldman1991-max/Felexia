@@ -37,7 +37,7 @@ export function SalesOrderDetail({ order, lines }: { order: SalesOrderRecord; li
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Commande ${order.number ?? "(sans numero)"}`}
+        title={`Commande ${order.number ?? "(sans numéro)"}`}
         description={order.customer_name ?? ""}
         actions={
           <>

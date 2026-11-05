@@ -48,7 +48,7 @@ function Info({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const ACTIVITY_LABELS: Record<string, string> = {
-  create: "Creation du tiers",
+  create: "Création du tiers",
   update: "Modification du tiers",
   archive: "Archivage du tiers",
   convert_prospect_to_customer: "Conversion prospect en client",

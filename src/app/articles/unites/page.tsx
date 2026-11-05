@@ -11,7 +11,7 @@ export default async function UnitsPage() {
   return (
     <ModulePage>
       <PageHeader
-        title="Unites"
+        title="Unités"
         description="Gestion des unites de vente, achat et stock."
         actions={<Button asChild><Link href="/articles/unites/new">Nouvelle unite</Link></Button>}
       />

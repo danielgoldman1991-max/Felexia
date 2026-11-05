@@ -160,7 +160,7 @@ export async function cancelSupplierOrder(prev: PurchaseActionResult, formData: 
   const { data: doc } = await supabase.from("purchase_documents").select("status").eq("id", id).eq("organization_id", workspace.organization.id).single();
   if (!doc) return { success: false, error: "Document introuvable." };
   if (doc.status === "cancelled") return { success: false, error: "Déjà annule." };
-  if (doc.status === "received") return { success: false, error: "Impossible d'annuler une commande entierement recue." };
+  if (doc.status === "received") return { success: false, error: "Impossible d'annuler une commande entièrement reçue." };
 
   const { error } = await supabase.from("purchase_documents").update({ status: "cancelled" }).eq("id", id);
   if (error) return { success: false, error: financialErrorMessage(error) };
@@ -228,7 +228,7 @@ export async function createSupplierReceipt(prev: PurchaseActionResult, formData
     .select("id, document_number")
     .single();
   if (docError) return { success: false, error: docError.message };
-  if (!doc) return { success: false, error: "Erreur creation reception." };
+  if (!doc) return { success: false, error: "Erreur de création de la réception." };
 
   try {
     const calculated = lines
@@ -329,7 +329,7 @@ export async function validateSupplierReceipt(prev: PurchaseActionResult, formDa
       const qty = Number(line.quantity);
       if (qty > p.remaining) {
         const productName = line.product_id ? (await supabase.from("products").select("name").eq("id", line.product_id).maybeSingle()).data?.name ?? "l'article" : "l'article";
-        return { success: false, error: `Validation impossible : la quantité recue depasse la quantité commandee pour ${productName}. Reste disponible : ${p.remaining}.` };
+        return { success: false, error: `Validation impossible : la quantité reçue dépasse la quantité commandée pour ${productName}. Reste disponible : ${p.remaining}.` };
       }
     }
   }

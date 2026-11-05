@@ -33,7 +33,7 @@ export function DeliveryNoteDetail({ delivery, lines }: { delivery: DeliveryNote
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Bon de livraison ${delivery.number ?? "(sans numero)"}`}
+        title={`Bon de livraison ${delivery.number ?? "(sans numéro)"}`}
         description={delivery.customer_name ?? ""}
         actions={
           <>
