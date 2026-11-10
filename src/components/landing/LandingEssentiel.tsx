@@ -41,6 +41,20 @@ function InvoicePreview() {
               ))}
             </tbody>
           </table>
+          <ul className={styles.mobileInvoiceList} aria-label="Factures fictives et règlements">
+            {documents.map((document) => (
+              <li key={document.reference}>
+                <div className={styles.mobileInvoiceHeading}>
+                  <strong>{document.reference}</strong>
+                  <span className={`${styles.status} ${styles[document.tone]}`}>{document.status}</span>
+                </div>
+                <p className={styles.mobileInvoiceClient}>{document.client}</p>
+                <dl className={styles.mobileInvoiceAmount}>
+                  <div><dt>Total TTC</dt><dd><strong>{document.amount}</strong><span>MAD</span></dd></div>
+                </dl>
+              </li>
+            ))}
+          </ul>
           <div className={styles.listSummary}><span>Facturé dans cet exemple</span><strong>12 600 <small>MAD TTC</small></strong></div>
         </div>
         <aside className={styles.documentDetail} aria-label="Détail de la première facture fictive">

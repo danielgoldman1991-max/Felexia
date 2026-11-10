@@ -58,6 +58,7 @@
 .landing.felexia-home .conversion-price-card-pro .conversion-included-heading::before { background: #4e7e54; box-shadow: none; }
 @media (max-width: 1099px) {
   .felexia-home.marketing-horizon-site .marketing-header-overlay .marketing-header-inner { height: 76px; }
+  .felexia-home .marketing-mobile-nav { max-height: calc(100vh - 76px); max-height: calc(100dvh - 76px); overflow-y: auto; overscroll-behavior-y: contain; align-content: start; padding-bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
   .felexia-home .conversion-pricing-intro { column-gap: 45px; }
 }
 @media (max-width: 800px) {
@@ -76,6 +77,7 @@
   .landing.felexia-home .horizon-copy h1 { max-width: 370px; font-size: clamp(33px, 8.8vw, 44px); line-height: 1.07; letter-spacing: -.05em; }
   .landing.felexia-home .horizon-copy > .horizon-tagline { margin-top: 21px; max-width: 300px; font-size: 15px; font-weight: 300; }
   .felexia-home.marketing-horizon-site .marketing-header-overlay .marketing-header-inner { padding-inline: 22px; height: 70px; }
+  .felexia-home .marketing-mobile-nav { max-height: calc(100vh - 70px); max-height: calc(100dvh - 70px); }
   .felexia-home .conversion-pricing { padding: 72px 0; }
   .felexia-home .conversion-pricing-grid { gap: 32px; }
   .felexia-home .conversion-price-card { padding: 26px 24px; }

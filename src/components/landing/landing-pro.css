@@ -82,23 +82,27 @@
   .landing .pro-suite-benefits p { font-size: 13px; }
   .landing .pro-suite-quote { gap: 12px; padding-inline: 14px; font-size: 12px; }
   .landing .pro-suite-appbar { min-height: 52px; padding: 14px 16px; }
-  .landing .pro-suite-example-label { font-size: 9px; }
+  .landing .pro-suite-example-label { font-size: 11px; }
   .landing .pro-suite-product-heading { padding: 23px 16px 18px; }
+  .landing .pro-suite-product-heading > span { color: #536b5c; font-size: 11px; }
   .landing .pro-suite-product-heading > strong { font-size: 20px; }
   .landing .pro-suite-flow { grid-template-columns: minmax(0, 1fr); gap: 6px; padding-inline: 16px; }
   .landing .pro-suite-flow > div { display: flex; align-items: center; gap: 13px; padding: 12px; }
-  .landing .pro-suite-flow small { margin: 0; font-size: 8px; }
-  .landing .pro-suite-flow strong { margin-top: 1px; font-size: 11px; }
+  .landing .pro-suite-flow small { margin: 0; color: #4f6855; font-size: 10px; }
+  .landing .pro-suite-flow strong { margin-top: 1px; font-size: 13px; }
   .landing .pro-suite-flow > div > svg { position: static; margin-left: auto; }
   .landing .pro-suite-stock { margin: 18px 16px; }
   .landing .pro-suite-stock-heading { align-items: flex-start; flex-direction: column; gap: 5px; padding: 14px 12px; }
-  .landing .pro-suite-stock-columns, .landing .pro-suite-stock-row { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, .75fr)); gap: 5px; padding-inline: 12px; }
-  .landing .pro-suite-stock-columns { font-size: 6px; letter-spacing: 0; }
-  .landing .pro-suite-stock-row > span:first-child { gap: 6px; font-size: 10px; }
-  .landing .pro-suite-stock-row i { width: 20px; height: 24px; font-size: 9px; }
-  .landing .pro-suite-stock-row { font-size: 10px; }
-  .landing .pro-suite-stock-row > strong { font-size: 11px; }
-  .landing .pro-suite-product-footer { gap: 12px; padding-bottom: 19px; }
+  .landing .pro-suite-stock-heading > span { color: #5f7165; font-size: 11px; }
+  .landing .pro-suite-stock-columns, .landing .pro-suite-stock-row { grid-template-columns: minmax(0, 1fr) minmax(72px, .55fr); gap: 12px; padding-inline: 12px; }
+  .landing .pro-suite-stock-columns > :nth-child(2), .landing .pro-suite-stock-columns > :nth-child(3), .landing .pro-suite-stock-row > :nth-child(2), .landing .pro-suite-stock-row > :nth-child(3) { display: none; }
+  .landing .pro-suite-stock-columns { color: #526b5b; font-size: 11px; letter-spacing: 0; }
+  .landing .pro-suite-stock-row > span:first-child { gap: 8px; font-size: 12px; }
+  .landing .pro-suite-stock-row i { width: 24px; height: 28px; font-size: 11px; }
+  .landing .pro-suite-stock-row small { color: #5f7165; font-size: 11px; }
+  .landing .pro-suite-stock-row { font-size: 12px; }
+  .landing .pro-suite-stock-row > strong { font-size: 14px; }
+  .landing .pro-suite-product-footer { gap: 12px; padding-bottom: 19px; font-size: 11px; }
   .landing .pro-suite-guide > aside { align-items: flex-start; flex-direction: column; gap: 20px; padding: 28px 0; }
   .landing .pro-suite-guide > aside h2 { font-size: 22px; }
   .landing .pro-suite-guide > aside > button { width: auto; }
