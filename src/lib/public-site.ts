@@ -14,6 +14,8 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/mentions-obligatoires-facture-maroc",
   "/blog/choisir-entre-essentiel-et-pro",
   "/blog/gestion-de-stock-au-maroc",
+  "/blog/modele-facture-maroc-ice",
+  "/blog/plf-2027-pme-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",

@@ -64,7 +64,11 @@ const article: BlogArticle = {
     h3("propos-rapportes", "Ce qui reste une déclaration"),
     p("Selon Médias24, le 16 avril 2026, Younes Idrissi Kaitouni, directeur général de la DGI, présentait un lancement en préparation : entrée en vigueur envisagée en 2026, décret alors examiné au Secrétariat général du gouvernement, déploiement progressif, format UBL, transmission par les systèmes de l’administration. Ce sont des propos rapportés. Au 4 novembre 2026, ils ne figurent ni dans l’article 145-IX ni dans un sommaire consulté. Un format cité dans un entretien n’est pas le format imposé à votre logiciel."),
     h2("projet-2027", "Que dit le projet de loi de finances pour 2027 ?"),
-    p("Le projet de loi de finances n° 60-26 pour 2027 est publié par la Chambre des représentants. C’est un projet : il peut encore changer, et il n’est pas lu ici comme une loi promulguée."),
+    p(
+      "Le projet de loi de finances n° 60-26 pour 2027 est publié par la Chambre des représentants. C’est un projet : il peut encore changer, et il n’est pas lu ici comme une loi promulguée. Les mesures de TVA, de paiement et d’importation, distinctes de la facture électronique, sont dans ",
+      { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 : ce qui pourrait changer pour les PME" },
+      ".",
+    ),
     p("L’article 7-I dresse la liste des articles du CGI qu’il modifierait au 1er janvier 2027. L’article 145 n’y figure pas. Le paragraphe II ajouterait les articles 125 sexies, 247 quater et 247 quinquies, sans traiter de la facture électronique. La lecture du 4 novembre 2026 n’y trouve ni date, ni seuil, ni format. En l’état du projet, l’article 145-IX n’est pas complété."),
     h2("sommaires-bo", "Qu’a donné la recherche au Bulletin officiel ?"),
     p("Le 4 novembre 2026, les sommaires du Bulletin officiel sur sgg.gov.ma, du 1er janvier 2018 à cette date, ne renvoient aucun texte pour les expressions exactes « facturation électronique », « facture électronique » et « système informatique de facturation ». Les décrets dont le sommaire contient « article 145 » ne renvoient rien non plus. La recherche porte sur les sommaires indexés, pas sur chaque page depuis 2018."),
@@ -167,6 +171,7 @@ const article: BlogArticle = {
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
+    { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 et les PME" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
   ],
   sources: [

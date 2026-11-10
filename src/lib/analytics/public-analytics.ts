@@ -21,6 +21,8 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/mentions-obligatoires-facture-maroc": "Mentions obligatoires facture Maroc — FelexiaERP",
   "/blog/choisir-entre-essentiel-et-pro": "ESSENTIEL ou PRO — FelexiaERP",
   "/blog/gestion-de-stock-au-maroc": "Gestion de stock au Maroc — FelexiaERP",
+  "/blog/modele-facture-maroc-ice": "Modèle de facture Maroc ICE — FelexiaERP",
+  "/blog/plf-2027-pme-maroc": "PLF 2027 et les PME — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
