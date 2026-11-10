@@ -29,7 +29,7 @@ export function LandingPro() {
                 </article>
               ))}
             </div>
-            <a href={getProQuoteHref()} className="pro-suite-quote">Parlons de votre projet PRO <ArrowUpRight size={17} aria-hidden="true" /></a>
+            <a href={getProQuoteHref()} className="pro-suite-quote">Demander un devis PRO <ArrowUpRight size={17} aria-hidden="true" /></a>
             <Link href="/pro" className="pro-suite-link">Explorer l’ERP complet <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
 
