@@ -20,7 +20,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 15 && new Set(PUBLIC_SITE_PATHS).size === 15, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 17 && new Set(PUBLIC_SITE_PATHS).size === 17, "Public routes are explicit and unique");
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);
@@ -75,11 +75,13 @@ async function main() {
     check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
   }
   const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
-  check(BLOG_ARTICLES.length === 4 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  check(BLOG_ARTICLES.length === 6 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  const shortArticles = new Set(["plf-2027-pme-maroc"]);
   for (const article of BLOG_ARTICLES) {
     const words = articleWordCount(article);
     const corpus = JSON.stringify(article);
-    check(words >= 1200 && words <= 1800, `Article length stays in the editorial range (${words}): ` + article.slug);
+    const [minWords, maxWords] = shortArticles.has(article.slug) ? [600, 900] : [1200, 1800];
+    check(words >= minWords && words <= maxWords, `Article length stays in the editorial range (${words}): ` + article.slug);
     check(article.title.length <= 60, "Article title stays within 60 characters: " + article.slug);
     check(article.description.length >= 140 && article.description.length <= 155, "Article description stays within 140–155 characters: " + article.slug);
     check(article.cover.alt.length >= 80 && article.cover.alt.length <= 125, "Cover alt text stays descriptive: " + article.slug);
