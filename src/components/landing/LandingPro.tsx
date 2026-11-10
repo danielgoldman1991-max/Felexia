@@ -1,48 +1,66 @@
 import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
 import Link from "next/link";
-import { ArrowUpRight, BookOpen, Boxes, ChartNoAxesCombined, ClipboardList, ShoppingCart, UsersRound } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Boxes, Check, PackageCheck, ShoppingCart, UsersRound } from "lucide-react";
 import "./landing-pro.css";
 
-const modules = [
-  { icon: ClipboardList, title: "De la relation client à la livraison", description: "Prospects, devis, commandes, livraisons et retours : suivez votre cycle de vente dans le même espace." },
-  { icon: ShoppingCart, title: "Des achats reliés au terrain", description: "Préparez vos commandes fournisseurs, réceptionnez les marchandises et retrouvez vos factures et règlements." },
-  { icon: Boxes, title: "Une vue sur votre stock", description: "Retrouvez vos emplacements et vos mouvements d’entrée et de sortie pour suivre les articles de votre entreprise." },
-  { icon: BookOpen, title: "Vos chiffres, jusqu’au détail", description: "Plan comptable, journaux, grand livre, balance et préparation des déclarations TVA pour travailler avec vos conseils." },
-  { icon: ChartNoAxesCombined, title: "Un pilotage plus large", description: "Rapprochement bancaire, prévisions de trésorerie et indicateurs de gestion pour prendre du recul sur votre activité." },
-  { icon: UsersRound, title: "Votre équipe dans la boucle", description: "Centralisez les dossiers du personnel et les contrats. Les consultations RH et le calcul de base de paie restent préparatoires." },
+const benefits = [
+  { icon: ShoppingCart, title: "Du devis à la livraison.", description: "Commandes clients, achats et réceptions : gardez le fil de vos opérations." },
+  { icon: Boxes, title: "Le stock et les chiffres se répondent.", description: "Retrouvez vos mouvements, vos emplacements et le détail de votre comptabilité." },
+  { icon: UsersRound, title: "Une équipe. Une vue d’ensemble.", description: "Réunissez vos dossiers RH, vos prévisions de trésorerie et vos indicateurs." },
 ];
 
 export function LandingPro() {
   return (
-    <section id="pro" className="pro-section" aria-labelledby="pro-title">
+    <section id="pro" className="pro-suite" aria-labelledby="pro-title">
       <div className="marketing-container">
-        <div className="pro-intro" data-reveal>
-          <div>
-            <p className="marketing-eyebrow">FELEXIA PRO · L’ERP COMPLET</p>
-            <h2 id="pro-title" className="marketing-section-title">L’ERP pour le stock<br />et le pilotage au Maroc.</h2>
+        <div className="pro-suite-heading" data-reveal>
+          <p className="pro-suite-eyebrow">FELEXIA PRO · L’ERP COMPLET</p>
+          <h2 id="pro-title">Quand votre entreprise grandit,<br />votre outil suit.</h2>
+          <p className="pro-suite-intro">Tout ESSENTIEL, avec un ERP qui relie vos ventes, vos achats, votre stock et votre équipe.</p>
+        </div>
+        <div className="pro-suite-grid">
+          <div className="pro-suite-copy" data-reveal>
+            <div className="pro-suite-benefits">
+              {benefits.map(({ icon: Icon, title, description }) => (
+                <article key={title}>
+                  <Icon size={21} strokeWidth={1.6} aria-hidden="true" />
+                  <div><h3>{title}</h3><p>{description}</p></div>
+                </article>
+              ))}
+            </div>
+            <a href={getProQuoteHref()} className="pro-suite-quote">Parlons de votre projet PRO <ArrowUpRight size={17} aria-hidden="true" /></a>
+            <Link href="/pro" className="pro-suite-link">Explorer l’ERP complet <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
-          <div className="pro-intro-copy">
-            <p className="marketing-copy">Vos ventes ne s’arrêtent pas à la facture. Avec PRO, reliez la gestion commerciale, les achats, le stock, la comptabilité et les ressources humaines.</p>
-            <Link href="/pro" className="pro-link">Découvrir PRO et son périmètre <ArrowUpRight size={18} aria-hidden="true" /></Link>
-            <Link href="/blog/gestion-de-stock-au-maroc" className="pro-link">Logiciel de gestion de stock <ArrowUpRight size={18} aria-hidden="true" /></Link>
-          </div>
+
+          <figure className="pro-suite-product" data-reveal>
+            <div className="pro-suite-example" aria-hidden="true">
+              <div className="pro-suite-appbar"><span className="pro-suite-appmark">f.</span><span>Felexia PRO</span><span className="pro-suite-example-label">Vue d’exemple</span></div>
+              <div className="pro-suite-product-heading"><span>VOTRE CYCLE D’ACHAT</span><strong>Du fournisseur à votre stock.</strong></div>
+              <div className="pro-suite-flow">
+                <div><span className="pro-suite-flow-icon"><ShoppingCart size={19} strokeWidth={1.7} /></span><span><small>01 · COMMANDER</small><strong>Achat préparé</strong></span><Check size={13} /></div>
+                <div><span className="pro-suite-flow-icon"><PackageCheck size={19} strokeWidth={1.7} /></span><span><small>02 · RÉCEPTIONNER</small><strong>Marchandise reçue</strong></span><Check size={13} /></div>
+                <div><span className="pro-suite-flow-icon"><Boxes size={19} strokeWidth={1.7} /></span><span><small>03 · RETROUVER</small><strong>Stock disponible</strong></span><Check size={13} /></div>
+              </div>
+              <div className="pro-suite-stock">
+                <div className="pro-suite-stock-heading"><strong>Votre stock</strong><span>Emplacement principal</span></div>
+                <div className="pro-suite-stock-columns"><span>ARTICLE</span><span>ENTRÉES</span><span>SORTIES</span><span>DISPONIBLE</span></div>
+                <div className="pro-suite-stock-row"><span><i>A</i><span>Article A<small>EX-001</small></span></span><span>24</span><span>8</span><strong>16</strong></div>
+                <div className="pro-suite-stock-row"><span><i>B</i><span>Article B<small>EX-002</small></span></span><span>18</span><span>6</span><strong>12</strong></div>
+                <div className="pro-suite-stock-row"><span><i>C</i><span>Article C<small>EX-003</small></span></span><span>12</span><span>3</span><strong>9</strong></div>
+              </div>
+              <div className="pro-suite-product-footer"><span>Achats</span><ArrowRight size={14} /><span>Réceptions</span><ArrowRight size={14} /><span>Stock</span></div>
+            </div>
+            <figcaption>Exemple de parcours PRO · Articles et quantités fictifs.</figcaption>
+          </figure>
         </div>
-        <div className="pro-modules" data-reveal>
-          {modules.map(({ icon: Icon, title, description }, index) => (
-            <article className="pro-module" key={title}>
-              <div className="pro-module-top"><span className="pro-module-icon"><Icon size={23} aria-hidden="true" /></span><span className="pro-module-number" aria-hidden="true">0{index + 1}</span></div>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </article>
-          ))}
+
+        <div className="pro-suite-footnote" data-reveal>
+          <p>Un projet sur devis, jusqu’à 25 utilisateurs. Le périmètre se construit avec notre équipe.</p>
+          <Link href="/blog/gestion-de-stock-au-maroc">Comprendre la gestion de stock <ArrowUpRight size={16} aria-hidden="true" /></Link>
         </div>
-        <div className="pro-bottom" data-reveal>
-          <p><strong>Tout ESSENTIEL est inclus.</strong> Retrouvez vos ventes, vos achats, votre trésorerie et la facturation électronique, avec les fonctions de l’ERP complet et jusqu’à 25 utilisateurs.</p>
-          <a href={getProQuoteHref()} className="marketing-button marketing-button-primary">Demander un devis PRO <ArrowUpRight size={18} aria-hidden="true" /></a>
-        </div>
-        <ProGuideCta />
-        <p className="pro-scope-note">PRO se met en place avec notre équipe, selon les fonctions précisées au devis. Les écrans « à venir » sont exclus des opérations disponibles. Les déclarations TVA et la paie restent préparatoires, à valider avec vos conseils.</p>
+        <div className="pro-suite-guide"><ProGuideCta /></div>
+        <p className="pro-suite-scope">Les fonctions précisées au devis définissent le périmètre disponible. Les écrans « à venir » sont exclus. Les déclarations TVA et la paie restent préparatoires, à valider avec vos conseils.</p>
       </div>
     </section>
   );

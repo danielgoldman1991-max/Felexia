@@ -1,35 +1,105 @@
-.landing .pro-section { padding: 110px 0; background: #edf3f6; scroll-margin-top: 100px; }
-.landing .pro-intro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 70px; }
-.landing .pro-intro .marketing-section-title { margin-top: 20px; }
-.landing .pro-intro-copy { padding-bottom: 4px; }
-.landing .pro-link { display: inline-flex; align-items: center; gap: 10px; margin-top: 24px; margin-right: 22px; color: #2454d8; font-size: 14px; font-weight: 600; text-underline-offset: 5px; }
-.landing .pro-link:hover { text-decoration: underline; }
-.landing .pro-modules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin-top: 48px; overflow: hidden; border: 1px solid #d4dfe8; border-radius: 24px; background: #d4dfe8; }
-.landing .pro-module { padding: 32px; background: #f8fafb; }
-.landing .pro-module-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.landing .pro-module-icon { display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid #d7e4e7; border-radius: 14px; background: #eaf2f2; color: #245d5b; }
-.landing .pro-module-number { color: #7c8ca1; font-size: 12px; font-variant-numeric: tabular-nums; }
-.landing .pro-module h3 { max-width: 250px; margin-top: 28px; color: #081b33; font-size: 19px; font-weight: 600; letter-spacing: -.4px; line-height: 1.4; }
-.landing .pro-module p { margin-top: 13px; color: #5b6c81; font-size: 13px; line-height: 1.85; }
-.landing .pro-bottom { display: flex; align-items: center; justify-content: space-between; gap: 36px; margin-top: 34px; }
-.landing .pro-bottom p { max-width: 720px; color: #5b6c81; font-size: 14px; line-height: 1.8; }
-.landing .pro-bottom strong { color: #081b33; font-weight: 600; }
-.landing .pro-bottom .marketing-button { flex-shrink: 0; }
-.landing .pro-scope-note { max-width: 860px; margin-top: 24px; color: #5d6b82; font-size: 11px; line-height: 1.8; }
-@media (max-width: 1000px) {
-  .landing .pro-intro { gap: 35px; }
-  .landing .pro-modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .landing .pro-module { padding: 28px; }
+.landing .pro-suite { padding: 112px 0 40px; background: #16352f; color: #f6f7f3; scroll-margin-top: 96px; }
+.landing .pro-suite-heading { max-width: 870px; }
+.landing .pro-suite-eyebrow { margin: 0 0 24px; color: #c6dfcb; font-size: 11px; font-weight: 600; line-height: 1.5; letter-spacing: .13em; }
+.landing .pro-suite-heading h2 { margin: 0; color: #f6f7f3; font-size: clamp(34px, 4.25vw, 56px); font-weight: 500; line-height: 1.1; letter-spacing: -.045em; text-wrap: balance; }
+.landing .pro-suite-intro { max-width: 600px; margin: 24px 0 0; color: #d4e0d9; font-size: 17px; line-height: 1.7; text-wrap: pretty; }
+.landing .pro-suite-grid { display: grid; grid-template-columns: .75fr 1.25fr; align-items: center; gap: 72px; margin-top: 64px; }
+.landing .pro-suite-copy { min-width: 0; }
+.landing .pro-suite-benefits { display: grid; gap: 30px; }
+.landing .pro-suite-benefits article { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 16px; }
+.landing .pro-suite-benefits article > svg { margin-top: 2px; color: #c6dfcb; }
+.landing .pro-suite-benefits h3 { margin: 0; color: #f6f7f3; font-size: 17px; font-weight: 550; line-height: 1.5; letter-spacing: -.02em; }
+.landing .pro-suite-benefits p { margin: 7px 0 0; color: #c4d4ca; font-size: 14px; line-height: 1.75; }
+.landing .pro-suite-quote { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 48px; margin-top: 38px; padding: 13px 18px; border: 1px solid #d3e8d8; border-radius: 8px; background: #d3e8d8; color: #16352f; font-size: 13px; font-weight: 600; line-height: 1.5; text-decoration: none; transition: background .2s, border-color .2s; }
+.landing .pro-suite-quote:hover { border-color: #e5f0e6; background: #e5f0e6; color: #16352f; }
+.landing .pro-suite-link { display: flex; align-items: center; gap: 12px; width: fit-content; min-height: 44px; margin-top: 10px; color: #e1ebe3; font-size: 13px; font-weight: 500; text-underline-offset: 5px; }
+.landing .pro-suite-link:hover { color: #fff; text-decoration: underline; }
+.landing .pro-suite :is(a, button):focus-visible { outline: 2px solid #d3e8d8; outline-offset: 5px; }
+.landing .pro-suite-product { min-width: 0; margin: 0; }
+.landing .pro-suite-example { overflow: hidden; border: 1px solid #d9e2d9; border-radius: 16px; background: #f6f7f3; color: #16352f; }
+.landing .pro-suite-appbar { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 16px 24px; border-bottom: 1px solid #dde3db; font-size: 12px; font-weight: 550; }
+.landing .pro-suite-appmark { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 5px; background: #16352f; color: #f6f7f3; font-size: 19px; line-height: 1; letter-spacing: -.06em; }
+.landing .pro-suite-example-label { margin-left: auto; color: #5f7165; font-size: 10px; font-weight: 400; }
+.landing .pro-suite-product-heading { padding: 28px 26px 22px; }
+.landing .pro-suite-product-heading > span { display: block; color: #637769; font-size: 9px; font-weight: 550; letter-spacing: .1em; }
+.landing .pro-suite-product-heading > strong { display: block; margin-top: 8px; color: #16352f; font-size: 23px; font-weight: 550; line-height: 1.3; letter-spacing: -.035em; }
+.landing .pro-suite-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 26px; }
+.landing .pro-suite-flow > div { position: relative; min-width: 0; padding: 15px 12px 14px; border: 1px solid #d5e1d5; border-radius: 8px; background: #eaf0e7; }
+.landing .pro-suite-flow-icon { display: flex; color: #42634e; }
+.landing .pro-suite-flow small { display: block; margin-top: 15px; color: #627867; font-size: 8px; font-weight: 500; line-height: 1.5; letter-spacing: .025em; }
+.landing .pro-suite-flow strong { display: block; margin-top: 3px; color: #244a34; font-size: 11px; font-weight: 550; line-height: 1.5; }
+.landing .pro-suite-flow > div > svg { position: absolute; top: 17px; right: 12px; color: #52795b; }
+.landing .pro-suite-stock { margin: 26px; border: 1px solid #dde3db; border-radius: 8px; background: #fff; }
+.landing .pro-suite-stock-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 18px; border-bottom: 1px solid #e8ece5; }
+.landing .pro-suite-stock-heading strong { color: #244333; font-size: 12px; font-weight: 550; }
+.landing .pro-suite-stock-heading > span { color: #6e7d72; font-size: 9px; }
+.landing .pro-suite-stock-columns, .landing .pro-suite-stock-row { display: grid; grid-template-columns: minmax(0, 1.7fr) repeat(3, minmax(0, .75fr)); align-items: center; gap: 8px; padding-inline: 18px; }
+.landing .pro-suite-stock-columns { padding-top: 12px; padding-bottom: 9px; color: #77887b; font-size: 7px; font-weight: 500; letter-spacing: .04em; }
+.landing .pro-suite-stock-columns > span:not(:first-child), .landing .pro-suite-stock-row > :not(:first-child) { text-align: right; }
+.landing .pro-suite-stock-row { min-height: 56px; border-top: 1px solid #edf0ea; color: #65766a; font-size: 11px; }
+.landing .pro-suite-stock-row > span:first-child { display: flex; align-items: center; gap: 9px; min-width: 0; color: #294b37; font-size: 11px; }
+.landing .pro-suite-stock-row i { display: grid; width: 26px; height: 29px; flex-shrink: 0; place-items: center; border-radius: 4px; background: #f0f3eb; color: #7a8b6d; font-size: 10px; font-style: normal; }
+.landing .pro-suite-stock-row small { display: block; margin-top: 3px; color: #8a978c; font-size: 8px; }
+.landing .pro-suite-stock-row > strong { color: #234d31; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.landing .pro-suite-product-footer { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 0 20px 23px; color: #597361; font-size: 10px; }
+.landing .pro-suite-product-footer > svg { color: #8c9e90; }
+.landing .pro-suite-product figcaption { margin-top: 12px; color: #bfd1c5; font-size: 11px; line-height: 1.6; }
+.landing .pro-suite-footnote { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-top: 48px; padding-bottom: 32px; border-bottom: 1px solid #416054; }
+.landing .pro-suite-footnote p { max-width: 570px; margin: 0; color: #c4d4ca; font-size: 13px; line-height: 1.7; }
+.landing .pro-suite-footnote a { display: inline-flex; align-items: center; gap: 11px; flex-shrink: 0; min-height: 44px; color: #e1ebe3; font-size: 12px; text-underline-offset: 5px; }
+.landing .pro-suite-footnote a:hover { color: #fff; text-decoration: underline; }
+.landing .pro-suite-guide > aside { gap: 36px; margin: 0; padding: 32px 0; border-radius: 0; background: none; }
+.landing .pro-suite-guide > aside h2 { margin-top: 8px; color: #f6f7f3; font-size: 24px; font-weight: 500; line-height: 1.3; letter-spacing: -.03em; }
+.landing .pro-suite-guide > aside p { max-width: 620px; color: #c4d4ca; font-size: 12px; line-height: 1.7; }
+.landing .pro-suite-guide > aside p:first-child { margin: 0; color: #c6dfcb; font-size: 10px; font-weight: 500; letter-spacing: .08em; }
+.landing .pro-suite-guide > aside > button { min-height: 44px; padding: 11px 17px; border: 1px solid #749281; border-radius: 8px; background: transparent; color: #f6f7f3; font-size: 12px; font-weight: 500; }
+.landing .pro-suite-guide > aside > button:hover { border-color: #d3e8d8; background: #24483d; color: #fff; }
+.landing .pro-suite-scope { max-width: 940px; margin: 0; padding-top: 23px; border-top: 1px solid #416054; color: #b9cdc0; font-size: 11px; line-height: 1.8; }
+@media (max-width: 1050px) {
+  .landing .pro-suite-grid { grid-template-columns: .8fr 1.2fr; gap: 36px; }
+  .landing .pro-suite-benefits h3 { font-size: 16px; }
+  .landing .pro-suite-flow { padding-inline: 18px; }
+  .landing .pro-suite-stock { margin-inline: 18px; }
 }
-@media (max-width: 700px) {
-  .landing .pro-section { padding: 75px 0; }
-  .landing .pro-intro { grid-template-columns: 1fr; gap: 25px; }
-  .landing .pro-modules { margin-top: 32px; }
-  .landing .pro-module { padding: 24px; }
-  .landing .pro-bottom { align-items: flex-start; flex-direction: column; gap: 22px; }
+@media (max-width: 800px) {
+  .landing .pro-suite { padding-top: 80px; }
+  .landing .pro-suite-grid { grid-template-columns: minmax(0, 1fr); gap: 42px; margin-top: 40px; }
+  .landing .pro-suite-benefits { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .landing .pro-suite-benefits article { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .landing .pro-suite-benefits h3 { font-size: 15px; }
+  .landing .pro-suite-quote { margin-top: 28px; }
+  .landing .pro-suite-product { max-width: 650px; width: 100%; }
+  .landing .pro-suite-footnote { align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 32px; padding-bottom: 24px; }
 }
-@media (max-width: 480px) {
-  .landing .pro-modules { grid-template-columns: 1fr; border-radius: 20px; }
-  .landing .pro-module h3 { max-width: none; margin-top: 20px; }
-  .landing .pro-module p { font-size: 13px; }
+@media (max-width: 599px) {
+  .landing .pro-suite { padding-top: 64px; padding-bottom: 32px; }
+  .landing .pro-suite-eyebrow { margin-bottom: 20px; font-size: 10px; }
+  .landing .pro-suite-heading h2 { font-size: clamp(32px, 8vw, 40px); line-height: 1.13; }
+  .landing .pro-suite-intro { margin-top: 20px; font-size: 15px; }
+  .landing .pro-suite-benefits { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .landing .pro-suite-benefits article { grid-template-columns: 24px minmax(0, 1fr); gap: 14px; }
+  .landing .pro-suite-benefits h3 { font-size: 16px; }
+  .landing .pro-suite-benefits p { font-size: 13px; }
+  .landing .pro-suite-quote { gap: 12px; padding-inline: 14px; font-size: 12px; }
+  .landing .pro-suite-appbar { min-height: 52px; padding: 14px 16px; }
+  .landing .pro-suite-example-label { font-size: 9px; }
+  .landing .pro-suite-product-heading { padding: 23px 16px 18px; }
+  .landing .pro-suite-product-heading > strong { font-size: 20px; }
+  .landing .pro-suite-flow { grid-template-columns: minmax(0, 1fr); gap: 6px; padding-inline: 16px; }
+  .landing .pro-suite-flow > div { display: flex; align-items: center; gap: 13px; padding: 12px; }
+  .landing .pro-suite-flow small { margin: 0; font-size: 8px; }
+  .landing .pro-suite-flow strong { margin-top: 1px; font-size: 11px; }
+  .landing .pro-suite-flow > div > svg { position: static; margin-left: auto; }
+  .landing .pro-suite-stock { margin: 18px 16px; }
+  .landing .pro-suite-stock-heading { align-items: flex-start; flex-direction: column; gap: 5px; padding: 14px 12px; }
+  .landing .pro-suite-stock-columns, .landing .pro-suite-stock-row { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, .75fr)); gap: 5px; padding-inline: 12px; }
+  .landing .pro-suite-stock-columns { font-size: 6px; letter-spacing: 0; }
+  .landing .pro-suite-stock-row > span:first-child { gap: 6px; font-size: 10px; }
+  .landing .pro-suite-stock-row i { width: 20px; height: 24px; font-size: 9px; }
+  .landing .pro-suite-stock-row { font-size: 10px; }
+  .landing .pro-suite-stock-row > strong { font-size: 11px; }
+  .landing .pro-suite-product-footer { gap: 12px; padding-bottom: 19px; }
+  .landing .pro-suite-guide > aside { align-items: flex-start; flex-direction: column; gap: 20px; padding: 28px 0; }
+  .landing .pro-suite-guide > aside h2 { font-size: 22px; }
+  .landing .pro-suite-guide > aside > button { width: auto; }
 }

@@ -1,0 +1,96 @@
+/* Homepage only. Landscape and scroll-zoom geometry stay in landing-horizon.css. */
+.landing.marketing-site.felexia-home { --marketing-ink: #183b32; --marketing-muted: #65756e; --marketing-paper: #f6f7f3; background: #f6f7f3; }
+.felexia-home .marketing-container { max-width: 1280px; padding-inline: 44px; }
+.felexia-home .marketing-eyebrow { color: #527062; font-size: 10px; font-weight: 550; letter-spacing: .15em; margin-bottom: 23px; }
+.felexia-home .marketing-section-title { color: #183b32; font-size: clamp(35px, 4.3vw, 58px); font-weight: 450; line-height: 1.07; letter-spacing: -.055em; }
+.felexia-home .marketing-copy { color: #65756e; line-height: 1.8; }
+.landing.marketing-site.felexia-home .marketing-button { min-height: 46px; border-radius: 7px; font-size: 13px; font-weight: 550; gap: 15px; padding: 12px 20px; box-shadow: none; }
+.landing.marketing-site.felexia-home .marketing-button-primary { background: #315efb; border-color: #315efb; box-shadow: none; }
+.landing.marketing-site.felexia-home .marketing-button-primary:hover { background: #234ed8; border-color: #234ed8; box-shadow: none; transform: translateY(-1px); }
+.landing.felexia-home .horizon-copy { max-width: 1200px; padding-top: clamp(140px, 18vh, 190px); }
+.landing.felexia-home .horizon-copy > .horizon-eyebrow { margin: 0 auto 22px; max-width: 560px; color: #fff; font-size: 11px; font-weight: 500; line-height: 1.7; letter-spacing: .13em; text-transform: uppercase; }
+.landing.felexia-home .horizon-copy h1 { max-width: 1050px; font-size: clamp(46px, 5.2vw, 76px); font-weight: 450; line-height: 1.03; letter-spacing: -.055em; }
+.landing.felexia-home .horizon-copy h1 > span { display: block; }
+.landing.felexia-home .horizon-copy > .horizon-tagline { max-width: 660px; margin-top: 25px; color: #fff; font-size: 18px; font-weight: 250; line-height: 1.6; letter-spacing: -.01em; }
+.felexia-home.marketing-horizon-site .marketing-header-overlay .marketing-header-inner { max-width: 1440px; padding-inline: 44px; height: 84px; }
+.felexia-home .marketing-desktop-nav { gap: 30px; margin-left: 25px; }
+.felexia-home .marketing-desktop-nav a { font-size: 12px; }
+.landing.marketing-site.felexia-home .marketing-header-overlay .marketing-header-cta { border-radius: 7px; min-height: 40px; padding: 10px 18px; font-size: 12px; }
+.felexia-home .marketing-reading-progress > span { background: #567e68; }
+.felexia-home .conversion-pricing { padding: 112px 0; background: #f9faf7; }
+.felexia-home .conversion-pricing-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 46px; }
+.felexia-home .conversion-pricing-intro { max-width: none; display: grid; grid-template-columns: 1fr 1fr; align-items: start; column-gap: 80px; }
+.felexia-home .conversion-pricing-intro > .marketing-eyebrow { grid-column: 1 / -1; }
+.felexia-home .conversion-pricing-intro > .marketing-section-title { grid-column: 1; grid-row: 2 / span 3; max-width: 560px; margin-top: 0; }
+.felexia-home .conversion-pricing-intro > .marketing-copy { grid-column: 2; margin-top: 0; max-width: 450px; font-size: 15px; }
+.felexia-home .conversion-trial-note { grid-column: 2; display: flex; align-items: flex-start; gap: 12px; margin-top: 20px; padding: 0; border: 0; background: none; }
+.felexia-home .conversion-trial-note .conversion-trial-icon { width: 30px; height: 30px; min-width: 30px; color: #315b45; background: #e5eddf; border-radius: 6px; }
+.felexia-home .conversion-trial-note strong { color: #244c38; font-size: 13px; }
+.felexia-home .conversion-trial-note p { max-width: 390px; color: #65756e; font-size: 12px; line-height: 1.7; }
+.felexia-home .conversion-billing-toggle { grid-column: 2; justify-self: start; margin-top: 21px; background: #e9ede5; border-color: #d9e0d5; border-radius: 7px; }
+.felexia-home .conversion-pricing-aside { grid-column: 2; margin-top: 15px; font-size: 12px; }
+.felexia-home .conversion-pricing-cards { gap: 24px; }
+.felexia-home .conversion-price-card { padding: 34px; border: 1px solid #dce3d9; border-radius: 16px; background: #fff; box-shadow: none; }
+.felexia-home .conversion-price-card-pro { background: #ecf1e9; border-color: #d5dfd0; color: #183b32; }
+.felexia-home .conversion-plan-topline h3 { color: #183b32; font-size: 15px; font-weight: 600; letter-spacing: .05em; }
+.felexia-home .conversion-plan-badge { background: #f0f3ed; color: #57705d; border-color: #dfe5db; border-radius: 4px; }
+.felexia-home .conversion-price-card-pro .conversion-plan-badge { background: #dce8d8; color: #284f37; }
+.felexia-home .conversion-plan-description, .felexia-home .conversion-price-caption, .felexia-home .conversion-no-card, .felexia-home .conversion-plan-limits { color: #65756e; }
+.felexia-home .conversion-price-amount { color: #183b32; }
+.felexia-home .conversion-price-amount strong { color: #183b32; font-size: 47px; font-weight: 450; letter-spacing: -.05em; }
+.felexia-home .conversion-included-heading { color: #183b32; border-color: #dce3d9; }
+.felexia-home .conversion-included-list li { color: #3e5549; }
+.felexia-home .conversion-included-list svg { color: #3e7650; }
+.landing.marketing-site.felexia-home .conversion-pro-button { background: #173c31; border-color: #173c31; color: #fff; }
+.landing.marketing-site.felexia-home .conversion-pro-button:hover { background: #24533f; border-color: #24533f; color: #fff; }
+.felexia-home .conversion-price-card-pro .conversion-no-card svg { color: #315b45; }
+.landing.felexia-home .conversion-price-card { border-radius: 16px; background: #fff; box-shadow: none; }
+.landing.felexia-home .conversion-price-card::before { display: none; }
+.landing.felexia-home .conversion-price-card-pro { background: #ecf1e9; border-color: #d5dfd0; }
+.landing.felexia-home .conversion-plan-topline :is(h2, h3) { color: #183b32; font-size: 15px; font-weight: 600; letter-spacing: .05em; }
+.landing.felexia-home .conversion-price-card-pro :is(.conversion-price-amount, .conversion-included-heading) { color: #183b32; }
+.landing.felexia-home .conversion-price-card-pro :is(.conversion-plan-description, .conversion-price-caption, .conversion-no-card, .conversion-plan-limits) { color: #5f6f65; }
+.landing.felexia-home .conversion-price-card-pro .conversion-plan-topline :is(h2, h3) { color: #183b32; }
+.landing.felexia-home .conversion-price-card-pro .conversion-plan-badge { background: #dce8d8; border-color: #cbdcc3; color: #284f37; }
+.landing.felexia-home .conversion-price-card-pro :is(.conversion-included-heading, .conversion-plan-limits) { border-color: #cfdccc; }
+.landing.felexia-home .conversion-price-card-pro .conversion-included-list li { color: #3e5549; }
+.landing.felexia-home .conversion-price-card-pro .conversion-included-list svg { color: #3e7650; }
+.landing.felexia-home .conversion-price-card-pro .conversion-included-heading::before { background: #4e7e54; box-shadow: none; }
+@media (max-width: 1099px) {
+  .felexia-home.marketing-horizon-site .marketing-header-overlay .marketing-header-inner { height: 76px; }
+  .felexia-home .conversion-pricing-intro { column-gap: 45px; }
+}
+@media (max-width: 800px) {
+  .felexia-home .marketing-container { padding-inline: 28px; }
+  .felexia-home .conversion-pricing-intro { display: block; max-width: 620px; }
+  .felexia-home .conversion-pricing-intro > .marketing-copy { margin-top: 22px; }
+  .felexia-home .conversion-pricing-cards { grid-template-columns: minmax(0, 1fr); max-width: none; }
+  .felexia-home .conversion-price-card { padding: 30px; }
+}
+@media (max-width: 599px) {
+  .felexia-home .marketing-container { padding-inline: 22px; }
+  .felexia-home .marketing-section-title { font-size: clamp(34px, 8.8vw, 43px); line-height: 1.1; }
+  .felexia-home .marketing-eyebrow { font-size: 9px; margin-bottom: 19px; }
+  .landing.felexia-home .horizon-copy { padding-top: 130px; padding-inline: 21px; }
+  .landing.felexia-home .horizon-copy > .horizon-eyebrow { max-width: 270px; margin-bottom: 20px; font-size: 10px; letter-spacing: .1em; }
+  .landing.felexia-home .horizon-copy h1 { max-width: 370px; font-size: clamp(33px, 8.8vw, 44px); line-height: 1.07; letter-spacing: -.05em; }
+  .landing.felexia-home .horizon-copy > .horizon-tagline { margin-top: 21px; max-width: 300px; font-size: 15px; font-weight: 300; }
+  .felexia-home.marketing-horizon-site .marketing-header-overlay .marketing-header-inner { padding-inline: 22px; height: 70px; }
+  .felexia-home .conversion-pricing { padding: 72px 0; }
+  .felexia-home .conversion-pricing-grid { gap: 32px; }
+  .felexia-home .conversion-price-card { padding: 26px 24px; }
+  .felexia-home .conversion-price-amount strong { font-size: 43px; }
+  .felexia-home .conversion-included-list { gap: 11px; }
+}
+@media (max-height: 650px) and (min-width: 600px) {
+  .landing.felexia-home .horizon-copy { padding-top: 112px; }
+  .landing.felexia-home .horizon-copy h1 { font-size: clamp(37px, 4vw, 48px); }
+  .landing.felexia-home .horizon-copy > .horizon-eyebrow { margin-bottom: 13px; }
+  .landing.felexia-home .horizon-copy > .horizon-tagline { margin-top: 16px; font-size: 16px; }
+}
+@media (max-height: 500px) {
+  .landing.felexia-home .horizon-copy { padding-top: 91px; padding-bottom: 48px; }
+  .landing.felexia-home .horizon-copy h1 { font-size: 35px; }
+  .landing.felexia-home .horizon-copy > .horizon-eyebrow { margin-bottom: 12px; }
+  .landing.felexia-home .horizon-copy > .horizon-tagline { margin-top: 13px; font-size: 14px; }
+}

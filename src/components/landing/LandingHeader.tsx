@@ -14,10 +14,19 @@ const navLinks = [
   { href: "/#resources", label: "FAQ" },
 ];
 
+const homepageLinks = [
+  { href: "/#essentiel", label: "Le produit" },
+  { href: "/#pro", label: "ERP PRO" },
+  { href: "/#pricing", label: "Les offres" },
+  { href: "/guides", label: "Guides" },
+  { href: "/#resources", label: "FAQ" },
+];
+
 export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const links = overlay ? homepageLinks : navLinks;
 
   useEffect(() => {
     if (!open) return;
@@ -44,7 +53,7 @@ export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
       <div className="marketing-reading-progress" aria-hidden="true"><span /></div>
       <div className="marketing-container marketing-header-inner">
         <Link href="/" aria-label="FelexiaERP — accueil" className="marketing-brand"><BrandLogo variant="horizontal" height={46} priority /></Link>
-        <nav className="marketing-desktop-nav" aria-label="Navigation principale">{navLinks.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
+        <nav className="marketing-desktop-nav" aria-label="Navigation principale">{links.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}</nav>
         <div className="marketing-header-actions">
           <Link href="/login" className="marketing-login">Connexion</Link>
           <Link href="/login?mode=register" className="marketing-button marketing-button-primary marketing-header-cta">Commencer<ArrowUpRight size={16} aria-hidden="true" /></Link>
@@ -52,7 +61,7 @@ export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
         <button ref={triggerRef} type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={open} aria-controls="landing-mobile-menu" className="marketing-menu-toggle">{open ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}</button>
       </div>
       {open ? <nav id="landing-mobile-menu" className="marketing-mobile-nav" aria-label="Navigation mobile">
-        {navLinks.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}
+        {links.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}
         <Link href="/login" onClick={() => setOpen(false)}>Connexion<ArrowUpRight size={16} aria-hidden="true" /></Link>
         <Link href="/login?mode=register" className="marketing-button marketing-button-primary" onClick={() => setOpen(false)}>Démarrer gratuitement<ArrowUpRight size={16} aria-hidden="true" /></Link>
       </nav> : null}

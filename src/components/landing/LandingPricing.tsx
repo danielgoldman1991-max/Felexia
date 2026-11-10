@@ -42,8 +42,8 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
       <div className="marketing-container conversion-pricing-grid">
         <div className="conversion-pricing-intro" data-reveal>
           <p className="marketing-eyebrow">Deux offres, la même ambition</p>
-          <Heading id="conversion-pricing-title" className="marketing-section-title">Tarifs du logiciel de gestion<br />pour les PME au Maroc.</Heading>
-          <p className="marketing-copy">Facturez, suivez vos achats et votre trésorerie avec ESSENTIEL. Avec PRO, reliez aussi le stock, la comptabilité et les ressources humaines.</p>
+          <Heading id="conversion-pricing-title" className="marketing-section-title">{standalone ? <>Tarifs du logiciel de gestion<br />pour les PME au Maroc.</> : <>Deux offres.<br />Un prochain cap.</>}</Heading>
+          <p className="marketing-copy">{standalone ? "Facturez, suivez vos achats et votre trésorerie avec ESSENTIEL. Avec PRO, reliez aussi le stock, la comptabilité et les ressources humaines." : "ESSENTIEL pour votre quotidien. PRO pour relier toute votre activité. Choisissez le périmètre qui vous ressemble."}</p>
           <div className="conversion-trial-note">
             <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
             <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL.</strong><p>Découvrez votre espace gratuitement, sans carte bancaire. Pour PRO, échangeons sur votre projet.</p></div>

@@ -118,7 +118,7 @@ async function main() {
   check(privateHeader.headers.some(header => header.value.includes("noindex") && header.value.includes("nosnippet")), "Private HTTP responses opt out of indexing and snippets");
 
   const hero = readFileSync(resolve("src/components/landing/LandingHero.tsx"), "utf8");
-  check(hero.includes("Logiciel de gestion et ERP pour les PME au Maroc") && hero.includes("Maîtrisez vos coûts. Mesurez vos performances."), "Homepage H1 names the product and lead uses the approved cost/performance message");
+  check(hero.includes("Logiciel de gestion & ERP · PME au Maroc") && hero.includes("Votre entreprise.") && hero.includes("Une vision plus claire."), "Homepage names the product and audience alongside its concise outcome heading");
   check(hero.includes("felexia-horizon-v1.avif") && hero.includes("felexia-horizon-v1.webp") && !hero.includes("felexia-horizon-v1.png"), "Hero references the modern images, not the multi-megabyte PNG");
   check(readFileSync(resolve("src/components/landing/LandingStory.tsx"), "utf8").includes("HOME_FAQS"), "Homepage FAQ is rendered from the structured-data source");
   for (const file of ["src/lib/app-url.ts", "src/app/auth/google/route.ts", "src/app/auth/callback/route.ts"]) {

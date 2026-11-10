@@ -29,9 +29,9 @@ export function LandingHero() {
         </div>
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
-          <h1 id="hero-title">Logiciel de gestion et ERP pour les PME au Maroc</h1>
-          <p>Maîtrisez vos coûts. Mesurez vos performances.</p>
-          <p className="horizon-tagline">Prenez de la hauteur. Pilotez en toute liberté.</p>
+          <p className="horizon-eyebrow">Logiciel de gestion & ERP · PME au Maroc</p>
+          <h1 id="hero-title"><span>Votre entreprise.</span>{" "}<span>Une vision plus claire.</span></h1>
+          <p className="horizon-tagline">Facturez. Suivez vos coûts. Pilotez en toute liberté.</p>
           <LandingZoomPreference />
         </div>
         <a className="horizon-scroll-cue" href="#essentiel" aria-label="Défiler pour découvrir — Découvrez la suite">

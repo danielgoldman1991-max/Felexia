@@ -44,11 +44,11 @@ function visitorIsSignedIn(): Promise<boolean> {
 
 export function NewsletterPrompt() {
   const pathname = usePathname();
-  const publicPage = Boolean(pathname && isPublicSitePath(pathname));
+  const promptPage = Boolean(pathname && pathname !== "/" && isPublicSitePath(pathname));
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!publicPage) return;
+    if (!promptPage) return;
     let cancelled = false;
     let shown = false;
     let armedByTime = false;
@@ -94,9 +94,9 @@ export function NewsletterPrompt() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("felexia:newsletter-joined", onJoined);
     };
-  }, [publicPage, pathname]);
+  }, [promptPage, pathname]);
 
-  if (!publicPage || !open) return null;
+  if (!promptPage || !open) return null;
 
   return (
     <aside className={styles.prompt} role="region" aria-label="Inscription à la lettre d’information">
