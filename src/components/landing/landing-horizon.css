@@ -17,16 +17,9 @@
 .landing .horizon-screen { position: absolute; left: 58.333px; top: 66.667px; width: 1120px; height: 680px; overflow: hidden; border-radius: 7.5px; background: #f5f7fc; }
 .landing .horizon-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, #0b192d80 0%, #1320364a 26%, #17203413 52%, transparent 72%, #0b172426 100%); opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 2.5), 1); pointer-events: none; }
 .landing .horizon-copy { position: relative; max-width: 1100px; padding: clamp(150px, 20vh, 205px) 24px 32px; margin-inline: auto; text-align: center; color: #fff; opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 4), 1); transform: translate3d(0, calc(var(--hero-progress, 0) * -100px), 0); }
-.landing .horizon-copy h1 { margin: 0; color: #fff; font-size: clamp(35px, 3.6vw, 56px); line-height: 1.13; font-weight: 540; letter-spacing: -.045em; text-wrap: balance; }
-.landing .horizon-copy > p { margin: 20px auto 0; max-width: 620px; color: #f5f7fb; font-size: clamp(16px, 1.55vw, 21px); font-weight: 400; line-height: 1.55; letter-spacing: -.025em; text-shadow: 0 1px 12px #071a2d15; }
-.landing .horizon-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 29px; }
-.landing .horizon-actions > a { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 12px 23px; border: 1px solid transparent; border-radius: 999px; font-size: 14px; line-height: 1.5; font-weight: 550; color: #fff; transition: background .2s, transform .2s; }
-.landing .horizon-actions .horizon-start { background: #5263f6; border-color: #9ca8ff26; }
-.landing .horizon-actions .horizon-start:hover { background: #4053e6; transform: translateY(-1px); }
-.landing .horizon-actions .horizon-discover { background: #ffffff13; border-color: #ffffff25; backdrop-filter: blur(6px); }
-.landing .horizon-actions .horizon-discover:hover { background: #ffffff24; transform: translateY(-1px); }
-.landing .horizon-actions > a:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
-.landing .horizon-trial { display: block; margin-top: 15px; color: #f2f5fb; font-size: 11px; line-height: 1.5; }
+.landing .horizon-copy h1 { max-width: 900px; margin: 0 auto; color: #fff; font-size: clamp(35px, 3.6vw, 56px); line-height: 1.13; font-weight: 500; letter-spacing: -.045em; text-wrap: balance; }
+.landing .horizon-copy > p { margin: 24px auto 0; max-width: 680px; color: #f5f7fb; font-size: clamp(16px, 1.4vw, 19px); font-weight: 400; line-height: 1.55; letter-spacing: -.015em; text-wrap: balance; text-shadow: 0 1px 12px #071a2d15; }
+.landing .horizon-copy > .horizon-tagline { margin-top: 12px; font-size: 16px; font-weight: 200; line-height: 1.5; letter-spacing: 0; }
 .landing .horizon-zoom-preference { display: none; align-items: center; justify-content: center; min-height: 36px; margin-top: 12px; padding: 8px 15px; border: 1px solid #ffffff65; border-radius: 999px; color: #fff; background: #10243ba6; font-size: 12px; line-height: 1.4; cursor: pointer; }
 .landing .horizon-zoom-preference:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 .landing[data-horizon-away="true"] .horizon-copy { pointer-events: none; }
@@ -44,14 +37,12 @@
   .landing .horizon-copy { padding: 127px 23px 26px; }
   .landing .horizon-copy h1 { max-width: 360px; margin-inline: auto; font-size: 38px; line-height: 1.06; letter-spacing: -.05em; }
   .landing .horizon-copy > p { margin-top: 18px; font-size: 15px; line-height: 1.6; max-width: 335px; }
+  .landing .horizon-copy > .horizon-tagline { margin-top: 10px; font-size: 14px; }
   .landing .horizon-copy > p br { display: none; }
-  .landing .horizon-actions { gap: 9px; margin-top: 24px; }
-  .landing .horizon-actions > a { min-height: 45px; padding: 11px 16px; font-size: 12px; }
-  .landing .horizon-trial { margin-top: 13px; font-size: 10px; }
   .landing .horizon-shade { background: linear-gradient(180deg, #0b192d99, #13203640 37%, transparent 66%, #0b172426); }
 }
-@media (max-width: 359px) { .landing .horizon-copy { padding-inline: 18px; }.landing .horizon-copy h1 { font-size: 34px; }.landing .horizon-actions { gap: 8px; }.landing .horizon-actions > a { padding-inline: 14px; font-size: 11px; } }
-@media (max-height: 650px) and (min-width: 600px) { .landing .horizon-copy { padding-top: 112px; }.landing .horizon-copy h1 { font-size: 40px; }.landing .horizon-copy > p { font-size: 17px; margin-top: 14px; }.landing .horizon-actions { margin-top: 20px; } }
+@media (max-width: 359px) { .landing .horizon-copy { padding-inline: 18px; }.landing .horizon-copy h1 { font-size: 34px; } }
+@media (max-height: 650px) and (min-width: 600px) { .landing .horizon-copy { padding-top: 112px; }.landing .horizon-copy h1 { font-size: 40px; }.landing .horizon-copy > p { font-size: 17px; margin-top: 14px; } }
 @media (prefers-reduced-motion: reduce) {
   .landing:not([data-horizon-motion="enabled"]) .horizon-hero { height: auto; min-height: 100vh; min-height: 100svh; }
   .landing:not([data-horizon-motion="enabled"]) .horizon-window { position: relative; height: auto; min-height: 100vh; min-height: 100svh; }
@@ -60,7 +51,6 @@
   .landing:not([data-horizon-motion="enabled"]) .horizon-laptop { display: none; }
   .landing:not([data-horizon-motion="enabled"]) .horizon-copy { max-height: none; overflow: visible; opacity: 1; transform: none; }
   .landing[data-horizon-enhanced="true"] .horizon-zoom-preference { display: inline-flex; }
-  .landing .horizon-actions > a { transition: none; }
   .landing .product-motion-toggle { display: none; }
 }
 /* Compact the introduction on short windows, while keeping the scroll zoom. */
@@ -68,6 +58,6 @@
   .landing .horizon-copy { max-height: 100vh; max-height: 100svh; overflow-y: auto; padding-top: 105px; padding-bottom: 46px; scrollbar-width: thin; }
   .landing .horizon-copy h1 { font-size: 34px; }
   .landing .horizon-copy > p { font-size: 15px; margin-top: 14px; }
-  .landing .horizon-actions { margin-top: 20px; }
+  .landing .horizon-copy > .horizon-tagline { margin-top: 10px; font-size: 14px; }
   .landing .horizon-scroll-cue { bottom: 10px; }
 }
