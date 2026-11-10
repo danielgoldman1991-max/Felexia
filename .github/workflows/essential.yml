@@ -46,6 +46,8 @@ jobs:
         run: node training/invoice-dates/20261103/verify-calendar-dates.cjs
       - name: Verify marketing scroll zoom compatibility
         run: node training/marketing/20261101-zoom-compatibility/verify-controller.cjs
+      - name: Verify navigation locations and visibility
+        run: npx tsx scripts/verify-navigation.ts
       - run: npm run test:e-invoicing
       - run: npx tsx training/e-invoicing/20261031/verify-pdf.ts
       - run: npx tsx scripts/verify-operator-access.ts

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowLeftRight,
   Banknote,
@@ -36,7 +36,7 @@ const groups = [
       { label: "Nouveau devis", href: "/vente/devis/new", icon: FilePlus2 },
       { label: "Nouvelle commande client", href: "/vente/commandes/new", icon: Receipt },
       { label: "Nouveau bon de livraison", href: "/vente/livraisons/new", icon: Truck },
-      { label: "Nouveau retour client", href: "/vente/retours", icon: RotateCcw },
+      { label: "Retours clients", href: "/vente/retours", icon: RotateCcw },
     ],
   },
   {
@@ -52,7 +52,7 @@ const groups = [
     title: "Achats",
     items: [
       { label: "Nouvelle commande fournisseur", href: "/achats/commandes/new", icon: ShoppingCart },
-      { label: "Nouvelle reception fournisseur", href: "/achats/receptions/new", icon: Truck },
+      { label: "Nouvelle réception fournisseur", href: "/achats/receptions/new", icon: Truck },
       { label: "Nouvelle facture fournisseur", href: "/achats/factures/new", icon: Receipt },
       { label: "Nouveau paiement fournisseur", href: "/achats/paiements/new", icon: WalletCards },
     ],
@@ -61,17 +61,17 @@ const groups = [
     title: "Stock",
     items: [
       { label: "Nouvel article/service", href: "/articles/new", icon: PackagePlus },
-      { label: "Nouvelle entree stock", href: "/stock/entrees/new", icon: PackagePlus },
+      { label: "Nouvelle entrée stock", href: "/stock/entrees/new", icon: PackagePlus },
       { label: "Nouvel ajustement stock", href: "/stock/ajustements/new", icon: ArrowLeftRight },
       { label: "Nouvel emplacement stock", href: "/stock/emplacements/new", icon: Building2 },
     ],
   },
   {
-    title: "Tresorerie",
+    title: "Trésorerie",
     items: [
       { label: "Nouveau compte bancaire / caisse", href: "/tresorerie/comptes/new", icon: Landmark },
-      { label: "Nouveau mouvement tresorerie", href: "/tresorerie/mouvements/new", icon: Banknote },
-      { label: "Nouvelle prevision de tresorerie", href: "/tresorerie/previsions/nouveau", icon: Sparkles },
+      { label: "Nouveau mouvement de trésorerie", href: "/tresorerie/mouvements/new", icon: Banknote },
+      { label: "Nouvelle prévision de trésorerie", href: "/tresorerie/previsions/nouveau", icon: Sparkles },
     ],
   },
 ];
@@ -105,6 +105,9 @@ const lightGroups = [
 export function QuickCreateMenu({ fullAccess = false, operator = false }: { fullAccess?: boolean; operator?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
   const visibleGroups = (fullAccess ? groups : lightGroups)
     .map((group) => ({ ...group, items: group.items.filter((item) => !operator || isOperatorPathAllowed(item.href)) }))
     .filter((group) => group.items.length > 0);
@@ -113,39 +116,65 @@ export function QuickCreateMenu({ fullAccess = false, operator = false }: { full
     const handlePointerDown = (event: PointerEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
     };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
+  useEffect(() => {
+    if (open) panelRef.current?.querySelector<HTMLAnchorElement>("a[href]")?.focus();
+  }, [open]);
+
+  function closeMenu() {
+    triggerRef.current?.focus();
+    setOpen(false);
+  }
+
   return (
-    <div ref={ref} className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (open && event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          closeMenu();
+        }
+      }}
+    >
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="app-quick-create-trigger flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary-soft)] px-3 text-[var(--primary)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)]"
         aria-label="Création rapide"
         title="Création rapide"
         aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
       >
-        <Plus className="h-[18px] w-[18px]" />
+        <Plus aria-hidden="true" className="h-[18px] w-[18px]" />
+        <span className="app-quick-create-label text-sm font-semibold">Créer</span>
       </button>
       {open ? (
-        <div className="fixed left-4 right-4 top-20 z-[100] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)] sm:left-auto sm:w-[min(92vw,640px)] xl:absolute xl:right-0 xl:top-12">
+        <div ref={panelRef} id={panelId} role="region" aria-labelledby={`${panelId}-title`} className="app-quick-create-panel fixed left-4 right-4 top-20 z-[100] max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain rounded-xl border border-[var(--border)] bg-[var(--popover)] p-4 shadow-[var(--shadow-lg)] sm:left-auto sm:w-[min(92vw,640px)] xl:absolute xl:right-0 xl:top-12">
           <div className="mb-4 border-b border-[var(--border-subtle)] px-1 pb-4">
-            <p className="text-base font-semibold text-[var(--popover-foreground)]">Création rapide</p>
+            <h2 id={`${panelId}-title`} className="text-base font-semibold text-[var(--popover-foreground)]">Création rapide</h2>
             <p className="mt-1 text-xs leading-5 text-[var(--muted)]">Une facture, un règlement ou un contact en un clic.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {visibleGroups.map((group) => (
               <div key={group.title} className="rounded-xl border border-[var(--border-subtle)] p-2">
-                <p className="px-2 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">{group.title}</p>
+                <h3 className="px-2 pb-2 pt-1 text-xs font-semibold text-[var(--muted)]">{group.title}</h3>
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
@@ -157,7 +186,7 @@ export function QuickCreateMenu({ fullAccess = false, operator = false }: { full
                         className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--surface-soft)] focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
                       >
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)]">
-                          <Icon className="h-4 w-4" />
+                          <Icon aria-hidden="true" className="h-4 w-4" />
                         </span>
                         <span>{item.label}</span>
                       </Link>
@@ -168,7 +197,7 @@ export function QuickCreateMenu({ fullAccess = false, operator = false }: { full
             ))}
           </div>
           <div className="mt-3 flex justify-end">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Fermer</Button>
+            <Button type="button" variant="ghost" onClick={closeMenu}>Fermer</Button>
           </div>
         </div>
       ) : null}

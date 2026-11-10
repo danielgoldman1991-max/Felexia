@@ -1,0 +1,126 @@
+/* Navigation only. Business content and public pages retain their own surfaces. */
+.felexia-app .app-sidebar {
+  --sidebar: #111f37;
+  --sidebar-foreground: #f1f5fd;
+  --sidebar-muted: #b3c1d7;
+  --sidebar-border: #ffffff16;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--sidebar);
+  border-color: var(--sidebar-border);
+  box-shadow: 10px 0 36px rgb(8 19 40 / .18);
+}
+.felexia-app .app-sidebar-heading { height: 80px; padding-inline: 22px; }
+.felexia-app .app-sidebar-brand { max-width: 170px; }
+.felexia-app .app-sidebar-brand img { filter: brightness(0) invert(1); }
+.felexia-app .app-sidebar-heading > button { width: 44px; height: 44px; padding: 0; color: #c5d2e7; }
+.felexia-app .app-sidebar-heading > button:hover { background: #ffffff0e; color: #fff; }
+.felexia-app .app-sidebar-workspace-area { padding: 4px 16px 20px; }
+.felexia-app .app-sidebar-workspace { gap: 11px; padding: 12px; border-radius: 10px; border-color: #ffffff18; background: #ffffff06; }
+.felexia-app .app-sidebar-workspace:hover { border-color: #ffffff35; background: #ffffff0c; }
+.felexia-app .app-sidebar-workspace-icon { width: 36px; height: 36px; border: 1px solid #ffffff12; border-radius: 8px; background: #ffffff09; color: #b4ceff; }
+.felexia-app .app-sidebar-workspace > span:nth-child(2) > span:first-child { font-size: 9px; color: #a4b5cf; letter-spacing: .11em; }
+.felexia-app .app-sidebar-workspace > span:nth-child(2) > span:last-child { font-size: 12px; line-height: 1.5; color: #f1f5fd; }
+.felexia-app .app-sidebar-workspace > svg { color: #a4b5cf; width: 15px; }
+.felexia-app .app-sidebar-nav { display: flex; flex-direction: column; gap: 4px; padding: 18px 12px 14px; border-color: #ffffff12; scrollbar-width: thin; scrollbar-color: #52617a transparent; overscroll-behavior: contain; }
+.felexia-app .app-nav-caption { flex-shrink: 0; margin: 0 12px 9px; color: #98abc7; font-size: 9px; font-weight: 600; line-height: 1.6; letter-spacing: .13em; text-transform: uppercase; }
+.felexia-app .app-nav-section { flex-shrink: 0; margin-top: 0; }
+.felexia-app .app-nav-section[data-key="dashboard"] { padding-bottom: 12px; margin-bottom: 7px; border-bottom: 1px solid #ffffff12; }
+.felexia-app .app-nav-section[data-key="settings"] { margin-top: auto; padding-top: 16px; }
+.felexia-app .app-nav-module { border: 1px solid transparent; border-radius: 9px; }
+.felexia-app .app-nav-module:hover { background: #ffffff06; }
+.felexia-app .app-nav-module[data-active="true"] { border-color: #8bb0ff22; background: #25416d; }
+.felexia-app .app-nav-link { min-height: 45px; gap: 11px; padding: 10px 11px; border-radius: 8px; color: #b9c7dc; font-size: 13px; line-height: 1.45; font-weight: 450; }
+.felexia-app .app-nav-link:hover { color: #fff; background: transparent; }
+.felexia-app .app-nav-link > svg { width: 18px; height: 18px; color: #a9bcd8; }
+.felexia-app .app-nav-module[data-active="true"] .app-nav-link { color: #fff; font-weight: 600; }
+.felexia-app .app-nav-module[data-active="true"] .app-nav-link > svg { color: #b8d2ff; }
+.felexia-app .app-nav-label { white-space: normal; overflow: visible; text-overflow: clip; }
+.felexia-app .app-nav-toggle { width: 35px; height: 42px; margin-right: 2px; color: #a8bad5; border-radius: 6px; }
+.felexia-app .app-nav-toggle:hover { background: #ffffff0b; color: #fff; }
+.felexia-app .app-nav-children { margin: 7px 0 9px 23px; padding-left: 12px; border-color: #58709655; }
+.felexia-app .app-nav-children[hidden] { display: none; }
+.felexia-app .app-nav-subitem { position: relative; min-height: 40px; gap: 9px; padding: 9px 10px; border-radius: 7px; color: #aebfd8; font-size: 12px; line-height: 1.45; font-weight: 450; }
+.felexia-app .app-nav-subitem > svg { width: 15px; height: 15px; color: #97accb; }
+.felexia-app .app-nav-subitem:hover { background: #ffffff08; color: #fff; }
+.felexia-app .app-nav-subitem[data-active="true"] { background: #ffffff0e; color: #fff; font-weight: 550; }
+.felexia-app .app-nav-subitem[data-active="true"]::before { content: ""; position: absolute; left: -14px; top: 50%; width: 3px; height: 18px; border-radius: 3px; background: #86aeff; transform: translateY(-50%); }
+.felexia-app .app-nav-subitem[data-active="true"] > svg { color: #b9d3ff; }
+.felexia-app .app-sidebar-account { padding: 12px; border-color: #ffffff16; background: #0d192e; }
+.felexia-app .app-account-trigger { padding: 8px; border: 1px solid transparent; border-radius: 10px; }
+.felexia-app .app-account-trigger:hover, .felexia-app .app-account-trigger[aria-expanded="true"] { border-color: #ffffff16; background: #ffffff07; }
+.felexia-app .app-account-trigger > span:first-child { width: 36px; height: 36px; border-radius: 10px; background: #365b9b; font-size: 12px; box-shadow: inset 0 0 0 1px #ffffff12; }
+.felexia-app .app-account-trigger > span:nth-child(2) > span:first-child { font-size: 12px; color: #f2f6ff; font-weight: 550; }
+.felexia-app .app-account-trigger > span:nth-child(2) > span:last-child { margin-top: 2px; font-size: 11px; color: #a8bad5; }
+.felexia-app .app-account-panel { max-height: calc(100vh - 100px); max-height: calc(100dvh - 100px); overflow-y: auto; overscroll-behavior: contain; bottom: 80px; }
+.felexia-app .app-sidebar :where(a,button):focus-visible { outline: 2px solid #a3c3ff; outline-offset: 2px; }
+.felexia-app .app-sidebar :is(.app-account-panel,.app-help-panel) :where(a,button):focus-visible { outline-color: var(--primary); }
+.felexia-app .app-sidebar-backdrop { background: rgb(8 18 36 / .52); backdrop-filter: blur(3px); }
+.felexia-app .app-topbar { background: var(--card); border-color: var(--border-subtle); box-shadow: 0 1px 0 rgb(20 33 61 / .02); }
+.felexia-app .app-topbar-inner { height: 76px; gap: 24px; }
+.felexia-app .app-topbar-fallback { height: 76px; }
+.felexia-app .app-navigation-context { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 0 1 220px; }
+.felexia-app .app-navigation-section { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 12px; font-weight: 450; }
+.felexia-app .app-navigation-separator { flex-shrink: 0; color: var(--muted); }
+.felexia-app .app-navigation-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--foreground); font-size: 13px; font-weight: 600; letter-spacing: -.02em; }
+.felexia-app .app-global-search { min-width: 0; max-width: 540px; }
+.felexia-app .app-search-input { height: 44px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); font-size: 13px; box-shadow: none; }
+.felexia-app .app-search-input:hover { border-color: var(--border-strong); }
+.felexia-app .app-search-input:focus-visible { border-color: var(--primary); outline: 2px solid var(--ring); outline-offset: 1px; }
+.felexia-app .app-toolbar-actions { gap: 7px; }
+.felexia-app .app-toolbar-actions :is(.app-help-trigger,button[aria-label="Notifications"],button[aria-label^="Passer en mode"]) { width: 42px; height: 42px; border-color: var(--border); border-radius: 9px; background: var(--card); color: var(--muted-strong); }
+.felexia-app .app-quick-create-trigger { min-height: 42px; height: 42px; padding-inline: 14px; gap: 8px; border: 1px solid var(--primary); border-radius: 9px; background: var(--primary); color: #fff; box-shadow: 0 1px 2px rgb(20 33 61 / .08); }
+.felexia-app .app-quick-create-trigger:hover { background: color-mix(in srgb, var(--primary) 88%, #14213d); }
+.felexia-app .app-quick-create-label { font-size: 13px; font-weight: 550; }
+.felexia-app .app-topbar :where(a,button):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.felexia-app :is(.app-search-panel,.app-quick-create-panel,.app-help-panel) { border: 1px solid var(--border); border-radius: 13px; background: var(--popover); color: var(--popover-foreground); box-shadow: 0 12px 36px -8px rgb(12 26 49 / .22); }
+.felexia-app .app-search-panel { min-width: min(430px, calc(100vw - 32px)); padding: 9px; }
+.felexia-app .app-search-panel-header { padding: 3px 7px 8px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 5px; }
+.felexia-app .app-search-panel-header > button { width: 40px; height: 40px; }
+.felexia-app .app-search-group-label { padding: 10px 10px 6px; color: var(--muted-strong); font-size: 11px; font-weight: 550; }
+.felexia-app .app-search-result { min-height: 58px; padding: 10px; border-radius: 8px; }
+.felexia-app .app-search-result[aria-selected="true"] { background: var(--primary-soft); box-shadow: inset 2px 0 var(--primary); }
+.felexia-app .app-search-result-copy > span:first-child { font-size: 13px; font-weight: 550; }
+.felexia-app .app-search-result-copy > span:last-child { margin-top: 3px; font-size: 11px; }
+.felexia-app .app-search-footer { border-top: 1px solid var(--border-subtle); margin-top: 6px; padding-top: 8px; }
+.felexia-app .app-quick-create-panel { padding: 10px; }
+.felexia-app .app-quick-create-panel a { min-height: 44px; border-radius: 8px; }
+.felexia-app .app-help-panel a { border-radius: 9px; }
+.felexia-app .app-help-panel p, .felexia-app .app-help-panel a span span:last-child { line-height: 1.65; }
+.felexia-app .app-help-close { min-width: 40px; min-height: 40px; border-radius: 7px; color: var(--muted-strong); }
+.felexia-app .app-help-close:hover { background: var(--surface-soft); }
+@media (min-width: 1024px) { .felexia-app .app-sidebar { box-shadow: none; } }
+@media (max-width: 1279px) { .felexia-app .app-navigation-context { flex-basis: 160px; } .felexia-app .app-topbar-inner { gap: 16px; } }
+@media (max-width: 1023px) {
+  .felexia-app .app-sidebar { width: min(292px, calc(100vw - 24px)); }
+  .felexia-app .app-navigation-context { display: none; }
+  .felexia-app .app-sidebar .app-help-trigger,
+  .felexia-app .app-sidebar button[aria-label="Notifications"] { width: 44px; height: 44px; border: 1px solid #ffffff1b; background: #ffffff08; color: #d1dcef; }
+  .felexia-app .app-sidebar .app-help-panel { position: fixed; inset: 16px 12px 92px; width: auto; max-height: none; margin: 0; }
+  .felexia-app .app-quick-create-panel { position: fixed; inset: 86px 16px auto; width: auto; max-width: 680px; margin: 0 auto; max-height: calc(100vh - 102px); max-height: calc(100dvh - 102px); }
+}
+@media (max-width: 639px) {
+  .felexia-app .app-topbar-inner { height: 68px; gap: 10px; padding-inline: 14px; }
+  .felexia-app .app-topbar-fallback { height: 68px; }
+  .felexia-app .app-topbar-inner > button { width: 44px; height: 44px; border-radius: 9px; }
+  .felexia-app .app-toolbar-actions { gap: 6px; }
+  .felexia-app .app-toolbar-actions :is(button[aria-label^="Passer en mode"],.app-quick-create-trigger) { width: 44px; height: 44px; min-width: 44px; padding: 0; }
+  .felexia-app .app-quick-create-label { display: none; }
+  .felexia-app .app-search-input { min-height: 44px; font-size: 16px; padding-left: 36px; }
+  .felexia-app .app-search-panel { position: fixed; inset: 78px 12px auto; min-width: 0; max-height: calc(100vh - 94px); max-height: calc(100dvh - 94px); }
+  .felexia-app .app-quick-create-panel { position: fixed; inset: 78px 12px auto; width: auto; margin: 0; max-height: calc(100vh - 94px); max-height: calc(100dvh - 94px); }
+  .felexia-app .app-topbar .app-help-panel { position: fixed; inset: 78px 12px auto; width: auto; margin: 0; max-height: calc(100dvh - 94px); }
+  .felexia-app .app-nav-subitem { min-height: 44px; font-size: 13px; }
+  .felexia-app .app-nav-toggle { width: 44px; height: 44px; }
+}
+@media (max-height: 500px) {
+  .felexia-app .app-sidebar-heading { height: 58px; }
+  .felexia-app .app-sidebar-workspace-area { padding: 0 12px 10px; }
+  .felexia-app .app-sidebar-workspace { padding: 8px 10px; }
+  .felexia-app .app-sidebar-workspace-area > div { margin-top: 6px; }
+  .felexia-app .app-sidebar-account { padding: 6px 10px; }
+  .felexia-app .app-account-trigger { padding: 5px; }
+  .felexia-app .app-sidebar-nav { padding-top: 10px; padding-bottom: 8px; }
+  .felexia-app .app-nav-caption { display: none; }
+}
+@media print { .felexia-app .app-sidebar, .felexia-app .app-topbar { display: none; } }

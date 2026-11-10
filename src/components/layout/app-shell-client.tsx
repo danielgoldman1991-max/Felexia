@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import type { ActiveWorkspace } from "@/lib/auth";
@@ -10,6 +10,7 @@ import { isOperatorRole } from "@/lib/auth/operator-access";
 import Link from "next/link";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
 import { Toaster } from "sonner";
+import { useDesktopNavigation } from "@/components/layout/navigation-viewport";
 
 export function AppShellClient({
   children,
@@ -23,6 +24,7 @@ export function AppShellClient({
   fullAccess?: boolean;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const desktop = useDesktopNavigation();
   const roleReadOnly = isReadOnlyRole(workspace.role);
   const subscriptionReadOnly = !canWriteWorkspaceSubscription(workspace.subscription);
   const readOnly = roleReadOnly || subscriptionReadOnly;
@@ -31,16 +33,17 @@ export function AppShellClient({
   return (
     <div className="felexia-app min-h-screen max-w-full overflow-x-clip bg-[var(--background)] text-[var(--foreground)]">
       <Toaster position="top-right" richColors />
-      <Sidebar
+      <Suspense fallback={null}><Sidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
         workspace={workspace}
         showWelcomeGuide={!readOnly && !operator && showWelcomeGuide}
         fullAccess={fullAccess}
-      />
+        desktop={desktop}
+      /></Suspense>
 
-      <div className="min-h-screen min-w-0 max-w-full overflow-x-clip transition-[padding] duration-300 lg:pl-[272px]">
-        <Topbar onOpenMenu={() => setMobileOpen(true)} fullAccess={fullAccess && !operator} readOnly={readOnly} operator={operator} />
+      <div inert={mobileOpen && !desktop} className="app-main-workspace min-h-screen min-w-0 max-w-full overflow-x-clip transition-[padding] duration-300 lg:pl-[272px]">
+        <Suspense fallback={<div className="app-topbar-fallback" aria-hidden="true" />}><Topbar onOpenMenu={() => setMobileOpen(true)} mobileOpen={mobileOpen && !desktop} fullAccess={fullAccess && !operator} navigationFullAccess={fullAccess} readOnly={readOnly} operator={operator} enabledModules={workspace.enabledModules} showWelcomeGuide={!readOnly && !operator && showWelcomeGuide} /></Suspense>
         <main className="app-content mx-auto min-w-0 w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <div className="page-shell">
             {readOnly ? (
