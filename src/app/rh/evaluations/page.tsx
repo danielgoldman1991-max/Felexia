@@ -17,7 +17,7 @@ export default async function HrEvaluationsPage() {
       <HrField label="Score"><HrInput name="score" type="number" min="0" max="20" step="0.1" /></HrField>
       <HrField label="Points forts" wide><HrTextarea name="strengths" /></HrField>
       <HrField label="Axes" wide><HrTextarea name="improvements" /></HrField>
-      <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer l’évaluation</Button></div>
+      <div className="erp-form-actions md:col-span-2 flex justify-end"><Button type="submit">Enregistrer l’évaluation</Button></div>
     </HrEntryForm>
     <HrSectionPage title="Évaluations" description="Suivi des scores, objectifs, forces et axes d'amélioration par salarié." rows={rows} newHref="/rh/evaluations#creer" columns={[{ key: "evaluation_date", label: "Date" }, { key: "employee_id", label: "Employé" }, { key: "period_label", label: "Période" }, { key: "score", label: "Score" }, { key: "status", label: "Statut", status: true }]} />
   </ModulePage>;

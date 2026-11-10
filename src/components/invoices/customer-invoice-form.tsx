@@ -185,7 +185,7 @@ export function CustomerInvoiceForm({
   }
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {invoiceId ? <input type="hidden" name="id" value={invoiceId} /> : null}
       <input type="hidden" name="customer_id" value={customerId} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
@@ -201,7 +201,7 @@ export function CustomerInvoiceForm({
       <input type="hidden" name="custom_payment_method" value={customPaymentMethod} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et dates</h2><p className="mt-1 text-sm text-[var(--muted)]">Les informations principales de votre facture.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Client *</span>
@@ -317,18 +317,18 @@ export function CustomerInvoiceForm({
         </CardContent>
       </Card> : null}
 
-      <Card>
-        <CardHeader><h2 className="font-semibold">Lignes de facture</h2></CardHeader>
+      <Card className="erp-form-lines">
+        <CardHeader><h2 className="font-semibold">Lignes de facture</h2><p className="mt-1 text-sm text-[var(--muted)]">Articles, prestations et montants à facturer.</p></CardHeader>
         <CardContent>
           <InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} fullAccess={fullAccess} />
         </CardContent>
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={cancelHref}>Annuler</Link></Button>
         <Button disabled={pending || !customerId || lines.length === 0}>{pending ? "Enregistrement…" : submitLabel}</Button>
       </div>

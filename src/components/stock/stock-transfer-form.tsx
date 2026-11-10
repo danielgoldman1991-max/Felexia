@@ -27,7 +27,7 @@ export function StockTransferForm({
     }
   }, [pending, state]);
   return (
-    <form action={formAction} className="grid max-w-xl gap-4">
+    <form action={formAction} className="erp-form grid max-w-xl gap-4">
       <label className="grid gap-1 text-sm">
         Article
         <select name="product_id" required className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
@@ -58,7 +58,9 @@ export function StockTransferForm({
         <input name="notes" className="h-10 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3" />
       </label>
       {!state.success && state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
-      <Button type="submit" disabled={pending}>{pending ? "Transfert…" : "Transférer"}</Button>
+      <div className="erp-form-actions">
+        <Button type="submit" disabled={pending}>{pending ? "Transfert…" : "Transférer"}</Button>
+      </div>
     </form>
   );
 }

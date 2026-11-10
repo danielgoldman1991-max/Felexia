@@ -23,7 +23,7 @@ export default async function NewHrLeavePage() {
   return (
     <ModulePage>
       <PageHeader title="Nouvelle demande de congé" description="La demande reste en attente jusqu'à validation. Le calcul des droits légaux reste préparatoire." />
-      <HrBoundForm action={createHrLeaveRequestAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
+      <HrBoundForm action={createHrLeaveRequestAction} className="erp-form grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
         <label className="space-y-1 text-sm md:col-span-2">
           <span className="font-medium">Salarié</span>
           <select name="employee_id" required className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3">
@@ -54,7 +54,7 @@ export default async function NewHrLeavePage() {
           <span className="font-medium">Motif</span>
           <textarea name="reason" rows={3} className="w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2" placeholder="Congé annuel, maladie..." />
         </label>
-        <div className="md:col-span-2 flex justify-end">
+        <div className="erp-form-actions md:col-span-2 flex justify-end">
           <Button type="submit">Enregistrer la demande</Button>
         </div>
       </HrBoundForm>

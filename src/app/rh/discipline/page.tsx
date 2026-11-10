@@ -15,7 +15,7 @@ export default async function HrDisciplinePage() {
       <HrField label="Date"><HrInput name="action_date" type="date" required /></HrField>
       <HrField label="Type"><HrSelect name="action_type" required defaultValue="warning"><option value="observation">Observation</option><option value="warning">Avertissement</option><option value="blame">Blâme</option><option value="suspension">Mise à pied</option><option value="other">Autre</option></HrSelect></HrField>
       <HrField label="Motif" wide><HrTextarea name="reason" /></HrField>
-      <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
+      <div className="erp-form-actions md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
     </HrEntryForm>
     <HrSectionPage title="Discipline" description="Suivi interne des observations, avertissements, blâmes et suspensions, sans automatisme juridique." rows={rows} newHref="/rh/discipline#creer" columns={[{ key: "action_date", label: "Date" }, { key: "employee_id", label: "Employé" }, { key: "action_type", label: "Type" }, { key: "reason", label: "Motif" }, { key: "status", label: "Statut", status: true }]} />
   </ModulePage>;

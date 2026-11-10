@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import type { AccountingActionResult } from "@/lib/accounting-types";
@@ -43,9 +43,10 @@ export function LetteringForm({
   }
   return (
     <form
-      className="space-y-4"
+      className="erp-form space-y-4"
       onSubmit={(event) => {
-        const selected = [...new FormData(event.currentTarget).getAll("line_ids")].map(String);
+        const formData = new FormData(event.currentTarget);
+        const selected = [...formData.getAll("line_ids")].map(String);
         const chosen = lines.filter((line) => selected.includes(line.id));
         const debit = chosen.reduce((sum, line) => sum + Number(line.debit), 0);
         const credit = chosen.reduce((sum, line) => sum + Number(line.credit), 0);
@@ -57,7 +58,7 @@ export function LetteringForm({
           }
           setLocalError(null);
           event.preventDefault();
-          formAction(new FormData(event.currentTarget));
+          startTransition(() => formAction(formData));
           return;
         }
         if (chosen.length < 2 || Math.abs(debit - credit) > 0.01) {
@@ -69,7 +70,7 @@ export function LetteringForm({
         }
         setLocalError(null);
         event.preventDefault();
-        formAction(new FormData(event.currentTarget));
+        startTransition(() => formAction(formData));
       }}
     >
       {mode === "open" ? <label className="grid max-w-xs gap-1 text-sm">
@@ -105,7 +106,9 @@ export function LetteringForm({
         </table>
       </div>
       {localError || (!state.success && state.error) ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{localError || state.error}</p> : null}
-      <Button type="submit" disabled={pending}>{pending ? "Enregistrement…" : mode === "lettered" ? "Délettrer la sélection" : "Lettrer la sélection"}</Button>
+      <div className="erp-form-actions">
+        <Button type="submit" disabled={pending}>{pending ? "Enregistrement…" : mode === "lettered" ? "Délettrer la sélection" : "Lettrer la sélection"}</Button>
+      </div>
     </form>
   );
 }

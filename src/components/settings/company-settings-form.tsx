@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { updateCompanyAction, type CompanyState } from "@/lib/actions/company";
 import { createClient } from "@/lib/supabase/client";
@@ -168,7 +168,7 @@ export function CompanySettingsForm({
       formData.set("logo_url", logoUrlRef.current);
     }
 
-    formAction(formData);
+    startTransition(() => formAction(formData));
   }
 
   const currentLogo = s.logo_url;
@@ -186,7 +186,7 @@ export function CompanySettingsForm({
   }
 
   return (
-    <form action={formAction} onSubmit={handleSubmit}>
+    <form className="erp-form" action={formAction} onSubmit={handleSubmit}>
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Logo</h2>
@@ -343,7 +343,7 @@ export function CompanySettingsForm({
         </p>
       )}
 
-      <div className="mt-6 flex justify-end">
+      <div className="erp-form-actions mt-6 flex justify-end">
         <Button type="submit" disabled={pending || uploading || Boolean(logoError)}>
           {uploading ? "Upload du logo..." : pending ? "Enregistrement..." : "Enregistrer les modifications"}
         </Button>

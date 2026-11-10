@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
+export function Card({ children, className, id }: { children: ReactNode; className?: string; id?: string }) {
   return (
-    <section className={cn("ui-card min-w-0 rounded-[var(--radius-lg)] border", className)}>
+    <section id={id} className={cn("ui-card min-w-0 rounded-[var(--radius-lg)] border", className)}>
       {children}
     </section>
   );

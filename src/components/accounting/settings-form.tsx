@@ -32,7 +32,7 @@ export function SettingsForm({ action, settings }: Props) {
   ];
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} className="erp-form space-y-6">
       <Card>
         <CardHeader><h2 className="font-semibold">Journaux</h2></CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,7 +88,7 @@ export function SettingsForm({ action, settings }: Props) {
         <p className="rounded-md bg-[var(--success-soft)] p-3 text-sm text-[var(--success)]">Paramètres mis à jour.</p>
       ) : null}
 
-      <div className="flex justify-end">
+      <div className="erp-form-actions flex justify-end">
         <Button disabled={pending}>{pending ? "Enregistrement…" : "Enregistrer les paramètres"}</Button>
       </div>
     </form>

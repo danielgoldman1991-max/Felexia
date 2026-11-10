@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { cloneElement, isValidElement, startTransition, useActionState, useId, useMemo, useState } from "react";
 import { ChevronDown, Loader2, Save } from "lucide-react";
 import type { ThirdPartyActionResult } from "@/lib/third-party-actions";
 import type { ThirdPartyKind, ThirdPartyRecord } from "@/lib/third-party-types";
@@ -37,11 +37,14 @@ type Props = {
 const initialState: ThirdPartyActionResult = { success: true };
 
 function Field({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
+  const generatedId = useId();
+  const control = isValidElement<{ id?: string }>(children) ? children : null;
+  const id = control?.props.id ?? generatedId;
   return (
-    <label className={`block space-y-2 text-sm ${className}`}>
-      <span className="font-medium text-[var(--foreground)]">{label}</span>
-      {children}
-    </label>
+    <div className={`erp-form-field text-sm ${className}`}>
+      <label htmlFor={id}>{label}</label>
+      {control ? cloneElement(control, { id }) : children}
+    </div>
   );
 }
 
@@ -106,26 +109,32 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
 
   return (
     <form
-      className="space-y-5"
+      className="erp-form space-y-5"
       onSubmit={(event) => {
         event.preventDefault();
-        formAction(new FormData(event.currentTarget));
+        const data = new FormData(event.currentTarget);
+        startTransition(() => formAction(data));
       }}
     >
       {thirdParty ? <input type="hidden" name="id" value={thirdParty.id} /> : null}
       <input type="hidden" name="supplier_product_categories" value={selectedCategories.join(",")} />
-      <Card>
+      <nav className="erp-form-index" aria-label="Sections de la fiche contact">
+        <a href="#contact-identity"><span aria-hidden="true">01</span> Identité</a>
+        <a href="#contact-details"><span aria-hidden="true">02</span> Coordonnées</a>
+        {hasCustomer ? <a href="#contact-terms"><span aria-hidden="true">03</span> Conditions</a> : null}
+      </nav>
+      <Card id="contact-identity">
         <CardHeader>
           <h2 className="font-semibold">Informations générales</h2>
           <p className="mt-1 text-xs leading-5 text-[var(--muted)]">Le nom est le seul champ obligatoire. Complétez les autres informations à votre rythme.</p>
         </CardHeader>
-        <CardContent className="grid gap-4 lg:grid-cols-3">
-          <Field label="Nom ou raison sociale *">
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <Field label="Nom ou raison sociale *" className="md:col-span-2">
             <Input name="name" defaultValue={thirdParty?.name ?? ""} required />
           </Field>
           {/* Nom commercial / marque masqué pour simplification PME */}
           <input type="hidden" name="commercial_name" value={thirdParty?.commercial_name ?? ""} />
-          <div className="space-y-2 lg:col-span-2">
+          <div className="space-y-2 md:col-span-2">
             <p className="text-sm font-medium text-[var(--muted)]">Type de contact</p>
             <div className="flex flex-wrap gap-3">
               {(fullAccess ? ["prospect", "customer", "supplier"] as ThirdPartyKind[] : ["customer", "supplier"] as ThirdPartyKind[]).map((type) => (
@@ -157,12 +166,13 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         </CardContent>
       </Card>
 
-      <Card>
+      <Card id="contact-details">
         <CardHeader>
           <h2 className="font-semibold">Coordonnées</h2>
+          <p>Les informations utiles pour échanger avec votre contact et renseigner vos documents.</p>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Field label="Adresse" className="md:col-span-2 lg:col-span-3">
+        <CardContent className="grid gap-4 md:grid-cols-2">
+          <Field label="Adresse" className="md:col-span-2">
             <Textarea name="address" defaultValue={thirdParty?.address ?? ""} />
           </Field>
           <Field label="Pays">
@@ -191,13 +201,13 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <Field label="Téléphone">
             <Input name="phone" defaultValue={thirdParty?.phone ?? ""} />
           </Field>
-          <Field label="Email" className="lg:col-span-2">
+          <Field label="E-mail">
             <Input name="email" type="email" defaultValue={thirdParty?.email ?? ""} />
           </Field>
           {!fullAccess ? <Field label="ICE"><Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} /></Field> : null}
-          <div className="md:col-span-2 lg:col-span-3">
+          <div className="md:col-span-2">
             <OptionalSection fullAccess={fullAccess} title="Coordonnées complémentaires (facultatif)">
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Code postal"><Input name="postal_code" defaultValue={thirdParty?.postal_code ?? ""} /></Field>
                 <Field label="Téléphone portable"><Input name="mobile" defaultValue={thirdParty?.mobile ?? ""} /></Field>
                 <Field label="Site web"><Input name="website" defaultValue={thirdParty?.website ?? ""} /></Field>
@@ -210,19 +220,20 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       <OptionalSection fullAccess={fullAccess} title="Autres identifiants professionnels (facultatif)">
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Identifiants professionnels Maroc</h2>
+          <h2 className="font-semibold">Identifiants professionnels</h2>
+          <p>Les références de l’entreprise au Maroc, à compléter selon votre activité.</p>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
-          <Field label="Id. prof. 1 (R.C.)">
+          <Field label="Registre du commerce (RC)">
             <Input name="rc" defaultValue={thirdParty?.rc ?? ""} />
           </Field>
-          <Field label="Id. prof. 2 (Patente)">
+          <Field label="Taxe professionnelle / patente">
             <Input name="patente" defaultValue={thirdParty?.patente ?? ""} />
           </Field>
-          <Field label="Id. prof. 3 (I.F.)">
+          <Field label="Identifiant fiscal (IF)">
             <Input name="if_number" defaultValue={thirdParty?.if_number ?? ""} />
           </Field>
-          <Field label="Id. prof. 4 (C.N.S.S.)">
+          <Field label="Numéro CNSS">
             <Input name="cnss" defaultValue={thirdParty?.cnss ?? ""} />
           </Field>
           {fullAccess ? <Field label="Identifiant Commun d'Entreprise (ICE)">
@@ -245,7 +256,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         <OptionalSection fullAccess={fullAccess} title="Historique de prospection">
         <Card>
           <CardHeader><h2 className="font-semibold">Prospection</h2></CardHeader>
-          <CardContent className="grid gap-4 lg:grid-cols-4">
+          <CardContent className="grid gap-4 md:grid-cols-2">
             <Field label="Source du prospect">
               <Select name="prospect_source" defaultValue={thirdParty?.prospect_source ?? ""}>
                 <option value="">Sélectionner une source</option>
@@ -270,9 +281,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       ) : null}
 
       {hasCustomer || hasProspect ? (
-        <Card>
-          <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
-          <CardContent className="grid gap-4 lg:grid-cols-4">
+        <Card id="contact-terms">
+          <CardHeader><h2 className="font-semibold">Conditions commerciales</h2><p>Les conditions proposées lors de la création de vos documents clients.</p></CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
             <Field label="Conditions de paiement">
               <Select name="payment_terms" value={paymentTerms} onChange={(event) => {
                 const value = event.target.value;
@@ -306,7 +317,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
             <input type="hidden" name="default_discount_rate" value={thirdParty?.default_discount_rate ?? 0} />
             <input type="hidden" name="customer_category" value={thirdParty?.customer_category ?? ""} />
             <input type="hidden" name="risk_level" value={thirdParty?.risk_level ?? ""} />
-            <div className="lg:col-span-4">
+            <div className="md:col-span-2">
             <OptionalSection fullAccess={fullAccess} title="Catégorie client (facultatif)">
             <Field label="Catégorie client">
               <ComboboxCreate
@@ -347,8 +358,8 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         <OptionalSection fullAccess={fullAccess} title="Informations fournisseur complémentaires (facultatif)">
         <Card>
           <CardHeader><h2 className="font-semibold">Informations fournisseur</h2></CardHeader>
-          <CardContent className="grid gap-4 lg:grid-cols-3">
-            <div className="space-y-1.5 text-sm lg:col-span-3">
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5 text-sm md:col-span-2">
               <span className="font-medium text-[var(--foreground)]">Catégories de produits et services</span>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 {SUPPLIER_CATEGORY_OPTIONS.map((opt) => (
@@ -411,7 +422,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
 
       <OptionalSection fullAccess={fullAccess} title="Notes internes (facultatif)">
       <Card>
-        <CardHeader><h2 className="font-semibold">Plus</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Notes internes</h2><p>Des repères pour votre équipe, conservés sur cette fiche.</p></CardHeader>
         <CardContent>
           <Field label="Notes internes">
             <Textarea name="notes" defaultValue={thirdParty?.notes ?? ""} />
@@ -424,7 +435,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
       </OptionalSection>
 
       {!state.success && state.error ? (
-        <div className="space-y-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+        <div role="alert" className="space-y-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
           <p>{state.error}</p>
           {state.data?.duplicate ? (
             <label className="flex items-start gap-2">
@@ -435,7 +446,7 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
         </div>
       ) : null}
 
-      <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow-sm)]">
+      <div className="erp-form-actions sticky bottom-3 z-10 flex flex-wrap items-center justify-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow-sm)]">
         <Button type="button" variant="secondary" asChild><Link href={thirdParty ? `/tiers/${thirdParty.id}` : hasSupplier && !hasCustomer ? "/achats/fournisseurs" : "/tiers/clients"}>Annuler</Link></Button>
         <Button disabled={pending}>{pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}{pending ? "Enregistrement…" : mode === "create" ? "Créer le contact" : "Enregistrer"}</Button>
       </div>

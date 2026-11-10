@@ -21,7 +21,7 @@ export function HrPayrollPreparationForm({ periodId, updatedAt, status = "draft"
   const canValidate = status === "calculated" || (status === "draft" && state.success);
   return (
     <div className="space-y-4">
-      {status === "draft" || status === "calculated" ? <form action={action} className="space-y-4">
+      {status === "draft" || status === "calculated" ? <form action={action} className="erp-form space-y-4">
         <input type="hidden" name="expected_updated_at" value={updatedAt} />
         <p className="text-sm text-[var(--muted)]">Le calcul reprend le référentiel 2026 (CNSS, AMO, ancienneté, frais professionnels, IR et charges de famille), les avances du mois et les échéances de prêt.</p>
         <label className="flex items-start gap-2 text-sm"><input type="checkbox" name="ack_base_only" value="yes" required className="mt-1" onInvalid={(event) => event.currentTarget.setCustomValidity("Cochez cette confirmation pour préparer les bulletins.")} onChange={(event) => event.currentTarget.setCustomValidity("")} /><span>Je lance le calcul avec le référentiel 2026. Les montants restent à valider avant paiement.</span></label>
@@ -32,7 +32,9 @@ export function HrPayrollPreparationForm({ periodId, updatedAt, status = "draft"
             {state.skipped.map((item) => <li key={`${item.name}-${item.reason}`}>{item.name} : {item.reason}</li>)}
           </ul>
         ) : null}
-        <Button type="submit" disabled={pending}>{pending ? "Calcul…" : "Préparer les bulletins"}</Button>
+        <div className="erp-form-actions">
+          <Button type="submit" disabled={pending}>{pending ? "Calcul…" : "Préparer les bulletins"}</Button>
+        </div>
       </form> : null}
       {status !== "paid" && (canValidate || status === "validated") ? (
         <form action={lifeAction} className="flex flex-wrap gap-2">

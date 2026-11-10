@@ -130,7 +130,7 @@ export function SupplierPaymentForm({
     <div className="space-y-6">
       <PageHeader title="Nouveau paiement fournisseur" description="Créer un paiement fournisseur" />
 
-      <form action={handleSubmit}>
+      <form className="erp-form" action={handleSubmit}>
         {preselectedInvoice && preselectedPaymentSummary ? (
           <Card className="mb-6">
             <CardHeader><h2 className="font-semibold">Solde de la facture sélectionnée</h2></CardHeader>
@@ -313,7 +313,7 @@ export function SupplierPaymentForm({
 
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
-        <div className="mt-6 flex gap-3">
+        <div className="erp-form-actions mt-6 flex gap-3">
           <Button type="submit" disabled={pending || isPreselectedInvoiceBlocked || allocationTooHigh || totalAllocated > amount + 0.01 || !supplierId || !treasuryAccountId || amount <= 0}>
             {pending ? "Enregistrement…" : "Enregistrer le règlement"}
           </Button>

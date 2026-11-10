@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/interface.css";
+import "@/styles/forms.css";
 import "@/styles/print.css";
 import { ROOT_METADATA, getSiteStructuredData, serializeJsonLd } from "@/lib/seo";
 import { ThemeProvider } from "@/components/theme/theme-provider";

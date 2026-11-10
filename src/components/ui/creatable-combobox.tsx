@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown } from "lucide-react";
-import type { KeyboardEvent } from "react";
+import type { InputHTMLAttributes, KeyboardEvent } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ type CreatableComboboxProps = {
   defaultValue?: string | null;
   placeholder?: string;
   onChange?: (value: string) => void;
-};
+} & Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid">;
 
 function normalize(value: string | null | undefined) {
   return (value ?? "").toLowerCase().trim();
@@ -30,6 +30,11 @@ export function CreatableCombobox({
   defaultValue,
   placeholder = "Sélectionner...",
   onChange,
+  id,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: CreatableComboboxProps) {
   const isControlled = controlledValue !== undefined;
   const listboxId = useId();
@@ -74,11 +79,11 @@ export function CreatableCombobox({
     if (isControlled && onChange) onChange(val);
     setQuery("");
     setOpen(false);
-    inputRef.current?.blur();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (!open && ["ArrowDown", "Enter"].includes(event.key)) {
+      event.preventDefault();
       setOpen(true);
       return;
     }
@@ -126,16 +131,30 @@ export function CreatableCombobox({
   const inputValue = open ? query : (selectedOption?.label ?? currentValue);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative" onKeyDownCapture={(event) => {
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
+        event.stopPropagation();
+        inputRef.current?.focus();
+        setOpen(false);
+        setQuery("");
+      }
+    }}>
       <input type="hidden" name={name} value={currentValue} />
       <div className="relative">
         <input
           ref={inputRef}
+          id={id ?? `${listboxId}-input`}
           type="text"
           role="combobox"
           aria-expanded={open}
-          aria-controls={listboxId}
+          aria-controls={open ? listboxId : undefined}
           aria-autocomplete="list"
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          aria-activedescendant={open && filteredOptions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined}
           value={inputValue}
           placeholder={placeholder}
           onFocus={() => {
@@ -150,15 +169,17 @@ export function CreatableCombobox({
           }}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="ui-input h-11 w-full rounded-xl border border-slate-200 bg-white px-3 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
         />
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       </div>
 
       {open ? (
         <div
           id={listboxId}
           role="listbox"
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
           className="absolute z-[100] mt-2 max-h-60 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
           <div className="max-h-60 overflow-y-auto p-1.5">
@@ -170,9 +191,12 @@ export function CreatableCombobox({
                 return (
                   <button
                     key={option.value}
+                    id={`${listboxId}-option-${index}`}
                     type="button"
                     role="option"
+                    tabIndex={-1}
                     aria-selected={isSelected}
+                    onMouseDown={(event) => event.preventDefault()}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => selectValue(option.value)}
                     className={cn(

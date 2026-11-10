@@ -60,7 +60,7 @@ export function SupplierPaymentAllocateForm({
         </CardContent>
       </Card>
 
-      <form action={handleSubmit}>
+      <form className="erp-form" action={handleSubmit}>
         <Card>
           <CardHeader><h2 className="font-semibold">Factures ouvertes</h2></CardHeader>
           <CardContent>
@@ -106,7 +106,7 @@ export function SupplierPaymentAllocateForm({
 
         {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
-        <div className="mt-6 flex gap-3">
+        <div className="erp-form-actions mt-6 flex gap-3">
           <Button type="submit" disabled={pending || totalAllocated <= 0}>
             Affecter
           </Button>

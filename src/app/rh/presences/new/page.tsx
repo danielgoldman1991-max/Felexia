@@ -12,7 +12,7 @@ export default async function NewAttendancePage() {
   return (
     <ModulePage>
       <PageHeader title="Pointage manuel" description="Une ligne par salarié et par jour. Ce n'est pas une pointeuse." />
-      <HrBoundForm action={createHrOperationalRecordAction} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
+      <HrBoundForm action={createHrOperationalRecordAction} className="erp-form grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">
         <input type="hidden" name="kind" value="attendance" />
         <HrField label="Salarié" wide><HrSelect name="employee_id" required><EmployeeOptions employees={employees} /></HrSelect></HrField>
         <HrField label="Date"><HrInput name="attendance_date" type="date" required /></HrField>
@@ -31,7 +31,7 @@ export default async function NewAttendancePage() {
         <HrField label="Heures travaillées"><HrInput name="worked_hours" type="number" min="0" max="24" step="0.5" defaultValue="8" /></HrField>
         <HrField label="Heures supplémentaires"><HrInput name="overtime_hours" type="number" min="0" max="24" step="0.5" defaultValue="0" /></HrField>
         <HrField label="Note" wide><HrTextarea name="notes" /></HrField>
-        <div className="md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
+        <div className="erp-form-actions md:col-span-2 flex justify-end"><Button type="submit">Enregistrer</Button></div>
       </HrBoundForm>
     </ModulePage>
   );

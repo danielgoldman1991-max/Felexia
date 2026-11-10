@@ -16,7 +16,7 @@ export function PaymentAllocationForm({ payment, invoices }: { payment: Customer
   const rows = useMemo(() => Object.entries(allocations).map(([invoice_id, amount]) => ({ invoice_id, amount: Number(amount || 0) })).filter((row) => row.amount > 0), [allocations]);
   const total = rows.reduce((sum, row) => sum + row.amount, 0);
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <input type="hidden" name="payment_id" value={payment.id} />
       <input type="hidden" name="allocations" value={JSON.stringify(rows)} />
       <Card>
@@ -45,7 +45,7 @@ export function PaymentAllocationForm({ payment, invoices }: { payment: Customer
         </CardContent>
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={`/facturation/paiements/${payment.id}`}>Annuler</Link></Button>
         <Button disabled={pending || total <= 0 || total > payment.available_amount}>Affecter le paiement</Button>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -59,15 +60,15 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Nouvelle reception" description={`Commande : ${order.document_number} - ${order.supplier_name ?? ""}`} />
+      <PageHeader title="Nouvelle réception" description={`Commande : ${order.document_number} - ${order.supplier_name ?? ""}`} />
 
-      <form action={handleSubmit}>
+      <form action={handleSubmit} className="erp-form">
         <Card>
-          <CardHeader><h2 className="font-semibold">Reception fournisseur</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Réception fournisseur</h2><p className="mt-1 text-sm text-[var(--muted)]">La date et l’emplacement de réception des marchandises.</p></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-            <DateField label="Date reception" value={receiptDate} onChange={setReceiptDate} />
+            <DateField label="Date de réception" value={receiptDate} onChange={setReceiptDate} />
             <label className="space-y-1 text-sm">
-              <span className="text-xs font-medium uppercase text-[var(--muted)]">Emplacement de reception</span>
+              <span className="text-xs font-medium uppercase text-[var(--muted)]">Emplacement de réception</span>
               <Select value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)}>
                 <option value="">Emplacement par défaut</option>
                 {stockLocations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}
@@ -75,13 +76,13 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
             </label>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea aria-label="Notes sur la réception" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="mt-6">
-          <CardHeader><h2 className="font-semibold">Lignes a receptionner</h2></CardHeader>
+        <Card className="erp-form-lines mt-6">
+          <CardHeader><h2 className="font-semibold">Quantités à réceptionner</h2><p className="mt-1 text-sm text-[var(--muted)]">Indiquez les quantités reçues pour chaque article.</p></CardHeader>
           <CardContent>
             <Table>
               <thead><tr><Th>Article</Th><Th>Description</Th><Th>Unité</Th><Th>Commande</Th><Th>Déjà reçu</Th><Th>Reste</Th><Th>À recevoir</Th></tr></thead>
@@ -96,6 +97,7 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
                     <Td>{formatNumber(line.remaining_to_receive)}</Td>
                     <Td>
                       <input
+                        aria-label={`Quantité à recevoir — ${line.product_name || line.description}`}
                         type="number"
                         step={line.unit_name?.toLowerCase() === "u" ? "1" : "0.001"}
                         min="0"
@@ -112,11 +114,12 @@ export function SupplierReceiptForm({ order, stockLocations }: { order: Receivab
           </CardContent>
         </Card>
 
-        {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
+        {!state.success && state.error ? <p role="alert" className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
-        <div className="mt-6 flex gap-3">
+        <div className="erp-form-actions mt-6 flex gap-3">
+          <Button type="button" variant="secondary" asChild><Link href={`/achats/commandes/${order.id}`}>Annuler</Link></Button>
           <Button type="submit" disabled={pending}>
-            Créer reception
+            Créer la réception
           </Button>
         </div>
       </form>

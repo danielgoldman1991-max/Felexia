@@ -67,7 +67,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
   const totals = calculateTotals(lines);
 
   return (
-    <FrenchForm action={formAction} className="space-y-5">
+    <FrenchForm action={formAction} className="erp-form space-y-5">
       {quote ? <input type="hidden" name="id" value={quote.id} /> : null}
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <input type="hidden" name="subtotal_ht" value={totals.subtotal_ht} />
@@ -75,7 +75,7 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
       <input type="hidden" name="total_ttc" value={totals.total_ttc} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et dates</h2><p className="mt-1 text-sm text-[var(--muted)]">Choisissez le client et la période de validité du devis.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={quote?.third_party_id ?? ""} required>
@@ -85,19 +85,19 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
               ))}
             </Select>
           </Field>
-          <Field label="Date document">
+          <Field label="Date du document">
             <DateField name="document_date" defaultValue={quote?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
-          <Field label="Validite jusqu au">
+          <Field label="Validité jusqu’au">
             <DateField name="valid_until" defaultValue={quote?.valid_until ?? ""} />
           </Field>
-          <Field label="Delai paiement (jours)">
+          <Field label="Délai de paiement (jours)">
             <Input name="payment_terms_days" type="number" min="0" defaultValue={quote?.payment_terms_days ?? 30} />
           </Field>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="erp-form-lines">
         <CardHeader><h2 className="font-semibold">Lignes du devis</h2></CardHeader>
         <CardContent>
           <CommercialLinesEditor
@@ -124,13 +124,13 @@ export function SalesQuoteForm({ mode, quote, lines: initialLines, customers, pr
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="erp-form-actions sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={quote ? `/devis/${quote.id}` : "/devis"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Créer devis" : "Enregistrer"}
+          {mode === "create" ? "Créer le devis" : "Enregistrer les modifications"}
         </Button>
       </div>
     </FrenchForm>

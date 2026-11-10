@@ -32,7 +32,7 @@ export function DocumentSettingsForm({
   }
 
   return (
-    <form action={formAction}>
+    <form className="erp-form" action={formAction}>
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Numérotation des documents</h2>
@@ -113,7 +113,7 @@ export function DocumentSettingsForm({
         </p>
       )}
 
-      <div className="mt-6 flex justify-end">
+      <div className="erp-form-actions mt-6 flex justify-end">
         <Button type="submit" disabled={pending}>
           {pending ? "Enregistrement..." : "Enregistrer les modifications"}
         </Button>

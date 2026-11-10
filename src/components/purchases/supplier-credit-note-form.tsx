@@ -26,7 +26,7 @@ export function SupplierCreditNoteForm({ suppliers, products, units, taxRates, i
   const totals = calculateInvoiceTotals(lines);
   const supplier = suppliers.find(row => row.id === supplierId);
   const sourceId = creditNote?.source_invoice_id ?? sourceInvoiceId;
-  return <form action={formAction} className="space-y-5">
+  return <form action={formAction} className="erp-form space-y-5">
     <input type="hidden" name="id" value={creditNote?.id ?? ""} />
     <input type="hidden" name="supplier_id" value={supplierId} />
     <input type="hidden" name="source_invoice_id" value={sourceId} />
@@ -40,9 +40,9 @@ export function SupplierCreditNoteForm({ suppliers, products, units, taxRates, i
       <label className="space-y-2 text-sm font-medium md:col-span-2">Notes sur le document<Textarea name="notes" defaultValue={creditNote?.notes ?? ""} maxLength={4000} /></label>
       <details className="md:col-span-2"><summary className="cursor-pointer text-sm font-medium text-[var(--muted)]">Notes internes (facultatif)</summary><label className="mt-3 block space-y-2 text-sm">Informations internes, absentes de l’impression<Textarea name="internal_notes" defaultValue={creditNote?.internal_notes ?? ""} maxLength={4000} /></label></details>
     </CardContent></Card>
-    <Card><CardHeader><h2 className="font-semibold">Lignes de l’avoir</h2><p className="text-sm text-[var(--muted)]">Saisissez des montants positifs. L’avoir réduira la somme due au fournisseur.</p></CardHeader><CardContent><InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} /></CardContent></Card>
-    <Card><CardContent className="grid gap-4 sm:grid-cols-3"><div className="text-sm text-[var(--muted)]">Total HT net<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div className="text-sm text-[var(--muted)]">TVA<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.tax_total} /></strong></div><div className="text-sm text-[var(--muted)]">Total TTC<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
+    <Card className="erp-form-lines"><CardHeader><h2 className="font-semibold">Lignes de l’avoir</h2><p className="text-sm text-[var(--muted)]">Saisissez des montants positifs. L’avoir réduira la somme due au fournisseur.</p></CardHeader><CardContent><InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} /></CardContent></Card>
+    <Card><CardContent className="erp-form-summary grid gap-4 sm:grid-cols-3"><div className="text-sm text-[var(--muted)]">Total HT net<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div className="text-sm text-[var(--muted)]">TVA<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.tax_total} /></strong></div><div className="text-sm text-[var(--muted)]">Total TTC<br /><strong className="text-lg text-[var(--foreground)]"><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
     {!state.success && state.error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{state.error}</p> : null}
-    <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href={creditNote ? `/achats/avoirs/${creditNote.id}` : "/achats/avoirs"}>Annuler</Link></Button><Button type="submit" disabled={pending || !supplierId || lines.length === 0}>{pending ? "Enregistrement…" : creditNote ? "Enregistrer les modifications" : "Créer l’avoir fournisseur"}</Button></div>
+    <div className="erp-form-actions flex flex-wrap justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href={creditNote ? `/achats/avoirs/${creditNote.id}` : "/achats/avoirs"}>Annuler</Link></Button><Button type="submit" disabled={pending || !supplierId || lines.length === 0}>{pending ? "Enregistrement…" : creditNote ? "Enregistrer les modifications" : "Créer l’avoir fournisseur"}</Button></div>
   </form>;
 }

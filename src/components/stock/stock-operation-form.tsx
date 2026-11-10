@@ -81,7 +81,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
   }
 
   return (
-    <form action={handleSubmit} className="space-y-5">
+    <form action={handleSubmit} className="erp-form space-y-5">
       <input type="hidden" name="product_id" value={productId} />
       <Card>
         <CardHeader>
@@ -161,7 +161,7 @@ export function StockOperationForm({ mode, products, warehouses, initialProductI
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={productId ? `/stock/mouvements?productId=${productId}` : "/stock/mouvements"}>Annuler</Link></Button>
         <Button disabled={pending || !productId}>{mode === "entry" ? "Valider entree" : "Valider ajustement"}</Button>
       </div>

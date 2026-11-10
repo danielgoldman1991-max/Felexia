@@ -26,7 +26,7 @@ export function ChartOfAccountForm({
   }
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} className="erp-form space-y-6">
       {state.error && (
         <div className="rounded-[var(--radius-md)] border border-[var(--danger)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">{state.error}</div>
       )}
@@ -114,7 +114,7 @@ export function ChartOfAccountForm({
         />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="erp-form-actions flex items-center gap-3">
         <Button type="submit" disabled={pending}><Save className="h-4 w-4" /> {isEdit ? "Enregistrer les modifications" : "Créer le compte"}</Button>
         <Button type="button" variant="secondary" onClick={() => router.push("/comptabilite/plan-comptable")}><ArrowLeft className="h-4 w-4" /> Annuler</Button>
       </div>

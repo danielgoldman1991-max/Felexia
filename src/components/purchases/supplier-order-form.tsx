@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,35 +90,35 @@ export function SupplierOrderForm({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isEdit ? "Modifier commande fournisseur" : "Nouvelle commande fournisseur"}
+        title={isEdit ? "Modifier la commande fournisseur" : "Nouvelle commande fournisseur"}
         description={isEdit ? document!.document_number : "Saisir une commande fournisseur"}
       />
 
-      <form action={handleSubmit}>
+      <form action={handleSubmit} className="erp-form">
         <Card>
-          <CardHeader><h2 className="font-semibold">En-tête</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Fournisseur et dates</h2><p className="mt-1 text-sm text-[var(--muted)]">Les informations principales de votre commande d’achat.</p></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
               <SupplierCombobox suppliers={suppliers} value={supplierId} onChange={setSupplierId} />
             </div>
-            <DateField label="Date commande" value={documentDate} onChange={setDocumentDate} />
+            <DateField label="Date de commande" value={documentDate} onChange={setDocumentDate} />
             <DateField label="Réception prévue" value={expectedReceiptDate} onChange={setExpectedReceiptDate} placeholder="jj/mm/aaaa" />
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea aria-label="Notes sur la commande" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes internes</label>
-              <textarea value={internalNotes} onChange={(e) => setInternalNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea aria-label="Notes internes" value={internalNotes} onChange={(e) => setInternalNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="mt-6">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <h2 className="font-semibold">Lignes</h2>
-            <div className="flex gap-2">
+        <Card className="erp-form-lines mt-6">
+          <CardHeader className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="font-semibold">Lignes de commande</h2>
+            <div className="flex flex-wrap gap-2">
               <PurchaseProductCombobox products={products} onSelect={addProductLine} />
               <Button type="button" variant="ghost" onClick={addFreeLine}><Plus className="h-4 w-4" /> Ligne libre</Button>
             </div>
@@ -132,15 +133,15 @@ export function SupplierOrderForm({
                   {lines.map((line, i) => (
                     <tr key={line.id}>
                       <Td>{line.product_name || "Ligne libre"}</Td>
-                      <Td><input value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-32 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input type="text" inputMode="decimal" value={qtyText[line.id] ?? String(line.quantity)} onChange={(e) => { const raw = e.target.value; setQtyText((prev) => ({ ...prev, [line.id]: raw })); if (quantityDraftError(raw)) { setLineError("La quantité ne peut pas être négative."); return; } setLineError(null); if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return; updateLine(i, "quantity", Number(raw.replace(",", "."))); }} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input type="number" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
-                      <Td><input type="number" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`Description de la ligne ${i + 1}`} value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-32 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`Quantité de la ligne ${i + 1}`} type="text" inputMode="decimal" value={qtyText[line.id] ?? String(line.quantity)} onChange={(e) => { const raw = e.target.value; setQtyText((prev) => ({ ...prev, [line.id]: raw })); if (quantityDraftError(raw)) { setLineError("La quantité ne peut pas être négative."); return; } setLineError(null); if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return; updateLine(i, "quantity", Number(raw.replace(",", "."))); }} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`Unité de la ligne ${i + 1}`} value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`Prix HT de la ligne ${i + 1}`} type="number" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`Remise de la ligne ${i + 1}`} type="number" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td className="text-xs">{(line.subtotal_ht ?? 0).toFixed(2)}</Td>
-                      <Td><input type="number" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
+                      <Td><input aria-label={`TVA de la ligne ${i + 1}`} type="number" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td>
                       <Td className="text-xs">{(line.total_ttc ?? 0).toFixed(2)}</Td>
-                      <Td><button type="button" onClick={() => removeLine(i)} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></button></Td>
+                      <Td><button type="button" aria-label={`Supprimer la ligne ${i + 1}`} onClick={() => removeLine(i)} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></button></Td>
                     </tr>
                   ))}
                 </tbody>
@@ -151,10 +152,11 @@ export function SupplierOrderForm({
 
         {lineError ? <p role="alert" className="mt-2 text-sm text-red-600">{lineError}</p> : null}
         {!state.success && state.error ? (
-          <p className="mt-2 text-sm text-red-600">{state.error}</p>
+          <p role="alert" className="mt-2 text-sm text-red-600">{state.error}</p>
         ) : null}
 
-        <div className="mt-6 flex gap-3">
+        <div className="erp-form-actions mt-6 flex gap-3">
+          <Button type="button" variant="secondary" asChild><Link href={document ? `/achats/commandes/${document.id}` : "/achats/commandes"}>Annuler</Link></Button>
           <Button type="submit" disabled={pending}>
             {isEdit ? "Enregistrer les modifications" : "Créer la commande fournisseur"}
           </Button>

@@ -22,7 +22,7 @@ export function TaxRateForm({ mode, taxRate, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {taxRate ? <input type="hidden" name="id" value={taxRate.id} /> : null}
 
       <Card>
@@ -59,7 +59,7 @@ export function TaxRateForm({ mode, taxRate, action }: Props) {
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="erp-form-actions flex items-center justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/articles/tva">Annuler</Link></Button>
         <Button disabled={pending}>{mode === "create" ? "Créer le taux" : "Enregistrer"}</Button>
       </div>

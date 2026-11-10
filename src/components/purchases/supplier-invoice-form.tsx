@@ -146,9 +146,9 @@ export function SupplierInvoiceForm({
     <div className="space-y-6">
       <PageHeader title={isEdit ? "Modifier la facture d’achat" : "Nouvelle facture d’achat"} description={isEdit ? invoice!.invoice_number : fullAccess ? "Créer une facture fournisseur, directement ou depuis une réception." : "Choisissez le fournisseur, puis saisissez les lignes de sa facture."} />
 
-      <form action={handleSubmit}>
+      <form action={handleSubmit} className="erp-form">
         <Card>
-          <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Fournisseur et références</h2><p className="mt-1 text-sm text-[var(--muted)]">Reprenez les références et les dates de la facture reçue.</p></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Fournisseur</label>
@@ -175,18 +175,18 @@ export function SupplierInvoiceForm({
             </div>
             <div>
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Notes</label>
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <textarea aria-label="Notes sur la facture fournisseur" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="mt-6">
+        <Card className="erp-form-lines mt-6">
           <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-semibold">Lignes</h2>
+            <h2 className="font-semibold">Lignes de facture</h2>
             <div className="flex flex-wrap gap-2">
               {fullAccess && !isEdit && supplierId ? (
                 <Button type="button" variant="secondary" onClick={() => setShowReceiptsModal(true)}>
-                  Importer depuis reception
+                  Importer depuis une réception
                 </Button>
               ) : null}
               {fullAccess ? <PurchaseProductCombobox products={products} onSelect={addProductLine} /> : <details className="rounded-lg border border-[var(--border)] p-2"><summary className="cursor-pointer text-sm font-medium">Depuis mon catalogue</summary><div className="mt-2"><PurchaseProductCombobox products={products} onSelect={addProductLine} /></div></details>}
@@ -216,9 +216,9 @@ export function SupplierInvoiceForm({
                       {fullAccess ? <Td>{line.product_name || "Ligne libre"}</Td> : null}
                       <Td><input aria-label={`Description de la ligne ${i + 1}`} required value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="w-48 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
                       <Td><input aria-label={`Quantité de la ligne ${i + 1}`} type="text" inputMode="decimal" value={qtyText[line.id] ?? String(line.quantity)} onChange={(e) => { const raw = e.target.value; setQtyText((prev) => ({ ...prev, [line.id]: raw })); if (quantityDraftError(raw)) { setLineError("La quantité ne peut pas être négative."); return; } setLineError(null); if (raw.trim() === "" || raw.endsWith(".") || raw.endsWith(",")) return; updateLine(i, "quantity", Number(raw.replace(",", "."))); }} className="w-20 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
-                      {fullAccess ? <Td><input value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.unit_name ? <Badge tone="warning">À compléter</Badge> : null}</Td> : null}
+                      {fullAccess ? <Td><input aria-label={`Unité de la ligne ${i + 1}`} value={line.unit_name} onChange={(e) => updateLine(i, "unit_name", e.target.value)} className="w-16 rounded border border-input bg-background px-2 py-1 text-xs" />{!line.unit_name ? <Badge tone="warning">À compléter</Badge> : null}</Td> : null}
                       <Td><input aria-label={`Prix HT de la ligne ${i + 1}`} type="number" min="0.01" step="0.01" value={line.unit_price_ht} onChange={(e) => updateLine(i, "unit_price_ht", e.target.value)} className="w-24 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
-                      {fullAccess ? <Td><input type="number" min="0" max="100" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td> : null}
+                      {fullAccess ? <Td><input aria-label={`Remise de la ligne ${i + 1}`} type="number" min="0" max="100" step="0.01" value={line.discount_rate} onChange={(e) => updateLine(i, "discount_rate", e.target.value)} className="w-14 rounded border border-input bg-background px-2 py-1 text-xs" /></Td> : null}
                       <Td className="text-xs">{roundInvoice2(calculateSupplierInvoiceLine(line).subtotal_ht - calculateSupplierInvoiceLine(line).discount_amount).toFixed(2)}</Td>
                       <Td><input aria-label={`TVA de la ligne ${i + 1}`} type="number" min="0" max="100" step="0.01" value={line.tax_rate} onChange={(e) => updateLine(i, "tax_rate", e.target.value)} className="w-20 rounded border border-input bg-background px-2 py-2 text-sm" /></Td>
                       <Td className="text-xs">{calculateSupplierInvoiceLine(line).total_ttc.toFixed(2)}</Td>
@@ -229,13 +229,13 @@ export function SupplierInvoiceForm({
               </Table>
             )}
           </CardContent>
-          <CardContent className="flex flex-wrap justify-end gap-4 border-t border-[var(--border)] pt-4 text-sm"><span>Total HT : {totals.ht.toFixed(2)} MAD</span><span>TVA : {totals.tax.toFixed(2)} MAD</span><strong>Total TTC : {totals.ttc.toFixed(2)} MAD</strong></CardContent>
+          <CardContent className="erp-form-summary flex flex-wrap justify-end gap-4 border-t border-[var(--border)] pt-4 text-sm"><span>Total HT : {totals.ht.toFixed(2)} MAD</span><span>TVA : {totals.tax.toFixed(2)} MAD</span><strong>Total TTC : {totals.ttc.toFixed(2)} MAD</strong></CardContent>
         </Card>
 
         {lineError ? <p role="alert" className="mt-2 text-sm text-red-600">{lineError}</p> : null}
-        {!state.success && state.error ? <p className="mt-2 text-sm text-red-600">{state.error}</p> : null}
+        {!state.success && state.error ? <p role="alert" className="mt-2 text-sm text-red-600">{state.error}</p> : null}
 
-        <div className="mt-6 flex gap-3">
+        <div className="erp-form-actions mt-6 flex gap-3">
           <Button type="submit" disabled={pending}>
             {pending ? "Enregistrement…" : isEdit ? "Enregistrer" : "Créer la facture d’achat"}
           </Button>

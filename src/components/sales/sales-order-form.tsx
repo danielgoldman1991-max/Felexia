@@ -101,7 +101,7 @@ export function SalesOrderForm({
   const totals = calculateSalesTotals(lines);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {document ? <><input type="hidden" name="id" value={document.id} /><input type="hidden" name="expected_updated_at" value={document.updated_at} /></> : null}
       <input type="hidden" name="customer_id" value={selectedCustomerId} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
@@ -111,7 +111,7 @@ export function SalesOrderForm({
       <input type="hidden" name="payment_terms_days" value={paymentTermsDays ?? ""} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et dates</h2><p className="mt-1 text-sm text-[var(--muted)]">Le client, la date de commande et la livraison prévue.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-1.5 text-sm">
             <span className="font-medium text-[var(--muted)]">Client / Prospect *</span>
@@ -122,7 +122,7 @@ export function SalesOrderForm({
               placeholder="Rechercher un client ou prospect..."
             />
           </div>
-          <Field label="Date commande">
+          <Field label="Date de commande">
             <DateField name="document_date" defaultValue={document?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Livraison prévue">
@@ -131,8 +131,8 @@ export function SalesOrderForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><h2 className="font-semibold">Lignes de commande</h2></CardHeader>
+      <Card className="erp-form-lines">
+        <CardHeader><h2 className="font-semibold">Lignes de commande</h2><p className="mt-1 text-sm text-[var(--muted)]">Les articles et prestations commandés par le client.</p></CardHeader>
         <CardContent>
           <SalesLinesEditor
             lines={lines}
@@ -161,7 +161,7 @@ export function SalesOrderForm({
               ))}
             </select>
           </Field>
-          <Field label="Modalites de paiement">
+          <Field label="Modalités de paiement">
             <select
               name="payment_method"
               value={paymentMethod}
@@ -175,24 +175,24 @@ export function SalesOrderForm({
             </select>
           </Field>
           {paymentTerms === "custom" ? (
-            <Field label="Detail condition personnalisee">
+            <Field label="Détail de la condition personnalisée">
               <input
                 name="custom_payment_terms"
                 value={customPaymentTerms}
                 onChange={(e) => setCustomPaymentTerms(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
-                placeholder="Decrivez la condition..."
+                placeholder="Décrivez la condition…"
               />
             </Field>
           ) : null}
           {paymentMethod === "other" ? (
-            <Field label="Detail modalite personnalisee">
+            <Field label="Détail de la modalité personnalisée">
               <input
                 name="custom_payment_method"
                 value={customPaymentMethod}
                 onChange={(e) => setCustomPaymentMethod(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm"
-                placeholder="Decrivez la modalite..."
+                placeholder="Décrivez la modalité…"
               />
             </Field>
           ) : null}
@@ -212,13 +212,13 @@ export function SalesOrderForm({
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="erp-form-actions sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={document ? `/vente/commandes/${document.id}` : "/vente/commandes"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Créer commande" : "Enregistrer"}
+          {mode === "create" ? "Créer la commande" : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

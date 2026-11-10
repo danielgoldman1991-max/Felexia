@@ -16,7 +16,7 @@ export default async function HrDocumentsPage() {
       <HrField label="Titre"><HrInput name="title" required /></HrField>
       <HrField label="Lien ou chemin du fichier" wide><HrInput name="file_path" placeholder="Chemin du fichier déjà déposé dans les documents RH" /></HrField>
       <HrField label="Expiration"><HrInput name="expires_at" type="date" /></HrField>
-      <div className="md:col-span-2 flex justify-end"><Button type="submit">Rattacher le document</Button></div>
+      <div className="erp-form-actions md:col-span-2 flex justify-end"><Button type="submit">Rattacher le document</Button></div>
     </HrEntryForm>
     <HrSectionPage title="Documents RH" description="Dossier salarié, CIN, RIB, contrats et certificats rattachés au salarié." rows={rows} newHref="/rh/documents#creer" columns={[{ key: "document_type", label: "Type" }, { key: "title", label: "Titre" }, { key: "expires_at", label: "Expiration" }, { key: "status", label: "Statut", status: true }]} />
   </ModulePage>;

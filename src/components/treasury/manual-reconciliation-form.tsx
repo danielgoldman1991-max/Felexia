@@ -23,7 +23,7 @@ export function ManualReconciliationForm({ board }: { board: ManualMatchBoard })
       </CardHeader>
       <CardContent className="space-y-4">
         {board.pendingMigration ? <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">Le rapprochement manuel sera enregistré après la migration 141.</p> : null}
-        <form action={action} className="space-y-4">
+        <form action={action} className="erp-form space-y-4">
           <input type="hidden" name="account_id" value={board.accountId} />
           <MatchTable title="Lignes du relevé" empty="Aucune ligne ouverte." rows={board.lines.map((line) => ({
             key: line.id,
@@ -43,7 +43,9 @@ export function ManualReconciliationForm({ board }: { board: ManualMatchBoard })
             detail: `${document.party || "Sans tiers"} · ${document.date} · ${document.kind === "transaction" ? "Mouvement" : document.kind === "customer_invoice" ? "Facture client" : "Facture fournisseur"}`,
             remaining: document.remaining,
           }))} />
-          <PendingButton disabled={pending || board.pendingMigration || !board.accountId} idle="Rapprocher la sélection" pendingLabel="Rapprochement…" />
+          <div className="erp-form-actions">
+            <PendingButton disabled={pending || board.pendingMigration || !board.accountId} idle="Rapprocher la sélection" pendingLabel="Rapprochement…" />
+          </div>
           {state.success && message ? <p className="text-sm text-emerald-700">{message}</p> : null}
           {!state.success && state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
         </form>

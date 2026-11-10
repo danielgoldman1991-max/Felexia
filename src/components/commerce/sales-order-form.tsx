@@ -65,13 +65,13 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
   });
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {order ? <input type="hidden" name="id" value={order.id} /> : null}
       {quoteId ? <input type="hidden" name="quote_id" value={quoteId} /> : null}
       <input type="hidden" name="lines" value={JSON.stringify(docLines)} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et dates</h2><p className="mt-1 text-sm text-[var(--muted)]">Les informations principales et la livraison prévue.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={order?.third_party_id ?? ""} required>
@@ -81,19 +81,19 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
               ))}
             </Select>
           </Field>
-          <Field label="Date document">
+          <Field label="Date du document">
             <DateField name="document_date" defaultValue={order?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
           <Field label="Livraison prévue le">
             <DateField name="expected_delivery_date" defaultValue={order?.expected_delivery_date ?? ""} />
           </Field>
-          <Field label="Delai paiement (jours)">
+          <Field label="Délai de paiement (jours)">
             <Input name="payment_terms_days" type="number" min="0" defaultValue={order?.payment_terms_days ?? 30} />
           </Field>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="erp-form-lines">
         <CardHeader><h2 className="font-semibold">Lignes de commande</h2></CardHeader>
         <CardContent>
           <CommercialLinesEditor
@@ -120,13 +120,13 @@ export function SalesOrderForm({ mode, order, lines: initialLines, quoteId, cust
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="erp-form-actions sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={order ? `/commandes/${order.id}` : "/commandes"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Créer commande" : "Enregistrer"}
+          {mode === "create" ? "Créer la commande" : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

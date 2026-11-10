@@ -190,9 +190,9 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
+    <div className="erp-form-line-editor space-y-4">
+      <div className="erp-form-line-entry rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-semibold">Ajouter une ligne</p>
           <span className="text-xs text-[var(--muted)]">
             {quantityDraftError(quantityText) ? <span className="text-red-700">La quantité ne peut pas être négative.</span> : <>Total ligne: <MoneyDisplay value={draftLine.total_ttc} /></>}
@@ -200,10 +200,10 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
         </div>
 
         <div className="mb-3 flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-xs">
+          <label className="flex w-full min-w-0 flex-col gap-1 text-xs sm:w-56">
             <span className="font-medium text-[var(--muted)]">Type de ligne</span>
             <Select
-              className="w-56"
+              className="w-full"
               value={draftLine.mode}
               onChange={(event) => {
                 const mode = event.target.value as SalesLineFormValue["mode"];
@@ -215,10 +215,10 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             </Select>
           </label>
 
-          <label className="flex flex-col gap-1 text-xs">
+          <label className="flex min-w-0 flex-1 basis-72 flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Article / Service</span>
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="min-w-0 flex-1 basis-52">
                 <ProductCombobox
                   products={products}
                   value={draftLine.product_id}
@@ -353,7 +353,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
           <div className="mb-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</div>
         ) : null}
 
-        <Button type="button" onClick={handleAddLine}>AJOUTER</Button>
+        <Button type="button" onClick={handleAddLine}>Ajouter la ligne</Button>
       </div>
 
       <Table>
@@ -363,7 +363,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
             <Th>Produit</Th>
             <Th>Description</Th>
             <Th>Quantité</Th>
-            <Th>Unite</Th>
+            <Th>Unité</Th>
             <Th>Prix HT</Th>
             <Th>Remise %</Th>
             <Th>Total HT</Th>
@@ -393,7 +393,7 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
                 <Td>{line.tax_rate_id ? `${line.tax_rate}%` : "-"}</Td>
                 <Td><MoneyDisplay value={line.total_ttc} /></Td>
                 <Td>
-                  <Button type="button" variant="ghost" onClick={() => onChange(lines.filter((item) => item.id !== line.id))}>
+                  <Button type="button" variant="ghost" aria-label={`Supprimer la ligne ${index + 1}`} onClick={() => onChange(lines.filter((item) => item.id !== line.id))}>
                     Supprimer
                   </Button>
                 </Td>
@@ -404,10 +404,10 @@ export function SalesLinesEditor({ lines, onChange, products, units, taxRates, d
       </Table>
 
       <div className="flex justify-end">
-        <div className="space-x-6 text-sm">
-          <span>Total HT: <MoneyDisplay value={totals.subtotal_ht} /></span>
-          <span>Total TVA: <MoneyDisplay value={totals.tax_total} /></span>
-          <span className="font-semibold">Total TTC: <MoneyDisplay value={totals.total_ttc} /></span>
+        <div className="erp-form-summary flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
+          <span>Total HT : <MoneyDisplay value={totals.subtotal_ht} /></span>
+          <span>Total TVA : <MoneyDisplay value={totals.tax_total} /></span>
+          <span className="font-semibold">Total TTC : <MoneyDisplay value={totals.total_ttc} /></span>
         </div>
       </div>
 

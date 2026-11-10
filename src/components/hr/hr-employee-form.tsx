@@ -1,5 +1,6 @@
 import { createHrEmployeeAction, updateHrEmployeeAction } from "@/lib/hr/actions";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Option = { id: string; name?: string; title?: string };
 type EmployeeRecord = {
@@ -37,40 +38,56 @@ export function HrEmployeeForm({
     : createHrEmployeeAction;
 
   return (
-    <form action={action} className="premium-card grid gap-5 p-6 md:grid-cols-2">
-      <Field name="employee_number" label="Matricule" required defaultValue={employee?.employee_number} />
-      <Field name="hire_date" label="Date d'embauche" type="date" required defaultValue={employee?.hire_date} />
-      <Field name="first_name" label="Prénom" required defaultValue={employee?.first_name} />
-      <Field name="last_name" label="Nom" required defaultValue={employee?.last_name} />
-      <Field name="email" label="Email" type="email" defaultValue={employee?.email} />
-      <Field name="phone" label="Téléphone" defaultValue={employee?.phone} />
-      <Field name="city" label="Ville" defaultValue={employee?.city} />
-      <Field name="cin" label="CIN" defaultValue={employee?.cin} />
-      <Field name="cnss_number" label="N° CNSS" defaultValue={employee?.cnss_number} />
-      <Field name="rib" label="RIB (24 chiffres)" defaultValue={employee?.rib} />
-      <SelectField name="marital_status" label="Situation familiale" defaultValue={String(employee?.marital_status ?? "")} options={[{ value: "celibataire", label: "Célibataire" }, { value: "marie", label: "Marié(e)" }, { value: "divorce", label: "Divorcé(e)" }, { value: "veuf", label: "Veuf(ve)" }]} />
-      <Field name="dependents_count" label="Personnes à charge" type="number" min="0" defaultValue={Number(employee?.dependents_count ?? 0)} />
-      <Field name="weekly_hours" label="Heures hebdomadaires" type="number" min="1" step="0.5" defaultValue={Number(employee?.weekly_hours ?? 44)} />
-      <label className="flex items-center gap-2 text-sm"><input name="cimr_enabled" type="checkbox" defaultChecked={Boolean(employee?.cimr_enabled)} /> CIMR</label>
-      <Field name="cimr_rate" label="Taux CIMR %" type="number" min="0" step="0.01" defaultValue={Number(employee?.cimr_rate ?? 0)} />
-      <Field name="mutuelle_label" label="Mutuelle" defaultValue={String(employee?.mutuelle_label ?? "")} />
-      <Field name="mutuelle_amount" label="Cotisation mutuelle" type="number" min="0" step="0.01" defaultValue={Number(employee?.mutuelle_amount ?? 0)} />
-      <SelectField name="department_id" label="Département" options={departments.map((item) => ({ value: item.id, label: item.name ?? "" }))} defaultValue={employee?.department_id} />
-      <SelectField name="position_id" label="Poste" options={positions.map((item) => ({ value: item.id, label: item.title ?? "" }))} defaultValue={employee?.position_id} />
-      <SelectField
-        name="employment_status"
-        label="Statut"
-        defaultValue={employee?.employment_status ?? "active"}
-        options={[
-          { value: "active", label: "Actif" },
-          { value: "trial_period", label: "Période d'essai" },
-          { value: "suspended", label: "Suspendu" },
-          { value: "on_leave", label: "En congé" },
-          { value: "terminated", label: "Sorti" },
-        ]}
-      />
-      <Field name="base_salary" label="Salaire de base" type="number" step="0.01" required min="0" defaultValue={employee?.base_salary ?? 0} />
-      <div className="md:col-span-2 flex justify-end">
+    <form action={action} className="erp-form premium-card grid gap-5 p-6 md:grid-cols-2">
+      <fieldset className="erp-form-group min-w-0 border-0 p-0 md:col-span-2">
+        <legend className="erp-form-section-heading">Identité et coordonnées</legend>
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field name="employee_number" label="Matricule" required defaultValue={employee?.employee_number} />
+          <Field name="hire_date" label="Date d'embauche" type="date" required defaultValue={employee?.hire_date} />
+          <Field name="first_name" label="Prénom" required defaultValue={employee?.first_name} />
+          <Field name="last_name" label="Nom" required defaultValue={employee?.last_name} />
+          <Field name="email" label="Email" type="email" defaultValue={employee?.email} />
+          <Field name="phone" label="Téléphone" defaultValue={employee?.phone} />
+          <Field name="city" label="Ville" defaultValue={employee?.city} />
+          <Field name="cin" label="CIN" defaultValue={employee?.cin} />
+        </div>
+      </fieldset>
+      <fieldset className="erp-form-group min-w-0 border-0 p-0 md:col-span-2">
+        <legend className="erp-form-section-heading">Situation sociale et temps de travail</legend>
+        <div className="grid gap-5 md:grid-cols-2">
+          <Field name="cnss_number" label="N° CNSS" defaultValue={employee?.cnss_number} />
+          <Field name="rib" label="RIB (24 chiffres)" defaultValue={employee?.rib} />
+          <SelectField name="marital_status" label="Situation familiale" defaultValue={String(employee?.marital_status ?? "")} options={[{ value: "celibataire", label: "Célibataire" }, { value: "marie", label: "Marié(e)" }, { value: "divorce", label: "Divorcé(e)" }, { value: "veuf", label: "Veuf(ve)" }]} />
+          <Field name="dependents_count" label="Personnes à charge" type="number" min="0" defaultValue={Number(employee?.dependents_count ?? 0)} />
+          <Field name="weekly_hours" label="Heures hebdomadaires" type="number" min="1" step="0.5" defaultValue={Number(employee?.weekly_hours ?? 44)} />
+          <label className="flex items-center gap-2 text-sm"><input name="cimr_enabled" type="checkbox" defaultChecked={Boolean(employee?.cimr_enabled)} /> CIMR</label>
+          <Field name="cimr_rate" label="Taux CIMR %" type="number" min="0" step="0.01" defaultValue={Number(employee?.cimr_rate ?? 0)} />
+          <Field name="mutuelle_label" label="Mutuelle" defaultValue={String(employee?.mutuelle_label ?? "")} />
+          <Field name="mutuelle_amount" label="Cotisation mutuelle" type="number" min="0" step="0.01" defaultValue={Number(employee?.mutuelle_amount ?? 0)} />
+        </div>
+      </fieldset>
+      <fieldset className="erp-form-group min-w-0 border-0 p-0 md:col-span-2">
+        <legend className="erp-form-section-heading">Poste et rémunération</legend>
+        <div className="grid gap-5 md:grid-cols-2">
+          <SelectField name="department_id" label="Département" options={departments.map((item) => ({ value: item.id, label: item.name ?? "" }))} defaultValue={employee?.department_id} />
+          <SelectField name="position_id" label="Poste" options={positions.map((item) => ({ value: item.id, label: item.title ?? "" }))} defaultValue={employee?.position_id} />
+          <SelectField
+            name="employment_status"
+            label="Statut"
+            defaultValue={employee?.employment_status ?? "active"}
+            options={[
+              { value: "active", label: "Actif" },
+              { value: "trial_period", label: "Période d'essai" },
+              { value: "suspended", label: "Suspendu" },
+              { value: "on_leave", label: "En congé" },
+              { value: "terminated", label: "Sorti" },
+            ]}
+          />
+          <Field name="base_salary" label="Salaire de base" type="number" step="0.01" required min="0" defaultValue={employee?.base_salary ?? 0} />
+        </div>
+      </fieldset>
+      <div className="erp-form-actions md:col-span-2 flex justify-end">
+        <Button type="button" variant="secondary" asChild><Link href={employee?.id ? `/rh/employes/${employee.id}` : "/rh/employes"}>Annuler</Link></Button>
         <Button type="submit">{employee?.id ? "Enregistrer" : "Créer l'employé"}</Button>
       </div>
     </form>

@@ -37,7 +37,7 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
   const categories = FORECAST_CATEGORIES[direction];
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {item?.id ? <input type="hidden" name="id" value={item.id} /> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Prevision manuelle</h2></CardHeader>
@@ -98,7 +98,7 @@ export function TreasuryForecastForm({ accounts, item, action }: Props) {
         </CardContent>
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/previsions">Annuler</Link></Button>
         <Button disabled={pending}>{item?.id ? "Enregistrer" : "Créer la prévision"}</Button>
       </div>

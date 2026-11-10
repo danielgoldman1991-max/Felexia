@@ -69,13 +69,13 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
   }, [deliverableLines, payload.length, quantities]);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <input type="hidden" name="order_id" value={order.id} />
       <input type="hidden" name="lines" value={JSON.stringify(payload)} />
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Preparation livraison</h2>
+          <h2 className="font-semibold">Préparation de la livraison</h2>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <p><span className="font-medium">Commande :</span> {order.document_number}</p>
@@ -85,7 +85,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Informations BL</h2>
+          <h2 className="font-semibold">Informations du bon de livraison</h2>
         </CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-2 text-sm">
@@ -94,7 +94,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
           </label>
           <label className="space-y-2 text-sm">
             <span className="font-medium text-[var(--foreground)]">Adresse de livraison</span>
-            <Input name="delivery_address" placeholder="Adresse de livraison si differente" />
+            <Input name="delivery_address" placeholder="Adresse de livraison si différente" />
           </label>
           <label className="space-y-2 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--foreground)]">Notes livraison</span>
@@ -102,14 +102,14 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
           </label>
           <label className="space-y-2 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--foreground)]">Notes internes</span>
-            <Input name="internal_notes" placeholder="Notes internes non imprimees" />
+            <Input name="internal_notes" placeholder="Notes internes non imprimées" />
           </label>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="erp-form-lines">
         <CardHeader>
-          <h2 className="font-semibold">Lignes a livrer</h2>
+          <h2 className="font-semibold">Quantités à livrer</h2>
         </CardHeader>
         <CardContent>
           <Table>
@@ -119,9 +119,9 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                 <Th>Article / Service</Th>
                 <Th>Description</Th>
                 <Th>Commande</Th>
-                <Th>Déjà livre</Th>
+                <Th>Déjà livré</Th>
                 <Th>Reste</Th>
-                <Th>A livrer maintenant</Th>
+                <Th>À livrer maintenant</Th>
                 <Th>Stock disponible</Th>
                 <Th>Alerte</Th>
               </tr>
@@ -149,6 +149,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                     <Td className="font-semibold text-[var(--secondary)]">{formatNumber(line.remaining_to_deliver)}</Td>
                     <Td>
                       <Input
+                        aria-label={`Quantité à livrer — ${line.product_name || line.description}`}
                         type="number"
                         min="0"
                         max={line.remaining_to_deliver}
@@ -166,11 +167,11 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
                         }}
                       />
                       {indivisible ? (
-                        <p className="mt-1 text-xs text-[var(--muted)]">Unite indivisible : entier uniquement.</p>
+                        <p className="mt-1 text-xs text-[var(--muted)]">Unité indivisible : entier uniquement.</p>
                       ) : null}
                     </Td>
                     <Td>
-                      {line.is_stockable ? formatNumber(line.current_stock ?? 0) : "Non impacte"}
+                      {line.is_stockable ? formatNumber(line.current_stock ?? 0) : "Non impacté"}
                     </Td>
                     <Td>
                       {hasStockWarning ? (
@@ -186,7 +187,7 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
               }) : (
                 <tr>
                   <td colSpan={9} className="border-t border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--muted)]">
-                    Cette commande ne contient plus de lignes a livrer.
+                    Cette commande ne contient plus de lignes à livrer.
                   </td>
                 </tr>
               )}
@@ -200,12 +201,12 @@ export function DeliveryNoteForm({ order, lines, action }: Props) {
       ) : null}
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={`/vente/commandes/${order.id}`}>Annuler</Link></Button>
-        <Button disabled={pending || Boolean(validationError)}>Créer le BL</Button>
+        <Button disabled={pending || Boolean(validationError)}>Créer le bon de livraison</Button>
       </div>
     </form>
   );

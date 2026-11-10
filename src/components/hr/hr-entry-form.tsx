@@ -23,7 +23,7 @@ export function HrBoundForm({
 }
 
 export function HrEntryForm({ action, children }: { action: (formData: FormData) => Promise<void>; children: ReactNode }) {
-  return <form action={action} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">{children}</form>;
+  return <form action={action} className="erp-form grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6 md:grid-cols-2">{children}</form>;
 }
 
 export function HrField({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) {

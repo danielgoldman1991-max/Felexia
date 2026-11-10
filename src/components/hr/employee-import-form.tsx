@@ -14,11 +14,13 @@ export function EmployeeImportForm() {
   const ready = preview.success && preview.errors.length === 0 && preview.rows.length > 0;
   return (
     <div className="space-y-4">
-      <form action={previewAction} className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
+      <form action={previewAction} className="erp-form space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
         <p className="text-sm text-[var(--muted)]">Fichier point-virgule. En-têtes : Matricule, Prénom, Nom, Date d&apos;embauche, Salaire, CIN, CNSS, RIB, Email, Ville, Personnes à charge. Une ligne invalide bloque tout le fichier.</p>
         <Link className="text-sm font-medium text-[var(--primary)] hover:underline" href="/rh/employes/import/modele">Télécharger le modèle CSV</Link>
         <input name="file" type="file" accept=".csv,text/csv" required className="block text-sm" />
-        <Button type="submit" variant="secondary" disabled={previewPending}>{previewPending ? "Lecture…" : "Prévisualiser"}</Button>
+        <div className="erp-form-actions">
+          <Button type="submit" variant="secondary" disabled={previewPending}>{previewPending ? "Lecture…" : "Prévisualiser"}</Button>
+        </div>
         {preview.error ? <p className="text-sm text-red-700">{preview.error}</p> : null}
       </form>
       {preview.rows.length > 0 || preview.errors.length > 0 ? (

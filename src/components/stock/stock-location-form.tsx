@@ -22,7 +22,7 @@ export function StockLocationForm({ location, locations, action }: Props) {
   const availableParents = locations.filter((item) => item.id !== location?.id);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {location ? <input type="hidden" name="id" value={location.id} /> : null}
       <Card>
         <CardHeader><h2 className="font-semibold">Informations emplacement</h2></CardHeader>
@@ -91,7 +91,7 @@ export function StockLocationForm({ location, locations, action }: Props) {
 
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/stock/emplacements">Annuler</Link></Button>
         <Button disabled={pending}>{location ? "Enregistrer" : "Créer emplacement"}</Button>
       </div>

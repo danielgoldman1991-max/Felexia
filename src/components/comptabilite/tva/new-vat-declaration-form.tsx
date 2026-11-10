@@ -24,7 +24,7 @@ export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean
   if (!canWrite) return <p className="text-sm text-[var(--muted)]">Votre accès permet de consulter les déclarations TVA.</p>;
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form action={formAction} className="erp-form space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="periodStart">Date début *</Label>
@@ -89,7 +89,7 @@ export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean
         </div>
       ) : null}
 
-      <div className="flex items-center gap-3">
+      <div className="erp-form-actions flex items-center gap-3">
         <Button type="button" variant="ghost" asChild><Link href="/comptabilite/tva/declarations">Annuler</Link></Button>
         <Button type="submit" disabled={pending}>
           <Calculator className="h-4 w-4" />

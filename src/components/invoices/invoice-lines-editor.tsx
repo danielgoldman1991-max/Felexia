@@ -86,16 +86,16 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
+    <div className="erp-form-line-editor space-y-4">
+      <div className="erp-form-line-entry rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-semibold">Ajouter une ligne</p>
           <span className="text-xs text-[var(--muted)]">{quantityDraftError(quantityText) ? <span className="text-red-700">La quantité ne peut pas être négative.</span> : <>Total de la ligne : <MoneyDisplay value={draft.total_ttc} /></>}</span>
         </div>
         {fullAccess ? <div className="mb-3 flex flex-wrap gap-3">
-          <label className="flex flex-col gap-1 text-xs">
+          <label className="flex w-full min-w-0 flex-col gap-1 text-xs sm:w-48">
             <span className="font-medium text-[var(--muted)]">Type de ligne</span>
-            <Select className="w-48" value={draft.mode} onChange={(event) => {
+            <Select className="w-full" value={draft.mode} onChange={(event) => {
               const mode = event.target.value as InvoiceLineFormValue["mode"];
               if (mode === "free") {
                 setDraft(calculateInvoiceLine({ ...createEmptyInvoiceLine(), mode: "free" }));
@@ -106,7 +106,7 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
               <option value="free">Ligne libre</option>
             </Select>
           </label>
-          <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs">
+          <label className="flex min-w-0 flex-1 basis-52 flex-col gap-1 text-xs">
             <span className="font-medium text-[var(--muted)]">Article / Service</span>
             <ProductCombobox products={products} value={draft.product_id} onChange={handleProductChange} disabled={draft.mode === "free"} />
           </label>
@@ -176,13 +176,13 @@ export function InvoiceLinesEditor({ lines, onChange, products, units, taxRates,
             <tr key={line.id}>
               <Td>{index + 1}</Td>{fullAccess ? <><Td>{line.source_label || "-"}</Td><Td>{line.product_name || "Ligne libre"}</Td></> : null}<Td>{line.description}</Td><Td>{line.quantity}</Td>{fullAccess ? <Td>{line.unit_name || "-"}</Td> : null}
               <Td><MoneyDisplay value={line.unit_price_ht} /></Td>{fullAccess ? <Td>{line.discount_rate > 0 ? `${line.discount_rate}%` : "-"}</Td> : null}<Td><MoneyDisplay value={line.subtotal_ht} /></Td><Td>{`${line.tax_rate}%`}</Td><Td><MoneyDisplay value={line.total_ttc} /></Td>
-              <Td><Button type="button" variant="ghost" onClick={() => onChange(lines.filter((item) => item.id !== line.id))}>Supprimer</Button></Td>
+              <Td><Button type="button" variant="ghost" aria-label={`Supprimer la ligne ${index + 1}`} onClick={() => onChange(lines.filter((item) => item.id !== line.id))}>Supprimer</Button></Td>
             </tr>
           ))}
         </tbody>
       </Table>
       <div className="flex justify-end">
-        <div className="flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
+        <div className="erp-form-summary flex flex-wrap justify-end gap-x-6 gap-y-2 text-sm">
           <span>Total HT : <MoneyDisplay value={totals.subtotal_ht} /></span>
           <span>Total TVA : <MoneyDisplay value={totals.tax_total} /></span>
           <span className="font-semibold">Total TTC : <MoneyDisplay value={totals.total_ttc} /></span>

@@ -22,7 +22,7 @@ export default async function NewPayrollPeriodPage() {
   return (
     <ModulePage>
       <PageHeader title="Nouvelle période de paie" description="Le mois proposé est le mois précédent s'il n'existe pas encore." />
-      <form action={createHrPayrollPeriodAction} className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] grid gap-5 p-6 shadow-[var(--shadow-sm)] md:grid-cols-2">
+      <form action={createHrPayrollPeriodAction} className="erp-form rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--card)] grid gap-5 p-6 shadow-[var(--shadow-sm)] md:grid-cols-2">
         <label className="space-y-2 text-sm">
           <span className="section-title">Mois</span>
           <input name="month" type="number" min="1" max="12" defaultValue={preferred.getUTCMonth() + 1} className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-[var(--foreground)]" />
@@ -31,7 +31,7 @@ export default async function NewPayrollPeriodPage() {
           <span className="section-title">Année</span>
           <input name="year" type="number" defaultValue={preferred.getUTCFullYear()} className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 text-[var(--foreground)]" />
         </label>
-        <div className="md:col-span-2 flex justify-end">
+        <div className="erp-form-actions md:col-span-2 flex justify-end">
           <Button type="submit">Créer la période</Button>
         </div>
       </form>

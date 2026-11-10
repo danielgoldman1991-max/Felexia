@@ -61,7 +61,7 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
   }, [feedback, roles]);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Import de relevé</h2>
@@ -110,7 +110,7 @@ export function BankStatementImportForm({ accounts }: { accounts: TreasuryAccoun
         </Card>
       ) : null}
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex flex-wrap justify-end gap-3">
+      <div className="erp-form-actions flex flex-wrap justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/releves">Annuler</Link></Button>
         <Button disabled={pending}>{pending ? "Import…" : "Importer le relevé"}</Button>
       </div>

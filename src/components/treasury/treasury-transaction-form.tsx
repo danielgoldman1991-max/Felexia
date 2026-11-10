@@ -25,7 +25,7 @@ export function TreasuryTransactionForm({ accounts }: { accounts: TreasuryAccoun
   }
 
   return (
-    <form action={handleSubmit} className="space-y-5">
+    <form action={handleSubmit} className="erp-form space-y-5">
       <Card>
         <CardHeader>
           <h2 className="font-semibold">Mouvement de trésorerie</h2>
@@ -89,7 +89,7 @@ export function TreasuryTransactionForm({ accounts }: { accounts: TreasuryAccoun
         </CardContent>
       </Card>
       {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/tresorerie/mouvements">Annuler</Link></Button>
         <Button disabled={pending}>{pending ? "Enregistrement..." : operationMode === "transfer" ? "Effectuer le transfert" : "Créer le mouvement"}</Button>
       </div>

@@ -17,11 +17,11 @@ export function DocumentUploadForm() {
   const [state, formAction, pending] = useActionState(uploadDocumentAction, initialState);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <label className="flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border)] bg-[var(--surface-soft)] px-6 py-8 text-center transition hover:border-[var(--primary)] hover:bg-white">
         <UploadCloud className="h-9 w-9 text-[var(--secondary)]" />
-        <span className="mt-3 text-sm font-semibold text-[var(--foreground)]">Glissez vos fichiers ici</span>
-        <span className="mt-1 text-sm text-[var(--muted)]">ou cliquez pour sélectionner un fichier</span>
+        <span className="mt-3 text-sm font-semibold text-[var(--foreground)]">Ajouter un document</span>
+        <span className="mt-1 text-sm text-[var(--muted)]">Choisissez le fichier depuis votre appareil.</span>
         <input
           ref={fileInputRef}
           type="file"
@@ -64,7 +64,7 @@ export function DocumentUploadForm() {
 
       <Card className="border-blue-100 bg-blue-50">
         <CardContent className="text-sm text-blue-800">
-          Les fichiers sont stockés dans le bucket privé organization-documents et accessibles via liens signés.
+          Vos fichiers restent privés et accessibles aux utilisateurs autorisés de votre entreprise.
         </CardContent>
       </Card>
 
@@ -72,7 +72,7 @@ export function DocumentUploadForm() {
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
       ) : null}
 
-      <div className="flex justify-end">
+      <div className="erp-form-actions flex justify-end">
         <Button type="submit" disabled={pending}>
           <UploadCloud className="h-4 w-4" />
           {pending ? "Import en cours..." : "Importer"}

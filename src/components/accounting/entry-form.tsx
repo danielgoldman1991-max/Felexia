@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, useMemo, useCallback } from "react";
+import { startTransition, useActionState, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,11 +75,12 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
 
   return (
     <form
-      className="space-y-6"
+      className="erp-form space-y-6"
       onSubmit={(event) => {
         event.preventDefault();
         setOpenAccountLine(null);
-        formAction(new FormData(event.currentTarget));
+        const formData = new FormData(event.currentTarget);
+        startTransition(() => formAction(formData));
       }}
     >
       <input type="hidden" name="journal_id" value={journalId} />
@@ -281,7 +282,7 @@ export function EntryForm({ action, journals, accounts, initialValues, initialJo
         </div>
       ) : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href="/comptabilite/ecritures">Annuler</Link></Button>
         <Button disabled={pending}>{pending ? "Enregistrement..." : "Créer l'écriture"}</Button>
       </div>

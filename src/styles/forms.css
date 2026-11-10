@@ -1,0 +1,176 @@
+/* Business data entry only: public pages, sign-in and table filters keep their own layout. */
+.felexia-app .erp-form {
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  scroll-padding-block: 112px;
+}
+.felexia-app .erp-form > .ui-card,
+.felexia-app .erp-form > details {
+  border-color: var(--border);
+  border-radius: 14px;
+  box-shadow: 0 2px 5px rgb(20 33 61 / .025);
+}
+.felexia-app .erp-form .ui-card-header {
+  padding: 22px 28px;
+  border-color: var(--border-subtle);
+  background: var(--card);
+  border-radius: 14px 14px 0 0;
+}
+.felexia-app .erp-form .ui-card-header :is(h2, h3) {
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -.02em;
+}
+.felexia-app .erp-form .ui-card-header p {
+  max-width: 72ch;
+  margin-top: 5px;
+  color: var(--muted-strong);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.felexia-app .erp-form .ui-card-content {
+  padding: 26px 28px 28px;
+  column-gap: 24px;
+  row-gap: 22px;
+}
+.felexia-app .erp-form :where(.ui-card, details)[id] { scroll-margin-top: 104px; }
+.felexia-app .erp-form :where(label) { line-height: 1.5; }
+.felexia-app .erp-form :where(label > span:first-child, .erp-form-field > label) {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 550;
+}
+.felexia-app .erp-form-field { min-width: 0; }
+.felexia-app .erp-form-field > label { display: block; margin-bottom: 8px; }
+.felexia-app .erp-form-field-help { display: block; margin-top: 7px; color: var(--muted-strong); font-size: 12px; line-height: 1.6; }
+.felexia-app .erp-form :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]), select, textarea),
+.erp-form-dialog :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]), select, textarea) {
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--muted) 70%, var(--border-strong));
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgb(20 33 61 / .025);
+}
+.felexia-app .erp-form :where(input, textarea)::placeholder { color: var(--muted); }
+.felexia-app .erp-form :where(input, select, textarea):focus-visible,
+.erp-form-dialog :where(input, select, textarea):focus-visible {
+  border-color: var(--primary);
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.felexia-app .erp-form :where(input, select, textarea):disabled,
+.felexia-app .erp-form :where(input, textarea)[readonly] {
+  background: var(--surface-2);
+  color: var(--muted-strong);
+}
+.felexia-app .erp-form :where(input, select, textarea)[aria-invalid="true"],
+.felexia-app .erp-form :where(input, select, textarea):user-invalid { border-color: var(--danger); }
+.felexia-app .erp-form textarea, .erp-form-dialog textarea { min-height: 96px; resize: vertical; }
+.felexia-app .erp-form :where(input[type="checkbox"], input[type="radio"]) { width: 16px; height: 16px; flex-shrink: 0; }
+.felexia-app .erp-form details { background: var(--card); }
+.felexia-app .erp-form details > summary { color: var(--muted-strong); line-height: 1.6; }
+.felexia-app .erp-form details[open] > summary { color: var(--foreground); }
+.felexia-app .erp-form details > summary:focus-visible,
+.felexia-app .erp-form-index a:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+.felexia-app .erp-form-index {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-block: 2px 8px;
+  grid-column: 1 / -1;
+}
+.felexia-app .erp-form-index a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--muted-strong);
+  font-size: 13px;
+  text-decoration: none;
+}
+.felexia-app .erp-form-index a:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-soft); }
+.felexia-app .erp-form-index a > span { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.felexia-app .erp-form-actions {
+  position: sticky;
+  inset-block-end: 12px;
+  z-index: 20;
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 -3px 20px rgb(20 33 61 / .045), 0 2px 4px rgb(20 33 61 / .025);
+}
+.felexia-app .erp-form-actions .ui-button { min-height: 44px; height: auto; padding-block: 10px; padding-inline: 20px; }
+.felexia-app .erp-form-summary {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+.felexia-app .erp-form-summary :where(strong) { color: var(--foreground); }
+.felexia-app .erp-form-lines { min-width: 0; }
+.felexia-app .erp-form-line-entry { padding: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.felexia-app .erp-form-lines :where(table) { font-variant-numeric: tabular-nums; }
+.felexia-app .erp-form-lines :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select) { min-height: 40px; }
+.felexia-app .erp-form-group { grid-column: 1 / -1; min-width: 0; margin: 0; padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.felexia-app .erp-form-section-heading { padding-inline: 8px; color: var(--foreground); font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
+.erp-form-dialog {
+  inset: 0;
+  margin: auto;
+  width: calc(100% - 32px);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+}
+.erp-form-dialog::backdrop { background: rgb(15 23 42 / .48); }
+.erp-form-dialog[open] { display: flex; flex-direction: column; }
+.erp-form-dialog :where(label) { color: var(--foreground); font-size: 13px; font-weight: 550; }
+.erp-form-dialog__header { flex-shrink: 0; padding: 22px 24px; border-bottom: 1px solid var(--border-subtle); }
+.erp-form-dialog__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 24px; overscroll-behavior: contain; }
+.erp-form-dialog__footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; flex-shrink: 0; padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--surface-2); }
+.erp-form-dialog__footer .ui-button { min-height: 44px; height: auto; padding-block: 10px; }
+@media (max-width: 639px) {
+  .felexia-app .erp-form .ui-card-header { padding: 19px 18px; }
+  .felexia-app .erp-form .ui-card-content { padding: 21px 18px; gap: 20px; }
+  .felexia-app .erp-form .ui-card-content > label { min-width: 0; }
+  .felexia-app .erp-form :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]), select, textarea),
+  .erp-form-dialog :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]), select, textarea) { min-height: 46px; font-size: 16px; }
+  .felexia-app .erp-form-index { gap: 6px; }
+  .felexia-app .erp-form-index a { min-height: 44px; padding-inline: 10px; font-size: 12px; }
+  .felexia-app .erp-form-actions { inset-block-end: 0; gap: 8px; padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+  .felexia-app .erp-form-actions .ui-button { flex: 1 1 120px; padding-inline: 14px; }
+  .felexia-app .erp-form-summary { padding: 16px; }
+  .felexia-app .erp-form-line-entry, .felexia-app .erp-form-group { padding: 18px; }
+  .erp-form-dialog { width: calc(100% - 20px); max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); border-radius: 14px; }
+  .erp-form-dialog__header, .erp-form-dialog__body { padding: 18px; }
+  .erp-form-dialog__footer { padding: 14px 18px max(14px, env(safe-area-inset-bottom, 0px)); }
+  .erp-form-dialog__footer .ui-button { flex: 1 1 110px; }
+}
+@media print {
+  .felexia-app .erp-form-index, .felexia-app .erp-form-actions { display: none; }
+  .felexia-app .erp-form > .ui-card { box-shadow: none; break-inside: avoid; }
+}

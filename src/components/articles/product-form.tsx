@@ -75,7 +75,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
   const marginRate = salePrice > 0 ? (marginAmount / salePrice) * 100 : 0;
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
       <input type="hidden" name="sku" value={product?.sku ?? ""} />
       <input type="hidden" name="default_discount_rate" value={product?.default_discount_rate ?? 0} />
@@ -301,7 +301,7 @@ export function ProductForm({ mode, product, categories, units, taxRates, action
         <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="erp-form-actions sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={product ? `/articles/${product.id}` : "/articles"}>Annuler</Link></Button>
         <Button disabled={pending}>
           {pending ? "Enregistrement…" : mode === "create" ? (type === "product" ? "Créer l'article" : "Créer le service") : "Enregistrer"}

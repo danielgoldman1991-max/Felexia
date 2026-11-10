@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Plus, Search } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type InputHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export type ComboboxOption = {
@@ -17,7 +17,7 @@ type ComboboxCreateProps = {
   createLabel?: string;
   onCreate: () => void;
   disabled?: boolean;
-};
+} & Pick<InputHTMLAttributes<HTMLInputElement>, "id" | "aria-label" | "aria-labelledby" | "aria-describedby" | "aria-invalid">;
 
 function normalize(value: string | null | undefined) {
   return (value ?? "").toLowerCase().trim();
@@ -31,6 +31,11 @@ export function ComboboxCreate({
   createLabel = "+ Créer",
   onCreate,
   disabled = false,
+  id,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
 }: ComboboxCreateProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,18 +69,18 @@ export function ComboboxCreate({
     onChange(option.id);
     setQuery("");
     setOpen(false);
-    inputRef.current?.blur();
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (disabled) return;
     if (!open && ["ArrowDown", "Enter"].includes(event.key)) {
+      event.preventDefault();
       setOpen(true);
       return;
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActiveIndex((prev) => Math.min(prev + 1, Math.max(filteredOptions.length, 0)));
+      setActiveIndex((prev) => Math.min(prev + 1, Math.max(filteredOptions.length - 1, 0)));
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
@@ -95,16 +100,30 @@ export function ComboboxCreate({
   const inputValue = open ? query : selectedOption ? selectedOption.label : "";
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative" onKeyDownCapture={(event) => {
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
+        event.stopPropagation();
+        inputRef.current?.focus();
+        setOpen(false);
+        setQuery("");
+      }
+    }}>
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
+        <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
         <input
           ref={inputRef}
+          id={id ?? comboboxId}
           type="text"
           role="combobox"
-          aria-expanded={open}
-          aria-controls={listboxId}
+          aria-expanded={open && !disabled}
+          aria-controls={open && !disabled ? listboxId : undefined}
           aria-autocomplete="list"
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          aria-activedescendant={open && !disabled && filteredOptions[activeIndex] ? `${listboxId}-option-${activeIndex}` : undefined}
           disabled={disabled}
           value={inputValue}
           placeholder={placeholder}
@@ -120,18 +139,16 @@ export function ComboboxCreate({
             setActiveIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white py-2 pl-9 pr-10 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[rgb(124_79_242_/_16%)] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+          className="ui-input h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-white py-2 pl-9 pr-10 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[rgb(124_79_242_/_16%)] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
         />
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
+        <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]" />
       </div>
 
       {open && !disabled ? (
         <div
-          id={listboxId}
-          role="listbox"
           className="absolute z-[100] mt-2 max-h-80 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
-          <div className="max-h-60 overflow-y-auto p-1.5">
+          <div id={listboxId} role="listbox" aria-label={ariaLabel} aria-labelledby={ariaLabelledBy} className="max-h-60 overflow-y-auto p-1.5">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => {
                 const selected = option.id === value;
@@ -139,9 +156,12 @@ export function ComboboxCreate({
                 return (
                   <button
                     key={option.id}
+                    id={`${listboxId}-option-${index}`}
                     type="button"
                     role="option"
+                    tabIndex={-1}
                     aria-selected={selected}
+                    onMouseDown={(event) => event.preventDefault()}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => selectOption(option)}
                     className={cn(

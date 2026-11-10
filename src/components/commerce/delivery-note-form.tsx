@@ -64,13 +64,13 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
   });
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       {delivery ? <input type="hidden" name="id" value={delivery.id} /> : null}
       {orderId ? <input type="hidden" name="order_id" value={orderId} /> : null}
       <input type="hidden" name="lines" value={JSON.stringify(docLines)} />
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations générales</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et livraison</h2><p className="mt-1 text-sm text-[var(--muted)]">Le destinataire, la date et l’adresse de livraison.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-3">
           <Field label="Client *">
             <Select name="third_party_id" defaultValue={delivery?.third_party_id ?? ""} required>
@@ -80,19 +80,19 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
               ))}
             </Select>
           </Field>
-          <Field label="Date document">
+          <Field label="Date du document">
             <DateField name="document_date" defaultValue={delivery?.document_date ?? new Date().toISOString().split("T")[0]} />
           </Field>
-          <Field label="Date livraison">
+          <Field label="Date de livraison">
             <DateField name="delivery_date" defaultValue={delivery?.delivery_date ?? ""} />
           </Field>
-          <Field label="Adresse livraison">
+          <Field label="Adresse de livraison">
             <Textarea name="delivery_address" defaultValue={delivery?.delivery_address ?? ""} rows={2} />
           </Field>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="erp-form-lines">
         <CardHeader><h2 className="font-semibold">Lignes du bon de livraison</h2></CardHeader>
         <CardContent>
           <CommercialLinesEditor
@@ -119,13 +119,13 @@ export function DeliveryNoteForm({ mode, delivery, lines: initialLines, orderId,
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
+      <div className="erp-form-actions sticky bottom-0 flex items-center justify-end gap-3 border-t border-[var(--border)] bg-[var(--background)] py-4">
         <Button type="button" variant="secondary" asChild><Link href={delivery ? `/livraisons/${delivery.id}` : "/livraisons"}>Annuler</Link></Button>
         <Button disabled={pending}>
-          {mode === "create" ? "Créer bon de livraison" : "Enregistrer"}
+          {mode === "create" ? "Créer le bon de livraison" : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

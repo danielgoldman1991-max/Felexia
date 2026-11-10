@@ -57,21 +57,21 @@ export function CustomerCreditNoteForm({
   const hasMissingPrices = lines.some((line) => line.unit_price_ht <= 0);
   const defaultSourceType = sourceType ?? (sourceInvoiceId ? "invoice_partial" : "manual");
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <input type="hidden" name="id" value={creditNote?.id || ""} />
       <input type="hidden" name="customer_id" value={customerId} />
       <input type="hidden" name="source_invoice_id" value={sourceInvoiceId} />
       <input type="hidden" name="source_return_id" value={sourceReturnId} />
       <input type="hidden" name="lines" value={JSON.stringify(lines)} />
       <Card>
-        <CardHeader><h2 className="font-semibold">Informations avoir</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Client et origine de l’avoir</h2><p className="mt-1 text-sm text-[var(--muted)]">Identifiez le client et le document à créditer.</p></CardHeader>
         <CardContent className="grid gap-4 lg:grid-cols-2">
           <label className="space-y-1.5 text-sm lg:col-span-2">
             <span className="font-medium text-[var(--muted)]">Client *</span>
             <CustomerCombobox customers={customers} value={customerId} onChange={setCustomerId} placeholder="Rechercher un client..." />
           </label>
           <label className="space-y-1.5 text-sm">
-            <span className="font-medium text-[var(--muted)]">Date avoir</span>
+            <span className="font-medium text-[var(--muted)]">Date de l’avoir</span>
             <DateField name="credit_note_date" defaultValue={creditNote?.credit_note_date || today()} />
           </label>
           <label className="space-y-1.5 text-sm">
@@ -94,7 +94,7 @@ export function CustomerCreditNoteForm({
           </label>
           {sourceReturnId && hasMissingPrices ? (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 lg:col-span-2">
-              Prix a completer manuellement pour une ou plusieurs lignes.
+              Prix à compléter manuellement pour une ou plusieurs lignes.
             </div>
           ) : null}
           <label className="space-y-1.5 text-sm lg:col-span-2">
@@ -111,13 +111,13 @@ export function CustomerCreditNoteForm({
           </label>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader><h2 className="font-semibold">Lignes d&apos;avoir</h2></CardHeader>
+      <Card className="erp-form-lines">
+        <CardHeader><h2 className="font-semibold">Lignes de l’avoir</h2></CardHeader>
         <CardContent><InvoiceLinesEditor lines={lines} onChange={setLines} products={products} units={units} taxRates={taxRates} /></CardContent>
       </Card>
-      <Card><CardContent className="grid gap-3 md:grid-cols-3"><div>Total HT : <strong><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div>TVA : <strong><MoneyDisplay value={totals.tax_total} /></strong></div><div>Total TTC : <strong><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
-      {!state.success && state.error ? <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
-      <div className="flex justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href={creditNote ? `/facturation/avoirs/${creditNote.id}` : "/facturation/avoirs"}>Annuler</Link></Button><Button disabled={pending || !customerId || lines.length === 0}>{pending ? "Enregistrement…" : creditNote ? "Enregistrer les modifications" : "Créer l’avoir"}</Button></div>
+      <Card><CardContent className="erp-form-summary grid gap-3 md:grid-cols-3"><div>Total HT : <strong><MoneyDisplay value={totals.subtotal_ht} /></strong></div><div>TVA : <strong><MoneyDisplay value={totals.tax_total} /></strong></div><div>Total TTC : <strong><MoneyDisplay value={totals.total_ttc} /></strong></div></CardContent></Card>
+      {!state.success && state.error ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p> : null}
+      <div className="erp-form-actions flex justify-end gap-3"><Button type="button" variant="secondary" asChild><Link href={creditNote ? `/facturation/avoirs/${creditNote.id}` : "/facturation/avoirs"}>Annuler</Link></Button><Button disabled={pending || !customerId || lines.length === 0}>{pending ? "Enregistrement…" : creditNote ? "Enregistrer les modifications" : "Créer l’avoir"}</Button></div>
     </form>
   );
 }

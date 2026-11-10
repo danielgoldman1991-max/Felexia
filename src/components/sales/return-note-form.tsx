@@ -49,7 +49,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
     .filter((line) => line.quantity > 0);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="erp-form space-y-5">
       <input type="hidden" name="delivery_id" value={delivery.id} />
       <input type="hidden" name="lines" value={JSON.stringify(payload)} />
 
@@ -74,7 +74,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="erp-form-lines">
         <CardHeader>
           <h2 className="font-semibold">Quantités à retourner</h2>
         </CardHeader>
@@ -83,7 +83,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
             <thead>
               <tr>
                 <Th>Description</Th>
-                <Th>Livre</Th>
+                <Th>Livré</Th>
                 <Th>Déjà retourné</Th>
                 <Th>Retournable</Th>
                 <Th>À retourner maintenant</Th>
@@ -104,6 +104,7 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
                     <Td>{line.returnable_quantity}</Td>
                     <Td>
                       <Input
+                        aria-label={`Quantité à retourner — ${line.product_name || line.description}`}
                         type="number"
                         min="0"
                         max={line.returnable_quantity}
@@ -130,10 +131,10 @@ export function ReturnNoteForm({ delivery, lines, action }: Props) {
       </Card>
 
       {!state.success && state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
+        <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{state.error}</p>
       ) : null}
 
-      <div className="flex justify-end gap-3">
+      <div className="erp-form-actions flex justify-end gap-3">
         <Button type="button" variant="secondary" asChild><Link href={`/vente/livraisons/${delivery.id}`}>Annuler</Link></Button>
         <Button disabled={pending || payload.length === 0}>Créer le bon de retour</Button>
       </div>

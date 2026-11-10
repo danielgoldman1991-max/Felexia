@@ -6,7 +6,7 @@ import { saveFiscalSettingsAction } from "@/lib/accounting/fiscal-settings-actio
 export function FiscalSettingsForm({ settings }: { settings: { cnss_affiliation: string | null; vat_frequency: string; is_rate_percent: number | null; activity_code: string | null; filing_note: string | null } }) {
   const [state, action, pending] = useActionState(saveFiscalSettingsAction, { success: false });
   return (
-    <form action={action} className="grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6">
+    <form action={action} className="erp-form grid max-w-3xl gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-6">
       <label className="space-y-1 text-sm">
         <span className="font-medium">Affiliation CNSS</span>
         <input name="cnss_affiliation" defaultValue={settings.cnss_affiliation ?? ""} className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border)] px-3" placeholder="Numéro d'affiliation, pas le mot de passe Damancom" />
@@ -30,7 +30,9 @@ export function FiscalSettingsForm({ settings }: { settings: { cnss_affiliation:
         <span className="font-medium">Note de dépôt</span>
         <textarea name="filing_note" rows={3} defaultValue={settings.filing_note ?? ""} className="w-full rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2" placeholder="Portail utilisé, période, personne qui dépose. Felexia ne se connecte pas." />
       </label>
-      <button type="submit" disabled={pending} className="h-11 justify-self-end rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)]">Enregistrer</button>
+      <div className="erp-form-actions">
+        <button type="submit" disabled={pending} className="h-11 justify-self-end rounded-[var(--radius-md)] bg-[var(--primary)] px-4 text-sm font-medium text-[var(--primary-foreground)]">Enregistrer</button>
+      </div>
       {state.error ? <p className="text-sm text-red-700">{state.error}</p> : null}
       {state.success ? <p className="text-sm text-emerald-700">Paramètres enregistrés. Les fichiers restent à téléverser par vos soins.</p> : null}
     </form>
