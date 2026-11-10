@@ -90,7 +90,9 @@ export function Sidebar({
     if (!mobileOpen || desktop) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     const frame = requestAnimationFrame(() => closeRef.current?.focus());
     function handleKey(event: KeyboardEvent) {
       if (event.defaultPrevented) return;
@@ -109,6 +111,7 @@ export function Sidebar({
       cancelAnimationFrame(frame);
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
       if (previousFocus?.isConnected && previousFocus.getClientRects().length) previousFocus.focus({ preventScroll: true });
     };
   }, [mobileOpen, desktop, onCloseMobile]);
