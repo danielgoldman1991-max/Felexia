@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { ResponsiveImage } from "@/components/seo/ResponsiveImage";
-import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import { LandingLaptopInterface } from "./LandingLaptopInterface";
 import { LandingZoomPreference } from "./LandingZoomPreference";
 import "./landing-horizon.css";
@@ -32,12 +30,8 @@ export function LandingHero() {
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
           <h1 id="hero-title">Logiciel de gestion et ERP pour les PME au Maroc</h1>
-          <p>Facturation et trésorerie au quotidien. Le stock et l’ERP complet, avec PRO sur devis.</p>
-          <div className="horizon-actions">
-            <Link href="/login?mode=register" className="horizon-start">Démarrer gratuitement</Link>
-            <a href="#pricing" className="horizon-discover">Découvrir nos offres</a>
-          </div>
-          <span className="horizon-trial">{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL · Sans carte bancaire</span>
+          <p>travailler, contrôler ses coûts et mesurer ses performances, sans complexité excessive.</p>
+          <p className="horizon-tagline">Prenez de la hauteur. Voyez plus loin. Pilotez votre PME en toute liberté.</p>
           <LandingZoomPreference />
         </div>
         <a className="horizon-scroll-cue" href="#essentiel" aria-label="Défiler pour découvrir — Découvrez la suite">
