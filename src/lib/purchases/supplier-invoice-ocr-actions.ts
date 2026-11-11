@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
@@ -12,8 +11,8 @@ import {
   SCAN_BUCKET,
   assertPendingScanPath,
   matchSupplier,
-  mimeFrom,
   reviewOcrInvoice,
+  scanFileType,
   type OcrSupplierInvoice,
   type SupplierMatch,
 } from "@/lib/purchases/supplier-invoice-ocr";
@@ -79,8 +78,6 @@ function text(formData: FormData, key: string) {
 export async function saveScannedSupplierInvoice(_prev: { error?: string }, formData: FormData): Promise<{ error?: string }> {
   const current = await workspace();
   const path = text(formData, "scan_path");
-  try { assertPendingScanPath(path, current.organization.id); }
-  catch (error) { return { error: error instanceof Error ? error.message : "Document introuvable." }; }
   const invoiceNumber = text(formData, "invoice_number");
   if (!invoiceNumber) return { error: "Le numéro de facture fournisseur est obligatoire." };
   const invoiceDate = text(formData, "invoice_date") || new Date().toISOString().slice(0, 10);
@@ -91,10 +88,19 @@ export async function saveScannedSupplierInvoice(_prev: { error?: string }, form
   if (!supplierId) return { error: "La facture ne peut pas être enregistrée sans fournisseur." };
   const { data: duplicate } = await supabase.from("supplier_invoices").select("id").eq("organization_id", current.organization.id).eq("supplier_id", supplierId).eq("supplier_invoice_number", invoiceNumber).neq("status", "cancelled").maybeSingle();
   if (duplicate) return { error: "Une facture avec ce numéro existe déjà pour ce fournisseur." };
-  const downloaded = await supabase.storage.from(SCAN_BUCKET).download(path);
-  if (downloaded.error || !downloaded.data) return { error: "Le document n’est plus disponible. Reprenez l’import. Aucune facture n’a été enregistrée." };
-  const bytes = Buffer.from(await downloaded.data.arrayBuffer());
-  const mime = mimeFrom("", path, bytes) ?? "application/pdf";
+  let attachment: { bytes: Buffer; mime: string; fileName: string } | null = null;
+  if (path) {
+    try {
+      assertPendingScanPath(path, current.organization.id);
+      const downloaded = await supabase.storage.from(SCAN_BUCKET).download(path);
+      if (!downloaded.error && downloaded.data) {
+        const bytes = Buffer.from(await downloaded.data.arrayBuffer());
+        attachment = { bytes, mime: scanFileType(path, downloaded.data.type, bytes)?.mime ?? "application/pdf", fileName: path.split("/").pop() || "scan.pdf" };
+      } else console.error("[factures-fournisseurs] lecture du scan", downloaded.error?.message);
+    } catch (error) {
+      console.error("[factures-fournisseurs] chemin du scan", error instanceof Error ? error.message : error);
+    }
+  }
   const payload = lines.map((line) => {
     const amounts = calculateCommercialAmounts({ quantity: Number(line.quantity) || 0, unitPriceHt: Number(line.unitPriceHt) || 0, discountRate: 0, taxRate: Number(line.vatRate) || 0 });
     return {
@@ -125,28 +131,30 @@ export async function saveScannedSupplierInvoice(_prev: { error?: string }, form
     p_lines: payload,
   });
   if (error || !invoiceId) return { error: financialErrorMessage(error, "Impossible de créer la facture fournisseur.") };
-  const fileName = path.split("/").pop() || `${randomUUID()}.pdf`;
-  const finalPath = `organizations/${current.organization.id}/invoices/${String(invoiceId)}/${fileName}`;
-  const uploaded = await supabase.storage.from(SCAN_BUCKET).upload(finalPath, bytes, { contentType: mime, upsert: false });
-  if (!uploaded.error) {
-    await supabase.storage.from(SCAN_BUCKET).remove([path]);
-    const confidence = Number(text(formData, "confidence") || "0");
-    const attached = await supabase.from("supplier_invoice_attachments").insert({
-      organization_id: current.organization.id,
-      supplier_invoice_id: String(invoiceId),
-      file_name: fileName,
-      file_path: finalPath,
-      mime_type: mime,
-      file_size: bytes.length,
-      ocr_provider: "felexia",
-      ocr_model: "pdfjs+tesseract-fra-eng",
-      field_confidence: { average: Number.isFinite(confidence) ? confidence : 0 },
-      uploaded_by: current.userId,
-    });
-    if (attached.error && !isMissingSchema(attached.error)) {
-      return { error: "La facture est créée, mais la pièce jointe n’a pas été liée. Ouvrez la facture avant de recommencer." };
+  let linked = false;
+  if (attachment && path) {
+    const finalPath = `organizations/${current.organization.id}/invoices/${String(invoiceId)}/${attachment.fileName}`;
+    const uploaded = await supabase.storage.from(SCAN_BUCKET).upload(finalPath, attachment.bytes, { contentType: attachment.mime, upsert: false });
+    if (uploaded.error) console.error("[factures-fournisseurs] copie du scan", uploaded.error.message);
+    else {
+      await supabase.storage.from(SCAN_BUCKET).remove([path]);
+      const confidence = Number(text(formData, "confidence") || "0");
+      const attached = await supabase.from("supplier_invoice_attachments").insert({
+        organization_id: current.organization.id,
+        supplier_invoice_id: String(invoiceId),
+        file_name: attachment.fileName,
+        file_path: finalPath,
+        mime_type: attachment.mime,
+        file_size: attachment.bytes.length,
+        ocr_provider: "felexia",
+        ocr_model: "pdfjs+tesseract-fra-eng",
+        field_confidence: { average: Number.isFinite(confidence) ? confidence : 0 },
+        uploaded_by: current.userId,
+      });
+      linked = !attached.error || isMissingSchema(attached.error);
+      if (attached.error && !isMissingSchema(attached.error)) console.error("[factures-fournisseurs] pièce non liée", attached.error.message);
     }
   }
   revalidatePath("/achats/factures");
-  redirect(`/achats/factures/${String(invoiceId)}`);
+  redirect(`/achats/factures/${String(invoiceId)}${linked ? "" : "?piece=absente"}`);
 }

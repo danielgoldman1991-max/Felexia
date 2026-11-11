@@ -4,7 +4,7 @@ import { useState, useTransition, type Dispatch, type FormEvent, type SetStateAc
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { matchScannedSupplier, saveScannedSupplierInvoice, type OcrAnalysis } from "@/lib/purchases/supplier-invoice-ocr-actions";
-import { SCAN_BUCKET, SCAN_MAX_BYTES, inspectScanFile, uncertain, validateNewSupplier, type OcrSupplierInvoice } from "@/lib/purchases/supplier-invoice-ocr";
+import { SCAN_BUCKET, SCAN_MAX_BYTES, inspectScanFile, scanFileType, uncertain, validateNewSupplier, type OcrSupplierInvoice } from "@/lib/purchases/supplier-invoice-ocr";
 import { createSupplierForOcr } from "@/lib/third-party-actions";
 import { createClient } from "@/lib/supabase/client";
 
@@ -180,11 +180,17 @@ export function SupplierInvoiceScanReview({
     const data = new FormData(event.currentTarget);
     startTransition(async () => {
       if (file && organizationId) {
-        const extension = file.name.split(".").pop()?.toLowerCase() || "pdf";
-        const path = `organizations/${organizationId}/pending/${crypto.randomUUID()}.${extension}`;
-        const uploaded = await createClient().storage.from(SCAN_BUCKET).upload(path, file, { contentType: file.type || "application/pdf", upsert: false });
-        if (uploaded.error) { setError("Le document n’a pas pu être déposé. Aucune facture n’a été créée."); return; }
-        data.set("scan_path", path);
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const typed = scanFileType(file.name, file.type, bytes);
+        if (!typed) setError("Le document n’a pas été joint : format non reconnu. La facture est enregistrée sans la pièce.");
+        else {
+          const path = `organizations/${organizationId}/pending/${crypto.randomUUID()}.${typed.extension}`;
+          const uploaded = await createClient().storage.from(SCAN_BUCKET).upload(path, bytes, { contentType: typed.mime, upsert: false });
+          if (uploaded.error) {
+            console.error("[factures-fournisseurs] dépôt du scan", { message: uploaded.error.message, mime: typed.mime, name: file.name });
+            setError(`Le document n’a pas été joint (${uploaded.error.message}). La facture est enregistrée sans la pièce.`);
+          } else data.set("scan_path", path);
+        }
       }
       const result = await saveScannedSupplierInvoice({}, data);
       if (result?.error) setError(result.error);

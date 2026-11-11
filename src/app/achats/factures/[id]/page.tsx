@@ -12,8 +12,9 @@ import { getSupplierInvoiceScan } from "@/lib/purchases/supplier-invoice-ocr-act
 
 export const dynamic = "force-dynamic";
 
-export default async function SupplierInvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SupplierInvoiceDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ piece?: string }> }) {
   const { id } = await params;
+  const { piece } = await searchParams;
   const [{ invoice, lines, payments, paymentSummary }, documentFlow] = await Promise.all([
     getSupplierInvoiceDetail(id),
     getSupplierInvoiceDocumentFlow(id),
@@ -29,6 +30,7 @@ export default async function SupplierInvoiceDetailPage({ params }: { params: Pr
 
   return (
     <ModulePage>
+      {piece === "absente" ? <p className="rounded-[var(--radius-md)] border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">La facture est enregistrée. Le document n’a pas pu être joint.</p> : null}
       <SupplierInvoiceDetail
         fullAccess={fullAccess}
         canWrite={canWrite}
