@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { getPlanDefinition } from "@/lib/subscriptions/plans";
 import { hasFullErpAccess } from "@/lib/launch-access";
 import {
-  Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight, Package, Sparkles, Hash,
+  Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight, Package, Sparkles, Hash, Download, Upload,
 } from "lucide-react";
+import { isAdminRole, isReadOnlyRole } from "@/lib/auth/roles";
 
 export default async function ParametresPage() {
   const workspace = await requireActiveWorkspace();
@@ -108,6 +109,8 @@ export default async function ParametresPage() {
           <QuickLink href="/parametres/documents" icon={FileText} label="Personnaliser mes factures" />
           <QuickLink href="/parametres/numerotation" icon={Hash} label="Numérotation des factures" />
           <QuickLink href="/articles" icon={Package} label="Catalogue articles & services" />
+          {isAdminRole(workspace.role) ? <QuickLink href="/api/exports/entreprise" icon={Download} label="Exporter les données" download /> : null}
+          {!isReadOnlyRole(workspace.role) ? <QuickLink href="/tiers/import" icon={Upload} label="Importer des clients" /> : null}
           {fullAccess ? <QuickLink href="/parametres/preferences" icon={UserCog} label="Préférences" /> : null}
         </div>
       </div>
@@ -130,17 +133,17 @@ export default async function ParametresPage() {
   );
 }
 
-function QuickLink({ href, icon: Icon, label }: { href: string; icon: typeof Building2; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--primary)]/30 hover:shadow-sm"
-    >
+function QuickLink({ href, icon: Icon, label, download = false }: { href: string; icon: typeof Building2; label: string; download?: boolean }) {
+  const className = "flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--primary)]/30 hover:shadow-sm";
+  const content = (
+    <>
       <span className="flex items-center gap-3">
         <Icon className="h-4 w-4 text-[var(--primary)]" />
         {label}
       </span>
       <ChevronRight className="h-4 w-4 text-[var(--muted)]" />
-    </Link>
+    </>
   );
+  if (download) return <a href={href} className={className}>{content}</a>;
+  return <Link href={href} className={className}>{content}</Link>;
 }
