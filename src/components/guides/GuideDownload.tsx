@@ -10,7 +10,7 @@ import styles from "./guide-download.module.css";
 
 export const OPEN_GUIDE_EVENT = "felexia:open-guide";
 
-type Thanks = { message: string; downloadPath: string };
+type Thanks = { message: string; downloadPath: string; rememberToken: string };
 
 function triggerDownload(url: string) {
   const frame = document.createElement("iframe");
@@ -72,6 +72,10 @@ export function GuideDownloadHost() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [thanks, setThanks] = useState<Thanks | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profilePending, setProfilePending] = useState(false);
   const guide = slug ? getProductGuide(slug) : undefined;
 
   useEffect(() => {
@@ -83,6 +87,12 @@ export function GuideDownloadHost() {
       setError("");
       setGuideConsent(false);
       setNewsletter(false);
+      setCompany("");
+      setPhone("");
+      setSector("");
+      setProfileOpen(false);
+      setProfileSaved(false);
+      setProfileError("");
     };
     window.addEventListener(OPEN_GUIDE_EVENT, open);
     return () => window.removeEventListener(OPEN_GUIDE_EVENT, open);
@@ -103,6 +113,31 @@ export function GuideDownloadHost() {
 
   function close() { setSlug(null); }
 
+  async function onProfile(event: FormEvent) {
+    event.preventDefault();
+    if (!thanks?.rememberToken || !slug) return;
+    setProfilePending(true);
+    setProfileError("");
+    try {
+      const response = await fetch("/api/guides/profile", {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ slug, token: thanks.rememberToken, company, phone, sector, fax_number: fax }),
+      });
+      const data = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null;
+      if (!response.ok || !data?.ok) {
+        setProfileError(data?.error || "L’enregistrement n’a pas abouti. Vous pouvez passer cette étape.");
+        return;
+      }
+      setProfileSaved(true);
+      setProfileOpen(false);
+    } catch {
+      setProfileError("L’enregistrement n’a pas abouti. Vous pouvez passer cette étape.");
+    } finally {
+      setProfilePending(false);
+    }
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setPending(true);
@@ -112,7 +147,7 @@ export function GuideDownloadHost() {
         method: "POST",
         headers: { "content-type": "application/json", accept: "application/json" },
         body: JSON.stringify({
-          email, firstName, company, phone, sector, guideConsent, newsletter, slug, fax_number: fax,
+          email, firstName, guideConsent, newsletter, slug, fax_number: fax,
         }),
       });
       const data = await response.json().catch(() => null) as {
@@ -128,10 +163,11 @@ export function GuideDownloadHost() {
         trackPublicMarketingEvent("guide_download");
         if (newsletter && data.status !== "already") trackPublicMarketingEvent("newsletter_signup");
         if (newsletter) window.dispatchEvent(new CustomEvent("felexia:newsletter-joined", { detail: { source: "guide" } }));
-        setThanks({ message: data.message || "Merci. Votre guide se télécharge.", downloadPath: data.downloadPath });
+        setThanks({ message: data.message || "Merci. Votre guide se télécharge.", downloadPath: data.downloadPath, rememberToken: data.rememberToken });
+        setProfileOpen(true);
         return;
       }
-      setThanks({ message: data.message || "Merci. Votre guide se télécharge.", downloadPath: "" });
+      setThanks({ message: data.message || "Merci. Votre guide se télécharge.", downloadPath: "", rememberToken: "" });
     } catch {
       setError("Le guide n’a pas pu être préparé. Réessayez dans un instant.");
     } finally {
@@ -150,18 +186,11 @@ export function GuideDownloadHost() {
             <p role="status">{thanks.message}</p>
             {thanks.downloadPath ? <a className={styles.download} href={thanks.downloadPath} rel="nofollow noreferrer">Télécharger le guide (PDF)</a> : null}
             <p className={styles.note}>Le lien direct reste valable quelques minutes. Depuis ce navigateur, le bouton du site relance le téléchargement sans ressaisir le formulaire.</p>
-          </div>
-        ) : (
-          <>
-            <p className={styles.intro}>Le fichier est gratuit. Votre e-mail sert à vous envoyer ce guide. La lettre d’information reste un choix séparé, décoché par défaut.</p>
-            <form className={styles.form} onSubmit={onSubmit} noValidate>
-              <label className={styles.field} htmlFor={`${formId}-email`}>E-mail
-                <input id={`${formId}-email`} type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
-              </label>
-              <div className={styles.grid}>
-                <label className={styles.field} htmlFor={`${formId}-first`}><span>Prénom <span className={styles.optional}>(facultatif)</span></span>
-                  <input id={`${formId}-first`} autoComplete="given-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
-                </label>
+            {profileSaved ? <p className={styles.note}>Merci, ces précisions sont enregistrées.</p> : null}
+            {profileOpen && thanks.rememberToken ? (
+              <form className={styles.profile} onSubmit={onProfile}>
+                <p className={styles.profileTitle}>Aidez-nous à mieux vous connaître</p>
+                <p className={styles.note}>Facultatif. Vous pouvez passer cette étape.</p>
                 <label className={styles.field} htmlFor={`${formId}-company`}><span>Société <span className={styles.optional}>(facultatif)</span></span>
                   <input id={`${formId}-company`} autoComplete="organization" value={company} onChange={(event) => setCompany(event.target.value)} />
                 </label>
@@ -174,7 +203,27 @@ export function GuideDownloadHost() {
                     {GUIDE_SECTORS.map((item) => <option key={item} value={item}>{item}</option>)}
                   </select>
                 </label>
-              </div>
+                <div className={styles.trap} aria-hidden="true">
+                  <label>Fax<input tabIndex={-1} autoComplete="off" value={fax} onChange={(event) => setFax(event.target.value)} /></label>
+                </div>
+                {profileError ? <p className={styles.alert} role="alert">{profileError}</p> : null}
+                <div className={styles.profileActions}>
+                  <button className={styles.submit} type="submit" disabled={profilePending}>{profilePending ? "Enregistrement…" : "Enregistrer"}</button>
+                  <button className={styles.skip} type="button" onClick={() => setProfileOpen(false)}>Passer</button>
+                </div>
+              </form>
+            ) : null}
+          </div>
+        ) : (
+          <>
+            <p className={styles.intro}>Le fichier est gratuit. Votre e-mail sert à vous envoyer ce guide. La lettre d’information reste un choix séparé, décoché par défaut.</p>
+            <form className={styles.form} onSubmit={onSubmit}>
+              <label className={styles.field} htmlFor={`${formId}-email`}>E-mail
+                <input id={`${formId}-email`} type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
+              </label>
+              <label className={styles.field} htmlFor={`${formId}-first`}><span>Prénom <span className={styles.optional}>(facultatif)</span></span>
+                <input id={`${formId}-first`} autoComplete="given-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} />
+              </label>
               <label className={styles.check}>
                 <input type="checkbox" checked={guideConsent} onChange={(event) => setGuideConsent(event.target.checked)} />
                 <span>J’accepte que Felexia enregistre mon e-mail pour m’envoyer ce guide. <Link href="/confidentialite">Politique de confidentialité</Link></span>

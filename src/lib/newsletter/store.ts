@@ -5,7 +5,7 @@ import { DOWNLOAD_TOKEN_MAX_MS, downloadSecret, signDownloadToken } from "@/lib/
 import { hasServiceRoleKey } from "@/lib/env";
 import { getClientIp } from "@/lib/rate-limit";
 import type { GuideSaveResult, NewsletterSaveResult } from "@/lib/newsletter/http";
-import type { GuideLead, NewsletterLead } from "@/lib/newsletter/validate";
+import type { GuideLead, GuideProfile, NewsletterLead } from "@/lib/newsletter/validate";
 import { createClient as createServiceClient } from "@/lib/supabase/service";
 
 const GRANT_MS = 180 * 24 * 60 * 60 * 1000;
@@ -170,6 +170,25 @@ export async function saveGuideRequest(lead: GuideLead, request: Request): Promi
     rememberToken: grant.rememberToken,
     slug: lead.slug,
   };
+}
+
+export async function saveGuideProfile(profile: GuideProfile): Promise<boolean> {
+  const tokenHash = createHash("sha256").update(profile.token).digest("hex");
+  const { data, error } = await client()
+    .from("guide_access_grants")
+    .select("subscriber_id, guide_slug, expires_at")
+    .eq("token_hash", tokenHash)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data || data.guide_slug !== profile.slug || new Date(String(data.expires_at)).getTime() <= Date.now()) return false;
+  const patch: Record<string, string> = {};
+  if (profile.company) patch.company = profile.company;
+  if (profile.phone) patch.phone = profile.phone;
+  if (profile.sector) patch.sector = profile.sector;
+  if (Object.keys(patch).length === 0) return true;
+  const { error: updateError } = await client().from("newsletter_subscribers").update(patch).eq("id", data.subscriber_id);
+  if (updateError) throw updateError;
+  return true;
 }
 
 export async function redeemGuideAccess(slug: string, token: string): Promise<GuideSaveResult | null> {
