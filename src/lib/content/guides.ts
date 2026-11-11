@@ -110,7 +110,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       },
     ],
     cta: {
-      label: `Essayer ESSENTIEL ${DEFAULT_TRIAL_DURATION_LABEL}`,
+      label: "Essayer gratuitement",
       href: "/login?mode=register",
       note: "Sans carte bancaire. La création du compte ouvre ensuite la confirmation de votre entreprise.",
     },

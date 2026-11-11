@@ -12,7 +12,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que comprend l’offre Essentiel ?",
     answer:
-      "ESSENTIEL est votre outil de gestion d’entreprise au quotidien : clients et fournisseurs, factures de vente et d’achat, règlements, comptes bancaires et caisses, trésorerie et journaux. La facturation électronique PDF/XML et l’archivage sont aussi inclus. Vous pouvez travailler jusqu’à 3 utilisateurs dans votre espace entreprise.",
+      "ESSENTIEL couvre la facturation (factures, PDF, et facturation électronique PDF/XML avec archivage), les règlements et les journaux comptables, jusqu’à 3 utilisateurs. Les devis, les commandes, le stock et le reste de l’ERP sont dans PRO.",
   },
   {
     question: "Comment fonctionne l’essai gratuit ?",
@@ -31,7 +31,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que change l’offre PRO ?",
     answer:
-      "PRO comprend tout ESSENTIEL et ouvre l’ERP complet : prospects, devis, commandes, livraisons, achats et réceptions, stock, comptabilité avec grand livre et balance, préparation TVA, prévisions de trésorerie et gestion RH. Vous pouvez travailler jusqu’à 25 utilisateurs. La TVA et la paie restent des fonctions préparatoires à valider avec vos conseils.",
+      "PRO reprend ESSENTIEL et ajoute les devis, les prospects, les commandes, les livraisons, les achats et réceptions, le stock, la comptabilité étendue, la préparation TVA, les prévisions de trésorerie et les RH, jusqu’à 25 utilisateurs. Le passage à PRO est une raison de sortir du seul cycle facture-règlement-journal.",
   },
   {
     question: "Comment obtenir une proposition PRO ?",
@@ -48,13 +48,38 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
     answer:
       "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
   },
+  {
+    question: "Que se passe-t-il après les 15 jours ?",
+    answer:
+      "À la fin de l’essai, l’espace passe en consultation : les données restent lisibles et les exports déjà prévus restent disponibles. Créer ou modifier des opérations demande un abonnement ESSENTIEL actif. Le tarif publié ensuite est celui affiché sur la page Tarifs.",
+  },
+  {
+    question: "Où sont stockées mes données ?",
+    answer:
+      "Le site est servi par Vercel. Les données de l’entreprise sont dans la base PostgreSQL Supabase de production, en région eu-west-1. L’accès passe par le compte, le rôle et des règles par entreprise. Les communications sont chiffrées en transit. La fréquence, la durée de conservation et la restauration à un instant des sauvegardes ne sont pas publiées.",
+  },
+  {
+    question: "Puis-je exporter mes factures et partir ?",
+    answer:
+      "Oui. Chaque facture se télécharge en PDF, et plusieurs listes s’exportent en CSV. Le propriétaire ou l’administrateur trouve aussi, dans Paramètres, « Exporter les données » : une archive ZIP de son entreprise seulement (tiers, factures et lignes, règlements, articles, écritures, et salariés si l’offre est PRO). Un FEC préparatoire reste disponible en comptabilité : ce n’est pas une transmission officielle.",
+  },
+  {
+    question: "Puis-je importer mes clients depuis Excel ?",
+    answer:
+      "Oui, pour les clients et les fournisseurs. Dans Tiers, « Importer » propose un modèle CSV, que l’on ouvre dans Excel avec le séparateur point-virgule. L’aperçu refuse un ICE qui n’a pas 15 chiffres et un doublon de nom ou d’ICE. Rien n’est enregistré avant la confirmation, et les lignes sont ajoutées seulement à l’entreprise ouverte. Un résumé indique le nombre de contacts créés. L’import des salariés reste à part, dans le module RH de PRO.",
+  },
+  {
+    question: "Qui m’aide si je bloque ?",
+    answer:
+      "Écrivez sur WhatsApp au +212 6 14 50 50 90, ou à contact@felexia.pro. Aucun horaire de réponse ni délai garanti n’est publié.",
+  },
 ];
 
 /** Visible pricing FAQ. Amounts come from the public plan catalogue, not from a second price list. */
 export const PRICING_FAQS: readonly PublicFaqItem[] = [
   {
     question: `Que comprend ESSENTIEL à ${price} HT MAD par mois ?`,
-    answer: `Votre espace entreprise, la facturation, les achats, les règlements, la trésorerie et les journaux, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, sans remise. La génération PDF/XML et l’archivage documentaire sont inclus.`,
+    answer: `La facturation, les règlements et les journaux comptables, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, soit douze mois sans remise. Les devis ne sont pas dans ESSENTIEL. La génération PDF/XML et l’archivage documentaire sont inclus.`,
   },
   {
     question: "Faut-il une carte bancaire pour l’essai ?",

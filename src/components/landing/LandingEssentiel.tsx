@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowDownLeft, ArrowUpRight, BookOpen, ChartNoAxesCombined, Check, FileCheck2, FileCode2, FileText, Landmark, ShoppingBag } from "lucide-react";
+import { getPlanDefinition } from "@/lib/subscriptions/plans";
+import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import styles from "./landing-essentiel-product.module.css";
 
 const tabs = [
@@ -95,7 +97,7 @@ function PaymentsPreview() {
           <span className={styles.expectedCaption}>Soldes clients illustratifs</span>
         </aside>
       </div>
-      <div className={styles.supplierNote}><ShoppingBag size={17} aria-hidden="true" /><p><strong>Les achats aussi.</strong> Suivez les factures fournisseurs, leurs règlements et les montants à payer.</p></div>
+      <div className={styles.supplierNote}><ShoppingBag size={17} aria-hidden="true" /><p><strong>Les devis, c’est PRO.</strong> ESSENTIEL s’arrête aux factures, aux règlements et aux journaux.</p></div>
     </>
   );
 }
@@ -139,6 +141,7 @@ function TreasuryPreview({ id }: { id: string }) {
 }
 
 export function LandingEssentiel() {
+  const essential = getPlanDefinition("essentiel");
   const [activeTab, setActiveTab] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const id = useId();
@@ -159,22 +162,21 @@ export function LandingEssentiel() {
     <section id="essentiel" className={styles.section} aria-labelledby="essentiel-title">
       <span id="modules" className={styles.anchor} aria-hidden="true" />
       <div className={styles.container}>
-        <div className={styles.domains} aria-label="Les domaines de votre gestion ESSENTIEL">
-          <span><FileText size={17} aria-hidden="true" /> Ventes</span><span><ShoppingBag size={17} aria-hidden="true" /> Achats</span><span><Landmark size={17} aria-hidden="true" /> Trésorerie</span><span><ChartNoAxesCombined size={17} aria-hidden="true" /> Pilotage</span>
+        <div className={styles.domains} aria-label="Ce que couvre ESSENTIEL">
+          <span><FileText size={17} aria-hidden="true" /> Facturez</span><span><Landmark size={17} aria-hidden="true" /> Suivez</span><span><BookOpen size={17} aria-hidden="true" /> Pilotez</span>
         </div>
         <div className={styles.introduction}>
-          <div><p className={styles.eyebrow}><span>ESSENTIEL</span> / VOTRE QUOTIDIEN</p><h2 id="essentiel-title">Votre activité.<br /><span>Un même fil.</span></h2></div>
-          <p className={styles.introCopy}>Une facture, un règlement, une vue plus claire. Retrouvez vos ventes, vos achats et votre trésorerie dans un espace de gestion commun.</p>
+          <div><p className={styles.eyebrow}><span>FACTUREZ</span> / ESSENTIEL</p><h2 id="essentiel-title">Des factures conformes,<br /><span>prêtes à envoyer.</span></h2></div>
+          <p className={styles.introCopy}>ICE, IF et RC, HT, TVA et TTC en dirhams, puis le suivi des règlements et les journaux. Les devis, les commandes et le stock sont dans PRO.</p>
         </div>
         <div id="features" className={styles.product} aria-describedby={`${id}-caption`}>
           <div className={styles.productBar}><span className={styles.wordmark}>Felexia<span>ERP</span></span><p id={`${id}-caption`}>Aperçu illustratif · Données fictives</p></div>
           <div className={styles.workspace}>
             <aside className={styles.sidebar} aria-hidden="true">
               <span className={styles.companyMark}>FE</span><strong>Votre entreprise</strong><span className={styles.workspaceCaption}>ESPACE ESSENTIEL</span>
-              <div className={activeTab === 0 ? styles.sideActive : styles.sideItem}><FileText size={17} /> Ventes</div>
-              <div className={styles.sideItem}><ShoppingBag size={17} /> Achats</div>
-              <div className={activeTab === 1 || activeTab === 2 ? styles.sideActive : styles.sideItem}><Landmark size={17} /> Trésorerie</div>
-              <div className={styles.sideItem}><BookOpen size={17} /> Journaux</div>
+              <div className={activeTab === 0 ? styles.sideActive : styles.sideItem}><FileText size={17} /> Factures</div>
+              <div className={activeTab === 1 ? styles.sideActive : styles.sideItem}><Landmark size={17} /> Règlements</div>
+              <div className={activeTab === 2 ? styles.sideActive : styles.sideItem}><BookOpen size={17} /> Journaux</div>
               <span className={styles.sidebarFoot}>Une même vue<br />sur votre quotidien.</span>
             </aside>
             <div className={styles.productMain}>
@@ -192,8 +194,9 @@ export function LandingEssentiel() {
           </div>
         </div>
         <div className={styles.afterProduct}>
-          <p>Moins d’informations dispersées.<br /><strong>Plus de continuité dans votre gestion.</strong></p>
-          <div className={styles.actions}><Link href="/login?mode=register" className={styles.primaryAction}>Essayer ESSENTIEL <ArrowUpRight size={17} aria-hidden="true" /></Link><Link href="/essentiel" className={styles.textAction}>Explorer les fonctionnalités <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+          <p>Facturez, suivez les règlements, retrouvez les journaux.<br /><strong>Dès {essential.monthlyPrice.toLocaleString("fr-FR")} MAD HT/mois, après {DEFAULT_TRIAL_DURATION_LABEL} d’essai.</strong></p>
+          <div className={styles.actions}><Link href="/login?mode=register" className={styles.primaryAction}>Essayer gratuitement <ArrowUpRight size={17} aria-hidden="true" /></Link><Link href="#pricing" className={styles.textAction}>Voir les tarifs <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+          <p className={styles.priceNote}>15 jours · sans carte bancaire · les devis sont dans PRO</p>
         </div>
         <div id="facturation-electronique" className={styles.einvoice}>
           <span className={styles.einvoiceIcon}><FileCheck2 size={23} aria-hidden="true" /></span>

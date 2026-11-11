@@ -20,7 +20,7 @@ const resourceLinks = [
 ];
 const accessLinks = [
   { label: "Se connecter", href: "/login" },
-  { label: "Créer mon espace", href: "/login?mode=register" },
+  { label: "Essayer gratuitement", href: "/login?mode=register" },
   { label: "Nous contacter", href: "/#contact" },
 ];
 const legalLinks = [
