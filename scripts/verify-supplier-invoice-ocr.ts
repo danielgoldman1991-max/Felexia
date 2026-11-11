@@ -391,7 +391,8 @@ async function buildCorpus(pdfjs: typeof import("pdfjs-dist")) {
     writeFileSync(path.join(directory, `${id}-scan.pdf`), await imageOnlyPdf(scans));
   }
   writeFileSync(path.resolve("scripts/_legacy-invoice-parser.ts"), execSync("git show origin/main:src/lib/purchases/invoice-parser.ts"));
-  const legacy = await import("./_legacy-invoice-parser.ts");
+  const legacyPath = "./_legacy-invoice-parser.ts";
+  const legacy = await import(legacyPath) as { parseInvoiceDocument: typeof parseInvoiceDocument };
   const { createWorker, PSM } = await import("tesseract.js");
   const worker = await createWorker("fra+eng", 1, { langPath: path.resolve("public/ocr"), cachePath: path.resolve("public/ocr"), gzip: false });
   const report: string[] = ["# Précision OCR factures fournisseurs fictives", "", "Corpus fictif, 20 factures. Le parseur « avant » est celui de `origin/main`. Le parseur « après » est celui de cette branche.", ""];
@@ -409,7 +410,7 @@ async function buildCorpus(pdfjs: typeof import("pdfjs-dist")) {
   }
   report.push("## PDF numérique (couche texte)", "", table(digitalBefore, digitalAfter), "", digitalMisses.length ? `Écarts après : ${digitalMisses.join(" ; ")}` : "Après : 100 % sur les 20 PDF numériques.", "");
   const formats = ["png-propre", "pdf-scan", "photo"] as const;
-  const photoVariants: { item: Fixture; buyerIce: string; raw: Token[]; contrast: Token[]; threshold: Token[] }[] = [];
+  const photoVariants: { item: Fixture; buyerIce: string; raw: TextToken[]; contrast: TextToken[]; threshold: TextToken[] }[] = [];
   const tables: Record<string, { before: Score; after: Score; notes: string[] }> = {};
   for (const format of formats) tables[format] = { before: blankScores(), after: blankScores(), notes: [] };
   for (const id of RASTER_IDS) {
@@ -432,7 +433,8 @@ async function buildCorpus(pdfjs: typeof import("pdfjs-dist")) {
     if (missed.length) tables["png-propre"].notes.push(`${id}: ${missed.join(", ")}`);
   }
   const variantScore = (key: "raw" | "contrast" | "threshold") => photoVariants.reduce((sum, entry) => sum + Object.values(scoreFields(entry.item, parseInvoiceDocument(entry[key], { buyerIce: entry.buyerIce }))).filter(Boolean).length, 0);
-  const chosenMode = (["contrast", "threshold", "raw"] as const).sort((left, right) => variantScore(right) - variantScore(left))[0];
+  const modes: ("raw" | "contrast" | "threshold")[] = ["contrast", "threshold", "raw"];
+  const chosenMode = modes.sort((left, right) => variantScore(right) - variantScore(left))[0];
   for (const entry of photoVariants) {
     record(tables.photo, entry.item, entry.raw, entry[chosenMode], entry.buyerIce, legacy);
     const after = scoreFields(entry.item, parseInvoiceDocument(entry[chosenMode], { buyerIce: entry.buyerIce }));
@@ -491,6 +493,7 @@ function blankScores() {
 }
 
 type Score = Record<string, { hit: number; total: number }>;
+type TextToken = { text: string; x: number; y: number; w: number; h: number };
 
 function scoreFields(item: Fixture, actual: ReturnType<typeof parseInvoiceDocument>) {
   const row = compare(item, actual);
@@ -564,7 +567,7 @@ async function imageOnlyPdf(files: string[]) {
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     for (const file of files) {
-      const image = doc.openImage(file);
+      const image = (doc as unknown as { openImage: (src: string) => { width: number; height: number } }).openImage(file);
       doc.addPage({ size: [image.width, image.height] });
       doc.image(file, 0, 0);
     }
