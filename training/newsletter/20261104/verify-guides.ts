@@ -6,10 +6,10 @@ import { signDownloadToken, verifyDownloadToken, DOWNLOAD_TOKEN_MAX_MS } from ".
 import { handleGuideDownload } from "../../../src/lib/guides/download-http";
 import { readGuideGrant, writeGuideGrant, clearGuideGrant } from "../../../src/lib/guides/remember";
 import { hasAuthSessionCookie } from "../../../src/lib/newsletter/audience";
-import { handleGuideRequest, handleNewsletterSignup, handleUnsubscribe } from "../../../src/lib/newsletter/http";
+import { handleGuideProfile, handleGuideRequest, handleNewsletterSignup, handleUnsubscribe } from "../../../src/lib/newsletter/http";
 import { promptHidden, promptRecord, NEWSLETTER_PROMPT_DAYS } from "../../../src/lib/newsletter/prompt-storage";
 import { PUBLIC_SITE_PATHS, isPublicSitePath } from "../../../src/lib/public-site";
-import { normalizeEmail, parseGuideBody, parseNewsletterBody } from "../../../src/lib/newsletter/validate";
+import { normalizeEmail, parseGuideBody, parseGuideProfileBody, parseNewsletterBody } from "../../../src/lib/newsletter/validate";
 
 const results: string[] = [];
 function check(value: unknown, name: string) { assert.ok(value, name); results.push(name); }
@@ -66,6 +66,14 @@ async function main() {
   const guideLead = parseGuideBody({ email: "ada@example.com", firstName: "Ada", guideConsent: true, newsletter: false, slug: "pro", sector: "Commerce", fax_number: "" });
   check(guideLead.ok && !guideLead.honeypot && guideLead.lead.source === "guide:pro" && guideLead.lead.newsletter === false, "Guide request records source guide:pro without forcing the newsletter");
   check(!parseGuideBody({ email: "ada@example.com", guideConsent: false, newsletter: false, slug: "pro" }).ok, "Guide delivery consent stays explicit");
+  const shortLead = parseGuideBody({ email: "ada@example.com", guideConsent: true, newsletter: false, slug: "pro", fax_number: "" });
+  check(shortLead.ok && !shortLead.honeypot && shortLead.lead.company === null && shortLead.lead.phone === null && shortLead.lead.sector === null && shortLead.lead.firstName === null, "Guide request accepts email alone; company, phone and sector stay optional");
+  const remember = "a".repeat(43);
+  const profile = parseGuideProfileBody({ slug: "pro", token: remember, company: "Atelier Démo", phone: "", sector: "Services", fax_number: "" });
+  check(profile.ok && !profile.honeypot && profile.lead.company === "Atelier Démo" && profile.lead.phone === null && profile.lead.sector === "Services", "Optional profile fields attach to the same guide token");
+  const profileBot = parseGuideProfileBody({ slug: "pro", token: remember, fax_number: "bot" });
+  check(profileBot.ok && profileBot.honeypot, "Profile honeypot short-circuits before storage");
+  check(!parseGuideProfileBody({ slug: "pro", token: remember, company: "", phone: "12", sector: "" }).ok, "A too-short phone is rejected and does not clear the lead");
 
   const claims = { v: 1 as const, slug: "pro", gid: "11111111-1111-4111-8111-111111111111", exp: now + 10 * 60 * 1000 };
   const token = signDownloadToken(claims, secret, now);
@@ -98,6 +106,9 @@ async function main() {
   let saved = 0;
   const missingConsent = await handleNewsletterSignup(request(`${origin}/api/newsletter`, { email: "ada@example.com", consent: false, source: "footer" }), async () => { saved += 1; return { status: "subscribed", message: "no" }; });
   check(missingConsent.status === 400 && saved === 0, "Newsletter API refuses a signup without consent");
+  let profileWrites = 0;
+  const profileHoneypot = await handleGuideProfile(request(`${origin}/api/guides/profile`, { slug: "pro", token: remember, company: "Bot", fax_number: "spam" }), async () => { profileWrites += 1; return true; });
+  check(profileHoneypot.status === 200 && profileWrites === 0, "Profile honeypot stores nothing and sends no message");
   const honeypot = await handleNewsletterSignup(request(`${origin}/api/newsletter`, { email: "ada@example.com", consent: true, source: "footer", fax_number: "spam" }), async () => { saved += 1; return { status: "subscribed", message: "no" }; });
   const honeypotBody = await honeypot.json() as { message?: string };
   check(honeypot.status === 200 && saved === 0 && honeypotBody.message === "Merci, votre inscription est confirmée.", "Honeypot looks successful and stores nothing");

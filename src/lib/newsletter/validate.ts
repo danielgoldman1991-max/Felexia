@@ -122,6 +122,37 @@ export function parseGuideBody(body: unknown): ParseResult<GuideLead> {
 
 const REMEMBER = /^[A-Za-z0-9_-]{32,120}$/;
 
+export type GuideProfile = {
+  slug: string;
+  token: string;
+  company: string | null;
+  phone: string | null;
+  sector: string | null;
+};
+
+export function parseGuideProfileBody(body: unknown): ParseResult<GuideProfile> {
+  const fields = record(body);
+  if (!fields) return { ok: false, error: "Le formulaire est incomplet." };
+  if (honeypotFilled(fields)) return { ok: true, honeypot: true };
+  if (typeof fields.slug !== "string" || !getProductGuide(fields.slug)) return { ok: false, error: "Ce guide n’est pas disponible." };
+  if (typeof fields.token !== "string" || !REMEMBER.test(fields.token)) {
+    return { ok: false, error: "Cette étape n’est plus disponible." };
+  }
+  const company = optionalText(fields.company, 120);
+  const phone = readPhone(fields.phone);
+  if (!company.ok) return { ok: false, error: "Le nom de la société est trop long." };
+  if (!phone.ok) return { ok: false, error: "Le numéro de téléphone n’est pas valide." };
+  let sector: string | null = null;
+  if (fields.sector != null && fields.sector !== "") {
+    if (typeof fields.sector !== "string" || !GUIDE_SECTORS.includes(fields.sector as (typeof GUIDE_SECTORS)[number])) {
+      return { ok: false, error: "Choisissez un secteur dans la liste." };
+    }
+    sector = fields.sector;
+  }
+  if (!company.value && !phone.value && !sector) return { ok: false, error: "Ajoutez au moins une information, ou passez cette étape." };
+  return { ok: true, honeypot: false, lead: { slug: fields.slug, token: fields.token, company: company.value, phone: phone.value, sector } };
+}
+
 export function parseRedeemBody(body: unknown): { ok: true; honeypot: true } | { ok: true; honeypot: false; slug: string; token: string } | { ok: false; error: string } {
   const fields = record(body);
   if (!fields) return { ok: false, error: "Le téléchargement n’est plus disponible. Indiquez à nouveau votre e-mail." };

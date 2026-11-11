@@ -66,6 +66,12 @@
 .submit:hover, .download:hover { background: #1945c2; color: #fff; }
 .submit:disabled { cursor: progress; opacity: .72; }
 .alert { margin: 0; color: #9f2d2d; font-size: 13px; }
+.profile { display: grid; gap: 10px; margin-top: 4px; padding-top: 12px; border-top: 1px solid #e6ebf2; }
+.thanks .profileTitle { margin: 0; color: #14213d; font-size: 15px; font-weight: 650; }
+.profileActions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.skip { min-height: 48px; padding: 12px 16px; border: 1px solid #d5deea; border-radius: 10px; background: #fff; color: #14213d; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
+.skip:hover { background: #f4f7fb; }
+.skip:focus-visible { outline: 2px solid #2454d8; outline-offset: 2px; }
 .thanks { display: grid; gap: 12px; margin-top: 16px; }
 .thanks p { margin: 0; color: #1d4e32; font-size: 15px; line-height: 1.5; }
 .note { color: #52627a !important; font-size: 13px !important; }
@@ -115,6 +121,14 @@
   .grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 720px) {
+  .backdrop { padding: 10px; align-items: end; }
+  .dialog { max-height: calc(100dvh - 20px); padding: 8px 16px 14px; border-radius: 16px; }
+  .closeRow { margin: 0 -4px 0 0; }
+  .dialog h2 { font-size: 22px; }
+  .intro { margin-top: 6px; font-size: 13px; line-height: 1.45; }
+  .form { gap: 8px; margin-top: 10px; }
+  .check { font-size: 12.5px; line-height: 1.4; }
+  .submit { position: sticky; bottom: 0; }
   .banner { align-items: flex-start; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) {

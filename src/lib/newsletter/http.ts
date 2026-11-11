@@ -1,10 +1,12 @@
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import {
   parseGuideBody,
+  parseGuideProfileBody,
   parseNewsletterBody,
   parseRedeemBody,
   parseUnsubscribeToken,
   type GuideLead,
+  type GuideProfile,
   type NewsletterLead,
 } from "@/lib/newsletter/validate";
 
@@ -127,6 +129,27 @@ export async function handleGuideRequest(
   } catch (error) {
     if (isUnavailableError(error)) return unavailable();
     return json(500, { ok: false, error: "Le guide n’a pas pu être préparé. Réessayez dans un instant." });
+  }
+}
+
+export async function handleGuideProfile(
+  request: Request,
+  save: (profile: GuideProfile) => Promise<boolean>,
+  deps: Deps = {},
+): Promise<Response> {
+  if (!sameOrigin(request)) return json(403, { ok: false, error: "Cette demande doit être envoyée depuis le site Felexia." });
+  const blocked = limited(request, "guide-profile", 8, deps);
+  if (blocked) return blocked;
+  const parsed = parseGuideProfileBody(await readBody(request));
+  if (!parsed.ok) return json(400, { ok: false, error: parsed.error });
+  if (parsed.honeypot) return json(200, { ok: true, status: "saved" });
+  try {
+    const saved = await save(parsed.lead);
+    if (!saved) return json(401, { ok: false, error: "Cette étape n’est plus disponible." });
+    return json(200, { ok: true, status: "saved" });
+  } catch (error) {
+    if (isUnavailableError(error)) return unavailable();
+    return json(500, { ok: false, error: "L’enregistrement n’a pas abouti. Vous pouvez passer cette étape." });
   }
 }
 
