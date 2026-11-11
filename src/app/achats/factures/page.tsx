@@ -23,7 +23,7 @@ export default async function SupplierInvoicesPage({ searchParams }: { searchPar
   catch { return <ModulePage><PageHeader title="Factures fournisseurs" /><EmptyState title="Impossible de charger les factures" description="Réessayez dans un instant. Vos données sont conservées ; contactez l’assistance si le problème persiste." /></ModulePage>; }
   const query = new URLSearchParams(Object.entries(params).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
   return <ModulePage>
-    <PageHeader title="Factures fournisseurs" description="Enregistrez vos factures d’achat et suivez les sommes à régler." actions={<div className="flex flex-wrap gap-2"><Button variant="secondary" asChild><a href={`/api/exports/purchases?${query}`}><Download className="h-4 w-4" />Exporter CSV</a></Button>{canWrite ? <Button asChild><Link href="/achats/factures/new"><Plus className="h-4 w-4" />Nouvelle facture</Link></Button> : null}</div>} />
+    <PageHeader title="Factures fournisseurs" description="Enregistrez vos factures d’achat et suivez les sommes à régler." actions={<div className="flex flex-wrap gap-2"><Button variant="secondary" asChild><a href={`/api/exports/purchases?${query}`}><Download className="h-4 w-4" />Exporter CSV</a></Button>{canWrite ? <Button variant="secondary" asChild><Link href="/achats/factures/importer">Importer une facture</Link></Button> : null}{canWrite ? <Button asChild><Link href="/achats/factures/new"><Plus className="h-4 w-4" />Nouvelle facture</Link></Button> : null}</div>} />
     <InvoiceListFilters params={params} supplier />
     <SupplierInvoicesTable rows={result.rows} />
     <ListPagination page={result.page} totalPages={result.totalPages} total={result.total} params={params} />

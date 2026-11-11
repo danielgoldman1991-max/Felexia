@@ -327,6 +327,7 @@ export function SupplierInvoiceDetail({
   fullAccess = false,
   canWrite = false,
   canPostAccounting = false,
+  scan = null,
 }: {
   invoice: SupplierInvoiceRecord;
   lines: SupplierInvoiceLineRecord[];
@@ -337,6 +338,7 @@ export function SupplierInvoiceDetail({
   fullAccess?: boolean;
   canWrite?: boolean;
   canPostAccounting?: boolean;
+  scan?: { fileName: string } | null;
 }) {
   const canEdit = canWrite && invoice.status === "draft";
   const canValidate = canWrite && invoice.status === "draft";
@@ -364,6 +366,7 @@ export function SupplierInvoiceDetail({
               <Button asChild><Link href={`/achats/paiements/new?supplierId=${invoice.supplier_id}&invoiceId=${invoice.id}`}>Payer</Link></Button>
             ) : null}
             <Button variant="secondary" asChild><Link href={`/achats/factures/${invoice.id}/print`} target="_blank"><Printer className="h-4 w-4" /> Imprimer</Link></Button>
+            {scan ? <Button variant="secondary" asChild><a href={`/achats/factures/${invoice.id}/scan`}>Document importé</a></Button> : null}
             {canWrite && invoice.status !== "draft" && invoice.status !== "cancelled" ? <Button variant="secondary" asChild><Link href={`/achats/avoirs/new?invoiceId=${invoice.id}`}>Enregistrer un avoir fournisseur</Link></Button> : null}
             {canCancel ? (
               <ActionForm label="Annuler" icon={<XCircle className="h-4 w-4" />} variant="danger" action={actionWithId(cancelSupplierInvoice, invoice.id)} />
