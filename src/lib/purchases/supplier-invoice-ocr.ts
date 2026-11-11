@@ -57,6 +57,21 @@ export function inspectScanFile(input: { name: string; type: string; size: numbe
   return null;
 }
 
+export function scanFileType(name: string, type: string, bytes?: Uint8Array): { mime: "application/pdf" | "image/jpeg" | "image/png"; extension: "pdf" | "jpeg" | "png" } | null {
+  if (bytes && bytes.length >= 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46) return { mime: "application/pdf", extension: "pdf" };
+  if (bytes && bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8) return { mime: "image/jpeg", extension: "jpeg" };
+  if (bytes && bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return { mime: "image/png", extension: "png" };
+  const normalized = type.toLowerCase().split(";")[0].trim();
+  if (normalized === "application/pdf") return { mime: "application/pdf", extension: "pdf" };
+  if (normalized === "image/jpeg" || normalized === "image/jpg" || normalized === "image/pjpeg") return { mime: "image/jpeg", extension: "jpeg" };
+  if (normalized === "image/png") return { mime: "image/png", extension: "png" };
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".pdf")) return { mime: "application/pdf", extension: "pdf" };
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return { mime: "image/jpeg", extension: "jpeg" };
+  if (lower.endsWith(".png")) return { mime: "image/png", extension: "png" };
+  return null;
+}
+
 export function mimeFrom(type: string, name: string, bytes?: Buffer) {
   const normalized = type.toLowerCase();
   if (normalized === "application/pdf" || normalized === "image/jpeg" || normalized === "image/png") return normalized;

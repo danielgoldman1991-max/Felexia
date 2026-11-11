@@ -56,16 +56,32 @@ async function readPdf(data: Uint8Array, buyerIce: string | undefined, onProgres
 
 async function recognize(canvas: HTMLCanvasElement, onProgress: Progress): Promise<TextToken[]> {
   reportProgress = onProgress;
+  const { PSM } = await import("tesseract.js");
   const worker = await ocrWorker();
   onProgress(0.2, "Analyse en cours…");
-  const result = await worker.recognize(canvas);
-  return (result.data.words ?? []).filter((word) => word.text.trim()).map((word) => ({
+  let best: TextToken[] = [];
+  for (const mode of [PSM.SINGLE_BLOCK, PSM.SINGLE_COLUMN]) {
+    await worker.setParameters({ tessedit_pageseg_mode: mode });
+    const result = await worker.recognize(canvas);
+    const tokens = wordsToTokens(result.data.words ?? []);
+    if (tokenScore(tokens) > tokenScore(best)) best = tokens;
+    if (tokens.length > 20 && /total|ttc|facture|montant/i.test(tokens.map((token) => token.text).join(" "))) break;
+  }
+  return best;
+}
+
+function wordsToTokens(words: { text: string; bbox: { x0: number; y0: number; x1: number; y1: number } }[]): TextToken[] {
+  return words.filter((word) => word.text.trim()).map((word) => ({
     text: word.text,
     x: word.bbox.x0,
     y: word.bbox.y0,
     w: Math.max(1, word.bbox.x1 - word.bbox.x0),
     h: Math.max(1, word.bbox.y1 - word.bbox.y0),
   }));
+}
+
+function tokenScore(tokens: TextToken[]) {
+  return tokens.reduce((sum, token) => sum + token.text.length + (/\d/.test(token.text) ? 2 : 0), 0);
 }
 
 function ocrWorker() {
@@ -92,13 +108,14 @@ async function bitmapCanvas(file: File) {
 }
 
 function preprocess(source: HTMLCanvasElement) {
-  const scale = source.width < 1400 ? 1400 / source.width : 1;
+  const oriented = orient(source);
+  const scale = oriented.width < 1800 ? 2200 / oriented.width : 1;
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(source.width * scale);
-  canvas.height = Math.round(source.height * scale);
+  canvas.width = Math.round(oriented.width * scale);
+  canvas.height = Math.round(oriented.height * scale);
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (!context) return source;
-  context.drawImage(source, 0, 0, canvas.width, canvas.height);
+  context.drawImage(oriented, 0, 0, canvas.width, canvas.height);
   const image = context.getImageData(0, 0, canvas.width, canvas.height);
   const pixels = image.data;
   let min = 255;
@@ -112,11 +129,33 @@ function preprocess(source: HTMLCanvasElement) {
   const span = Math.max(1, max - min);
   for (let index = 0; index < pixels.length; index += 4) {
     const stretched = ((pixels[index] - min) / span) * 255;
-    const contrasted = Math.min(255, Math.max(0, (stretched - 128) * 1.2 + 128));
+    const contrasted = Math.min(255, Math.max(0, (stretched - 128) * 1.15 + 128));
     pixels[index] = pixels[index + 1] = pixels[index + 2] = contrasted;
   }
   context.putImageData(image, 0, 0);
   return deskew(canvas);
+}
+
+function orient(source: HTMLCanvasElement) {
+  const turns = [0, 90, 180, 270];
+  let best = 0;
+  let bestScore = -1;
+  for (const turn of turns) {
+    const score = projectionScore(source, turn);
+    if (score > bestScore) { bestScore = score; best = turn; }
+  }
+  if (best === 0) return source;
+  const canvas = document.createElement("canvas");
+  canvas.width = best === 90 || best === 270 ? source.height : source.width;
+  canvas.height = best === 90 || best === 270 ? source.width : source.height;
+  const context = canvas.getContext("2d");
+  if (!context) return source;
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate(best * Math.PI / 180);
+  context.drawImage(source, -source.width / 2, -source.height / 2);
+  return canvas;
 }
 
 function deskew(source: HTMLCanvasElement) {
@@ -134,7 +173,8 @@ function deskew(source: HTMLCanvasElement) {
     const score = projectionScore(sample, angle);
     if (score > bestScore) { bestScore = score; bestAngle = angle; }
   }
-  if (bestAngle === 0) return source;
+  const straight = projectionScore(sample, 0);
+  if (bestAngle === 0 || bestScore < straight * 1.2) return source;
   const radians = bestAngle * Math.PI / 180;
   const canvas = document.createElement("canvas");
   canvas.width = source.width;
