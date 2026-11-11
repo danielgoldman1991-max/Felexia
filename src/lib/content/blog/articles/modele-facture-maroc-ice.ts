@@ -39,7 +39,9 @@ const article: BlogArticle = {
     p("Le 1° demande l’identité du vendeur. Le 2° demande le numéro d’identification fiscale du service local des impôts et le numéro d’article d’imposition à la taxe professionnelle. Le 3° demande la date de l’opération. Le 4° demande les nom, prénoms ou raison sociale, l’adresse du client, et son identifiant commun de l’entreprise. Le 5° demande le prix, la quantité et la nature des marchandises, travaux ou services. Le 6° demande le montant de la TVA, distinct, en sus du prix ou compris dans le prix. Pour les opérations des articles 91, 92 ou 94, cette mention est remplacée par l’exonération ou le régime suspensif. Le 7° demande les références et le mode de paiement. Le 8° renvoie à d’autres textes, sans les énumérer."),
     p("L’ICE de celui qui délivre la facture est à l’article 145-VIII, pas au 1°. L’article 146 demande qu’une facture régulière comporte les indications des paragraphes III et VIII. L’article 119-I vise les factures des opérations soumises à la TVA, établies selon le 145-III. Ces paragraphes ne fixent pas le nombre de caractères de l’ICE. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple n’utilise que des zéros."),
     h3("hors-de-ce-modele", "Ce que ce modèle ne couvre pas"),
-    p("Pour une vente de produits ou de marchandises à des particuliers, le ticket de caisse peut tenir lieu de facture. Sa liste, lue à l’article 145-III, est plus courte. L’article 145-XI écarte l’article 145 pour les personnes physiques au régime de la contribution professionnelle unique ou de l’auto-entrepreneur, sous réserve de l’adresse électronique du paragraphe X. Si vous êtes dans l’un de ces cas, ne recopiez pas ce modèle tel quel."),
+    p("Pour une vente de produits ou de marchandises à des particuliers, le ticket de caisse peut tenir lieu de facture. Sa liste, lue à l’article 145-III, est plus courte. L’article 145-XI écarte l’article 145 pour les personnes physiques au régime de la contribution professionnelle unique ou de l’auto-entrepreneur, sous réserve de l’adresse électronique du paragraphe X. Si vous êtes dans l’un de ces cas, ne recopiez pas ce modèle tel quel. La ",
+      { href: "/blog/facture-auto-entrepreneur-maroc", label: "facture d’auto-entrepreneur" },
+      " est traitée à part."),
     h2("modele-annote", "Le modèle annoté, zone par zone"),
     p("Le tableau est un exemple fictif. Menuiserie des Deux Rives, Boutique des Remparts, les adresses et les numéros n’existent pas. Le taux retenu est le taux normal de 20 % de l’article 99-A, pour des ouvrages qui ne sont pas présentés comme relevant du 99-B. Quatre portes à 1 250,00 dirhams hors taxe font 5 000,00. Quatre poses à 180,00 dirhams font 720,00. Le hors taxe fait 5 720,00. La TVA à 20 % fait 1 144,00. Le total fait 6 864,00."),
     {
@@ -143,6 +145,7 @@ const article: BlogArticle = {
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
+    { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
     { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 et les PME" },
   ],
