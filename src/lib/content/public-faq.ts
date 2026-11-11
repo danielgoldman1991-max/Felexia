@@ -56,17 +56,17 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Où sont stockées mes données ?",
     answer:
-      "Le site et le service web sont hébergés chez Vercel. Les bases de données et l’authentification passent par Supabase. La politique de confidentialité indique que ces données peuvent être traitées en dehors du Maroc, avec un contrôle d’accès par rôles, des restrictions en base (RLS), un chiffrement des communications en transit et des sauvegardes selon l’infrastructure. Le lieu exact de chaque sauvegarde n’est pas publié : [à confirmer].",
+      "Le site est servi par Vercel. Les données de l’entreprise sont dans la base PostgreSQL Supabase de production, en région eu-west-1. L’accès passe par le compte, le rôle et des règles par entreprise. Les communications sont chiffrées en transit. La fréquence, la durée de conservation et la restauration à un instant des sauvegardes ne sont pas publiées.",
   },
   {
     question: "Puis-je exporter mes factures et partir ?",
     answer:
-      "Les factures se téléchargent en PDF. Plusieurs listes et journaux s’exportent en CSV ou Excel, et un FEC préparatoire se télécharge depuis la comptabilité. Ce n’est pas une transmission officielle. Un export unique de toutes les tables de l’entreprise n’est pas décrit sur le site : [à confirmer].",
+      "Oui. Chaque facture se télécharge en PDF, et plusieurs listes s’exportent en CSV. Le propriétaire ou l’administrateur trouve aussi, dans Paramètres, « Exporter les données » : une archive ZIP de son entreprise seulement (tiers, factures et lignes, règlements, articles, écritures, et salariés si l’offre est PRO). Un FEC préparatoire reste disponible en comptabilité : ce n’est pas une transmission officielle.",
   },
   {
     question: "Puis-je importer mes clients depuis Excel ?",
     answer:
-      "Les pages publiques ne décrivent pas d’import général des clients depuis Excel. Un import de salariés par fichier existe dans le module RH de PRO. L’import d’un fichier clients : [à confirmer].",
+      "Oui, pour les clients et les fournisseurs. Dans Tiers, « Importer » propose un modèle CSV, que l’on ouvre dans Excel avec le séparateur point-virgule. L’aperçu refuse un ICE qui n’a pas 15 chiffres et un doublon de nom ou d’ICE. Rien n’est enregistré avant la confirmation, et les lignes sont ajoutées seulement à l’entreprise ouverte. Un résumé indique le nombre de contacts créés. L’import des salariés reste à part, dans le module RH de PRO.",
   },
   {
     question: "Qui m’aide si je bloque ?",
