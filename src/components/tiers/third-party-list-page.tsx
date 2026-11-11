@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Download, Plus, SearchX, Star, Store, Truck, Users,
+  Building2, CalendarClock, ChevronLeft, ChevronRight, CreditCard, Download, Plus, SearchX, Star, Store, Truck, Upload, Users,
 } from "lucide-react";
 import { EmptyState } from "@/components/erp/empty-state";
 import { PageHeader } from "@/components/erp/page-header";
@@ -110,7 +110,7 @@ export async function ThirdPartyListPage({
   const exportParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) if (typeof value === "string") exportParams.set(key, value);
   if (forcedType) exportParams.set("type", forcedType);
-  const createAction = <div className="flex flex-wrap gap-2"><Button variant="secondary" asChild><a href={`/api/exports/contacts?${exportParams}`}><Download className="h-4 w-4" />Exporter CSV</a></Button>{canWrite ? <Button asChild><Link href={meta.buttonHref}><Plus className="h-4 w-4" aria-hidden="true" />{meta.buttonLabel}</Link></Button> : null}</div>;
+  const createAction = <div className="flex flex-wrap gap-2"><Button variant="secondary" asChild><a href={`/api/exports/contacts?${exportParams}`}><Download className="h-4 w-4" />Exporter CSV</a></Button>{canWrite ? <Button variant="secondary" asChild><Link href="/tiers/import"><Upload className="h-4 w-4" aria-hidden="true" />Importer</Link></Button> : null}{canWrite ? <Button asChild><Link href={meta.buttonHref}><Plus className="h-4 w-4" aria-hidden="true" />{meta.buttonLabel}</Link></Button> : null}</div>;
 
   let rows: ThirdPartyRecord[] = [];
   let counters = {
