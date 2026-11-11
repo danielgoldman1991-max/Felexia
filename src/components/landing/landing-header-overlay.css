@@ -39,15 +39,15 @@
   min-height: 44px;
   padding: 11px 20px;
   gap: 12px;
-  border: 1px solid #7393ff38;
-  border-radius: 999px;
-  background: #315efb;
+  border: 1px solid #2454d8;
+  border-radius: 8px;
+  background: #2454d8;
   color: #fff;
   box-shadow: none;
 }
 
 .landing.marketing-site.marketing-horizon-site .marketing-header-overlay .marketing-header-cta:hover {
-  background: #254ee0;
+  background: #1a46b6;
   color: #fff;
   transform: none;
   box-shadow: none;
@@ -84,7 +84,7 @@
 }
 
 .landing.marketing-horizon-site .marketing-header-overlay .marketing-mobile-nav :is(a, button):focus-visible {
-  outline-color: #315efb;
+  outline-color: #2454d8;
 }
 
 .landing.marketing-site.marketing-horizon-site[data-hero-visible="false"] .marketing-header.marketing-header-overlay {
@@ -103,7 +103,7 @@
 }
 
 .landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login):hover {
-  color: #315efb;
+  color: #2454d8;
   opacity: 1;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .landing.marketing-horizon-site[data-hero-visible="false"] .marketing-header-overlay :is(a, button):focus-visible {
-  outline-color: #315efb;
+  outline-color: #2454d8;
 }
 
 @media (max-width: 1099px) {
