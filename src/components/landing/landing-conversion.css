@@ -12,7 +12,8 @@
 .landing .conversion-trial-note strong { display: block; margin-top: 2px; font-size: 14px; font-weight: 600; color: #081b33; }
 .landing .conversion-trial-note p { margin-top: 5px; color: #637087; font-size: 12px; line-height: 1.7; }
 .landing .conversion-pricing-aside { margin-top: 22px; color: #637087; font-size: 13px; line-height: 1.8; }
-.landing .conversion-pricing-aside a { display: inline; color: #2454d8; font-weight: 500; text-underline-offset: 4px; }
+.landing .conversion-pricing-aside a, .landing .conversion-whatsapp { display: inline; color: #2454d8; font-weight: 600; text-underline-offset: 4px; }
+.landing .conversion-price-card-pro .conversion-whatsapp { display: inline-flex; min-height: 44px; align-items: center; margin-top: 8px; color: #9de8cf; }
 .landing .conversion-pricing-aside a svg { display: inline; margin-left: 2px; vertical-align: -3px; }
 .landing .conversion-pricing-aside a:hover { text-decoration: underline; }
 .landing .conversion-pricing-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; min-width: 0; align-items: stretch; }

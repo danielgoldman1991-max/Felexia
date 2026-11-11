@@ -12,7 +12,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que comprend l’offre Essentiel ?",
     answer:
-      "ESSENTIEL est votre outil de gestion d’entreprise au quotidien : clients et fournisseurs, factures de vente et d’achat, règlements, comptes bancaires et caisses, trésorerie et journaux. La facturation électronique PDF/XML et l’archivage sont aussi inclus. Vous pouvez travailler jusqu’à 3 utilisateurs dans votre espace entreprise.",
+      "ESSENTIEL couvre la facturation (factures, PDF, et facturation électronique PDF/XML avec archivage), les règlements et les journaux comptables, jusqu’à 3 utilisateurs. Les devis, les commandes, le stock et le reste de l’ERP sont dans PRO.",
   },
   {
     question: "Comment fonctionne l’essai gratuit ?",
@@ -31,7 +31,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que change l’offre PRO ?",
     answer:
-      "PRO comprend tout ESSENTIEL et ouvre l’ERP complet : prospects, devis, commandes, livraisons, achats et réceptions, stock, comptabilité avec grand livre et balance, préparation TVA, prévisions de trésorerie et gestion RH. Vous pouvez travailler jusqu’à 25 utilisateurs. La TVA et la paie restent des fonctions préparatoires à valider avec vos conseils.",
+      "PRO reprend ESSENTIEL et ajoute les devis, les prospects, les commandes, les livraisons, les achats et réceptions, le stock, la comptabilité étendue, la préparation TVA, les prévisions de trésorerie et les RH, jusqu’à 25 utilisateurs. Le passage à PRO est une raison de sortir du seul cycle facture-règlement-journal.",
   },
   {
     question: "Comment obtenir une proposition PRO ?",
@@ -48,13 +48,38 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
     answer:
       "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
   },
+  {
+    question: "Que se passe-t-il après les 15 jours ?",
+    answer:
+      "À la fin de l’essai, l’espace passe en consultation : les données restent lisibles et les exports déjà prévus restent disponibles. Créer ou modifier des opérations demande un abonnement ESSENTIEL actif. Le tarif publié ensuite est celui affiché sur la page Tarifs.",
+  },
+  {
+    question: "Où sont stockées mes données ?",
+    answer:
+      "Le site et le service web sont hébergés chez Vercel. Les bases de données et l’authentification passent par Supabase. La politique de confidentialité indique que ces données peuvent être traitées en dehors du Maroc, avec un contrôle d’accès par rôles, des restrictions en base (RLS), un chiffrement des communications en transit et des sauvegardes selon l’infrastructure. Le lieu exact de chaque sauvegarde n’est pas publié : [à confirmer].",
+  },
+  {
+    question: "Puis-je exporter mes factures et partir ?",
+    answer:
+      "Les factures se téléchargent en PDF. Plusieurs listes et journaux s’exportent en CSV ou Excel, et un FEC préparatoire se télécharge depuis la comptabilité. Ce n’est pas une transmission officielle. Un export unique de toutes les tables de l’entreprise n’est pas décrit sur le site : [à confirmer].",
+  },
+  {
+    question: "Puis-je importer mes clients depuis Excel ?",
+    answer:
+      "Les pages publiques ne décrivent pas d’import général des clients depuis Excel. Un import de salariés par fichier existe dans le module RH de PRO. L’import d’un fichier clients : [à confirmer].",
+  },
+  {
+    question: "Qui m’aide si je bloque ?",
+    answer:
+      "Écrivez sur WhatsApp au +212 6 14 50 50 90, ou à contact@felexia.pro. Aucun horaire de réponse ni délai garanti n’est publié.",
+  },
 ];
 
 /** Visible pricing FAQ. Amounts come from the public plan catalogue, not from a second price list. */
 export const PRICING_FAQS: readonly PublicFaqItem[] = [
   {
     question: `Que comprend ESSENTIEL à ${price} HT MAD par mois ?`,
-    answer: `Votre espace entreprise, la facturation, les achats, les règlements, la trésorerie et les journaux, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, sans remise. La génération PDF/XML et l’archivage documentaire sont inclus.`,
+    answer: `La facturation, les règlements et les journaux comptables, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, soit douze mois sans remise. Les devis ne sont pas dans ESSENTIEL. La génération PDF/XML et l’archivage documentaire sont inclus.`,
   },
   {
     question: "Faut-il une carte bancaire pour l’essai ?",

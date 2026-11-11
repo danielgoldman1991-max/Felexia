@@ -1,11 +1,11 @@
 import { ProGuideCta } from "@/components/marketing/ProGuideCta";
-import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
+import { getProQuoteHref, getProWhatsAppHref } from "@/lib/subscriptions/quote-contact";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Boxes, Check, PackageCheck, ShoppingCart, UsersRound } from "lucide-react";
 import "./landing-pro.css";
 
 const benefits = [
-  { icon: ShoppingCart, title: "Du devis à la livraison.", description: "Commandes clients, achats et réceptions : gardez le fil de vos opérations." },
+  { icon: ShoppingCart, title: "Les devis, dès le premier échange.", description: "Devis, commandes et livraisons : le cycle commercial complet est dans PRO, pas dans ESSENTIEL." },
   { icon: Boxes, title: "Le stock et les chiffres se répondent.", description: "Retrouvez vos mouvements, vos emplacements et le détail de votre comptabilité." },
   { icon: UsersRound, title: "Une équipe. Une vue d’ensemble.", description: "Réunissez vos dossiers RH, vos prévisions de trésorerie et vos indicateurs." },
 ];
@@ -15,9 +15,9 @@ export function LandingPro() {
     <section id="pro" className="pro-suite" aria-labelledby="pro-title">
       <div className="marketing-container">
         <div className="pro-suite-heading" data-reveal>
-          <p className="pro-suite-eyebrow">FELEXIA PRO · L’ERP COMPLET</p>
-          <h2 id="pro-title">Quand votre entreprise grandit,<br />votre outil suit.</h2>
-          <p className="pro-suite-intro">Tout ESSENTIEL, avec un ERP qui relie vos ventes, vos achats, votre stock et votre équipe.</p>
+          <p className="pro-suite-eyebrow">QUAND VOUS GRANDISSEZ</p>
+          <h2 id="pro-title">Stock, devis, équipe :<br />tout votre ERP, relié.</h2>
+          <p className="pro-suite-intro">Tout ESSENTIEL, plus les devis, les commandes, le stock et la comptabilité étendue, jusqu’à 25 utilisateurs.</p>
         </div>
         <div className="pro-suite-grid">
           <div className="pro-suite-copy" data-reveal>
@@ -30,10 +30,12 @@ export function LandingPro() {
               ))}
             </div>
             <a href={getProQuoteHref()} className="pro-suite-quote">Demander un devis PRO <ArrowUpRight size={17} aria-hidden="true" /></a>
-            <Link href="/pro" className="pro-suite-link">Explorer l’ERP complet <ArrowRight size={16} aria-hidden="true" /></Link>
+            <a className="pro-suite-whatsapp" href={getProWhatsAppHref()} target="_blank" rel="noopener noreferrer">Écrire sur WhatsApp</a>
           </div>
 
-          <figure className="pro-suite-product" data-reveal>
+          <details className="pro-suite-more">
+            <summary>Voir le parcours et le guide PRO</summary>
+          <figure className="pro-suite-product">
             <div className="pro-suite-example" aria-hidden="true">
               <div className="pro-suite-appbar"><span className="pro-suite-appmark">f.</span><span>Felexia PRO</span><span className="pro-suite-example-label">Vue d’exemple</span></div>
               <div className="pro-suite-product-heading"><span>VOTRE CYCLE D’ACHAT</span><strong>Du fournisseur à votre stock.</strong></div>
@@ -53,14 +55,13 @@ export function LandingPro() {
             </div>
             <figcaption>Exemple de parcours PRO · Articles et quantités fictifs.</figcaption>
           </figure>
-        </div>
-
-        <div className="pro-suite-footnote" data-reveal>
+        <div className="pro-suite-footnote">
           <p>Un projet sur devis, jusqu’à 25 utilisateurs. Le périmètre se construit avec notre équipe.</p>
-          <Link href="/blog/gestion-de-stock-au-maroc">Comprendre la gestion de stock <ArrowUpRight size={16} aria-hidden="true" /></Link>
+          <Link href="/pro" className="pro-suite-link">Explorer l’ERP complet <ArrowRight size={16} aria-hidden="true" /></Link>
         </div>
         <div className="pro-suite-guide"><ProGuideCta /></div>
-        <p className="pro-suite-scope">Les fonctions précisées au devis définissent le périmètre disponible. Les écrans « à venir » sont exclus. Les déclarations TVA et la paie restent préparatoires, à valider avec vos conseils.</p>
+          </details>
+        </div>
       </div>
     </section>
   );

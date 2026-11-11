@@ -6,20 +6,22 @@ import { useState } from "react";
 import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscriptions/plans";
 import { filterPubliclyAvailablePlans, isPlanQuoteOnly } from "@/lib/subscriptions/commercial-offers";
-import { getProQuoteHref } from "@/lib/subscriptions/quote-contact";
+import { getProQuoteHref, getProWhatsAppHref } from "@/lib/subscriptions/quote-contact";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import "./landing-conversion.css";
 
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
 const essentialFeatures = [
-  "Votre espace entreprise", "Clients et fournisseurs", "Factures de vente", "Factures d’achat",
-  "Règlements clients et fournisseurs", "Comptes bancaires et caisses", "Mouvements de trésorerie",
-  "Journaux et écritures", "Factures PDF avec votre logo", "Facturation électronique PDF/XML et archivage",
+  "Factures de vente, PDF et votre logo",
+  "Facturation électronique PDF/XML et archivage",
+  "Règlements clients",
+  "Journaux comptables",
   "Jusqu’à 3 utilisateurs",
+  "Les devis, commandes et le stock sont dans PRO",
 ];
 const proFeatures = [
-  "Tout ESSENTIEL, avec l’ERP complet",
-  "Prospects, devis et commandes clients",
+  "Tout ESSENTIEL",
+  "Devis, prospects, commandes et livraisons",
   "Bons de livraison et retours clients",
   "Commandes et réceptions fournisseurs",
   "Stock, emplacements et mouvements",
@@ -42,8 +44,8 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
       <div className="marketing-container conversion-pricing-grid">
         <div className="conversion-pricing-intro" data-reveal>
           <p className="marketing-eyebrow">Deux offres, la même ambition</p>
-          <Heading id="conversion-pricing-title" className="marketing-section-title">{standalone ? <>Tarifs du logiciel de gestion<br />pour les PME au Maroc.</> : <>Deux offres.<br />Un prochain cap.</>}</Heading>
-          <p className="marketing-copy">{standalone ? "Facturez, suivez vos achats et votre trésorerie avec ESSENTIEL. Avec PRO, reliez aussi le stock, la comptabilité et les ressources humaines." : "ESSENTIEL pour votre quotidien. PRO pour relier toute votre activité. Choisissez le périmètre qui vous ressemble."}</p>
+          <Heading id="conversion-pricing-title" className="marketing-section-title">{standalone ? <>Tarifs du logiciel de gestion<br />pour les PME au Maroc.</> : <>Un prix clair.<br />Un essai de {DEFAULT_TRIAL_DURATION_LABEL}.</>}</Heading>
+          <p className="marketing-copy">{standalone ? "ESSENTIEL : factures, règlements et journaux. PRO : les devis et le reste de l’ERP, sur devis." : "Commencez par facturer avec ESSENTIEL. Passez à PRO pour les devis, le stock et l’équipe."}</p>
           <div className="conversion-trial-note">
             <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
             <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL.</strong><p>Découvrez votre espace gratuitement, sans carte bancaire. Pour PRO, échangeons sur votre projet.</p></div>
@@ -61,15 +63,16 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
             return (
               <article key={plan.code} className={`conversion-price-card${isPro ? " conversion-price-card-pro" : ""}`} aria-labelledby={`conversion-plan-${plan.code}`}>
                 <div className="conversion-plan-topline"><PlanHeading id={`conversion-plan-${plan.code}`}>{plan.name}</PlanHeading><span className="conversion-plan-badge">{isPro ? "L’ERP complet" : "Votre gestion quotidienne"}</span></div>
-                <p className="conversion-plan-description">{isPro ? "Une vue d’ensemble, du premier devis à la comptabilité et aux RH." : "Ventes, achats, clients, fournisseurs et trésorerie : votre entreprise au quotidien."}</p>
+                <p className="conversion-plan-description">{isPro ? "Les devis, les commandes, le stock et l’équipe. PRO reprend ESSENTIEL et va plus loin." : "Facturation, règlements et journaux comptables. Pas les devis : ils sont dans PRO."}</p>
                 <div className="conversion-price-amount" aria-live="polite" aria-atomic="true">{isPro ? <strong>Sur devis</strong> : <><strong>{formatPrice(yearly ? plan.yearlyPrice : plan.monthlyPrice)}</strong><span> HT MAD <span>/{yearly ? "an" : "mois"}</span></span></>}</div>
-                <p className="conversion-price-caption">{isPro ? "Un projet ERP complet, une proposition adaptée à votre entreprise." : `${yearly ? "Facturé annuellement." : "Facturé mensuellement."} Commencez par votre essai gratuit.`}</p>
-                <Link href={isPro ? getProQuoteHref() : "/login?mode=register"} className={`marketing-button ${isPro ? "conversion-pro-button" : "marketing-button-primary"} conversion-price-button`}>{isPro ? "Demander un devis" : "Essayer ESSENTIEL gratuitement"} <ArrowRight size={17} aria-hidden="true" /></Link>
-                <p className="conversion-no-card">{isPro ? <Mail size={14} aria-hidden="true" /> : <CreditCard size={14} aria-hidden="true" />} {isPro ? "Parlons de votre activité" : "Essai sans carte bancaire"}</p>
+                <p className="conversion-price-caption">{isPro ? "Aucun prix public. La proposition se fait avec l’équipe." : yearly ? `Soit 12 × ${formatPrice(plan.monthlyPrice)} MAD HT, sans remise.` : "Facturé chaque mois. L’annuel est le même tarif, sans remise."}</p>
+                <Link href={isPro ? getProQuoteHref() : "/login?mode=register"} className={`marketing-button ${isPro ? "conversion-pro-button" : "marketing-button-primary"} conversion-price-button`}>{isPro ? "Demander un devis PRO" : "Essayer gratuitement"} <ArrowRight size={17} aria-hidden="true" /></Link>
+                {isPro ? <a className="conversion-whatsapp" href={getProWhatsAppHref()}>Écrire sur WhatsApp</a> : null}
+                <p className="conversion-no-card">{isPro ? <Mail size={14} aria-hidden="true" /> : <CreditCard size={14} aria-hidden="true" />} {isPro ? "L’e-mail reste possible, WhatsApp aussi" : `${DEFAULT_TRIAL_DURATION_LABEL} · sans carte bancaire`}</p>
                 <div className="conversion-included-heading">{isPro ? "Tout ESSENTIEL, et plus loin" : "Inclus dans ESSENTIEL"}</div>
                 <ul className="conversion-included-list">{features.map((feature) => <li key={feature}><Check size={16} aria-hidden="true" /><span>{feature}</span></li>)}</ul>
                 <p className="conversion-plan-limits">{isPro ? "1 entreprise · Documents commerciaux sans plafond mensuel · 20 Go de stockage" : "1 entreprise · 500 documents commerciaux / mois · 1 Go de stockage"}</p>
-                {isPro ? <p className="conversion-plan-limits">Mise en place accompagnée : le devis précise les fonctions utilisables. La paie, la TVA et les fichiers sociaux restent préparatoires et se valident avec vos conseils. Le dépôt en ligne n’est pas effectué par Felexia.</p> : null}
+                {isPro ? <p className="conversion-plan-limits">Le devis précise les fonctions utilisables. Le détail des limites est dans le pied de page.</p> : null}
               </article>
             );
           })}
