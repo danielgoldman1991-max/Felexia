@@ -37,7 +37,9 @@ const article: BlogArticle = {
     p("L’article 145 est intitulé « Tenue de la comptabilité ». Son paragraphe III, sous réserve du paragraphe IX, oblige les contribuables à délivrer à leurs acheteurs ou clients des factures ou mémoires. Ces pièces sont pré-numérotées et tirées d’une série continue, ou éditées par un système informatique selon une série continue."),
     p("Le texte ajoute « en plus des indications habituelles d’ordre commercial », sans définir cette formule. Le tableau reprend les huit rubriques. Le 8° renvoie à d’autres textes, sans les énumérer. Le registre du commerce et la CNSS ne figurent pas dans l’article 145 : vérifiez-les avec votre conseil s’ils vous concernent."),
     h3("particuliers-et-non-commercants", "Particuliers, ticket de caisse et non-commerçants"),
-    p("Pour une vente de produits à des particuliers, le ticket de caisse peut tenir lieu de facture : date, identification du vendeur, désignation, quantité, prix et TVA le cas échéant. Le paragraphe VII demande aux non-commerçants l’identifiant fiscal et la taxe professionnelle sur leurs documents. Le paragraphe XI écarte l’article 145 pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique du paragraphe X."),
+    p("Pour une vente de produits à des particuliers, le ticket de caisse peut tenir lieu de facture : date, identification du vendeur, désignation, quantité, prix et TVA le cas échéant. Le paragraphe VII demande aux non-commerçants l’identifiant fiscal et la taxe professionnelle sur leurs documents. Le paragraphe XI écarte l’article 145 pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique du paragraphe X. Voir la ",
+      { href: "/blog/facture-auto-entrepreneur-maroc", label: "facture d’auto-entrepreneur" },
+      "."),
     h2("tableau-mentions", "Le tableau des mentions obligatoires"),
     p("Le tableau suit l’article 145, état au 3 novembre 2026. Il ne remplace pas la lecture du code. Les mots « hors taxes » ou « toutes taxes comprises » ne figurent pas tels quels dans le paragraphe III : les prix et la TVA distincte permettent de reconstituer le total."),
     {
@@ -172,6 +174,7 @@ const article: BlogArticle = {
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
+    { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
     { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },

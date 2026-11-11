@@ -115,6 +115,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       note: "Sans carte bancaire. La création du compte ouvre ensuite la confirmation de votre entreprise.",
     },
     related: [
+      { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
       { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
       { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
       { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
