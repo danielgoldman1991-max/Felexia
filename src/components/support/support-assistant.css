@@ -6,6 +6,8 @@
 .felexia-support button:disabled { cursor: default; }
 .felexia-support a { text-decoration: none; }
 .felexia-support__dock { position: fixed; z-index: 70; left: max(22px, env(safe-area-inset-left)); right: max(22px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; pointer-events: none; transition: opacity .15s, transform .15s; }
+body:has(.landing) .felexia-support__dock { left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+body:has(section[aria-label="Préférences de cookies"]) .felexia-support__dock { visibility: hidden; opacity: 0; pointer-events: none; }
 .felexia-support__dock[data-open="true"] { opacity: 0; pointer-events: none; visibility: hidden; transform: translateY(8px); }
 .felexia-support__launcher { display: grid; place-items: center; flex: 0 0 auto; width: 58px; height: 58px; min-height: 58px; padding: 0; border: 1px solid #ffffff38; border-radius: 50%; color: #fff; box-shadow: 0 7px 22px #14213d1f, 0 2px 4px #14213d12; pointer-events: auto; transition: transform .18s, box-shadow .18s; }
 .felexia-support__launcher--ai { background: linear-gradient(125deg, #2454d8, #6850d7); }
@@ -58,6 +60,7 @@
 @keyframes felexia-support-think { 0%, 80%, 100% { opacity: .35; } 40% { opacity: 1; } }
 @media (max-width: 599px) {
   .felexia-support__dock { left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
+  body:has(.landing) .felexia-support__dock { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
   .felexia-support__launcher { width: 52px; height: 52px; min-height: 52px; }
   .felexia-support__panel { inset: auto max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); width: auto; max-width: none; height: min(480px, calc(100dvh - max(20px, env(safe-area-inset-top) + env(safe-area-inset-bottom)))); max-height: none; border-radius: 18px; }
   .felexia-support__composer textarea { font-size: 16px; }

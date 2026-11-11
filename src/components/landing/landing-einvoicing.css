@@ -14,7 +14,7 @@
 .landing .einvoice-benefits li:nth-child(3) h3 > svg { color: #9de8cf; }
 .landing .einvoice-benefits p { max-width: 420px; margin: 8px 0 0; color: #9fb0c6; font-size: 13px; line-height: 1.8; }
 .landing .einvoice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 23px; margin-top: 32px; }
-.landing .einvoice-actions .einvoice-start { gap: 16px; border: 1px solid #7393ff38; border-radius: 999px; background: #315efb; color: #fff; font-size: 12px; font-weight: 550; box-shadow: inset 0 1px 0 #ffffff18; }
+.landing .einvoice-actions .einvoice-start { gap: 12px; border: 1px solid #2454d8; border-radius: 8px; background: #2454d8; color: #fff; font-size: 16px; font-weight: 600; box-shadow: inset 0 1px 0 #ffffff18; }
 .landing .einvoice-actions .einvoice-start:hover { background: #254ee1; color: #fff; }
 .landing .einvoice-start:focus-visible { outline-color: #9de8cf; }
 .landing .einvoice-existing { display: inline-flex; align-items: center; gap: 10px; color: #cfdbed; font-size: 11px; line-height: 1.6; text-decoration: none; }
@@ -28,7 +28,7 @@
 .landing .einvoice-scene-status-dot { width: 5px; height: 5px; margin-left: auto; border-radius: 50%; background: #9de8cf; }
 .landing .einvoice-paper { position: absolute; top: 70px; left: 35px; width: min(300px, calc(100% - 90px)); padding: 23px 23px 18px; border: 1px solid #dce3ed; border-radius: 6px; background: #f9fafc; box-shadow: 10px 16px 32px -12px #0006; transform: rotate(-5deg) rotateY(-6deg); transform-origin: center; }
 .landing .einvoice-paper-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.landing .einvoice-company-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; color: #315efb; background: #e9eefe; }
+.landing .einvoice-company-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; color: #2454d8; background: #e9eefe; }
 .landing .einvoice-paper-top > span:last-child { color: #7c889b; font-size: 7px; letter-spacing: .04em; text-align: right; }
 .landing .einvoice-paper-top b { display: block; margin-top: 4px; font-size: 8px; color: #3b4b63; font-weight: 550; letter-spacing: 0; }
 .landing .einvoice-company-name { display: block; margin-top: 18px; color: #253750; font-size: 13px; font-weight: 600; letter-spacing: -.025em; }
@@ -46,7 +46,7 @@
 .landing .einvoice-paper-totals { display: grid; justify-content: end; gap: 8px; padding: 14px 7px 0; }
 .landing .einvoice-paper-totals > span { display: flex; align-items: center; gap: 12px; color: #7f8ba0; font-size: 6px; }
 .landing .einvoice-paper-totals i { width: 37px; height: 3px; margin-left: auto; border-radius: 2px; background: #d8e1ef; }
-.landing .einvoice-paper-totals > span:last-child { padding-top: 3px; color: #315efb; font-weight: 600; }
+.landing .einvoice-paper-totals > span:last-child { padding-top: 3px; color: #2454d8; font-weight: 600; }
 .landing .einvoice-paper-seal { display: flex; align-items: center; justify-content: center; gap: 5px; padding-top: 16px; color: #6c8b80; font-size: 6px; }
 .landing .einvoice-artifact { position: absolute; z-index: 2; right: 21px; display: flex; align-items: center; gap: 11px; width: 194px; min-height: 74px; padding: 13px 15px; border: 1px solid #496a98; border-radius: 12px; background: #193a64; box-shadow: 0 9px 24px -12px #0008; }
 .landing .einvoice-artifact-pdf { top: 116px; transform: rotate(3deg); }
@@ -95,7 +95,7 @@
   .landing .einvoice-section { padding: 65px 0 33px; }
   .landing .einvoice-heading { margin-bottom: 30px; text-align: left; }
   .landing .einvoice-heading .einvoice-title { font-size: clamp(31px, 8.4vw, 43px); letter-spacing: -.05em; }
-  .landing .einvoice-heading .einvoice-eyebrow { font-size: 10px; letter-spacing: .12em; }
+  .landing .einvoice-heading .einvoice-eyebrow { font-size: 12px; letter-spacing: .08em; }
   .landing .einvoice-intro { margin-top: 20px; font-size: 13px; line-height: 1.85; }
   .landing .einvoice-grid { gap: 32px; }
   .landing .einvoice-benefits { gap: 24px; }

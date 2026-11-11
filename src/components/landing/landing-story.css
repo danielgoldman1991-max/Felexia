@@ -7,7 +7,7 @@
 .landing .story-context-link:hover { color: #b6dace; }
 .landing .story-context-link:focus-visible { outline: 2px solid #b6dace; outline-offset: 6px; }
 .landing .story-context-features { border-top: 1px solid #ffffff24; }
-.landing .story-local-mark { display: flex; align-items: center; gap: 11px; padding: 22px 0 19px; color: #a8b5cb; font-size: 9px; letter-spacing: .08em; }
+.landing .story-local-mark { display: flex; align-items: center; gap: 11px; padding: 22px 0 19px; color: #526079; font-size: 12px; font-weight: 600; letter-spacing: .08em; }
 .landing .story-live-dot { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: #97d4be; box-shadow: 0 0 0 4px #97d4be12; }
 .landing .story-context-item { display: flex; align-items: center; gap: 22px; padding: 22px 0; border-bottom: 1px solid #ffffff1c; }
 .landing .story-context-symbol { display: grid; place-items: center; flex-shrink: 0; width: 53px; height: 53px; border: 1px solid #ffffff1e; border-radius: 12px; color: #aac0fc; font-size: 13px; letter-spacing: -.03em; }
@@ -17,17 +17,17 @@
 .landing .story-faq-section { padding: 104px 0; background: #fff; scroll-margin-top: 90px; }
 .landing .story-faq-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 100px; }
 .landing .story-faq-intro { max-width: 290px; }
-.landing .story-faq-contact { display: inline-flex; align-items: center; gap: 12px; margin-top: 23px; color: #315efb; font-size: 12px; font-weight: 550; text-decoration: none; }
+.landing .story-faq-contact { display: inline-flex; align-items: center; gap: 12px; margin-top: 23px; color: #2454d8; font-size: 12px; font-weight: 550; text-decoration: none; }
 .landing .story-faq-contact:hover { text-decoration: underline; text-underline-offset: 4px; }
 .landing .story-faq-list { border-top: 1px solid #e3e8f1; }
 .landing .story-faq-item { border-bottom: 1px solid #e3e8f1; }
 .landing .story-faq-item summary { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 24px 0; cursor: pointer; color: #13213b; font-size: 14px; font-weight: 550; line-height: 1.6; list-style: none; }
 .landing .story-faq-item summary::-webkit-details-marker { display: none; }
 .landing .story-faq-item summary::marker { content: ""; }
-.landing .story-faq-item summary:hover { color: #315efb; }
-.landing .story-faq-item summary:focus-visible { outline: 2px solid #315efb; outline-offset: 5px; }
+.landing .story-faq-item summary:hover { color: #2454d8; }
+.landing .story-faq-item summary:focus-visible { outline: 2px solid #2454d8; outline-offset: 5px; }
 .landing .story-faq-plus { flex-shrink: 0; color: #8592a8; transition: transform .2s; }
-.landing .story-faq-item[open] .story-faq-plus { transform: rotate(45deg); color: #315efb; }
+.landing .story-faq-item[open] .story-faq-plus { transform: rotate(45deg); color: #2454d8; }
 .landing .story-faq-item > p { max-width: 550px; margin: -3px 35px 23px 0; font-size: 13px; line-height: 1.9; color: #647188; }
 @media (max-width: 900px) {
   .landing .story-context-grid { gap: 48px; }

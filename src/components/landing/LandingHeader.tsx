@@ -61,8 +61,8 @@ export function LandingHeader({ overlay = false }: { overlay?: boolean }) {
         <button ref={triggerRef} type="button" onClick={() => setOpen((value) => !value)} aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={open} aria-controls="landing-mobile-menu" className="marketing-menu-toggle">{open ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}</button>
       </div>
       {open ? <nav id="landing-mobile-menu" className="marketing-mobile-nav" aria-label="Navigation mobile">
-        {links.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></a>)}
-        <Link href="/login" onClick={() => setOpen(false)}>Connexion<ArrowUpRight size={16} aria-hidden="true" /></Link>
+        {links.map((link) => <a key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}</a>)}
+        <Link href="/login" onClick={() => setOpen(false)}>Connexion</Link>
         <Link href="/login?mode=register" className="marketing-button marketing-button-primary" onClick={() => setOpen(false)}>Démarrer gratuitement<ArrowUpRight size={16} aria-hidden="true" /></Link>
       </nav> : null}
     </header>

@@ -108,7 +108,7 @@ export function LegalDataList({ children }: { children: ReactNode }) {
 function LegalToc({ toc }: { toc: LegalTocItem[] }) {
   return (
     <nav aria-label="Sommaire">
-      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Sommaire</p>
+      <p className="text-xs font-bold uppercase tracking-wider text-[#526079]">Sommaire</p>
       <ul className="mt-3 space-y-1">
         {toc.map((item) => (
           <li key={item.id}>

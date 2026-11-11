@@ -38,7 +38,7 @@
 .landing .laptop-ui-page-eyebrow { font-size: 7px; font-weight: 650; letter-spacing: .12em; color: #8a99b1; }
 .landing .laptop-ui-page-heading h2 { margin: 7px 0 5px; color: #142b4b; font-size: 24px; font-weight: 550; letter-spacing: -.045em; line-height: 1.2; }
 .landing .laptop-ui-page-heading p { margin: 0; color: #8c99ad; font-size: 11px; }
-.landing .laptop-ui-new-document { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 13px; border: 1px solid #2d58dc; border-radius: 7px; background: #315efb; color: #fff; font-size: 11px; font-weight: 550; }
+.landing .laptop-ui-new-document { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 13px; border: 1px solid #2d58dc; border-radius: 7px; background: #2454d8; color: #fff; font-size: 11px; font-weight: 550; }
 .landing .laptop-ui-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin-top: 22px; }
 .landing .laptop-ui-kpis > div { display: flex; align-items: center; gap: 12px; height: 80px; padding: 15px; border: 1px solid #e1e7f2; border-radius: 10px; background: #fff; box-shadow: 0 3px 7px #203b6f02; }
 .landing .laptop-ui-kpi-icon { display: grid; place-items: center; flex-shrink: 0; width: 37px; height: 37px; border-radius: 10px; background: #eef3ff; color: #6683d4; }
@@ -56,14 +56,14 @@
 .landing .laptop-ui-list-heading > span { display: flex; align-items: center; gap: 7px; color: #9aa6ba; font-size: 7px; }
 .landing .laptop-ui-list-tabs { display: flex; align-items: center; gap: 22px; height: 39px; padding: 0 18px; border-bottom: 1px solid #e9edf4; color: #a0aabd; font-size: 10px; }
 .landing .laptop-ui-list-tabs > span { display: flex; align-items: center; gap: 6px; height: 100%; }
-.landing .laptop-ui-list-tabs > .laptop-ui-tab-active { border-bottom: 2px solid #315efb; color: #315efb; font-weight: 550; }
+.landing .laptop-ui-list-tabs > .laptop-ui-tab-active { border-bottom: 2px solid #2454d8; color: #2454d8; font-weight: 550; }
 .landing .laptop-ui-list-tabs b { display: grid; place-items: center; width: 14px; height: 14px; border-radius: 4px; background: #eef3ff; font-size: 7px; font-weight: 500; }
 .landing .laptop-ui-list-tabs > svg { margin-left: auto; color: #acb6c7; }
 .landing .laptop-ui-table-head { display: grid; grid-template-columns: 1.7fr 1fr 1fr; align-items: center; gap: 10px; height: 36px; padding: 0 18px; background: #fbfcfe; color: #a3aec0; font-size: 8px; letter-spacing: .045em; }
 .landing .laptop-ui-table-head > span:nth-child(2) { text-align: right; }
 .landing .laptop-ui-table-head > span:last-child { text-align: center; }
 .landing .laptop-ui-table-row { display: grid; grid-template-columns: 1.7fr 1fr 1fr; align-items: center; gap: 10px; min-height: 52px; padding: 9px 18px; border-top: 1px solid #edf0f6; }
-.landing .laptop-ui-row-selected { background: #f4f7ff; box-shadow: inset 2px 0 0 #315efb; }
+.landing .laptop-ui-row-selected { background: #f4f7ff; box-shadow: inset 2px 0 0 #2454d8; }
 .landing .laptop-ui-table-row > div:first-child { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .landing .laptop-ui-table-file { display: grid; place-items: center; flex-shrink: 0; width: 27px; height: 30px; border: 1px solid #e4eaf4; border-radius: 5px; background: #fff; color: #7e98cb; }
 .landing .laptop-ui-table-row strong { display: block; color: #4b6080; font-size: 11px; font-weight: 550; white-space: nowrap; }
