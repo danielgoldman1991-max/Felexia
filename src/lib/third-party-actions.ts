@@ -296,27 +296,20 @@ async function warnDuplicateThird(organizationId: string, formData: FormData, ig
   return duplicateThirdWarning(matches, { name, ice }, ignoreId);
 }
 
-export async function createThirdParty(
-  previousState: ThirdPartyActionResult,
-  formData: FormData,
-): Promise<ThirdPartyActionResult> {
-  void previousState;
+async function persistThirdParty(formData: FormData, blockDuplicates = false) {
   const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   const parsed = validateThirdParty(formData);
-  if (parsed.error !== null) {
-    return { success: false, error: parsed.error };
-  }
-
-  const supabase = await createClient();
+  if (parsed.error !== null) return { success: false as const, error: parsed.error };
   const duplicate = await warnDuplicateThird(workspace.organization.id, formData);
-  if (duplicate) return { success: false, error: duplicate, data: { duplicate: true } };
+  if (duplicate) {
+    return blockDuplicates
+      ? { success: false as const, error: "Ce fournisseur existe déjà (même ICE ou même nom). Aucune fiche n’a été créée." }
+      : { success: false as const, error: duplicate, data: { duplicate: true as const } };
+  }
+  const supabase = await createClient();
   const payload = thirdPartyPayload(formData, workspace.organization.id, workspace.userId, parsed);
   const { data, error } = await supabase.from("third_parties").insert(payload).select("id").single();
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
-
+  if (error || !data) return { success: false as const, error: error?.message ?? "Le fournisseur n’a pas pu être créé." };
   await upsertThirdPartyAuxiliaries(supabase, workspace.organization.id, {
     id: data.id,
     name: payload.name,
@@ -329,7 +322,6 @@ export async function createThirdParty(
     address: payload.address,
     types: payload.types,
   });
-
   await logThirdPartyActivity({
     organizationId: workspace.organization.id,
     userId: workspace.userId,
@@ -337,9 +329,31 @@ export async function createThirdParty(
     action: "create",
     changes: { message: "Creation du tiers." },
   });
+  return { success: true as const, id: data.id as string, name: payload.name };
+}
 
+export async function createThirdParty(
+  previousState: ThirdPartyActionResult,
+  formData: FormData,
+): Promise<ThirdPartyActionResult> {
+  void previousState;
+  const result = await persistThirdParty(formData);
+  if (!result.success) return { success: false, error: result.error, data: "data" in result ? result.data : undefined };
   revalidatePath("/tiers");
-  redirect(`/tiers/${data.id}`);
+  redirect(`/tiers/${result.id}`);
+}
+
+export async function createSupplierForOcr(formData: FormData): Promise<{ success: true; id: string; name: string } | { success: false; error: string }> {
+  formData.set("type_supplier", "on");
+  formData.delete("type_customer");
+  formData.delete("type_prospect");
+  if (!text(formData, "country")) formData.set("country", "MA");
+  if (!text(formData, "status")) formData.set("status", "active");
+  const result = await persistThirdParty(formData, true);
+  if (!result.success) return { success: false, error: result.error };
+  revalidatePath("/tiers");
+  revalidatePath("/achats/factures");
+  return { success: true, id: result.id, name: result.name ?? "" };
 }
 
 export async function updateThirdParty(

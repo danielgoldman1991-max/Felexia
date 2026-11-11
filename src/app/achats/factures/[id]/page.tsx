@@ -8,6 +8,7 @@ import { hasFullErpAccess } from "@/lib/launch-access";
 import { isOperatorRole } from "@/lib/auth/operator-access";
 import { isAccountingRole, isReadOnlyRole } from "@/lib/auth/roles";
 import { canWriteWorkspaceSubscription } from "@/lib/subscriptions/subscription-access";
+import { getSupplierInvoiceScan } from "@/lib/purchases/supplier-invoice-ocr-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function SupplierInvoiceDetailPage({ params }: { params: Pr
   const orgId = workspace?.organization.id;
   const fullAccess = orgId && !isOperatorRole(workspace?.role) ? await hasFullErpAccess(orgId) : false;
   const accountingEntry = orgId ? await getEntryWithLinesBySource(orgId, "supplier_invoice", id) : null;
+  const scan = workspace ? await getSupplierInvoiceScan(id) : null;
 
   return (
     <ModulePage>
@@ -37,6 +39,7 @@ export default async function SupplierInvoiceDetailPage({ params }: { params: Pr
         paymentSummary={paymentSummary}
         accountingEntry={accountingEntry}
         documentFlow={documentFlow}
+        scan={scan}
       />
     </ModulePage>
   );

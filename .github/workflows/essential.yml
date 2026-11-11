@@ -147,5 +147,6 @@ jobs:
           node scripts/verify-essential-workflows.mjs
           node training/essential-fixes/20261031/verify-supplier-credit-print.cjs
           npx tsx scripts/verify-print-outputs.tsx
+          npx tsx scripts/verify-supplier-invoice-ocr.ts
       - run: npm run build
       - run: node training/e-invoicing/20261031/verify-tracing.mjs
