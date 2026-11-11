@@ -1,0 +1,117 @@
+/* Mockup only: the homepage opens on a Moroccan invoice, not the landscape. */
+.landing.felexia-home .horizon-hero,
+.landing.felexia-home[data-horizon-enhanced="true"] .horizon-hero {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: #f7f8fa;
+}
+.landing.felexia-home .horizon-window {
+  position: relative;
+  height: auto;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: visible;
+}
+.landing.felexia-home .horizon-landscape,
+.landing.felexia-home .horizon-shade,
+.landing.felexia-home .horizon-scroll-cue,
+.landing.felexia-home .horizon-immersion,
+.landing.felexia-home .horizon-zoom-preference { display: none; }
+.landing.felexia-home .horizon-copy {
+  max-width: 1180px;
+  padding: 120px 28px 72px;
+  color: #14213d;
+  opacity: 1;
+  transform: none;
+  text-align: left;
+}
+.landing.felexia-home .horizon-copy::before { display: none; }
+.landing.felexia-home .horizon-copy h1,
+.landing.felexia-home .horizon-eyebrow { color: #14213d; }
+.landing.felexia-home .horizon-tagline { color: #526079; margin-left: 0; margin-right: 0; }
+.landing.felexia-home .horizon-actions { justify-content: flex-start; }
+.landing.felexia-home .horizon-actions .horizon-action-secondary {
+  border-color: #2454d8;
+  background: #fff;
+  color: #2454d8;
+}
+.landing.felexia-home .horizon-actions .horizon-action-secondary:hover { background: #eef3ff; color: #1a46b6; }
+.landing.felexia-home .horizon-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 460px);
+  gap: 48px;
+  align-items: center;
+}
+.invoice-card {
+  position: relative;
+  padding: 22px 22px 18px;
+  border: 1px solid #e4e9f2;
+  border-radius: 16px;
+  background: #fff;
+  color: #14213d;
+  box-shadow: 0 24px 50px -28px #14213d33;
+}
+.invoice-card-head { display: flex; justify-content: space-between; gap: 16px; }
+.invoice-card-head strong { display: block; font-size: 16px; font-weight: 650; letter-spacing: -.02em; }
+.invoice-card-head span, .invoice-card-head li, .invoice-fictitious { color: #526079; font-size: 12px; line-height: 1.5; }
+.invoice-card-head ul { margin: 0; padding: 0; list-style: none; text-align: right; }
+.invoice-card-head li { white-space: nowrap; }
+.invoice-card-ref { display: flex; justify-content: space-between; margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #e6ebf3; font-size: 13px; font-weight: 600; }
+.invoice-card-ref span { color: #526079; font-weight: 500; }
+.invoice-card table { width: 100%; border-collapse: collapse; }
+.invoice-card td { padding: 8px 0; border-bottom: 1px solid #eef2f7; font-size: 14px; }
+.invoice-card td:last-child, .invoice-card dd {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.invoice-card dl { margin: 12px 0 0; }
+.invoice-card dl div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.invoice-card dt { color: #526079; font-size: 13px; }
+.invoice-card dd { margin: 0; font-size: 14px; font-weight: 500; }
+.invoice-card dl div:last-child dt, .invoice-card dl div:last-child dd { color: #14213d; font-size: 16px; font-weight: 650; }
+.invoice-stamp {
+  display: table;
+  margin: 18px 8px 0 auto;
+  padding: 8px 12px;
+  border: 2px solid #1f7a4d;
+  border-radius: 4px;
+  color: #1f7a4d;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transform: rotate(-8deg);
+  animation: invoice-stamp 200ms ease-out both;
+}
+.invoice-fictitious { margin: 16px 0 0; }
+@keyframes invoice-stamp {
+  from { opacity: 0; transform: rotate(-18deg) scale(1.18); }
+  to { opacity: 1; transform: rotate(-8deg) scale(1); }
+}
+@media (max-width: 860px) {
+  .landing.felexia-home .horizon-copy { padding: 96px 20px 96px; text-align: center; }
+  .landing.felexia-home .horizon-copy h1 { margin-inline: auto; }
+  .landing.felexia-home .horizon-actions { justify-content: center; }
+  .landing.felexia-home .horizon-stage { grid-template-columns: 1fr; gap: 28px; }
+  .invoice-card-head { flex-direction: column; align-items: flex-start; }
+  .invoice-card-head ul { text-align: left; }
+  .invoice-stamp { margin-top: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invoice-stamp { animation: none; opacity: 1; transform: rotate(-8deg); }
+}
+.landing.marketing-horizon-site.felexia-home .marketing-header.marketing-header-overlay {
+  background: #fffffff5;
+  border-bottom-color: #e7ebf1;
+  backdrop-filter: blur(14px);
+}
+.landing.marketing-horizon-site.felexia-home .marketing-header-overlay .marketing-brand img { filter: none; }
+.landing.marketing-horizon-site.felexia-home .marketing-header-overlay :is(.marketing-desktop-nav a, .marketing-login) { color: #526079; }
+.landing.marketing-horizon-site.felexia-home .marketing-header-overlay .marketing-menu-toggle {
+  background: #f5f7fb;
+  border-color: #e1e7f0;
+  color: #14213d;
+}
