@@ -2,23 +2,22 @@
 
 import { useState, useTransition, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import Link from "next/link";
-import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { analyzeSupplierInvoiceScan, discardSupplierInvoiceScan, saveScannedSupplierInvoice, type OcrAnalysis } from "@/lib/purchases/supplier-invoice-ocr-actions";
-import { OCR_NOT_CONFIGURED_MESSAGE, SCAN_BUCKET, SCAN_MAX_BYTES, inspectScanFile, uncertain, validateNewSupplier, type OcrSupplierInvoice } from "@/lib/purchases/supplier-invoice-ocr";
+import { matchScannedSupplier, saveScannedSupplierInvoice, type OcrAnalysis } from "@/lib/purchases/supplier-invoice-ocr-actions";
+import { SCAN_BUCKET, SCAN_MAX_BYTES, inspectScanFile, uncertain, validateNewSupplier, type OcrSupplierInvoice } from "@/lib/purchases/supplier-invoice-ocr";
 import { createSupplierForOcr } from "@/lib/third-party-actions";
 import { createClient } from "@/lib/supabase/client";
 
 type SupplierOption = { id: string; name: string; ice: string | null };
 
 export function SupplierInvoiceScanImporter({
-  configured,
   organizationId,
+  buyerIce = "",
   suppliers,
   preview,
 }: {
-  configured: boolean;
   organizationId: string;
+  buyerIce?: string;
   suppliers: SupplierOption[];
   preview?: { analysis: OcrAnalysis; fileUrl: string };
 }) {
@@ -27,7 +26,8 @@ export function SupplierInvoiceScanImporter({
   const [analysis, setAnalysis] = useState<OcrAnalysis | null>(preview?.analysis ?? null);
   const [knownSuppliers, setKnownSuppliers] = useState(suppliers);
   const [linkedSupplierId, setLinkedSupplierId] = useState(preview?.analysis?.match?.status === "matched" ? preview.analysis.match.id : "");
-  const [message, setMessage] = useState(configured ? "" : OCR_NOT_CONFIGURED_MESSAGE);
+  const [message, setMessage] = useState("");
+  const [progress, setProgress] = useState(0);
   const [pending, startTransition] = useTransition();
 
   function onFile(next: File | null) {
@@ -39,43 +39,39 @@ export function SupplierInvoiceScanImporter({
   }
 
   function analyze() {
-    if (!configured) { setMessage(OCR_NOT_CONFIGURED_MESSAGE); return; }
     if (!file) { setMessage("Sélectionnez un fichier."); return; }
     const localError = inspectScanFile({ name: file.name, type: file.type, size: file.size });
     if (localError) { setMessage(localError); return; }
     startTransition(async () => {
       setMessage("");
-      const extension = file.name.split(".").pop()?.toLowerCase() || "pdf";
-      const path = `organizations/${organizationId}/pending/${crypto.randomUUID()}.${extension}`;
-      const supabase = createClient();
-      const uploaded = await supabase.storage.from(SCAN_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
-      if (uploaded.error) {
-        setMessage("Le document n’a pas pu être déposé. Aucune facture n’a été créée.");
-        return;
+      setProgress(0.02);
+      try {
+        const { readInvoiceFile } = await import("@/lib/purchases/read-invoice-file");
+        const invoice = await readInvoiceFile(file, { buyerIce, onProgress: (ratio) => setProgress(ratio) });
+        const result = await matchScannedSupplier(invoice);
+        setAnalysis(result);
+        setMessage(result.error ?? "");
+        setProgress(1);
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : "L’analyse a échoué. Aucune facture n’a été créée.");
       }
-      const result = await analyzeSupplierInvoiceScan(path);
-      setAnalysis(result);
-      setMessage(result.error ?? "");
     });
   }
 
   return (
     <div className="space-y-6">
       <section className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
-        <p className="text-sm text-[var(--muted)]">PDF, JPG ou PNG, photo de téléphone comprise, 10 Mo maximum. Si le fournisseur est inconnu, vous le créez avant la facture. Annuler n’enregistre rien.</p>
+        <p className="text-sm text-[var(--muted)]">PDF, JPG ou PNG, photo de téléphone comprise, 10 Mo maximum. L’analyse se fait dans votre navigateur. Si le fournisseur est inconnu, vous le créez avant la facture. Annuler n’enregistre rien.</p>
         <input aria-label="Document de facture" type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="block text-sm" onChange={(event) => onFile(event.target.files?.[0] ?? null)} />
         <p className="text-xs text-[var(--muted)]">Taille maximale : {SCAN_MAX_BYTES / (1024 * 1024)} Mo. Les photos HEIC doivent être enregistrées en JPG.</p>
         <Button type="button" onClick={analyze} disabled={pending}>{pending ? "Analyse en cours…" : "Analyser le document"}</Button>
+        {pending ? <div className="space-y-1"><p className="text-sm">Analyse en cours… {Math.round(progress * 100)} %</p><div className="h-2 overflow-hidden rounded-full bg-[var(--surface)]" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}><div className="h-full bg-[var(--primary)]" style={{ width: `${Math.round(progress * 100)}%` }} /></div></div> : null}
         {message ? <p className="text-sm text-red-700" role="alert">{message}</p> : null}
       </section>
       {analysis?.invoice && analysis.match?.status === "new" && !linkedSupplierId ? (
         <SupplierQuickCreate
           invoice={analysis.invoice}
-          onCancel={() => {
-            const path = analysis.path;
-            setAnalysis(null);
-            if (path) void discardSupplierInvoiceScan(path).catch(() => undefined);
-          }}
+          onCancel={() => setAnalysis(null)}
           onCreated={(supplier) => {
             setKnownSuppliers((current) => current.some((item) => item.id === supplier.id) ? current : [...current, supplier]);
             setLinkedSupplierId(supplier.id);
@@ -83,7 +79,7 @@ export function SupplierInvoiceScanImporter({
         />
       ) : null}
       {analysis?.invoice && fileUrl && (analysis.match?.status !== "new" || linkedSupplierId) ? (
-        <SupplierInvoiceScanReview analysis={analysis} fileUrl={fileUrl} suppliers={knownSuppliers} supplierId={linkedSupplierId} />
+        <SupplierInvoiceScanReview analysis={analysis} fileUrl={fileUrl} suppliers={knownSuppliers} supplierId={linkedSupplierId} organizationId={organizationId} file={file} />
       ) : null}
     </div>
   );
@@ -133,6 +129,12 @@ export function SupplierQuickCreate({
         <label className="block text-sm">RC
           <input name="rc" defaultValue={invoice.rc} className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
         </label>
+        <label className="block text-sm">Patente
+          <input name="patente" defaultValue={invoice.patente} className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        </label>
+        <label className="block text-sm">CNSS
+          <input name="cnss" defaultValue={invoice.cnss} className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        </label>
       </div>
       <label className="block text-sm">Adresse
         <input name="address" defaultValue={invoice.address} className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
@@ -158,20 +160,40 @@ export function SupplierInvoiceScanReview({
   fileUrl,
   suppliers,
   supplierId: initialSupplierId = "",
+  organizationId = "",
+  file = null,
 }: {
   analysis: OcrAnalysis;
   fileUrl: string;
   suppliers: SupplierOption[];
   supplierId?: string;
+  organizationId?: string;
+  file?: File | null;
 }) {
   const invoice = analysis.invoice;
   const [supplierId, setSupplierId] = useState(initialSupplierId || (analysis.match?.status === "matched" ? analysis.match.id : ""));
   const [lines, setLines] = useState(invoice?.lines ?? []);
-  const [state, action, pending] = useActionState(saveScannedSupplierInvoice, {});
+  const [error, setError] = useState("");
+  const [pending, startTransition] = useTransition();
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(async () => {
+      if (file && organizationId) {
+        const extension = file.name.split(".").pop()?.toLowerCase() || "pdf";
+        const path = `organizations/${organizationId}/pending/${crypto.randomUUID()}.${extension}`;
+        const uploaded = await createClient().storage.from(SCAN_BUCKET).upload(path, file, { contentType: file.type || "application/pdf", upsert: false });
+        if (uploaded.error) { setError("Le document n’a pas pu être déposé. Aucune facture n’a été créée."); return; }
+        data.set("scan_path", path);
+      }
+      const result = await saveScannedSupplierInvoice({}, data);
+      if (result?.error) setError(result.error);
+    });
+  }
   if (!invoice) return null;
   const average = averageConfidence(invoice);
   return (
-    <form action={action} className="grid gap-4 lg:grid-cols-2">
+    <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2">
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)]">
         <p className="border-b border-[var(--border)] px-4 py-2 text-sm font-medium">Document</p>
         <iframe title="Aperçu de la facture fournisseur" src={fileUrl} className="h-[720px] w-full bg-white" />
@@ -179,7 +201,7 @@ export function SupplierInvoiceScanReview({
       <div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
         <p className="text-sm text-[var(--muted)]">Vérifiez les champs surlignés, puis enregistrez. La facture reste un brouillon : aucune écriture n’est passée.</p>
         {analysis.warnings.map((warning) => <p key={warning} className="text-sm text-amber-800" role="alert">{warning}</p>)}
-        {state.error ? <p className="text-sm text-red-700" role="alert">{state.error}</p> : null}
+        {error ? <p className="text-sm text-red-700" role="alert">{error}</p> : null}
         <input type="hidden" name="scan_path" value={analysis.path ?? ""} />
         <input type="hidden" name="lines" value={JSON.stringify(lines)} />
         <input type="hidden" name="confidence" value={String(average)} />

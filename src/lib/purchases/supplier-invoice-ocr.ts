@@ -3,6 +3,7 @@ export const SCAN_MAX_BYTES = 10 * 1024 * 1024;
 export const SCAN_MAX_PAGES = 5;
 export const OCR_NOT_CONFIGURED_MESSAGE = "OCR non configuré. L’analyse des factures n’est pas activée sur ce serveur. Aucune facture n’a été créée.";
 export const UNCERTAIN_CONFIDENCE = 0.8;
+export { parseInvoiceDocument, parseInvoiceText } from "@/lib/purchases/invoice-parser";
 
 const VAT_RATES = [0, 7, 10, 14, 20];
 
@@ -19,6 +20,8 @@ export type OcrSupplierInvoice = {
   ice: string;
   ifNumber: string;
   rc: string;
+  patente: string;
+  cnss: string;
   address: string;
   phone: string;
   email: string;
@@ -31,7 +34,7 @@ export type OcrSupplierInvoice = {
   vatByRate: { rate: number; amount: number }[];
   totalVat: number | null;
   totalTtc: number | null;
-  confidence: Record<"supplierName" | "ice" | "ifNumber" | "rc" | "address" | "phone" | "email" | "invoiceNumber" | "invoiceDate" | "dueDate" | "totalHt" | "totalVat" | "totalTtc", number>;
+  confidence: Record<"supplierName" | "ice" | "ifNumber" | "rc" | "patente" | "cnss" | "address" | "phone" | "email" | "invoiceNumber" | "invoiceDate" | "dueDate" | "totalHt" | "totalVat" | "totalTtc", number>;
 };
 
 export type SupplierMatch =
@@ -40,7 +43,7 @@ export type SupplierMatch =
   | { status: "new" };
 
 const EMPTY_CONFIDENCE: OcrSupplierInvoice["confidence"] = {
-  supplierName: 0, ice: 0, ifNumber: 0, rc: 0, address: 0, phone: 0, email: 0, invoiceNumber: 0, invoiceDate: 0, dueDate: 0, totalHt: 0, totalVat: 0, totalTtc: 0,
+  supplierName: 0, ice: 0, ifNumber: 0, rc: 0, patente: 0, cnss: 0, address: 0, phone: 0, email: 0, invoiceNumber: 0, invoiceDate: 0, dueDate: 0, totalHt: 0, totalVat: 0, totalTtc: 0,
 };
 
 export function inspectScanFile(input: { name: string; type: string; size: number; bytes?: Buffer }) {
@@ -102,70 +105,9 @@ function isoDate(value: string) {
 
 function blankInvoice(): OcrSupplierInvoice {
   return {
-    supplierName: "", ice: "", ifNumber: "", rc: "", address: "", phone: "", email: "", invoiceNumber: "", invoiceDate: "", dueDate: "", currency: "MAD",
+    supplierName: "", ice: "", ifNumber: "", rc: "", patente: "", cnss: "", address: "", phone: "", email: "", invoiceNumber: "", invoiceDate: "", dueDate: "", currency: "MAD",
     lines: [], totalHt: null, vatByRate: [], totalVat: null, totalTtc: null, confidence: { ...EMPTY_CONFIDENCE },
   };
-}
-
-export function parseInvoiceText(text: string): OcrSupplierInvoice {
-  const invoice = blankInvoice();
-  const set = (key: keyof OcrSupplierInvoice["confidence"], value: string) => {
-    if (!value) return;
-    if (key === "supplierName") invoice.supplierName = value;
-    if (key === "ice") invoice.ice = value;
-    if (key === "ifNumber") invoice.ifNumber = value;
-    if (key === "rc") invoice.rc = value;
-    if (key === "address") invoice.address = value;
-    if (key === "phone") invoice.phone = value;
-    if (key === "email") invoice.email = value;
-    if (key === "invoiceNumber") invoice.invoiceNumber = value;
-    if (key === "invoiceDate") invoice.invoiceDate = value;
-    if (key === "dueDate") invoice.dueDate = value;
-    invoice.confidence[key] = 0.62;
-  };
-  const supplier = text.match(/(?:fournisseur|raison sociale)\s*[:\-]\s*(.+)/i);
-  if (supplier) set("supplierName", supplier[1].trim());
-  const ice = text.match(/ICE\s*[:\-]?\s*([0-9][0-9\s]*)/i);
-  if (ice) set("ice", ice[1].replace(/\s/g, ""));
-  const fiscal = text.match(/\bIF\s*[:\-]?\s*([A-Z0-9]+)/i);
-  if (fiscal) set("ifNumber", fiscal[1]);
-  const rc = text.match(/\bRC\s*[:\-]?\s*([A-Z0-9]+)/i);
-  if (rc) set("rc", rc[1]);
-  const address = text.match(/adresse\s*[:\-]\s*(.+)/i);
-  if (address) set("address", address[1].trim());
-  const phone = text.match(/(?:t[ée]l[ée]phone|t[ée]l|mobile)\s*[:\-]\s*(\+?[0-9][0-9 .\-()]{5,})/i);
-  if (phone) set("phone", phone[1].trim());
-  const email = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-  if (email) set("email", email[0]);
-  const number = text.match(/(?:facture|n[°o])\s*[:\-]?\s*([A-Z0-9][A-Z0-9\-/]{2,})/i);
-  if (number) set("invoiceNumber", number[1]);
-  const dates = [...text.matchAll(/(\d{2}[/-]\d{2}[/-]\d{4}|\d{4}-\d{2}-\d{2})/g)].map((item) => isoDate(item[1]));
-  if (dates[0]) set("invoiceDate", dates[0]);
-  if (/[ée]ch[ée]ance/i.test(text) && dates[1]) set("dueDate", dates[1]);
-  const currency = text.match(/\b(MAD|DHS|EUR|USD)\b/i);
-  invoice.currency = currency ? currency[1].toUpperCase().replace("DHS", "MAD") : "MAD";
-  for (const row of text.split(/\n/)) {
-    const cells = row.split("|").map((cell) => cell.trim()).filter(Boolean);
-    if (cells.length < 4 || /d[ée]signation|total/i.test(cells[0])) continue;
-    const quantity = money(cells[1]);
-    const price = money(cells[2]);
-    const rate = money(cells[3].replace("%", ""));
-    if (quantity == null || price == null || rate == null) continue;
-    invoice.lines.push({ description: cells[0], quantity, unitPriceHt: price, vatRate: rate, confidence: 0.62 });
-  }
-  const totalHt = text.match(/total\s+HT\s*[:\-]?\s*([\d\s]+[.,]\d{2})/i);
-  const totalTtc = text.match(/total\s+TTC\s*[:\-]?\s*([\d\s]+[.,]\d{2})/i);
-  if (totalHt) { invoice.totalHt = money(totalHt[1]); invoice.confidence.totalHt = 0.62; }
-  if (totalTtc) { invoice.totalTtc = money(totalTtc[1]); invoice.confidence.totalTtc = 0.62; }
-  for (const match of text.matchAll(/TVA\s*(20|14|10|7)\s*%?\s*[:\-]?\s*([\d\s]+[.,]\d{2})/gi)) {
-    const amount = money(match[2]);
-    if (amount != null) invoice.vatByRate.push({ rate: Number(match[1]), amount });
-  }
-  if (invoice.vatByRate.length) {
-    invoice.totalVat = round2(invoice.vatByRate.reduce((sum, item) => sum + item.amount, 0));
-    invoice.confidence.totalVat = 0.62;
-  }
-  return invoice;
 }
 
 function round2(value: number) {
@@ -186,6 +128,8 @@ export function normalizeOcrPayload(raw: unknown): OcrSupplierInvoice {
   invoice.ice = text("ice").replace(/\s/g, "");
   invoice.ifNumber = text("ifNumber");
   invoice.rc = text("rc");
+  invoice.patente = text("patente");
+  invoice.cnss = text("cnss");
   invoice.address = text("address");
   invoice.phone = text("phone");
   invoice.email = text("email");

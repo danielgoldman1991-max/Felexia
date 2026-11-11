@@ -8,12 +8,9 @@ import { financialErrorMessage } from "@/lib/financial-errors";
 import { calculateCommercialAmounts } from "@/lib/invoice-calculations";
 import { createClient } from "@/lib/supabase/server";
 import { isMissingSchema } from "@/lib/optional-schema";
-import { extractWithMistral, ocrIsConfigured } from "@/lib/purchases/supplier-invoice-ocr-provider";
 import {
-  OCR_NOT_CONFIGURED_MESSAGE,
   SCAN_BUCKET,
   assertPendingScanPath,
-  inspectScanFile,
   matchSupplier,
   mimeFrom,
   reviewOcrInvoice,
@@ -30,8 +27,6 @@ export type OcrAnalysis = {
   duplicate: boolean;
   path?: string;
 };
-
-const emptyAnalysis: OcrAnalysis = { configured: false, warnings: [], duplicate: false };
 
 async function workspace() {
   return requireActiveWorkspace({ module: "achats", level: "write" });
@@ -61,30 +56,9 @@ export async function discardSupplierInvoiceScan(path: string) {
   await supabase.storage.from(SCAN_BUCKET).remove([path]);
 }
 
-export async function analyzeSupplierInvoiceScan(path: string): Promise<OcrAnalysis> {
+export async function matchScannedSupplier(invoice: OcrSupplierInvoice): Promise<OcrAnalysis> {
   const current = await workspace();
-  if (!ocrIsConfigured()) return { ...emptyAnalysis, configured: false, error: OCR_NOT_CONFIGURED_MESSAGE };
-  try {
-    assertPendingScanPath(path, current.organization.id);
-  } catch (error) {
-    return { ...emptyAnalysis, configured: true, error: error instanceof Error ? error.message : OCR_NOT_CONFIGURED_MESSAGE };
-  }
   const supabase = await createClient();
-  const downloaded = await supabase.storage.from(SCAN_BUCKET).download(path);
-  if (downloaded.error || !downloaded.data) {
-    const missing = isMissingSchema(downloaded.error) || /bucket|not found/i.test(downloaded.error?.message ?? "");
-    return { ...emptyAnalysis, configured: true, error: missing ? "Le stockage des documents n’est pas encore activé. Aucune facture n’a été créée." : "Le document n’a pas pu être lu. Aucune facture n’a été créée." };
-  }
-  const bytes = Buffer.from(await downloaded.data.arrayBuffer());
-  const mime = mimeFrom(downloaded.data.type, path, bytes);
-  const fileError = inspectScanFile({ name: path, type: mime ?? "", size: bytes.length, bytes });
-  if (fileError || !mime) return { ...emptyAnalysis, configured: true, error: fileError ?? "Format non accepté. Utilisez un PDF, un JPG ou un PNG." };
-  let invoice: OcrSupplierInvoice;
-  try {
-    invoice = await extractWithMistral(bytes, mime);
-  } catch (error) {
-    return { ...emptyAnalysis, configured: true, error: error instanceof Error ? error.message : "L’analyse du document a échoué. Aucune facture n’a été créée." };
-  }
   const { data: parties } = await supabase.from("third_parties").select("id, name, ice").eq("organization_id", current.organization.id).limit(5000);
   const match = matchSupplier({ name: invoice.supplierName, ice: invoice.ice }, (parties ?? []) as { id: string; name: string; ice: string | null }[]);
   const review = reviewOcrInvoice(invoice);
@@ -94,7 +68,7 @@ export async function analyzeSupplierInvoiceScan(path: string): Promise<OcrAnaly
     duplicate = Boolean(data);
   }
   if (duplicate) review.warnings.unshift("Une facture avec ce numéro existe déjà pour ce fournisseur.");
-  return { configured: true, invoice, warnings: review.warnings, match, duplicate, path };
+  return { configured: true, invoice, warnings: review.warnings, match, duplicate };
 }
 
 function text(formData: FormData, key: string) {
@@ -164,8 +138,8 @@ export async function saveScannedSupplierInvoice(_prev: { error?: string }, form
       file_path: finalPath,
       mime_type: mime,
       file_size: bytes.length,
-      ocr_provider: "mistral",
-      ocr_model: process.env.OCR_MODEL?.trim() || "mistral-ocr-latest",
+      ocr_provider: "felexia",
+      ocr_model: "pdfjs+tesseract-fra-eng",
       field_confidence: { average: Number.isFinite(confidence) ? confidence : 0 },
       uploaded_by: current.userId,
     });
