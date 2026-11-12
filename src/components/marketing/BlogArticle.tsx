@@ -6,7 +6,7 @@ import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import styles from "@/components/marketing/blog.module.css";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { blogCategoryLabel } from "@/lib/content/blog/index";
+import { BLOG_ARTICLES, blogCategoryLabel } from "@/lib/content/blog/index";
 import type { BlogArticle as BlogArticleData, TextRun } from "@/lib/content/blog/types";
 import { formatBlogDate, headings, readingMinutes } from "@/lib/content/blog/text";
 import { getBlogPostingStructuredData, getFaqPageStructuredData } from "@/lib/seo";
@@ -179,9 +179,18 @@ export function BlogArticle({ article }: { article: BlogArticleData }) {
               <section className={styles.related} aria-labelledby="suite-titre">
                 <h2 id="suite-titre">Pour aller plus loin</h2>
                 <ul className={styles.relatedGrid}>
-                  {article.related.map((link) => (
-                    <li key={link.href} className={styles.relatedCard}><h3><Link href={link.href}>{link.label}</Link></h3><Link href={link.href} className={styles.textLink}>Lire <ArrowUpRight size={16} aria-hidden="true" /></Link></li>
-                  ))}
+                  {article.related.map((link) => {
+                    const relatedArticle = BLOG_ARTICLES.find((item) => item.path === link.href);
+                    return (
+                      <li key={link.href}>
+                        <Link href={link.href} className={styles.relatedCard}>
+                          {relatedArticle ? <span className={styles.pill}>{blogCategoryLabel(relatedArticle.category)}</span> : null}
+                          <h3>{link.label}</h3>
+                          {relatedArticle ? <p>{formatBlogDate(relatedArticle.publishedAt)} · {readingMinutes(relatedArticle)} min de lecture</p> : <span className={styles.textLink}>Lire <ArrowUpRight size={16} aria-hidden="true" /></span>}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
               <aside className={styles.cta} aria-labelledby="article-cta-title">

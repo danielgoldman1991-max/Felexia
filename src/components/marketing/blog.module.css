@@ -45,7 +45,7 @@
 .cover { margin: 28px 0 0; }
 .cover img { border-radius: 22px; border: 1px solid #e1e8f2; }
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 48px; align-items: start; margin-top: 36px; }
-.prose { min-width: 0; max-width: 760px; }
+.prose { min-width: 0; max-width: 680px; }
 .prose h2 { margin: 42px 0 0; font-size: clamp(26px, 2.5vw, 32px); font-weight: 550; letter-spacing: -.03em; line-height: 1.2; scroll-margin-top: 110px; }
 .prose h3 { margin: 28px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em; scroll-margin-top: 110px; }
 .prose p, .callout p { margin: 14px 0 0; color: #24344c; font-size: 17px; line-height: 1.75; }
@@ -99,19 +99,22 @@
 .sources li { color: #24344c; line-height: 1.55; }
 .sources small { display: block; color: #52627a; }
 .related { margin-top: 48px; }
-.relatedGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0 0; padding: 0; list-style: none; }
-.relatedCard { min-width: 0; padding: 18px; border: 1px solid #e1e8f2; border-radius: 16px; background: #fff; }
-.relatedCard h3 { font-size: 18px; }
+.relatedGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 16px 0 0; padding: 0; list-style: none; }
+.relatedCard { display: flex; min-width: 0; height: 100%; flex-direction: column; padding: 18px; border: 1px solid #e1e8f2; border-radius: 16px; background: #fff; color: inherit; text-decoration: none; }
+.relatedCard:hover { border-color: #2454d8; }
+.relatedCard h3 { margin: 12px 0 0; font-size: 18px; color: #13213b; }
+.relatedCard p { margin: 10px 0 0; color: #52627a; font-size: 13px; }
 .disclaimer { margin: 28px 0 0; color: #52627a; font-size: 13px; line-height: 1.65; }
 .page :where(a, summary, button):focus-visible { outline: 2px solid #2454d8; outline-offset: 3px; border-radius: 4px; }
 @media (max-width: 980px) {
-  .featured, .layout, .cta, .relatedGrid { grid-template-columns: 1fr; }
+  .featured, .layout, .cta { grid-template-columns: 1fr; }
+  .relatedGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tocDesktop { display: none; }
   .tocMobile { display: block; }
   .cta { padding: 28px 22px; }
 }
 @media (max-width: 720px) {
-  .grid { grid-template-columns: 1fr; }
+  .grid, .relatedGrid { grid-template-columns: 1fr; }
   .title { font-size: 34px; }
   .lede, .prose p { font-size: 16px; }
   .featured { padding: 12px; }
