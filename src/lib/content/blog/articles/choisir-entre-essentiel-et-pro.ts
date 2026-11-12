@@ -176,6 +176,7 @@ const article: BlogArticle = {
     { href: "/essentiel", label: "Détail de l’offre ESSENTIEL" },
     { href: "/pro", label: "Périmètre de l’ERP PRO" },
     { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
+    { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel de gestion" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
   ],
   sources: [

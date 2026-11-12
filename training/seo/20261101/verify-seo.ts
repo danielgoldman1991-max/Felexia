@@ -20,7 +20,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 18 && new Set(PUBLIC_SITE_PATHS).size === 18, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 20 && new Set(PUBLIC_SITE_PATHS).size === 20, "Public routes are explicit and unique");
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);
@@ -75,8 +75,8 @@ async function main() {
     check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
   }
   const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
-  check(BLOG_ARTICLES.length === 7 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
-  const shortArticles = new Set(["plf-2027-pme-maroc"]);
+  check(BLOG_ARTICLES.length === 9 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  const shortArticles = new Set(["plf-2027-pme-maroc", "facture-electronique-pdf-xml"]);
   for (const article of BLOG_ARTICLES) {
     const words = articleWordCount(article);
     const corpus = JSON.stringify(article);
