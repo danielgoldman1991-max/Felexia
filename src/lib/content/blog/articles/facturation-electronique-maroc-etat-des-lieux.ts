@@ -173,6 +173,7 @@ const article: BlogArticle = {
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 et les PME" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
+    { href: "/blog/facture-electronique-pdf-xml", label: "PDF, XML et facture électronique" },
   ],
   sources: [
     { label: "Direction générale des impôts — page Documentation fiscale, édition du Code général des impôts 2026 listée au 30 décembre 2025", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },

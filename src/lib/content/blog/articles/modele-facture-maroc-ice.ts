@@ -147,6 +147,7 @@ const article: BlogArticle = {
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+    { href: "/blog/facture-electronique-pdf-xml", label: "PDF, XML et facture électronique" },
     { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 et les PME" },
   ],
   sources: [
