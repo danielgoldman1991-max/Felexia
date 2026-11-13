@@ -26,6 +26,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/facture-auto-entrepreneur-maroc": "Facture auto-entrepreneur Maroc — FelexiaERP",
   "/blog/logiciel-gestion-pme-maroc": "Logiciel de gestion PME Maroc — FelexiaERP",
   "/blog/facture-electronique-pdf-xml": "PDF, XML et facture électronique — FelexiaERP",
+  "/blog/retenue-source-auto-entrepreneur-plf-2027": "Retenue auto-entrepreneur 2027 — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([

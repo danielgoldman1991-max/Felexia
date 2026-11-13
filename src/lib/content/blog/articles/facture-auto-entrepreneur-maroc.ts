@@ -165,6 +165,7 @@ const article: BlogArticle = {
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+    { href: "/blog/retenue-source-auto-entrepreneur-plf-2027", label: "Retenue à la source et projet 2027" },
   ],
   sources: [
     { label: "Direction générale des impôts — page Documentation fiscale, édition du Code général des impôts 2026 listée au 30 décembre 2025", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },

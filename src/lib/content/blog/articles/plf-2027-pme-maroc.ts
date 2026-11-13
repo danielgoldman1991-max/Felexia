@@ -122,6 +122,7 @@ const article: BlogArticle = {
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+    { href: "/blog/retenue-source-auto-entrepreneur-plf-2027", label: "Retenue à la source des auto-entrepreneurs" },
   ],
   sources: [
     { label: "Chambre des représentants — projet de loi de finances n° 60-26 pour l’année budgétaire 2027, texte français", href: "https://www.chambredesrepresentants.ma/sites/default/files/loi/01-%20Projet%20loi%20de%20Finances%202027_Fr.pdf", consulted },
