@@ -1,0 +1,180 @@
+import { publicOfferCopy } from "@/lib/content/blog/offers";
+import { h2, h3, p, type BlogArticle } from "@/lib/content/blog/types";
+
+const offer = publicOfferCopy();
+const consulted = "13/11/2026";
+
+const article: BlogArticle = {
+  slug: "retenue-source-auto-entrepreneur-plf-2027",
+  path: "/blog/retenue-source-auto-entrepreneur-plf-2027",
+  title: "Retenue à la source auto-entrepreneur 2027 | Felexia",
+  description: "Retenue à la source auto-entrepreneur 2027 : la règle du CGI, le seuil et le taux rapportés en commission, et ce qu’une PME cliente peut préparer.",
+  h1: "Auto-entrepreneurs : retenue à la source allégée dans le PLF 2027 — ce que les PME clientes doivent savoir",
+  category: "tva-fiscalite",
+  publishedAt: "2026-11-13",
+  updatedAt: "2026-11-13",
+  author: "Équipe Felexia",
+  cover: {
+    webp: "/images/blog/blog-retenue-source-auto-entrepreneur-plf-2027.webp",
+    avif: "/images/blog/blog-retenue-source-auto-entrepreneur-plf-2027.avif",
+    alt: "Illustration d’un dossier bleu, d’une facture marine, d’une balance et d’un motif géométrique menthe, sur fond clair.",
+    width: 1600,
+    height: 900,
+  },
+  essentials: [
+    "Pour des prestations de services, le surplus au-delà de 80 000 dirhams avec un même client est retenu à la source, au taux libératoire de 30 %. CGI 2026, articles 42 bis, 45 bis-II et 73-II-G-8°, état au 13 novembre 2026.",
+    "La presse du 12 novembre 2026 rapporte un amendement accepté par le gouvernement : seuil de 100 000 dirhams, taux de 20 %. Ce libellé n’est pas sur les sites officiels consultés.",
+    "Le Matin, Finances News Hebdo et LeBrief écrivent que la commission a adopté la première partie du projet n° 60-26, par 23 voix contre 17. Ce n’est pas une loi. Le vote en séance est inscrit au 14 novembre. Aucune date d’entrée en vigueur n’est publiée.",
+    "Le prestataire et la PME cliente sont concernés. L’article 157-II vise les personnes morales, et les personnes physiques au résultat net réel ou simplifié.",
+  ],
+  introduction: [
+    "La retenue à la source auto-entrepreneur 2027 n’est pas encore une règle. Le seuil de 100 000 dirhams et le taux de 20 % viennent d’articles de presse sur un amendement au projet de loi de finances n° 60-26. Tant que le texte n’est pas voté puis publié, la retenue en vigueur reste celle du Code général des impôts. ",
+    "Ce guide dit ce qui s’applique, ce que les journaux décrivent, et ce qu’une PME cliente peut préparer sans changer ses calculs trop tôt. Le cadre du projet est dans ",
+    { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 : ce qui pourrait changer pour les PME" },
+    ". La facture du régime est dans ",
+    { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur au Maroc" },
+    ".",
+  ],
+  blocks: [
+    h2("regle-en-vigueur", "Quelle retenue s’applique aujourd’hui ?"),
+    p("L’article 42 bis vise l’auto-entrepreneur, personne physique à titre individuel. L’impôt porte sur le chiffre d’affaires annuel encaissé : 0,5 % jusqu’à 500 000 dirhams pour le commerce, l’industrie et l’artisanat, et 1 % jusqu’à 200 000 dirhams pour les services (article 73-III)."),
+    p("Une autre phrase du même article vise les services faits pour un même client. Au-delà de 80 000 dirhams de chiffre d’affaires annuel, le surplus est retenu à la source par ce client, au taux de 30 % de l’article 73-II-G-8°. Cette retenue est libératoire. L’article 45 bis-II définit le surplus dans les mêmes termes, pour l’auto-entrepreneur et pour la contribution professionnelle unique. L’article 40-I le reprend pour cette contribution. Le texte parle de services, pas d’une vente de marchandises."),
+    p("La page « Impôts sur le revenu » de la DGI dit la même chose, état au 13 novembre 2026. L’article 42 du CGI est abrogé : ce n’est pas lui qui pose la retenue."),
+    h3("encaissement", "Encaissé ou réalisé"),
+    p("Le taux de 1 % ou de 0,5 % porte sur l’encaissé. La phrase de la retenue parle des prestations réalisées, et l’article 45 bis-II dit « réalisé ». Quel cumul tenir, facture ou encaissement, se vérifie avec votre expert-comptable."),
+    h2("amendement-2027", "Retenue à la source auto-entrepreneur 2027 : que changerait l’amendement ?"),
+    p("Le Matin, Finances News Hebdo, LeBrief et Médias24, le 12 novembre 2026, décrivent un amendement de la majorité, approuvé par le gouvernement. Le seuil passerait à 100 000 dirhams, le taux à 20 %. Aucun ne publie le libellé voté. Le corps du projet, daté du 23 octobre 2026 sur le site du ministère, ne contient pas le mot auto-entrepreneur."),
+    {
+      type: "table",
+      caption: "Avant / après — la colonne de droite reprend la presse, pas un texte promulgué",
+      columns: ["Point", "Règle en vigueur, état au 13 novembre 2026", "Ce que la presse du 12 novembre rapporte"],
+      rows: [
+        ["Seuil", "80 000 DH avec le même client.", "100 000 DH, selon les quatre articles."],
+        ["Taux", "30 %, libératoire. Article 73-II-G-8°.", "20 %, selon les quatre articles."],
+        ["Assiette", "Le surplus au-delà de 80 000 DH.", "Selon Médias24, la partie au-delà de 100 000 DH. Les trois autres ne le disent pas."],
+        ["Personnes visées", "Auto-entrepreneur et contribution professionnelle unique, pour des services.", "Médias24 vise les deux. Le Matin et Finances News Hebdo citent la contribution pour l’allègement, et les auto-entrepreneurs pour le taux. LeBrief ne cite que les auto-entrepreneurs."],
+        ["Qui retient", "Le client de l’article 157-II.", "Ces articles ne disent pas que ce point changerait."],
+      ],
+    },
+    h3("ecarts", "Là où les articles ne disent pas la même chose"),
+    p("Médias24 situe les amendements à l’article 7 du projet, examinés le mercredi 11 novembre. Le Matin et Finances News Hebdo parlent de l’article 42, et datent l’adoption du jeudi. LeBrief ne numérote pas l’article, et date aussi l’adoption du jeudi 12 novembre. Dans le corps du 23 octobre, l’article 7 modifierait le CGI, dont l’article 73. L’article 42 de ce corps relève de l’équilibre du budget. Cela n’empêche pas un autre numérotage en commission : le libellé voté n’est pas en ligne. Ces numéros ne sont pas ceux du CGI."),
+    p("Médias24 écrit que la retenue ne porterait plus sur la totalité du chiffre d’affaires avec le client, mais sur la partie au-delà de 100 000 dirhams. Le code limite déjà la retenue au surplus, au-delà de 80 000. Les trois autres articles ne décrivent pas cette assiette."),
+    h2("ou-en-est-le-texte", "Où en est le texte ?"),
+    p("Le Matin, Finances News Hebdo et LeBrief écrivent que la commission a adopté la première partie, par 23 voix contre 17, après 290 amendements. LeBrief date cette adoption du jeudi 12 novembre. Ces décomptes ne sont pas sur les pages de la Chambre consultées le 13 novembre. L’agenda officiel annonçait le vote le mercredi 11 novembre, à 10 heures. Médias24 date l’examen des amendements de ce mercredi."),
+    p("Le 12 novembre, la Chambre a convoqué les séances plénières des 13 et 14 novembre. Le vote de la première partie y est inscrit le samedi 14 novembre. Il resterait la Chambre des conseillers, puis le Bulletin officiel. Si le passage est repris, l’entrée en vigueur sera celle de la loi publiée. Aucune date n’est acquise."),
+    h2("qui-est-concerne", "Qui est concerné ?"),
+    h3("prestataire", "L’auto-entrepreneur qui facture des services"),
+    p("La retenue vise des services faits pour un même client, pas une vente de marchandises, et pas tout le chiffre d’affaires de l’année. Le plafond des services, 200 000 dirhams encaissés (article 42 ter), est une autre limite. Rester sous ce plafond n’écarte pas les 80 000 dirhams. L’article 82 bis demande de déclarer l’encaissé chaque mois ou chaque trimestre, avant la fin du mois suivant. Il ne fixe pas la date à laquelle le client verse la retenue."),
+    h3("cliente", "La PME qui paie le prestataire"),
+    p("L’article 157-II charge de la retenue, pour le compte du Trésor, les personnes morales de droit public ou privé, et les personnes physiques au résultat net réel ou simplifié. Une société cliente est visée. Un client auto-entrepreneur, ou à la contribution professionnelle unique, n’y est pas nommé. Les articles de presse ne disent pas que ce cercle changerait. Le moment du versement se vérifie avec votre conseil."),
+    h2("que-faire", "Que faire concrètement ?"),
+    p("Ne remplacez pas 80 000 dirhams par 100 000, ni 30 % par 20 %, tant que la loi n’est pas publiée. Repérez les clients de services dont le cumul approche 80 000 dirhams."),
+    {
+      type: "checklist",
+      title: "Côté prestataire et côté client",
+      items: [
+        "Lister, par client et par année, les prestations de services.",
+        "Garder une facture lisible : prestataire, client, service, montant. L’article 145 ne s’applique pas à ce régime, sauf l’adresse électronique à détenir.",
+        "Ne pas écrire de TVA si vous ne la collectez pas.",
+        "Côté client, vérifier l’article 157-II : personne morale, ou personne physique au réel ou au simplifié.",
+        "Ne pas retenir sur une vente de marchandises : les articles cités visent les services.",
+        "Conserver les pièces. L’exemple plus bas n’est pas une retenue à verser.",
+      ],
+    },
+    {
+      type: "callout",
+      tone: "accountant",
+      title: "À vérifier avec votre expert-comptable",
+      paragraphs: [[
+        "Le bon cumul, la part libératoire et la date de versement dépendent du régime et des pièces. L’amendement peut encore changer, ou ne pas être repris. Faites relire les articles 40-I, 42 bis, 45 bis-II, 73-II-G-8° et 157-II, puis le texte qui sera, le cas échéant, publié au Bulletin officiel.",
+      ]],
+    },
+    h2("exemple", "Exemple illustratif, sous réserve du texte définitif"),
+    p("Samir El Fassi, Atlas Démo et l’ICE 000000000000000 n’existent pas. Les services rendus à ce seul client font 120 000 dirhams sur l’année : au-dessus de 80 000 et de 100 000, et sous le plafond de 200 000. Ce n’est pas un cas réel."),
+    {
+      type: "example",
+      kicker: "Exemple fictif",
+      title: "120 000 dirhams de services avec le même client",
+      note: "Exemple illustratif, sous réserve du texte définitif. 120 000 − 80 000 = 40 000, et 40 000 × 30 % = 12 000. 120 000 − 100 000 = 20 000, et 20 000 × 20 % = 4 000. La seconde ligne reprend Médias24, pas les trois autres articles.",
+      rows: [
+        { label: "Prestataire et client", value: "Samir El Fassi · Atlas Démo, ICE 000000000000000", annotation: "Noms et identifiant fictifs. Une seule relation de services." },
+        { label: "Cumul de l’année", value: "120 000,00 MAD", annotation: "Chiffre choisi pour l’exemple. Pas un seuil du CGI." },
+        { label: "Règle en vigueur", value: "12 000,00 MAD", annotation: "Surplus de 40 000,00 au taux de 30 %. Articles 42 bis et 73-II-G-8°." },
+        { label: "Lecture de Médias24", value: "4 000,00 MAD", annotation: "Surplus de 20 000,00 au taux de 20 %. Les autres articles ne décrivent pas cette assiette." },
+      ],
+    },
+    p("L’écart entre 12 000 et 4 000 dirhams illustre deux lectures. Ce n’est pas une économie acquise. Le Matin, Finances News Hebdo et LeBrief donnent le seuil et le taux, pas l’assiette."),
+    h2("erreurs-frequentes", "Erreurs fréquentes"),
+    p("Appliquer 20 % dès la prochaine facture, alors qu’aucune date d’entrée en vigueur n’est publiée. Retenir sur tout le chiffre d’affaires : le CGI ne vise que le surplus des services. Confondre 80 000 dirhams avec les plafonds de 200 000 ou 500 000. Confondre l’article 42 cité par la presse avec l’article 42 du CGI, qui est abrogé."),
+    {
+      type: "callout",
+      tone: "product",
+      title: "Avec Felexia",
+      paragraphs: [[
+        "Dans ESSENTIEL, vous tenez les clients, les fournisseurs, les factures de vente et d’achat, les avoirs et les règlements. Chaque facture est rattachée à un tiers : vous retrouvez les pièces, puis vous faites le cumul de votre côté. Felexia ne calcule pas cette retenue et ne verse rien à l’administration. ",
+        { href: "/logiciel-facturation-maroc", label: "Le logiciel de facturation au Maroc" },
+        " décrit ce quotidien. ",
+        { href: "/facturation-electronique-maroc", label: "La facture électronique" },
+        " aussi : Felexia est prêt pour la facture électronique, au sens du PDF, du XML et de l’archivage, après activation par l’administrateur. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. Les fonctions seront mises à jour à la publication des textes.",
+      ], [
+        offer.offerPitch,
+      ]],
+    },
+  ],
+  questions: [
+    {
+      question: "Le seuil de 100 000 dirhams et le taux de 20 % s’appliquent-ils déjà ?",
+      answer: "Non. Le Matin, Finances News Hebdo, LeBrief et Médias24, le 12 novembre 2026, rapportent un amendement en ce sens, accepté par le gouvernement en commission. Le texte n’est pas publié sur les sites officiels consultés le 13 novembre. La Chambre a inscrit le vote de la première partie en séance le 14 novembre 2026. Il resterait la Chambre des conseillers et le Bulletin officiel.",
+    },
+    {
+      question: "Quelle retenue s’applique aujourd’hui à un auto-entrepreneur prestataire ?",
+      answer: "Pour des prestations de services, le surplus au-delà de 80 000 dirhams de chiffre d’affaires annuel avec un même client est retenu à la source par ce client, au taux libératoire de 30 %. Ce sont les articles 42 bis, 45 bis-II et 73-II-G-8° du CGI 2026, et la page Impôts sur le revenu de la DGI, état au 13 novembre 2026. Une vente de marchandises n’est pas dans ces phrases.",
+    },
+    {
+      question: "La retenue porte-t-elle sur tout le chiffre d’affaires du client ?",
+      answer: "Non dans le CGI en vigueur : elle porte sur le surplus au-delà de 80 000 dirhams. Médias24 écrit que l’amendement limiterait la retenue à la partie au-delà de 100 000 dirhams, et non plus à la totalité. Le Matin, Finances News Hebdo et LeBrief ne décrivent pas cette assiette. Le libellé voté n’est pas publié.",
+    },
+    {
+      question: "Une PME cliente doit-elle opérer la retenue ?",
+      answer: "L’article 157-II charge de la retenue les personnes morales de droit public ou privé, et les personnes physiques au résultat net réel ou au résultat net simplifié. Une société cliente est visée. Un client auto-entrepreneur, ou à la contribution professionnelle unique, n’est pas nommé dans cet article. Le versement se vérifie avec votre expert-comptable.",
+    },
+    {
+      question: "La contribution professionnelle unique est-elle dans la même règle ?",
+      answer: "Oui pour le texte en vigueur : les articles 40-I et 45 bis-II appliquent la même retenue de surplus, à 30 %, aux prestations de services de la contribution professionnelle unique. Médias24 vise aussi ce régime dans les amendements. Le Matin et Finances News Hebdo disent que la mesure allège la pression sur ce régime, et décrivent la baisse de taux pour les auto-entrepreneurs. LeBrief ne le cite pas.",
+    },
+    {
+      question: "Felexia calcule-t-il cette retenue ?",
+      answer: "Non. ESSENTIEL enregistre les clients, les fournisseurs, les factures, les avoirs et les règlements. Vous retrouvez les pièces d’un même tiers et vous faites le cumul de votre côté. Aucune retenue n’est calculée ni versée à l’administration. Le parcours PDF et XML ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée.",
+    },
+  ],
+  cta: {
+    label: `Essayer Felexia ${offer.trial}, sans carte bancaire`,
+    href: "/login?mode=register",
+    note: offer.offerPitch,
+  },
+  related: [
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+    { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/plf-2027-pme-maroc", label: "Projet de loi de finances 2027 et les PME" },
+    { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur au Maroc" },
+    { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
+  ],
+  sources: [
+    { label: "Direction générale des impôts — édition 2026 du Code général des impôts, fichier PDF. Articles 40-I, 42 (abrogé), 42 bis, 42 ter, 45 bis-II, 73-II-G (taux de 30 %, 8°), 73-III, 82 bis et 157-II. Préambule : loi de finances n° 50-25.", href: "https://www.tax.gov.ma/wps/wcm/connect/08712531-1e81-4e28-a38b-2bd9edf8e09e/CGI+2026+FR.pdf?MOD=AJPERES", consulted },
+    { label: "Direction générale des impôts — page Documentation fiscale, qui liste l’édition du Code général des impôts 2026 au 30 décembre 2025", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },
+    { label: "Direction générale des impôts — page Impôts sur le revenu : surplus au-delà de 80 000 dirhams, retenue libératoire de 30 % pour l’auto-entrepreneur et la contribution professionnelle unique, prestations de services pour un même client", href: "https://www.tax.gov.ma/wps/portal/DGI/Vos-impots-procedures/Impots-sur-le-revenu", consulted },
+    { label: "Ministère de l’Économie et des Finances — page Projet de loi de finances 2027. Le corps du projet y est daté du 23 octobre 2026. Aucun texte d’amendement postérieur n’y est listé.", href: "https://www.finances.gov.ma/fr/vous-orientez/Pages/plf2027.aspx", consulted },
+    { label: "Ministère de l’Économie et des Finances — corps du projet de loi de finances 2027. Le mot auto-entrepreneur n’y figure pas. L’article 7 modifierait le CGI, dont l’article 73. L’article 42 de ce corps relève de l’équilibre des ressources et des charges.", href: "https://www.finances.gov.ma/Publication/db/2027/corps-PLF2027-fr.pdf", consulted },
+    { label: "Chambre des représentants — agenda du 11 novembre 2026 : réunion de la Commission des finances pour le vote des amendements et de la première partie du PLF 2027. C’est un ordre du jour, pas un résultat.", href: "https://www.chambredesrepresentants.ma/fr/agenda/vote-damendements-et-de-la-1ere-partie-du-plf2027-mercredi-11-novembre-2026", consulted },
+    { label: "Chambre des représentants — avis du 12 novembre 2026 : séances plénières des 13 et 14 novembre 2026. Vote de la première partie du projet n° 60-26 inscrit le samedi 14 novembre.", href: "https://www.chambredesrepresentants.ma/fr/Seances13et14112026", consulted },
+    { label: "Médias24, 12 novembre 2026 (modifié à 17 h 15) — amendements situés à l’article 7, seuil de 100 000 DH, taux de 20 %, et retenue limitée selon cet article à la partie au-delà du seuil. Contexte, pas une règle.", href: "https://medias24.com/2026/11/12/auto-entrepreneur-lekjaa-veut-empecher-le-detournement-du-statut-a-des-fins-devasion-fiscale-1790451/", consulted },
+    { label: "Le Matin, 12 novembre 2026 — adoption en commission de la première partie, 23 voix contre 17, 290 amendements, amendement à l’article 42, seuil de 100 000 DH et taux de 20 %.", href: "https://lematin.ma/nation/plf2027la-1ere-partie-adoptee-en-commission-a-la-chambre-des-representants/375379", consulted },
+    { label: "Finances News Hebdo, 12 novembre 2026 — même décompte et même amendement à l’article 42, seuil de 100 000 DH et taux de 20 %.", href: "https://fnh.ma/articles/plf-2027-la-commission-des-finances-adopte-la-premiere-partie-a-la-majorite", consulted },
+    { label: "LeBrief, 12 novembre 2026 — adoption le jeudi 12 novembre, 23 voix contre 17, 290 amendements, seuil de 100 000 DH et taux de 20 %, sans numéro d’article.", href: "https://www.lebrief.ma/plf-2027-la-premiere-partie-adoptee-en-commission-100173096/", consulted },
+    { label: "Felexia — page Logiciel de facturation au Maroc, pour le périmètre cité dans l’encadré", href: "/logiciel-facturation-maroc", consulted },
+    { label: "Felexia — page Tarifs, pour le prix ESSENTIEL et la durée d’essai", href: "/pricing", consulted },
+  ],
+  disclaimer: "Contenu informatif, non contractuel. Les règles évoluent : vérifiez auprès de l’administration fiscale ou de votre expert-comptable. L’amendement n’est pas une loi. Mis à jour le 13 novembre 2026.",
+};
+
+export default article;

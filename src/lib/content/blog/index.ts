@@ -7,9 +7,10 @@ import logicielGestion from "@/lib/content/blog/articles/logiciel-gestion-pme-ma
 import mentions from "@/lib/content/blog/articles/mentions-obligatoires-facture-maroc";
 import modeleFacture from "@/lib/content/blog/articles/modele-facture-maroc-ice";
 import plf2027 from "@/lib/content/blog/articles/plf-2027-pme-maroc";
+import retenueSource from "@/lib/content/blog/articles/retenue-source-auto-entrepreneur-plf-2027";
 import { BLOG_PILLARS, type BlogArticle, type BlogPillarSlug } from "@/lib/content/blog/types";
 
-export const BLOG_ARTICLES: readonly BlogArticle[] = [logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
+export const BLOG_ARTICLES: readonly BlogArticle[] = [retenueSource, logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
 
 export function getBlogArticle(slug: string): BlogArticle | undefined {
   return BLOG_ARTICLES.find((article) => article.slug === slug);
