@@ -3,12 +3,26 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { isAdminRole } from "@/lib/auth/roles";
 import { PageHeader } from "@/components/erp/page-header";
 import { OrganizationBackupPanel } from "@/components/settings/organization-backup-panel";
+import { ScheduledBackupPanel, type ScheduledBackupRun, type ScheduledBackupValues } from "@/components/settings/scheduled-backup-panel";
 import { ThirdPartyImportForm } from "@/components/tiers/third-party-import-form";
+import { formatBackupWhen, nextBackupRun, type BackupScheduleInput } from "@/lib/backup/schedule";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+const EMPTY: ScheduledBackupValues = {
+  enabled: false,
+  frequency: "daily",
+  weekdays: [1, 2, 3, 4, 5],
+  monthDay: 1,
+  time: "02:00",
+  retentionCount: 7,
+  nextLabel: null,
+};
 
 export default async function OrganizationBackupPage() {
   const workspace = await requireActiveWorkspace();
   if (!isAdminRole(workspace.role)) redirect("/parametres");
+  const loaded = await loadSchedule(workspace.organization.id);
   return (
     <div className="space-y-6">
       <PageHeader title="Sauvegarde et import" description="Réservé au propriétaire et à l’administrateur. Tout reste limité à l’entreprise ouverte." />
@@ -22,7 +36,48 @@ export default async function OrganizationBackupPage() {
           <ThirdPartyImportForm />
         </section>
       </div>
+      <ScheduledBackupPanel organizationName={workspace.organization.name} values={loaded.values} runs={loaded.runs} unavailable={loaded.unavailable} />
       <Link href="/parametres" className="text-sm font-medium text-[var(--primary)] hover:underline">Retour aux paramètres</Link>
     </div>
   );
+}
+
+async function loadSchedule(organizationId: string): Promise<{ values: ScheduledBackupValues; runs: ScheduledBackupRun[]; unavailable: boolean }> {
+  const supabase = await createClient();
+  const [{ data: row, error: scheduleError }, { data: runs, error: runsError }] = await Promise.all([
+    supabase.from("organization_backup_schedules").select("enabled, frequency, weekdays, month_day, hour, minute, retention_count").eq("organization_id", organizationId).maybeSingle(),
+    supabase.from("organization_backup_runs").select("id, slot_key, status, byte_size, error_message").eq("organization_id", organizationId).order("started_at", { ascending: false }).limit(30),
+  ]);
+  if (scheduleError || runsError) return { values: EMPTY, runs: [], unavailable: true };
+  if (!row) return { values: EMPTY, runs: presentRuns(runs ?? []), unavailable: false };
+  const schedule: BackupScheduleInput = {
+    enabled: row.enabled,
+    frequency: row.frequency === "weekly" || row.frequency === "monthly" ? row.frequency : "daily",
+    weekdays: row.weekdays ?? [1],
+    monthDay: row.month_day,
+    hour: row.hour,
+    minute: row.minute,
+    retentionCount: row.retention_count,
+  };
+  const next = nextBackupRun(schedule, new Date());
+  return {
+    unavailable: false,
+    runs: presentRuns(runs ?? []),
+    values: {
+      enabled: schedule.enabled,
+      frequency: schedule.frequency,
+      weekdays: schedule.weekdays,
+      monthDay: schedule.monthDay,
+      time: `${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")}`,
+      retentionCount: schedule.retentionCount,
+      nextLabel: next ? `${formatBackupWhen(next)} (Casablanca)` : null,
+    },
+  };
+}
+
+function presentRuns(rows: { id: string; slot_key: string; status: string; byte_size: number | null; error_message: string | null }[]): ScheduledBackupRun[] {
+  return rows.flatMap((row) => {
+    if (row.status !== "ok" && row.status !== "failed" && row.status !== "running" && row.status !== "purged") return [];
+    return [{ id: row.id, slotKey: row.slot_key, status: row.status, byteSize: row.byte_size, errorMessage: row.error_message }];
+  });
 }

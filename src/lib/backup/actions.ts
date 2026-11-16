@@ -17,6 +17,7 @@ export type BackupPreview = {
 export type BackupActionState = {
   error?: string;
   preview?: BackupPreview;
+  runId?: string;
   restored?: { mode: "merge" | "replace"; skipped: number };
 };
 
