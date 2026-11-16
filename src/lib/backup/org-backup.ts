@@ -161,3 +161,39 @@ export function planOrganizationRestore(backup: { manifest: BackupManifest; tabl
   });
   return { mode, counts, tables };
 }
+
+/** Both confirmations are required before a replace can be sent. */
+export function replaceConfirmationReady(checked: boolean, typedName: string, organizationName: string) {
+  return checked && typedName.trim() === organizationName;
+}
+
+/** Turns a sanitized database failure into an admin message. Never echoes row contents. */
+export function describeRestoreFailure(message: string | null | undefined, code: string | null | undefined) {
+  const blocked = /RESTORE_BLOCKED\|([a-z0-9_]+)\|([0-9A-Z]{5})/.exec(message ?? "");
+  if (blocked) {
+    const known = BACKUP_TABLES.find((item) => item.name === blocked[1]);
+    return {
+      table: known ? blocked[1] : null,
+      sqlstate: blocked[2],
+      userMessage: known
+        ? `La restauration a été annulée à la table « ${known.label} ». Aucune donnée n’a été modifiée.`
+        : "La restauration a été annulée. Aucune donnée n’a été modifiée.",
+    };
+  }
+  if (message === "RESTORE_FORBIDDEN") {
+    return {
+      table: null,
+      sqlstate: "42501",
+      userMessage: "Réservé au propriétaire ou à l’administrateur de l’entreprise. Aucune donnée n’a été modifiée.",
+    };
+  }
+  const sqlstate = code && /^[0-9A-Z]{5}$/.test(code) ? code : null;
+  const missing = /restore_organization_backup|schema cache|PGRST202/i.test(message ?? "");
+  return {
+    table: null,
+    sqlstate,
+    userMessage: missing
+      ? "La restauration n’est pas encore installée sur la base (migration 147). Aucune donnée n’a été modifiée."
+      : "La restauration a été annulée. Aucune donnée n’a été modifiée.",
+  };
+}

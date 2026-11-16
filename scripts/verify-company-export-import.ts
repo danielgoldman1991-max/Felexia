@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildOrganizationBackup, planOrganizationRestore, readOrganizationBackup } from "../src/lib/backup/org-backup";
+import { buildOrganizationBackup, describeRestoreFailure, planOrganizationRestore, readOrganizationBackup, replaceConfirmationReady } from "../src/lib/backup/org-backup";
 import { toCsv, unzip, zipStore } from "../src/lib/export/archive";
 import { writeXlsx } from "../src/lib/spreadsheet/minimal-xlsx";
 import { readSpreadsheet } from "../src/lib/spreadsheet/read-table";
@@ -94,5 +94,31 @@ assert.equal(/from public\.organization_members\s+where[\s\S]*\brole in\b/.test(
 assert.equal(migration.includes("organization_id = p_organization_id"), true);
 assert.equal(migration.includes("RESTORE_TABLE_FORBIDDEN"), true);
 assert.equal(migration.includes("jsonb_build_object('organization_id', p_organization_id)"), true);
+
+const fix = readFileSync("supabase/migrations/147_org_backup_restore_fix.sql", "utf8");
+assert.equal(fix.includes("join public.roles member_role on member_role.id = member.role_id"), true);
+assert.equal(fix.includes("revoke all on function public.restore_organization_backup(uuid, text, jsonb) from public, anon, authenticated"), true);
+assert.equal(fix.includes("attgenerated"), true);
+assert.equal(fix.includes("organization_restore_scope"), true);
+assert.equal(fix.includes("146_org_backup"), false);
+assert.equal(replaceConfirmationReady(false, "Atelier Démo", "Atelier Démo"), false);
+assert.equal(replaceConfirmationReady(true, "Autre", "Atelier Démo"), false);
+assert.equal(replaceConfirmationReady(true, " Atelier Démo ", "Atelier Démo"), true);
+const blocked = describeRestoreFailure("RESTORE_BLOCKED|customer_invoices|42501", "P0001");
+assert.equal(blocked.table, "customer_invoices");
+assert.equal(blocked.sqlstate, "42501");
+assert.equal(blocked.userMessage.includes("Factures clients"), true);
+assert.equal(blocked.userMessage.includes("SECRET"), false);
+assert.equal(describeRestoreFailure("duplicate key value violates unique constraint \"customer_invoices_pkey\" DETAIL SECRET_TOKEN", "23505").userMessage.includes("SECRET"), false);
+const panel = readFileSync("src/components/settings/organization-backup-panel.tsx", "utf8");
+assert.equal(panel.includes("disabled={restorePending || !replaceReady}"), true);
+assert.equal(panel.includes("Coordonnees"), false);
+const detail = readFileSync("src/components/tiers/third-party-detail.tsx", "utf8");
+const attachments = readFileSync("src/components/tiers/third-party-attachments.tsx", "utf8");
+assert.equal(detail.includes("Coordonnées"), true);
+assert.equal(detail.includes("Pièces jointes"), true);
+assert.equal(attachments.includes("Formats acceptés"), true);
+assert.equal(detail.includes(">Coordonnees<"), false);
+assert.equal(attachments.includes("acceptes"), false);
 
 console.log("company export/import: ok");
