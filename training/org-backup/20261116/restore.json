@@ -1,11 +1,16 @@
 {
   "passed": true,
-  "date": "2026-11-16T09:22:46.750Z",
-  "checks": 29,
+  "date": "2026-11-16T15:49:16.485Z",
+  "checks": 36,
   "results": [
     "anonymous role cannot execute the restore or write the private marker",
     "a direct validated customer invoice is still refused",
     "the employee name is generated from the first and last name",
+    "deleting a draft invoice removes its lines",
+    "lines of a validated invoice stay protected",
+    "an accountant cannot change company settings",
+    "an accountant cannot change the organization record",
+    "an administrator can still update company settings",
     "inserting the whole employee record still rejects the generated full name",
     "the organization data was removed before merge",
     "merge keeps the validated customer invoice number",
@@ -16,6 +21,7 @@
     "merge keeps the posted entry number",
     "merge keeps both entry lines",
     "merge restores the employee without writing the generated name",
+    "merge restores the treasury movement",
     "replaying the merge does not create a duplicate",
     "the customer invoice number stays unique",
     "an extra draft exists before replace",
@@ -31,7 +37,8 @@
     "an authenticated user cannot activate the restore bypass",
     "the invoice guard still refuses a direct validated insert after restore",
     "a blocked table is reported without its data",
-    "a failed restore leaves the validated invoice unchanged"
+    "a failed restore leaves the validated invoice unchanged",
+    "an Essentiel organization does not restore employees from a PRO backup"
   ],
   "migration": "147_org_backup_restore_fix.sql",
   "engine": "PostgreSQL via PGlite",

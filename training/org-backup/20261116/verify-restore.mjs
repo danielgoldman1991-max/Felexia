@@ -60,6 +60,12 @@ try {
   await apply("134_posted_entry_lettering.sql");
   await apply("145_org_backup_restore.sql");
   await apply("147_org_backup_restore_fix.sql");
+  await db.exec(`
+    create table if not exists public.supplier_credit_notes (id uuid);
+    create table if not exists public.supplier_credit_note_lines (id uuid);
+    create table if not exists public.supplier_credit_note_applications (id uuid);
+  `);
+  await apply("148_essential_backup_completeness.sql");
   const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
@@ -139,7 +145,7 @@ try {
     [ids.foreign, foreignCustomer, period],
   );
 
-  const tables = ["company_settings", "third_parties", "customer_invoices", "customer_invoice_lines", "customer_payments", "supplier_invoices", "supplier_invoice_lines", "accounting_entries", "accounting_entry_lines", "hr_employees"];
+  const tables = ["company_settings", "third_parties", "customer_invoices", "customer_invoice_lines", "customer_payments", "supplier_invoices", "supplier_invoice_lines", "accounting_entries", "accounting_entry_lines", "treasury_accounts", "treasury_transactions", "hr_employees"];
   async function snapshot(org) {
     const payload = [];
     for (const name of tables) {
@@ -149,10 +155,49 @@ try {
     return payload;
   }
   await db.exec("reset role");
+  const treasury = await one(
+    "insert into treasury_accounts(organization_id,name,account_type,currency) values($1,'Caisse test','cash','MAD') returning id",
+    [ids.org],
+  );
+  await one(
+    "insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_in','in',15,'MAD','Entrée de caisse') returning id",
+    [ids.org, treasury.id],
+  );
   const original = await snapshot(ids.org);
   const poisoned = JSON.parse(JSON.stringify(original));
   const invoiceRows = poisoned.find((table) => table.name === "customer_invoices").rows;
   invoiceRows.push({ id: foreignInvoice.id, organization_id: ids.foreign, customer_id: customer, invoice_number: "PIRATE", status: "validated", total_ttc: 1, notes: "SECRET_TOKEN_XYZ" });
+
+  phaseBox.phase = "draft deletion and company rights";
+  await as(ids.admin);
+  const draft = await one(
+    "insert into customer_invoices(organization_id,customer_id,invoice_number,invoice_date,status,currency) values($1,$2,'FAC-BROUILLON',$3::date,'draft','MAD') returning id",
+    [ids.org, customer, period],
+  );
+  await db.query(
+    "insert into customer_invoice_lines(organization_id,invoice_id,description,quantity,unit_price_ht,discount_rate,tax_rate) values($1,$2,'Brouillon',1,10,0,20)",
+    [ids.org, draft.id],
+  );
+  await db.query("delete from customer_invoices where id=$1", [draft.id]);
+  equal(Number((await one("select count(*)::int n from customer_invoice_lines where invoice_id=$1", [draft.id])).n), 0, "deleting a draft invoice removes its lines");
+  await rejected(
+    () => db.query("delete from customer_invoice_lines where invoice_id=$1", [customerInvoice.id]),
+    /FINANCE_DRAFT_REQUIRED/,
+    "lines of a validated invoice stay protected",
+  );
+  await db.exec("reset role");
+  await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'comptable@example.test',now())", [ids.accountant]);
+  await db.query("insert into profiles(id,email) values($1,'comptable@example.test')", [ids.accountant]);
+  const accountantRole = await one("insert into roles(organization_id,name) values($1,'accountant') returning id", [ids.org]);
+  await db.query("insert into organization_members(organization_id,user_id,role_id,status) values($1,$2,$3,'active')", [ids.org, ids.accountant, accountantRole.id]);
+  await as(ids.accountant);
+  const blockedSettings = await db.query("update company_settings set ice='999999999999999' where organization_id=$1 returning organization_id", [ids.org]);
+  equal(blockedSettings.rows.length, 0, "an accountant cannot change company settings");
+  const blockedOrg = await db.query("update organizations set ice='999999999999999' where id=$1 returning id", [ids.org]);
+  equal(blockedOrg.rows.length, 0, "an accountant cannot change the organization record");
+  await as(ids.admin);
+  const allowedSettings = await db.query("update company_settings set city='Rabat' where organization_id=$1 returning organization_id", [ids.org]);
+  equal(allowedSettings.rows.length, 1, "an administrator can still update company settings");
 
   phaseBox.phase = "naive generated insert";
   const employeeJson = original.find((table) => table.name === "hr_employees").rows[0];
@@ -195,6 +240,7 @@ try {
   equal((await one("select entry_number, status from accounting_entries where id=$1", [entry.id])).entry_number, entry.entry_number, "merge keeps the posted entry number");
   equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entry.id])).n), 2, "merge keeps both entry lines");
   equal((await one("select full_name, first_name from hr_employees where id=$1", [employee.id])).full_name, "Sara Bennani", "merge restores the employee without writing the generated name");
+  equal((await one("select label from treasury_transactions where organization_id=$1", [ids.org])).label, "Entrée de caisse", "merge restores the treasury movement");
   const afterMerge = await counts(ids.org);
 
   phaseBox.phase = "merge replay";
@@ -268,6 +314,13 @@ try {
   if (leaked) throw new Error("the invalid invoice should have blocked the restore");
   await db.exec("rollback to savepoint poisoned_restore");
   equal((await one("select status from customer_invoices where id=$1", [customerInvoice.id])).status, "validated", "a failed restore leaves the validated invoice unchanged");
+
+  await db.exec("reset role");
+  await db.query("insert into organization_subscriptions(organization_id, plan_code) values($1,'essentiel')", [ids.org]);
+  await db.query("delete from hr_employees where organization_id=$1", [ids.org]);
+  await restore("merge", original);
+  await db.exec("reset role");
+  equal(Number((await one("select count(*)::int n from hr_employees where organization_id=$1", [ids.org])).n), 0, "an Essentiel organization does not restore employees from a PRO backup");
 
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({

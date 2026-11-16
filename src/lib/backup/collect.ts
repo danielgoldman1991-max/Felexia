@@ -1,4 +1,4 @@
-import { BACKUP_TABLES, buildOrganizationBackup, type BackupTableName } from "@/lib/backup/org-backup";
+import { BACKUP_TABLES, buildOrganizationBackup, PRO_BACKUP_OMITTED_REASON, type BackupTableName } from "@/lib/backup/org-backup";
 
 type TableQuery = {
   select: (columns: string) => {
@@ -31,15 +31,11 @@ export async function collectOrganizationBackup(
   const tables: { name: BackupTableName; rows: Record<string, unknown>[] }[] = [];
   const omitted: { name: string; reason: string }[] = [];
   for (const table of BACKUP_TABLES) {
-    if (table.name === "hr_employees" && !input.includeHr) {
-      omitted.push({ name: table.name, reason: "Les salariés sont réservés à l’offre PRO." });
+    if (table.name.startsWith("hr_") && !input.includeHr) {
+      omitted.push({ name: table.name, reason: PRO_BACKUP_OMITTED_REASON });
       continue;
     }
-    try {
-      tables.push({ name: table.name, rows: await readTable(reader, table.name, input.organizationId) });
-    } catch {
-      omitted.push({ name: table.name, reason: "Cette table n’est pas disponible pour l’entreprise." });
-    }
+    tables.push({ name: table.name, rows: await readTable(reader, table.name, input.organizationId) });
   }
   return buildOrganizationBackup({
     organizationId: input.organizationId,

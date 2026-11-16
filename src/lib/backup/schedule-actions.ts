@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isAdminRole } from "@/lib/auth/roles";
+import { hasFullErpAccess } from "@/lib/launch-access";
 import { planOrganizationRestore, readOrganizationBackup } from "@/lib/backup/org-backup";
 import { BACKUP_BUCKET, backupPathBelongsTo, parseBackupSchedule } from "@/lib/backup/schedule";
 import { createClient } from "@/lib/supabase/server";
@@ -76,7 +77,8 @@ export async function previewScheduledBackupAction(_prev: BackupActionState, for
     const workspace = await adminWorkspace();
     const runId = String(formData.get("runId") ?? "");
     const backup = await storedBackup(workspace.organization.id, runId);
-    const plan = planOrganizationRestore(backup, workspace.organization.id, "merge");
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
+    const plan = planOrganizationRestore(backup, workspace.organization.id, "merge", { includeHr });
     return {
       runId,
       preview: {
@@ -84,7 +86,7 @@ export async function previewScheduledBackupAction(_prev: BackupActionState, for
         organizationName: backup.manifest.organizationName,
         sourceOrganizationId: backup.manifest.organizationId,
         counts: plan.counts,
-        omitted: backup.manifest.omitted,
+        omitted: [...backup.manifest.omitted, ...plan.omitted],
       },
     };
   } catch (error) {
@@ -102,8 +104,9 @@ export async function restoreScheduledBackupAction(_prev: BackupActionState, for
         return { error: "Pour remplacer, cochez la confirmation et recopiez exactement le nom de l’entreprise. Rien n’a été modifié.", runId: String(formData.get("runId") ?? "") };
       }
     }
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
     const backup = await storedBackup(workspace.organization.id, String(formData.get("runId") ?? ""));
-    const plan = planOrganizationRestore(backup, workspace.organization.id, mode);
+    const plan = planOrganizationRestore(backup, workspace.organization.id, mode, { includeHr });
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("restore_organization_backup", {
       p_organization_id: workspace.organization.id,

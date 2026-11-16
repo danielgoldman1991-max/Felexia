@@ -7,21 +7,40 @@ export const BACKUP_SCHEMA_VERSION = 1;
 /** Parents before children. Restore inserts in this order and deletes in reverse. */
 export const BACKUP_TABLES = [
   { name: "company_settings", label: "Paramètres de l’entreprise", conflict: "organization_id" },
+  { name: "product_categories", label: "Catégories d’articles", conflict: "id" },
+  { name: "units", label: "Unités", conflict: "id" },
+  { name: "tax_rates", label: "Taux de TVA", conflict: "id" },
+  { name: "accounting_journals", label: "Journaux comptables", conflict: "id" },
+  { name: "accounting_accounts", label: "Plan comptable", conflict: "id" },
   { name: "third_parties", label: "Clients et fournisseurs", conflict: "id" },
+  { name: "third_party_contacts", label: "Contacts des tiers", conflict: "id" },
+  { name: "third_party_addresses", label: "Adresses des tiers", conflict: "id" },
   { name: "products", label: "Articles", conflict: "id" },
   { name: "customer_invoices", label: "Factures clients", conflict: "id" },
   { name: "customer_invoice_lines", label: "Lignes de factures clients", conflict: "id" },
+  { name: "customer_credit_notes", label: "Avoirs clients", conflict: "id" },
+  { name: "customer_credit_note_lines", label: "Lignes d’avoirs clients", conflict: "id" },
   { name: "customer_payments", label: "Règlements clients", conflict: "id" },
+  { name: "customer_payment_allocations", label: "Affectations des règlements clients", conflict: "id" },
+  { name: "customer_credit_note_applications", label: "Imputations des avoirs clients", conflict: "id" },
   { name: "supplier_invoices", label: "Factures fournisseurs", conflict: "id" },
   { name: "supplier_invoice_lines", label: "Lignes de factures fournisseurs", conflict: "id" },
-  { name: "supplier_payments", label: "Règlements fournisseurs", conflict: "id" },
   { name: "supplier_invoice_attachments", label: "Références des pièces jointes fournisseurs", conflict: "id" },
+  { name: "supplier_credit_notes", label: "Avoirs fournisseurs", conflict: "id" },
+  { name: "supplier_credit_note_lines", label: "Lignes d’avoirs fournisseurs", conflict: "id" },
+  { name: "supplier_payments", label: "Règlements fournisseurs", conflict: "id" },
+  { name: "supplier_payment_allocations", label: "Affectations des règlements fournisseurs", conflict: "id" },
+  { name: "supplier_credit_note_applications", label: "Imputations des avoirs fournisseurs", conflict: "id" },
+  { name: "treasury_accounts", label: "Comptes de trésorerie", conflict: "id" },
+  { name: "treasury_transactions", label: "Mouvements de trésorerie", conflict: "id" },
   { name: "accounting_entries", label: "Écritures comptables", conflict: "id" },
   { name: "accounting_entry_lines", label: "Lignes d’écritures", conflict: "id" },
-  { name: "treasury_accounts", label: "Comptes de trésorerie", conflict: "id" },
-  { name: "treasury_movements", label: "Mouvements de trésorerie", conflict: "id" },
-  { name: "hr_employees", label: "Salariés", conflict: "id" },
+  { name: "hr_departments", label: "Services", conflict: "id", proOnly: true },
+  { name: "hr_positions", label: "Postes", conflict: "id", proOnly: true },
+  { name: "hr_employees", label: "Salariés", conflict: "id", proOnly: true },
 ] as const;
+
+export const PRO_BACKUP_OMITTED_REASON = "Les salariés et les données RH sont réservés à l’offre PRO. Ils ne sont pas inclus dans cette sauvegarde.";
 
 export type BackupTableName = (typeof BACKUP_TABLES)[number]["name"];
 
@@ -139,11 +158,22 @@ export type RestorePlan = {
   mode: "merge" | "replace";
   counts: { name: BackupTableName; label: string; incoming: number; foreignOrganizationRows: number }[];
   tables: { name: BackupTableName; conflict: "id" | "organization_id"; rows: Record<string, unknown>[] }[];
+  omitted: BackupManifest["omitted"];
 };
 
 /** Forces every row onto the signed-in organization. A foreign id is counted, never trusted. */
-export function planOrganizationRestore(backup: { manifest: BackupManifest; tables: BackupTable[] }, organizationId: string, mode: "merge" | "replace"): RestorePlan {
-  const counts = backup.tables.map((table) => {
+export function planOrganizationRestore(
+  backup: { manifest: BackupManifest; tables: BackupTable[] },
+  organizationId: string,
+  mode: "merge" | "replace",
+  options?: { includeHr?: boolean },
+): RestorePlan {
+  const includeHr = options?.includeHr !== false;
+  const omitted = backup.tables
+    .filter((table) => !includeHr && table.name.startsWith("hr_"))
+    .map((table) => ({ name: table.name, reason: PRO_BACKUP_OMITTED_REASON }));
+  const source = backup.tables.filter((table) => includeHr || !table.name.startsWith("hr_"));
+  const counts = source.map((table) => {
     const meta = BACKUP_TABLES.find((item) => item.name === table.name)!;
     const foreignOrganizationRows = table.rows.filter((row) => {
       const value = row.organization_id;
@@ -151,7 +181,7 @@ export function planOrganizationRestore(backup: { manifest: BackupManifest; tabl
     }).length;
     return { name: table.name, label: meta.label, incoming: table.rows.length, foreignOrganizationRows };
   });
-  const tables = backup.tables.map((table) => {
+  const tables = source.map((table) => {
     const meta = BACKUP_TABLES.find((item) => item.name === table.name)!;
     return {
       name: table.name,
@@ -159,7 +189,7 @@ export function planOrganizationRestore(backup: { manifest: BackupManifest; tabl
       rows: table.rows.map((row) => ({ ...row, organization_id: organizationId })),
     };
   });
-  return { mode, counts, tables };
+  return { mode, counts, tables, omitted };
 }
 
 /** Both confirmations are required before a replace can be sent. */
