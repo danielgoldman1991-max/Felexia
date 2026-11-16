@@ -1,7 +1,7 @@
 {
   "passed": true,
-  "date": "2026-11-16T17:34:32.429Z",
-  "checks": 96,
+  "date": "2026-11-16T17:47:19.998Z",
+  "checks": 100,
   "results": [
     "anonymous role cannot execute the restore or write the private marker",
     "a direct validated customer invoice is still refused",
@@ -82,7 +82,7 @@
     "batch at 4400 writes its lines",
     "batch at 4600 writes its lines",
     "batch at 4800 writes its lines",
-    "each batch of 200 lines stays under 4s (max 52 ms)",
+    "each batch of 200 lines stays under 4s (max 51 ms)",
     "five thousand lines are restored",
     "replaying a restored line does not write it again",
     "a posted entry without its lines is refused",
@@ -98,10 +98,14 @@
     "a payment is restored with its allocation",
     "replace removes an entry that is not in the file",
     "replace keeps the entry from the file",
-    "the kept entry still has its lines"
+    "the kept entry still has its lines",
+    "migration 150 keeps the lettering exception from 134",
+    "migration 150 keeps the organization check from 147",
+    "lettering a posted entry line stays allowed",
+    "moving a posted entry to another organization is refused"
   ],
   "migration": "149_restore_backup_batches.sql",
-  "maxBatchMs": 52,
+  "maxBatchMs": 51,
   "bulkTotal": 5000,
   "engine": "PostgreSQL via PGlite",
   "productionRead": false,

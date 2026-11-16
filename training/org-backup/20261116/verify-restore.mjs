@@ -52,7 +52,8 @@ try {
       add column if not exists reference text, add column if not exists notes text;
     alter table accounting_entry_lines add column if not exists account_id uuid, add column if not exists account_code text,
       add column if not exists account_label text, add column if not exists line_number integer, add column if not exists debit numeric,
-      add column if not exists credit numeric, add column if not exists label text;
+      add column if not exists credit numeric, add column if not exists label text,
+      add column if not exists lettering_code text, add column if not exists lettering_date date;
   `);
   await apply("097_document_numbering_controls.sql");
   await apply("098_essential_finance_integrity.sql");
@@ -545,6 +546,20 @@ try {
   equal(Number((await one("select count(*)::int n from accounting_entries where id=$1", [extraId])).n), 0, "replace removes an entry that is not in the file");
   equal(Number((await one("select count(*)::int n from accounting_entries where id=$1", [entryId])).n), 1, "replace keeps the entry from the file");
   equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "the kept entry still has its lines");
+
+  phaseBox.phase = "posted entry guard";
+  await db.exec("reset role");
+  const guard = await one("select pg_get_functiondef('app_private.guard_essential_posted_entry()'::regprocedure) as body");
+  equal(guard.body.includes("lettering_code") && guard.body.includes("lettering_date"), true, "migration 150 keeps the lettering exception from 134");
+  equal(guard.body.includes("FINANCE_RELATED_RECORD_INVALID"), true, "migration 150 keeps the organization check from 147");
+  await as(ids.admin);
+  await db.query("update accounting_entry_lines set lettering_code='A', lettering_date=$2::date where id=$1", [lineA, period]);
+  equal((await one("select lettering_code from accounting_entry_lines where id=$1", [lineA])).lettering_code, "A", "lettering a posted entry line stays allowed");
+  await rejected(
+    () => db.query("update accounting_entries set organization_id=$2 where id=$1", [entryId, ids.foreign]),
+    /FINANCE_RELATED_RECORD_INVALID/,
+    "moving a posted entry to another organization is refused",
+  );
 
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({

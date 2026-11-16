@@ -1,33 +1,9 @@
--- 150: restore a document with its lines in one transaction, and allow that
--- transaction to remove a posted entry. The deferred balance check stays in
--- force: it now sees the entry and its lines together. Not applied here.
+-- 150: restore a document with its lines in one transaction.
+-- The posted-entry guard stays the one from migration 147: lettering remains
+-- allowed, an organization change stays refused, and restore already bypasses
+-- that guard. This file does not replace it.
+-- Not applied here.
 -- Rollback: supabase/rollbacks/150_restore_document_bundle_rollback.sql
-
-create or replace function app_private.guard_essential_posted_entry()
-returns trigger language plpgsql security definer set search_path=public,app_private
-as $$
-declare data jsonb:=case when tg_op='DELETE' then to_jsonb(old) else to_jsonb(new) end; parent_status text;
-begin
-  if app_private.organization_restore_active(case when tg_op='DELETE' then old.organization_id else new.organization_id end) then
-    if tg_op='DELETE' then return old; end if;
-    return new;
-  end if;
-  if tg_table_name='accounting_entries' then
-    if old.status='posted' then
-      if tg_op='DELETE' then raise exception 'FINANCE_POSTED_ENTRY_READ_ONLY' using errcode='42501'; end if;
-      if (to_jsonb(new)-array['label','reference','notes','updated_at']) is distinct from (to_jsonb(old)-array['label','reference','notes','updated_at']) then raise exception 'FINANCE_POSTED_ENTRY_READ_ONLY' using errcode='42501'; end if;
-    end if;
-  else
-    select status into parent_status from public.accounting_entries where id=(to_jsonb(old)->>'entry_id')::uuid;
-    if parent_status='posted' then
-      if tg_op='DELETE' then raise exception 'FINANCE_POSTED_ENTRY_READ_ONLY' using errcode='42501'; end if;
-      if (to_jsonb(new)-array['account_id','account_code','account_label','auxiliary_id','label','notes','updated_at','reconciliation_status'])
-        is distinct from (to_jsonb(old)-array['account_id','account_code','account_label','auxiliary_id','label','notes','updated_at','reconciliation_status']) then raise exception 'FINANCE_POSTED_ENTRY_READ_ONLY' using errcode='42501'; end if;
-    end if;
-  end if;
-  return case when tg_op='DELETE' then old else new end;
-end; $$;
-revoke all on function app_private.guard_essential_posted_entry() from public, anon, authenticated;
 
 create or replace function public.restore_organization_backup_bundle(
   p_organization_id uuid,

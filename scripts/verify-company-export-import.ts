@@ -190,5 +190,8 @@ const central = Buffer.alloc(4);
 central.writeUInt32LE(0x02014b50, 0);
 const streamed = unzip(Buffer.concat([local, name, payload, descriptor, central]));
 assert.equal(streamed.get("xl/sharedStrings.xml")?.toString("utf8"), "<sst/>");
+const migration150 = readFileSync("supabase/migrations/150_restore_document_bundle.sql", "utf8");
+assert.equal(/create or replace function app_private\.guard_essential_posted_entry/i.test(migration150), false);
+assert.equal(migration150.includes("restore_organization_backup_bundle"), true);
 
 console.log("company export/import: ok");

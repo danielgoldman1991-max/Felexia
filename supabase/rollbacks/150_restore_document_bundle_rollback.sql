@@ -1,3 +1,3 @@
--- Rollback of 150. Does not delete business data.
--- Replaying migration 098 restores the previous posted-entry guard.
+-- Rollback of 150. Drops only the new bundle function. The posted-entry guard
+-- is unchanged from migration 147.
 drop function if exists public.restore_organization_backup_bundle(uuid, text, text, jsonb, text, text, jsonb, uuid[]);
