@@ -34,11 +34,13 @@ begin
     raise exception 'RESTORE_MODE' using errcode = '22023';
   end if;
   if not exists (
-    select 1 from public.organization_members
-    where user_id = auth.uid()
-      and organization_id = p_organization_id
-      and status = 'active'
-      and role in ('owner', 'admin')
+    select 1
+    from public.organization_members member
+    join public.roles member_role on member_role.id = member.role_id
+    where member.user_id = auth.uid()
+      and member.organization_id = p_organization_id
+      and member.status = 'active'
+      and lower(coalesce(member_role.name, '')) in ('owner', 'admin', 'administrator', 'administrateur')
   ) then
     raise exception 'RESTORE_FORBIDDEN' using errcode = '42501';
   end if;
