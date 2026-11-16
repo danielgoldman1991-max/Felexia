@@ -664,6 +664,86 @@ try {
   equal(restored.treasury_supplier_payment, supplierPaymentId, "replace keeps the treasury movement linked to the supplier payment");
   equal(Number(restored.extra_movements), 0, "replace removes a treasury movement that is not in the file");
 
+  phaseBox.phase = "external references";
+  await db.exec("reset role");
+  const outsideParty = "30000000-0000-4000-8000-000000000090";
+  const linkedProduct = "30000000-0000-4000-8000-000000000091";
+  const loneProduct = "30000000-0000-4000-8000-000000000092";
+  const warehouseId = "30000000-0000-4000-8000-000000000093";
+  const salesDocumentId = "30000000-0000-4000-8000-000000000094";
+  const salesLineId = "30000000-0000-4000-8000-000000000095";
+  const stockMoveId = "30000000-0000-4000-8000-000000000096";
+  const reminderId = "30000000-0000-4000-8000-000000000097";
+  await db.query("insert into third_parties(id,organization_id,code,primary_type,types,name) values($1,$2,'CU-HORS','customer',array['customer'],'Client hors fichier')", [outsideParty, ids.org]);
+  await db.query("insert into products(id,organization_id,type,name,sku) values($1,$2,'product','Article lié','SKU-LIE'),($3,$2,'product','Article seul','SKU-SEUL')", [linkedProduct, ids.org, loneProduct]);
+  await db.query("insert into warehouses(id,organization_id,name,code) values($1,$2,'Dépôt QA','DEP-QA')", [warehouseId, ids.org]);
+  await db.query("insert into sales_documents(id,organization_id,document_type,document_number,customer_id,document_date,status) values($1,$2,'quote','DEV-HORS',$3,$4::date,'draft')", [salesDocumentId, ids.org, outsideParty, period]);
+  await db.query("insert into sales_document_lines(id,organization_id,document_id,description,quantity,unit_price_ht,product_id) values($1,$2,$3,'Ligne hors fichier',1,10,$4)", [salesLineId, ids.org, salesDocumentId, linkedProduct]);
+  await db.query("insert into stock_moves(id,organization_id,warehouse_id,product_id,move_type,quantity) values($1,$2,$3,$4,'in',1)", [stockMoveId, ids.org, warehouseId, linkedProduct]);
+  const beforeOutside = await one(
+    `select
+      (select count(*)::int from sales_documents where id=$1) as documents,
+      (select count(*)::int from sales_document_lines where id=$2) as lines,
+      (select count(*)::int from stock_moves where id=$3) as moves,
+      (select count(*)::int from products where id=$4) as products,
+      (select count(*)::int from third_parties where id=$5) as parties`,
+    [salesDocumentId, salesLineId, stockMoveId, linkedProduct, outsideParty],
+  );
+  await as(ids.admin);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[])", [ids.org, [loneProduct]]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to remove a product that still has a sales line and a stock move",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'purge','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')", [ids.org, [loneProduct]]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove a product referenced outside the backup",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','third_parties','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[])", [ids.org, [customer, supplier]]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to remove a third party that still has a sales document",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'purge','third_parties','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')", [ids.org, [customer, supplier]]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove a third party referenced outside the backup",
+  );
+  const afterOutside = await one(
+    `select
+      (select count(*)::int from sales_documents where id=$1) as documents,
+      (select count(*)::int from sales_document_lines where id=$2) as lines,
+      (select count(*)::int from stock_moves where id=$3) as moves,
+      (select count(*)::int from products where id=$4) as products,
+      (select count(*)::int from third_parties where id=$5) as parties`,
+    [salesDocumentId, salesLineId, stockMoveId, linkedProduct, outsideParty],
+  );
+  equal(afterOutside, beforeOutside, "a refused replace deletes no sales document, line, stock move, product or third party");
+  await one(
+    "select public.restore_organization_backup_bundle($1,'purge','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')",
+    [ids.org, [linkedProduct]],
+  );
+  equal(Number((await one("select count(*)::int n from products where id=$1", [loneProduct])).n), 0, "replace still removes a product that nothing outside the backup references");
+  equal(Number((await one("select count(*)::int n from products where id=$1", [linkedProduct])).n), 1, "the product referenced by the sales line stays");
+  equal(Number((await one("select count(*)::int n from stock_moves where id=$1", [stockMoveId])).n), 1, "the stock move stays with its product");
+  await db.exec("reset role");
+  await db.query("insert into customer_reminders(id,organization_id,reminder_number,customer_id) values($1,$2,'REL-HORS',$3)", [reminderId, ids.org, customer]);
+  await db.query("insert into customer_reminder_invoices(organization_id,reminder_id,invoice_id) values($1,$2,$3)", [ids.org, reminderId, invoiceId]);
+  await as(ids.admin);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[])", [ids.org, invoicePayload, invoiceLines]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to replace an invoice that still has a reminder",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'replace','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')", [ids.org, invoicePayload, invoiceLines]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove an invoice referenced by a reminder",
+  );
+  equal(Number((await one("select count(*)::int n from customer_reminder_invoices where reminder_id=$1 and invoice_id=$2", [reminderId, invoiceId])).n), 1, "the reminder line is kept");
+  equal(Number((await one("select count(*)::int n from customer_invoices where id=$1", [invoiceId])).n), 1, "the invoice referenced by the reminder is kept");
+
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({
     passed: true,

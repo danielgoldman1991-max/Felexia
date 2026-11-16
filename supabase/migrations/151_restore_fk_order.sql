@@ -1,8 +1,81 @@
 -- 151: before a replace or a purge, clear foreign keys that point at the rows
--- being removed and do not cascade. The posted-entry guard is not changed.
+-- being removed, but only inside tables that are part of the backup.
+-- A reference from any other table refuses the step. Nothing outside the
+-- file is deleted or set to null. The posted-entry guard is not changed.
 -- A purge or a replace also requires the same confirmation as the screen.
 -- Not applied here.
 -- Rollback: supabase/rollbacks/151_restore_fk_order_rollback.sql
+
+create or replace function app_private.restore_backup_tables()
+returns text[]
+language sql
+immutable
+as $tables$
+  select array[
+    'company_settings','product_categories','units','tax_rates','accounting_journals','accounting_accounts',
+    'third_parties','third_party_contacts','third_party_addresses','products',
+    'customer_invoices','customer_invoice_lines','customer_credit_notes','customer_credit_note_lines',
+    'customer_payments','customer_payment_allocations','customer_credit_note_applications',
+    'supplier_invoices','supplier_invoice_lines','supplier_invoice_attachments',
+    'supplier_credit_notes','supplier_credit_note_lines','supplier_payments','supplier_payment_allocations',
+    'supplier_credit_note_applications','treasury_accounts','treasury_transactions',
+    'accounting_entries','accounting_entry_lines','hr_departments','hr_positions','hr_employees'
+  ];
+$tables$;
+
+revoke all on function app_private.restore_backup_tables() from public, anon, authenticated;
+
+create or replace function app_private.restore_reject_external_refs(
+  p_organization_id uuid,
+  p_table text,
+  p_ids uuid[]
+)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog, public, app_private
+as $reject$
+declare
+  ref record;
+  has_org boolean;
+  blocked boolean;
+begin
+  if p_ids is null or cardinality(p_ids) = 0 or to_regclass('public.' || p_table) is null then
+    return;
+  end if;
+  for ref in
+    select src.oid as src_oid, src.relname as src_table, att.attname as src_column
+    from pg_constraint constraint_row
+    join pg_class src on src.oid = constraint_row.conrelid
+    join pg_namespace src_schema on src_schema.oid = src.relnamespace
+    join lateral unnest(constraint_row.conkey, constraint_row.confkey) as cols(src_attnum, ref_attnum) on true
+    join pg_attribute att on att.attrelid = src.oid and att.attnum = cols.src_attnum
+    join pg_attribute referenced on referenced.attrelid = constraint_row.confrelid and referenced.attnum = cols.ref_attnum
+    where constraint_row.contype = 'f'
+      and constraint_row.confrelid = to_regclass('public.' || p_table)
+      and src_schema.nspname = 'public'
+      and referenced.attname = 'id'
+      and not (src.relname = any (app_private.restore_backup_tables()))
+  loop
+    select exists (
+      select 1 from pg_attribute column_row
+      where column_row.attrelid = ref.src_oid and column_row.attname = 'organization_id' and column_row.attnum > 0 and not column_row.attisdropped
+    ) into has_org;
+    if has_org then
+      execute format('select exists(select 1 from public.%I where organization_id = $2 and %I = any($1))', ref.src_table, ref.src_column)
+        into blocked using p_ids, p_organization_id;
+    else
+      execute format('select exists(select 1 from public.%I where %I = any($1))', ref.src_table, ref.src_column)
+        into blocked using p_ids;
+    end if;
+    if blocked then
+      raise exception 'RESTORE_BLOCKED|%|23503', p_table using errcode = '23503';
+    end if;
+  end loop;
+end;
+$reject$;
+
+revoke all on function app_private.restore_reject_external_refs(uuid, text, uuid[]) from public, anon, authenticated;
 
 create or replace function app_private.restore_detach_inbound_fks(
   p_organization_id uuid,
@@ -24,6 +97,7 @@ begin
   if p_depth > 8 or p_ids is null or cardinality(p_ids) = 0 or to_regclass('public.' || p_table) is null then
     return;
   end if;
+  perform app_private.restore_reject_external_refs(p_organization_id, p_table, p_ids);
   for ref in
     select
       src.oid as src_oid,
@@ -40,6 +114,7 @@ begin
       and src_schema.nspname = 'public'
       and constraint_row.confdeltype in ('a', 'r')
       and cardinality(constraint_row.conkey) = 1
+      and src.relname = any (app_private.restore_backup_tables())
   loop
     select exists (
       select 1 from pg_attribute column_row
@@ -49,11 +124,6 @@ begin
       where column_row.attrelid = ref.src_oid and column_row.attname = 'id' and column_row.attnum > 0 and not column_row.attisdropped
     )
     into has_org, has_id;
-    -- Issued archives cannot be deleted (append-only). Leaving the row makes
-    -- the invoice delete fail with the foreign key, instead of destroying it.
-    if ref.src_table like 'einvoice_%' then
-      continue;
-    end if;
     if ref.src_generated or ref.src_not_null then
       if has_id then
         if has_org then
@@ -150,6 +220,29 @@ begin
   end if;
 
   if p_mode = 'rehearse' then
+    select coalesce(array_agg((elem->>'id')::uuid), '{}'::uuid[]) into parent_ids
+    from jsonb_array_elements(coalesce(p_parents, '[]'::jsonb)) elem
+    where elem->>'id' is not null;
+    if cardinality(parent_ids) > 0 then
+      if p_child is not null then
+        execute format('select coalesce(array_agg(id), ''{}''::uuid[]) from public.%I where organization_id = $1 and %I = any($2)', p_child, p_child_key)
+          into child_ids using p_organization_id, parent_ids;
+        perform app_private.restore_reject_external_refs(p_organization_id, p_child, child_ids);
+      end if;
+      perform app_private.restore_reject_external_refs(p_organization_id, p_parent, parent_ids);
+    else
+      if p_child is not null then
+        execute format('select coalesce(array_agg(id), ''{}''::uuid[]) from public.%I where organization_id = $1 and not (%I = any($2))', p_child, p_child_key)
+          into child_ids using p_organization_id, coalesce(p_keep_ids, '{}'::uuid[]);
+        perform app_private.restore_reject_external_refs(p_organization_id, p_child, child_ids);
+      end if;
+      if p_parent <> 'company_settings' then
+        execute format('select coalesce(array_agg(id), ''{}''::uuid[]) from public.%I where organization_id = $1 and not (id = any($2))', p_parent)
+          into parent_ids using p_organization_id, coalesce(p_keep_ids, '{}'::uuid[]);
+        perform app_private.restore_reject_external_refs(p_organization_id, p_parent, parent_ids);
+      end if;
+      return jsonb_build_object('ok', true, 'rehearsed', true, 'written', 0);
+    end if;
     begin
       perform public.restore_organization_backup_batch(p_organization_id, 'merge', p_parent, coalesce(p_parents, '[]'::jsonb), '{}'::uuid[]);
       if p_child is not null then

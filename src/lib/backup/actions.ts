@@ -143,6 +143,24 @@ export async function executePlannedRestoreStep(input: {
     console.error("[organization-restore] blocked", { organizationId: input.organizationId, table: current.parent, sqlstate: described.sqlstate });
     return { ...blank, progress, error: described.userMessage };
   };
+  if (current.phase === "rehearse" && current.probe === "external") {
+    const { error } = await supabase.rpc("restore_organization_backup_bundle", {
+      p_organization_id: input.organizationId,
+      p_mode: "rehearse",
+      p_parent: current.parent,
+      p_parents: [],
+      p_child: current.child ?? null,
+      p_child_key: current.childKey ?? null,
+      p_children: [],
+      p_keep_ids: current.parentIds,
+      p_confirm: null,
+      p_confirm_name: null,
+    });
+    if (error) return failed(error.message, error.code);
+    revalidatePath("/parametres");
+    const probed = input.step + 1;
+    return { done: probed >= steps.length, progress, step: probed, total: steps.length, written: 0, skipped: 0 };
+  }
   const bundleMode = current.phase === "write" ? input.mode : current.phase;
   const confirmation = bundleMode === "replace" || bundleMode === "purge"
     ? { p_confirm: input.confirmReplace, p_confirm_name: input.confirmName }

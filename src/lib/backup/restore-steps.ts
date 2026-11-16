@@ -31,6 +31,8 @@ export type RestoreStep = {
   childKey?: string;
   parentIds: string[];
   offset?: number;
+  /** Dry run that only checks references from tables that are not in the file. */
+  probe?: "external";
 };
 
 const GROUP_BY_PARENT = new Map(RESTORE_GROUPS.map((group) => [group.parent, group]));
@@ -84,7 +86,9 @@ export function buildRestoreSteps(plan: RestorePlan, mode: "merge" | "replace"):
         if (mode === "replace") rehearsals.push({ ...step, phase: "rehearse" });
       }
       if (mode === "replace") {
-        purges.push({ label: group.label, phase: "purge", parent: group.parent, child: group.child, childKey: group.childKey, parentIds: parents.map((row) => String(row.id ?? "")).filter(Boolean) });
+        const keepIds = parents.map((row) => String(row.id ?? "")).filter(Boolean);
+        purges.push({ label: group.label, phase: "purge", parent: group.parent, child: group.child, childKey: group.childKey, parentIds: keepIds });
+        rehearsals.push({ label: group.label, phase: "rehearse", parent: group.parent, child: group.child, childKey: group.childKey, parentIds: keepIds, probe: "external" });
       }
       continue;
     }
@@ -98,12 +102,9 @@ export function buildRestoreSteps(plan: RestorePlan, mode: "merge" | "replace"):
       writes.push({ label: table.label, phase: "write", parent: table.name, parentIds: [], offset: index * RESTORE_BATCH_ROWS });
     }
     if (mode === "replace") {
-      purges.push({
-        label: table.label,
-        phase: "purge",
-        parent: table.name,
-        parentIds: rowsOf(plan, table.name).map((row) => String(row.id ?? "")).filter(Boolean),
-      });
+      const keepIds = rowsOf(plan, table.name).map((row) => String(row.id ?? "")).filter(Boolean);
+      purges.push({ label: table.label, phase: "purge", parent: table.name, parentIds: keepIds });
+      rehearsals.push({ label: table.label, phase: "rehearse", parent: table.name, parentIds: keepIds, probe: "external" });
     }
   }
   return mode === "replace" ? [...rehearsals, ...writes, ...purges.reverse()] : writes;
