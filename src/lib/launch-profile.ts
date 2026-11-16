@@ -8,7 +8,7 @@ const LIGHT_ROOTS = [
   "/achats/factures", "/achats/fournisseurs", "/achats/paiements", "/achats/avoirs",
   "/tresorerie/comptes", "/tresorerie/mouvements", "/tresorerie/consultation",
   "/comptabilite/journaux", "/comptabilite/ecritures",
-  "/tiers/clients", "/tiers/fournisseurs", "/tiers/new",
+  "/tiers/clients", "/tiers/fournisseurs", "/tiers/new", "/tiers/import",
 ] as const;
 
 const LIGHT_REDIRECTS: Record<string, string> = {

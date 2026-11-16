@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isAdminRole } from "@/lib/auth/roles";
+import { hasFullErpAccess } from "@/lib/launch-access";
 import { describeRestoreFailure, planOrganizationRestore, readOrganizationBackup, replaceConfirmationReady } from "@/lib/backup/org-backup";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,14 +39,15 @@ export async function previewOrganizationBackupAction(_prev: BackupActionState, 
   try {
     const workspace = await adminWorkspace();
     const backup = await backupFrom(formData);
-    const plan = planOrganizationRestore(backup, workspace.organization.id, "merge");
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
+    const plan = planOrganizationRestore(backup, workspace.organization.id, "merge", { includeHr });
     return {
       preview: {
         createdAt: backup.manifest.createdAt,
         organizationName: backup.manifest.organizationName,
         sourceOrganizationId: backup.manifest.organizationId,
         counts: plan.counts,
-        omitted: backup.manifest.omitted,
+        omitted: [...backup.manifest.omitted, ...plan.omitted],
       },
     };
   } catch (error) {
@@ -60,8 +62,9 @@ export async function restoreOrganizationBackupAction(_prev: BackupActionState, 
     if (mode === "replace" && !replaceConfirmationReady(formData.get("confirmReplace") === "oui", String(formData.get("confirmName") ?? ""), workspace.organization.name)) {
       return { error: "Pour remplacer, cochez la confirmation et recopiez exactement le nom de l’entreprise. Rien n’a été modifié." };
     }
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
     const backup = await backupFrom(formData);
-    const plan = planOrganizationRestore(backup, workspace.organization.id, mode);
+    const plan = planOrganizationRestore(backup, workspace.organization.id, mode, { includeHr });
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("restore_organization_backup", {
       p_organization_id: workspace.organization.id,

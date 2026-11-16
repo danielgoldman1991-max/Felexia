@@ -121,4 +121,22 @@ assert.equal(attachments.includes("Formats acceptés"), true);
 assert.equal(detail.includes(">Coordonnees<"), false);
 assert.equal(attachments.includes("acceptes"), false);
 
+const entities = parseThirdPartyCsv("\uFEFFNom;Type;T&#233;l&#233;phone\nAtelier D&eacute;mo;Client;0612000000\n");
+assert.equal(entities.headerError, undefined);
+assert.equal(entities.rows[0]?.name, "Atelier Démo");
+assert.equal(entities.rows[0]?.phone, "0612000000");
+const sharedXml = `<?xml version="1.0"?><sst><si><t>Nom</t></si><si><t>Type</t></si><si><t>T&#233;l&#233;phone</t></si><si><t>Atelier D&eacute;mo</t></si><si><t>Client</t></si><si><t>0612000000</t></si></sst>`;
+const worksheetXml = `<?xml version="1.0"?><worksheet><sheetData><row><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c></row><row><c r="A2" t="s"><v>3</v></c><c r="B2" t="s"><v>4</v></c><c r="C2" t="s"><v>5</v></c></row></sheetData></worksheet>`;
+const opened = readSpreadsheet(zipStore([
+  { name: "xl/sharedStrings.xml", data: Buffer.from(sharedXml) },
+  { name: "xl/worksheets/sheet1.xml", data: Buffer.from(worksheetXml) },
+]), "openpyxl.xlsx");
+assert.equal(opened.error, undefined);
+const parsedSheet = parseThirdPartyTable(opened.rows);
+assert.equal(parsedSheet.headerError, undefined);
+assert.equal(parsedSheet.rows[0]?.name, "Atelier Démo");
+assert.equal(parsedSheet.rows[0]?.phone, "0612000000");
+const direct = readSpreadsheet(writeXlsx([["Téléphone", "Nom", "Type"], ["0612334455", "Société Atlas", "Client"]]), "clients.xlsx");
+assert.equal(parseThirdPartyTable(direct.rows).rows[0]?.name, "Société Atlas");
+
 console.log("company export/import: ok");

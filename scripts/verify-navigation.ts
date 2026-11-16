@@ -4,6 +4,7 @@ import { getVisibleNavigationSections, resolveNavigationLocation } from "../src/
 import { lightSections, sections, type SidebarSection } from "../src/components/layout/sidebar-data";
 import { isOperatorPathAllowed, isOperatorRole } from "../src/lib/auth/operator-access";
 import { ORGANIZATION_ROLES } from "../src/lib/auth/roles";
+import { getLaunchDestination } from "../src/lib/launch-profile";
 
 let assertions = 0;
 function equal(actual: unknown, expected: unknown, message: string) {
@@ -165,5 +166,10 @@ const before = params.toString();
 resolveNavigationLocation(synthetic, "/custom/list", params);
 equal(params.toString(), before, "Caller URLSearchParams is not mutated");
 equal(location(synthetic, "/custom/list/deep", "status=unpaid").isExact, false, "Query match cannot make descendant exact");
+
+same(getLaunchDestination("/tiers/import"), null, "ESSENTIEL can open the client import");
+same(getLaunchDestination("/tiers/import/modele"), null, "ESSENTIEL can download the CSV template");
+same(getLaunchDestination("/tiers/import/modele.xlsx"), null, "ESSENTIEL can download the Excel template");
+same(getLaunchDestination("/rh/employes"), "/parametres/modules", "ESSENTIEL still cannot open HR");
 
 console.log(JSON.stringify({ passed: true, assertions, visibilityCases, realRouteCases: actualCases.length, allModules }));

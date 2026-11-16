@@ -1,3 +1,5 @@
+import { decodeXmlEntities } from "@/lib/spreadsheet/read-table";
+
 export const THIRD_PARTY_IMPORT_HEADERS = ["Nom", "Type", "ICE", "IF", "RC", "Email", "Téléphone", "Ville", "Adresse"] as const;
 
 export const THIRD_PARTY_IMPORT_INSTRUCTIONS = [
@@ -54,7 +56,7 @@ export function phoneDigits(value: string) {
 }
 
 function fold(value: string) {
-  return value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+  return decodeXmlEntities(value).normalize("NFC").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function parseCsv(text: string) {
@@ -71,16 +73,16 @@ function parseCsv(text: string) {
     } else if (char === "\"") {
       quoted = !quoted;
     } else if (!quoted && char === ";") {
-      row.push(cell.trim());
+      row.push(decodeXmlEntities(cell).trim());
       cell = "";
     } else if (!quoted && char === "\n") {
-      row.push(cell.trim());
+      row.push(decodeXmlEntities(cell).trim());
       if (row.some((item) => item !== "")) rows.push(row);
       row = [];
       cell = "";
     } else cell += char;
   }
-  row.push(cell.trim());
+  row.push(decodeXmlEntities(cell).trim());
   if (row.some((item) => item !== "")) rows.push(row);
   return rows;
 }
@@ -131,7 +133,7 @@ export function parseThirdPartyTable(table: string[][]): { rows: ThirdPartyImpor
 }
 
 export function parseThirdPartyCsv(text: string): { rows: ThirdPartyImportRow[]; issues: ThirdPartyImportIssue[]; headerError?: string } {
-  return parseThirdPartyTable(parseCsv(text));
+  return parseThirdPartyTable(parseCsv(decodeXmlEntities(text)));
 }
 
 export function reviewThirdPartyRows(
