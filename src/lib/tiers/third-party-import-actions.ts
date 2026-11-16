@@ -3,28 +3,33 @@
 import { revalidatePath } from "next/cache";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { parseThirdPartyCsv, reviewThirdPartyRows, type ThirdPartyImportRow } from "@/lib/tiers/third-party-import";
+import { readSpreadsheet } from "@/lib/spreadsheet/read-table";
+import { parseThirdPartyCsv, parseThirdPartyTable, reviewThirdPartyRows, type ThirdPartyImportRow } from "@/lib/tiers/third-party-import";
 
 export type ThirdPartyImportState = {
   success: boolean;
   error?: string;
   errors: string[];
   rows: ThirdPartyImportRow[];
+  readyRows: ThirdPartyImportRow[];
   imported?: number;
+  skipped?: number;
 };
 
-const empty: ThirdPartyImportState = { success: false, errors: [], rows: [] };
+const empty: ThirdPartyImportState = { success: false, errors: [], rows: [], readyRows: [] };
 
-async function fileText(formData: FormData): Promise<{ error: string } | { text: string }> {
+async function parsedFile(formData: FormData) {
   const file = formData.get("file");
   if (file instanceof File && file.size > 0) {
     const name = file.name.toLowerCase();
     if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
-      return { error: "Enregistrez le classeur au format CSV (séparateur point-virgule), puis réessayez. Le modèle se télécharge sur cette page." };
+      const sheet = readSpreadsheet(Buffer.from(await file.arrayBuffer()), file.name);
+      if (sheet.error) return { headerError: sheet.error, rows: [] as ThirdPartyImportRow[], issues: [] };
+      return parseThirdPartyTable(sheet.rows);
     }
-    return { text: await file.text() };
+    return parseThirdPartyCsv(await file.text());
   }
-  return { text: String(formData.get("csv") ?? "") };
+  return parseThirdPartyCsv(String(formData.get("csv") ?? ""));
 }
 
 async function existingParties(organizationId: string) {
@@ -35,13 +40,12 @@ async function existingParties(organizationId: string) {
 }
 
 async function reviewed(formData: FormData, organizationId: string) {
-  const source = await fileText(formData);
-  if ("error" in source) return { error: source.error, errors: [] as string[], rows: [] as ThirdPartyImportRow[] };
-  const parsed = parseThirdPartyCsv(source.text);
-  if (parsed.headerError) return { error: parsed.headerError, errors: [] as string[], rows: [] as ThirdPartyImportRow[] };
+  const parsed = await parsedFile(formData);
+  if (parsed.headerError) return { error: parsed.headerError, errors: [] as string[], rows: [] as ThirdPartyImportRow[], readyRows: [] as ThirdPartyImportRow[] };
   const duplicates = reviewThirdPartyRows(parsed.rows, await existingParties(organizationId));
-  const errors = [...parsed.issues, ...duplicates].map((item) => item.message);
-  return { errors, rows: parsed.rows };
+  const issues = [...parsed.issues, ...duplicates];
+  const blocked = new Set(issues.map((item) => item.line));
+  return { errors: issues.map((item) => item.message), rows: parsed.rows, readyRows: parsed.rows.filter((row) => !blocked.has(row.line)) };
 }
 
 export async function previewThirdPartyImportAction(_prev: ThirdPartyImportState, formData: FormData): Promise<ThirdPartyImportState> {
@@ -49,7 +53,7 @@ export async function previewThirdPartyImportAction(_prev: ThirdPartyImportState
   try {
     const result = await reviewed(formData, workspace.organization.id);
     if (result.error) return { ...empty, error: result.error };
-    return { success: result.errors.length === 0 && result.rows.length > 0, errors: result.errors, rows: result.rows };
+    return { success: result.readyRows.length > 0, errors: result.errors, rows: result.rows, readyRows: result.readyRows };
   } catch (error) {
     return { ...empty, error: error instanceof Error ? error.message : "La lecture du fichier a échoué." };
   }
@@ -59,16 +63,18 @@ export async function confirmThirdPartyImportAction(_prev: ThirdPartyImportState
   const workspace = await requireActiveWorkspace({ modules: ["ventes", "achats"], level: "write" });
   try {
     const result = await reviewed(formData, workspace.organization.id);
-    if (result.error || result.errors.length || result.rows.length === 0) {
-      return { success: false, error: result.error ?? "Aucune ligne n’a été enregistrée. Corrigez le fichier puis confirmez à nouveau.", errors: result.errors, rows: result.rows };
+    if (result.error || result.readyRows.length === 0) {
+      return { success: false, error: result.error ?? "Aucune ligne valide n’a été enregistrée.", errors: result.errors, rows: result.rows, readyRows: [] };
     }
     const supabase = await createClient();
-    const payload = result.rows.map((row) => ({
+    const payload = result.readyRows.map((row) => ({
       organization_id: workspace.organization.id,
       primary_type: row.type,
       types: [row.type],
       name: row.name,
       ice: row.ice || null,
+      if_number: row.ifNumber || null,
+      rc: row.rc || null,
       email: row.email || null,
       phone: row.phone || null,
       city: row.city || null,
@@ -78,9 +84,9 @@ export async function confirmThirdPartyImportAction(_prev: ThirdPartyImportState
       created_by: workspace.userId,
     }));
     const { error } = await supabase.from("third_parties").insert(payload);
-    if (error) return { success: false, error: "L’enregistrement a été refusé. Aucune ligne de ce fichier n’a été ajoutée.", errors: [], rows: result.rows };
+    if (error) return { success: false, error: "L’enregistrement a été refusé. Aucune ligne de ce fichier n’a été ajoutée.", errors: result.errors, rows: result.rows, readyRows: result.readyRows };
     revalidatePath("/tiers");
-    return { success: true, errors: [], rows: [], imported: result.rows.length };
+    return { success: true, errors: [], rows: [], readyRows: [], imported: result.readyRows.length, skipped: result.rows.length - result.readyRows.length };
   } catch (error) {
     return { ...empty, error: error instanceof Error ? error.message : "L’import a échoué. Aucune ligne n’a été ajoutée." };
   }

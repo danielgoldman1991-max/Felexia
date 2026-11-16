@@ -1,3 +1,5 @@
+import { inflateRawSync } from "node:zlib";
+
 const CRC_TABLE = new Uint32Array(256);
 for (let index = 0; index < 256; index += 1) {
   let value = index;
@@ -60,4 +62,31 @@ export function zipStore(files: { name: string; data: Buffer }[]) {
   end.writeUInt32LE(directory.length, 12);
   end.writeUInt32LE(offset, 16);
   return Buffer.concat([...locals, directory, end]);
+}
+
+/** Reads ZIP entries stored or deflated. Names containing ".." are refused. */
+export function unzip(buffer: Buffer) {
+  const files = new Map<string, Buffer>();
+  let offset = 0;
+  while (offset + 30 <= buffer.length) {
+    const signature = buffer.readUInt32LE(offset);
+    if (signature === 0x02014b50 || signature === 0x06054b50) break;
+    if (signature !== 0x04034b50) throw new Error("Le fichier ZIP est illisible.");
+    const flags = buffer.readUInt16LE(offset + 6);
+    const method = buffer.readUInt16LE(offset + 8);
+    const compressedSize = buffer.readUInt32LE(offset + 18);
+    const nameLength = buffer.readUInt16LE(offset + 26);
+    const extraLength = buffer.readUInt16LE(offset + 28);
+    const name = buffer.subarray(offset + 30, offset + 30 + nameLength).toString("utf8");
+    if (name.includes("..") || name.startsWith("/") || name.includes("\\")) throw new Error("Le fichier ZIP contient un chemin refusé.");
+    const start = offset + 30 + nameLength + extraLength;
+    if (flags & 0x8) throw new Error("Ce ZIP utilise un descripteur de données non pris en charge. Réexportez-le depuis Felexia ou enregistrez le classeur à nouveau.");
+    const compressed = buffer.subarray(start, start + compressedSize);
+    const data = method === 0 ? Buffer.from(compressed) : method === 8 ? inflateRawSync(compressed) : null;
+    if (!data) throw new Error("La compression de ce ZIP n’est pas prise en charge.");
+    if (name && !name.endsWith("/")) files.set(name, data);
+    offset = start + compressedSize;
+  }
+  if (files.size === 0) throw new Error("Le fichier ZIP est vide ou illisible.");
+  return files;
 }

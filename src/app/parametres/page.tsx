@@ -9,7 +9,7 @@ import { hasFullErpAccess } from "@/lib/launch-access";
 import {
   Building2, Users, Shield, CreditCard, FileText, UserCog, ChevronRight, Package, Sparkles, Hash, Download, Upload,
 } from "lucide-react";
-import { isAdminRole, isReadOnlyRole } from "@/lib/auth/roles";
+import { isAdminRole } from "@/lib/auth/roles";
 
 export default async function ParametresPage() {
   const workspace = await requireActiveWorkspace();
@@ -109,8 +109,9 @@ export default async function ParametresPage() {
           <QuickLink href="/parametres/documents" icon={FileText} label="Personnaliser mes factures" />
           <QuickLink href="/parametres/numerotation" icon={Hash} label="Numérotation des factures" />
           <QuickLink href="/articles" icon={Package} label="Catalogue articles & services" />
-          {isAdminRole(workspace.role) ? <QuickLink href="/api/exports/entreprise" icon={Download} label="Exporter les données" download /> : null}
-          {!isReadOnlyRole(workspace.role) ? <QuickLink href="/tiers/import" icon={Upload} label="Importer des clients" /> : null}
+          {isAdminRole(workspace.role) ? <QuickLink href="/parametres/sauvegarde" icon={Download} label="Sauvegarde locale" /> : null}
+          {isAdminRole(workspace.role) ? <QuickLink href="/parametres/sauvegarde#import-clients" icon={Upload} label="Import clients Excel" /> : null}
+          {isAdminRole(workspace.role) ? <QuickLink href="/api/exports/entreprise" icon={Download} label="Exporter les données (CSV)" download /> : null}
           {fullAccess ? <QuickLink href="/parametres/preferences" icon={UserCog} label="Préférences" /> : null}
         </div>
       </div>
