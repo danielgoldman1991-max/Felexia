@@ -150,7 +150,7 @@ async function runOne(
     const organization = await supabase.from("organizations").select("name").eq("id", row.organization_id).maybeSingle();
     const name = (organization.data as { name?: string } | null)?.name || "Entreprise";
     const includeHr = await hasFullErpAccess(row.organization_id, supabase as unknown as Parameters<typeof hasFullErpAccess>[1]);
-    const backup = await collectOrganizationBackup(supabase as unknown as Parameters<typeof collectOrganizationBackup>[0], {
+    const backup = await collectOrganizationBackup(supabase, {
       organizationId: row.organization_id,
       organizationName: name,
       includeHr,

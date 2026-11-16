@@ -24,9 +24,10 @@ async function readTable(supabase: { from: (table: string) => TableQuery }, tabl
 
 /** Same ZIP as the manual download: one JSON per table, manifest and checksums. */
 export async function collectOrganizationBackup(
-  supabase: { from: (table: string) => TableQuery },
+  supabase: unknown,
   input: { organizationId: string; organizationName: string; includeHr: boolean; createdAt?: string },
 ) {
+  const reader = supabase as { from: (table: string) => TableQuery };
   const tables: { name: BackupTableName; rows: Record<string, unknown>[] }[] = [];
   const omitted: { name: string; reason: string }[] = [];
   for (const table of BACKUP_TABLES) {
@@ -35,7 +36,7 @@ export async function collectOrganizationBackup(
       continue;
     }
     try {
-      tables.push({ name: table.name, rows: await readTable(supabase, table.name, input.organizationId) });
+      tables.push({ name: table.name, rows: await readTable(reader, table.name, input.organizationId) });
     } catch {
       omitted.push({ name: table.name, reason: "Cette table n’est pas disponible pour l’entreprise." });
     }
