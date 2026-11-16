@@ -89,7 +89,8 @@ assert.equal(excel.rows.some((row) => row.name === "Atelier Démo" && row.ifNumb
 assert.equal(readSpreadsheet(Buffer.from("pas un classeur"), "clients.xls").error?.includes("non reconnu"), true);
 
 const migration = readFileSync("supabase/migrations/145_org_backup_restore.sql", "utf8");
-assert.equal(migration.includes("role in ('owner', 'admin')"), true);
+assert.equal(migration.includes("join public.roles member_role on member_role.id = member.role_id"), true);
+assert.equal(/from public\.organization_members\s+where[\s\S]*\brole in\b/.test(migration), false);
 assert.equal(migration.includes("organization_id = p_organization_id"), true);
 assert.equal(migration.includes("RESTORE_TABLE_FORBIDDEN"), true);
 assert.equal(migration.includes("jsonb_build_object('organization_id', p_organization_id)"), true);
