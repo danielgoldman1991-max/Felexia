@@ -149,6 +149,7 @@ jobs:
           npx tsx scripts/verify-print-outputs.tsx
           npx tsx scripts/verify-company-export-import.ts
           npx tsx scripts/verify-migration-columns.ts
+          npx tsx scripts/verify-backup-schedule.ts
           npx tsx scripts/verify-supplier-invoice-ocr.ts
       - run: npm run build
       - run: node training/e-invoicing/20261031/verify-tracing.mjs
