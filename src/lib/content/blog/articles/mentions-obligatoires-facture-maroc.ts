@@ -60,7 +60,9 @@ const article: BlogArticle = {
         ["Ticket de caisse", "Pour une vente de produits à des particuliers : date, identification du vendeur, désignation, quantité et prix, TVA le cas échéant.", "145-III, alinéa du ticket"],
       ],
     },
-    p("L’article 145-VIII vise l’ICE de celui qui délivre la facture. L’article 145-III-4° vise aussi l’ICE du client. Le nombre de caractères de l’ICE n’est pas fixé dans ces paragraphes. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple plus bas utilise uniquement un identifiant de démonstration."),
+    p("L’article 145-VIII vise l’ICE de celui qui délivre la facture. L’article 145-III-4° vise aussi l’ICE du client. Le nombre de caractères de l’ICE n’est pas fixé dans ces paragraphes. Le ",
+      { href: "/blog/ice-facture-maroc", label: "guide ICE sur la facture" },
+      " indique où le lire et ce que le dépliant officiel appelle 15 positions. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple plus bas utilise uniquement un identifiant de démonstration."),
     h2("si-une-mention-manque", "Que se passe-t-il si une mention manque ?"),
     p("L’article 146 demande une facture régulière, établie au nom de l’acheteur, avec les indications des paragraphes III et VIII. L’article 11-III refuse la déduction des achats, travaux et prestations qui ne sont pas justifiés par une telle pièce. La réintégration notifiée ne devient définitive que si les renseignements manquants ne sont pas complétés pendant la procédure des articles 220 ou 221."),
     p("L’article 106-I-9° ferme le droit à déduction de la TVA sur les achats non justifiés par une facture conforme à l’article 146. L’article 119-I vise les factures des opérations soumises à la TVA. L’article 119-II rend redevable celui qui mentionne la taxe, du seul fait de la facturer. L’article 198 ter, lui, vise seulement l’article 145-VIII : 100 dirhams par omission ou inexactitude sur l’ICE. Ce montant ne s’étend pas, dans le texte lu, à chaque autre case vide."),
@@ -173,6 +175,7 @@ const article: BlogArticle = {
   related: [
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
     { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },

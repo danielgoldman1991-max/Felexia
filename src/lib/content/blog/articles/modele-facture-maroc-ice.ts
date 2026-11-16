@@ -37,7 +37,9 @@ const article: BlogArticle = {
     h2("mentions-a-porter", "Quelles mentions le modèle doit porter ?"),
     p("L’article 145-III, sous réserve du paragraphe IX, oblige à délivrer aux acheteurs ou clients des factures ou mémoires. Ils sont pré-numérotés et tirés d’une série continue, ou édités par un système informatique selon une série continue. Le texte ajoute « en plus des indications habituelles d’ordre commercial », sans définir cette formule."),
     p("Le 1° demande l’identité du vendeur. Le 2° demande le numéro d’identification fiscale du service local des impôts et le numéro d’article d’imposition à la taxe professionnelle. Le 3° demande la date de l’opération. Le 4° demande les nom, prénoms ou raison sociale, l’adresse du client, et son identifiant commun de l’entreprise. Le 5° demande le prix, la quantité et la nature des marchandises, travaux ou services. Le 6° demande le montant de la TVA, distinct, en sus du prix ou compris dans le prix. Pour les opérations des articles 91, 92 ou 94, cette mention est remplacée par l’exonération ou le régime suspensif. Le 7° demande les références et le mode de paiement. Le 8° renvoie à d’autres textes, sans les énumérer."),
-    p("L’ICE de celui qui délivre la facture est à l’article 145-VIII, pas au 1°. L’article 146 demande qu’une facture régulière comporte les indications des paragraphes III et VIII. L’article 119-I vise les factures des opérations soumises à la TVA, établies selon le 145-III. Ces paragraphes ne fixent pas le nombre de caractères de l’ICE. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple n’utilise que des zéros."),
+    p("L’ICE de celui qui délivre la facture est à l’article 145-VIII, pas au 1°. L’article 146 demande qu’une facture régulière comporte les indications des paragraphes III et VIII. L’article 119-I vise les factures des opérations soumises à la TVA, établies selon le 145-III. Ces paragraphes ne fixent pas le nombre de caractères de l’ICE. Le ",
+      { href: "/blog/ice-facture-maroc", label: "guide ICE sur la facture" },
+      " décrit les 15 positions du dépliant officiel. Reprenez l’identifiant tel qu’il figure sur vos documents officiels. L’exemple n’utilise que des zéros."),
     h3("hors-de-ce-modele", "Ce que ce modèle ne couvre pas"),
     p("Pour une vente de produits ou de marchandises à des particuliers, le ticket de caisse peut tenir lieu de facture. Sa liste, lue à l’article 145-III, est plus courte. L’article 145-XI écarte l’article 145 pour les personnes physiques au régime de la contribution professionnelle unique ou de l’auto-entrepreneur, sous réserve de l’adresse électronique du paragraphe X. Si vous êtes dans l’un de ces cas, ne recopiez pas ce modèle tel quel. La ",
       { href: "/blog/facture-auto-entrepreneur-maroc", label: "facture d’auto-entrepreneur" },
@@ -144,6 +146,7 @@ const article: BlogArticle = {
   related: [
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
