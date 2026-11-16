@@ -225,6 +225,13 @@ export function describeRestoreFailure(message: string | null | undefined, code:
         : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon.",
     };
   }
+  if (/RESTORE_CONFIRMATION/.test(message ?? "")) {
+    return {
+      table: null,
+      sqlstate: "42501",
+      userMessage: "Pour remplacer, cochez la confirmation et recopiez exactement le nom de l’entreprise. Rien n’a été modifié.",
+    };
+  }
   if (message === "RESTORE_FORBIDDEN") {
     return {
       table: null,

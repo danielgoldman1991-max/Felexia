@@ -108,6 +108,7 @@ assert.equal(replaceConfirmationReady(false, "Atelier Démo", "Atelier Démo"), 
 assert.equal(replaceConfirmationReady(true, "Autre", "Atelier Démo"), false);
 assert.equal(replaceConfirmationReady(true, " Atelier Démo ", "Atelier Démo"), true);
 const blocked = describeRestoreFailure("RESTORE_BLOCKED|customer_invoices|42501", "P0001");
+assert.equal(describeRestoreFailure("RESTORE_CONFIRMATION", "42501").userMessage.includes("recopiez exactement"), true);
 assert.equal(blocked.table, "customer_invoices");
 assert.equal(blocked.sqlstate, "42501");
 assert.equal(blocked.userMessage.includes("Factures clients"), true);
@@ -193,5 +194,11 @@ assert.equal(streamed.get("xl/sharedStrings.xml")?.toString("utf8"), "<sst/>");
 const migration150 = readFileSync("supabase/migrations/150_restore_document_bundle.sql", "utf8");
 assert.equal(/create or replace function app_private\.guard_essential_posted_entry/i.test(migration150), false);
 assert.equal(migration150.includes("restore_organization_backup_bundle"), true);
+const migration151 = readFileSync("supabase/migrations/151_restore_fk_order.sql", "utf8");
+assert.equal(/guard_essential_posted_entry|guard_essential_invoice|guard_essential_credit_note/i.test(migration151), false);
+assert.equal(migration151.includes("restore_detach_inbound_fks"), true);
+assert.equal(migration151.includes("RESTORE_CONFIRMATION"), true);
+assert.equal(/grant execute on function app_private\.restore_detach_inbound_fks/i.test(migration151), false);
+assert.equal(readFileSync("src/lib/backup/actions.ts", "utf8").includes("p_confirm_name: input.confirmName"), true);
 
 console.log("company export/import: ok");
