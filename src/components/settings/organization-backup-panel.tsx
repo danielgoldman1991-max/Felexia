@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { previewOrganizationBackupAction, restoreOrganizationBackupAction, type BackupActionState, type BackupPreview } from "@/lib/backup/actions";
 
@@ -47,6 +47,9 @@ export function BackupPreviewView({
   restored?: { mode: "merge" | "replace"; skipped: number };
 }) {
   const foreign = preview.counts.reduce((sum, item) => sum + item.foreignOrganizationRows, 0);
+  const [replaceChecked, setReplaceChecked] = useState(false);
+  const [typedName, setTypedName] = useState("");
+  const replaceReady = replaceChecked && typedName.trim() === organizationName;
   return (
     <div className="space-y-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4">
       <h3 className="text-sm font-semibold">Aperçu avant restauration</h3>
@@ -60,13 +63,13 @@ export function BackupPreviewView({
       <Button type="submit" formAction={restoreAction} name="mode" value="merge" disabled={restorePending}>{restorePending ? "Restauration…" : "Restaurer sans supprimer"}</Button>
       <div className="space-y-3 border-t border-[var(--border)] pt-3">
         <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" name="confirmReplace" value="oui" className="mt-1" />
+          <input type="checkbox" name="confirmReplace" value="oui" className="mt-1" checked={replaceChecked} onChange={(event) => setReplaceChecked(event.target.checked)} />
           <span>Je remplace les données de cette entreprise par le fichier. Je télécharge d’abord la sauvegarde de l’état actuel.</span>
         </label>
         <label className="block text-sm">Recopiez le nom de l’entreprise : {organizationName}
-          <input name="confirmName" className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2" autoComplete="off" />
+          <input name="confirmName" value={typedName} onChange={(event) => setTypedName(event.target.value)} className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-2" autoComplete="off" />
         </label>
-        <Button type="submit" formAction={restoreAction} name="mode" value="replace" variant="secondary" disabled={restorePending}>Remplacer après double confirmation</Button>
+        <Button type="submit" formAction={restoreAction} name="mode" value="replace" variant="secondary" disabled={restorePending || !replaceReady}>Remplacer après double confirmation</Button>
       </div>
       {restoreError ? <p className="text-sm text-red-700" role="alert">{restoreError}</p> : null}
     </div>

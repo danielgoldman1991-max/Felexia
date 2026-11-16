@@ -53,14 +53,14 @@ const ACTIVITY_LABELS: Record<string, string> = {
   archive: "Archivage du tiers",
   convert_prospect_to_customer: "Conversion prospect en client",
   CONVERT_PROSPECT_TO_CUSTOMER: "Conversion prospect en client",
-  create_contact: "Contact ajoute",
-  update_contact: "Contact modifie",
-  delete_contact: "Contact archive",
-  create_address: "Adresse ajoutee",
-  update_address: "Adresse modifiee",
-  delete_address: "Adresse archivee",
-  upload_attachment: "Piece jointe ajoutee",
-  archive_attachment: "Piece jointe archivee",
+  create_contact: "Contact ajouté",
+  update_contact: "Contact modifié",
+  delete_contact: "Contact archivé",
+  create_address: "Adresse ajoutée",
+  update_address: "Adresse modifiée",
+  delete_address: "Adresse archivée",
+  upload_attachment: "Pièce jointe ajoutée",
+  archive_attachment: "Pièce jointe archivée",
 };
 
 function formatDateTime(value: string) {
@@ -114,7 +114,7 @@ export function ThirdPartyDetail({
     <div className="space-y-6">
       <PageHeader
         title={thirdParty.name}
-        description={thirdParty.code ?? "Code tiers non genere"}
+        description={thirdParty.code ?? "Code tiers non généré"}
         actions={canWrite ? (
           <>
             {fullAccess && isProspect && !isCustomer ? (
@@ -148,7 +148,7 @@ export function ThirdPartyDetail({
         <CardContent className="flex flex-wrap items-center gap-3">
           <ThirdPartyBadges types={thirdParty.types} />
           <StatusBadge status={thirdParty.status} />
-          <span className="text-sm text-[var(--muted)]">Cree le {formatDate(thirdParty.created_at)}</span>
+          <span className="text-sm text-[var(--muted)]">Créé le {formatDate(thirdParty.created_at)}</span>
         </CardContent>
       </Card>
 
@@ -161,7 +161,7 @@ export function ThirdPartyDetail({
           </CardContent>
         </Card> : null}
         <Card>
-          <CardHeader><h2 className="font-semibold">Coordonnees</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Coordonnées</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Adresse" value={thirdParty.address} />
             <Info label="Ville" value={`${thirdParty.postal_code ?? ""} ${thirdParty.city ?? ""}`} />
@@ -204,8 +204,8 @@ export function ThirdPartyDetail({
             <CardHeader><h2 className="font-semibold">Conditions commerciales</h2></CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <Info label="Conditions de paiement" value={getPaymentTermLabel(thirdParty.payment_terms) || `${thirdParty.payment_terms_days ?? 0} jours`} />
-            <Info label="Modalites de paiement" value={getPaymentMethodLabel(thirdParty.payment_method)} />
-            <Info label="Categorie" value={thirdParty.customer_category} />
+            <Info label="Modalités de paiement" value={getPaymentMethodLabel(thirdParty.payment_method)} />
+            <Info label="Catégorie" value={thirdParty.customer_category} />
             </CardContent>
           </Card>
         ) : null}
@@ -213,10 +213,10 @@ export function ThirdPartyDetail({
           <Card>
             <CardHeader><h2 className="font-semibold">Informations achats</h2></CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <Info label="Categories fournies" value={formatSupplierCategories(thirdParty.supplier_product_categories)} />
+              <Info label="Catégories fournies" value={formatSupplierCategories(thirdParty.supplier_product_categories)} />
               <Info label="Conditions achat" value={getSupplierPurchaseTermsLabel(thirdParty.supplier_payment_terms)} />
-              <Info label="Delai livraison" value={thirdParty.supplier_delivery_delay_days ? `${thirdParty.supplier_delivery_delay_days} jours` : null} />
-              <Info label="Evaluation" value={getSupplierRatingLabel(thirdParty.supplier_rating)} />
+              <Info label="Délai de livraison" value={thirdParty.supplier_delivery_delay_days ? `${thirdParty.supplier_delivery_delay_days} jours` : null} />
+              <Info label="Évaluation" value={getSupplierRatingLabel(thirdParty.supplier_rating)} />
               <Info label="Contact achat" value={thirdParty.supplier_main_contact} />
               <Info label="Paiement fournisseur" value={getSupplierPaymentMethodLabel(thirdParty.supplier_payment_method)} />
             </CardContent>
@@ -225,7 +225,7 @@ export function ThirdPartyDetail({
       </div>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Contacts associes</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Contacts associés</h2></CardHeader>
         <CardContent className="space-y-4">
           {contacts.length ? (
             <Table>
@@ -275,7 +275,7 @@ export function ThirdPartyDetail({
         <CardContent className="space-y-4">
           {addresses.length ? (
             <Table>
-              <thead><tr><Th>Libellé</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Defaut</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
+              <thead><tr><Th>Libellé</Th><Th>Type</Th><Th>Adresse</Th><Th>Ville</Th><Th>Défaut</Th>{canWrite ? <Th>Actions</Th> : null}</tr></thead>
               <tbody>
                 {addresses.map((address) => (
                   <tr key={address.id}>
@@ -324,7 +324,7 @@ export function ThirdPartyDetail({
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><h2 className="font-semibold">Pieces jointes</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Pièces jointes</h2></CardHeader>
           <CardContent>
             <ThirdPartyAttachments thirdPartyId={thirdParty.id} attachments={attachments} canWrite={canWrite} />
           </CardContent>
@@ -332,7 +332,7 @@ export function ThirdPartyDetail({
       </div>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Activite recente</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Activité récente</h2></CardHeader>
         <CardContent>
           {activity.length ? (
             <div className="space-y-3">

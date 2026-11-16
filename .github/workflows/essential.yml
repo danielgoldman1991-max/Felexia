@@ -59,6 +59,8 @@ jobs:
       - run: npx tsx scripts/verify-numbering-model.ts
       - name: Install isolated PostgreSQL test runtime
         run: npm install --prefix "$RUNNER_TEMP/felexia-qa" --no-save --ignore-scripts @electric-sql/pglite@0.5.14
+      - name: Verify organization backup restore against real invoice guards
+        run: node training/org-backup/20261116/verify-restore.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"
       - name: Verify database boundaries and transactions
         run: |
           node training/pro-full-audit/20261101/verify-advanced-database.mjs --pglite-root="$RUNNER_TEMP/felexia-qa"

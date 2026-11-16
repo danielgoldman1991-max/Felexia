@@ -55,7 +55,7 @@ export function ThirdPartyAttachments({
           Ajouter
         </Button>
         <p className="text-xs text-[var(--muted)] md:col-span-2">
-          Formats acceptes: PDF, images JPG/PNG/WEBP et Word. Taille maximale: 10 Mo.
+          Formats acceptés : PDF, images JPG/PNG/WEBP et Word. Taille maximale : 10 Mo.
         </p>
         {!uploadState.success && uploadState.error ? (
           <p className="text-xs text-red-600 md:col-span-2">{uploadState.error}</p>
@@ -73,7 +73,7 @@ export function ThirdPartyAttachments({
               <Th>Fichier</Th>
               <Th>Type</Th>
               <Th>Taille</Th>
-              <Th>Ajoute par</Th>
+              <Th>Ajouté par</Th>
               <Th>Date</Th>
               <Th>Actions</Th>
             </tr>
@@ -123,7 +123,7 @@ export function ThirdPartyAttachments({
         </Table>
       ) : (
         <EmptyState
-          title="Aucune piece jointe"
+          title="Aucune pièce jointe"
           description="Ajoutez des contrats, attestations, documents fiscaux, images ou fichiers Word."
         />
       )}
