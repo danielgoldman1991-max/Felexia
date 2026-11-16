@@ -2,12 +2,11 @@
 
 import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { previewOrganizationBackupAction, restoreBackupBatchAction, type BackupActionState, type BackupPreview, type RestoreBatchResult } from "@/lib/backup/actions";
-import { RESTORE_BATCH_ROWS } from "@/lib/backup/org-backup";
+import { previewOrganizationBackupAction, restoreBackupStepAction, type BackupActionState, type BackupPreview } from "@/lib/backup/actions";
 
 const initial: BackupActionState = {};
 
-type ResumePoint = { phase: "delete" | "merge"; tableIndex: number; offset: number; fresh: string[] };
+type ResumePoint = { step: number };
 
 export function OrganizationBackupPanel({ organizationName, demoPreview }: { organizationName: string; demoPreview?: BackupPreview }) {
   const [previewState, previewAction, previewPending] = useActionState(previewOrganizationBackupAction, initial);
@@ -33,7 +32,7 @@ export function OrganizationBackupPanel({ organizationName, demoPreview }: { org
         <BackupPreviewView
           preview={preview}
           organizationName={organizationName}
-          runBatch={restoreBackupBatchAction}
+          runBatch={restoreBackupStepAction}
           seedForm={() => {
             const data = new FormData();
             const file = fileRef.current?.files?.[0];
@@ -54,7 +53,7 @@ export function BackupPreviewView({
 }: {
   preview: BackupPreview;
   organizationName: string;
-  runBatch: (formData: FormData) => Promise<RestoreBatchResult>;
+  runBatch: (formData: FormData) => Promise<{ error?: string; done: boolean; progress: string; step: number }>;
   seedForm: () => FormData;
 }) {
   const foreign = preview.counts.reduce((sum, item) => sum + item.foreignOrganizationRows, 0);
@@ -67,7 +66,6 @@ export function BackupPreviewView({
   const [resume, setResume] = useState<ResumePoint | null>(null);
   const safetyReady = useRef(false);
   const replaceReady = replaceChecked && typedName.trim() === organizationName;
-  const total = preview.counts.length;
 
   async function downloadSafetyCopy() {
     const response = await fetch("/api/exports/sauvegarde", { credentials: "same-origin" });
@@ -91,61 +89,32 @@ export function BackupPreviewView({
     setRunning(true);
     setError(undefined);
     setDone(undefined);
-    let fresh = continued?.fresh ?? [];
-    let skipped = 0;
+    let step = continued?.step ?? 0;
     try {
       if (mode === "replace" && !continued) {
         setProgress("Téléchargement de la sauvegarde de sécurité…");
         await downloadSafetyCopy();
       }
-      if (mode === "replace" && (!continued || continued.phase === "delete")) {
-        const from = continued?.phase === "delete" ? continued.tableIndex : total - 1;
-        for (let index = from; index >= 0; index -= 1) {
-          const table = preview.counts[index];
-          setProgress(`Suppression : ${table.label} ${total - index}/${total} …`);
-          for (let guard = 0; guard < 100; guard += 1) {
-            const data = seedForm();
-            data.set("batch", "delete");
-            data.set("table", table.name);
-            data.set("freshInvoiceIds", JSON.stringify(fresh));
-            const result = await runBatch(data);
-            if (result.error) {
-              setResume({ phase: "delete", tableIndex: index, offset: 0, fresh });
-              throw new Error(interrupted(mode, table.label, result.error, safetyReady.current));
-            }
-            if (result.written === 0) break;
-            if (guard === 99) throw new Error(interrupted(mode, table.label, "La suppression de cette table n’est pas terminée.", safetyReady.current));
-          }
+      while (true) {
+        const data = seedForm();
+        data.set("mode", mode);
+        data.set("step", String(step));
+        if (mode === "replace") {
+          data.set("confirmReplace", replaceChecked ? "oui" : "");
+          data.set("confirmName", typedName);
         }
-      }
-      const mergeFrom = continued?.phase === "merge" ? continued.tableIndex : 0;
-      for (let index = mergeFrom; index < total; index += 1) {
-        const table = preview.counts[index];
-        if (table.incoming <= 0) continue;
-        const lots = Math.ceil(table.incoming / RESTORE_BATCH_ROWS);
-        const firstOffset = continued?.phase === "merge" && index === mergeFrom ? continued.offset : 0;
-        for (let offset = firstOffset; offset < table.incoming; offset += RESTORE_BATCH_ROWS) {
-          const lot = Math.floor(offset / RESTORE_BATCH_ROWS) + 1;
-          setProgress(lots > 1
-            ? `Restauration : ${table.label}, lot ${lot}/${lots} — ${index + 1}/${total} …`
-            : `Restauration : ${table.label} ${index + 1}/${total} …`);
-          const data = seedForm();
-          data.set("batch", "merge");
-          data.set("table", table.name);
-          data.set("offset", String(offset));
-          data.set("freshInvoiceIds", JSON.stringify(fresh));
-          const result = await runBatch(data);
-          if (result.error) {
-            setResume({ phase: "merge", tableIndex: index, offset, fresh });
-            throw new Error(interrupted(mode, table.label, result.error, safetyReady.current));
-          }
-          fresh = [...fresh, ...result.insertedInvoiceIds];
-          skipped += result.skipped;
+        const result = await runBatch(data);
+        if (result.error) {
+          setResume({ step });
+          throw new Error(interrupted(mode, result.progress || "cette étape", result.error, safetyReady.current));
         }
+        if (result.progress) setProgress(result.progress);
+        if (result.done) break;
+        step = result.step;
       }
       setResume(null);
       setProgress("");
-      setDone({ mode, skipped });
+      setDone({ mode, skipped: 0 });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "La restauration s’est interrompue.");
     } finally {
@@ -166,7 +135,7 @@ export function BackupPreviewView({
       {done ? <p className="text-sm text-emerald-800" role="status">Restauration {done.mode === "replace" ? "par remplacement" : "sans suppression"} terminée.{done.skipped ? ` ${done.skipped} ligne${done.skipped > 1 ? "s" : ""} laissée${done.skipped > 1 ? "s" : ""} de côté.` : ""}</p> : null}
       <Button type="button" onClick={() => restore("merge", null)} disabled={running}>{running ? "Restauration…" : "Restaurer sans supprimer"}</Button>
       <div className="space-y-3 border-t border-[var(--border)] pt-3">
-        <p className="text-sm text-[var(--muted)]">Le remplacement télécharge d’abord une sauvegarde de l’état actuel, puis supprime et réécrit table par table. Chaque étape est reprise sans doublon. S’il s’interrompt, les données peuvent être incomplètes : relancez le même fichier, ou restaurez la sauvegarde téléchargée.</p>
+        <p className="text-sm text-[var(--muted)]">Le remplacement commence par un essai à blanc, sans rien effacer. Ensuite chaque table est retirée seulement au moment de la réécrire. S’il s’interrompt, les données peuvent être incomplètes : relancez le même fichier, ou restaurez la sauvegarde téléchargée.</p>
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" name="confirmReplace" value="oui" className="mt-1" checked={replaceChecked} onChange={(event) => setReplaceChecked(event.target.checked)} />
           <span>Je remplace les données de cette entreprise par le fichier. Je télécharge d’abord la sauvegarde de l’état actuel.</span>
@@ -176,7 +145,7 @@ export function BackupPreviewView({
         </label>
         <Button type="button" variant="secondary" onClick={() => restore("replace", null)} disabled={running || !replaceReady}>Remplacer après double confirmation</Button>
       </div>
-      {resume ? <Button type="button" variant="secondary" onClick={() => restore(resume.phase === "delete" ? "replace" : "merge", resume)} disabled={running}>Reprendre la restauration</Button> : null}
+      {resume ? <Button type="button" variant="secondary" onClick={() => restore(replaceChecked ? "replace" : "merge", resume)} disabled={running}>Reprendre la restauration</Button> : null}
       {error ? <p className="text-sm text-red-700" role="alert">{error}</p> : null}
     </div>
   );

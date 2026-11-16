@@ -67,6 +67,7 @@ try {
   `);
   await apply("148_essential_backup_completeness.sql");
   await apply("149_restore_backup_batches.sql");
+  await apply("150_restore_document_bundle.sql");
   const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
@@ -455,6 +456,95 @@ try {
     }])],
   );
   equal(Number(replayBulk.result.written), 0, "replaying a restored line does not write it again");
+
+  phaseBox.phase = "document bundle";
+  await as(ids.admin);
+  const entryId = "30000000-0000-4000-8000-000000000010";
+  const lineA = "30000000-0000-4000-8000-000000000011";
+  const lineB = "30000000-0000-4000-8000-000000000012";
+  const postedHeader = { id: entryId, organization_id: ids.org, journal_id: journal, entry_number: "VE-REPRISE", entry_date: period, status: "posted", label: "Écriture restaurée", total_debit: 10, total_credit: 10 };
+  const postedLines = [
+    { id: lineA, organization_id: ids.org, entry_id: entryId, debit: 10, credit: 0 },
+    { id: lineB, organization_id: ids.org, entry_id: entryId, debit: 0, credit: 10 },
+  ];
+  await db.query("savepoint unbalanced_entry");
+  try {
+    await db.query("select public.restore_organization_backup_batch($1,'merge','accounting_entries',$2::jsonb,'{}'::uuid[])", [ids.org, JSON.stringify([postedHeader])]);
+    await db.query("set constraints all immediate");
+    throw new Error("Missing expected rejection.");
+  } catch (error) {
+    if (!/FINANCE_ENTRY_UNBALANCED/.test(error.message ?? "")) throw error;
+    await db.query("rollback to savepoint unbalanced_entry");
+  }
+  equal(true, true, "a posted entry without its lines is refused");
+  const bundled = await one(
+    "select public.restore_organization_backup_bundle($1,'merge','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([postedHeader]), JSON.stringify(postedLines)],
+  );
+  equal(bundled.result.ok, true, "a missing posted entry is restored with its lines");
+  equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "both entry lines were restored");
+  await db.query("savepoint failed_replace");
+  try {
+    await db.query(
+      "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])",
+      [ids.org, JSON.stringify([postedHeader]), JSON.stringify([{ id: lineA, organization_id: ids.org, entry_id: entryId, debit: 10, credit: 0 }])],
+    );
+    await db.query("set constraints all immediate");
+    throw new Error("Missing expected rejection.");
+  } catch (error) {
+    if (!/FINANCE_ENTRY_UNBALANCED/.test(error.message ?? "")) throw error;
+    await db.query("rollback to savepoint failed_replace");
+  }
+  equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "a failed replace keeps the previous entry");
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([postedHeader]), JSON.stringify(postedLines)],
+  );
+  equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "resuming the replace restores the same entry without a duplicate");
+  const unbalanced = { ...postedHeader, id: "30000000-0000-4000-8000-000000000099", entry_number: "VE-DESEQ", total_debit: 10, total_credit: 10 };
+  const sentinelBefore = Number((await one("select count(*)::int n from third_parties where organization_id=$1", [ids.org])).n);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])", [ids.org, JSON.stringify([unbalanced]), JSON.stringify([{ id: lineA, organization_id: ids.org, entry_id: unbalanced.id, debit: 10, credit: 0 }])]),
+    /FINANCE_ENTRY_UNBALANCED/,
+    "the dry run rejects an unbalanced entry",
+  );
+  equal(Number((await one("select count(*)::int n from third_parties where organization_id=$1", [ids.org])).n), sentinelBefore, "a failed dry run deletes nothing");
+  equal(Number((await one("select count(*)::int n from accounting_entries where entry_number='VE-DESEQ'")).n), 0, "the rejected entry was not kept");
+
+  const invoiceId = "30000000-0000-4000-8000-000000000020";
+  const invoiceLineId = "30000000-0000-4000-8000-000000000021";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: invoiceId, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-BUNDLE", invoice_date: period, status: "validated", currency: "MAD", total_ttc: 12 }]), JSON.stringify([{ id: invoiceLineId, organization_id: ids.org, invoice_id: invoiceId, description: "Ligne groupée", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }])],
+  );
+  equal(Number((await one("select count(*)::int n from customer_invoice_lines where invoice_id=$1", [invoiceId])).n), 1, "a missing validated invoice keeps its line");
+
+  const noteId = "30000000-0000-4000-8000-000000000030";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','customer_credit_notes',$2::jsonb,'customer_credit_note_lines','credit_note_id',$3::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: noteId, organization_id: ids.org, customer_id: customer, credit_note_number: "AV-BUNDLE", credit_note_date: period, status: "draft", currency: "MAD", subtotal_ht: 10, discount_total: 0, tax_total: 2, total_ttc: 12 }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000031", organization_id: ids.org, credit_note_id: noteId, description: "Avoir", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }])],
+  );
+  equal(Number((await one("select count(*)::int n from customer_credit_note_lines where credit_note_id=$1", [noteId])).n), 1, "a credit note is restored with its line");
+
+  const paymentId = "30000000-0000-4000-8000-000000000040";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','customer_payments',$2::jsonb,'customer_payment_allocations','payment_id',$3::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: paymentId, organization_id: ids.org, customer_id: customer, third_party_id: customer, payment_number: "REG-BUNDLE", payment_date: period, amount: 12, currency: "MAD", status: "confirmed" }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000041", organization_id: ids.org, payment_id: paymentId, invoice_id: invoiceId, customer_id: customer, third_party_id: customer, amount: 12 }])],
+  );
+  equal(Number((await one("select count(*)::int n from customer_payment_allocations where payment_id=$1", [paymentId])).n), 1, "a payment is restored with its allocation");
+
+  const extraId = "30000000-0000-4000-8000-000000000050";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([{ id: extraId, organization_id: ids.org, journal_id: journal, entry_number: "VE-EXTRA", entry_date: period, status: "posted", label: "Extra", total_debit: 5, total_credit: 5 }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000051", organization_id: ids.org, entry_id: extraId, debit: 5, credit: 0 }, { id: "30000000-0000-4000-8000-000000000052", organization_id: ids.org, entry_id: extraId, debit: 0, credit: 5 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'purge','accounting_entries','[]'::jsonb,'accounting_entry_lines','entry_id','[]'::jsonb,$2::uuid[])",
+    [ids.org, [entryId]],
+  );
+  equal(Number((await one("select count(*)::int n from accounting_entries where id=$1", [extraId])).n), 0, "replace removes an entry that is not in the file");
+  equal(Number((await one("select count(*)::int n from accounting_entries where id=$1", [entryId])).n), 1, "replace keeps the entry from the file");
+  equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "the kept entry still has its lines");
 
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildOrganizationBackup, describeRestoreFailure, planOrganizationRestore, readOrganizationBackup, replaceConfirmationReady } from "../src/lib/backup/org-backup";
 import { toCsv, unzip, zipStore } from "../src/lib/export/archive";
+import { replacementAuthorized } from "../src/lib/backup/org-backup";
+import { buildRestoreSteps } from "../src/lib/backup/restore-steps";
 import { writeXlsx } from "../src/lib/spreadsheet/minimal-xlsx";
 import { readSpreadsheet } from "../src/lib/spreadsheet/read-table";
 import { gridFromSheetXml } from "../src/lib/spreadsheet/xlsx-grid";
@@ -113,8 +115,8 @@ assert.equal(blocked.userMessage.includes("SECRET"), false);
 assert.equal(describeRestoreFailure("duplicate key value violates unique constraint \"customer_invoices_pkey\" DETAIL SECRET_TOKEN", "23505").userMessage.includes("SECRET"), false);
 const panel = readFileSync("src/components/settings/organization-backup-panel.tsx", "utf8");
 assert.equal(panel.includes("disabled={running || !replaceReady}"), true);
-assert.equal(panel.includes("Restauration :"), true);
 assert.equal(panel.includes("Reprendre la restauration"), true);
+assert.equal(readFileSync("src/lib/backup/restore-steps.ts", "utf8").includes("Restauration :"), true);
 assert.equal(panel.includes("Coordonnees"), false);
 const detail = readFileSync("src/components/tiers/third-party-detail.tsx", "utf8");
 const attachments = readFileSync("src/components/tiers/third-party-attachments.tsx", "utf8");
@@ -153,5 +155,40 @@ const elapsed = performance.now() - started;
 assert.equal(fiveHundred.rows.length, 501);
 assert.equal(elapsed < 2000, true, `500 xlsx rows took ${elapsed.toFixed(0)} ms`);
 console.log(JSON.stringify({ xlsxRows: 500, milliseconds: Math.round(elapsed) }));
+
+assert.equal(replacementAuthorized({ confirmReplace: "oui", confirmName: "Atelier Démo", organizationName: "Atelier Démo" }), true);
+assert.equal(replacementAuthorized({ confirmReplace: "", confirmName: "Atelier Démo", organizationName: "Atelier Démo" }), false);
+assert.equal(replacementAuthorized({ confirmReplace: "oui", confirmName: "Autre", organizationName: "Atelier Démo" }), false);
+const entryPlan = {
+  mode: "replace" as const,
+  counts: [],
+  omitted: [],
+  tables: [
+    { name: "accounting_entries" as const, conflict: "id" as const, rows: [{ id: "e1", total_debit: 10, total_credit: 10, status: "posted" }] },
+    { name: "accounting_entry_lines" as const, conflict: "id" as const, rows: [{ id: "l1", entry_id: "e1", debit: 10, credit: 0 }, { id: "l2", entry_id: "e1", debit: 0, credit: 10 }] },
+    { name: "hr_employees" as const, conflict: "id" as const, rows: [{ id: "h1" }] },
+  ],
+};
+const entrySteps = buildRestoreSteps(entryPlan, "replace");
+assert.equal(entrySteps[0]?.phase, "rehearse");
+assert.equal(entrySteps[0]?.parentIds.includes("e1"), true);
+assert.equal(entrySteps.findIndex((step) => step.phase === "write" && step.parent === "accounting_entries") > 0, true);
+assert.equal(entrySteps.findIndex((step) => step.phase === "purge") > entrySteps.findIndex((step) => step.phase === "write"), true);
+assert.equal(entrySteps.some((step) => step.phase === "write" && step.parent === "hr_employees" && entrySteps.findIndex((item) => item.parent === "accounting_entries" && item.phase === "rehearse") < entrySteps.findIndex((item) => item.parent === "hr_employees")), true);
+const name = Buffer.from("xl/sharedStrings.xml");
+const payload = Buffer.from("<sst/>");
+const local = Buffer.alloc(30);
+local.writeUInt32LE(0x04034b50, 0);
+local.writeUInt16LE(20, 4);
+local.writeUInt16LE(0x8, 6);
+local.writeUInt16LE(name.length, 26);
+const descriptor = Buffer.alloc(16);
+descriptor.writeUInt32LE(0x08074b50, 0);
+descriptor.writeUInt32LE(payload.length, 8);
+descriptor.writeUInt32LE(payload.length, 12);
+const central = Buffer.alloc(4);
+central.writeUInt32LE(0x02014b50, 0);
+const streamed = unzip(Buffer.concat([local, name, payload, descriptor, central]));
+assert.equal(streamed.get("xl/sharedStrings.xml")?.toString("utf8"), "<sst/>");
 
 console.log("company export/import: ok");

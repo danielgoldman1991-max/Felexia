@@ -7,7 +7,7 @@ import { hasFullErpAccess } from "@/lib/launch-access";
 import { planOrganizationRestore, readOrganizationBackup } from "@/lib/backup/org-backup";
 import { BACKUP_BUCKET, backupPathBelongsTo, parseBackupSchedule } from "@/lib/backup/schedule";
 import { createClient } from "@/lib/supabase/server";
-import { applyOrganizationRestoreBatch, type BackupActionState, type RestoreBatchResult } from "@/lib/backup/actions";
+import { applyOrganizationRestoreBatch, executePlannedRestoreStep, type BackupActionState, type RestoreBatchResult, type RestoreStepResult } from "@/lib/backup/actions";
 
 export type ScheduleActionState = { error?: string; saved?: boolean };
 
@@ -70,6 +70,29 @@ async function storedBackup(organizationId: string, runId: string) {
   const bytes = Buffer.from(await downloaded.data.arrayBuffer());
   if (bytes.length > 20_971_520) throw new Error("La sauvegarde dépasse 20 Mo.");
   return readOrganizationBackup(bytes);
+}
+
+export async function restoreScheduledStepAction(formData: FormData): Promise<RestoreStepResult> {
+  const fail = (error: string): RestoreStepResult => ({ error, done: false, progress: "", step: 0, total: 0, written: 0, skipped: 0 });
+  try {
+    const workspace = await adminWorkspace();
+    const mode = formData.get("mode") === "replace" ? "replace" : "merge";
+    const step = Number(formData.get("step") ?? 0);
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
+    const backup = await storedBackup(workspace.organization.id, String(formData.get("runId") ?? ""));
+    return await executePlannedRestoreStep({
+      organizationId: workspace.organization.id,
+      organizationName: workspace.organization.name,
+      backup,
+      includeHr,
+      mode,
+      step: Number.isFinite(step) ? step : 0,
+      confirmReplace: String(formData.get("confirmReplace") ?? ""),
+      confirmName: String(formData.get("confirmName") ?? ""),
+    });
+  } catch (error) {
+    return fail(error instanceof Error ? error.message : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon.");
+  }
 }
 
 export async function restoreScheduledBatchAction(formData: FormData): Promise<RestoreBatchResult> {

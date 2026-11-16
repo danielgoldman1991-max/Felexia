@@ -200,9 +200,21 @@ export function replaceConfirmationReady(checked: boolean, typedName: string, or
   return checked && typedName.trim() === organizationName;
 }
 
+/** Server-side gate for any replace or delete call. The checkbox and the typed name are not trusted from the browser alone. */
+export function replacementAuthorized(input: { confirmReplace: string | null; confirmName: string | null; organizationName: string }) {
+  return replaceConfirmationReady(input.confirmReplace === "oui", input.confirmName ?? "", input.organizationName);
+}
+
 /** Turns a sanitized database failure into an admin message. Never echoes row contents. */
 export function describeRestoreFailure(message: string | null | undefined, code: string | null | undefined) {
   const blocked = /RESTORE_BLOCKED\|([a-z0-9_]+)\|([0-9A-Z]{5})/.exec(message ?? "");
+  if (/FINANCE_ENTRY_UNBALANCED/.test(message ?? "")) {
+    return {
+      table: "accounting_entries",
+      sqlstate: "23514",
+      userMessage: "Une écriture comptabilisée n’est pas équilibrée avec ses lignes. Cette étape n’a pas été enregistrée.",
+    };
+  }
   if (blocked) {
     const known = BACKUP_TABLES.find((item) => item.name === blocked[1]);
     return {
