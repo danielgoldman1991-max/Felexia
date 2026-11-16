@@ -59,7 +59,7 @@ export function ScheduledBackupPanel({
     <section className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5" aria-labelledby="sauvegardes-automatiques">
       <div>
         <h2 id="sauvegardes-automatiques" className="text-base font-semibold">Sauvegardes automatiques</h2>
-        <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Le même fichier ZIP que la sauvegarde manuelle, conservé pour votre entreprise. L’heure est celle de Casablanca : la copie devient due à ce moment-là, puis le serveur la produit à son prochain passage. Aucun e-mail n’est envoyé.</p>
+        <p className="mt-1 text-sm leading-6 text-[var(--muted)]">Le même fichier ZIP que la sauvegarde manuelle, conservé pour votre entreprise. L’heure choisie, à Casablanca, est respectée à environ 30 minutes près. Aucun e-mail n’est envoyé.</p>
       </div>
       {unavailable ? <p className="text-sm text-[var(--muted)]">La programmation sera disponible après l’installation de la migration 146. La sauvegarde manuelle reste utilisable.</p> : (
         <form action={saveAction} className="space-y-4">

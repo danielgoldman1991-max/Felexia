@@ -91,5 +91,12 @@ assert.equal(route.includes("CRON_SECRET"), true);
 assert.equal(route.includes("Bearer"), true);
 const manual = readFileSync("src/app/api/exports/sauvegarde/route.ts", "utf8");
 assert.equal(manual.includes("collectOrganizationBackup"), true);
+const workflow = readFileSync(".github/workflows/organization-backups.yml", "utf8");
+assert.equal(workflow.includes('cron: "*/30 * * * *"'), true);
+assert.equal(workflow.includes("secrets.CRON_SECRET"), true);
+assert.equal(workflow.includes("/api/cron/organization-backups"), true);
+const vercel = readFileSync("vercel.json", "utf8");
+assert.equal(vercel.includes('"path": "/api/cron/organization-backups", "schedule": "0 5 * * *"'), true);
+assert.equal(readFileSync("supabase/migrations/146_organization_backup_schedules.sql", "utf8").includes("organization_backup_schedules"), true);
 
 console.log("backup schedule: ok");

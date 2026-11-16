@@ -1,0 +1,30 @@
+name: Sauvegardes automatiques
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: organization-backups
+  cancel-in-progress: false
+
+jobs:
+  declencher:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Produire les sauvegardes dues
+        env:
+          APP_URL: ${{ vars.FELEXIA_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -eu
+          if [ -z "${APP_URL}" ] || [ -z "${CRON_SECRET}" ]; then
+            echo "Variable FELEXIA_APP_URL ou secret CRON_SECRET manquant."
+            exit 1
+          fi
+          base="${APP_URL%/}"
+          curl --fail-with-body --silent --show-error --max-time 55 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${base}/api/cron/organization-backups"
