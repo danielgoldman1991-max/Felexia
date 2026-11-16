@@ -143,11 +143,32 @@ export async function executePlannedRestoreStep(input: {
     console.error("[organization-restore] blocked", { organizationId: input.organizationId, table: current.parent, sqlstate: described.sqlstate });
     return { ...blank, progress, error: described.userMessage };
   };
+  if (current.phase === "rehearse" && current.probe === "external") {
+    const { error } = await supabase.rpc("restore_organization_backup_bundle", {
+      p_organization_id: input.organizationId,
+      p_mode: "rehearse",
+      p_parent: current.parent,
+      p_parents: [],
+      p_child: current.child ?? null,
+      p_child_key: current.childKey ?? null,
+      p_children: [],
+      p_keep_ids: current.parentIds,
+      p_confirm: null,
+      p_confirm_name: null,
+    });
+    if (error) return failed(error.message, error.code);
+    revalidatePath("/parametres");
+    const probed = input.step + 1;
+    return { done: probed >= steps.length, progress, step: probed, total: steps.length, written: 0, skipped: 0 };
+  }
+  const bundleMode = current.phase === "write" ? input.mode : current.phase;
+  const confirmation = bundleMode === "replace" || bundleMode === "purge"
+    ? { p_confirm: input.confirmReplace, p_confirm_name: input.confirmName }
+    : { p_confirm: null, p_confirm_name: null };
   if (current.child && current.childKey) {
     const ids = new Set(current.parentIds);
     const parents = current.phase === "purge" ? [] : rows(current.parent).filter((row) => ids.has(String(row.id ?? "")));
     const children = current.phase === "purge" ? [] : rows(current.child).filter((row) => ids.has(String(row[current.childKey!] ?? "")));
-    const bundleMode = current.phase === "write" ? input.mode : current.phase;
     const { error } = await supabase.rpc("restore_organization_backup_bundle", {
       p_organization_id: input.organizationId,
       p_mode: bundleMode,
@@ -157,6 +178,7 @@ export async function executePlannedRestoreStep(input: {
       p_child_key: current.childKey,
       p_children: children,
       p_keep_ids: current.phase === "purge" ? current.parentIds : [],
+      ...confirmation,
     });
     if (error) return failed(error.message, error.code);
   } else if (current.phase === "purge") {
@@ -169,6 +191,7 @@ export async function executePlannedRestoreStep(input: {
       p_child_key: null,
       p_children: [],
       p_keep_ids: current.parentIds,
+      ...confirmation,
     });
     if (error) return failed(error.message, error.code);
   } else {

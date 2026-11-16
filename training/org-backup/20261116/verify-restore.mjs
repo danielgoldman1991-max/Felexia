@@ -69,7 +69,8 @@ try {
   await apply("148_essential_backup_completeness.sql");
   await apply("149_restore_backup_batches.sql");
   await apply("150_restore_document_bundle.sql");
-  const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
+  await apply("151_restore_fk_order.sql");
+  const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_function_privilege('anon', 'public.restore_organization_backup_bundle(uuid,text,text,jsonb,text,text,jsonb,uuid[],text,text)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
 
@@ -487,7 +488,7 @@ try {
   await db.query("savepoint failed_replace");
   try {
     await db.query(
-      "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])",
+      "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
       [ids.org, JSON.stringify([postedHeader]), JSON.stringify([{ id: lineA, organization_id: ids.org, entry_id: entryId, debit: 10, credit: 0 }])],
     );
     await db.query("set constraints all immediate");
@@ -498,7 +499,7 @@ try {
   }
   equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "a failed replace keeps the previous entry");
   await one(
-    "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[])",
+    "select public.restore_organization_backup_bundle($1,'replace','accounting_entries',$2::jsonb,'accounting_entry_lines','entry_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
     [ids.org, JSON.stringify([postedHeader]), JSON.stringify(postedLines)],
   );
   equal(Number((await one("select count(*)::int n from accounting_entry_lines where entry_id=$1", [entryId])).n), 2, "resuming the replace restores the same entry without a duplicate");
@@ -540,7 +541,7 @@ try {
     [ids.org, JSON.stringify([{ id: extraId, organization_id: ids.org, journal_id: journal, entry_number: "VE-EXTRA", entry_date: period, status: "posted", label: "Extra", total_debit: 5, total_credit: 5 }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000051", organization_id: ids.org, entry_id: extraId, debit: 5, credit: 0 }, { id: "30000000-0000-4000-8000-000000000052", organization_id: ids.org, entry_id: extraId, debit: 0, credit: 5 }])],
   );
   await one(
-    "select public.restore_organization_backup_bundle($1,'purge','accounting_entries','[]'::jsonb,'accounting_entry_lines','entry_id','[]'::jsonb,$2::uuid[])",
+    "select public.restore_organization_backup_bundle($1,'purge','accounting_entries','[]'::jsonb,'accounting_entry_lines','entry_id','[]'::jsonb,$2::uuid[],'oui','Atelier Démo')",
     [ids.org, [entryId]],
   );
   equal(Number((await one("select count(*)::int n from accounting_entries where id=$1", [extraId])).n), 0, "replace removes an entry that is not in the file");
@@ -561,13 +562,195 @@ try {
     "moving a posted entry to another organization is refused",
   );
 
+  phaseBox.phase = "replace with payments";
+  await db.exec("reset role");
+  const applicationId = "30000000-0000-4000-8000-000000000060";
+  const accountId = "30000000-0000-4000-8000-000000000070";
+  const movementId = "30000000-0000-4000-8000-000000000071";
+  const supplierPaymentId = "30000000-0000-4000-8000-000000000080";
+  const supplierMovementId = "30000000-0000-4000-8000-000000000081";
+  const extraMovementId = "30000000-0000-4000-8000-000000000082";
+  await db.query("update customer_credit_notes set source_invoice_id=$2 where id=$1", [noteId, invoiceId]);
+  await db.query("update customer_credit_note_lines set source_invoice_line_id=$2 where credit_note_id=$1", [noteId, invoiceLineId]);
+  await db.query(
+    "insert into customer_credit_note_applications(id,organization_id,credit_note_id,invoice_id,customer_id,amount) values($1,$2,$3,$4,$5,12)",
+    [applicationId, ids.org, noteId, invoiceId, customer],
+  );
+  await db.query("insert into treasury_accounts(id,organization_id,name,account_type,currency) values($1,$2,'Banque QA','bank','MAD')", [accountId, ids.org]);
+  await db.query(
+    "insert into treasury_transactions(id,organization_id,treasury_account_id,transaction_type,direction,amount,currency,transaction_date,label,customer_payment_id,customer_invoice_id) values($1,$2,$3,'customer_payment','in',12,'MAD',$4::date,'Encaissement client',$5,$6)",
+    [movementId, ids.org, accountId, period, paymentId, invoiceId],
+  );
+  await db.query(
+    "insert into supplier_payments(id,organization_id,payment_number,supplier_id,payment_date,amount,currency,status) values($1,$2,'RFO-BUNDLE',$3,$4::date,12,'MAD','confirmed')",
+    [supplierPaymentId, ids.org, supplier, period],
+  );
+  await db.query(
+    "insert into treasury_transactions(id,organization_id,treasury_account_id,transaction_type,direction,amount,currency,transaction_date,label,supplier_payment_id,supplier_invoice_id) values($1,$2,$3,'supplier_payment','out',12,'MAD',$4::date,'Décaissement fournisseur',$5,$6)",
+    [supplierMovementId, ids.org, accountId, period, supplierPaymentId, supplierInvoice.id],
+  );
+  await db.query(
+    "insert into treasury_transactions(id,organization_id,treasury_account_id,transaction_type,direction,amount,currency,transaction_date,label,customer_invoice_id) values($1,$2,$3,'other','in',5,'MAD',$4::date,'Mouvement hors fichier',$5)",
+    [extraMovementId, ids.org, accountId, period, invoiceId],
+  );
+  await as(ids.admin);
+  const invoicePayload = JSON.stringify([{ id: invoiceId, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-BUNDLE", invoice_date: period, status: "validated", currency: "MAD", total_ttc: 12 }]);
+  const invoiceLines = JSON.stringify([{ id: invoiceLineId, organization_id: ids.org, invoice_id: invoiceId, description: "Ligne groupée", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }]);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'replace','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[])", [ids.org, invoicePayload, invoiceLines]),
+    /RESTORE_CONFIRMATION/,
+    "replace without the typed confirmation is refused",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'purge','treasury_transactions','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Autre nom')", [ids.org, [movementId]]),
+    /RESTORE_CONFIRMATION/,
+    "purge with the wrong company name is refused",
+  );
+  equal((await one("select customer_invoice_id from treasury_transactions where id=$1", [movementId])).customer_invoice_id, invoiceId, "a refused replace keeps the treasury link");
+  equal(Number((await one("select count(*)::int n from customer_credit_note_applications where id=$1", [applicationId])).n), 1, "a refused replace keeps the credit application");
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo') as result",
+    [ids.org, invoicePayload, invoiceLines],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_credit_notes',$2::jsonb,'customer_credit_note_lines','credit_note_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: noteId, organization_id: ids.org, customer_id: customer, credit_note_number: "AV-BUNDLE", credit_note_date: period, status: "draft", currency: "MAD", source_invoice_id: invoiceId, subtotal_ht: 10, discount_total: 0, tax_total: 2, total_ttc: 12 }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000031", organization_id: ids.org, credit_note_id: noteId, source_invoice_line_id: invoiceLineId, description: "Avoir", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_payments',$2::jsonb,'customer_payment_allocations','payment_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: paymentId, organization_id: ids.org, customer_id: customer, third_party_id: customer, payment_number: "REG-BUNDLE", payment_date: period, amount: 12, currency: "MAD", status: "confirmed" }]), JSON.stringify([{ id: "30000000-0000-4000-8000-000000000041", organization_id: ids.org, payment_id: paymentId, invoice_id: invoiceId, customer_id: customer, third_party_id: customer, amount: 12 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','supplier_payments',$2::jsonb,'supplier_payment_allocations','payment_id','[]'::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: supplierPaymentId, organization_id: ids.org, payment_number: "RFO-BUNDLE", supplier_id: supplier, payment_date: period, amount: 12, currency: "MAD", status: "confirmed" }])],
+  );
+  await one(
+    "select public.restore_organization_backup_batch($1,'merge','customer_credit_note_applications',$2::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([{ id: applicationId, organization_id: ids.org, credit_note_id: noteId, invoice_id: invoiceId, customer_id: customer, amount: 12 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_batch($1,'merge','treasury_transactions',$2::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([
+      { id: movementId, organization_id: ids.org, treasury_account_id: accountId, transaction_type: "customer_payment", direction: "in", amount: 12, currency: "MAD", transaction_date: period, label: "Encaissement client", customer_payment_id: paymentId, customer_invoice_id: invoiceId, supplier_payment_id: null, supplier_invoice_id: null },
+      { id: supplierMovementId, organization_id: ids.org, treasury_account_id: accountId, transaction_type: "supplier_payment", direction: "out", amount: 12, currency: "MAD", transaction_date: period, label: "Décaissement fournisseur", customer_payment_id: null, customer_invoice_id: null, supplier_payment_id: supplierPaymentId, supplier_invoice_id: supplierInvoice.id },
+    ])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'purge','treasury_transactions','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')",
+    [ids.org, [movementId, supplierMovementId]],
+  );
+  const restored = await one(
+    `select
+      (select count(*)::int from customer_invoices where id=$1) as invoices,
+      (select count(*)::int from customer_invoice_lines where invoice_id=$1) as invoice_lines,
+      (select source_invoice_id from customer_credit_notes where id=$2) as credit_source,
+      (select source_invoice_line_id from customer_credit_note_lines where credit_note_id=$2) as credit_line_source,
+      (select count(*)::int from customer_credit_note_applications where id=$3 and invoice_id=$1) as applications,
+      (select count(*)::int from customer_payment_allocations where payment_id=$4 and invoice_id=$1) as allocations,
+      (select customer_invoice_id from treasury_transactions where id=$5) as treasury_invoice,
+      (select customer_payment_id from treasury_transactions where id=$5) as treasury_payment,
+      (select supplier_payment_id from treasury_transactions where id=$6) as treasury_supplier_payment,
+      (select count(*)::int from treasury_transactions where id=$7) as extra_movements`,
+    [invoiceId, noteId, applicationId, paymentId, movementId, supplierMovementId, extraMovementId],
+  );
+  equal(Number(restored.invoices), 1, "replace keeps the customer invoice");
+  equal(Number(restored.invoice_lines), 1, "replace keeps the customer invoice line");
+  equal(restored.credit_source, invoiceId, "replace keeps the credit note linked to the invoice");
+  equal(restored.credit_line_source, invoiceLineId, "replace keeps the credit line linked to the invoice line");
+  equal(Number(restored.applications), 1, "replace keeps the credit application");
+  equal(Number(restored.allocations), 1, "replace keeps the payment allocation");
+  equal(restored.treasury_invoice, invoiceId, "replace keeps the treasury movement linked to the invoice");
+  equal(restored.treasury_payment, paymentId, "replace keeps the treasury movement linked to the customer payment");
+  equal(restored.treasury_supplier_payment, supplierPaymentId, "replace keeps the treasury movement linked to the supplier payment");
+  equal(Number(restored.extra_movements), 0, "replace removes a treasury movement that is not in the file");
+
+  phaseBox.phase = "external references";
+  await db.exec("reset role");
+  const outsideParty = "30000000-0000-4000-8000-000000000090";
+  const linkedProduct = "30000000-0000-4000-8000-000000000091";
+  const loneProduct = "30000000-0000-4000-8000-000000000092";
+  const warehouseId = "30000000-0000-4000-8000-000000000093";
+  const salesDocumentId = "30000000-0000-4000-8000-000000000094";
+  const salesLineId = "30000000-0000-4000-8000-000000000095";
+  const stockMoveId = "30000000-0000-4000-8000-000000000096";
+  const reminderId = "30000000-0000-4000-8000-000000000097";
+  await db.query("insert into third_parties(id,organization_id,code,primary_type,types,name) values($1,$2,'CU-HORS','customer',array['customer'],'Client hors fichier')", [outsideParty, ids.org]);
+  await db.query("insert into products(id,organization_id,type,name,sku) values($1,$2,'product','Article lié','SKU-LIE'),($3,$2,'product','Article seul','SKU-SEUL')", [linkedProduct, ids.org, loneProduct]);
+  await db.query("insert into warehouses(id,organization_id,name,code) values($1,$2,'Dépôt QA','DEP-QA')", [warehouseId, ids.org]);
+  await db.query("insert into sales_documents(id,organization_id,document_type,document_number,customer_id,document_date,status) values($1,$2,'quote','DEV-HORS',$3,$4::date,'draft')", [salesDocumentId, ids.org, outsideParty, period]);
+  await db.query("insert into sales_document_lines(id,organization_id,document_id,description,quantity,unit_price_ht,product_id) values($1,$2,$3,'Ligne hors fichier',1,10,$4)", [salesLineId, ids.org, salesDocumentId, linkedProduct]);
+  await db.query("insert into stock_moves(id,organization_id,warehouse_id,product_id,move_type,quantity) values($1,$2,$3,$4,'in',1)", [stockMoveId, ids.org, warehouseId, linkedProduct]);
+  const beforeOutside = await one(
+    `select
+      (select count(*)::int from sales_documents where id=$1) as documents,
+      (select count(*)::int from sales_document_lines where id=$2) as lines,
+      (select count(*)::int from stock_moves where id=$3) as moves,
+      (select count(*)::int from products where id=$4) as products,
+      (select count(*)::int from third_parties where id=$5) as parties`,
+    [salesDocumentId, salesLineId, stockMoveId, linkedProduct, outsideParty],
+  );
+  await as(ids.admin);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[])", [ids.org, [loneProduct]]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to remove a product that still has a sales line and a stock move",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'purge','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')", [ids.org, [loneProduct]]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove a product referenced outside the backup",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','third_parties','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[])", [ids.org, [customer, supplier]]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to remove a third party that still has a sales document",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'purge','third_parties','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')", [ids.org, [customer, supplier]]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove a third party referenced outside the backup",
+  );
+  const afterOutside = await one(
+    `select
+      (select count(*)::int from sales_documents where id=$1) as documents,
+      (select count(*)::int from sales_document_lines where id=$2) as lines,
+      (select count(*)::int from stock_moves where id=$3) as moves,
+      (select count(*)::int from products where id=$4) as products,
+      (select count(*)::int from third_parties where id=$5) as parties`,
+    [salesDocumentId, salesLineId, stockMoveId, linkedProduct, outsideParty],
+  );
+  equal(afterOutside, beforeOutside, "a refused replace deletes no sales document, line, stock move, product or third party");
+  await one(
+    "select public.restore_organization_backup_bundle($1,'purge','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','Atelier Démo')",
+    [ids.org, [linkedProduct]],
+  );
+  equal(Number((await one("select count(*)::int n from products where id=$1", [loneProduct])).n), 0, "replace still removes a product that nothing outside the backup references");
+  equal(Number((await one("select count(*)::int n from products where id=$1", [linkedProduct])).n), 1, "the product referenced by the sales line stays");
+  equal(Number((await one("select count(*)::int n from stock_moves where id=$1", [stockMoveId])).n), 1, "the stock move stays with its product");
+  await db.exec("reset role");
+  await db.query("insert into customer_reminders(id,organization_id,reminder_number,customer_id) values($1,$2,'REL-HORS',$3)", [reminderId, ids.org, customer]);
+  await db.query("insert into customer_reminder_invoices(organization_id,reminder_id,invoice_id) values($1,$2,$3)", [ids.org, reminderId, invoiceId]);
+  await as(ids.admin);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'rehearse','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[])", [ids.org, invoicePayload, invoiceLines]),
+    /RESTORE_BLOCKED/,
+    "the dry run refuses to replace an invoice that still has a reminder",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_bundle($1,'replace','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')", [ids.org, invoicePayload, invoiceLines]),
+    /RESTORE_BLOCKED/,
+    "replace refuses to remove an invoice referenced by a reminder",
+  );
+  equal(Number((await one("select count(*)::int n from customer_reminder_invoices where reminder_id=$1 and invoice_id=$2", [reminderId, invoiceId])).n), 1, "the reminder line is kept");
+  equal(Number((await one("select count(*)::int n from customer_invoices where id=$1", [invoiceId])).n), 1, "the invoice referenced by the reminder is kept");
+
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({
     passed: true,
     date: new Date().toISOString(),
     checks: globalThis.__felexia.checks,
     results: globalThis.__felexia.results,
-    migration: "149_restore_backup_batches.sql",
+    migration: "151_restore_fk_order.sql",
     maxBatchMs: Math.round(maxBatchMs),
     bulkTotal,
     engine: "PostgreSQL via PGlite",
