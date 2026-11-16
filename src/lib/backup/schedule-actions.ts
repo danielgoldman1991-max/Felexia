@@ -7,7 +7,7 @@ import { hasFullErpAccess } from "@/lib/launch-access";
 import { planOrganizationRestore, readOrganizationBackup } from "@/lib/backup/org-backup";
 import { BACKUP_BUCKET, backupPathBelongsTo, parseBackupSchedule } from "@/lib/backup/schedule";
 import { createClient } from "@/lib/supabase/server";
-import type { BackupActionState } from "@/lib/backup/actions";
+import { applyOrganizationRestoreBatch, type BackupActionState, type RestoreBatchResult } from "@/lib/backup/actions";
 
 export type ScheduleActionState = { error?: string; saved?: boolean };
 
@@ -70,6 +70,36 @@ async function storedBackup(organizationId: string, runId: string) {
   const bytes = Buffer.from(await downloaded.data.arrayBuffer());
   if (bytes.length > 20_971_520) throw new Error("La sauvegarde dépasse 20 Mo.");
   return readOrganizationBackup(bytes);
+}
+
+export async function restoreScheduledBatchAction(formData: FormData): Promise<RestoreBatchResult> {
+  const empty = { written: 0, skipped: 0, insertedInvoiceIds: [] as string[] };
+  try {
+    const workspace = await adminWorkspace();
+    const mode = formData.get("batch") === "delete" ? "delete" : "merge";
+    const table = String(formData.get("table") ?? "");
+    const offset = Number(formData.get("offset") ?? 0);
+    let freshInvoiceIds: string[] = [];
+    try {
+      const parsed = JSON.parse(String(formData.get("freshInvoiceIds") ?? "[]"));
+      freshInvoiceIds = Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+    } catch {
+      return { ...empty, error: "La reprise de la restauration est illisible. Relancez depuis le début." };
+    }
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
+    const backup = await storedBackup(workspace.organization.id, String(formData.get("runId") ?? ""));
+    return await applyOrganizationRestoreBatch({
+      organizationId: workspace.organization.id,
+      backup,
+      includeHr,
+      table,
+      mode,
+      offset,
+      freshInvoiceIds,
+    });
+  } catch (error) {
+    return { ...empty, error: error instanceof Error ? error.message : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon." };
+  }
 }
 
 export async function previewScheduledBackupAction(_prev: BackupActionState, formData: FormData): Promise<BackupActionState> {

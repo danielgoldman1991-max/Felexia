@@ -66,6 +66,7 @@ try {
     create table if not exists public.supplier_credit_note_applications (id uuid);
   `);
   await apply("148_essential_backup_completeness.sql");
+  await apply("149_restore_backup_batches.sql");
   const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
@@ -322,13 +323,148 @@ try {
   await db.exec("reset role");
   equal(Number((await one("select count(*)::int n from hr_employees where organization_id=$1", [ids.org])).n), 0, "an Essentiel organization does not restore employees from a PRO backup");
 
+  phaseBox.phase = "batched restore";
+  await as(ids.admin);
+  const settingsSame = await one(
+    "select public.restore_organization_backup_batch($1,'merge','company_settings',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ organization_id: ids.org, legal_name: "Atelier Démo" }])],
+  );
+  equal(Number(settingsSame.result.written), 0, "replaying identical company settings writes nothing");
+  const settingsChange = await one(
+    "select public.restore_organization_backup_batch($1,'merge','company_settings',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ organization_id: ids.org, legal_name: "Atelier Démo", city: "Rabat" }])],
+  );
+  equal(Number(settingsChange.result.written), 1, "a real company settings change is written once");
+  const settingsReplay = await one(
+    "select public.restore_organization_backup_batch($1,'merge','company_settings',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ organization_id: ids.org, legal_name: "Atelier Démo", city: "Rabat" }])],
+  );
+  equal(Number(settingsReplay.result.written), 0, "replaying the same company settings still writes nothing");
+
+  const partyId = "10000000-0000-4000-8000-000000000001";
+  const party = { id: partyId, organization_id: ids.org, name: "Client lot", primary_type: "customer", types: ["customer"], code: "CU-LOT-1", status: "active" };
+  const insertedParty = await one(
+    "select public.restore_organization_backup_batch($1,'merge','third_parties',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([party])],
+  );
+  equal(Number(insertedParty.result.written), 1, "a missing third party is inserted");
+  const replayParty = await one(
+    "select public.restore_organization_backup_batch($1,'merge','third_parties',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([party])],
+  );
+  equal(Number(replayParty.result.written), 0, "replaying the same third party does not duplicate it");
+  await rejected(
+    () => db.query("select public.restore_organization_backup_batch($1,'merge','third_parties',$2::jsonb,'{}'::uuid[])", [ids.org, JSON.stringify([{ name: "Sans identifiant" }])]),
+    /RESTORE_ROW_KEY|RESTORE_BLOCKED/,
+    "a batch without a key fails",
+  );
+  await db.exec("reset role");
+  equal(Number((await one("select count(*)::int n from app_private.organization_restore_scope")).n), 0, "the restore marker is cleared after an error");
+  await as(ids.admin);
+  equal(Number((await one("select count(*)::int n from third_parties where id=$1", [partyId])).n), 1, "the failed batch did not remove the earlier row");
+
+  const restoredInvoiceId = "10000000-0000-4000-8000-000000000002";
+  const validated = await one(
+    "select public.restore_organization_backup_batch($1,'merge','customer_invoices',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: restoredInvoiceId, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-REPRISE", invoice_date: period, status: "validated", currency: "MAD", total_ttc: 12 }])],
+  );
+  equal(validated.result.insertedInvoiceIds[0], restoredInvoiceId, "a validated invoice can be restored inside the batch");
+  await db.exec("reset role");
+  equal(Number((await one("select count(*)::int n from app_private.organization_restore_scope")).n), 0, "the restore marker is cleared after success");
+  await as(ids.admin);
+  await rejected(
+    () => db.query("insert into customer_invoices(organization_id,customer_id,invoice_number,status,total_ttc) values($1,$2,'FAC-REFUS','validated',100)", [ids.org, customer]),
+    /FINANCE_DRAFT_REQUIRED/,
+    "a validated invoice is refused again once the batch has finished",
+  );
+  const line = await one(
+    "select public.restore_organization_backup_batch($1,'merge','customer_invoice_lines',$2::jsonb,$3::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: "10000000-0000-4000-8000-000000000003", organization_id: ids.org, invoice_id: restoredInvoiceId, description: "Ligne restaurée", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }]), [restoredInvoiceId]],
+  );
+  equal(Number(line.result.written), 1, "lines of an invoice inserted by this restore are kept");
+  const foreignSkip = await one(
+    "select public.restore_organization_backup_batch($1,'merge','third_parties',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{ id: foreignCustomer, organization_id: ids.org, name: "Piraté", primary_type: "customer", code: "CU-PIRATE" }])],
+  );
+  equal(Number(foreignSkip.result.written), 0, "a row owned by another organization is not moved");
+  await db.exec("reset role");
+  equal((await one("select name from third_parties where id=$1", [foreignCustomer])).name, "Client étranger", "the other organization keeps its row");
+  await as(ids.admin);
+
+  const unitId = "10000000-0000-4000-8000-000000000004";
+  const unit = { id: unitId, organization_id: ids.org, name: "Pièce", symbol: "pce" };
+  await one("select public.restore_organization_backup_batch($1,'merge','units',$2::jsonb,'{}'::uuid[]) as result", [ids.org, JSON.stringify([unit])]);
+  const deleted = await one(
+    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[]) as result",
+    [ids.org],
+  );
+  equal(Number(deleted.result.written) > 0, true, "replace deletes the organization rows of one table");
+  const cleared = await one(
+    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[]) as result",
+    [ids.org],
+  );
+  equal(Number(cleared.result.written), 0, "a second delete of the same table is empty");
+  await one("select public.restore_organization_backup_batch($1,'merge','units',$2::jsonb,'{}'::uuid[]) as result", [ids.org, JSON.stringify([unit])]);
+  const unitReplay = await one("select public.restore_organization_backup_batch($1,'merge','units',$2::jsonb,'{}'::uuid[]) as result", [ids.org, JSON.stringify([unit])]);
+  equal(Number(unitReplay.result.written), 0, "replaying the restored unit does not duplicate it");
+  equal(Number((await one("select count(*)::int n from units where id=$1", [unitId])).n), 1, "the deleted unit can be inserted again");
+
+  const bulkParent = (await one(
+    "insert into customer_invoices(organization_id,customer_id,invoice_number,invoice_date,status,currency) values($1,$2,'',$3::date,'draft','MAD') returning id",
+    [ids.org, customer, period],
+  )).id;
+  let maxBatchMs = 0;
+  const batchSize = 200;
+  const bulkTotal = 5000;
+  for (let offset = 0; offset < bulkTotal; offset += batchSize) {
+    const rows = [];
+    for (let index = 0; index < batchSize && offset + index < bulkTotal; index += 1) {
+      const number = offset + index + 1;
+      rows.push({
+        id: `20000000-0000-4000-8000-${String(number).padStart(12, "0")}`,
+        organization_id: ids.org,
+        invoice_id: bulkParent,
+        description: `Ligne ${number}`,
+        quantity: 1,
+        unit_price_ht: 10,
+        discount_rate: 0,
+        tax_rate: 20,
+      });
+    }
+    const started = performance.now();
+    const chunk = await one(
+      "select public.restore_organization_backup_batch($1,'merge','customer_invoice_lines',$2::jsonb,'{}'::uuid[]) as result",
+      [ids.org, JSON.stringify(rows)],
+    );
+    maxBatchMs = Math.max(maxBatchMs, performance.now() - started);
+    equal(Number(chunk.result.written), rows.length, `batch at ${offset} writes its lines`);
+  }
+  equal(maxBatchMs < 4000, true, `each batch of ${batchSize} lines stays under 4s (max ${Math.round(maxBatchMs)} ms)`);
+  equal(Number((await one("select count(*)::int n from customer_invoice_lines where invoice_id=$1", [bulkParent])).n), bulkTotal, "five thousand lines are restored");
+  const replayBulk = await one(
+    "select public.restore_organization_backup_batch($1,'merge','customer_invoice_lines',$2::jsonb,'{}'::uuid[]) as result",
+    [ids.org, JSON.stringify([{
+      id: "20000000-0000-4000-8000-000000000001",
+      organization_id: ids.org,
+      invoice_id: bulkParent,
+      description: "Ligne 1",
+      quantity: 1,
+      unit_price_ht: 10,
+      discount_rate: 0,
+      tax_rate: 20,
+    }])],
+  );
+  equal(Number(replayBulk.result.written), 0, "replaying a restored line does not write it again");
+
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({
     passed: true,
     date: new Date().toISOString(),
     checks: globalThis.__felexia.checks,
     results: globalThis.__felexia.results,
-    migration: "147_org_backup_restore_fix.sql",
+    migration: "149_restore_backup_batches.sql",
+    maxBatchMs: Math.round(maxBatchMs),
+    bulkTotal,
     engine: "PostgreSQL via PGlite",
     productionRead: false,
     productionWrite: false,
