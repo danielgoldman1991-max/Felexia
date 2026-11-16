@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Table, Td, Th } from "@/components/ui/table";
+import { readXlsxGrid } from "@/lib/spreadsheet/unzip-bytes";
 import { confirmThirdPartyImportAction, previewThirdPartyImportAction, type ThirdPartyImportState } from "@/lib/tiers/third-party-import-actions";
 import { THIRD_PARTY_IMPORT_HEADERS, THIRD_PARTY_IMPORT_INSTRUCTIONS } from "@/lib/tiers/third-party-import";
 
@@ -12,11 +13,43 @@ const initial: ThirdPartyImportState = { success: false, errors: [], rows: [], r
 export function ThirdPartyImportForm({ demo }: { demo?: ThirdPartyImportState } = {}) {
   const [preview, previewAction, previewPending] = useActionState(previewThirdPartyImportAction, demo ?? initial);
   const [imported, importAction, importPending] = useActionState(confirmThirdPartyImportAction, initial);
+  const [reading, setReading] = useState(false);
+  const [readError, setReadError] = useState<string>();
   const readyRows = preview.readyRows ?? [];
   const ready = readyRows.length > 0 && !imported.success;
+  const busy = reading || previewPending;
+
+  async function previewFile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const file = new FormData(event.currentTarget).get("file");
+    if (!(file instanceof File) || file.size <= 0) {
+      setReadError("Choisissez un fichier CSV ou Excel.");
+      return;
+    }
+    setReading(true);
+    setReadError(undefined);
+    try {
+      const data = new FormData();
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".xlsx")) {
+        const grid = await readXlsxGrid(new Uint8Array(await file.arrayBuffer()));
+        data.set("csv", grid.map((row) => row.map(escapeCell).join(";")).join("\n"));
+      } else if (name.endsWith(".xls")) {
+        data.set("file", file);
+      } else {
+        data.set("csv", await file.text());
+      }
+      previewAction(data);
+    } catch (error) {
+      setReadError(error instanceof Error ? error.message : "Le classeur n’a pas pu être lu.");
+    } finally {
+      setReading(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <form action={previewAction} className="erp-form space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
+      <form onSubmit={previewFile} className="erp-form space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
         <p className="text-sm text-[var(--muted)]">CSV (point-virgule), Excel .xlsx ou .xls. {THIRD_PARTY_IMPORT_INSTRUCTIONS}</p>
         <p className="text-sm text-[var(--muted)]">Colonnes : {THIRD_PARTY_IMPORT_HEADERS.join(", ")}.</p>
         <div className="flex flex-wrap gap-4">
@@ -25,9 +58,10 @@ export function ThirdPartyImportForm({ demo }: { demo?: ThirdPartyImportState } 
         </div>
         <input name="file" type="file" accept=".csv,text/csv,.xlsx,.xls" required className="block text-sm" />
         <div className="erp-form-actions">
-          <Button type="submit" variant="secondary" disabled={previewPending}>{previewPending ? "Lecture…" : "Prévisualiser"}</Button>
+          <Button type="submit" variant="secondary" disabled={busy}>{busy ? "Lecture du classeur…" : "Prévisualiser"}</Button>
         </div>
-        {preview.error ? <p className="text-sm text-red-700">{preview.error}</p> : null}
+        {busy ? <p className="text-sm text-[var(--muted)]" role="status">Lecture du classeur…</p> : null}
+        {readError || preview.error ? <p className="text-sm text-red-700">{readError || preview.error}</p> : null}
       </form>
       {imported.success ? <p className="rounded-[var(--radius-md)] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{imported.imported} contact{(imported.imported ?? 0) > 1 ? "s" : ""} ajouté{(imported.imported ?? 0) > 1 ? "s" : ""} à votre entreprise.{imported.skipped ? ` ${imported.skipped} ligne${imported.skipped > 1 ? "s" : ""} ignorée${imported.skipped > 1 ? "s" : ""}.` : ""} Aucun e-mail n’a été envoyé.</p> : null}
       {preview.rows.length > 0 || preview.errors.length > 0 ? (

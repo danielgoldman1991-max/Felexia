@@ -42,6 +42,9 @@ export const BACKUP_TABLES = [
 
 export const PRO_BACKUP_OMITTED_REASON = "Les salariés et les données RH sont réservés à l’offre PRO. Ils ne sont pas inclus dans cette sauvegarde.";
 
+/** One merge call stays far below the 8s authenticated statement timeout, including at 10× the observed volume. */
+export const RESTORE_BATCH_ROWS = 200;
+
 export type BackupTableName = (typeof BACKUP_TABLES)[number]["name"];
 
 export type BackupManifest = {
@@ -206,8 +209,8 @@ export function describeRestoreFailure(message: string | null | undefined, code:
       table: known ? blocked[1] : null,
       sqlstate: blocked[2],
       userMessage: known
-        ? `La restauration a été annulée à la table « ${known.label} ». Aucune donnée n’a été modifiée.`
-        : "La restauration a été annulée. Aucune donnée n’a été modifiée.",
+        ? `La restauration a été annulée à la table « ${known.label} ». Cette étape n’a pas été enregistrée.`
+        : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon.",
     };
   }
   if (message === "RESTORE_FORBIDDEN") {
@@ -219,11 +222,14 @@ export function describeRestoreFailure(message: string | null | undefined, code:
   }
   const sqlstate = code && /^[0-9A-Z]{5}$/.test(code) ? code : null;
   const missing = /restore_organization_backup|schema cache|PGRST202/i.test(message ?? "");
+  const timeout = sqlstate === "57014" || /statement timeout|canceling statement/i.test(message ?? "");
   return {
     table: null,
     sqlstate,
-    userMessage: missing
-      ? "La restauration n’est pas encore installée sur la base (migration 147). Aucune donnée n’a été modifiée."
-      : "La restauration a été annulée. Aucune donnée n’a été modifiée.",
+    userMessage: timeout
+      ? "Cette étape a dépassé le temps autorisé. Relancez : les étapes déjà réussies ne créent pas de doublon."
+      : missing
+        ? "La restauration n’est pas encore installée sur la base (migration 149). Aucune donnée n’a été modifiée."
+        : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon.",
   };
 }

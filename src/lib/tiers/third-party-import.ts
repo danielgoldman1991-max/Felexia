@@ -1,4 +1,4 @@
-import { decodeXmlEntities } from "@/lib/spreadsheet/read-table";
+import { decodeXmlEntities } from "@/lib/spreadsheet/xml-entities";
 
 export const THIRD_PARTY_IMPORT_HEADERS = ["Nom", "Type", "ICE", "IF", "RC", "Email", "Téléphone", "Ville", "Adresse"] as const;
 

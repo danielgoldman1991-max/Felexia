@@ -1,65 +1,15 @@
 import { unzip } from "@/lib/export/archive";
+import { gridFromSheetXml } from "@/lib/spreadsheet/xlsx-grid";
 
 export type SpreadsheetTable = { rows: string[][]; error?: undefined } | { rows: []; error: string };
-
-function decodeXml(value: string) {
-  return decodeXmlEntities(value);
-}
-
-/** Numeric and named XML/HTML entities, including openpyxl-style &#233; and &eacute;. */
-export function decodeXmlEntities(value: string) {
-  const named: Record<string, string> = {
-    amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " ",
-    eacute: "é", egrave: "è", ecirc: "ê", euml: "ë",
-    agrave: "à", aacute: "á", acirc: "â", auml: "ä",
-    icirc: "î", iuml: "ï", iacute: "í",
-    ocirc: "ô", ouml: "ö", oacute: "ó",
-    ugrave: "ù", ucirc: "û", uuml: "ü", uacute: "ú",
-    ccedil: "ç", yacute: "ý",
-    Eacute: "É", Egrave: "È", Ecirc: "Ê", Agrave: "À", Acirc: "Â", Ccedil: "Ç",
-  };
-  const code = (point: number) => {
-    if (!Number.isInteger(point) || point <= 0 || point > 0x10ffff) return "";
-    return String.fromCodePoint(point);
-  };
-  return value
-    .replace(/&#x([0-9a-f]{1,6});/gi, (_, hex: string) => code(Number.parseInt(hex, 16)))
-    .replace(/&#([0-9]{1,7});/g, (_, dec: string) => code(Number.parseInt(dec, 10)))
-    .replace(/&([a-zA-Z]+);/g, (token, name: string) => named[name] ?? named[name.toLowerCase()] ?? token);
-}
-
-function columnIndex(cell: string) {
-  const letters = cell.replace(/\d/g, "");
-  let index = 0;
-  for (const char of letters) index = index * 26 + (char.charCodeAt(0) - 64);
-  return Math.max(0, index - 1);
-}
+export { decodeXmlEntities } from "@/lib/spreadsheet/xml-entities";
 
 function readXlsx(buffer: Buffer): string[][] {
   const files = unzip(buffer);
   const sharedRaw = files.get("xl/sharedStrings.xml")?.toString("utf8") ?? "";
-  const shared = [...sharedRaw.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((match) => (
-    [...match[1].matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g)].map((text) => decodeXml(text[1])).join("")
-  ));
   const sheet = [...files.entries()].find(([name]) => /^xl\/worksheets\/sheet1\.xml$/.test(name))?.[1]?.toString("utf8");
   if (!sheet) throw new Error("La première feuille du classeur est introuvable.");
-  const rows: string[][] = [];
-  for (const row of sheet.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)) {
-    const cells: string[] = [];
-    for (const cell of row[1].matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>|<c\b([^>]*)\/>/g)) {
-      const attrs = cell[1] || cell[3] || "";
-      const ref = attrs.match(/\br="([A-Z]+)\d+"/)?.[1] ?? "";
-      const index = ref ? columnIndex(ref) : cells.length;
-      const type = attrs.match(/\bt="([^"]+)"/)?.[1] ?? "";
-      let value = "";
-      if (type === "inlineStr") value = decodeXml(cell[2]?.match(/<t\b[^>]*>([\s\S]*?)<\/t>/)?.[1] ?? "");
-      else if (type === "s") value = shared[Number(cell[2]?.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? -1)] ?? "";
-      else value = cell[2]?.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? "";
-      cells[index] = decodeXml(value).trim();
-    }
-    rows.push(cells.map((item) => item ?? ""));
-  }
-  return rows.filter((row) => row.some((cell) => cell !== ""));
+  return gridFromSheetXml(sharedRaw, sheet);
 }
 
 function readCfbStream(buffer: Buffer, wanted: string) {

@@ -4,6 +4,7 @@ import { buildOrganizationBackup, describeRestoreFailure, planOrganizationRestor
 import { toCsv, unzip, zipStore } from "../src/lib/export/archive";
 import { writeXlsx } from "../src/lib/spreadsheet/minimal-xlsx";
 import { readSpreadsheet } from "../src/lib/spreadsheet/read-table";
+import { gridFromSheetXml } from "../src/lib/spreadsheet/xlsx-grid";
 import { parseThirdPartyCsv, parseThirdPartyTable, reviewThirdPartyRows, THIRD_PARTY_IMPORT_TEMPLATE } from "../src/lib/tiers/third-party-import";
 
 const valid = parseThirdPartyCsv(THIRD_PARTY_IMPORT_TEMPLATE);
@@ -111,7 +112,9 @@ assert.equal(blocked.userMessage.includes("Factures clients"), true);
 assert.equal(blocked.userMessage.includes("SECRET"), false);
 assert.equal(describeRestoreFailure("duplicate key value violates unique constraint \"customer_invoices_pkey\" DETAIL SECRET_TOKEN", "23505").userMessage.includes("SECRET"), false);
 const panel = readFileSync("src/components/settings/organization-backup-panel.tsx", "utf8");
-assert.equal(panel.includes("disabled={restorePending || !replaceReady}"), true);
+assert.equal(panel.includes("disabled={running || !replaceReady}"), true);
+assert.equal(panel.includes("Restauration :"), true);
+assert.equal(panel.includes("Reprendre la restauration"), true);
 assert.equal(panel.includes("Coordonnees"), false);
 const detail = readFileSync("src/components/tiers/third-party-detail.tsx", "utf8");
 const attachments = readFileSync("src/components/tiers/third-party-attachments.tsx", "utf8");
@@ -138,5 +141,17 @@ assert.equal(parsedSheet.rows[0]?.name, "Atelier Démo");
 assert.equal(parsedSheet.rows[0]?.phone, "0612000000");
 const direct = readSpreadsheet(writeXlsx([["Téléphone", "Nom", "Type"], ["0612334455", "Société Atlas", "Client"]]), "clients.xlsx");
 assert.equal(parseThirdPartyTable(direct.rows).rows[0]?.name, "Société Atlas");
+const styled = `<?xml version="1.0"?><worksheet><sheetData><row r="1"><c r="A1" s="1"/><c r="B1" s="1"/><c r="C1" t="inlineStr"><is><t>Nom</t></is></c><c r="D1" t="inlineStr"><is><t>Type</t></is></c></row><row r="2"><c r="A2" s="1"/><c r="C2" t="inlineStr"><is><t>Atelier</t></is></c><c r="D2" t="inlineStr"><is><t>Client</t></is></c></row></sheetData></worksheet>`;
+const styledRows = gridFromSheetXml("", styled);
+assert.equal(styledRows[0]?.[2], "Nom");
+assert.equal(styledRows[1]?.[2], "Atelier");
+const many = [["Nom", "Type", "ICE", "IF", "RC", "Email", "Téléphone", "Ville", "Adresse"]];
+for (let index = 0; index < 500; index += 1) many.push([`Client ${index}`, "Client", "", "", "", `c${index}@exemple.test`, "0612000000", "Casablanca", "Rue"]);
+const started = performance.now();
+const fiveHundred = readSpreadsheet(writeXlsx(many), "clients.xlsx");
+const elapsed = performance.now() - started;
+assert.equal(fiveHundred.rows.length, 501);
+assert.equal(elapsed < 2000, true, `500 xlsx rows took ${elapsed.toFixed(0)} ms`);
+console.log(JSON.stringify({ xlsxRows: 500, milliseconds: Math.round(elapsed) }));
 
 console.log("company export/import: ok");

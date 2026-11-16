@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isAdminRole } from "@/lib/auth/roles";
 import { hasFullErpAccess } from "@/lib/launch-access";
-import { describeRestoreFailure, planOrganizationRestore, readOrganizationBackup, replaceConfirmationReady } from "@/lib/backup/org-backup";
+import { describeRestoreFailure, planOrganizationRestore, readOrganizationBackup, RESTORE_BATCH_ROWS, replaceConfirmationReady, type BackupTableName } from "@/lib/backup/org-backup";
 import { createClient } from "@/lib/supabase/server";
 
 export type BackupPreview = {
@@ -52,6 +52,83 @@ export async function previewOrganizationBackupAction(_prev: BackupActionState, 
     };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "La sauvegarde n’a pas pu être lue." };
+  }
+}
+
+export type RestoreBatchResult = {
+  error?: string;
+  written: number;
+  skipped: number;
+  insertedInvoiceIds: string[];
+};
+
+export async function applyOrganizationRestoreBatch(input: {
+  organizationId: string;
+  backup: Awaited<ReturnType<typeof readOrganizationBackup>>;
+  includeHr: boolean;
+  table: string;
+  mode: "merge" | "delete";
+  offset: number;
+  freshInvoiceIds: string[];
+}): Promise<RestoreBatchResult> {
+  const empty = { written: 0, skipped: 0, insertedInvoiceIds: [] as string[] };
+  const plan = planOrganizationRestore(input.backup, input.organizationId, input.mode === "delete" ? "replace" : "merge", { includeHr: input.includeHr });
+  const selected = plan.tables.find((item) => item.name === input.table);
+  if (!selected) return empty;
+  const rows = input.mode === "delete" ? [] : selected.rows.slice(input.offset, input.offset + RESTORE_BATCH_ROWS);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("restore_organization_backup_batch", {
+    p_organization_id: input.organizationId,
+    p_mode: input.mode,
+    p_table: input.table as BackupTableName,
+    p_rows: rows,
+    p_fresh_invoice_ids: input.freshInvoiceIds,
+  });
+  if (error) {
+    const described = describeRestoreFailure(error.message, error.code);
+    console.error("[organization-restore] blocked", {
+      organizationId: input.organizationId,
+      table: described.table ?? input.table,
+      sqlstate: described.sqlstate,
+    });
+    return { ...empty, error: described.userMessage };
+  }
+  const payload = typeof data === "object" && data ? data as { written?: number; skipped?: number; insertedInvoiceIds?: string[] } : {};
+  revalidatePath("/parametres");
+  return {
+    written: Number(payload.written ?? 0),
+    skipped: Number(payload.skipped ?? 0),
+    insertedInvoiceIds: Array.isArray(payload.insertedInvoiceIds) ? payload.insertedInvoiceIds : [],
+  };
+}
+
+export async function restoreBackupBatchAction(formData: FormData): Promise<RestoreBatchResult> {
+  const empty = { written: 0, skipped: 0, insertedInvoiceIds: [] as string[] };
+  try {
+    const workspace = await adminWorkspace();
+    const mode = formData.get("batch") === "delete" ? "delete" : "merge";
+    const table = String(formData.get("table") ?? "");
+    const offset = Number(formData.get("offset") ?? 0);
+    let freshInvoiceIds: string[] = [];
+    try {
+      const parsed = JSON.parse(String(formData.get("freshInvoiceIds") ?? "[]"));
+      freshInvoiceIds = Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+    } catch {
+      return { ...empty, error: "La reprise de la restauration est illisible. Relancez depuis le début." };
+    }
+    const includeHr = await hasFullErpAccess(workspace.organization.id);
+    const backup = await backupFrom(formData);
+    return await applyOrganizationRestoreBatch({
+      organizationId: workspace.organization.id,
+      backup,
+      includeHr,
+      table,
+      mode,
+      offset,
+      freshInvoiceIds,
+    });
+  } catch (error) {
+    return { ...empty, error: error instanceof Error ? error.message : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon." };
   }
 }
 

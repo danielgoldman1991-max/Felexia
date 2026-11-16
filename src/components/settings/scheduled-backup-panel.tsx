@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { BackupPreviewView } from "@/components/settings/organization-backup-panel";
 import { Button } from "@/components/ui/button";
 import type { BackupActionState } from "@/lib/backup/actions";
-import { previewScheduledBackupAction, restoreScheduledBackupAction, saveBackupScheduleAction, type ScheduleActionState } from "@/lib/backup/schedule-actions";
+import { previewScheduledBackupAction, restoreScheduledBatchAction, saveBackupScheduleAction, type ScheduleActionState } from "@/lib/backup/schedule-actions";
 import { WEEKDAY_OPTIONS, backupTimeOptions, formatBackupSize, formatBackupWhen, zonedToUtc, type BackupFrequency } from "@/lib/backup/schedule";
 
 export type ScheduledBackupValues = {
@@ -54,7 +54,6 @@ export function ScheduledBackupPanel({
 }) {
   const [saved, saveAction, savePending] = useActionState(saveBackupScheduleAction, saveInitial);
   const [previewState, previewAction, previewPending] = useActionState(previewScheduledBackupAction, previewInitial);
-  const [restoreState, restoreAction, restorePending] = useActionState(restoreScheduledBackupAction, previewInitial);
   return (
     <section className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5" aria-labelledby="sauvegardes-automatiques">
       <div>
@@ -136,17 +135,16 @@ export function ScheduledBackupPanel({
         )}
         {previewState.error ? <p className="text-sm text-red-700" role="alert">{previewState.error}</p> : null}
         {previewState.preview && previewState.runId ? (
-          <form className="space-y-3">
-            <input type="hidden" name="runId" value={previewState.runId} />
-            <BackupPreviewView
-              preview={previewState.preview}
-              organizationName={organizationName}
-              restoreAction={restoreAction}
-              restorePending={restorePending}
-              restoreError={restoreState.error}
-              restored={restoreState.restored}
-            />
-          </form>
+          <BackupPreviewView
+            preview={previewState.preview}
+            organizationName={organizationName}
+            runBatch={restoreScheduledBatchAction}
+            seedForm={() => {
+              const data = new FormData();
+              data.set("runId", previewState.runId ?? "");
+              return data;
+            }}
+          />
         ) : null}
       </div>
     </section>
