@@ -20,6 +20,7 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/logiciel-gestion-pme-maroc",
   "/blog/facture-electronique-pdf-xml",
   "/blog/retenue-source-auto-entrepreneur-plf-2027",
+  "/blog/ice-facture-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",
