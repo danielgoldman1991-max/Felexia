@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { BackupPreviewView } from "@/components/settings/organization-backup-panel";
 import { Button } from "@/components/ui/button";
 import type { BackupActionState } from "@/lib/backup/actions";
-import { previewScheduledBackupAction, restoreScheduledBatchAction, saveBackupScheduleAction, type ScheduleActionState } from "@/lib/backup/schedule-actions";
+import { previewScheduledBackupAction, restoreScheduledStepAction, saveBackupScheduleAction, type ScheduleActionState } from "@/lib/backup/schedule-actions";
 import { WEEKDAY_OPTIONS, backupTimeOptions, formatBackupSize, formatBackupWhen, zonedToUtc, type BackupFrequency } from "@/lib/backup/schedule";
 
 export type ScheduledBackupValues = {
@@ -138,7 +138,7 @@ export function ScheduledBackupPanel({
           <BackupPreviewView
             preview={previewState.preview}
             organizationName={organizationName}
-            runBatch={restoreScheduledBatchAction}
+            runBatch={restoreScheduledStepAction}
             seedForm={() => {
               const data = new FormData();
               data.set("runId", previewState.runId ?? "");

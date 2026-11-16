@@ -24,13 +24,29 @@ export async function unzipBytes(bytes: Uint8Array) {
     const extraLength = view.getUint16(offset + 28, true);
     const name = decoder.decode(bytes.subarray(offset + 30, offset + 30 + nameLength));
     if (name.includes("..") || name.startsWith("/") || name.includes("\\")) throw new Error("Le fichier ZIP contient un chemin refusé.");
-    if (flags & 0x8) throw new Error("Ce ZIP utilise un descripteur de données non pris en charge. Enregistrez le classeur à nouveau au format .xlsx.");
     const start = offset + 30 + nameLength + extraLength;
-    const compressed = bytes.subarray(start, start + compressedSize);
+    let size = compressedSize;
+    let descriptor = 0;
+    if (flags & 0x8 && size === 0) {
+      let marker = -1;
+      for (let scan = start; scan + 16 <= bytes.length; scan += 1) {
+        if (view.getUint32(scan, true) !== 0x08074b50) continue;
+        if (view.getUint32(scan + 8, true) === scan - start) {
+          marker = scan;
+          break;
+        }
+      }
+      if (marker < 0) throw new Error("Ce ZIP utilise un descripteur de données illisible. Enregistrez le classeur à nouveau au format .xlsx.");
+      size = marker - start;
+      descriptor = 16;
+    } else if (flags & 0x8 && start + size + 4 <= bytes.length && view.getUint32(start + size, true) === 0x08074b50) {
+      descriptor = 16;
+    }
+    const compressed = bytes.subarray(start, start + size);
     const data = method === 0 ? compressed : method === 8 ? await inflateRaw(compressed) : null;
     if (!data) throw new Error("La compression de ce ZIP n’est pas prise en charge.");
     if (name && !name.endsWith("/")) files.set(name, data);
-    offset = start + compressedSize;
+    offset = start + size + descriptor;
   }
   if (files.size === 0) throw new Error("Le fichier ZIP est vide ou illisible.");
   return files;

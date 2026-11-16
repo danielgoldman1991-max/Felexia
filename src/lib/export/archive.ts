@@ -80,12 +80,28 @@ export function unzip(buffer: Buffer) {
     const name = buffer.subarray(offset + 30, offset + 30 + nameLength).toString("utf8");
     if (name.includes("..") || name.startsWith("/") || name.includes("\\")) throw new Error("Le fichier ZIP contient un chemin refusé.");
     const start = offset + 30 + nameLength + extraLength;
-    if (flags & 0x8) throw new Error("Ce ZIP utilise un descripteur de données non pris en charge. Réexportez-le depuis Felexia ou enregistrez le classeur à nouveau.");
-    const compressed = buffer.subarray(start, start + compressedSize);
+    let size = compressedSize;
+    let descriptor = 0;
+    if (flags & 0x8 && size === 0) {
+      let marker = -1;
+      for (let scan = start; scan + 16 <= buffer.length; scan += 1) {
+        if (buffer.readUInt32LE(scan) !== 0x08074b50) continue;
+        if (buffer.readUInt32LE(scan + 8) === scan - start) {
+          marker = scan;
+          break;
+        }
+      }
+      if (marker < 0) throw new Error("Ce ZIP utilise un descripteur de données illisible. Enregistrez le classeur à nouveau au format .xlsx.");
+      size = marker - start;
+      descriptor = 16;
+    } else if (flags & 0x8 && start + size + 4 <= buffer.length && buffer.readUInt32LE(start + size) === 0x08074b50) {
+      descriptor = 16;
+    }
+    const compressed = buffer.subarray(start, start + size);
     const data = method === 0 ? Buffer.from(compressed) : method === 8 ? inflateRawSync(compressed) : null;
     if (!data) throw new Error("La compression de ce ZIP n’est pas prise en charge.");
     if (name && !name.endsWith("/")) files.set(name, data);
-    offset = start + compressedSize;
+    offset = start + size + descriptor;
   }
   if (files.size === 0) throw new Error("Le fichier ZIP est vide ou illisible.");
   return files;
