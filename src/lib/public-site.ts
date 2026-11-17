@@ -21,6 +21,8 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/facture-electronique-pdf-xml",
   "/blog/retenue-source-auto-entrepreneur-plf-2027",
   "/blog/ice-facture-maroc",
+  "/blog/erp-maroc-pme",
+  "/blog/avoir-facture-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",
