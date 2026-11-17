@@ -1085,6 +1085,7 @@ export async function getOrderInvoicePreparation(orderId: string) {
   return preparation;
 }
 
+/** Same rule as invoiceLifecycleStatus: an issued invoice past its due date is overdue, even when part of it is already paid. Paid amount and remaining due are left untouched. An invoice already marked overdue is not rewritten. */
 export async function syncOverdueCustomerInvoices(organizationId: string) {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];

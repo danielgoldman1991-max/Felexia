@@ -18,8 +18,8 @@ export function invoiceLifecycleStatus(input: {
   const paymentStatus = input.paid + input.credit <= 0 ? "unpaid" : remaining <= 0 ? "paid" : "partial";
   if (input.status === "draft" || input.status === "cancelled") return { status: input.status, paymentStatus };
   if (paymentStatus === "paid") return { status: "paid", paymentStatus };
+  if (remaining > 0 && input.dueDate && input.dueDate < input.today) return { status: "overdue", paymentStatus };
   if (paymentStatus === "partial") return { status: "partially_paid", paymentStatus };
-  if (input.dueDate && input.dueDate < input.today) return { status: "overdue", paymentStatus };
   if (input.status === "sent") return { status: "sent", paymentStatus: "unpaid" as const };
   return { status: "validated", paymentStatus: "unpaid" as const };
 }
