@@ -71,6 +71,8 @@ export async function applyOrganizationRestoreBatch(input: {
   mode: "merge" | "delete";
   offset: number;
   freshInvoiceIds: string[];
+  confirmReplace?: string | null;
+  confirmName?: string | null;
 }): Promise<RestoreBatchResult> {
   const empty = { written: 0, skipped: 0, insertedInvoiceIds: [] as string[] };
   const plan = planOrganizationRestore(input.backup, input.organizationId, input.mode === "delete" ? "replace" : "merge", { includeHr: input.includeHr });
@@ -84,6 +86,8 @@ export async function applyOrganizationRestoreBatch(input: {
     p_table: input.table as BackupTableName,
     p_rows: rows,
     p_fresh_invoice_ids: [],
+    p_confirm: input.mode === "delete" ? input.confirmReplace ?? null : null,
+    p_confirm_name: input.mode === "delete" ? input.confirmName ?? null : null,
   });
   if (error) {
     const described = describeRestoreFailure(error.message, error.code);
@@ -268,6 +272,8 @@ export async function restoreBackupBatchAction(formData: FormData): Promise<Rest
       mode,
       offset,
       freshInvoiceIds,
+      confirmReplace: String(formData.get("confirmReplace") ?? ""),
+      confirmName: String(formData.get("confirmName") ?? ""),
     });
   } catch (error) {
     return { ...empty, error: error instanceof Error ? error.message : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon." };

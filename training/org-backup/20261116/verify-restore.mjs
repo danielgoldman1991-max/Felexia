@@ -399,12 +399,12 @@ try {
   const unit = { id: unitId, organization_id: ids.org, name: "Pièce", symbol: "pce" };
   await one("select public.restore_organization_backup_batch($1,'merge','units',$2::jsonb,'{}'::uuid[]) as result", [ids.org, JSON.stringify([unit])]);
   const deleted = await one(
-    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[]) as result",
+    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[],'oui','Atelier Démo') as result",
     [ids.org],
   );
   equal(Number(deleted.result.written) > 0, true, "replace deletes the organization rows of one table");
   const cleared = await one(
-    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[]) as result",
+    "select public.restore_organization_backup_batch($1,'delete','units','[]'::jsonb,'{}'::uuid[],'oui','Atelier Démo') as result",
     [ids.org],
   );
   equal(Number(cleared.result.written), 0, "a second delete of the same table is empty");
@@ -789,6 +789,38 @@ try {
   equal(Number((await one("select current_balance from treasury_accounts where id=$1", [cashAccount])).current_balance), 10, "the refused cash outflow leaves the balance unchanged");
   await db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',100,'MAD','Banque')", [ids.org, bankOnly]);
   equal(Number((await one("select count(*)::int n from treasury_transactions where treasury_account_id=$1", [bankOnly])).n), 1, "a bank account can still record an outflow");
+  await db.exec("reset role");
+  const negativeCash = "30000000-0000-4000-8000-00000000009d";
+  await db.query("insert into treasury_accounts(id,organization_id,name,account_type,currency,current_balance,opening_balance) values($1,$2,'Caisse déjà négative','cash','MAD',-30,-30)", [negativeCash, ids.org]);
+  await as(ids.admin);
+  await db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_in','in',8,'MAD','Encaissement')", [ids.org, negativeCash]);
+  equal(Number((await one("select current_balance from treasury_accounts where id=$1", [negativeCash])).current_balance), -22, "an inflow is accepted on a cash account that is already negative");
+  await rejected(
+    () => db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',1,'MAD','Encore')", [ids.org, negativeCash]),
+    /CASH_NEGATIVE_BALANCE/,
+    "a further cash outflow is refused while the balance is negative",
+  );
+  equal(Number((await one("select current_balance from treasury_accounts where id=$1", [negativeCash])).current_balance), -22, "the refused outflow does not lower the negative cash balance");
+  await db.exec("reset role");
+  await db.query("insert into app_private.organization_restore_scope(txid, organization_id) values (txid_current(), $1)", [ids.org]);
+  await db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',5,'MAD','Restauration')", [ids.org, negativeCash]);
+  await db.query("delete from app_private.organization_restore_scope where txid = txid_current()");
+  equal(Number((await one("select count(*)::int n from treasury_transactions where treasury_account_id=$1 and label='Restauration'", [negativeCash])).n), 1, "the cash check is skipped during a restore");
+  await as(ids.admin);
+  const productsBefore = Number((await one("select count(*)::int n from products where organization_id=$1", [ids.org])).n);
+  const salesBefore = Number((await one("select count(*)::int n from sales_documents where organization_id=$1", [ids.org])).n);
+  await rejected(
+    () => db.query("select public.restore_organization_backup_batch($1,'delete','products','[]'::jsonb,'{}'::uuid[])", [ids.org]),
+    /RESTORE_CONFIRMATION/,
+    "a direct batch delete without confirmation is refused",
+  );
+  await rejected(
+    () => db.query("select public.restore_organization_backup_batch($1,'delete','sales_documents','[]'::jsonb,'{}'::uuid[])", [ids.org]),
+    /RESTORE_CONFIRMATION/,
+    "a direct batch delete of a PRO table without confirmation is refused",
+  );
+  equal(Number((await one("select count(*)::int n from products where organization_id=$1", [ids.org])).n), productsBefore, "the refused batch delete removes no product");
+  equal(Number((await one("select count(*)::int n from sales_documents where organization_id=$1", [ids.org])).n), salesBefore, "the refused batch delete removes no sales document");
   await db.exec("reset role");
   const quotaOrg = "10000000-0000-4000-8000-000000000099";
   await db.query("insert into organizations(id,name,slug) values($1::uuid,'Quota Démo',$1::text)", [quotaOrg]);

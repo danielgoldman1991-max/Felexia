@@ -259,14 +259,18 @@ create or replace function app_private.guard_cash_non_negative()
 returns trigger
 language plpgsql
 security definer
-set search_path = pg_catalog, public
+set search_path = pg_catalog, public, app_private
 as $cash$
 declare
   account_kind text;
   current_balance numeric;
   previous_delta numeric := 0;
   next_delta numeric := 0;
+  projected numeric;
 begin
+  if app_private.organization_restore_active(new.organization_id) then
+    return new;
+  end if;
   select account.account_type, account.current_balance into account_kind, current_balance
   from public.treasury_accounts account
   where account.id = new.treasury_account_id;
@@ -287,8 +291,11 @@ begin
       else new.amount
     end;
   end if;
-  if coalesce(current_balance, 0) - previous_delta + next_delta < 0 then
-    raise exception 'CASH_NEGATIVE_BALANCE' using errcode = '23514';
+  if next_delta < previous_delta then
+    projected := coalesce(current_balance, 0) - previous_delta + next_delta;
+    if projected < 0 or coalesce(current_balance, 0) < 0 then
+      raise exception 'CASH_NEGATIVE_BALANCE' using errcode = '23514';
+    end if;
   end if;
   return new;
 end;
@@ -658,7 +665,9 @@ create or replace function public.restore_organization_backup_batch(
   p_mode text,
   p_table text,
   p_rows jsonb default '[]'::jsonb,
-  p_fresh_invoice_ids uuid[] default '{}'::uuid[]
+  p_fresh_invoice_ids uuid[] default '{}'::uuid[],
+  p_confirm text default null,
+  p_confirm_name text default null
 )
 returns jsonb
 language plpgsql
@@ -711,6 +720,7 @@ declare
   row_key uuid;
   caught_state text;
   caught_message text;
+  organization_name text;
 begin
   if p_mode not in ('merge', 'delete') then
     raise exception 'RESTORE_MODE' using errcode = '22023';
@@ -728,6 +738,12 @@ begin
       and lower(coalesce(member_role.name, '')) in ('owner', 'admin', 'administrator', 'administrateur')
   ) then
     raise exception 'RESTORE_FORBIDDEN' using errcode = '42501';
+  end if;
+  if p_mode = 'delete' then
+    select organization_row.name into organization_name from public.organizations organization_row where organization_row.id = p_organization_id;
+    if p_confirm is distinct from 'oui' or app_private.restore_confirmation_name(p_confirm_name) is distinct from app_private.restore_confirmation_name(organization_name) then
+      raise exception 'RESTORE_CONFIRMATION' using errcode = '42501';
+    end if;
   end if;
   if to_regclass('public.' || p_table) is null then
     return jsonb_build_object('name', p_table, 'written', 0, 'skipped', 0, 'insertedInvoiceIds', '[]'::jsonb, 'missing', true);
@@ -944,6 +960,6 @@ begin
 end;
 $batch$;
 
-revoke all on function public.restore_organization_backup_batch(uuid, text, text, jsonb, uuid[]) from public, anon, authenticated;
-
-grant execute on function public.restore_organization_backup_batch(uuid, text, text, jsonb, uuid[]) to authenticated;
+revoke all on function public.restore_organization_backup_batch(uuid, text, text, jsonb, uuid[], text, text) from public, anon, authenticated;
+grant execute on function public.restore_organization_backup_batch(uuid, text, text, jsonb, uuid[], text, text) to authenticated;
+drop function if exists public.restore_organization_backup_batch(uuid, text, text, jsonb, uuid[]);
