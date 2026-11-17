@@ -109,6 +109,7 @@ export type OpenInvoiceForAllocation = {
   due_date: string | null;
   total_ttc: number;
   paid_amount: number;
+  credit_amount?: number;
   remaining_amount: number;
   payment_status: string;
   status: string;

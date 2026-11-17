@@ -155,6 +155,7 @@ export async function executePlannedRestoreStep(input: {
       p_keep_ids: current.parentIds,
       p_confirm: null,
       p_confirm_name: null,
+      p_include_pro: input.includeHr,
     });
     if (error) return failed(error.message, error.code);
     revalidatePath("/parametres");
@@ -179,6 +180,7 @@ export async function executePlannedRestoreStep(input: {
       p_children: children,
       p_keep_ids: current.phase === "purge" ? current.parentIds : [],
       ...confirmation,
+      p_include_pro: input.includeHr,
     });
     if (error) return failed(error.message, error.code);
   } else if (current.phase === "purge") {
@@ -192,6 +194,7 @@ export async function executePlannedRestoreStep(input: {
       p_children: [],
       p_keep_ids: current.parentIds,
       ...confirmation,
+      p_include_pro: input.includeHr,
     });
     if (error) return failed(error.message, error.code);
   } else {

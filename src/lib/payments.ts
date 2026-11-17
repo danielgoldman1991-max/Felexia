@@ -1,7 +1,7 @@
 import { requireActiveWorkspace } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { readAllPages } from "@/lib/listing";
-import { ISSUED_CUSTOMER_INVOICE_STATUSES } from "@/lib/invoice-status";
+import { invoiceLifecycleStatus, ISSUED_CUSTOMER_INVOICE_STATUSES } from "@/lib/invoice-status";
 import type { InvoiceCustomerOption } from "@/lib/invoice-types";
 import type {
   CustomerOutstandingBalance,
@@ -161,7 +161,7 @@ export async function listOpenInvoicesByCustomer(customerId: string): Promise<Op
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("customer_invoices")
-    .select("id, invoice_number, customer_id, invoice_date, due_date, total_ttc, paid_amount, remaining_amount, payment_status, status, customer:customer_id(name)")
+    .select("id, invoice_number, customer_id, invoice_date, due_date, total_ttc, paid_amount, credit_amount, remaining_amount, payment_status, status, customer:customer_id(name)")
     .eq("organization_id", organizationId)
     .eq("customer_id", customerId)
     .is("archived_at", null)
@@ -181,6 +181,7 @@ export async function listOpenInvoicesByCustomer(customerId: string): Promise<Op
       due_date: row.due_date as string | null,
       total_ttc: Number(row.total_ttc ?? 0),
       paid_amount: Number(row.paid_amount ?? 0),
+      credit_amount: Number(row.credit_amount ?? 0),
       remaining_amount: Number(row.remaining_amount ?? 0),
       payment_status: row.payment_status as string,
       status: row.status as string,
@@ -220,7 +221,14 @@ export async function getCustomerOpenItems(thirdPartyId: string): Promise<Custom
   const today = new Date().toISOString().split("T")[0];
   const invoiceRows: OpenInvoiceForPayment[] = invoices.map((invoice) => ({
     ...invoice,
-    is_overdue: Boolean(invoice.due_date && invoice.due_date < today),
+    is_overdue: invoiceLifecycleStatus({
+      status: String(invoice.status ?? ""),
+      dueDate: invoice.due_date,
+      total: Number(invoice.total_ttc ?? 0),
+      paid: Number(invoice.paid_amount ?? 0),
+      credit: Number(invoice.credit_amount ?? 0),
+      today,
+    }).status === "overdue",
   }));
   const totalRemaining = invoiceRows.reduce((sum, invoice) => sum + invoice.remaining_amount, 0);
   const overdueAmount = invoiceRows.filter((invoice) => invoice.is_overdue).reduce((sum, invoice) => sum + invoice.remaining_amount, 0);

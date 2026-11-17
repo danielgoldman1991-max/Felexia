@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { invoiceLifecycleStatus } from "@/lib/invoice-status";
 import { getCustomerOpenItemsAction } from "@/lib/payment-actions";
 import { PAYMENT_METHOD_OPTIONS } from "@/lib/payment-options";
 import { synchronizeSingleInvoiceAllocation } from "@/lib/payment-amount-allocation";
@@ -59,7 +60,14 @@ function openItemsFromInvoices(invoices: OpenInvoiceForAllocation[]): CustomerOp
   const todayIso = new Date().toISOString().split("T")[0];
   const rows = invoices.map((invoice) => ({
     ...invoice,
-    is_overdue: Boolean(invoice.due_date && invoice.due_date < todayIso),
+    is_overdue: invoiceLifecycleStatus({
+      status: invoice.status,
+      dueDate: invoice.due_date,
+      total: invoice.total_ttc,
+      paid: invoice.paid_amount,
+      credit: invoice.credit_amount ?? 0,
+      today: todayIso,
+    }).status === "overdue",
   }));
   const totalRemaining = rows.reduce((sum, invoice) => sum + invoice.remaining_amount, 0);
   const overdueAmount = rows.filter((invoice) => invoice.is_overdue).reduce((sum, invoice) => sum + invoice.remaining_amount, 0);

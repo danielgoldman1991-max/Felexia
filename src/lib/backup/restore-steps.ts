@@ -21,6 +21,8 @@ export const RESTORE_GROUPS: RestoreGroup[] = [
   { parent: "supplier_credit_notes", child: "supplier_credit_note_lines", childKey: "credit_note_id", label: "Avoirs fournisseurs" },
   { parent: "customer_payments", child: "customer_payment_allocations", childKey: "payment_id", label: "Règlements clients" },
   { parent: "supplier_payments", child: "supplier_payment_allocations", childKey: "payment_id", label: "Règlements fournisseurs" },
+  { parent: "sales_documents", child: "sales_document_lines", childKey: "document_id", label: "Documents de vente" },
+  { parent: "purchase_documents", child: "purchase_document_lines", childKey: "document_id", label: "Documents d’achat" },
 ];
 
 export type RestoreStep = {

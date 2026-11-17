@@ -1,0 +1,18 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { invoiceLifecycleStatus } from "../src/lib/invoice-status";
+import { normalizeConfirmationName } from "../src/lib/backup/org-backup";
+import { financialErrorMessage } from "../src/lib/financial-errors";
+
+assert.equal(normalizeConfirmationName("  Atelier   Démo "), "Atelier Démo");
+assert.equal(invoiceLifecycleStatus({ status: "validated", dueDate: "2020-01-01", total: 100, paid: 0, credit: 0, today: "2026-11-17" }).status, "overdue");
+assert.equal(invoiceLifecycleStatus({ status: "validated", dueDate: "2026-12-01", total: 100, paid: 40, credit: 0, today: "2026-11-17" }).status, "partially_paid");
+assert.equal(invoiceLifecycleStatus({ status: "sent", dueDate: "2026-12-01", total: 100, paid: 80, credit: 20, today: "2026-11-17" }).status, "paid");
+assert.equal(invoiceLifecycleStatus({ status: "draft", dueDate: "2020-01-01", total: 100, paid: 0, credit: 0, today: "2026-11-17" }).status, "draft");
+assert.equal(financialErrorMessage({ message: "CASH_NEGATIVE_BALANCE" }).includes("caisse"), true);
+assert.equal(readFileSync("src/app/parametres/sauvegarde/page.tsx", "utf8").includes("Accès réservé aux administrateurs"), true);
+assert.equal(readFileSync("src/app/parametres/sauvegarde/page.tsx", "utf8").includes("Journal des factures restaurées"), true);
+const guard = readFileSync("supabase/migrations/152_essentiel_audit.sql", "utf8");
+assert.equal(guard.includes("lettering_code") && guard.includes("FINANCE_RELATED_RECORD_INVALID"), true);
+assert.equal(guard.includes("array['updated_at','lettering_code','lettering_date']"), true);
+console.log("essentiel audit: ok");

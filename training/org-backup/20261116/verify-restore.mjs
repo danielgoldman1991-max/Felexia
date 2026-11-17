@@ -70,7 +70,8 @@ try {
   await apply("149_restore_backup_batches.sql");
   await apply("150_restore_document_bundle.sql");
   await apply("151_restore_fk_order.sql");
-  const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_function_privilege('anon', 'public.restore_organization_backup_bundle(uuid,text,text,jsonb,text,text,jsonb,uuid[],text,text)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
+  await apply("152_essentiel_audit.sql");
+  const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_function_privilege('anon', 'public.restore_organization_backup_bundle(uuid,text,text,jsonb,text,text,jsonb,uuid[],text,text,boolean)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
 
@@ -557,6 +558,16 @@ try {
   await db.query("update accounting_entry_lines set lettering_code='A', lettering_date=$2::date where id=$1", [lineA, period]);
   equal((await one("select lettering_code from accounting_entry_lines where id=$1", [lineA])).lettering_code, "A", "lettering a posted entry line stays allowed");
   await rejected(
+    () => db.query("update accounting_entries set label='Libellé modifié' where id=$1", [entryId]),
+    /FINANCE_POSTED_ENTRY_READ_ONLY/,
+    "the label of a posted entry stays read only",
+  );
+  await rejected(
+    () => db.query("update accounting_entry_lines set label='Ligne modifiée' where id=$1", [lineA]),
+    /FINANCE_POSTED_ENTRY_READ_ONLY/,
+    "a posted line can no longer change anything except lettering",
+  );
+  await rejected(
     () => db.query("update accounting_entries set organization_id=$2 where id=$1", [entryId, ids.foreign]),
     /FINANCE_RELATED_RECORD_INVALID/,
     "moving a posted entry to another organization is refused",
@@ -743,6 +754,65 @@ try {
   );
   equal(Number((await one("select count(*)::int n from customer_reminder_invoices where reminder_id=$1 and invoice_id=$2", [reminderId, invoiceId])).n), 1, "the reminder line is kept");
   equal(Number((await one("select count(*)::int n from customer_invoices where id=$1", [invoiceId])).n), 1, "the invoice referenced by the reminder is kept");
+  let externalMessage = "";
+  await db.query("savepoint external_detail");
+  try {
+    await db.query("select public.restore_organization_backup_bundle($1,'rehearse','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[])", [ids.org, [loneProduct]]);
+  } catch (error) {
+    externalMessage = error.message ?? "";
+    await db.query("rollback to savepoint external_detail");
+  }
+  equal(/Ventes/.test(externalMessage) && /Stock/.test(externalMessage), true, "the dry run names the Ventes and Stock modules");
+  const paddedProduct = "30000000-0000-4000-8000-000000000098";
+  await db.exec("reset role");
+  await db.query("insert into products(id,organization_id,type,name,sku) values($1,$2,'product','Article libre','SKU-LIBRE')", [paddedProduct, ids.org]);
+  await as(ids.admin);
+  await one("select public.restore_organization_backup_bundle($1,'purge','products','[]'::jsonb,null,null,'[]'::jsonb,$2::uuid[],'oui','  Atelier   Démo ')", [ids.org, [linkedProduct]]);
+  equal(Number((await one("select count(*)::int n from products where id=$1", [paddedProduct])).n), 0, "a padded company name matches after the same normalization");
+  const lateId = "30000000-0000-4000-8000-000000000099";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([{ id: lateId, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-RETARD", invoice_date: "2020-01-01", due_date: "2020-01-15", status: "validated", currency: "MAD", total_ttc: 12, paid_amount: 0, credit_amount: 0 }]), JSON.stringify([{ id: "30000000-0000-4000-8000-00000000009a", organization_id: ids.org, invoice_id: lateId, description: "Retard", quantity: 1, unit_price_ht: 10, discount_rate: 0, tax_rate: 20 }])],
+  );
+  equal((await one("select status from customer_invoices where id=$1", [lateId])).status, "overdue", "a restored unpaid invoice past its due date becomes overdue");
+  equal(Number((await one("select count(*)::int n from organization_restore_audit where record_id=$1 and document_status='validated'", [invoiceId])).n) > 0, true, "restoring a validated invoice is written to the audit log");
+  await db.exec("reset role");
+  const cashAccount = "30000000-0000-4000-8000-00000000009b";
+  const bankOnly = "30000000-0000-4000-8000-00000000009c";
+  await db.query("insert into treasury_accounts(id,organization_id,name,account_type,currency,current_balance,opening_balance) values($1,$2,'Caisse QA','cash','MAD',10,10),($3,$2,'Banque vide','bank','MAD',0,0)", [cashAccount, ids.org, bankOnly]);
+  await as(ids.admin);
+  await rejected(
+    () => db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',20,'MAD','Trop')", [ids.org, cashAccount]),
+    /CASH_NEGATIVE_BALANCE/,
+    "a cash outflow that would go negative is refused",
+  );
+  equal(Number((await one("select current_balance from treasury_accounts where id=$1", [cashAccount])).current_balance), 10, "the refused cash outflow leaves the balance unchanged");
+  await db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',100,'MAD','Banque')", [ids.org, bankOnly]);
+  equal(Number((await one("select count(*)::int n from treasury_transactions where treasury_account_id=$1", [bankOnly])).n), 1, "a bank account can still record an outflow");
+  await db.exec("reset role");
+  const quotaOrg = "10000000-0000-4000-8000-000000000099";
+  await db.query("insert into organizations(id,name,slug) values($1::uuid,'Quota Démo',$1::text)", [quotaOrg]);
+  await db.query("insert into commercial_document_usage(organization_id,document_table,document_id,created_at,document_on) select $1,'customer_invoices',gen_random_uuid(),timestamptz '2020-01-10',date '2020-01-10' from generate_series(1,500)", [quotaOrg]);
+  const quotaRole = await one("insert into roles(organization_id,name) values($1,'admin') returning id", [quotaOrg]);
+  await db.query("insert into organization_members(organization_id,user_id,role_id,status) values($1,$2,$3,'active')", [quotaOrg, ids.admin, quotaRole.id]);
+  await db.query("select set_config('request.jwt.claim.sub','',true)");
+  const quotaCustomer = (await one("insert into third_parties(organization_id,code,primary_type,types,name) values($1,'CU-QUOTA','customer',array['customer'],'Client quota') returning id", [quotaOrg])).id;
+  await as(ids.admin);
+  await rejected(
+    () => db.query("insert into customer_invoices(organization_id,customer_id,invoice_number,invoice_date,status,currency) values($1,$2,'','2020-01-20','draft','MAD')", [quotaOrg, quotaCustomer]),
+    /COMMERCIAL_DOCUMENT_LIMIT_REACHED/,
+    "a backdated invoice is also counted in its issue month",
+  );
+  await db.query("insert into customer_invoices(organization_id,customer_id,invoice_number,invoice_date,status,currency) values($1,$2,'',$3::date,'draft','MAD')", [quotaOrg, quotaCustomer, period]);
+  equal(Number((await one("select count(*)::int n from customer_invoices where organization_id=$1", [quotaOrg])).n), 1, "the same organization can still create a document in an open month");
+  await db.exec("reset role");
+  const oldOrg = "10000000-0000-4000-8000-000000000098";
+  const newOrg = "10000000-0000-4000-8000-000000000097";
+  await db.query("insert into organizations(id,name,slug) values($1::uuid,'Ancienne',$1::text),($2::uuid,'Nouvelle',$2::text)", [oldOrg, newOrg]);
+  await db.query("insert into accounting_settings(organization_id,auto_post_on_validation) values($1,false)", [oldOrg]);
+  await db.query("insert into accounting_settings(organization_id) values($1)", [newOrg]);
+  equal((await one("select auto_post_on_validation from accounting_settings where organization_id=$1", [oldOrg])).auto_post_on_validation, false, "an existing organization keeps automatic posting disabled");
+  equal((await one("select auto_post_on_validation from accounting_settings where organization_id=$1", [newOrg])).auto_post_on_validation, true, "a new organization gets automatic posting");
 
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({

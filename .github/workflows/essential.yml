@@ -151,6 +151,7 @@ jobs:
           npx tsx scripts/verify-print-outputs.tsx
           npx tsx scripts/verify-company-export-import.ts
           npx tsx scripts/verify-backup-tables.ts
+          npx tsx scripts/verify-essentiel-audit.ts
           npx tsx scripts/verify-migration-columns.ts
           npx tsx scripts/verify-backup-schedule.ts
           npx tsx scripts/verify-supplier-invoice-ocr.ts

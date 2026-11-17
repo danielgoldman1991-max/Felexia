@@ -16,6 +16,11 @@ export const BACKUP_TABLES = [
   { name: "third_party_contacts", label: "Contacts des tiers", conflict: "id" },
   { name: "third_party_addresses", label: "Adresses des tiers", conflict: "id" },
   { name: "products", label: "Articles", conflict: "id" },
+  { name: "warehouses", label: "Dépôts", conflict: "id", proOnly: true },
+  { name: "sales_documents", label: "Documents de vente", conflict: "id", proOnly: true },
+  { name: "sales_document_lines", label: "Lignes de documents de vente", conflict: "id", proOnly: true },
+  { name: "purchase_documents", label: "Documents d’achat", conflict: "id", proOnly: true },
+  { name: "purchase_document_lines", label: "Lignes de documents d’achat", conflict: "id", proOnly: true },
   { name: "customer_invoices", label: "Factures clients", conflict: "id" },
   { name: "customer_invoice_lines", label: "Lignes de factures clients", conflict: "id" },
   { name: "customer_credit_notes", label: "Avoirs clients", conflict: "id" },
@@ -23,6 +28,8 @@ export const BACKUP_TABLES = [
   { name: "customer_payments", label: "Règlements clients", conflict: "id" },
   { name: "customer_payment_allocations", label: "Affectations des règlements clients", conflict: "id" },
   { name: "customer_credit_note_applications", label: "Imputations des avoirs clients", conflict: "id" },
+  { name: "customer_reminders", label: "Relances clients", conflict: "id", proOnly: true },
+  { name: "customer_reminder_invoices", label: "Factures des relances", conflict: "id", proOnly: true },
   { name: "supplier_invoices", label: "Factures fournisseurs", conflict: "id" },
   { name: "supplier_invoice_lines", label: "Lignes de factures fournisseurs", conflict: "id" },
   { name: "supplier_invoice_attachments", label: "Références des pièces jointes fournisseurs", conflict: "id" },
@@ -33,6 +40,13 @@ export const BACKUP_TABLES = [
   { name: "supplier_credit_note_applications", label: "Imputations des avoirs fournisseurs", conflict: "id" },
   { name: "treasury_accounts", label: "Comptes de trésorerie", conflict: "id" },
   { name: "treasury_transactions", label: "Mouvements de trésorerie", conflict: "id" },
+  { name: "bank_statement_imports", label: "Imports de relevés", conflict: "id", proOnly: true },
+  { name: "bank_statement_lines", label: "Lignes de relevés", conflict: "id", proOnly: true },
+  { name: "bank_reconciliations", label: "Rapprochements bancaires", conflict: "id", proOnly: true },
+  { name: "bank_reconciliation_groups", label: "Groupes de rapprochement", conflict: "id", proOnly: true },
+  { name: "bank_reconciliation_group_items", label: "Lignes de rapprochement", conflict: "id", proOnly: true },
+  { name: "stock_moves", label: "Mouvements de stock", conflict: "id", proOnly: true },
+  { name: "stock_levels", label: "Niveaux de stock", conflict: "id", proOnly: true },
   { name: "accounting_entries", label: "Écritures comptables", conflict: "id" },
   { name: "accounting_entry_lines", label: "Lignes d’écritures", conflict: "id" },
   { name: "hr_departments", label: "Services", conflict: "id", proOnly: true },
@@ -40,7 +54,7 @@ export const BACKUP_TABLES = [
   { name: "hr_employees", label: "Salariés", conflict: "id", proOnly: true },
 ] as const;
 
-export const PRO_BACKUP_OMITTED_REASON = "Les salariés et les données RH sont réservés à l’offre PRO. Ils ne sont pas inclus dans cette sauvegarde.";
+export const PRO_BACKUP_OMITTED_REASON = "Les modules PRO (ventes, stock, achats, banque, relances et RH) ne sont pas inclus dans une sauvegarde ESSENTIEL.";
 
 /** One merge call stays far below the 8s authenticated statement timeout, including at 10× the observed volume. */
 export const RESTORE_BATCH_ROWS = 200;
@@ -172,10 +186,11 @@ export function planOrganizationRestore(
   options?: { includeHr?: boolean },
 ): RestorePlan {
   const includeHr = options?.includeHr !== false;
+  const proOnly = new Set(BACKUP_TABLES.filter((table) => "proOnly" in table && table.proOnly).map((table) => table.name));
   const omitted = backup.tables
-    .filter((table) => !includeHr && table.name.startsWith("hr_"))
+    .filter((table) => !includeHr && proOnly.has(table.name))
     .map((table) => ({ name: table.name, reason: PRO_BACKUP_OMITTED_REASON }));
-  const source = backup.tables.filter((table) => includeHr || !table.name.startsWith("hr_"));
+  const source = backup.tables.filter((table) => includeHr || !proOnly.has(table.name));
   const counts = source.map((table) => {
     const meta = BACKUP_TABLES.find((item) => item.name === table.name)!;
     const foreignOrganizationRows = table.rows.filter((row) => {
@@ -196,8 +211,14 @@ export function planOrganizationRestore(
 }
 
 /** Both confirmations are required before a replace can be sent. */
+/** Same rule on the screen, the server action and in SQL: NFC, collapsed spaces, trimmed. */
+export function normalizeConfirmationName(value: string | null | undefined) {
+  return (value ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
+}
+
 export function replaceConfirmationReady(checked: boolean, typedName: string, organizationName: string) {
-  return checked && typedName.trim() === organizationName;
+  const typed = normalizeConfirmationName(typedName);
+  return checked && typed.length > 0 && typed === normalizeConfirmationName(organizationName);
 }
 
 /** Server-side gate for any replace or delete call. The checkbox and the typed name are not trusted from the browser alone. */
@@ -207,7 +228,23 @@ export function replacementAuthorized(input: { confirmReplace: string | null; co
 
 /** Turns a sanitized database failure into an admin message. Never echoes row contents. */
 export function describeRestoreFailure(message: string | null | undefined, code: string | null | undefined) {
-  const blocked = /RESTORE_BLOCKED\|([a-z0-9_]+)\|([0-9A-Z]{5})/.exec(message ?? "");
+  const blocked = /RESTORE_BLOCKED\|([a-z0-9_]+)\|([0-9A-Z]{5})(?:\|([\s\S]+))?/.exec(message ?? "");
+  if (blocked?.[3]) {
+    const parts = blocked[3].split("|");
+    const modules: string[] = [];
+    for (let index = 0; index + 1 < parts.length; index += 2) {
+      const count = Number(parts[index + 1]);
+      if (!parts[index] || !Number.isFinite(count)) continue;
+      modules.push(`${parts[index]} (${count} ligne${count > 1 ? "s" : ""})`);
+    }
+    if (modules.length > 0) {
+      return {
+        table: BACKUP_TABLES.some((item) => item.name === blocked[1]) ? blocked[1] : null,
+        sqlstate: blocked[2],
+        userMessage: `Le remplacement est bloqué par des données hors sauvegarde : ${modules.join(", ")}. Rien n’a été modifié.`,
+      };
+    }
+  }
   if (/FINANCE_ENTRY_UNBALANCED/.test(message ?? "")) {
     return {
       table: "accounting_entries",
