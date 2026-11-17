@@ -72,6 +72,7 @@ try {
   await apply("151_restore_fk_order.sql");
   await apply("152_essentiel_audit.sql");
   await apply("153_invoice_overdue_and_cash_reversal.sql");
+  await apply("154_credit_note_overdue_status.sql");
   const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_function_privilege('anon', 'public.restore_organization_backup_bundle(uuid,text,text,jsonb,text,text,jsonb,uuid[],text,text,boolean)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
@@ -863,6 +864,41 @@ try {
   equal(afterList.status, restoredPartial.status, "opening the invoice list does not change the restored status");
   equal(Number(afterList.paid_amount), Number(restoredPartial.paid_amount), "opening the invoice list does not change the paid amount");
   equal(Number(afterList.remaining_amount), Number(restoredPartial.remaining_amount), "opening the invoice list does not change the remaining due");
+
+  const creditInvoice = "30000000-0000-4000-8000-0000000000b1";
+  const creditInvoiceLine = "30000000-0000-4000-8000-0000000000b2";
+  const creditNote = "30000000-0000-4000-8000-0000000000b3";
+  const creditNoteLine = "30000000-0000-4000-8000-0000000000b4";
+  const creditApplication = "30000000-0000-4000-8000-0000000000b5";
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: creditInvoice, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-AVOIR", invoice_date: "2020-01-01", due_date: "2020-01-08", status: "partially_paid", currency: "MAD", total_ttc: 100, paid_amount: 25, credit_amount: 15, remaining_amount: 60, payment_status: "partial" }]), JSON.stringify([{ id: creditInvoiceLine, organization_id: ids.org, invoice_id: creditInvoice, description: "Prestation", quantity: 1, unit_price_ht: 100, discount_rate: 0, tax_rate: 0 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_credit_notes',$2::jsonb,'customer_credit_note_lines','credit_note_id',$3::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: creditNote, organization_id: ids.org, customer_id: customer, credit_note_number: "AV-PARTIEL", credit_note_date: "2020-01-05", status: "validated", currency: "MAD", source_invoice_id: creditInvoice, subtotal_ht: 15, discount_total: 0, tax_total: 0, total_ttc: 15, applied_amount: 15, available_amount: 0 }]), JSON.stringify([{ id: creditNoteLine, organization_id: ids.org, credit_note_id: creditNote, source_invoice_line_id: creditInvoiceLine, description: "Avoir partiel", quantity: 1, unit_price_ht: 15, discount_rate: 0, tax_rate: 0 }])],
+  );
+  await one(
+    "select public.restore_organization_backup_bundle($1,'replace','customer_credit_note_applications',$2::jsonb,null,null,'[]'::jsonb,'{}'::uuid[],'oui','Atelier Démo')",
+    [ids.org, JSON.stringify([{ id: creditApplication, organization_id: ids.org, credit_note_id: creditNote, invoice_id: creditInvoice, customer_id: customer, amount: 15 }])],
+  );
+  const credited = await one("select status, payment_status, paid_amount, credit_amount, remaining_amount from customer_invoices where id=$1", [creditInvoice]);
+  equal(credited.status, "overdue", "a restored overdue invoice partly covered by a credit note stays overdue");
+  equal(credited.payment_status, "partial", "the credit note keeps the invoice payment state partial");
+  equal(Number(credited.paid_amount), 25, "the credit note recalculation keeps the paid amount");
+  equal(Number(credited.credit_amount), 15, "the credit note recalculation keeps the applied credit");
+  equal(Number(credited.remaining_amount), 60, "the credit note recalculation keeps the remaining due");
+  await db.query("select app_private.refresh_credit_note_balances($1,$2)", [ids.org, creditNote]);
+  const refreshed = await one("select status, payment_status, paid_amount, credit_amount, remaining_amount from customer_invoices where id=$1", [creditInvoice]);
+  equal(refreshed.status, credited.status, "refreshing the credit note does not change the overdue status");
+  equal(Number(refreshed.paid_amount), Number(credited.paid_amount), "refreshing the credit note does not change the paid amount");
+  equal(Number(refreshed.remaining_amount), Number(credited.remaining_amount), "refreshing the credit note does not change the remaining due");
+  await db.query("update customer_invoices set status='overdue' where organization_id=$1 and status in ('validated','sent','partially_paid') and remaining_amount>0 and due_date < (clock_timestamp() at time zone 'Africa/Casablanca')::date and archived_at is null", [ids.org]);
+  const afterCreditList = await one("select status, paid_amount, credit_amount, remaining_amount from customer_invoices where id=$1", [creditInvoice]);
+  equal(afterCreditList.status, refreshed.status, "opening the invoice list does not change an overdue invoice covered by a credit note");
+  equal(Number(afterCreditList.paid_amount), Number(refreshed.paid_amount), "opening the invoice list keeps the paid amount of a credited invoice");
+  equal(Number(afterCreditList.remaining_amount), Number(refreshed.remaining_amount), "opening the invoice list keeps the remaining due of a credited invoice");
+  equal((await one("select has_function_privilege('anon', 'app_private.refresh_credit_note_balances(uuid,uuid)', 'execute') as allowed")).allowed, false, "anonymous role cannot refresh credit note balances");
 
   const reversalCash = "30000000-0000-4000-8000-0000000000a3";
   await db.query("insert into treasury_accounts(id,organization_id,name,account_type,currency,current_balance,opening_balance) values($1,$2,'Caisse correction','cash','MAD',0,0)", [reversalCash, ids.org]);

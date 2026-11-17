@@ -8,6 +8,8 @@ assert.equal(normalizeConfirmationName("  Atelier   Démo "), "Atelier Démo");
 assert.equal(invoiceLifecycleStatus({ status: "validated", dueDate: "2020-01-01", total: 100, paid: 0, credit: 0, today: "2026-11-17" }).status, "overdue");
 assert.equal(invoiceLifecycleStatus({ status: "validated", dueDate: "2026-12-01", total: 100, paid: 40, credit: 0, today: "2026-11-17" }).status, "partially_paid");
 assert.equal(invoiceLifecycleStatus({ status: "partially_paid", dueDate: "2020-01-01", total: 100, paid: 40, credit: 0, today: "2026-11-17" }).status, "overdue");
+assert.equal(invoiceLifecycleStatus({ status: "partially_paid", dueDate: "2020-01-01", total: 100, paid: 25, credit: 15, today: "2026-11-17" }).status, "overdue");
+assert.equal(invoiceLifecycleStatus({ status: "overdue", dueDate: "2020-01-01", total: 100, paid: 25, credit: 15, today: "2026-11-17" }).paymentStatus, "partial");
 assert.equal(invoiceLifecycleStatus({ status: "overdue", dueDate: "2020-01-01", total: 100, paid: 40, credit: 0, today: "2026-11-17" }).paymentStatus, "partial");
 assert.equal(invoiceLifecycleStatus({ status: "sent", dueDate: "2026-12-01", total: 100, paid: 80, credit: 20, today: "2026-11-17" }).status, "paid");
 assert.equal(invoiceLifecycleStatus({ status: "draft", dueDate: "2020-01-01", total: 100, paid: 0, credit: 0, today: "2026-11-17" }).status, "draft");
