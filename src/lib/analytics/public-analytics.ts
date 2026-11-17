@@ -28,6 +28,8 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/facture-electronique-pdf-xml": "PDF, XML et facture électronique — FelexiaERP",
   "/blog/retenue-source-auto-entrepreneur-plf-2027": "Retenue auto-entrepreneur 2027 — FelexiaERP",
   "/blog/ice-facture-maroc": "ICE facture Maroc — FelexiaERP",
+  "/blog/erp-maroc-pme": "ERP Maroc pour une PME — FelexiaERP",
+  "/blog/avoir-facture-maroc": "Avoir facture Maroc — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
