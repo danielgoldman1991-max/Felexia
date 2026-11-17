@@ -23,4 +23,8 @@ assert.equal(names.has("customer_credit_notes"), true);
 assert.equal(names.has("customer_payment_allocations"), true);
 assert.equal(names.has("accounting_accounts"), true);
 assert.equal(BACKUP_TABLES.some((table) => table.name === "hr_employees" && "proOnly" in table && table.proOnly === true), true);
+for (const name of ["sales_documents", "sales_document_lines", "stock_moves", "stock_levels", "purchase_documents", "bank_reconciliations", "customer_reminders"]) {
+  assert.equal(BACKUP_TABLES.some((table) => table.name === name && "proOnly" in table && table.proOnly === true), true, name);
+}
+assert.equal(readFileSync("supabase/migrations/152_essentiel_audit.sql", "utf8").includes("update public.accounting_settings set auto_post_on_validation"), false);
 console.log("backup tables: ok");

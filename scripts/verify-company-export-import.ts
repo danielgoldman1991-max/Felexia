@@ -160,6 +160,8 @@ console.log(JSON.stringify({ xlsxRows: 500, milliseconds: Math.round(elapsed) })
 assert.equal(replacementAuthorized({ confirmReplace: "oui", confirmName: "Atelier Démo", organizationName: "Atelier Démo" }), true);
 assert.equal(replacementAuthorized({ confirmReplace: "", confirmName: "Atelier Démo", organizationName: "Atelier Démo" }), false);
 assert.equal(replacementAuthorized({ confirmReplace: "oui", confirmName: "Autre", organizationName: "Atelier Démo" }), false);
+assert.equal(replacementAuthorized({ confirmReplace: "oui", confirmName: "  Atelier   Démo ", organizationName: "Atelier Démo" }), true);
+assert.equal(describeRestoreFailure("RESTORE_BLOCKED|products|23503|Stock|2|Ventes|1", "23503").userMessage, "Le remplacement est bloqué par des données hors sauvegarde : Stock (2 lignes), Ventes (1 ligne). Rien n’a été modifié.");
 const entryPlan = {
   mode: "replace" as const,
   counts: [],

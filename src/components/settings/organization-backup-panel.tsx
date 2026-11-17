@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { previewOrganizationBackupAction, restoreBackupStepAction, type BackupActionState, type BackupPreview } from "@/lib/backup/actions";
+import { replaceConfirmationReady } from "@/lib/backup/org-backup";
 
 const initial: BackupActionState = {};
 
@@ -65,7 +66,7 @@ export function BackupPreviewView({
   const [done, setDone] = useState<{ mode: "merge" | "replace"; skipped: number }>();
   const [resume, setResume] = useState<ResumePoint | null>(null);
   const safetyReady = useRef(false);
-  const replaceReady = replaceChecked && typedName.trim() === organizationName;
+  const replaceReady = replaceConfirmationReady(replaceChecked, typedName, organizationName);
 
   async function downloadSafetyCopy() {
     const response = await fetch("/api/exports/sauvegarde", { credentials: "same-origin" });

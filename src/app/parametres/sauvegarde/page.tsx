@@ -7,7 +7,6 @@ import { ScheduledBackupPanel, type ScheduledBackupRun, type ScheduledBackupValu
 import { ThirdPartyImportForm } from "@/components/tiers/third-party-import-form";
 import { formatBackupWhen, nextBackupRun, type BackupScheduleInput } from "@/lib/backup/schedule";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
 const EMPTY: ScheduledBackupValues = {
   enabled: false,
@@ -21,7 +20,14 @@ const EMPTY: ScheduledBackupValues = {
 
 export default async function OrganizationBackupPage() {
   const workspace = await requireActiveWorkspace();
-  if (!isAdminRole(workspace.role)) redirect("/parametres");
+  if (!isAdminRole(workspace.role)) {
+    return (
+      <div className="space-y-4">
+        <PageHeader title="Accès réservé aux administrateurs" description="La sauvegarde et l’import sont réservés au propriétaire et à l’administrateur de l’entreprise." />
+        <Link href="/dashboard" className="text-sm font-medium text-[var(--primary)] hover:underline">Retour au tableau de bord</Link>
+      </div>
+    );
+  }
   const loaded = await loadSchedule(workspace.organization.id);
   return (
     <div className="space-y-6">
@@ -37,6 +43,7 @@ export default async function OrganizationBackupPage() {
         </section>
       </div>
       <ScheduledBackupPanel organizationName={workspace.organization.name} values={loaded.values} runs={loaded.runs} unavailable={loaded.unavailable} />
+      <RestoreAuditList organizationId={workspace.organization.id} />
       <Link href="/parametres" className="text-sm font-medium text-[var(--primary)] hover:underline">Retour aux paramètres</Link>
     </div>
   );
@@ -73,6 +80,31 @@ async function loadSchedule(organizationId: string): Promise<{ values: Scheduled
       nextLabel: next ? `${formatBackupWhen(next)} (Casablanca)` : null,
     },
   };
+}
+
+async function RestoreAuditList({ organizationId }: { organizationId: string }) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("organization_restore_audit")
+    .select("id, table_name, document_number, document_status, created_at")
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (error) return <p className="text-sm text-[var(--muted)]">Le journal des factures restaurées sera disponible après l’installation de la migration 152.</p>;
+  const rows = data ?? [];
+  return (
+    <section className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
+      <h2 className="text-base font-semibold">Journal des factures restaurées</h2>
+      <p className="text-sm text-[var(--muted)]">Chaque facture validée réécrite par une restauration est notée ici. Seul un administrateur peut le consulter.</p>
+      {rows.length === 0 ? <p className="text-sm text-[var(--muted)]">Aucune facture validée restaurée pour le moment.</p> : (
+        <ul className="space-y-2 text-sm">
+          {rows.map((row) => (
+            <li key={row.id}>{row.document_number ?? row.table_name} · {row.document_status} · {new Date(row.created_at).toLocaleString("fr-FR", { timeZone: "Africa/Casablanca" })}</li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
 }
 
 function presentRuns(rows: { id: string; slot_key: string; status: string; byte_size: number | null; error_message: string | null }[]): ScheduledBackupRun[] {

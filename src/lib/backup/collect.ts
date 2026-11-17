@@ -31,7 +31,7 @@ export async function collectOrganizationBackup(
   const tables: { name: BackupTableName; rows: Record<string, unknown>[] }[] = [];
   const omitted: { name: string; reason: string }[] = [];
   for (const table of BACKUP_TABLES) {
-    if (table.name.startsWith("hr_") && !input.includeHr) {
+    if ("proOnly" in table && table.proOnly && !input.includeHr) {
       omitted.push({ name: table.name, reason: PRO_BACKUP_OMITTED_REASON });
       continue;
     }

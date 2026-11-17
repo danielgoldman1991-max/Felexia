@@ -38,6 +38,9 @@ for (const path of restricted) {
   assert.equal(isOperatorPathAllowed(path), false, path);
   assert.equal(isOperatorPathAllowed(path, "POST"), false, path);
 }
+assert.equal(isOperatorPathAllowed("/parametres/sauvegarde"), true);
+assert.equal(isOperatorPathAllowed("/parametres/sauvegarde", "POST"), false);
+assert.equal(getOperatorDestination("/parametres/sauvegarde"), null);
 assert.equal(getOperatorDestination("/parametres"), "/parametres/profil");
 assert.equal(getOperatorDestination("/parametres/roles"), "/dashboard");
 assert.equal(getOperatorDestination("/facturation/factures"), null);

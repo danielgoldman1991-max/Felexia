@@ -22,6 +22,7 @@ export function isOperatorPathAllowed(href: string, method = "GET"): boolean {
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const read = method === "GET" || method === "HEAD";
   if (["/parametres/profil", "/parametres/preferences", "/parametres/securite"].includes(path)) return true;
+  if (path === "/parametres/sauvegarde") return read;
   if (["/api/notifications/read", "/api/notifications/read-all"].includes(path)) return true;
   if (path === "/dashboard") return read;
   if (["/api/notifications", "/api/global-search"].includes(path)) return read;

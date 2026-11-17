@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { isAdminRole } from "@/lib/auth/roles";
 import { hasFullErpAccess } from "@/lib/launch-access";
-import { planOrganizationRestore, readOrganizationBackup } from "@/lib/backup/org-backup";
+import { planOrganizationRestore, readOrganizationBackup, replacementAuthorized } from "@/lib/backup/org-backup";
 import { BACKUP_BUCKET, backupPathBelongsTo, parseBackupSchedule } from "@/lib/backup/schedule";
 import { createClient } from "@/lib/supabase/server";
 import { applyOrganizationRestoreBatch, executePlannedRestoreStep, type BackupActionState, type RestoreBatchResult, type RestoreStepResult } from "@/lib/backup/actions";
@@ -100,6 +100,13 @@ export async function restoreScheduledBatchAction(formData: FormData): Promise<R
   try {
     const workspace = await adminWorkspace();
     const mode = formData.get("batch") === "delete" ? "delete" : "merge";
+    if (mode === "delete" && !replacementAuthorized({
+      confirmReplace: String(formData.get("confirmReplace") ?? ""),
+      confirmName: String(formData.get("confirmName") ?? ""),
+      organizationName: workspace.organization.name,
+    })) {
+      return { ...empty, error: "Pour remplacer, cochez la confirmation et recopiez exactement le nom de l’entreprise. Rien n’a été modifié." };
+    }
     const table = String(formData.get("table") ?? "");
     const offset = Number(formData.get("offset") ?? 0);
     let freshInvoiceIds: string[] = [];
@@ -119,6 +126,8 @@ export async function restoreScheduledBatchAction(formData: FormData): Promise<R
       mode,
       offset,
       freshInvoiceIds,
+      confirmReplace: String(formData.get("confirmReplace") ?? ""),
+      confirmName: String(formData.get("confirmName") ?? ""),
     });
   } catch (error) {
     return { ...empty, error: error instanceof Error ? error.message : "Cette étape a été annulée. Les étapes déjà réussies ne créent pas de doublon." };
