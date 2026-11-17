@@ -71,6 +71,7 @@ try {
   await apply("150_restore_document_bundle.sql");
   await apply("151_restore_fk_order.sql");
   await apply("152_essentiel_audit.sql");
+  await apply("153_invoice_overdue_and_cash_reversal.sql");
   const installed = await one("select restauration_147_active from (select has_function_privilege('anon', 'public.restore_organization_backup(uuid,text,jsonb)', 'execute') = false and has_function_privilege('anon', 'public.restore_organization_backup_bundle(uuid,text,text,jsonb,text,text,jsonb,uuid[],text,text,boolean)', 'execute') = false and has_table_privilege('anon', 'app_private.organization_restore_scope', 'insert') = false as restauration_147_active) probe");
   equal(installed.restauration_147_active, true, "anonymous role cannot execute the restore or write the private marker");
   await db.exec("begin");
@@ -845,6 +846,36 @@ try {
   await db.query("insert into accounting_settings(organization_id) values($1)", [newOrg]);
   equal((await one("select auto_post_on_validation from accounting_settings where organization_id=$1", [oldOrg])).auto_post_on_validation, false, "an existing organization keeps automatic posting disabled");
   equal((await one("select auto_post_on_validation from accounting_settings where organization_id=$1", [newOrg])).auto_post_on_validation, true, "a new organization gets automatic posting");
+
+  const partialLate = "30000000-0000-4000-8000-0000000000a1";
+  const partialLine = "30000000-0000-4000-8000-0000000000a2";
+  await as(ids.admin);
+  await one(
+    "select public.restore_organization_backup_bundle($1,'merge','customer_invoices',$2::jsonb,'customer_invoice_lines','invoice_id',$3::jsonb,'{}'::uuid[])",
+    [ids.org, JSON.stringify([{ id: partialLate, organization_id: ids.org, customer_id: customer, invoice_number: "FAC-PARTIEL", invoice_date: "2020-02-01", due_date: "2020-02-15", status: "validated", currency: "MAD", total_ttc: 100, paid_amount: 40, credit_amount: 0, remaining_amount: 60, payment_status: "partial" }]), JSON.stringify([{ id: partialLine, organization_id: ids.org, invoice_id: partialLate, description: "Acompte", quantity: 1, unit_price_ht: 100, discount_rate: 0, tax_rate: 0 }])],
+  );
+  const restoredPartial = await one("select status, paid_amount, remaining_amount from customer_invoices where id=$1", [partialLate]);
+  equal(restoredPartial.status, "overdue", "a restored partly paid overdue invoice is marked overdue");
+  equal(Number(restoredPartial.paid_amount), 40, "the paid amount of that invoice is kept");
+  equal(Number(restoredPartial.remaining_amount), 60, "the remaining due of that invoice is kept");
+  await db.query("update customer_invoices set status='overdue' where organization_id=$1 and status in ('validated','sent','partially_paid') and remaining_amount>0 and due_date < (clock_timestamp() at time zone 'Africa/Casablanca')::date and archived_at is null", [ids.org]);
+  const afterList = await one("select status, paid_amount, remaining_amount from customer_invoices where id=$1", [partialLate]);
+  equal(afterList.status, restoredPartial.status, "opening the invoice list does not change the restored status");
+  equal(Number(afterList.paid_amount), Number(restoredPartial.paid_amount), "opening the invoice list does not change the paid amount");
+  equal(Number(afterList.remaining_amount), Number(restoredPartial.remaining_amount), "opening the invoice list does not change the remaining due");
+
+  const reversalCash = "30000000-0000-4000-8000-0000000000a3";
+  await db.query("insert into treasury_accounts(id,organization_id,name,account_type,currency,current_balance,opening_balance) values($1,$2,'Caisse correction','cash','MAD',0,0)", [reversalCash, ids.org]);
+  const receipt = await one("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_in','in',10,'MAD','Encaissement à annuler') returning id", [ids.org, reversalCash]);
+  await db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',10,'MAD','Sortie autorisée')", [ids.org, reversalCash]);
+  await db.query("update treasury_transactions set archived_at=now() where id=$1", [receipt.id]);
+  equal(Number((await one("select current_balance from treasury_accounts where id=$1", [reversalCash])).current_balance), -10, "cancelling a cash receipt is allowed even when the balance becomes negative");
+  equal(Number((await one("select count(*)::int n from organization_restore_audit where record_id=$1 and document_status='cancelled'", [receipt.id])).n), 1, "the cash receipt cancellation is written to the audit log");
+  await rejected(
+    () => db.query("insert into treasury_transactions(organization_id,treasury_account_id,transaction_type,direction,amount,currency,label) values($1,$2,'manual_out','out',1,'MAD','Nouveau décaissement')", [ids.org, reversalCash]),
+    /CASH_NEGATIVE_BALANCE/,
+    "a new cash disbursement is still refused below zero",
+  );
 
   await db.exec("commit");
   await writeFile(proofOutput, JSON.stringify({
