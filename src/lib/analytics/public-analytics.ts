@@ -30,6 +30,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/ice-facture-maroc": "ICE facture Maroc — FelexiaERP",
   "/blog/erp-maroc-pme": "ERP Maroc pour une PME — FelexiaERP",
   "/blog/avoir-facture-maroc": "Avoir facture Maroc — FelexiaERP",
+  "/blog/numerotation-facture-maroc": "Numérotation facture Maroc — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
