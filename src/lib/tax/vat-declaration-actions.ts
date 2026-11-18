@@ -74,6 +74,7 @@ export async function createVatDeclarationAction(_prev: VatDeclarationActionResu
     frequency: frequency === "annual_control" ? "quarterly" : frequency,
     generatedBy: workspace.userId,
     priorCreditMad: priorCredit,
+    regime: vatRegime,
   });
 
   const validationIssues = validateDgiVatExport(exportData);
@@ -102,6 +103,8 @@ export async function createVatDeclarationAction(_prev: VatDeclarationActionResu
       totalsByRate[String(rate)] = { collected: 0, deductible };
     }
   }
+  totalsByRate.immobilisations = { collected: 0, deductible: roundMad(exportData.declarationLines.find((line) => line.code === "140")?.amountMad ?? 0) };
+  totalsByRate.charges = { collected: 0, deductible: roundMad(exportData.declarationLines.find((line) => line.code === "145")?.amountMad ?? 0) };
 
   // Generate unique declaration number
   const { count } = await supabase
@@ -314,6 +317,7 @@ export async function autoFixVatDeclarationAnomaliesAction(prev: VatDeclarationA
     frequency: declaration.frequency === "annual_control" ? "quarterly" : declaration.frequency,
     generatedBy: workspace.userId,
     priorCreditMad: Number(declaration.prior_credit),
+    regime: declaration.vat_regime,
   });
 
   const newValidationIssues = validateDgiVatExport(exportData);
@@ -342,6 +346,8 @@ export async function autoFixVatDeclarationAnomaliesAction(prev: VatDeclarationA
       totalsByRate[String(rate)] = { collected: 0, deductible };
     }
   }
+  totalsByRate.immobilisations = { collected: 0, deductible: roundMad(exportData.declarationLines.find((line) => line.code === "140")?.amountMad ?? 0) };
+  totalsByRate.charges = { collected: 0, deductible: roundMad(exportData.declarationLines.find((line) => line.code === "145")?.amountMad ?? 0) };
 
   const autoFixHistory = (declaration.validation_summary?.auto_fix_history ?? []) as Array<Record<string, unknown>>;
   autoFixHistory.push({

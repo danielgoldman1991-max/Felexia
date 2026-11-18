@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
-import { loadSupplierAllocationPayments } from "@/lib/tax/vat-deduction-query";
+import { loadDeductiblePurchases } from "@/lib/tax/vat-deduction-query";
+import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
 import { buildDeclarationLines, DGI_VAT_SCHEMA_VERSION, roundMad, toMadAmount } from "@/lib/tax/dgi-vat-mapping";
 import type {
   DgiVatExportData,
@@ -19,10 +20,10 @@ type QueryOptions = {
   frequency: VatFrequency;
   generatedBy: string;
   priorCreditMad?: number;
+  regime?: VatRegimeMode;
 };
 
 const SALES_STATUSES = ["validated", "sent", "partially_paid", "paid", "overdue"];
-const PURCHASE_STATUSES = ["validated", "partially_paid", "paid"];
 const CREDIT_NOTE_STATUSES = ["validated", "applied", "partially_applied"];
 
 function rowObject(value: unknown): RecordLike | null {
@@ -64,27 +65,18 @@ function buildTaxBreakdown(lines: RecordLike[], sign = 1): DgiVatTaxBreakdown[] 
   }));
 }
 
-function buildPurchaseTaxBreakdown(lines: RecordLike[], prorata: number) {
-  return buildTaxBreakdown(lines).map((row) => ({
-    taxRate: row.taxRate,
-    baseHtMad: row.baseHtMad,
-    vatOnInvoiceMad: row.vatAmountMad,
-    deductibleVatMad: roundMad(row.vatAmountMad * prorata),
-  }));
-}
-
 function snapshotHash(payload: unknown) {
   return `sha256:${createHash("sha256").update(JSON.stringify(payload)).digest("hex")}`;
 }
 
-async function getPostedDocumentIds(organizationId: string, sourceType: "customer_invoice" | "supplier_invoice" | "credit_note", ids: string[]) {
-  if (ids.length === 0) return new Set<string>();
+async function getPostedDocumentIds(organizationId: string, sourceTypes: string[], ids: string[]) {
+  if (ids.length === 0 || sourceTypes.length === 0) return new Set<string>();
   const supabase = await createClient();
   const { data } = await supabase
     .from("accounting_entries")
     .select("source_document_id")
     .eq("organization_id", organizationId)
-    .eq("source_document_type", sourceType)
+    .in("source_document_type", sourceTypes)
     .in("source_document_id", ids)
     .eq("status", "posted");
 
@@ -97,6 +89,7 @@ export async function getDgiVatExportData({
   periodEnd,
   frequency,
   priorCreditMad = 0,
+  regime = "unspecified",
 }: QueryOptions): Promise<DgiVatExportData> {
   const supabase = await createClient();
 
@@ -105,7 +98,6 @@ export async function getDgiVatExportData({
     { data: companySettings },
     { data: customerInvoices },
     { data: customerCreditNotes },
-    { data: supplierInvoices },
   ] = await Promise.all([
     supabase
       .from("organizations")
@@ -135,33 +127,20 @@ export async function getDgiVatExportData({
       .gte("credit_note_date", periodStart)
       .lte("credit_note_date", periodEnd)
       .order("credit_note_date", { ascending: true }),
-    supabase
-      .from("supplier_invoices")
-      .select("id, invoice_number, supplier_invoice_number, invoice_date, status, subtotal_ht, tax_total, total_ttc, paid_amount, currency, notes, supplier:supplier_id(name, ice, if_number)")
-      .eq("organization_id", organizationId)
-      .in("status", PURCHASE_STATUSES)
-      .is("archived_at", null)
-      .gte("invoice_date", periodStart)
-      .lte("invoice_date", periodEnd)
-      .order("invoice_date", { ascending: true }),
   ]);
 
   const customerInvoiceRows = (customerInvoices ?? []) as RecordLike[];
   const creditNoteRows = (customerCreditNotes ?? []) as RecordLike[];
-  const supplierInvoiceRows = (supplierInvoices ?? []) as RecordLike[];
 
   const customerInvoiceIds = customerInvoiceRows.map((row) => String(row.id));
   const creditNoteIds = creditNoteRows.map((row) => String(row.id));
-  const supplierInvoiceIds = supplierInvoiceRows.map((row) => String(row.id));
 
   const [
     { data: customerLines },
     { data: creditNoteLines },
-    { data: supplierLines },
-    paymentAllocations,
+    deductiblePurchases,
     customerPostedIds,
     creditNotePostedIds,
-    supplierPostedIds,
   ] = await Promise.all([
     customerInvoiceIds.length
       ? supabase
@@ -177,17 +156,9 @@ export async function getDgiVatExportData({
           .eq("organization_id", organizationId)
           .in("credit_note_id", creditNoteIds)
       : Promise.resolve({ data: [] }),
-    supplierInvoiceIds.length
-      ? supabase
-          .from("supplier_invoice_lines")
-          .select("invoice_id, description, subtotal_ht, tax_rate, tax_amount, total_ttc")
-          .eq("organization_id", organizationId)
-          .in("invoice_id", supplierInvoiceIds)
-      : Promise.resolve({ data: [] }),
-    loadSupplierAllocationPayments(supabase, organizationId, supplierInvoiceIds),
-    getPostedDocumentIds(organizationId, "customer_invoice", customerInvoiceIds),
-    getPostedDocumentIds(organizationId, "credit_note", creditNoteIds),
-    getPostedDocumentIds(organizationId, "supplier_invoice", supplierInvoiceIds),
+    loadDeductiblePurchases(supabase, organizationId, periodStart, periodEnd, regime),
+    getPostedDocumentIds(organizationId, ["customer_invoice"], customerInvoiceIds),
+    getPostedDocumentIds(organizationId, ["customer_credit_note", "credit_note"], creditNoteIds),
   ]);
 
   const customerLinesByInvoice = new Map<string, RecordLike[]>();
@@ -202,24 +173,6 @@ export async function getDgiVatExportData({
     const list = creditNoteLinesByNote.get(String(line.credit_note_id)) ?? [];
     list.push(line);
     creditNoteLinesByNote.set(String(line.credit_note_id), list);
-  }
-
-  const supplierLinesByInvoice = new Map<string, RecordLike[]>();
-  for (const line of (supplierLines ?? []) as RecordLike[]) {
-    const list = supplierLinesByInvoice.get(String(line.invoice_id)) ?? [];
-    list.push(line);
-    supplierLinesByInvoice.set(String(line.invoice_id), list);
-  }
-
-  const paymentByInvoice = new Map<string, { paid: number; mode: string | null; reference: string | null; date: string | null }>();
-  for (const allocation of paymentAllocations) {
-    const invoiceId = allocation.invoiceId;
-    const current = paymentByInvoice.get(invoiceId) ?? { paid: 0, mode: null, reference: null, date: null };
-    current.paid += toMadAmount(allocation.amount);
-    current.mode = current.mode ?? allocation.payment?.mode ?? null;
-    current.reference = current.reference ?? allocation.payment?.reference ?? null;
-    current.date = current.date ?? (dateValue(allocation.payment?.date) || dateValue(allocation.allocationDate) || null);
-    paymentByInvoice.set(invoiceId, current);
   }
 
   const salesDocuments: DgiVatSalesDocument[] = [
@@ -279,49 +232,35 @@ export async function getDgiVatExportData({
     }),
   ];
 
-  const purchaseDocuments: DgiVatPurchaseDocument[] = supplierInvoiceRows.map((invoice) => {
-    const supplier = relationObject(invoice.supplier);
-    const invoiceId = String(invoice.id);
-    const payment = paymentByInvoice.get(invoiceId);
-    const totalTtc = toMadAmount(invoice.total_ttc);
-    // Keep the stored paid amount: the old embed never returned allocations in prod, so totals came from paid_amount.
-    const paid = Math.max(toMadAmount(invoice.paid_amount), 0);
-    const prorata = totalTtc > 0 ? Math.min(paid / totalTtc, 1) : 0;
-    const lines = supplierLinesByInvoice.get(invoiceId) ?? [];
-
-    return {
-      id: invoiceId,
-      documentType: "INVOICE",
-      referenceNumber: textValue(invoice.supplier_invoice_number) ?? textValue(invoice.invoice_number) ?? "",
-      issueDate: dateValue(invoice.invoice_date),
-      supplierId: textValue(supplier?.id) ?? null,
-      supplierName: textValue(supplier?.name),
-      supplierIf: textValue(supplier?.if_number),
-      supplierIce: textValue(supplier?.ice),
-      description: textValue(invoice.notes) ?? textValue(lines[0]?.description),
-      currencySource: textValue(invoice.currency) ?? "MAD",
-      exchangeRateToMad: textValue(invoice.currency) && textValue(invoice.currency) !== "MAD" ? null : 1,
-      paymentMode: payment?.mode ?? null,
-      paymentReference: payment?.reference ?? null,
-      paymentDate: payment?.date ?? null,
-      taxBreakdown: buildPurchaseTaxBreakdown(lines.length ? lines : [{
-        subtotal_ht: invoice.subtotal_ht,
-        tax_rate: null,
-        tax_amount: invoice.tax_total,
-        total_ttc: invoice.total_ttc,
-      }], prorata),
-      totalTtcMad: totalTtc,
-      paidAmountMad: roundMad(paid),
-      importFlag: false,
-      immobilizationFlag: false,
-      status: textValue(invoice.status),
-      accountingStatus: supplierPostedIds.has(invoiceId) ? "posted" : "not_posted",
-    };
-  });
+  const purchaseDocuments: DgiVatPurchaseDocument[] = deductiblePurchases.map((purchase) => ({
+    id: purchase.id,
+    documentType: purchase.documentType,
+    referenceNumber: purchase.referenceNumber,
+    issueDate: purchase.issueDate,
+    supplierId: purchase.supplierId,
+    supplierName: purchase.supplierName,
+    supplierIf: purchase.supplierIf,
+    supplierIce: purchase.supplierIce,
+    description: purchase.description,
+    currencySource: purchase.currency,
+    exchangeRateToMad: purchase.currency !== "MAD" ? null : 1,
+    paymentMode: purchase.paymentMode,
+    paymentReference: purchase.paymentReference,
+    paymentDate: purchase.paymentDate,
+    taxBreakdown: purchase.taxBreakdown,
+    totalTtcMad: purchase.totalTtcMad,
+    paidAmountMad: purchase.paidAmountMad,
+    importFlag: false,
+    immobilizationFlag: purchase.fixedAsset,
+    status: purchase.status,
+    accountingStatus: purchase.accountingStatus,
+  }));
 
   const allSalesBreakdowns = salesDocuments.flatMap((document) => document.taxBreakdown);
   const collectedVatMad = roundMad(allSalesBreakdowns.reduce((sum, row) => sum + row.vatAmountMad, 0));
-  const deductibleVatMad = roundMad(purchaseDocuments.flatMap((doc) => doc.taxBreakdown).reduce((sum, row) => sum + row.deductibleVatMad, 0));
+  const assetDeductibleVatMad = roundMad(purchaseDocuments.filter((document) => document.immobilizationFlag).flatMap((document) => document.taxBreakdown).reduce((sum, row) => sum + row.deductibleVatMad, 0));
+  const chargeDeductibleVatMad = roundMad(purchaseDocuments.filter((document) => !document.immobilizationFlag).flatMap((document) => document.taxBreakdown).reduce((sum, row) => sum + row.deductibleVatMad, 0));
+  const deductibleVatMad = roundMad(assetDeductibleVatMad + chargeDeductibleVatMad);
   const totalTurnoverMad = roundMad(allSalesBreakdowns.reduce((sum, row) => sum + row.baseHtMad, 0));
   const taxableTurnoverMad = roundMad(allSalesBreakdowns.filter((row) => row.taxRate > 0).reduce((sum, row) => sum + row.baseHtMad, 0));
   const vatDueMad = Math.max(roundMad(collectedVatMad - deductibleVatMad - priorCreditMad), 0);
@@ -331,6 +270,8 @@ export async function getDgiVatExportData({
     salesBreakdowns: allSalesBreakdowns,
     collectedVatMad,
     deductibleVatMad,
+    assetDeductibleVatMad,
+    chargeDeductibleVatMad,
     vatDueMad,
     creditCarryForwardMad,
   });
@@ -368,7 +309,7 @@ export async function getDgiVatExportData({
       startDate: periodStart,
       endDate: periodEnd,
       frequency,
-      regime: "unspecified",
+      regime,
     },
     declarationLines,
     salesDocuments,

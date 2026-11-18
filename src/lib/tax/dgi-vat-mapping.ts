@@ -18,6 +18,8 @@ export const FELEXIA_DGI_VAT_DECLARATION_LINES = [
   { code: "110", label: "Base 7%" },
   { code: "110T", label: "TVA 7%" },
   { code: "130", label: "Total TVA exigible" },
+  { code: "140", label: "TVA récupérable sur immobilisations" },
+  { code: "145", label: "TVA récupérable sur charges" },
   { code: "190", label: "Total TVA déductible" },
   { code: "200", label: "TVA due" },
   { code: "201", label: "Crédit à reporter" },
@@ -35,15 +37,22 @@ export function buildDeclarationLines({
   salesBreakdowns,
   collectedVatMad,
   deductibleVatMad,
+  assetDeductibleVatMad = 0,
+  chargeDeductibleVatMad,
   vatDueMad,
   creditCarryForwardMad,
 }: {
   salesBreakdowns: DgiVatTaxBreakdown[];
   collectedVatMad: number;
   deductibleVatMad: number;
+  assetDeductibleVatMad?: number;
+  chargeDeductibleVatMad?: number;
   vatDueMad: number;
   creditCarryForwardMad: number;
 }): DgiVatDeclarationLine[] {
+  const assets = roundMad(assetDeductibleVatMad);
+  const charges = roundMad(chargeDeductibleVatMad ?? deductibleVatMad - assets);
+  const deductible = roundMad(assets + charges);
   const baseTotal = roundMad(salesBreakdowns.reduce((sum, row) => sum + row.baseHtMad, 0));
   const taxableBase = roundMad(salesBreakdowns.filter((row) => row.taxRate > 0).reduce((sum, row) => sum + row.baseHtMad, 0));
   const byRate = new Map<number, { base: number; vat: number }>();
@@ -67,7 +76,9 @@ export function buildDeclarationLines({
     if (code === "110") return byRate.get(7)?.base ?? 0;
     if (code === "110T") return byRate.get(7)?.vat ?? 0;
     if (code === "130") return collectedVatMad;
-    if (code === "190") return deductibleVatMad;
+    if (code === "140") return assets;
+    if (code === "145") return charges;
+    if (code === "190") return deductible;
     if (code === "200") return vatDueMad;
     if (code === "201") return creditCarryForwardMad;
     return 0;

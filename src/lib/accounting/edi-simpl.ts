@@ -11,7 +11,9 @@ export function buildEdiSimpl(ice: string, period: string, lines: SimplLine[], f
     "CODE;BASE;TAXE",
     ...lines.map((line) => `${line.code};${line.base.toFixed(2)};${line.tax.toFixed(2)}`),
   ];
-  const tax = lines.reduce((sum, line) => sum + line.tax, 0);
+  const tax = lines
+    .filter((line) => line.code !== "130" && line.code !== "190")
+    .reduce((sum, line) => sum + line.tax, 0);
   body.push(`TOTAL;;${tax.toFixed(2)}`);
   return `${body.join("\n")}\n`;
 }

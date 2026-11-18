@@ -9,6 +9,7 @@ export type DeductionInvoice = {
   amountHt: number;
   vatAmount: number;
   payments: DeductionPayment[];
+  nature?: "Immobilisation" | "Charge";
 };
 
 const PAYMENT_MODES: Record<string, string> = {
@@ -34,6 +35,7 @@ export const DEDUCTION_HEADERS = [
   "TVA",
   "Date de paiement",
   "Mode de paiement",
+  "Nature",
 ] as const;
 
 export function paymentModeLabel(mode: string | null | undefined) {
@@ -62,8 +64,23 @@ export function deductionTable(invoices: DeductionInvoice[]): string[][] {
         money(invoice.vatAmount),
         dates.join(" ; "),
         modes.join(" ; "),
+        invoice.nature ?? "Charge",
       ];
     }),
+    ...(invoices.length
+      ? [[
+        "TOTAL",
+        "",
+        "",
+        "",
+        "",
+        "",
+        money(invoices.reduce((sum, invoice) => sum + invoice.vatAmount, 0)),
+        "",
+        "",
+        "",
+      ]]
+      : []),
   ];
 }
 

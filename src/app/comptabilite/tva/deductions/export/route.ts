@@ -3,6 +3,7 @@ import { requireActiveWorkspace } from "@/lib/auth";
 import { csvResponse } from "@/lib/listing";
 import { writeXlsx } from "@/lib/spreadsheet/minimal-xlsx";
 import { loadVatDeductionInvoices } from "@/lib/tax/vat-deduction-query";
+import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
 import { deductionPeriod, deductionTable } from "@/lib/tax/vat-deduction-report";
 
 function isRedirect(error: unknown) {
@@ -16,7 +17,9 @@ export async function GET(request: Request) {
   if (!period.ok) return new NextResponse(period.error, { status: 400 });
   try {
     const workspace = await requireActiveWorkspace({ modules: ["tva", "comptabilite"], level: "read" });
-    const invoices = await loadVatDeductionInvoices(workspace.organization.id, period.from, period.to);
+    const requested = url.searchParams.get("regime");
+    const regime: VatRegimeMode = requested === "debit" || requested === "encaissement" || requested === "mixed" ? requested : "unspecified";
+    const invoices = await loadVatDeductionInvoices(workspace.organization.id, period.from, period.to, regime);
     const table = deductionTable(invoices);
     const name = `releve-deductions-${period.from}-${period.to}`;
     if (url.searchParams.get("format") === "xlsx") {
