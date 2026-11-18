@@ -23,6 +23,7 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/ice-facture-maroc",
   "/blog/erp-maroc-pme",
   "/blog/avoir-facture-maroc",
+  "/blog/numerotation-facture-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",

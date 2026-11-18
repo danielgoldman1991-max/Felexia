@@ -37,7 +37,9 @@ const article: BlogArticle = {
   ],
   blocks: [
     h2("numero", "Avoir facture Maroc : le numéro d’origine reste en place"),
-    p("L’article 145-III, sous réserve du IX, demande des factures ou mémoires pré-numérotés, tirés d’une série continue, ou édités par un système informatique selon une série continue. Supprimer la pièce, ou réécrire le PDF sous le même numéro, ouvre un trou ou deux contenus pour un seul numéro."),
+    p("L’article 145-III, sous réserve du IX, demande des factures ou mémoires pré-numérotés, tirés d’une série continue, ou édités par un système informatique selon une série continue. Supprimer la pièce, ou réécrire le PDF sous le même numéro, ouvre un trou ou deux contenus pour un seul numéro. La série, les trous et les erreurs de numéro sont dans ",
+      { href: "/blog/numerotation-facture-maroc", label: "Numérotation des factures" },
+      "."),
     p("Le document de correction prend un autre numéro. L’édition 2026 ne dit pas s’il partage la série des factures. Les deux pièces se conservent. Le paragraphe XI écarte l’article 145 pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique du X. Ce cas est dans ",
       { href: "/blog/facture-auto-entrepreneur-maroc", label: "Facture d’auto-entrepreneur au Maroc" },
       "."),
@@ -131,6 +133,7 @@ const article: BlogArticle = {
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/blog/erp-maroc-pme", label: "ERP au Maroc : à quoi ça sert" },
+    { href: "/blog/numerotation-facture-maroc", label: "Numérotation des factures" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
     { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },
