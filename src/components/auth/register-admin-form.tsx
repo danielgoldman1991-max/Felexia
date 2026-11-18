@@ -7,6 +7,7 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
+import { flushTrialConversion, queueTrialConversion } from "@/lib/analytics/google-ads";
 
 function Field({ icon: Icon, children, error, id, label }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; error?: string; id: string; label: string }) {
   return (
@@ -88,6 +89,8 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
       if (!signUpData.session) {
         // Confirmation-required signups have no session yet. Keep the notice in
         // the destination URL instead of losing a local message on navigation.
+        queueTrialConversion(signUpData.user.id, window.sessionStorage);
+        flushTrialConversion(window, window.sessionStorage);
         router.replace(`/login?notice=confirm_email&next=${encodeURIComponent(onboardingPath)}`);
         return;
       }
@@ -102,6 +105,8 @@ export function RegisterAdminForm({ nextPath }: { nextPath?: string }) {
         setError("Votre compte est créé. Connectez-vous pour reprendre la configuration de votre entreprise.");
         return;
       }
+      queueTrialConversion(signUpData.user.id, window.sessionStorage);
+      flushTrialConversion(window, window.sessionStorage);
       router.replace(onboardingPath);
     } catch {
       setError("La connexion a été interrompue. Réessayez ou connectez-vous si votre compte a déjà été créé.");

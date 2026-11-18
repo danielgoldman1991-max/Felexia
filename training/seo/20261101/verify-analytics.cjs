@@ -298,9 +298,10 @@ const react = {
 };
 react.useLayoutEffect = react.useEffect;
 const jsx = (type, props) => ({ type, props: props ?? {} });
+const googleAds = load("src/lib/analytics/google-ads.ts", { "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics });
 const ui = load("src/components/analytics/PublicAnalytics.tsx", {
   react, "react/jsx-runtime": { jsx, jsxs: jsx }, "next/navigation": { usePathname: () => pathname },
-  "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics,
+  "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics, "@/lib/analytics/google-ads": googleAds,
   "./PublicAnalytics.module.css": { default: {} },
 }, { window: uiFixture.browser, document: uiFixture.doc, process: { env: { NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TEST123" } }, HTMLElement: FakeElement, Event: class { constructor(type) { this.type = type; } } });
 function render() { cursor = 0; pendingEffects = []; const tree = ui.PublicAnalytics(); for (const run of pendingEffects) run(); return tree; }
