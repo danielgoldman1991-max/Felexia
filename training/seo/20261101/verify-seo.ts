@@ -20,7 +20,7 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 33 && new Set(PUBLIC_SITE_PATHS).size === 33, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 49 && new Set(PUBLIC_SITE_PATHS).size === 49, "Public routes are explicit and unique");
   for (const path of ["/declaration-tva-maroc", "/logiciel-comptabilite-maroc", "/logiciel-paie-maroc", "/logiciel-gestion-stock-maroc", "/logiciel-devis-facture-maroc"]) {
     check(isPublicSitePath(path), "New offer landing is public: " + path);
   }
@@ -84,7 +84,7 @@ async function main() {
   check(HOME_FAQS.some((item) => item.question.includes("déclaration de TVA") && item.answer.includes("SIMPL")), "Homepage FAQ says the VAT declaration is included");
   check(!HOME_FAQS.some((item) => item.answer.includes("la préparation TVA")), "Homepage FAQ no longer treats VAT preparation as a PRO extra");
   const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
-  check(BLOG_ARTICLES.length === 17 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
+  check(BLOG_ARTICLES.length === 33 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
   const shortArticles = new Set(["plf-2027-pme-maroc", "facture-electronique-pdf-xml", "avoir-facture-maroc", "relance-facture-impayee-maroc"]);
   for (const article of BLOG_ARTICLES) {
     const words = articleWordCount(article);
