@@ -24,6 +24,8 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/erp-maroc-pme",
   "/blog/avoir-facture-maroc",
   "/blog/numerotation-facture-maroc",
+  "/blog/tva-maroc-pme",
+  "/blog/relance-facture-impayee-maroc",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",
