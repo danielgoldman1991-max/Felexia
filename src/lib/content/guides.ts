@@ -86,8 +86,8 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
         // TODO(juridique): faire relire ce paragraphe. Dire uniquement que le parcours documentaire est prêt ; ne jamais écrire « conforme DGI », « certifié » ou « transmis à l’administration ».
         heading: "Prêt pour la facture électronique",
         paragraphs: [
-          "ESSENTIEL et PRO incluent la génération PDF/XML, l’émission et l’archivage des factures et avoirs clients validés, après activation par l’administrateur. Felexia est prêt pour la facture électronique au sens de ce parcours documentaire.",
-          "La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
+          "ESSENTIEL et PRO incluent un parcours de facture électronique complet : génération PDF/XML, émission et archivage des factures et avoirs clients validés, après activation par l’administrateur.",
+          "Ce parcours n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc. D’ici là, aucune facture n’est transmise automatiquement à l’administration.",
         ],
       },
     ],
@@ -106,7 +106,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       },
       {
         question: "Les factures sont-elles envoyées à la DGI ?",
-        answer: "Non. Le parcours couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées.",
+        answer: "Non. Le parcours PDF/XML est complet, mais aucune facture n’est transmise automatiquement. La connexion et la signature attendront l’entrée en vigueur de la loi.",
       },
     ],
     cta: {
@@ -130,10 +130,10 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
     kind: "landing",
     path: "/facturation-electronique-maroc",
     title: "Facturation électronique au Maroc | FelexiaERP",
-    description: "Prêt pour la facture électronique : PDF, XML, émission et archivage des factures et avoirs clients. Inclus dans ESSENTIEL et PRO. Connexion DGI et signature qualifiée non activées.",
+    description: "Parcours de facture électronique complet : PDF, XML, émission et archivage. Inclus dans ESSENTIEL et PRO. Il attend l’entrée en vigueur de la loi au Maroc.",
     eyebrow: "Facture électronique · Maroc",
     h1: "Prêt pour la facture électronique au Maroc",
-    introduction: "Felexia prépare un parcours documentaire à partir de vos factures et avoirs clients déjà validés : fichier PDF, fichier XML, émission et archivage. Ce parcours est inclus dans ESSENTIEL et dans PRO. Il ne s’agit pas d’une connexion officielle à la DGI.",
+    introduction: "Le parcours de facture électronique de Felexia est complet : génération PDF et XML, émission et archivage des factures et avoirs clients déjà validés. Il est inclus dans ESSENTIEL et dans PRO. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
     publishedAt: "2026-11-03",
     sections: [
       {
@@ -150,11 +150,10 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
         ],
       },
       {
-        // TODO(juridique): faire valider les limites ci-dessous avant toute campagne. Ne pas ajouter de promesse de conformité, de certification, de transmission ou de signature qualifiée.
-        heading: "Ce que Felexia ne présente pas comme fait",
+        heading: "Un parcours complet, prêt pour la loi",
         paragraphs: [
-          "Felexia est prêt pour la facture électronique au sens du parcours PDF/XML et de l’archivage. La connexion officielle à la DGI n’est pas activée. La signature qualifiée n’est pas activée. Le XML généré ne constitue pas une acceptation fiscale.",
-          "Aucune déclaration n’est transmise automatiquement à l’administration. Les fonctions fiscales restent préparatoires et doivent être validées avec votre conseil.",
+          "Le parcours de facture électronique de Felexia est complet : génération PDF et XML, émission, archivage de la version retenue et téléchargements. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
+          "Dès que la loi s’appliquera et que la plateforme officielle de la DGI sera ouverte, Felexia activera la connexion et la signature requises. D’ici là, aucune facture ni déclaration n’est transmise automatiquement à l’administration.",
         ],
       },
       {
@@ -172,7 +171,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       },
       {
         question: "Les fichiers sont-ils transmis à la DGI ?",
-        answer: "Non. Felexia est prêt pour un parcours documentaire de facture électronique. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
+        answer: "Non. Le parcours est complet, mais aucune facture n’est transmise automatiquement. La connexion et la signature seront activées lorsque la loi s’appliquera et que la plateforme officielle de la DGI sera ouverte.",
       },
       {
         question: "Qui active la fonction ?",

@@ -71,7 +71,7 @@ const content: ProductOfferContent = {
     { title: "De la commande à la livraison", description: "Retrouvez les articles et les quantités à livrer, puis suivez les livraisons et les retours dans votre cycle de vente." },
     { title: "De l’opération au pilotage", description: "Rassemblez les mouvements, les factures, les règlements et les écritures pour suivre votre activité et échanger avec vos conseils." },
   ],
-  electronicInvoicing: "Comme dans ESSENTIEL, la génération PDF/XML, l’émission et l’archivage documentaire sont inclus après activation. Cette compatibilité ne signifie pas une certification DGI, une transmission fiscale automatique ou une signature qualifiée.",
+  electronicInvoicing: "Comme dans ESSENTIEL, le parcours PDF/XML, l’émission et l’archivage sont complets après activation. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc. Aucune facture n’est transmise automatiquement.",
   scopeHeading: "Un périmètre clair avant votre mise en place.",
   scopeIntroduction: "Un ERP couvre plusieurs métiers. Nous distinguons les opérations disponibles, les outils préparatoires et les fonctions qui restent à venir pour construire un projet adapté à votre activité.",
   scope: [

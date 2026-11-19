@@ -63,7 +63,7 @@ const content: ProductOfferContent = {
     { title: "Enregistrer le règlement", description: "Rattachez le paiement à la facture et au compte bancaire ou à la caisse concernée, y compris pour un règlement partiel." },
     { title: "Suivre ce qui reste", description: "Retrouvez le solde de la facture, les mouvements de trésorerie et les écritures correspondantes dans votre espace." },
   ],
-  electronicInvoicing: "ESSENTIEL est compatible avec la facturation électronique : génération PDF/XML, émission et archivage documentaire après activation par l’administrateur. Cette fonction complète votre gestion ; elle ne constitue pas une connexion officielle à la DGI ni une signature qualifiée.",
+  electronicInvoicing: "ESSENTIEL inclut un parcours de facture électronique complet : génération PDF/XML, émission et archivage après activation par l’administrateur. Il n’attend plus que l’entrée en vigueur de la loi au Maroc. La connexion à la plateforme officielle n’est pas active aujourd’hui.",
   scopeHeading: "Commencer avec l’essentiel, évoluer selon vos besoins.",
   scopeIntroduction: "Choisissez cette offre pour votre gestion quotidienne. Si vous devez relier devis, commandes, livraisons, stock avancé ou ressources humaines, découvrez le périmètre de PRO.",
   scope: [
