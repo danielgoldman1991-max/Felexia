@@ -4,7 +4,6 @@ import { VatDeclarationDetail } from "@/components/comptabilite/tva/vat-declarat
 import { getVatDeclarationById } from "@/lib/tax/vat-declarations";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { canWriteVatWorkspace } from "@/app/comptabilite/tva/access";
-import { prepareSimplDeductionExport } from "@/lib/tax/simpl-tva-export";
 import type { SimplDeductionIssue } from "@/lib/tax/simpl-tva-xml";
 import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
 
@@ -17,6 +16,7 @@ export default async function VatDeclarationDetailPage({ params }: { params: Pro
   let simplIssues: SimplDeductionIssue[] = [];
   let simplWarnings: SimplDeductionIssue[] = [];
   try {
+    const { prepareSimplDeductionExport } = await import("@/lib/tax/simpl-tva-export");
     const preview = await prepareSimplDeductionExport({
       organizationId: workspace.organization.id,
       userId: workspace.userId,
