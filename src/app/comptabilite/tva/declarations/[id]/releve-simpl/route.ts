@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireActiveWorkspace } from "@/lib/auth";
-import { hasFullErpAccess } from "@/lib/launch-access";
 import { roundMad } from "@/lib/tax/dgi-vat-mapping";
 import { getDgiVatExportData } from "@/lib/tax/dgi-vat-query";
-import { buildSimplDeductionXml, simplDeductionIssues, simplDeductionZip, simplRowsFromPurchases } from "@/lib/tax/simpl-tva-xml";
+import { buildSimplDeductionXml, simplDeductionIssues, simplDeductionZip, simplRowsFromPurchases, type SimplFilingFrequency } from "@/lib/tax/simpl-tva-xml";
 import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const workspace = await requireActiveWorkspace();
-  if (!(await hasFullErpAccess(workspace.organization.id))) {
-    return new NextResponse("Cette exportation est incluse dans l’offre PRO.", { status: 403 });
-  }
   const { id } = await context.params;
   const supabase = await createClient();
   const { data: declaration } = await supabase
@@ -23,7 +19,17 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   if (!declaration) return new NextResponse("Déclaration introuvable.", { status: 404 });
 
   const regime = (declaration.vat_regime ?? "unspecified") as VatRegimeMode;
-  const frequency = declaration.frequency === "quarterly" ? "quarterly" : "monthly";
+  const settings = await supabase
+    .from("organization_fiscal_settings")
+    .select("vat_frequency")
+    .eq("organization_id", workspace.organization.id)
+    .maybeSingle();
+  const companyFrequency = settings.data?.vat_frequency;
+  const frequency: SimplFilingFrequency = companyFrequency === "quarterly" || companyFrequency === "monthly"
+    ? companyFrequency
+    : declaration.frequency === "quarterly" || declaration.frequency === "annual_control"
+      ? "quarterly"
+      : "monthly";
   const data = await getDgiVatExportData({
     organizationId: workspace.organization.id,
     periodStart: declaration.period_start,

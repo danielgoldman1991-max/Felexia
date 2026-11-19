@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { buildEdiSimpl } from "../src/lib/accounting/edi-simpl";
 import { declarationToSimplLines } from "../src/lib/accounting/fiscal-files";
 import { buildDeclarationLines } from "../src/lib/tax/dgi-vat-mapping";
-import { buildSimplDeductionXml, simplDeductionIssues, simplDeductionZip, simplRowsFromPurchases } from "../src/lib/tax/simpl-tva-xml";
+import { buildSimplDeductionXml, officialAmount, officialSimplFiling, simplDeductionIssues, simplDeductionZip, simplRowsFromPurchases, type SimplDeductionRow } from "../src/lib/tax/simpl-tva-xml";
 import { deductionTable } from "../src/lib/tax/vat-deduction-report";
 import {
   creditNotePosted,
@@ -196,32 +196,45 @@ const blocked = simplDeductionIssues({
   rows: rows.map((row) => row.number === "FF-0926-0002" ? { ...row, supplierIce: null } : row),
 });
 assert.ok(blocked.some((issue) => issue.includes("ICE")));
-const xml = buildSimplDeductionXml({
-  fiscalId: "12345678",
-  periodStart: september.start,
-  frequency: "monthly",
-  regime: "encaissement",
-  rows,
+assert.equal(officialAmount(4835), "4835");
+assert.equal(officialAmount(645), "645");
+assert.equal(officialAmount(20), "20");
+assert.equal(officialAmount(4029.17), "4029.17");
+assert.equal(officialAmount(3220.5), "3220.5");
+assert.equal(officialAmount(3220.5), "3220.5");
+assert.deepEqual(officialSimplFiling("2026-09-01", "monthly"), { annee: "2026", periode: "9", regime: "1" });
+assert.deepEqual(officialSimplFiling("2026-06-01", "quarterly"), { annee: "2026", periode: "2", regime: "2" });
+
+const fictionalRows: SimplDeductionRow[] = [
+  { number: "F-100", description: "MATIERE FICTIVE", baseHt: 4029.17, vat: 805.83, ttc: 4835, supplierIf: "20000001", supplierName: "ATELIER FICTIF", supplierIce: "001234567000089", taxRate: 20, prorataPercent: 100, paymentMode: "cash", paymentDate: "2026-09-08", invoiceDate: "2026-09-08" },
+  { number: "F-101", description: "FOURNITURE & EMBALLAGE", baseHt: 3220.5, vat: 644.1, ttc: 3864.6, supplierIf: "20000002", supplierName: "STE <DEMO>", supplierIce: "000000000000015", taxRate: 20, prorataPercent: 100, paymentMode: "virement", paymentDate: "2026-09-19", invoiceDate: "2026-09-18" },
+];
+const monthlyXml = buildSimplDeductionXml({ fiscalId: "10000001", periodStart: "2026-09-01", frequency: "monthly", regime: "encaissement", rows: fictionalRows });
+const expectedMonthly = `<?xml version="1.0" encoding="UTF-8" ?><DeclarationReleveDeduction><identifiantFiscal>10000001</identifiantFiscal><annee>2026</annee><periode>9</periode><regime>1</regime><releveDeductions><rd><ord>1</ord><num>F-100</num><des>MATIERE FICTIVE</des><mht>4029.17</mht><tva>805.83</tva><ttc>4835</ttc><refF><if>20000001</if><nom>ATELIER FICTIF</nom><ice>001234567000089</ice></refF><tx>20</tx><mp><id>1</id></mp><dpai>2026-09-08</dpai><dfac>2026-09-08</dfac></rd><rd><ord>2</ord><num>F-101</num><des>FOURNITURE &amp; EMBALLAGE</des><mht>3220.5</mht><tva>644.1</tva><ttc>3864.6</ttc><refF><if>20000002</if><nom>STE &lt;DEMO&gt;</nom><ice>000000000000015</ice></refF><tx>20</tx><mp><id>4</id></mp><dpai>2026-09-19</dpai><dfac>2026-09-18</dfac></rd></releveDeductions></DeclarationReleveDeduction>`;
+assert.equal(monthlyXml, expectedMonthly);
+assert.equal(Buffer.from(monthlyXml, "utf8").equals(Buffer.from(expectedMonthly, "utf8")), true);
+
+const quarterlyXml = buildSimplDeductionXml({
+  fiscalId: "10000001",
+  periodStart: "2026-04-01",
+  frequency: "quarterly",
+  regime: "debit",
+  rows: [{ number: "T-1", description: "ACHAT FICTIF", baseHt: 1000, vat: 200, ttc: 1200, supplierIf: "30000001", supplierName: "FOURNISSEUR FICTIF", supplierIce: "001111111000011", taxRate: 20, prorataPercent: 100, paymentMode: "cash", paymentDate: "2026-05-02", invoiceDate: "2026-06-08" }],
 });
-assert.doesNotMatch(xml, /<\?xml/);
-assert.match(xml, /<DeclarationReleveDeduction>/);
-assert.match(xml, /<annee>2026<\/annee>/);
-assert.match(xml, /<periode>9<\/periode>/);
-assert.match(xml, /<regime>1<\/regime>/);
-assert.match(xml, /<prorata>50.00<\/prorata>/);
-assert.match(xml, /<id>2<\/id>/);
-assert.match(xml, /<dpai>2026-09-20<\/dpai>/);
-assert.match(xml, /<dfac>2026-09-04<\/dfac>/);
-const zip = simplDeductionZip(xml);
+assert.equal(quarterlyXml, `<?xml version="1.0" encoding="UTF-8" ?><DeclarationReleveDeduction><identifiantFiscal>10000001</identifiantFiscal><annee>2026</annee><periode>2</periode><regime>2</regime><releveDeductions><rd><ord>1</ord><num>T-1</num><des>ACHAT FICTIF</des><mht>1000</mht><tva>200</tva><ttc>1200</ttc><refF><if>30000001</if><nom>FOURNISSEUR FICTIF</nom><ice>001111111000011</ice></refF><tx>20</tx><mp><id>1</id></mp><dpai>2026-06-08</dpai><dfac>2026-06-08</dfac></rd></releveDeductions></DeclarationReleveDeduction>`);
+
+const emptyXml = buildSimplDeductionXml({ fiscalId: "10000001", periodStart: "2026-01-01", frequency: "monthly", regime: "unspecified", rows: [] });
+assert.equal(emptyXml, `<?xml version="1.0" encoding="UTF-8" ?><DeclarationReleveDeduction><identifiantFiscal>10000001</identifiantFiscal><annee>2026</annee><periode>1</periode><regime>1</regime><releveDeductions></releveDeductions></DeclarationReleveDeduction>`);
+assert.equal(emptyXml.includes("\n") || emptyXml.endsWith("\n"), false);
+assert.equal(monthlyXml.includes("<prorata>"), false);
+
+const zip = simplDeductionZip(monthlyXml);
 const name = "DeclarationReleveDeduction.xml";
-const nameAt = zip.indexOf(name);
-assert.equal(nameAt, 30);
+assert.equal(zip.indexOf(name), 30);
 const size = zip.readUInt32LE(18);
 const payload = zip.subarray(30 + name.length, 30 + name.length + size);
-assert.equal(payload[0], 0xef);
-assert.equal(payload[1], 0xbb);
-assert.equal(payload[2], 0xbf);
-assert.equal(payload.subarray(3).toString("utf8"), xml);
-assert.equal(zip.includes(Buffer.from("<?xml")), false);
+assert.equal(payload[0], 0x3c);
+assert.equal(payload.toString("utf8"), monthlyXml);
+assert.equal(payload.includes(Buffer.from([0xef, 0xbb, 0xbf])), false);
 
 console.log("TVA : déduction par règlement, avoirs, immobilisations, SIMPL et XML contrôlés.");
