@@ -1,7 +1,7 @@
 import { crc32 } from "node:zlib";
 import { roundMad } from "@/lib/tax/dgi-vat-mapping";
 import type { DgiVatPurchaseDocument } from "@/lib/tax/dgi-vat-types";
-import { deductionFollowsPayment, simplPaymentModeId, simplRegimeCode, type VatRegimeMode } from "@/lib/tax/vat-period-rules";
+import { deductionFollowsPayment, simplPaymentModeId, type VatRegimeMode } from "@/lib/tax/vat-period-rules";
 
 export type SimplDeductionRow = {
   number: string;
@@ -19,17 +19,19 @@ export type SimplDeductionRow = {
   invoiceDate: string;
 };
 
-function xml(value: unknown) {
+function xmlText(value: unknown) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+    .replace(/>/g, "&gt;");
 }
 
-function money(value: number) {
-  return roundMad(value).toFixed(2);
+/** Au plus deux décimales, sans zéro final inutile. */
+export function officialAmount(value: number) {
+  if (!Number.isFinite(value)) return "0";
+  const rounded = Math.round((value + Number.EPSILON) * 100) / 100;
+  const normalized = Object.is(rounded, -0) ? 0 : rounded;
+  return normalized.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
 
 function inPeriod(date: string | null, start: string, end: string) {
@@ -63,10 +65,21 @@ export function simplDeductionIssues(input: {
   return issues;
 }
 
-export function simplPeriodNumber(periodStart: string, frequency: "monthly" | "quarterly") {
+export type SimplFilingFrequency = "monthly" | "quarterly";
+
+/** regime 1 = mois (période 1-12), regime 2 = trimestre (période 1-4). */
+export function officialSimplFiling(periodStart: string, frequency: SimplFilingFrequency) {
   const month = Number(periodStart.slice(5, 7));
-  if (frequency === "quarterly") return String(Math.floor((month - 1) / 3) + 1);
-  return String(month);
+  const quarterly = frequency === "quarterly";
+  return {
+    annee: periodStart.slice(0, 4),
+    periode: String(quarterly ? Math.floor((month - 1) / 3) + 1 : month),
+    regime: quarterly ? "2" : "1",
+  };
+}
+
+export function simplPeriodNumber(periodStart: string, frequency: SimplFilingFrequency) {
+  return officialSimplFiling(periodStart, frequency).periode;
 }
 
 export function simplRowsFromPurchases(documents: DgiVatPurchaseDocument[]): SimplDeductionRow[] {
@@ -95,49 +108,24 @@ export function simplRowsFromPurchases(documents: DgiVatPurchaseDocument[]): Sim
   });
 }
 
-/** XML EDI du relevé. `tva` est déjà le montant déductible proratisé : la somme des `tva` est la ligne 190. */
+/** XML EDI strictement sur une ligne, avec déclaration, sans BOM ni balise prorata. */
 export function buildSimplDeductionXml(input: {
   fiscalId: string;
   periodStart: string;
-  frequency: "monthly" | "quarterly";
+  frequency: SimplFilingFrequency;
   regime: VatRegimeMode;
   rows: SimplDeductionRow[];
 }) {
-  const rows = input.rows.map((row, index) => `    <rd>
-      <ord>${index + 1}</ord>
-      <num>${xml(row.number)}</num>
-      <des>${xml(row.description)}</des>
-      <mht>${money(row.baseHt)}</mht>
-      <tva>${money(row.vat)}</tva>
-      <ttc>${money(row.ttc)}</ttc>
-      <refF>
-        <if>${xml(row.supplierIf)}</if>
-        <nom>${xml(row.supplierName)}</nom>
-        <ice>${xml(row.supplierIce)}</ice>
-      </refF>
-      <tx>${money(row.taxRate)}</tx>
-      <prorata>${money(row.prorataPercent)}</prorata>
-      <mp>
-        <id>${simplPaymentModeId(row.paymentMode)}</id>
-      </mp>
-      <dpai>${xml(deductionFollowsPayment(input.regime) ? row.paymentDate : row.invoiceDate)}</dpai>
-      <dfac>${xml(row.invoiceDate)}</dfac>
-    </rd>`).join("\n");
-  return `<DeclarationReleveDeduction>
-  <identifiantFiscal>${xml(input.fiscalId)}</identifiantFiscal>
-  <annee>${xml(input.periodStart.slice(0, 4))}</annee>
-  <periode>${xml(simplPeriodNumber(input.periodStart, input.frequency))}</periode>
-  <regime>${simplRegimeCode(input.regime)}</regime>
-  <releveDeductions>
-${rows}
-  </releveDeductions>
-</DeclarationReleveDeduction>
-`;
+  const filing = officialSimplFiling(input.periodStart, input.frequency);
+  const rows = input.rows.map((row, index) => {
+    const paymentDate = deductionFollowsPayment(input.regime) ? row.paymentDate : row.invoiceDate;
+    return `<rd><ord>${index + 1}</ord><num>${xmlText(row.number)}</num><des>${xmlText(row.description)}</des><mht>${officialAmount(row.baseHt)}</mht><tva>${officialAmount(row.vat)}</tva><ttc>${officialAmount(row.ttc)}</ttc><refF><if>${xmlText(row.supplierIf)}</if><nom>${xmlText(row.supplierName)}</nom><ice>${xmlText(row.supplierIce)}</ice></refF><tx>${officialAmount(row.taxRate)}</tx><mp><id>${simplPaymentModeId(row.paymentMode)}</id></mp><dpai>${xmlText(paymentDate)}</dpai><dfac>${xmlText(row.invoiceDate)}</dfac></rd>`;
+  }).join("");
+  return `<?xml version="1.0" encoding="UTF-8" ?><DeclarationReleveDeduction><identifiantFiscal>${xmlText(input.fiscalId)}</identifiantFiscal><annee>${filing.annee}</annee><periode>${filing.periode}</periode><regime>${filing.regime}</regime><releveDeductions>${rows}</releveDeductions></DeclarationReleveDeduction>`;
 }
 
 export function simplDeductionZip(xmlBody: string) {
-  const content = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(xmlBody, "utf8")]);
-  return zipStored("DeclarationReleveDeduction.xml", content);
+  return zipStored("DeclarationReleveDeduction.xml", Buffer.from(xmlBody, "utf8"));
 }
 
 function zipStored(name: string, content: Buffer) {
