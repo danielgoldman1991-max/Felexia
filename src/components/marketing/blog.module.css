@@ -51,6 +51,11 @@
 .prose p, .callout p { margin: 14px 0 0; color: #24344c; font-size: 17px; line-height: 1.75; }
 .prose a, .callout a, .sources a, .example a { color: #2454d8; text-underline-offset: 3px; }
 .prose ul { display: grid; gap: 8px; margin: 14px 0 0; padding-left: 1.1em; color: #24344c; }
+.figure { margin: 22px 0 0; }
+.figure img { display: block; width: 100%; height: auto; border: 1px solid #e1e8f2; border-radius: 16px; background: #fff; }
+.figure figcaption { margin-top: 8px; color: #5b6b82; font-size: 13px; line-height: 1.45; }
+.guidePdf { margin-top: 36px; padding: 20px; border: 1px solid #e1e8f2; border-radius: 18px; background: #f7f9fd; }
+.guidePdf h2 { margin-top: 0; font-size: 22px; }
 .prose li { line-height: 1.65; }
 .essentials { margin: 0 0 8px; padding: 22px 22px 18px; border-radius: 18px; background: #f3f7ff; border: 1px solid #d9e4fb; }
 .essentials h2 { margin: 0; font-size: 18px; letter-spacing: -.02em; }
