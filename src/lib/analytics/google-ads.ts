@@ -82,6 +82,19 @@ export function queueTrialConversion(transactionId: string, storage: MemoryStora
   return true;
 }
 
+/** Records a signup conversion without changing navigation. Missing storage is ignored. */
+export function rememberTrialConversion(transactionId: string, browser: Window | undefined) {
+  try {
+    const storage = browser?.sessionStorage;
+    if (!storage) return false;
+    const queued = queueTrialConversion(transactionId, storage);
+    flushTrialConversion(browser as Window, storage);
+    return queued;
+  } catch {
+    return false;
+  }
+}
+
 export function flushTrialConversion(browser: Window, storage: MemoryStorage, sendTo = googleAdsConversionSendTo()) {
   const id = trialTransactionId(storage.getItem(PENDING_KEY));
   if (!id) {

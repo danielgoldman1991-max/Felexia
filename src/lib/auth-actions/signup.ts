@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { hasSupabaseConfig } from "@/lib/auth";
 import { getCompanyOnboardingPath } from "@/lib/auth/onboarding-continuation";
 import { getAppUrl } from "@/lib/app-url";
-import { trialTransactionId } from "@/lib/analytics/google-ads";
 
 export type SignUpState = {
   error: string | null;
@@ -51,8 +50,5 @@ export async function signUpAction(
     return { error: error.message };
   }
 
-  const destination = new URL(data?.session ? onboardingPath : `/login?notice=confirm_email&next=${encodeURIComponent(onboardingPath)}`, getAppUrl());
-  const signupId = trialTransactionId(data.user?.id);
-  if (signupId) destination.searchParams.set("signup", signupId);
-  redirect(`${destination.pathname}${destination.search}`);
+  redirect(data?.session ? onboardingPath : `/login?notice=confirm_email&next=${encodeURIComponent(onboardingPath)}`);
 }

@@ -107,8 +107,9 @@ export async function GET(request: NextRequest) {
 
     const response = redirectResponse(new URL(destination, requestUrl.origin));
     const mode = requestUrl.searchParams.get("mode");
-    if (mode === "register" && freshTrialSignup(user.created_at) && trialTransactionId(user.id)) {
-      response.cookies.set(GOOGLE_ADS_SIGNUP_COOKIE, user.id, {
+    const signupId = trialTransactionId(user.id);
+    if (mode === "register" && freshTrialSignup(user.created_at) && signupId && response.cookies) {
+      response.cookies.set(GOOGLE_ADS_SIGNUP_COOKIE, signupId, {
         maxAge: 300,
         path: "/",
         sameSite: "lax",

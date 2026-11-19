@@ -62,7 +62,8 @@ const ads = readFileSync("src/components/analytics/GoogleAds.tsx", "utf8");
 assert.match(layout, /strategy="beforeInteractive"/);
 assert.match(ads, /strategy="afterInteractive"/);
 assert.match(ads, /googletagmanager\.com\/gtag\/js\?id=/);
-assert.match(readFileSync("src/components/auth/register-admin-form.tsx", "utf8"), /queueTrialConversion\(signUpData\.user\.id/);
+assert.match(readFileSync("src/components/auth/register-admin-form.tsx", "utf8"), /rememberTrialConversion\(signUpData\.user\.id, window\)/);
+assert.equal(readFileSync("src/lib/auth-actions/signup.ts", "utf8").includes("signup="), false);
 assert.doesNotMatch(readFileSync("next.config.mjs", "utf8"), /Content-Security-Policy/);
 
 console.log("Google Ads : consentement refusé par défaut, conversion unique et surfaces publiques contrôlés.");
