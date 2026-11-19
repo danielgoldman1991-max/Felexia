@@ -10,7 +10,7 @@ import { BLOG_ARTICLES, articlesInCategory, blogCategoryLabel } from "@/lib/cont
 import { BLOG_PILLARS, type BlogPillarSlug } from "@/lib/content/blog/types";
 import { formatBlogDate, readingMinutes } from "@/lib/content/blog/text";
 import { LANDING_GUIDES } from "@/lib/content/guides";
-import { getBlogStructuredData } from "@/lib/seo";
+import { getBlogStructuredData, getBreadcrumbStructuredData, getCollectionStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "@/components/landing/landing-conversion.css";
 
@@ -43,6 +43,8 @@ export function BlogIndex({ category }: { category?: BlogPillarSlug }) {
   return (
     <div id="top" className={"landing marketing-site " + styles.page}>
       <JsonLd id="felexia-blog" data={getBlogStructuredData(BLOG_ARTICLES)} />
+      <JsonLd id="felexia-blog-collection" data={getCollectionStructuredData({ name: "Articles pour facturer et gérer une PME au Maroc", description: "Articles sourcés pour PME au Maroc : facturation, ICE, déclaration TVA SIMPL-TVA, stock et facture électronique.", path: "/blog", items: BLOG_ARTICLES.map((article) => ({ name: article.h1, path: article.path })) })} />
+      <JsonLd id="felexia-blog-breadcrumb" data={getBreadcrumbStructuredData([{ name: "Accueil", path: "/" }, { name: "Articles", path: "/blog" }])} />
       <LandingEffects />
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader />
@@ -57,8 +59,8 @@ export function BlogIndex({ category }: { category?: BlogPillarSlug }) {
               </ol>
             </nav>
             <p className={styles.kicker}>Guides · PME au Maroc</p>
-            <h1 className={styles.title}>Des guides pour gérer une PME au Maroc</h1>
-            <p className={styles.lede}>Facturation, stock, fiscalité : des guides pratiques et sourcés pour piloter votre PME au Maroc.</p>
+            <h1 className={styles.title}>Articles pour facturer et gérer une PME au Maroc</h1>
+            <p className={styles.lede}>Facturation, ICE, déclaration TVA SIMPL-TVA, stock et facture électronique : des articles sourcés, sans chiffres inventés.</p>
             <nav aria-label="Catégories des guides">
               <ul className={styles.filters}>
                 <li><Link href="/blog" aria-current={active ? undefined : "page"}>Tous</Link></li>

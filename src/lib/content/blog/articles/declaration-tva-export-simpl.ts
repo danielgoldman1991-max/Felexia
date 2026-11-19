@@ -211,6 +211,8 @@ const article: BlogArticle = {
   },
   related: [
     { href: "/blog/tva-maroc-pme", label: "TVA au Maroc pour une PME" },
+    { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },
     { href: "/essentiel", label: "Offre ESSENTIEL" },
     { href: "/pricing", label: "Tarifs" },

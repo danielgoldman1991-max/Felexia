@@ -5,7 +5,7 @@ import { LandingHeader } from "@/components/landing/LandingHeader";
 import styles from "@/components/landing/product-offer-page.module.css";
 import { JsonLd } from "@/components/seo/JsonLd";
 import type { PublicGuide } from "@/lib/content/guides";
-import { getBlogPostingStructuredData, getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
+import { getBlogPostingStructuredData, getBreadcrumbStructuredData, getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "@/components/landing/landing-conversion.css";
 
@@ -17,6 +17,7 @@ export function GuidePage({ guide }: { guide: PublicGuide }) {
   return (
     <div id="top" className={"landing marketing-site " + styles.page}>
       <JsonLd id="felexia-guide-faq" data={getFaqPageStructuredData(guide.questions, guide.path)} />
+      <JsonLd id="felexia-guide-breadcrumb" data={getBreadcrumbStructuredData(crumbs.map((crumb) => ({ name: crumb.label, path: crumb.href })))} />
       {guide.kind === "landing" ? <JsonLd id="felexia-guide-software" data={getSoftwareApplicationStructuredData()} /> : null}
       {guide.kind === "article" ? <JsonLd id="felexia-guide-article" data={getBlogPostingStructuredData(guide)} /> : null}
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>

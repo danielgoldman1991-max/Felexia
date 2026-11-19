@@ -42,8 +42,8 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
   {
     kind: "landing",
     path: "/logiciel-facturation-maroc",
-    title: "Logiciel de facturation au Maroc pour PME | Felexia",
-    description: `Logiciel de facturation pour PME au Maroc : factures, avoirs, règlements et PDF avec votre logo et votre ICE. ESSENTIEL à ${monthly} HT MAD/mois, ${DEFAULT_TRIAL_DURATION_LABEL} d’essai sans carte.`,
+    title: "Logiciel de facturation au Maroc | Felexia",
+    description: `Logiciel de facturation au Maroc : factures, avoirs, ICE, règlements et déclaration TVA (XML SIMPL-TVA). ESSENTIEL à ${monthly} MAD HT/mois, essai 15 jours.`,
     eyebrow: "Logiciel de facturation · Maroc",
     h1: "Logiciel de facturation pour les PME au Maroc",
     introduction: "FelexiaERP sert à établir les factures de vente, à suivre ce qui reste à encaisser et à retrouver les pièces d’un client au même endroit. L’offre ESSENTIEL couvre ce quotidien. L’ERP PRO, sur devis, prolonge le parcours avant et après la facture.",
@@ -70,10 +70,23 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
         ],
       },
       {
-        heading: "Ce que comprend le tarif ESSENTIEL",
+        heading: "Mentions obligatoires, ICE et numérotation continue",
         paragraphs: [
-          `${billingFacts} Le socle comprend 1 entreprise, jusqu’à ${users} utilisateurs, ${documents} documents commerciaux par mois et ${storage} Go de stockage.`,
-          "Les journaux de vente, d’achat, de banque et de caisse restent consultables pour préparer vos échanges avec votre comptable. Les travaux comptables et fiscaux sont à vérifier avec les professionnels qui accompagnent l’entreprise.",
+          "Le PDF reprend votre logo, vos coordonnées et l’ICE lorsqu’ils sont renseignés. L’ICE compte 15 chiffres. L’IF et le RC s’affichent s’ils sont dans les paramètres. La numérotation des factures suit le compteur de l’entreprise, y compris pour une pièce annulée.",
+          "Ces mentions aident à établir une facture de vente. Elles ne remplacent pas la lecture de l’article 145 du code général des impôts avec votre conseil.",
+        ],
+      },
+      {
+        heading: "Avoirs plutôt que facture modifiée",
+        paragraphs: [
+          "Une facture déjà émise se corrige par un avoir, pas en réécrivant la pièce. Le solde restant à encaisser tient compte de cet avoir et des règlements, partiels ou complets.",
+        ],
+      },
+      {
+        heading: "Déclaration de TVA et export SIMPL-TVA",
+        paragraphs: [
+          "ESSENTIEL prépare la déclaration de TVA et l’export XML du relevé de déductions SIMPL-TVA. Vous déposez ce fichier vous-même sur SIMPL. Felexia n’envoie rien à la DGI.",
+          `${billingFacts} Le socle comprend 1 entreprise, jusqu’à ${users} utilisateurs, ${documents} documents commerciaux par mois et ${storage} Go de stockage. Les journaux de vente, d’achat, de banque et de caisse restent consultables.`,
         ],
       },
       {
@@ -120,6 +133,9 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
       { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },
       { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
       { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
+      { href: "/blog/numerotation-facture-maroc", label: "Numérotation des factures" },
+      { href: "/blog/avoir-facture-maroc", label: "Avoir sur une facture" },
+      { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
       { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
       { href: "/essentiel", label: "Détail de l’offre ESSENTIEL" },
       { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
@@ -129,15 +145,15 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
   {
     kind: "landing",
     path: "/facturation-electronique-maroc",
-    title: "Facturation électronique au Maroc | FelexiaERP",
-    description: "Parcours de facture électronique complet : PDF, XML, émission et archivage. Inclus dans ESSENTIEL et PRO. Il attend l’entrée en vigueur de la loi au Maroc.",
+    title: "Facture électronique au Maroc | FelexiaERP",
+    description: "Facture électronique au Maroc : parcours PDF, XML, émission et archivage déjà complet, inclus ESSENTIEL et PRO. Connexion DGI et signature non activées.",
     eyebrow: "Facture électronique · Maroc",
-    h1: "Prêt pour la facture électronique au Maroc",
+    h1: "Facture électronique au Maroc : un parcours déjà complet",
     introduction: "Le parcours de facture électronique de Felexia est complet : génération PDF et XML, émission et archivage des factures et avoirs clients déjà validés. Il est inclus dans ESSENTIEL et dans PRO. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
     publishedAt: "2026-11-03",
     sections: [
       {
-        heading: "Le parcours disponible dans votre espace",
+        heading: "Ce que Felexia fait déjà : PDF, XML, émission et archivage",
         paragraphs: [
           "Depuis les factures et avoirs clients validés, vous générez les documents PDF et XML, puis vous émettez et archivez la version retenue. L’impression d’une pièce émise est servie depuis l’archive.",
           "Votre administrateur active la fonction depuis Ventes → Facturation électronique → Configuration. L’activation est propre à l’entreprise : Felexia ne l’ouvre pas en masse pour toutes les sociétés.",
@@ -154,10 +170,11 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
         paragraphs: [
           "Le parcours de facture électronique de Felexia est complet : génération PDF et XML, émission, archivage de la version retenue et téléchargements. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
           "Dès que la loi s’appliquera et que la plateforme officielle de la DGI sera ouverte, Felexia activera la connexion et la signature requises. D’ici là, aucune facture ni déclaration n’est transmise automatiquement à l’administration.",
+          "L’article 145-IX inscrit le principe d’une facture électronique. Le décret d’application n’est pas publié : aucun seuil, aucune date d’obligation et aucun format officiel ne sont annoncés ici. Le détail sourcé est dans l’état des lieux.",
         ],
       },
       {
-        heading: "Dans quelle offre le retrouver",
+        heading: "Inclus dans ESSENTIEL et dans PRO",
         paragraphs: [
           `${billingFacts} La facturation électronique documentaire est incluse dans les deux offres, y compris pendant l’essai ESSENTIEL une fois la fonction activée par l’administrateur.`,
           "Le logiciel de facturation du quotidien — clients, factures, avoirs et règlements — est décrit à part, ainsi que le périmètre stock de l’ERP PRO.",
@@ -189,6 +206,8 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
     },
     related: [
       { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+      { href: "/blog/facture-electronique-pdf-xml", label: "PDF et XML d’une facture" },
+      { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
       { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
       { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
       { href: "/pricing", label: "Voir les tarifs" },

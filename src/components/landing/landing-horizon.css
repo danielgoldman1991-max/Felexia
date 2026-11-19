@@ -18,7 +18,8 @@
 .landing .horizon-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(180deg, rgba(8, 18, 32, .72) 0%, rgba(8, 18, 32, .48) 46%, rgba(8, 18, 32, .55) 100%); opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 2.5), 1); pointer-events: none; }
 .landing .horizon-copy { position: relative; max-width: 1100px; padding: clamp(150px, 20vh, 205px) 24px 32px; margin-inline: auto; text-align: center; color: #fff; opacity: clamp(0, calc(1 - var(--hero-progress, 0) * 4), 1); transform: translate3d(0, calc(var(--hero-progress, 0) * -100px), 0); }
 .landing .horizon-copy::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 8%; width: min(920px, 108%); height: 86%; transform: translateX(-50%); background: radial-gradient(ellipse at center, rgba(8, 18, 32, .62) 0%, rgba(8, 18, 32, .34) 58%, transparent 78%); pointer-events: none; }
-.landing .horizon-copy h1 { max-width: 900px; margin: 0 auto; color: #fff; font-size: clamp(35px, 3.6vw, 56px); line-height: 1.13; font-weight: 500; letter-spacing: -.045em; text-wrap: balance; }
+.landing .horizon-copy > p.horizon-hook { max-width: 900px; margin: 0 auto; color: #fff; font-size: clamp(35px, 3.6vw, 56px); line-height: 1.13; font-weight: 500; letter-spacing: -.045em; text-wrap: balance; }
+.landing .horizon-copy h1 { max-width: 760px; margin: 16px auto 0; color: #fff; font-size: clamp(18px, 1.7vw, 24px); line-height: 1.35; font-weight: 560; letter-spacing: -.02em; text-wrap: balance; }
 .landing .horizon-copy > p { margin: 24px auto 0; max-width: 680px; color: #f5f7fb; font-size: clamp(17px, 1.4vw, 19px); font-weight: 400; line-height: 1.55; letter-spacing: -.015em; text-wrap: balance; }
 .landing .horizon-copy > .horizon-tagline { margin-top: 12px; font-size: 19px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
 .landing .horizon-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 26px; }
@@ -40,7 +41,8 @@
 @media (max-width: 859px) { .landing[data-horizon-enhanced="true"] .horizon-hero { height: 340vh; height: 340svh; }.landing .horizon-image { object-position: 50% 70%; }.landing .horizon-copy { padding-top: 155px; } }
 @media (max-width: 599px) {
   .landing .horizon-copy { padding: 127px 23px 26px; }
-  .landing .horizon-copy h1 { max-width: 360px; margin-inline: auto; font-size: 38px; line-height: 1.06; letter-spacing: -.05em; }
+  .landing .horizon-copy > p.horizon-hook { max-width: 360px; margin-inline: auto; font-size: 38px; line-height: 1.06; letter-spacing: -.05em; }
+  .landing .horizon-copy h1 { max-width: 340px; font-size: 18px; line-height: 1.35; }
   .landing .horizon-copy > p { margin-top: 18px; font-size: 17px; font-weight: 400; line-height: 1.55; max-width: 335px; }
   .landing .horizon-copy > p br { display: none; }
   .landing .horizon-shade { background: linear-gradient(180deg, rgba(8, 18, 32, .78) 0%, rgba(8, 18, 32, .55) 48%, rgba(8, 18, 32, .42) 100%); }
@@ -48,8 +50,8 @@
   .landing .horizon-copy > .horizon-eyebrow { font-size: 12px; font-weight: 600; }
   .landing .horizon-scroll-cue { display: none; }
 }
-@media (max-width: 359px) { .landing .horizon-copy { padding-inline: 18px; }.landing .horizon-copy h1 { font-size: 34px; } }
-@media (max-height: 650px) and (min-width: 600px) { .landing .horizon-copy { padding-top: 112px; }.landing .horizon-copy h1 { font-size: 40px; }.landing .horizon-copy > p { font-size: 17px; margin-top: 14px; } }
+@media (max-width: 359px) { .landing .horizon-copy { padding-inline: 18px; }.landing .horizon-copy > p.horizon-hook { font-size: 34px; }.landing .horizon-copy h1 { font-size: 17px; } }
+@media (max-height: 650px) and (min-width: 600px) { .landing .horizon-copy { padding-top: 112px; }.landing .horizon-copy > p.horizon-hook { font-size: 40px; }.landing .horizon-copy h1 { font-size: 18px; }.landing .horizon-copy > p { font-size: 17px; margin-top: 14px; } }
 @media (prefers-reduced-motion: reduce) {
   .landing:not([data-horizon-motion="enabled"]) .horizon-hero { height: auto; min-height: 100vh; min-height: 100svh; }
   .landing:not([data-horizon-motion="enabled"]) .horizon-window { position: relative; height: auto; min-height: 100vh; min-height: 100svh; }
@@ -63,7 +65,8 @@
 /* Compact the introduction on short windows, while keeping the scroll zoom. */
 @media (max-height: 600px) {
   .landing .horizon-copy { max-height: 100vh; max-height: 100svh; overflow-y: auto; padding-top: 105px; padding-bottom: 46px; scrollbar-width: thin; }
-  .landing .horizon-copy h1 { font-size: 34px; }
+  .landing .horizon-copy > p.horizon-hook { font-size: 34px; }
+  .landing .horizon-copy h1 { font-size: 17px; }
   .landing .horizon-copy > p { font-size: 16px; font-weight: 400; margin-top: 14px; }
   .landing .horizon-copy > .horizon-tagline { margin-top: 10px; font-size: 16px; font-weight: 400; }
   .landing .horizon-scroll-cue { bottom: 10px; }

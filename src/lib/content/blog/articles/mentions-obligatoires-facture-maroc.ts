@@ -172,6 +172,7 @@ const article: BlogArticle = {
     note: offer.offerPitch,
   },
   related: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/blog/ice-facture-maroc", label: "ICE sur la facture" },

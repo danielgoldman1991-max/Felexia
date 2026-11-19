@@ -12,23 +12,22 @@ import "./landing-conversion.css";
 
 const formatPrice = (value: number) => value.toLocaleString("fr-FR");
 const essentialFeatures = [
-  "Factures de vente, PDF et votre logo",
+  "Factures de vente, PDF, ICE et votre logo",
+  "Déclaration de TVA et export XML SIMPL-TVA",
   "Facturation électronique PDF/XML et archivage",
-  "Règlements clients",
-  "Journaux comptables",
+  "Règlements clients et journaux comptables",
   "Jusqu’à 3 utilisateurs",
   "Les devis, commandes et le stock sont dans PRO",
 ];
 const proFeatures = [
-  "Tout ESSENTIEL",
+  "Tout ESSENTIEL, TVA comprise",
   "Devis, prospects, commandes et livraisons",
   "Bons de livraison et retours clients",
   "Commandes et réceptions fournisseurs",
   "Stock, emplacements et mouvements",
   "Plan comptable, grand livre et balance",
-  "Préparation et suivi des déclarations TVA",
   "Prévisions et rapprochement de trésorerie",
-  "Dossiers du personnel et paie préparatoire",
+  "Dossiers du personnel, paie CNSS et OCR interne",
   "Gestion documentaire et tableaux de bord",
   "Jusqu’à 25 utilisateurs",
 ];
@@ -44,8 +43,8 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
       <div className="marketing-container conversion-pricing-grid">
         <div className="conversion-pricing-intro" data-reveal>
           <p className="marketing-eyebrow">Deux offres, la même ambition</p>
-          <Heading id="conversion-pricing-title" className="marketing-section-title">{standalone ? <>Tarifs du logiciel de gestion<br />pour les PME au Maroc.</> : <>Un prix clair.<br />Un essai de {DEFAULT_TRIAL_DURATION_LABEL}.</>}</Heading>
-          <p className="marketing-copy">{standalone ? "ESSENTIEL : factures, règlements et journaux. PRO : les devis et le reste de l’ERP, sur devis." : "Commencez par facturer avec ESSENTIEL. Passez à PRO pour les devis, le stock et l’équipe."}</p>
+          <Heading id="conversion-pricing-title" className="marketing-section-title">{standalone ? <>Tarifs du logiciel de facturation<br />et de gestion au Maroc</> : <>ESSENTIEL à 99 MAD HT/mois.<br />Essai de {DEFAULT_TRIAL_DURATION_LABEL}, sans carte.</>}</Heading>
+          <p className="marketing-copy">{standalone ? "ESSENTIEL : factures, journaux et déclaration TVA. PRO : devis, stock et paie, sur devis." : "Facturez et préparez la TVA avec ESSENTIEL. Passez à PRO pour les devis, le stock et la paie."}</p>
           <div className="conversion-trial-note">
             <span className="conversion-trial-icon"><Sparkles size={21} aria-hidden="true" /></span>
             <div><strong>{DEFAULT_TRIAL_DURATION_LABEL} d’essai ESSENTIEL.</strong><p>Découvrez votre espace gratuitement, sans carte bancaire. Pour PRO, échangeons sur votre projet.</p></div>
@@ -63,7 +62,7 @@ export function LandingPricing({ standalone = false }: { standalone?: boolean })
             return (
               <article key={plan.code} className={`conversion-price-card${isPro ? " conversion-price-card-pro" : ""}`} aria-labelledby={`conversion-plan-${plan.code}`}>
                 <div className="conversion-plan-topline"><PlanHeading id={`conversion-plan-${plan.code}`}>{plan.name}</PlanHeading><span className="conversion-plan-badge">{isPro ? "L’ERP complet" : "Votre gestion quotidienne"}</span></div>
-                <p className="conversion-plan-description">{isPro ? "Les devis, les commandes, le stock et l’équipe. PRO reprend ESSENTIEL et va plus loin." : "Facturation, règlements et journaux comptables. Pas les devis : ils sont dans PRO."}</p>
+                <p className="conversion-plan-description">{isPro ? "Devis, stock, achats et paie, en plus du socle ESSENTIEL. La déclaration TVA est déjà incluse." : "Facturation, journaux et déclaration TVA (export XML SIMPL-TVA). Les devis sont dans PRO."}</p>
                 <div className="conversion-price-amount" aria-live="polite" aria-atomic="true">{isPro ? <strong>Sur devis</strong> : <><strong>{formatPrice(yearly ? plan.yearlyPrice : plan.monthlyPrice)}</strong><span> HT MAD <span>/{yearly ? "an" : "mois"}</span></span></>}</div>
                 <p className="conversion-price-caption">{isPro ? "Aucun prix public. La proposition se fait avec l’équipe." : yearly ? `Soit 12 × ${formatPrice(plan.monthlyPrice)} MAD HT, sans remise.` : "Facturé chaque mois. L’annuel est le même tarif, sans remise."}</p>
                 <Link href={isPro ? getProQuoteHref() : "/login?mode=register"} className={`marketing-button ${isPro ? "conversion-pro-button" : "marketing-button-primary"} conversion-price-button`}>{isPro ? "Demander un devis PRO" : "Essayer gratuitement"} <ArrowRight size={17} aria-hidden="true" /></Link>

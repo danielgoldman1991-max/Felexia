@@ -31,7 +31,8 @@ export function LandingHero() {
         <div className="horizon-shade" aria-hidden="true" />
         <div className="horizon-copy">
           <p className="horizon-eyebrow">Logiciel de gestion & ERP · PME au Maroc</p>
-          <h1 id="hero-title"><span>Votre entreprise.</span>{" "}<span>Une vision plus claire.</span></h1>
+          <p className="horizon-hook"><span>Votre entreprise.</span>{" "}<span>Une vision plus claire.</span></p>
+          <h1 id="hero-title">Logiciel de facturation et de gestion pour PME au Maroc</h1>
           <p className="horizon-tagline">Facturez. Suivez vos coûts. Pilotez en toute liberté.</p>
           <div className="horizon-actions">
             <Link className="marketing-button marketing-button-primary" href="/login?mode=register">Essayer gratuitement</Link>

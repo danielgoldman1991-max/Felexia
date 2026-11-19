@@ -59,12 +59,13 @@ for (const route of ["essentiel", "pro"]) {
 
 const essential = pages.essentiel;
 const pro = pages.pro;
-check(essential.includes("Logiciel de gestion pour PME au Maroc"), "ESSENTIEL addresses the commercial intent directly");
+check(essential.includes("Logiciel de facturation et de déclaration TVA au Maroc"), "ESSENTIEL addresses invoicing and VAT declaration");
+check(essential.includes("SIMPL-TVA") && essential.includes("déposez"), "ESSENTIEL explains the SIMPL export and the company’s own filing");
 check(essential.includes("Commencer mes 15 jours gratuits") && essential.includes("Sans carte bancaire"), "ESSENTIEL has the real 15-day CTA and card-free conditions");
 check((essential.match(/href="\/login\?mode=register"/g) || []).length === 2, "Both ESSENTIEL CTAs reach the real registration path");
 check(essential.includes("99") && essential.includes("HT MAD / mois") && essential.includes("Jusqu’à 3"), "ESSENTIEL price and user limit are rendered from the catalogue");
 check(essential.includes("logo") && essential.includes("ICE"), "ESSENTIEL explains the implemented invoice identity");
-check(pro.includes("Un ERP pour piloter votre PME au Maroc") && pro.includes("Jusqu’à 25"), "PRO explains its target use and real user limit");
+check(pro.includes("Un ERP pour relier facturation, stock et paie au Maroc") && pro.includes("Jusqu’à 25"), "PRO explains its target use and real user limit");
 const mailLinks = [...pro.matchAll(/href="(mailto:[^"]+)"/g)].map(match => match[1].replaceAll("&amp;", "&"));
 check(mailLinks.length === 2 && mailLinks.every(href => href === mailLinks[0]), "Both PRO CTAs open the same real quote draft");
 const quote = new URL(mailLinks[0]);

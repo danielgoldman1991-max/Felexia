@@ -12,7 +12,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que comprend l’offre Essentiel ?",
     answer:
-      "ESSENTIEL couvre la facturation (factures, PDF, et facturation électronique PDF/XML avec archivage), les règlements et les journaux comptables, jusqu’à 3 utilisateurs. Les devis, les commandes, le stock et le reste de l’ERP sont dans PRO.",
+      "ESSENTIEL couvre la facturation (factures, avoirs, PDF, mentions ICE, IF et RC), les règlements, les journaux comptables, la déclaration de TVA et l’export XML SIMPL-TVA, ainsi que la facturation électronique PDF/XML avec archivage, jusqu’à 3 utilisateurs. Vous préparez la déclaration dans Felexia et vous la déposez vous-même sur SIMPL. Les devis, les commandes, le stock et la paie sont dans PRO.",
   },
   {
     question: "Comment fonctionne l’essai gratuit ?",
@@ -31,7 +31,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Que change l’offre PRO ?",
     answer:
-      "PRO reprend ESSENTIEL et ajoute les devis, les prospects, les commandes, les livraisons, les achats et réceptions, le stock, la comptabilité étendue, la préparation TVA, les prévisions de trésorerie et les RH, jusqu’à 25 utilisateurs. Le passage à PRO est une raison de sortir du seul cycle facture-règlement-journal.",
+      "PRO reprend ESSENTIEL, déclaration de TVA comprise, et ajoute les devis, les prospects, les commandes, les livraisons, les achats et réceptions, le stock, la comptabilité étendue, les prévisions de trésorerie, l’OCR interne et les RH, jusqu’à 25 utilisateurs.",
   },
   {
     question: "Comment obtenir une proposition PRO ?",
@@ -47,6 +47,16 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
     question: "Les factures sont-elles transmises à la DGI ?",
     answer:
       "Le parcours PDF/XML, l’émission et l’archivage sont complets. Aucune facture n’est transmise automatiquement : la connexion et la signature attendront l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
+  },
+  {
+    question: "La déclaration de TVA est-elle incluse dans ESSENTIEL ?",
+    answer:
+      "Oui, y compris l’export XML du relevé de déductions SIMPL-TVA, aussi dans PRO. Vous préparez la déclaration dans Felexia et vous la déposez vous-même sur SIMPL. Felexia n’envoie rien à la DGI.",
+  },
+  {
+    question: "Felexia dépose-t-il la déclaration auprès de la DGI ?",
+    answer:
+      "Non. Aucune déclaration ni facture n’est transmise automatiquement à l’administration. Le dépôt sur SIMPL, comme les dépôts CNSS ou Damancom, reste à la charge de l’entreprise.",
   },
   {
     question: "Que se passe-t-il après les 15 jours ?",
@@ -78,15 +88,15 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
 /** Visible pricing FAQ. Amounts come from the public plan catalogue, not from a second price list. */
 export const PRICING_FAQS: readonly PublicFaqItem[] = [
   {
-    question: `Que comprend ESSENTIEL à ${price} HT MAD par mois ?`,
-    answer: `La facturation, les règlements et les journaux comptables, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, soit douze mois sans remise. Les devis ne sont pas dans ESSENTIEL. La génération PDF/XML et l’archivage documentaire sont inclus.`,
+    question: `Qu’est-ce qui est inclus à ${price} HT MAD par mois ?`,
+    answer: `La facturation, les règlements, les journaux comptables et la déclaration de TVA avec l’export XML SIMPL-TVA, jusqu’à ${essential.limits.users} utilisateurs, ${essential.limits.commercialDocumentsPerMonth?.toLocaleString("fr-FR")} documents commerciaux par mois et ${essential.limits.storageMb / 1024} Go de stockage. La facturation annuelle est de ${yearly} HT MAD, soit douze mois sans remise. Vous déposez le fichier vous-même sur SIMPL. Les devis ne sont pas dans ESSENTIEL. Le parcours PDF/XML et l’archivage sont inclus.`,
   },
   {
-    question: "Faut-il une carte bancaire pour l’essai ?",
-    answer: `Non. L’essai ESSENTIEL de ${DEFAULT_TRIAL_DURATION_LABEL} est gratuit et ne demande pas de carte bancaire. Créez votre compte, puis confirmez votre entreprise pour accéder à votre espace.`,
+    question: "L’essai est-il vraiment sans carte ?",
+    answer: `Oui. L’essai ESSENTIEL de ${DEFAULT_TRIAL_DURATION_LABEL} est gratuit et ne demande pas de carte bancaire. Créez votre compte, puis confirmez votre entreprise pour accéder à votre espace.`,
   },
   {
-    question: "Pourquoi l’ERP PRO est-il sur devis ?",
+    question: "Comment est proposé PRO ?",
     answer: "PRO dépend des métiers et des parcours à mettre en place : devis, commandes, livraisons, stock, comptabilité ou dossiers du personnel. Aucun prix PRO ni achat direct en ligne n’est proposé. L’essai public gratuit concerne uniquement ESSENTIEL.",
   },
   {

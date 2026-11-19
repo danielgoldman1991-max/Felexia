@@ -147,6 +147,7 @@ const article: BlogArticle = {
     note: `La page PRO présente le périmètre, puis ouvre un brouillon d’e-mail à envoyer. ${offer.offerPitch}`,
   },
   related: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/pro", label: "Périmètre de l’ERP PRO" },
     { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
