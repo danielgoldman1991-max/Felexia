@@ -46,7 +46,7 @@ export const HOME_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Les factures sont-elles transmises à la DGI ?",
     answer:
-      "Le parcours actuel couvre les documents PDF/XML et leur archivage. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées. Le XML généré ne constitue pas une acceptation fiscale.",
+      "Le parcours PDF/XML, l’émission et l’archivage sont complets. Aucune facture n’est transmise automatiquement : la connexion et la signature attendront l’entrée en vigueur de la loi sur la facture électronique au Maroc.",
   },
   {
     question: "Que se passe-t-il après les 15 jours ?",
@@ -92,6 +92,6 @@ export const PRICING_FAQS: readonly PublicFaqItem[] = [
   {
     question: "Le logiciel de facturation électronique est-il dans le tarif ?",
     answer:
-      "Oui, dans ESSENTIEL comme dans PRO. Le parcours couvre le PDF, le XML, l’émission et l’archivage après activation par l’administrateur. La connexion officielle à la DGI et la signature qualifiée ne sont pas activées.",
+      "Oui, dans ESSENTIEL comme dans PRO. Le parcours PDF, XML, émission et archivage est complet après activation par l’administrateur. La connexion à la plateforme officielle attend l’entrée en vigueur de la loi.",
   },
 ];

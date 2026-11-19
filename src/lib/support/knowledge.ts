@@ -178,7 +178,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "electronic-invoicing", title: "Facturation électronique incluse : PDF/XML, émission et archivage",
     keywords: ["facturation électronique", "facturation electronique", "facture électronique", "facture electronique", "xml", "ubl", "einvoice", "e-invoicing", "electronic invoice", "الفاتورة الإلكترونية", "فوترة الكترونية", "فاتورة الكترونية"],
-    content: "La facturation électronique est incluse dans ESSENTIEL et PRO : à partir des factures et avoirs clients validés, préparer les documents PDF/XML, vérifier les informations, puis émettre et archiver la version retenue. L’émission documentaire fige la version et ses fichiers ; les PDF et XML peuvent être téléchargés séparément. Cela ne transforme pas ESSENTIEL en offre limitée à la facturation : la gestion d’entreprise reste sa fonction principale. La connexion officielle DGI et la signature qualifiée ne sont pas activées ; le XML UBL générique n’est pas une preuve d’acceptation fiscale ou d’homologation.",
+    content: "La facturation électronique est incluse dans ESSENTIEL et PRO. Le parcours est complet après activation par l’administrateur : PDF/XML, émission et archivage de la version retenue. Les PDF et XML se téléchargent séparément. Ce parcours n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc. Cela ne transforme pas ESSENTIEL en offre limitée à la facturation : la gestion d’entreprise reste sa fonction principale. La connexion officielle DGI et la signature qualifiée ne sont pas activées aujourd’hui ; le XML n’est pas une preuve d’acceptation fiscale.",
     href: "/#facturation-electronique",
   },
   {
@@ -190,7 +190,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "dgi-signature", title: "DGI, conformité et signature électronique : périmètre réel",
     keywords: ["dgi", "certifié", "certifie", "certification", "homologué", "homologue", "conforme", "conformité", "conformite", "signature", "qualifiée", "officiel", "compliance", "certified", "legal", "ضرائب", "المديرية", "توقيع", "مطابق", "اعتماد"],
-    content: "Felexia prend en charge un parcours documentaire de facturation électronique : PDF, XML structuré, émission et archivage. Il ne faut pas le présenter comme une connexion officielle DGI, une signature qualifiée ou une certification de conformité réglementaire déjà obtenue : ces capacités officielles ne sont pas activées. Un fichier XML généré ne prouve pas son acceptation par l’administration. Les obligations fiscales et sociales réelles doivent être vérifiées avec les autorités ou le conseil de l’entreprise. Le chatbot ne peut pas fournir une garantie juridique ou fiscale individuelle.",
+    content: "Le parcours documentaire de facturation électronique est complet : PDF, XML, émission et archivage. Il n’attend plus que l’entrée en vigueur de la loi sur la facture électronique au Maroc. Il ne faut pas le présenter comme une connexion officielle DGI ou une signature qualifiée déjà obtenue : ces capacités officielles ne sont pas activées. Aucune facture n’est transmise automatiquement avant l’ouverture de la plateforme officielle. Le chatbot ne peut pas fournir une garantie juridique ou fiscale individuelle.",
     href: "/#resources",
   },
   {
