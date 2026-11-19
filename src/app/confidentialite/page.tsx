@@ -230,14 +230,16 @@ export default function ConfidentialitePage() {
           ]}
         />
         <LegalParagraph>
-          Ces cookies permettent le fonctionnement technique du service. La mesure d’audience
-          Google Analytics du site public est facultative : aucun script de mesure Google n’est
-          chargé avant votre acceptation. Refuser cette mesure permet de continuer à utiliser le
-          site et l’ERP normalement.
+          Ces cookies permettent le fonctionnement technique du service. Le site public charge
+          la balise Google Ads avec un stockage refusé par défaut : aucun cookie publicitaire
+          n’est déposé avant votre acceptation. Refuser cette mesure permet de continuer à
+          utiliser le site et l’ERP normalement.
         </LegalParagraph>
         <LegalParagraph>
           Si vous acceptez, Google Analytics mesure les visites des pages publiques et les clics
-          sur les boutons d’essai, de devis et de contact. Des identifiants de mesure, des
+          sur les boutons d’essai, de devis et de contact. Une inscription d’essai réussie peut
+          aussi envoyer une conversion Google Ads, avec un identifiant technique de compte,
+          sans nom, email ni autre donnée personnelle. Des identifiants de mesure, des
           informations sur le navigateur et le terminal, ainsi que la provenance depuis certains
           moteurs de recherche peuvent être traités par Google, y compris hors du Maroc. Les
           URL complètes et leurs paramètres libres, vos messages, coordonnées saisies et données
@@ -245,7 +247,7 @@ export default function ConfidentialitePage() {
           campagne Felexia prédéfinis peuvent identifier la source publicitaire et la variante
           d’annonce, après votre accord, sans enregistrer d’identifiant de clic publicitaire.
           Les clics d’essai ou de contact mesurent
-          une intention, sans attester une inscription ou une vente réalisée.
+          une intention ; seule une inscription réussie déclenche la conversion.
         </LegalParagraph>
         <LegalParagraph>
           Votre choix est mémorisé dans votre navigateur pendant 180 jours. Les cookies de mesure

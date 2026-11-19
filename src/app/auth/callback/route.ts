@@ -4,6 +4,7 @@ import { sanitizeInternalPath } from "@/lib/auth/sanitize-internal-path";
 import { ensureProfileFromAuthUser } from "@/lib/auth/ensure-profile-from-auth-user";
 import { resolveAuthenticatedUserRedirect } from "@/lib/auth/resolve-authenticated-user-redirect";
 import { allowPasswordRecovery } from "@/lib/auth/recovery-session";
+import { freshTrialSignup, GOOGLE_ADS_SIGNUP_COOKIE, trialTransactionId } from "@/lib/analytics/google-ads";
 
 function redirectResponse(url: URL) {
   return NextResponse.redirect(url, {
@@ -104,7 +105,19 @@ export async function GET(request: NextRequest) {
       destination,
     });
 
-    return redirectResponse(new URL(destination, requestUrl.origin));
+    const response = redirectResponse(new URL(destination, requestUrl.origin));
+    const mode = requestUrl.searchParams.get("mode");
+    const signupId = trialTransactionId(user.id);
+    if (mode === "register" && freshTrialSignup(user.created_at) && signupId && response.cookies) {
+      response.cookies.set(GOOGLE_ADS_SIGNUP_COOKIE, signupId, {
+        maxAge: 300,
+        path: "/",
+        sameSite: "lax",
+        secure: requestUrl.protocol === "https:",
+        httpOnly: false,
+      });
+    }
+    return response;
   } catch (caught) {
     console.error("[AUTH CALLBACK] post-auth failed", {
       step: "error",

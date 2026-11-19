@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicSitePath } from "@/lib/public-site";
 import { ANALYTICS_SETTINGS_EVENT, PublicAnalyticsController, validMeasurementId, type AnalyticsSnapshot } from "@/lib/analytics/public-analytics";
+import { applyParentAdsConsent } from "@/lib/analytics/google-ads";
 import styles from "./PublicAnalytics.module.css";
 
 // Disabled until NEXT_PUBLIC_GA_MEASUREMENT_ID is a valid GA4 id (G-XXXXXXXX).
@@ -45,6 +46,7 @@ export function PublicAnalytics() {
 
   function choose(choice: "accepted" | "refused") {
     controller.current?.setChoice(choice);
+    applyParentAdsConsent(window, choice);
     closeSettings();
   }
 
@@ -66,7 +68,7 @@ export function PublicAnalytics() {
         <h2>Votre choix pour les cookies</h2>
       </div>
       <div className={styles.copy}>
-        <p>Google Analytics mesure les visites et les clics du site public uniquement avec votre accord. Aucun suivi dans votre espace ERP.</p>
+        <p>La mesure d’audience et les conversions publicitaires du site public restent refusées tant que vous n’acceptez pas. Aucun suivi dans votre espace ERP.</p>
       </div>
       <div className={styles.actions}>
         <button ref={acceptButton} type="button" onClick={() => choose("accepted")}>Accepter<span className={styles.srOnly}> la mesure</span></button>
