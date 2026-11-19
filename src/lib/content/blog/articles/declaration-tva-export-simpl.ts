@@ -210,6 +210,7 @@ const article: BlogArticle = {
     note: "Essai ESSENTIEL sans carte bancaire. Le dépôt SIMPL n’est pas inclus : il reste à faire sur le portail de la DGI.",
   },
   related: [
+    { href: "/declaration-tva-maroc", label: "Déclaration de TVA et export SIMPL" },
     { href: "/blog/tva-maroc-pme", label: "TVA au Maroc pour une PME" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },

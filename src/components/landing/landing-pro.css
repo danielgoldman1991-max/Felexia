@@ -17,6 +17,9 @@
 .landing .pro-suite-quote { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; margin-top: 38px; padding: 12px 18px; border: 1px solid #d3e8d8; border-radius: 8px; background: #d3e8d8; color: #16352f; font-size: 16px; font-weight: 600; line-height: 1.4; text-decoration: none; transition: background .2s, border-color .2s; }
 .landing .pro-suite-whatsapp { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; margin-left: 16px; color: #d3e8d8; font-size: 15px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
 .landing .pro-suite-quote:hover { border-color: #e5f0e6; background: #e5f0e6; color: #16352f; }
+.landing .pro-suite-links { margin: 18px 0 0; color: #d3e8d8; font-size: 14px; line-height: 1.6; }
+.landing .pro-suite-links a { color: inherit; font-weight: 600; text-underline-offset: 4px; }
+.landing .pro-suite-links a:hover { color: #fff; }
 .landing .pro-suite-link { display: flex; align-items: center; gap: 12px; width: fit-content; min-height: 44px; margin-top: 10px; color: #e1ebe3; font-size: 13px; font-weight: 500; text-underline-offset: 5px; }
 .landing .pro-suite-link:hover { color: #fff; text-decoration: underline; }
 .landing .pro-suite :is(a, button):focus-visible { outline: 2px solid #d3e8d8; outline-offset: 5px; }

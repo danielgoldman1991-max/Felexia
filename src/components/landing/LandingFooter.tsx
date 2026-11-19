@@ -6,11 +6,15 @@ import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 import styles from "./public-footer.module.css";
 
 const discoverLinks = [
-  { label: "La gestion avec ESSENTIEL", href: "/essentiel" },
-  { label: "Au quotidien", href: "/#modules" },
-  { label: "L’ERP complet PRO", href: "/pro" },
-  { label: "Logiciel de facturation", href: "/logiciel-facturation-maroc" },
+  { label: "ESSENTIEL", href: "/essentiel" },
+  { label: "Facturation", href: "/logiciel-facturation-maroc" },
   { label: "Facture électronique", href: "/facturation-electronique-maroc" },
+  { label: "Déclaration TVA", href: "/declaration-tva-maroc" },
+  { label: "Comptabilité", href: "/logiciel-comptabilite-maroc" },
+  { label: "Devis et factures", href: "/logiciel-devis-facture-maroc" },
+  { label: "Stock", href: "/logiciel-gestion-stock-maroc" },
+  { label: "Paie", href: "/logiciel-paie-maroc" },
+  { label: "ERP PRO", href: "/pro" },
 ];
 const resourceLinks = [
   { label: "Guides", href: "/guides" },

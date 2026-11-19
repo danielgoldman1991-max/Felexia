@@ -148,6 +148,7 @@ const article: BlogArticle = {
   },
   related: [
     { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
+    { href: "/logiciel-gestion-stock-maroc", label: "Logiciel de gestion de stock" },
     { href: "/pro", label: "Périmètre de l’ERP PRO" },
     { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
