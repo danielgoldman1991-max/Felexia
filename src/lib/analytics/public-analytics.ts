@@ -39,6 +39,22 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/declaration-tva-export-simpl": "Déclaration TVA et export SIMPL — FelexiaERP",
   "/blog/tva-maroc-pme": "TVA au Maroc pour une PME — FelexiaERP",
   "/blog/relance-facture-impayee-maroc": "Relancer une facture impayée — FelexiaERP",
+  "/blog/tva-encaissement-ou-debits-maroc": "TVA encaissement ou débits — FelexiaERP",
+  "/blog/deposer-declaration-tva-simpl": "Déposer le relevé sur SIMPL — FelexiaERP",
+  "/blog/if-ice-rc-tp-facture-maroc": "IF, ICE, RC et TP — FelexiaERP",
+  "/blog/facture-acompte-maroc": "Facture d’acompte — FelexiaERP",
+  "/blog/facture-proforma-vs-facture-maroc": "Pro forma ou facture — FelexiaERP",
+  "/blog/devis-bon-commande-livraison-facture-maroc": "Devis, commande, facture — FelexiaERP",
+  "/blog/facture-excel-ou-logiciel-maroc": "Excel ou logiciel de facturation — FelexiaERP",
+  "/blog/paie-cnss-amo-ir-maroc": "Paie CNSS, AMO et IR — FelexiaERP",
+  "/blog/fichier-damancom-dns-bds": "Damancom, DNS et BDS — FelexiaERP",
+  "/blog/etat-9421-traitements-salaires": "État 9421 préparatoire — FelexiaERP",
+  "/blog/bulletin-paie-maroc-mentions": "Bulletin de paie — FelexiaERP",
+  "/blog/journaux-comptables-pme-maroc": "Journaux comptables PME — FelexiaERP",
+  "/blog/export-comptable-fiduciaire-maroc": "Export pour la fiduciaire — FelexiaERP",
+  "/blog/modes-paiement-facture-maroc": "Modes de paiement SIMPL — FelexiaERP",
+  "/blog/calendrier-fiscal-pme-maroc": "Calendrier fiscal PME — FelexiaERP",
+  "/blog/credit-tva-remboursement-maroc": "Crédit de TVA — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
