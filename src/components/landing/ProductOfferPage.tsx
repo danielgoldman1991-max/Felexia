@@ -4,7 +4,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { ProGuideCta } from "@/components/marketing/ProGuideCta";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
+import { getBreadcrumbStructuredData, getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "./landing-conversion.css";
 import styles from "./product-offer-page.module.css";
@@ -39,6 +39,7 @@ export type ProductOfferContent = {
   nextHeading: string;
   nextDescription: string;
   related: { href: "/essentiel" | "/pro"; label: string };
+  reading?: readonly { href: string; label: string }[];
 };
 
 export function ProductOfferPage({ content, path }: { content: ProductOfferContent; path: "/essentiel" | "/pro" }) {
@@ -46,6 +47,7 @@ export function ProductOfferPage({ content, path }: { content: ProductOfferConte
     <div id="top" className={"landing marketing-site " + styles.page}>
       <JsonLd id="felexia-offer-software" data={getSoftwareApplicationStructuredData()} />
       <JsonLd id="felexia-offer-faq" data={getFaqPageStructuredData(content.questions, path)} />
+      <JsonLd id="felexia-offer-breadcrumb" data={getBreadcrumbStructuredData([{ name: "Accueil", path: "/" }, { name: content.name, path }])} />
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader />
       <main id="main-content" tabIndex={-1}>
@@ -129,7 +131,7 @@ export function ProductOfferPage({ content, path }: { content: ProductOfferConte
           <div className="marketing-container">
             <div className={styles.electronicNote}>
               <FileCheck2 size={25} aria-hidden="true" />
-              <div><h2>La facturation électronique est incluse</h2><p>{content.electronicInvoicing}</p><Link href="/facturation-electronique-maroc" className={styles.textLink}>Prêt pour la facture électronique au Maroc <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
+              <div><h2>Facture électronique : PDF, XML et archivage, déjà en place</h2><p>{content.electronicInvoicing}</p><Link href="/facturation-electronique-maroc" className={styles.textLink}>Facture électronique au Maroc <ArrowUpRight size={16} aria-hidden="true" /></Link>{content.reading?.map((link) => <Link key={link.href} href={link.href} className={styles.textLink}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></Link>)}</div>
             </div>
             <div className={styles.scopeGrid}>
               <div className={styles.sectionHeading}>

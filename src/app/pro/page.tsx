@@ -6,8 +6,8 @@ import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 
 export const metadata = createPublicMetadata({
-  title: "ERP et logiciel de gestion de stock au Maroc | Felexia PRO",
-  description: "ERP au Maroc : ventes, stock, achats et comptabilité avec Felexia PRO, sur devis. Le socle ESSENTIEL, facturation comprise, reste inclus.",
+  title: "ERP, stock et paie au Maroc | Felexia PRO",
+  description: "ERP pour PME au Maroc : devis, stock, achats, ventes, paie CNSS et OCR, en plus d’ESSENTIEL (facturation et déclaration TVA). Felexia PRO, sur devis.",
   path: "/pro",
 });
 
@@ -15,8 +15,8 @@ const plan = getPlanDefinition("premium");
 const content: ProductOfferContent = {
   name: "PRO",
   eyebrow: "Felexia PRO · ERP au Maroc",
-  title: "Un ERP pour piloter votre PME au Maroc",
-  introduction: "Reliez votre gestion commerciale, vos achats, vos stocks et vos outils comptables avec Felexia PRO. Tout ESSENTIEL est inclus ; notre équipe définit avec vous les parcours utiles et le périmètre disponible pour votre entreprise.",
+  title: "Un ERP pour relier facturation, stock et paie au Maroc",
+  introduction: "Reliez devis, achats, stock et paie avec Felexia PRO. Le socle ESSENTIEL est inclus, avec la facturation et la déclaration de TVA. La mise en place se prépare sur devis.",
   price: "Sur devis",
   priceDetail: "Une proposition adaptée à votre entreprise et aux fonctions utiles à votre organisation.",
   priceNote: "La mise en place de PRO se prépare avec l’équipe Felexia. L’essai public gratuit concerne ESSENTIEL ; PRO ne s’achète pas directement en ligne.",
@@ -61,7 +61,7 @@ const content: ProductOfferContent = {
     {
       title: "Rassembler les pièces de gestion",
       description: "Retrouvez vos documents dans une bibliothèque liée à votre entreprise et préparez les éléments utiles aux travaux fiscaux avec vos conseils.",
-      points: ["Bibliothèque documentaire et import de fichiers", "Consultation et téléchargement des pièces", "Préparation des déclarations TVA et exports"],
+      points: ["Bibliothèque documentaire et import de fichiers", "Consultation et téléchargement des pièces", "OCR interne des pièces, sans dépôt automatique"],
     },
   ],
   workflowHeading: "Un même fil entre la vente et le terrain.",
@@ -75,7 +75,7 @@ const content: ProductOfferContent = {
   scopeHeading: "Un périmètre clair avant votre mise en place.",
   scopeIntroduction: "Un ERP couvre plusieurs métiers. Nous distinguons les opérations disponibles, les outils préparatoires et les fonctions qui restent à venir pour construire un projet adapté à votre activité.",
   scope: [
-    { title: "TVA et paie : des travaux préparatoires", description: "Les déclarations TVA et leurs exports doivent être validés avec votre conseil fiscal. La paie couvre une préparation de base ; les variables, la validation finale et les déclarations sociales ne constituent pas un cycle de paie complet livré." },
+    { title: "TVA déjà dans ESSENTIEL, paie préparée dans PRO", description: "La déclaration de TVA et l’export XML SIMPL-TVA sont dans le socle ESSENTIEL, inclus ici. La paie CNSS est une préparation de base ; ce n’est pas un cycle de paie complet livré. Les dépôts SIMPL, CNSS et Damancom restent à votre charge." },
     { title: "Certaines vues restent en consultation", description: "Plusieurs écrans RH, notamment les congés, présences et frais, sont des consultations sans parcours complet de création et d’approbation. Le détail complet des contrats et la génération d’attestations ne sont pas promis." },
     { title: "Les dépôts officiels restent manuels", description: "La liasse de gestion, le rapprochement bancaire et les fichiers TVA se préparent dans Felexia. Le télé-dépôt DGI ou Damancom et la signature qualifiée ne sont pas simulés." },
   ],
@@ -90,6 +90,10 @@ const content: ProductOfferContent = {
   nextHeading: "Parlons des besoins de votre entreprise.",
   nextDescription: "Indiquez votre entreprise, votre activité, le nombre d’utilisateurs et votre besoin principal. Vous pouvez aussi demander une démonstration des parcours qui vous intéressent.",
   related: { href: "/essentiel", label: "Commencer avec ESSENTIEL" },
+  reading: [
+    { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
+    { href: "/blog/erp-maroc-pme", label: "ERP pour une PME au Maroc" },
+  ],
 };
 
 export default function ProProductPage() {

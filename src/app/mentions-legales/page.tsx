@@ -13,9 +13,9 @@ import { LEGAL_CONFIG } from "@/lib/legal/legal-config";
 import { createPublicMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPublicMetadata({
-  title: "Mentions légales | FelexiaERP, logiciel de gestion au Maroc",
+  title: "Mentions légales | FelexiaERP",
   description:
-    "Mentions légales de FelexiaERP, logiciel de gestion pour les PME au Maroc, édité par Felexia Conseils.",
+    "Mentions légales de FelexiaERP, logiciel de facturation et de gestion pour les PME au Maroc.",
   path: "/mentions-legales",
 });
 

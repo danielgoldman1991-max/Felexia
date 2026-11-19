@@ -30,7 +30,7 @@
 }
 .social a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .column { min-width: 0; }
-.column h2 {
+.columnTitle {
   margin: 18px 0 0;
   color: #14213d;
   font-size: 12px;

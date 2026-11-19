@@ -7,10 +7,10 @@ import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 
 /** SEO stays on the public www host; OAuth keeps its independent URL contract. */
 export const SEO_SITE_URL = PUBLIC_SITE_ORIGIN;
-export const SEO_CONTENT_UPDATED_AT = "2026-11-03";
-export const SEO_DEFAULT_TITLE = "Logiciel de gestion PME au Maroc et ERP | Felexia";
+export const SEO_CONTENT_UPDATED_AT = "2026-11-19";
+export const SEO_DEFAULT_TITLE = "Logiciel de facturation et gestion Maroc | Felexia";
 export const SEO_DEFAULT_DESCRIPTION =
-  "Logiciel de gestion pour les PME au Maroc : facturation, achats et trésorerie avec ESSENTIEL. PRO est l’ERP complet, stock compris, disponible uniquement sur devis.";
+  "Logiciel de facturation et gestion PME au Maroc : factures, journaux et déclaration TVA (export XML SIMPL-TVA). ESSENTIEL à 99 MAD HT/mois, essai 15 jours.";
 export const SEO_SHARE_IMAGE = "/opengraph-image";
 
 export function canonicalUrl(path = "/"): string {
@@ -175,9 +175,9 @@ export function getSoftwareApplicationStructuredData() {
     publisher: { "@id": `${home}#organization` },
     featureList: [
       "ESSENTIEL : ventes, achats, clients, fournisseurs, factures et règlements",
-      "ESSENTIEL : trésorerie et journaux comptables",
+      "ESSENTIEL : journaux comptables, déclaration de TVA et export XML SIMPL-TVA (dépôt par l’entreprise sur SIMPL)",
       "Facturation électronique PDF/XML et archivage inclus",
-      "PRO sur devis : gestion commerciale étendue, stock, comptabilité et RH préparatoires",
+      "PRO sur devis : devis, stock, comptabilité étendue, paie et RH préparatoires",
     ],
     offers: [
       { name: "ESSENTIEL — mensuel", amount: essential.monthlyPrice, duration: "P1M", cadence: "par mois" },
@@ -277,6 +277,47 @@ export function getBlogStructuredData(posts: readonly {
       ...(post.publishedAt ? { datePublished: post.publishedAt, dateModified: post.updatedAt ?? post.publishedAt } : {}),
       ...(post.cover ? { image: canonicalUrl(post.cover.webp) } : {}),
     })),
+  };
+}
+
+export function getBreadcrumbStructuredData(crumbs: readonly { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: canonicalUrl(crumb.path),
+    })),
+  };
+}
+
+export function getCollectionStructuredData(page: {
+  name: string;
+  description: string;
+  path: string;
+  items: readonly { name: string; path: string }[];
+}) {
+  const url = canonicalUrl(page.path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#collection`,
+    name: page.name,
+    description: page.description,
+    url,
+    inLanguage: "fr-MA",
+    isPartOf: { "@id": `${canonicalUrl("/")}#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: page.items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: canonicalUrl(item.path),
+      })),
+    },
   };
 }
 

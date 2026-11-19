@@ -8,14 +8,16 @@ import { BLOG_ARTICLES, articlesInCategory, blogCategoryLabel } from "@/lib/cont
 import { formatBlogDate, readingMinutes } from "@/lib/content/blog/text";
 import { BLOG_PILLARS, type BlogArticle, type BlogPillarSlug } from "@/lib/content/blog/types";
 import { PRODUCT_GUIDES } from "@/lib/content/product-guides";
-import { createPublicMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { createPublicMetadata, getBreadcrumbStructuredData, getCollectionStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
-const description = "Articles pour facturer, suivre la TVA et préparer vos échanges au Maroc. Les guides PDF se téléchargent en bas de page, après un court formulaire.";
+const title = "Guides facturation et TVA au Maroc | Felexia";
+const description = "Guides pour facturer, déclarer la TVA et préparer la facture électronique au Maroc. Articles sourcés ; PDF à télécharger après le formulaire e-mail.";
 
 export const metadata = createPublicMetadata({
-  title: "Guides et ressources pour PME au Maroc | Felexia",
+  title,
   description,
   path: "/guides",
 });
@@ -58,13 +60,15 @@ export default async function GuidesPage({ searchParams }: { searchParams: Promi
   return (
     <div id="top" className="landing marketing-site">
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
+      <JsonLd id="felexia-guides-collection" data={getCollectionStructuredData({ name: title, description, path: "/guides", items: BLOG_ARTICLES.map((article) => ({ name: article.h1, path: article.path })) })} />
+      <JsonLd id="felexia-guides-breadcrumb" data={getBreadcrumbStructuredData([{ name: "Accueil", path: "/" }, { name: "Guides", path: "/guides" }])} />
       <LandingHeader />
       <main id="main-content" tabIndex={-1}>
         <header className={styles.hero}>
           <div className="marketing-container">
             <p className={styles.kicker}>Ressources</p>
-            <h1>Guides & ressources</h1>
-            <p className={styles.lede}>Des articles pour facturer, déclarer la TVA et préparer vos échanges. Les guides PDF sont en bas de page.</p>
+            <h1>Guides de facturation, de TVA et de gestion pour PME au Maroc</h1>
+            <p className={styles.lede}>Des articles pour facturer, déclarer la TVA et préparer la facture électronique. Les PDF restent derrière le formulaire e-mail, en bas de page.</p>
             <nav aria-label="Catégories">
               <ul className={styles.filters}>
                 <li><Link href="/guides" aria-current={active ? undefined : "page"}>Tous</Link></li>

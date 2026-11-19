@@ -146,7 +146,7 @@ const article: BlogArticle = {
         { href: "/logiciel-facturation-maroc", label: "le logiciel de facturation" },
         ". Felexia ne dépose pas la déclaration et ne choisit pas le régime.",
       ], [
-        "PRO prépare le suivi des déclarations de TVA, à valider avec votre conseil. Aucune déclaration n’est transmise. Après activation, le PDF et le XML couvrent les factures et les avoirs clients. Felexia est prêt pour la facture électronique : le logiciel produit des factures en PDF et en XML et les archive. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. Les fonctions seront mises à jour à la publication des textes. Le parcours est sur ",
+        "ESSENTIEL prépare la déclaration de TVA et l’export SIMPL-TVA ; le dépôt reste le vôtre. Aucune déclaration n’est transmise. Après activation, le PDF et le XML couvrent les factures et les avoirs clients. Le parcours est complet et attend l’entrée en vigueur de la loi. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. Le parcours est sur ",
         { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
         ".",
       ]],
@@ -175,7 +175,7 @@ const article: BlogArticle = {
     },
     {
       question: "Felexia déclare-t-il la TVA à la place de l’entreprise ?",
-      answer: "Non. ESSENTIEL enregistre les factures, les avoirs, les règlements et les journaux. PRO prépare le suivi des déclarations de TVA, que votre conseil valide. Aucune déclaration n’est transmise à l’administration. Le parcours PDF et XML, après activation par l’administrateur, ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée.",
+      answer: "Non. ESSENTIEL prépare la déclaration et l’export XML SIMPL-TVA, comme PRO. Vous déposez le fichier vous-même sur SIMPL. Aucune déclaration n’est transmise à l’administration. Le parcours PDF et XML n’est pas une connexion officielle à la DGI ni une signature électronique qualifiée.",
     },
   ],
   cta: {
@@ -184,6 +184,7 @@ const article: BlogArticle = {
     note: offer.offerPitch,
   },
   related: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/essentiel", label: "Offre ESSENTIEL" },
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },

@@ -10,7 +10,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { BLOG_ARTICLES, blogCategoryLabel } from "@/lib/content/blog/index";
 import type { BlogArticle as BlogArticleData, TextRun } from "@/lib/content/blog/types";
 import { formatBlogDate, headings, readingMinutes } from "@/lib/content/blog/text";
-import { getBlogPostingStructuredData, getFaqPageStructuredData } from "@/lib/seo";
+import { getBlogPostingStructuredData, getBreadcrumbStructuredData, getFaqPageStructuredData } from "@/lib/seo";
 import "@/styles/landing.css";
 import "@/components/landing/landing-conversion.css";
 
@@ -43,6 +43,7 @@ export function BlogArticle({ article }: { article: BlogArticleData }) {
     <div id="top" className={"landing marketing-site " + styles.page}>
       <JsonLd id="felexia-article" data={getBlogPostingStructuredData(article)} />
       <JsonLd id="felexia-article-faq" data={getFaqPageStructuredData(article.questions, article.path)} />
+      <JsonLd id="felexia-article-breadcrumb" data={getBreadcrumbStructuredData([{ name: "Accueil", path: "/" }, { name: "Guides", path: "/blog" }, { name: article.h1, path: article.path }])} />
       <LandingEffects />
       <a className="marketing-skip-link" href="#main-content">Aller au contenu</a>
       <LandingHeader />

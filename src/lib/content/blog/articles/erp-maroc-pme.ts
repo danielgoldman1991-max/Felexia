@@ -172,6 +172,7 @@ const article: BlogArticle = {
     note: `${offer.offerPitch} L’essai ouvre ESSENTIEL. PRO, l’ERP élargi, reste sur devis.`,
   },
   related: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/pro", label: "ERP PRO, sur devis" },
     { href: "/essentiel", label: "Offre ESSENTIEL" },
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },

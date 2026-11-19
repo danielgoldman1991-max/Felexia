@@ -54,7 +54,7 @@ export function LandingFooter() {
         <div className={styles.grid}>
           <div className={styles.brand}>
             <Link href="/" aria-label="FelexiaERP — accueil"><BrandLogo size="sm" /></Link>
-            <p className={styles.tagline}>Logiciel de gestion pour les PME au Maroc. ESSENTIEL au quotidien, PRO sur devis.</p>
+            <p className={styles.tagline}>Logiciel de gestion pour les PME au Maroc. ESSENTIEL au quotidien (facturation et TVA), PRO sur devis.</p>
             <p className={styles.note}>Pensé pour les PME marocaines.</p>
             <ul className={styles.social}>
               {socialLinks.map((link) => (
@@ -74,7 +74,7 @@ export function LandingFooter() {
           </div>
           {columns.map((column) => (
             <nav key={column.title} className={styles.column} aria-label={column.label}>
-              <h2>{column.title}</h2>
+              <p className={styles.columnTitle}>{column.title}</p>
               <ul className={styles.links}>
                 {column.links.map((link) => (
                   <li key={link.href}><Link href={link.href}>{link.label}</Link></li>

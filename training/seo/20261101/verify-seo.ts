@@ -5,7 +5,7 @@ import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { PUBLIC_SITE_ORIGIN, PUBLIC_SITE_PATHS, isPublicSitePath } from "../../../src/lib/public-site";
-import { ROOT_METADATA, canonicalUrl, createPublicMetadata, getFaqPageStructuredData, getSiteStructuredData, getSoftwareApplicationStructuredData, readGoogleSiteVerification, serializeJsonLd, SEO_CONTENT_UPDATED_AT } from "../../../src/lib/seo";
+import { ROOT_METADATA, canonicalUrl, createPublicMetadata, getFaqPageStructuredData, getSiteStructuredData, getSoftwareApplicationStructuredData, readGoogleSiteVerification, serializeJsonLd, SEO_CONTENT_UPDATED_AT, SEO_DEFAULT_TITLE, SEO_DEFAULT_DESCRIPTION } from "../../../src/lib/seo";
 import { HOME_FAQS } from "../../../src/lib/content/public-faq";
 import { GUIDES } from "../../../src/lib/content/guides";
 import { BLOG_ARTICLES } from "../../../src/lib/content/blog";
@@ -39,13 +39,15 @@ async function main() {
 
   const map = sitemap();
   check(JSON.stringify(map.map(entry => entry.url)) === JSON.stringify(PUBLIC_SITE_PATHS.map(canonicalUrl)), "Sitemap includes only the public canonical routes");
-  const revisedPages = new Set(["/essentiel", "/pro", "/confidentialite"].map(canonicalUrl));
   check(map.every(entry => {
     const path = new URL(entry.url).pathname;
     const article = BLOG_ARTICLES.find((item) => item.path === path);
-    const expected = article?.updatedAt ?? (revisedPages.has(entry.url) ? "2026-11-03" : SEO_CONTENT_UPDATED_AT);
+    const expected = article?.updatedAt ?? SEO_CONTENT_UPDATED_AT;
     return entry.lastModified === expected;
   }), "Sitemap dates describe each page’s content revision, not crawler/build time");
+  check(SEO_CONTENT_UPDATED_AT === "2026-11-19", "Public pages revised with the November 2026 copy share that content date");
+  check(SEO_DEFAULT_TITLE.length <= 60 && SEO_DEFAULT_DESCRIPTION.length <= 155, "Homepage title and description stay within the search limits");
+  check(SEO_DEFAULT_DESCRIPTION.includes("déclaration TVA") && SEO_DEFAULT_DESCRIPTION.includes("SIMPL-TVA"), "Homepage description names the VAT declaration and SIMPL export");
   check(robots().sitemap === PUBLIC_SITE_ORIGIN + "/sitemap.xml", "Robots advertises the www sitemap");
   const rules = object(robots().rules);
   check(JSON.stringify(rules.disallow) === JSON.stringify(["/api/", "/auth/"]), "Only action/API endpoints are excluded from crawling; login noindex stays observable");
@@ -61,6 +63,7 @@ async function main() {
   check(app.offers.every(offer => offer.name.startsWith("ESSENTIEL") && offer.priceCurrency === "MAD" && offer.priceSpecification.valueAddedTaxIncluded === false), "PRO has no invented price and ESSENTIEL amounts explicitly exclude tax");
   check(JSON.stringify(app.offers.map(offer => offer.priceSpecification.billingDuration)) === '["P1M","P1Y"]', "Monthly and annual billing intervals are distinct");
   check(app.description.includes("15 jours") && app.description.includes("sans carte bancaire") && app.description.includes("PRO est disponible uniquement sur devis"), "Trial and quote-only PRO match the public product");
+  check(app.featureList.some((item) => item.includes("SIMPL-TVA") && item.includes("ESSENTIEL")) && !app.featureList.some((item) => /PRO[^.]{0,40}TVA/.test(item)), "Software schema puts the VAT declaration in ESSENTIEL");
   check(!/"aggregateRating"|"review"|"address"|"legalName"/.test(JSON.stringify([site, app])), "No rating, review, legal identity or address is invented");
   const homeFaq = getFaqPageStructuredData(HOME_FAQS, "/");
   check(homeFaq["@type"] === "FAQPage" && homeFaq.mainEntity.length === HOME_FAQS.length && homeFaq.mainEntity.every((item, index) => item.name === HOME_FAQS[index]?.question && item.acceptedAnswer.text === HOME_FAQS[index]?.answer), "FAQPage repeats the visible homepage answers");
@@ -72,8 +75,11 @@ async function main() {
   delete process.env.GOOGLE_SITE_VERIFICATION;
   for (const guide of GUIDES) {
     check(isPublicSitePath(guide.path), "Guide is on the public allowlist: " + guide.path);
+    check(guide.title.length <= 60 && guide.description.length <= 155, "Guide title and description stay within the search limits: " + guide.path);
     check(!guide.description.includes("conforme DGI") && !guide.h1.includes("conforme DGI"), "Guide does not claim DGI compliance: " + guide.path);
   }
+  check(HOME_FAQS.some((item) => item.question.includes("déclaration de TVA") && item.answer.includes("SIMPL")), "Homepage FAQ says the VAT declaration is included");
+  check(!HOME_FAQS.some((item) => item.answer.includes("la préparation TVA")), "Homepage FAQ no longer treats VAT preparation as a PRO extra");
   const forbidden = ["conforme DGI", "certifié DGI", "certifiée DGI", "homologué", "validé par la DGI", "100 % conforme", "le moins cher", "n° 1 au"];
   check(BLOG_ARTICLES.length === 17 && BLOG_ARTICLES.every((article) => isPublicSitePath(article.path)), "Blog articles stay on the public allowlist");
   const shortArticles = new Set(["plf-2027-pme-maroc", "facture-electronique-pdf-xml", "avoir-facture-maroc", "relance-facture-impayee-maroc"]);
@@ -93,6 +99,7 @@ async function main() {
   check(mentions?.sources.some((source) => source.href.includes("tax.gov.ma")) && mentions?.sources.some((source) => source.href.includes("sgg.gov.ma")), "Invoice article cites the DGI page and the official bulletin");
   const footer = readFileSync(resolve("src/components/landing/LandingFooter.tsx"), "utf8");
   check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("https://www.linkedin.com/company/felexiaerp/") && footer.includes("TODO") && !/facebook\.com/i.test(footer), "Footer links the known Instagram and LinkedIn profiles, and no invented Facebook profile");
+  check(!footer.includes("<h2") && footer.includes("Felexia Conseils"), "Footer navigation is not a heading, and the copyright line stays unchanged");
   const heroWebp = statSync(resolve("public/images/felexia-horizon-v1.webp")).size;
   const heroAvif = statSync(resolve("public/images/felexia-horizon-v1.avif")).size;
   const heroPng = statSync(resolve("public/images/felexia-horizon-v1.png")).size;

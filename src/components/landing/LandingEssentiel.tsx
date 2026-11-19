@@ -97,7 +97,7 @@ function PaymentsPreview() {
           <span className={styles.expectedCaption}>Soldes clients illustratifs</span>
         </aside>
       </div>
-      <div className={styles.supplierNote}><ShoppingBag size={17} aria-hidden="true" /><p><strong>Les devis, c’est PRO.</strong> ESSENTIEL s’arrête aux factures, aux règlements et aux journaux.</p></div>
+      <div className={styles.supplierNote}><ShoppingBag size={17} aria-hidden="true" /><p><strong>Les devis, c’est PRO.</strong> ESSENTIEL couvre les factures, les règlements, les journaux et la déclaration de TVA.</p></div>
     </>
   );
 }
@@ -167,7 +167,7 @@ export function LandingEssentiel() {
         </div>
         <div className={styles.introduction}>
           <div><p className={styles.eyebrow}><span>FACTUREZ</span> / ESSENTIEL</p><h2 id="essentiel-title">Des factures conformes,<br /><span>prêtes à envoyer.</span></h2></div>
-          <p className={styles.introCopy}>ICE, IF et RC, HT, TVA et TTC en dirhams, puis le suivi des règlements et les journaux. Les devis, les commandes et le stock sont dans PRO.</p>
+          <p className={styles.introCopy}>ICE, IF et RC, HT, TVA et TTC en dirhams, puis les règlements, les journaux et la déclaration de TVA. Les devis, les commandes et le stock sont dans PRO.</p>
         </div>
         <div id="features" className={styles.product} aria-describedby={`${id}-caption`}>
           <div className={styles.productBar}><span className={styles.wordmark}>Felexia<span>ERP</span></span><p id={`${id}-caption`}>Aperçu illustratif · Données fictives</p></div>
@@ -198,10 +198,19 @@ export function LandingEssentiel() {
           <div className={styles.actions}><Link href="/login?mode=register" className={styles.primaryAction}>Essayer gratuitement <ArrowUpRight size={17} aria-hidden="true" /></Link><Link href="#pricing" className={styles.textAction}>Voir les tarifs <ArrowUpRight size={16} aria-hidden="true" /></Link></div>
           <p className={styles.priceNote}>15 jours · sans carte bancaire · les devis sont dans PRO</p>
         </div>
+        <div className={styles.vat}>
+          <h2>Déclaration de TVA et export XML SIMPL-TVA</h2>
+          <p>Vous préparez la déclaration dans Felexia et vous exportez le relevé XML. Vous le déposez vous-même sur SIMPL. Felexia n’envoie rien à la DGI.</p>
+          <div className={styles.resourceLinks}>
+            <Link href="/blog/declaration-tva-export-simpl">Tutoriel déclaration TVA <ArrowUpRight size={14} aria-hidden="true" /></Link>
+            <Link href="/pricing">Tarifs <ArrowUpRight size={14} aria-hidden="true" /></Link>
+            <Link href="/guides">Guides <ArrowUpRight size={14} aria-hidden="true" /></Link>
+          </div>
+        </div>
         <div id="facturation-electronique" className={styles.einvoice}>
           <span className={styles.einvoiceIcon}><FileCheck2 size={23} aria-hidden="true" /></span>
-          <div><h3>Vos factures, jusqu’à l’archivage.</h3><p>Génération PDF/XML, émission et archivage inclus dans ESSENTIEL et PRO.</p></div>
-          <div className={styles.resourceLinks}><Link href="/facturation-electronique-maroc">La facture électronique <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/logiciel-facturation-maroc">La facturation au Maroc <ArrowUpRight size={14} aria-hidden="true" /></Link></div>
+          <div><h2>Un parcours de facture électronique déjà complet</h2><p>Génération PDF et XML, émission et archivage. Il n’attend plus que l’entrée en vigueur de la loi au Maroc. Aucune facture n’est transmise automatiquement.</p></div>
+          <div className={styles.resourceLinks}><Link href="/facturation-electronique-maroc">La facture électronique <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/logiciel-facturation-maroc">Logiciel de facturation au Maroc <ArrowUpRight size={14} aria-hidden="true" /></Link></div>
         </div>
       </div>
     </section>

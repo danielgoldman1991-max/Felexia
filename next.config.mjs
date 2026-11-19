@@ -7,6 +7,13 @@ const nextConfig = {
     "/facturation/electronique/**/*": ["./src/lib/e-invoicing/schemas/**/*", "./src/lib/e-invoicing/assets/**/*", "./node_modules/libxml2-wasm/lib/**/*"],
     "/api/cron/e-invoicing": ["./src/lib/e-invoicing/schemas/**/*", "./src/lib/e-invoicing/assets/**/*", "./node_modules/libxml2-wasm/lib/**/*"],
   },
+  async redirects() {
+    return [{
+      source: "/facture-electronique-maroc",
+      destination: "/facturation-electronique-maroc",
+      permanent: true,
+    }];
+  },
   async headers() {
     return [{
       // Keep authentication/private responses out of search, without redirects,

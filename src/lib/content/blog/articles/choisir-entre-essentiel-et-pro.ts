@@ -12,7 +12,7 @@ const article: BlogArticle = {
   h1: "ESSENTIEL ou PRO : quel logiciel de gestion pour une PME au Maroc ?",
   category: "choix-logiciel",
   publishedAt: "2026-11-03",
-  updatedAt: "2026-11-03",
+  updatedAt: "2026-11-19",
   author: "Équipe Felexia",
   cover: {
     webp: "/images/blog/blog-choisir-entre-essentiel-et-pro.webp",
@@ -24,7 +24,7 @@ const article: BlogArticle = {
   essentials: [
     `ESSENTIEL est le logiciel de gestion du quotidien : ventes, achats, clients, fournisseurs, règlements et trésorerie. ${offer.offerPitch}`,
     "PRO se prépare sur devis. Il inclut ESSENTIEL et va plus loin : devis, livraisons, stock, comptabilité et dossiers du personnel.",
-    "La préparation TVA et la paie de base se valident avec votre conseil. L’inventaire physique et l’agenda ne sont pas encore disponibles.",
+    "La déclaration de TVA et l’export XML SIMPL-TVA sont dans ESSENTIEL. La paie de base se valide avec votre conseil. L’inventaire et l’agenda ne sont pas encore disponibles.",
   ],
   introduction: [
     "ESSENTIEL ou PRO : la question se pose dès qu’une PME marocaine veut quitter les fichiers dispersés. Les deux offres partent du même produit. L’une couvre la gestion quotidienne et s’essaie sans carte. L’autre relie le stock et le reste de l’ERP, et se prépare sur devis. ",
@@ -37,7 +37,7 @@ const article: BlogArticle = {
     h3("ce-que-vous-faites-dans-essentiel", "Ce que vous faites dans l’espace"),
     p("Côté ventes, vous retrouvez les clients et les coordonnées de facturation. Vous préparez les factures avec des articles du catalogue ou des lignes libres, puis les avoirs et les règlements. Le PDF reprend le logo, les coordonnées et l’ICE lorsque ces éléments sont renseignés dans les paramètres. Vous les vérifiez avant d’envoyer le document."),
     p("Côté achats, vous centralisez les fournisseurs, leurs factures, leurs avoirs et les paiements. Vous voyez les montants réglés et le restant à payer. Côté trésorerie, vous suivez les comptes bancaires, les caisses, les encaissements, les décaissements, les mouvements et les transferts internes, avec les soldes en dirhams. Un règlement, même partiel, se rattache à la facture et au compte concerné."),
-    p("Les journaux de vente, d’achat, de banque et de caisse restent consultables, ainsi que les écritures et les pièces liées. Des exports aident à préparer l’échange avec le comptable. Ces journaux facilitent le suivi. Ils ne remplacent pas l’expert-comptable, le conseil fiscal ou le conseil social."),
+    p("Les journaux de vente, d’achat, de banque et de caisse restent consultables, ainsi que les écritures et les pièces liées. ESSENTIEL prépare aussi la déclaration de TVA et l’export XML SIMPL-TVA. Vous déposez le fichier vous-même sur SIMPL. Ces journaux facilitent le suivi. Ils ne remplacent pas l’expert-comptable."),
     p("La facturation électronique PDF/XML, l’émission et l’archivage sont inclus dans ESSENTIEL, après activation par l’administrateur. Felexia est prêt pour la facture électronique au sens de ce parcours documentaire. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée."),
     h2("pro-erp", "PRO, pour relier le stock et le reste de l’ERP"),
     p(`PRO inclut tout ESSENTIEL, avec l’ERP complet. La page de l’offre affiche 1 entreprise, jusqu’à ${offer.proUsers} utilisateurs et ${offer.proStorageGb} Go de stockage. Les tarifs indiquent aussi des documents commerciaux sans plafond mensuel. Aucun montant de PRO n’est publié. La mise en place se cadre avec l’équipe Felexia. Il n’y a pas d’achat direct en ligne.`),
@@ -45,7 +45,7 @@ const article: BlogArticle = {
     h3("parcours-decrits", "Les parcours décrits sur la page PRO"),
     p("Le cycle de vente va au-delà de la facture : prospects, devis, commandes, conversion d’un devis en commande, livraisons et retours. Côté achats, les commandes fournisseurs et les réceptions liées à ces commandes s’ajoutent aux factures et aux règlements déjà présents dans ESSENTIEL."),
     p("Le stock couvre les emplacements, les entrées, les sorties, les transferts et l’historique des mouvements. L’objectif décrit est de rapprocher les quantités du terrain et les documents de gestion. Le détail de ce périmètre est repris dans le guide sur la gestion de stock."),
-    p("Le suivi comptable cité comprend le plan comptable, le grand livre, la balance, le rapprochement bancaire et les prévisions de trésorerie selon vos hypothèses. La préparation et le suivi des déclarations TVA, la gestion documentaire, les exports et les tableaux de bord de gestion sont aussi présentés. Les déclarations TVA restent à valider avec votre conseil fiscal. Aucune déclaration n’est transmise automatiquement à l’administration."),
+    p("Le suivi comptable cité comprend le plan comptable, le grand livre, la balance, le rapprochement bancaire et les prévisions de trésorerie selon vos hypothèses. La gestion documentaire, les exports et les tableaux de bord sont aussi présentés. La déclaration de TVA est déjà dans ESSENTIEL. Aucune déclaration n’est transmise automatiquement à l’administration."),
     p("Les dossiers du personnel permettent de créer et de modifier les fiches des salariés, puis de retrouver les contrats. La paie livrée est une préparation de base. Les variables, la validation finale et les déclarations sociales ne constituent pas un cycle de paie complet. Plusieurs écrans RH, notamment les congés, les présences et les frais, sont des consultations, sans parcours complet de création et d’approbation."),
     h2("tableau-comparatif", "Le tableau pour trancher"),
     p("Chaque ligne reprend une formulation déjà publiée. Si une fonction n’apparaît pas ici, elle n’est pas annoncée comme disponible dans ce guide."),
@@ -64,13 +64,13 @@ const article: BlogArticle = {
         ["Achats", "Fournisseurs, factures, avoirs, paiements", "Plus commandes fournisseurs et réceptions"],
         ["Trésorerie", "Comptes, caisses, mouvements, transferts", "Plus rapprochement bancaire et prévisions"],
         ["Stock", "Non présenté sur les pages ESSENTIEL", "Emplacements, entrées, sorties, transferts, historique"],
-        ["Comptabilité", "Journaux et écritures", "Plan comptable, grand livre, balance, préparation TVA"],
+        ["Comptabilité", "Journaux, déclaration TVA et export XML SIMPL-TVA", "Plan comptable, grand livre et balance"],
         ["Personnel", "Non présenté comme un module ESSENTIEL", "Fiches, contrats, paie préparatoire"],
         ["Facture électronique", "PDF/XML, émission et archivage après activation", "Le même parcours, inclus"],
       ],
     },
     h2("ce-qu-il-ne-faut-pas-confondre", "Ce qu’il ne faut pas confondre avec une obligation remplie"),
-    p("Les journaux, la préparation TVA et la paie de base aident à rassembler des données. Ils ne remplacent pas les professionnels qui accompagnent l’entreprise. La page PRO le dit pour la TVA et pour la paie : pas de transmission automatique d’une déclaration officielle."),
+    p("Les journaux et la déclaration TVA, déjà dans ESSENTIEL, ainsi que la paie de base, aident à rassembler des données. Ils ne remplacent pas les professionnels qui accompagnent l’entreprise. Aucune déclaration officielle n’est transmise automatiquement."),
     p("L’inventaire physique et l’agenda ne sont pas encore disponibles. Le détail complet des contrats et les attestations non plus : la paie reste une préparation de base, à valider avec votre conseil."),
     {
       type: "callout",
@@ -163,7 +163,7 @@ const article: BlogArticle = {
     },
     {
       question: "La paie et la TVA sont-elles des déclarations prêtes à déposer ?",
-      answer: "Non. Ce sont des fonctions préparatoires. Elles ne remplacent pas la validation de l’expert-comptable, du conseil fiscal ou du conseil social. Aucune déclaration officielle n’est transmise automatiquement.",
+      answer: "Non pour un dépôt automatique. La déclaration de TVA et l’export XML SIMPL-TVA sont dans ESSENTIEL comme dans PRO : l’entreprise dépose le fichier sur SIMPL. La paie reste préparatoire. Aucune déclaration officielle n’est transmise automatiquement.",
     },
   ],
   cta: {
@@ -172,6 +172,7 @@ const article: BlogArticle = {
     note: `Pour PRO, la page de l’offre ouvre un brouillon d’e-mail à envoyer. ${offer.offerPitch}`,
   },
   related: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
     { href: "/essentiel", label: "Détail de l’offre ESSENTIEL" },
     { href: "/pro", label: "Périmètre de l’ERP PRO" },

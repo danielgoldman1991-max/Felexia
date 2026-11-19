@@ -9,14 +9,13 @@ import { PRICING_FAQS } from "@/lib/content/public-faq";
 import { createPublicMetadata, getFaqPageStructuredData, getSoftwareApplicationStructuredData } from "@/lib/seo";
 import "@/components/landing/landing-story.css";
 import { getPlanDefinition } from "@/lib/subscriptions/plans";
-import { DEFAULT_TRIAL_DURATION_LABEL } from "@/lib/subscriptions/trial-config";
 import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
 const essential = getPlanDefinition("essentiel");
 export const metadata = createPublicMetadata({
-  title: "Tarifs du logiciel de gestion PME au Maroc | Felexia",
-  description: `Tarifs du logiciel de gestion pour PME au Maroc : ESSENTIEL à ${essential.monthlyPrice} HT MAD/mois ou ${essential.yearlyPrice.toLocaleString("fr-FR")} HT MAD/an, essai de ${DEFAULT_TRIAL_DURATION_LABEL} sans carte. ERP PRO et stock, uniquement sur devis.`,
+  title: "Tarifs logiciel de facturation Maroc | Felexia",
+  description: `ESSENTIEL à ${essential.monthlyPrice} MAD HT/mois ou ${essential.yearlyPrice.toLocaleString("fr-FR")} MAD HT/an, essai 15 jours sans carte : facturation, journaux et déclaration TVA. Felexia PRO sur devis.`,
   path: "/pricing",
 });
 
@@ -33,8 +32,8 @@ export default function PricingPage() {
           <div className="marketing-container story-faq-grid">
             <div>
               <p className="marketing-eyebrow">TARIFS</p>
-              <h2 id="pricing-faq-title" className="marketing-section-title">Questions sur les tarifs<br />du logiciel de gestion.</h2>
-              <p className="marketing-copy story-faq-intro">Les montants ESSENTIEL sont ceux du catalogue public. PRO reste sur devis.</p>
+              <h2 id="pricing-faq-title" className="marketing-section-title">Questions fréquentes<br />sur le tarif.</h2>
+              <p className="marketing-copy story-faq-intro">ESSENTIEL affiche un prix public, avec la déclaration TVA. PRO reste sur devis, sans tarif inventé.</p>
             </div>
             <div className="story-faq-list">
               {PRICING_FAQS.map((item) => (

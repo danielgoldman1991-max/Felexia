@@ -9,16 +9,16 @@ const documentLimit = plan.limits.commercialDocumentsPerMonth;
 const documents = documentLimit === null ? "Sans plafond mensuel" : number(documentLimit) + " / mois";
 
 export const metadata = createPublicMetadata({
-  title: "Logiciel de facturation et de gestion PME au Maroc | Felexia ESSENTIEL",
-  description: "Logiciel de facturation et de gestion pour PME au Maroc. Felexia ESSENTIEL : " + number(plan.monthlyPrice) + " HT MAD/mois, essai de " + DEFAULT_TRIAL_DURATION_LABEL + " sans carte bancaire.",
+  title: "Facturation et TVA au Maroc | Felexia ESSENTIEL",
+  description: "Factures, règlements, journaux et déclaration TVA (export XML SIMPL-TVA) pour PME au Maroc. ESSENTIEL : " + number(plan.monthlyPrice) + " MAD HT/mois, essai 15 jours sans carte.",
   path: "/essentiel",
 });
 
 const content: ProductOfferContent = {
   name: "ESSENTIEL",
-  eyebrow: "Logiciel de gestion pour les entreprises au Maroc",
-  title: "Logiciel de gestion pour PME au Maroc",
-  introduction: "Facturez, suivez vos règlements et pilotez votre trésorerie dans un seul espace. Retrouvez vos clients, vos fournisseurs et vos achats avec Felexia ESSENTIEL, pendant " + DEFAULT_TRIAL_DURATION_LABEL + " d’essai gratuit, sans carte bancaire.",
+  eyebrow: "Logiciel de facturation pour TPE et PME au Maroc",
+  title: "Logiciel de facturation et de déclaration TVA au Maroc",
+  introduction: "Facturez, suivez vos règlements, tenez vos journaux et préparez votre déclaration de TVA dans un seul espace. L’essai dure " + DEFAULT_TRIAL_DURATION_LABEL + ", sans carte bancaire.",
   price: number(plan.monthlyPrice),
   priceUnit: "HT MAD / mois",
   priceDetail: number(plan.yearlyPrice) + " HT MAD / an avec une facturation annuelle, sans remise.",
@@ -32,7 +32,7 @@ const content: ProductOfferContent = {
   ctaLabel: "Commencer mes " + DEFAULT_TRIAL_DURATION_LABEL + " gratuits",
   ctaHref: "/login?mode=register",
   ctaNote: "Sans carte bancaire. Puis " + number(plan.monthlyPrice) + " HT MAD/mois pour votre entreprise, jusqu’à " + plan.limits.users + " utilisateurs.",
-  featureHeading: "Facturation, achats et trésorerie pour votre PME.",
+  featureHeading: "Factures, avoirs et règlements, avec les mentions ICE et IF",
   featureIntroduction: "L’offre s’adresse aux entreprises qui veulent structurer leur gestion courante, retrouver les documents d’un tiers et savoir ce qui reste à encaisser ou à payer.",
   features: [
     {
@@ -55,8 +55,13 @@ const content: ProductOfferContent = {
       description: "Consultez les journaux et écritures de vos opérations, vos indicateurs de gestion et les exports disponibles pour préparer vos échanges avec votre comptable.",
       points: ["Journaux de vente, d’achat, de banque et de caisse", "Consultation des écritures et de leurs pièces liées", "Exports des données de gestion"],
     },
+    {
+      title: "Déclaration de TVA et relevé XML pour SIMPL-TVA",
+      description: "Vous préparez la déclaration dans Felexia et vous exportez le XML du relevé de déductions. Vous le déposez vous-même sur SIMPL. Felexia n’envoie rien à la DGI.",
+      points: ["Déclaration mensuelle ou trimestrielle", "Export XML SIMPL-TVA", "Contrôle avant le dépôt, qui reste le vôtre"],
+    },
   ],
-  workflowHeading: "Une vente suivie jusqu’au règlement.",
+  workflowHeading: "Journaux comptables et suivi de trésorerie",
   workflowIntroduction: "Un parcours simple pour une prestation ou une vente de produits, sans multiplier les fichiers.",
   workflow: [
     { title: "Préparer la facture", description: "Choisissez le client, renseignez vos lignes et vérifiez les montants avant de finaliser votre document." },
@@ -64,8 +69,8 @@ const content: ProductOfferContent = {
     { title: "Suivre ce qui reste", description: "Retrouvez le solde de la facture, les mouvements de trésorerie et les écritures correspondantes dans votre espace." },
   ],
   electronicInvoicing: "ESSENTIEL inclut un parcours de facture électronique complet : génération PDF/XML, émission et archivage après activation par l’administrateur. Il n’attend plus que l’entrée en vigueur de la loi au Maroc. La connexion à la plateforme officielle n’est pas active aujourd’hui.",
-  scopeHeading: "Commencer avec l’essentiel, évoluer selon vos besoins.",
-  scopeIntroduction: "Choisissez cette offre pour votre gestion quotidienne. Si vous devez relier devis, commandes, livraisons, stock avancé ou ressources humaines, découvrez le périmètre de PRO.",
+  scopeHeading: "Ce qui reste dans PRO : devis, stock, paie et OCR",
+  scopeIntroduction: "La facturation, les journaux et la déclaration de TVA sont déjà dans ESSENTIEL. PRO ajoute le cycle commercial, le stock, la paie et l’OCR interne, sur devis.",
   scope: [
     { title: "Une entreprise, une équipe restreinte", description: "L’offre comprend " + plan.limits.organizations + " entreprise et jusqu’à " + plan.limits.users + " utilisateurs. Les droits de chaque compte déterminent les actions accessibles." },
     { title: "Un essai pour vos nouveaux comptes", description: "Les nouveaux essais ESSENTIEL durent " + DEFAULT_TRIAL_DURATION_LABEL + ". À l’échéance, un abonnement actif est nécessaire pour poursuivre les créations et modifications ; vos données restent consultables selon vos droits." },
@@ -76,11 +81,16 @@ const content: ProductOfferContent = {
     { question: "Faut-il une carte bancaire pour commencer ?", answer: "Non. L’essai ESSENTIEL de " + DEFAULT_TRIAL_DURATION_LABEL + " est gratuit et ne demande pas de carte bancaire. Créez votre compte, puis confirmez votre entreprise pour accéder à votre espace." },
     { question: "Puis-je travailler avec mes propres clients et fournisseurs ?", answer: "Oui. Vous pouvez créer leurs fiches et saisir vos documents dans votre propre entreprise. Vous pouvez aussi préparer des factures avec des lignes libres, sans devoir créer chaque prestation dans le catalogue d’articles." },
     { question: "Puis-je afficher mon logo et mon ICE sur mes factures ?", answer: "Oui. Renseignez le logo, les coordonnées et l’ICE de votre entreprise dans vos paramètres. Ces informations figurent sur les factures PDF ; vérifiez-les avant de transmettre vos documents à vos clients." },
-    { question: "Quand choisir PRO plutôt qu’ESSENTIEL ?", answer: "PRO convient à un périmètre plus large : devis et commandes, livraisons, commandes et réceptions fournisseurs, gestion de stock, comptabilité avancée et dossiers RH. PRO est proposé sur devis ; notre équipe précise avec vous les fonctions utilisables pour votre projet." },
+    { question: "La déclaration de TVA est-elle incluse ?", answer: "Oui. ESSENTIEL prépare la déclaration et l’export XML SIMPL-TVA, comme PRO. Vous déposez le fichier vous-même sur SIMPL. Aucune déclaration n’est transmise automatiquement à la DGI." },
+    { question: "Quand choisir PRO plutôt qu’ESSENTIEL ?", answer: "PRO convient si vous enchaînez devis, commandes, livraisons, stock, paie ou OCR interne. La déclaration de TVA est déjà dans ESSENTIEL. PRO est proposé sur devis." },
   ],
-  nextHeading: "Prenez en main votre gestion quotidienne.",
+  nextHeading: "Tarif : " + number(plan.monthlyPrice) + " MAD HT/mois, essai de 15 jours",
   nextDescription: "Découvrez ESSENTIEL pendant " + DEFAULT_TRIAL_DURATION_LABEL + ", sans carte bancaire. Commencez par votre compte et les informations de votre entreprise.",
   related: { href: "/pro", label: "Découvrir PRO et son périmètre" },
+  reading: [
+    { href: "/blog/declaration-tva-export-simpl", label: "Tutoriel déclaration TVA" },
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+  ],
 };
 
 export default function EssentialProductPage() {

@@ -17,8 +17,10 @@ export function LandingLocalContext() {
         <div className={styles.localIntro} data-reveal>
           <p className="marketing-eyebrow">FAIT POUR LE MAROC</p>
           <h2 id="story-context-title" className="marketing-section-title">Fait pour les règles d’ici.</h2>
-          <p className={styles.description}>Felexia parle MAD, TVA et ICE dès le premier jour. Votre espace s’ouvre dans le navigateur, au bureau comme en déplacement.</p>
-          <Link href="/logiciel-facturation-maroc" className={styles.textLink}>La facturation avec Felexia <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <p className={styles.description}>Felexia parle MAD, TVA et ICE dès le premier jour. Votre espace s’ouvre dans le navigateur, au bureau comme en déplacement. Accessible en ligne partout au Maroc, de Casablanca, Rabat, Marrakech, Tanger, Agadir et Fès comme ailleurs.</p>
+          <Link href="/logiciel-facturation-maroc" className={styles.textLink}>Logiciel de facturation au Maroc <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <Link href="/blog/declaration-tva-export-simpl" className={styles.textLink}>Déclaration de TVA et export SIMPL-TVA <ArrowUpRight size={17} aria-hidden="true" /></Link>
+          <Link href="/guides" className={styles.textLink}>Guides de facturation et de TVA <ArrowUpRight size={17} aria-hidden="true" /></Link>
         </div>
         <div className={styles.localDetails} data-reveal>
           <div className={styles.localTopline}><Globe2 size={17} aria-hidden="true" /><span>UNE GESTION QUI PARLE VOTRE LANGUE</span></div>
