@@ -347,6 +347,24 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
     }
   }
 
+  for (const payment of data.unallocatedSupplierPayments ?? []) {
+    issues.push({
+      code: "UNALLOCATED_SUPPLIER_PAYMENT",
+      severity: "warning",
+      source: "supplier_invoice",
+      sourceId: payment.invoiceId,
+      thirdPartyId: payment.supplierId,
+      thirdPartyName: payment.supplierName,
+      documentNumber: payment.invoiceNumber,
+      correctionUrl: `/achats/factures/${payment.invoiceId}`,
+      correctionLabel: "Imputer le paiement",
+      message: payment.deducted
+        ? `${payment.invoiceNumber || "Facture"} : un paiement indiqué n'est pas imputé. Seuls les règlements déjà datés sont déduits, sans double comptage.`
+        : `${payment.invoiceNumber || "Facture"} : paiement de ${payment.paidAmount.toFixed(2)} MAD sans imputation et sans date exploitable. La facture n'est pas reprise dans le relevé.`,
+      suggestedFix: "Imputez le règlement fournisseur à la facture pour dater la déduction.",
+    });
+  }
+
   issues.push({
     code: "PREPARATORY_ONLY",
     severity: "warning",

@@ -232,7 +232,7 @@ export async function getDgiVatExportData({
     }),
   ];
 
-  const purchaseDocuments: DgiVatPurchaseDocument[] = deductiblePurchases.map((purchase) => ({
+  const purchaseDocuments: DgiVatPurchaseDocument[] = deductiblePurchases.rows.map((purchase) => ({
     id: purchase.id,
     documentType: purchase.documentType,
     referenceNumber: purchase.referenceNumber,
@@ -314,6 +314,7 @@ export async function getDgiVatExportData({
     declarationLines,
     salesDocuments,
     purchaseDocuments,
+    unallocatedSupplierPayments: deductiblePurchases.unallocatedPayments,
     summary: {
       priorCreditMad: roundMad(priorCreditMad),
       totalTurnoverMad,

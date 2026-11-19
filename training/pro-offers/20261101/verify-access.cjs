@@ -133,6 +133,7 @@ function load(relative) {
         '@/lib/launch-access', '@/lib/pro-access', '@/lib/launch-profile',
         '@/lib/auth/roles', '@/lib/auth/operator-access', '@/lib/subscriptions/subscription-access',
       ]);
+      if (name === '@/app/comptabilite/tva/access') return load('src/app/comptabilite/tva/access.ts');
       if (real.has(name)) return load('src/' + name.slice(2) + '.ts');
       if (name.startsWith('.')) return load(path.relative(root, path.resolve(path.dirname(absolute), name) + '.ts'));
       return genericBoundary;
@@ -220,14 +221,22 @@ async function helperCases() {
 async function guardedActions() {
   for (const item of actionCases) {
     const action = load(item.file)[item.name];
-    for (const [options, pattern, label] of [
-      [{ planCode: 'essentiel' }, /offre PRO/, 'ESSENTIEL'],
+    const denials = [
       [{ expired: true }, /consultation/, 'Expired PRO'],
       [{ role: 'viewer' }, /rôle/, 'PRO viewer'],
       [{ role: 'operator' }, /rôle/, 'PRO operator'],
-    ]) {
+    ];
+    // TVA declarations are intentionally available on ESSENTIEL. The other actions stay PRO-only.
+    if (item.label !== 'TVA autofix') denials.unshift([{ planCode: 'essentiel' }, /offre PRO/, 'ESSENTIEL']);
+    for (const [options, pattern, label] of denials) {
       reset(options);
       await rejectWithoutEffects(() => action({}, actionForm(item)), pattern, item.label + ' / ' + label);
+    }
+    if (item.label === 'TVA autofix') {
+      reset({ planCode: 'essentiel' });
+      await assert.rejects(() => action({}, actionForm(item)), /BUSINESS_BOUNDARY:db:vat_declarations/, 'ESSENTIEL TVA autofix reaches the declaration');
+      results.push('ESSENTIEL TVA autofix: declaration access granted');
+      equal(traces.businessEffects.length, 1, 'ESSENTIEL TVA autofix performs one declaration read and no other effect');
     }
     reset();
     await assert.rejects(() => action({}, actionForm(item)), /BUSINESS_BOUNDARY:/, item.label + ' permits active PRO to reach the isolated work boundary');

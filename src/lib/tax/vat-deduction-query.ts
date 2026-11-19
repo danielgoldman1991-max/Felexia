@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { roundMad } from "@/lib/tax/dgi-vat-mapping";
 import { countedPayment, linkAllocationPayments, type AllocationPaymentLink, type DeductionInvoice } from "@/lib/tax/vat-deduction-report";
-import { selectPurchaseDeduction, type PurchaseCandidate, type VatRegimeMode } from "@/lib/tax/vat-period-rules";
+import { casablancaIsoDate, resolveUnallocatedPayments, selectPurchaseDeduction, type PurchaseCandidate, type UnallocatedSupplierPayment, type VatRegimeMode } from "@/lib/tax/vat-period-rules";
 import { createClient } from "@/lib/supabase/server";
 
 type PaymentRow = { id?: string | null; payment_date?: string | null; payment_method?: string | null; status?: string | null; reference?: string | null };
@@ -34,10 +34,16 @@ function partyOf(value: unknown): Party | null {
   return (value ?? null) as Party | null;
 }
 
+function finiteRate(value: unknown) {
+  if (value === null || value === undefined || value === "") return Number.NaN;
+  const rate = Number(value);
+  return Number.isFinite(rate) ? roundMad(rate) : Number.NaN;
+}
+
 function rateLines(rows: LineRow[], header: Record<string, unknown>) {
   if (rows.length > 0) {
     return rows.map((line) => ({
-      taxRate: roundMad(Number(line.tax_rate ?? 0)),
+      taxRate: finiteRate(line.tax_rate),
       baseHt: roundMad(Number(line.subtotal_ht ?? 0)),
       vat: roundMad(Number(line.tax_amount ?? 0)),
       ttc: roundMad(Number(line.total_ttc ?? 0)),
@@ -79,6 +85,17 @@ export type DeductiblePurchaseRow = {
   prorata: number;
 };
 
+export type UnallocatedPaymentNotice = {
+  invoiceId: string;
+  invoiceNumber: string;
+  supplierId: string | null;
+  supplierName: string | null;
+  paidAmount: number;
+  deducted: boolean;
+};
+
+const INVOICE_SELECT = "id, invoice_number, supplier_invoice_number, invoice_date, status, payment_status, paid_amount, subtotal_ht, tax_total, total_ttc, currency, notes, internal_notes, supplier:supplier_id(id, name, ice, if_number)";
+
 /** Achats déductibles de la période. Le prorata vient des règlements datés dans la période, sauf en régime débit. */
 export async function loadDeductiblePurchases(
   supabase: SupabaseClient,
@@ -86,7 +103,7 @@ export async function loadDeductiblePurchases(
   from: string,
   to: string,
   regime: VatRegimeMode = "unspecified",
-): Promise<DeductiblePurchaseRow[]> {
+): Promise<{ rows: DeductiblePurchaseRow[]; unallocatedPayments: UnallocatedPaymentNotice[] }> {
   const periodPayments = await supabase
     .from("supplier_payments")
     .select("id, payment_date, payment_method, status, reference")
@@ -107,7 +124,7 @@ export async function loadDeductiblePurchases(
 
   let invoiceQuery = supabase
     .from("supplier_invoices")
-    .select("id, invoice_number, supplier_invoice_number, invoice_date, status, subtotal_ht, tax_total, total_ttc, currency, notes, internal_notes, supplier:supplier_id(id, name, ice, if_number)")
+    .select(INVOICE_SELECT)
     .eq("organization_id", organizationId)
     .is("archived_at", null)
     .not("status", "in", "(draft,cancelled)")
@@ -131,8 +148,18 @@ export async function loadDeductiblePurchases(
   ]);
   if (invoices.error) throw new Error(invoices.error.message);
   if (creditNotes.error) throw new Error(creditNotes.error.message);
+  const markedPaid = await supabase
+    .from("supplier_invoices")
+    .select(INVOICE_SELECT)
+    .eq("organization_id", organizationId)
+    .is("archived_at", null)
+    .not("status", "in", "(draft,cancelled)")
+    .gt("paid_amount", 0)
+    .order("invoice_date", { ascending: true })
+    .limit(2000);
+  if (markedPaid.error) throw new Error(markedPaid.error.message);
 
-  const invoiceRows = (invoices.data ?? []) as Array<Record<string, unknown>>;
+  const invoiceRows = mergeInvoices((invoices.data ?? []) as Array<Record<string, unknown>>, (markedPaid.data ?? []) as Array<Record<string, unknown>>);
   const creditRows = (creditNotes.data ?? []) as Array<Record<string, unknown>>;
   const invoiceIds = invoiceRows.map((row) => String(row.id));
   const creditIds = creditRows.map((row) => String(row.id));
@@ -157,30 +184,59 @@ export async function loadDeductiblePurchases(
   const paymentsByInvoice = new Map<string, PurchaseCandidate["payments"]>();
   for (const link of links) {
     if (!countedPayment(link.payment?.status)) continue;
-    const date = String(link.payment?.date ?? link.allocationDate ?? "").slice(0, 10);
+    const date = casablancaIsoDate(String(link.payment?.date ?? link.allocationDate ?? ""));
     if (!date) continue;
     const list = paymentsByInvoice.get(link.invoiceId) ?? [];
     list.push({ date, amount: Number(link.amount ?? 0), mode: link.payment?.mode ?? null, reference: link.payment?.reference ?? null });
     paymentsByInvoice.set(link.invoiceId, list);
   }
 
+  const openPayments = await supabase
+    .from("supplier_payments")
+    .select("id, supplier_id, payment_date, payment_method, status, reference, amount, available_amount")
+    .eq("organization_id", organizationId)
+    .gt("available_amount", 0)
+    .is("archived_at", null)
+    .limit(5000);
+  if (openPayments.error) throw new Error(openPayments.error.message);
+  const pool: UnallocatedSupplierPayment[] = ((openPayments.data ?? []) as Array<Record<string, unknown>>)
+    .filter((payment) => countedPayment(text(payment.status)) && payment.id && payment.supplier_id)
+    .map((payment) => ({
+      id: String(payment.id),
+      supplierId: String(payment.supplier_id),
+      date: casablancaIsoDate(text(payment.payment_date)),
+      amount: Number(payment.available_amount ?? payment.amount ?? 0),
+      mode: text(payment.payment_method),
+      reference: text(payment.reference),
+    }));
+  const resolvedPayments = new Map(resolveUnallocatedPayments(invoiceRows.map((row) => ({
+    id: String(row.id),
+    supplierId: partyOf(row.supplier)?.id ?? null,
+    allocations: paymentsByInvoice.get(String(row.id)) ?? [],
+    paidAmount: Number(row.paid_amount ?? 0),
+    status: text(row.status),
+    paymentStatus: text(row.payment_status),
+  })), pool).map((item) => [item.id, item]));
+
   const selected: DeductiblePurchaseRow[] = [];
+  const unallocatedPayments: UnallocatedPaymentNotice[] = [];
   for (const row of invoiceRows) {
     const supplier = partyOf(row.supplier);
     const id = String(row.id);
     const lines = linesByInvoice.get(id) ?? [];
+    const before = selected.length;
     selected.push(...toRows({
       id,
       documentType: "INVOICE",
       number: String(row.supplier_invoice_number || row.invoice_number || ""),
-      invoiceDate: String(row.invoice_date ?? "").slice(0, 10),
+      invoiceDate: casablancaIsoDate(String(row.invoice_date ?? "")),
       supplierName: supplier?.name ?? null,
       supplierIf: supplier?.if_number ?? null,
       supplierIce: supplier?.ice ?? null,
       description: text(row.notes) ?? text(lines[0]?.description),
       totalTtc: Number(row.total_ttc ?? 0),
       lines: rateLines(lines, row),
-      payments: paymentsByInvoice.get(id) ?? [],
+      payments: resolvedPayments.get(id)?.payments ?? [],
       accountCodes: accounts.codes.get(id) ?? [],
       markedFixedAsset: markedFixedAsset([text(row.notes), text(row.internal_notes), ...lines.map((line) => line.description)]),
     }, { start: from, end: to }, regime, {
@@ -190,6 +246,16 @@ export async function loadDeductiblePurchases(
       posted: accounts.posted.has(`supplier_invoice:${id}`),
       fullTtc: Number(row.total_ttc ?? 0),
     }));
+    if (resolvedPayments.get(id)?.unallocated) {
+      unallocatedPayments.push({
+        invoiceId: id,
+        invoiceNumber: String(row.supplier_invoice_number || row.invoice_number || ""),
+        supplierId: supplier?.id ?? null,
+        supplierName: supplier?.name ?? null,
+        paidAmount: Number(row.paid_amount ?? 0),
+        deducted: selected.length > before,
+      });
+    }
   }
   for (const row of creditRows) {
     const supplier = partyOf(row.supplier);
@@ -199,7 +265,7 @@ export async function loadDeductiblePurchases(
       id,
       documentType: "CREDIT_NOTE",
       number: String(row.supplier_credit_note_number || row.credit_note_number || ""),
-      invoiceDate: String(row.credit_note_date ?? "").slice(0, 10),
+      invoiceDate: casablancaIsoDate(String(row.credit_note_date ?? "")),
       supplierName: supplier?.name ?? null,
       supplierIf: supplier?.if_number ?? null,
       supplierIce: supplier?.ice ?? null,
@@ -217,13 +283,19 @@ export async function loadDeductiblePurchases(
       fullTtc: Number(row.total_ttc ?? 0),
     }));
   }
-  return selected;
+  return { rows: selected, unallocatedPayments };
+}
+
+function mergeInvoices(primary: Array<Record<string, unknown>>, extra: Array<Record<string, unknown>>) {
+  const byId = new Map<string, Record<string, unknown>>();
+  for (const row of [...primary, ...extra]) byId.set(String(row.id), row);
+  return [...byId.values()];
 }
 
 export async function loadVatDeductionInvoices(organizationId: string, from: string, to: string, regime: VatRegimeMode = "unspecified"): Promise<DeductionInvoice[]> {
   const supabase = await createClient();
   const purchases = await loadDeductiblePurchases(supabase, organizationId, from, to, regime);
-  return purchases.map((purchase) => ({
+  return purchases.rows.map((purchase) => ({
     supplier: purchase.supplierName || "Fournisseur",
     ifNumber: purchase.supplierIf,
     ice: purchase.supplierIce,

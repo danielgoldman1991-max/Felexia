@@ -18,6 +18,7 @@ import {
   VAT_DECLARATION_REGIME_LABELS,
 } from "@/lib/tax/vat-declaration-types";
 import type { VatDeclarationRecord, VatDeclarationActionResult } from "@/lib/tax/vat-declaration-types";
+import type { SimplDeductionIssue } from "@/lib/tax/simpl-tva-xml";
 
 function Info({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -50,7 +51,7 @@ function ActionForm({ label, icon, action, variant = "secondary" }: { label: str
   );
 }
 
-export function VatDeclarationDetail({ declaration, canWrite = false }: { declaration: VatDeclarationRecord; canWrite?: boolean }) {
+export function VatDeclarationDetail({ declaration, canWrite = false, simplIssues = [], simplWarnings = [] }: { declaration: VatDeclarationRecord; canWrite?: boolean; simplIssues?: SimplDeductionIssue[]; simplWarnings?: SimplDeductionIssue[] }) {
   const canValidate = canWrite && (declaration.status === "draft" || declaration.status === "under_review") && declaration.blocking_errors_count === 0;
   const canArchive = canWrite && (declaration.status === "draft" || declaration.status === "under_review");
   const hasBlocking = declaration.blocking_errors_count > 0;
@@ -119,6 +120,26 @@ export function VatDeclarationDetail({ declaration, canWrite = false }: { declar
           </>
         }
       />
+
+      {simplIssues.length > 0 || simplWarnings.length > 0 ? (
+        <Card className={simplIssues.length > 0 ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}>
+          <CardContent className="space-y-3 p-4 text-sm">
+            <p className="font-medium">{simplIssues.length > 0 ? "Le relevé SIMPL-TVA ne peut pas encore être téléchargé." : "Contrôles du relevé SIMPL-TVA"}</p>
+            {simplIssues.map((issue) => (
+              <div key={`${issue.code}-${issue.message}`}>
+                <p>{issue.message}</p>
+                {issue.href ? <Link className="text-xs font-medium underline" href={issue.href}>Corriger</Link> : null}
+              </div>
+            ))}
+            {simplWarnings.map((issue) => (
+              <div key={`${issue.code}-${issue.message}`}>
+                <p>{issue.message}</p>
+                {issue.href ? <Link className="text-xs font-medium underline" href={issue.href}>Voir la facture</Link> : null}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {hasBlocking ? (
         <Card className="border-red-200 bg-red-50">

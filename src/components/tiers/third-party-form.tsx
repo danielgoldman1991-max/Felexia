@@ -36,13 +36,14 @@ type Props = {
 
 const initialState: ThirdPartyActionResult = { success: true };
 
-function Field({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) {
+function Field({ label, hint, children, className = "" }: { label: string; hint?: string; children: React.ReactNode; className?: string }) {
   const generatedId = useId();
   const control = isValidElement<{ id?: string }>(children) ? children : null;
   const id = control?.props.id ?? generatedId;
   return (
     <div className={`erp-form-field text-sm ${className}`}>
       <label htmlFor={id}>{label}</label>
+      {hint ? <p className="text-xs text-[var(--muted)]">{hint}</p> : null}
       {control ? cloneElement(control, { id }) : children}
     </div>
   );
@@ -204,7 +205,10 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <Field label="E-mail">
             <Input name="email" type="email" defaultValue={thirdParty?.email ?? ""} />
           </Field>
-          {!fullAccess ? <Field label="ICE"><Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} /></Field> : null}
+          <Field label="ICE"><Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} /></Field>
+          <Field label="Identifiant fiscal (IF)" hint="Requis pour déduire la TVA">
+            <Input name="if_number" defaultValue={thirdParty?.if_number ?? ""} />
+          </Field>
           <div className="md:col-span-2">
             <OptionalSection fullAccess={fullAccess} title="Coordonnées complémentaires (facultatif)">
               <div className="grid gap-4 md:grid-cols-2">
@@ -230,15 +234,9 @@ export function ThirdPartyForm({ mode, thirdParty, action, initialType, customer
           <Field label="Taxe professionnelle / patente">
             <Input name="patente" defaultValue={thirdParty?.patente ?? ""} />
           </Field>
-          <Field label="Identifiant fiscal (IF)">
-            <Input name="if_number" defaultValue={thirdParty?.if_number ?? ""} />
-          </Field>
           <Field label="Numéro CNSS">
             <Input name="cnss" defaultValue={thirdParty?.cnss ?? ""} />
           </Field>
-          {fullAccess ? <Field label="Identifiant Commun d'Entreprise (ICE)">
-            <Input name="ice" defaultValue={thirdParty?.ice ?? ""} maxLength={15} />
-          </Field> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <label className="flex items-center gap-2 self-end rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm">
               <input name="vat_subject" type="checkbox" defaultChecked={thirdParty?.vat_subject ?? false} />

@@ -48,6 +48,11 @@ export default async function VatDeclarationsPage() {
           <Button disabled={!ready} asChild><Link href="/comptabilite/tva/declarations/new"><Plus className="h-4 w-4" /> Nouvelle déclaration TVA</Link></Button>
         ) : null}
       />
+      <p className="text-sm">
+        <Link className="font-semibold text-[var(--primary)]" href="/comptabilite/tva/controle">Contrôle TVA</Link>
+        {" · "}
+        <Link className="font-semibold text-[var(--primary)]" href="/comptabilite/tva/periodicite">Périodicité et régime</Link>
+      </p>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard title="Brouillons" value={counters.draft} icon={<FileText className="h-4 w-4" />} />

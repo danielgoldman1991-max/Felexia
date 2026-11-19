@@ -151,6 +151,14 @@ export type DgiVatExportData = {
   declarationLines: DgiVatDeclarationLine[];
   salesDocuments: DgiVatSalesDocument[];
   purchaseDocuments: DgiVatPurchaseDocument[];
+  unallocatedSupplierPayments?: Array<{
+    invoiceId: string;
+    invoiceNumber: string;
+    supplierId: string | null;
+    supplierName: string | null;
+    paidAmount: number;
+    deducted: boolean;
+  }>;
   summary: DgiVatSummary;
   validationIssues: DgiVatValidationIssue[];
 };
