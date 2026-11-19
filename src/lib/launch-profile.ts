@@ -8,6 +8,7 @@ const LIGHT_ROOTS = [
   "/achats/factures", "/achats/fournisseurs", "/achats/paiements", "/achats/avoirs",
   "/tresorerie/comptes", "/tresorerie/mouvements", "/tresorerie/consultation",
   "/comptabilite/journaux", "/comptabilite/ecritures",
+  "/comptabilite/tva/declarations", "/comptabilite/tva/controle", "/comptabilite/tva/periodicite",
   "/tiers/clients", "/tiers/fournisseurs", "/tiers/new", "/tiers/import",
 ] as const;
 

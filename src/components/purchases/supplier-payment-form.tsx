@@ -188,12 +188,14 @@ export function SupplierPaymentForm({
               <label className="text-xs font-medium uppercase text-[var(--muted)]">Mode de paiement</label>
               <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 <option value="">Sélectionner...</option>
-                <option value="check">Cheque</option>
+                <option value="cash">Espèces</option>
+                <option value="check">Chèque</option>
+                <option value="direct_debit">Prélèvement</option>
                 <option value="transfer">Virement</option>
-                <option value="cash">Especes</option>
-                <option value="bank_card">Carte bancaire</option>
-                <option value="direct_debit">Prelevement</option>
+                <option value="bill_of_exchange">Effet de commerce</option>
+                <option value="compensation">Compensation</option>
                 <option value="other">Autre</option>
+                <option value="bank_card">Carte</option>
               </select>
             </div>
             <div>

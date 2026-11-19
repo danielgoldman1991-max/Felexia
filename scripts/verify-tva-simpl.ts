@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { buildEdiSimpl } from "../src/lib/accounting/edi-simpl";
 import { declarationToSimplLines } from "../src/lib/accounting/fiscal-files";
 import { buildDeclarationLines } from "../src/lib/tax/dgi-vat-mapping";
 import { balancedSimplAmounts, buildSimplDeductionXml, officialAmount, officialSimplFiling, simplDeductionIssues, simplDeductionZip, simplPlainText, simplRowsFromPurchases, type SimplDeductionRow } from "../src/lib/tax/simpl-tva-xml";
 import { deductionTable } from "../src/lib/tax/vat-deduction-report";
+import { getLaunchDestination, isLaunchPathAvailable } from "../src/lib/launch-profile";
 import {
   creditNotePosted,
   isFixedAssetAccount,
@@ -11,6 +13,7 @@ import {
   resolveUnallocatedPayments,
   saleVat,
   selectPurchaseDeduction,
+  simplPaymentModeId,
   type PurchaseCandidate,
   type SaleCandidate,
 } from "../src/lib/tax/vat-period-rules";
@@ -405,5 +408,32 @@ const secondUse = resolveUnallocatedPayments([
 assert.equal(secondUse[0]?.payments.length, 1);
 assert.equal(secondUse[1]?.unallocated, true);
 assert.equal(secondUse[1]?.payments.length, 0);
+
+assert.equal(simplPaymentModeId("cash"), "1");
+assert.equal(simplPaymentModeId("check"), "2");
+assert.equal(simplPaymentModeId("direct_debit"), "3");
+assert.equal(simplPaymentModeId("transfer"), "4");
+assert.equal(simplPaymentModeId("bill_of_exchange"), "5");
+assert.equal(simplPaymentModeId("compensation"), "6");
+assert.equal(simplPaymentModeId("other"), "7");
+assert.equal(simplPaymentModeId("bank_card"), "7");
+
+const declarationId = "41b90309-8ca7-459f-a115-a847f9694053";
+assert.equal(isLaunchPathAvailable("/comptabilite/tva/declarations/new"), true);
+assert.equal(getLaunchDestination(`/comptabilite/tva/declarations/${declarationId}/releve-simpl`), null);
+assert.equal(isLaunchPathAvailable("/comptabilite/tva/controle"), true);
+assert.equal(isLaunchPathAvailable("/comptabilite/tva/periodicite"), true);
+assert.equal(getLaunchDestination("/vente/devis"), "/parametres/modules");
+assert.equal(getLaunchDestination("/comptabilite/tva/edi-simpl/fichier"), "/parametres/modules");
+assert.equal(readFileSync("src/lib/tax/vat-declaration-actions.ts", "utf8").includes("requireProWorkspace"), false);
+assert.equal(readFileSync("src/app/comptabilite/tva/declarations/[id]/releve-simpl/route.ts", "utf8").includes("hasFullErpAccess"), false);
+assert.equal(readFileSync("src/app/comptabilite/tva/edi-simpl/fichier/route.ts", "utf8").includes("hasFullErpAccess"), true);
+const migration = readFileSync("supabase/migrations/155_essentiel_vat_filing.sql", "utf8");
+assert.match(migration, /drop policy if exists pro_read_guard_110 on public\.vat_declarations/);
+assert.doesNotMatch(migration, /sales_quotes/);
+assert.match(migration, /revoke all on function public\.get_organization_vat_filing\(uuid\) from public, anon/);
+assert.match(migration, /revoke all on public\.vat_declarations from anon/);
+const essentialZip = simplDeductionZip(monthlyXml);
+assert.equal(essentialZip.subarray(30 + name.length, 30 + name.length + size).toString("utf8"), expectedMonthly);
 
 console.log("TVA : déduction par règlement, avoirs, immobilisations, SIMPL et XML contrôlés.");

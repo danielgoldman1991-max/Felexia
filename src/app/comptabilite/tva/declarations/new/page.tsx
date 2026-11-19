@@ -8,12 +8,14 @@ import { NewVatDeclarationForm } from "@/components/comptabilite/tva/new-vat-dec
 import { redirect } from "next/navigation";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { canWriteVatWorkspace } from "@/app/comptabilite/tva/access";
+import { readOrganizationVatFiling } from "@/lib/tax/vat-filing";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewVatDeclarationPage() {
   const workspace = await requireActiveWorkspace();
   if (!canWriteVatWorkspace(workspace)) redirect("/comptabilite/tva/declarations");
+  const filing = await readOrganizationVatFiling(workspace.organization.id);
   return (
     <ModulePage>
       <PageHeader
@@ -29,7 +31,7 @@ export default async function NewVatDeclarationPage() {
           <h2 className="font-semibold">Paramètres de la déclaration</h2>
         </CardHeader>
         <CardContent>
-          <NewVatDeclarationForm canWrite />
+          <NewVatDeclarationForm canWrite frequency={filing.frequency} regime={filing.regime} />
         </CardContent>
       </Card>
 

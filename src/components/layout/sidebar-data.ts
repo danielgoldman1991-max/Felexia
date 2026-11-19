@@ -282,6 +282,7 @@ export const lightSections: SidebarSection[] = [
     items: [
       { label: "Mes journaux", href: "/comptabilite/journaux", icon: BookOpen },
       { label: "Écritures", href: "/comptabilite/ecritures", icon: FileText },
+      { label: "Déclaration TVA", href: "/comptabilite/tva/declarations", icon: Calculator },
     ],
   },
   { key: "settings", label: "Paramètres", href: "/parametres", icon: Settings },

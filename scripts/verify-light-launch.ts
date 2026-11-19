@@ -14,6 +14,10 @@ const keptPaths = [
   "/tresorerie/comptes/new", "/tresorerie/mouvements/new",
   "/comptabilite/journaux", `/comptabilite/journaux/${invoiceId}/export`,
   `/comptabilite/journaux/${invoiceId}/print`, "/comptabilite/ecritures/nouveau",
+  "/comptabilite/tva/declarations", "/comptabilite/tva/declarations/new",
+  `/comptabilite/tva/declarations/${invoiceId}`,
+  `/comptabilite/tva/declarations/${invoiceId}/releve-simpl`,
+  "/comptabilite/tva/controle", "/comptabilite/tva/periodicite",
 ];
 for (const path of keptPaths) {
   assert.equal(isLaunchPathAvailable(path), true, `Le parcours essentiel doit rester accessible : ${path}`);
@@ -26,7 +30,7 @@ const onRequestPaths = [
   "/vente/livraisons", "/achats/receptions/new", "/achats/commandes",
   "/achats/demandes", "/achats/consultations", "/achats/balance-agee",
   "/comptabilite/plan-comptable", "/comptabilite/grand-livre", "/comptabilite/balance",
-  "/comptabilite/tva/declarations/new", "/comptabilite/plan-comptable/init",
+  "/comptabilite/tva/edi-simpl/fichier", "/comptabilite/plan-comptable/init",
   "/tresorerie/previsions/export", "/tresorerie/rapprochement", "/tresorerie/rapprochement/regles",
   "/facturation/relances/file", "/tiers/prospects",
   "/tiers/new?type=prospect",

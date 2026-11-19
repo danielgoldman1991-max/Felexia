@@ -8,7 +8,7 @@ import {
   type SimplFilingFrequency,
 } from "@/lib/tax/simpl-tva-xml";
 import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
-import { createClient } from "@/lib/supabase/server";
+import { readOrganizationVatFiling } from "@/lib/tax/vat-filing";
 
 export function simplFilingFrequency(company: string | null | undefined, declaration: string | null | undefined): SimplFilingFrequency {
   if (company === "quarterly" || company === "monthly") return company;
@@ -25,13 +25,9 @@ export async function prepareSimplDeductionExport(input: {
   regime: VatRegimeMode;
   priorCredit: number;
 }) {
-  const supabase = await createClient();
-  const settings = await supabase
-    .from("organization_fiscal_settings")
-    .select("vat_frequency")
-    .eq("organization_id", input.organizationId)
-    .maybeSingle();
-  const frequency = simplFilingFrequency(settings.data?.vat_frequency, input.declarationFrequency);
+  const filing = await readOrganizationVatFiling(input.organizationId);
+  const frequency = simplFilingFrequency(filing.frequency, input.declarationFrequency);
+  const regime: VatRegimeMode = input.regime === "unspecified" && filing.regime !== "unspecified" ? filing.regime : input.regime;
   const data = await getDgiVatExportData({
     organizationId: input.organizationId,
     periodStart: input.periodStart,
@@ -39,13 +35,13 @@ export async function prepareSimplDeductionExport(input: {
     frequency,
     generatedBy: input.userId,
     priorCreditMad: input.priorCredit,
-    regime: input.regime,
+    regime,
   });
   const line190 = roundMad(data.declarationLines.find((line) => line.code === "190")?.amountMad ?? 0);
   const rows = simplRowsFromPurchases(data.purchaseDocuments);
   const issues = simplDeductionIssues({
     fiscalId: data.organization.ifNumber,
-    regime: input.regime,
+    regime,
     periodStart: data.period.startDate,
     periodEnd: data.period.endDate,
     frequency,
@@ -65,7 +61,7 @@ export async function prepareSimplDeductionExport(input: {
       periodStart: data.period.startDate,
       periodEnd: data.period.endDate,
       frequency,
-      regime: input.regime,
+      regime,
       rows,
     })
     : null;

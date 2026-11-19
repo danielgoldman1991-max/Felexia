@@ -18,7 +18,7 @@ function getDefaultPeriod() {
   };
 }
 
-export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean }) {
+export function NewVatDeclarationForm({ canWrite = false, frequency = "monthly", regime = "unspecified" }: { canWrite?: boolean; frequency?: "monthly" | "quarterly" | "annual_control"; regime?: string }) {
   const defaultPeriod = getDefaultPeriod();
   const [state, formAction, pending] = useActionState(createVatDeclarationAction, { success: false });
   if (!canWrite) return <p className="text-sm text-[var(--muted)]">Votre accès permet de consulter les déclarations TVA.</p>;
@@ -43,7 +43,7 @@ export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean
             id="frequency"
             name="frequency"
             className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-            defaultValue="monthly"
+            defaultValue={frequency === "quarterly" ? "quarterly" : frequency === "annual_control" ? "annual_control" : "monthly"}
           >
             <option value="monthly">Mensuelle</option>
             <option value="quarterly">Trimestrielle</option>
@@ -56,7 +56,7 @@ export function NewVatDeclarationForm({ canWrite = false }: { canWrite?: boolean
             id="vatRegime"
             name="vatRegime"
             className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-            defaultValue="unspecified"
+            defaultValue={regime}
           >
             <option value="unspecified">Non spécifié</option>
             <option value="debit">Débit</option>

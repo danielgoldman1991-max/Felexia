@@ -178,15 +178,44 @@ export function saleVat(sale: SaleCandidate) {
   return roundMad(sale.lines.reduce((sum, line) => sum + line.vat, 0) * sign);
 }
 
+/**
+ * Codes `mp/id` du relevé SIMPL-TVA (DGI) :
+ * 1 Espèces, 2 Chèque, 3 Prélèvement, 4 Virement, 5 Effet, 6 Compensation, 7 Autre.
+ * La carte n'a pas de code distinct : elle est enregistrée en 7.
+ */
+const SIMPL_PAYMENT_MODE_IDS: Record<string, string> = {
+  cash: "1",
+  especes: "1",
+  espèces: "1",
+  espece: "1",
+  cheque: "2",
+  chèque: "2",
+  check: "2",
+  certified_check: "2",
+  prelevement: "3",
+  prélèvement: "3",
+  direct_debit: "3",
+  bank_transfer: "4",
+  transfer: "4",
+  virement: "4",
+  effet: "5",
+  bill: "5",
+  bill_of_exchange: "5",
+  lcn: "5",
+  traite: "5",
+  lettre_de_change: "5",
+  compensation: "6",
+  offset: "6",
+  other: "7",
+  autre: "7",
+  card: "7",
+  carte: "7",
+  bank_card: "7",
+};
+
 export function simplPaymentModeId(mode: string | null | undefined) {
   const key = String(mode ?? "").trim().toLowerCase();
-  if (["cash", "especes", "espèces", "espece"].includes(key)) return "1";
-  if (["cheque", "chèque", "check"].includes(key)) return "2";
-  if (["prelevement", "prélèvement", "direct_debit"].includes(key)) return "3";
-  if (["bank_transfer", "transfer", "virement"].includes(key)) return "4";
-  if (["effet", "bill", "lcn", "traite"].includes(key)) return "5";
-  if (["compensation", "offset"].includes(key)) return "6";
-  return "7";
+  return SIMPL_PAYMENT_MODE_IDS[key] ?? "7";
 }
 
 export function simplRegimeCode(regime: VatRegimeMode) {
