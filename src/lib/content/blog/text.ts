@@ -21,6 +21,8 @@ function blockText(block: BlogBlock): string {
       return [block.title, ...block.items].join(" ");
     case "example":
       return [block.kicker, block.title, block.note, ...block.rows.flatMap((row) => [row.label, row.value, row.annotation])].join(" ");
+    case "figure":
+      return `${block.alt} ${block.caption}`;
     default:
       return "";
   }

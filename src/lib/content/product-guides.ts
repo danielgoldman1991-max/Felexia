@@ -26,6 +26,21 @@ export const PRODUCT_GUIDES: readonly ProductGuide[] = [
       alt: "Couverture du guide produit FelexiaERP PRO, offre ERP complet pour les PME au Maroc, avec un aperçu du tableau de bord.",
     },
   },
+  {
+    slug: "declaration-tva",
+    kicker: "TVA",
+    title: "Tutoriel déclaration de TVA et SIMPL",
+    description: "Le parcours ESSENTIEL et PRO : périodicité, fournisseurs, règlements, déclaration et relevé XML. Les exemples du PDF sont fictifs. Le dépôt SIMPL reste le vôtre.",
+    pages: 22,
+    filename: "FelexiaERP_Tutoriel_Declaration_TVA.pdf",
+    cover: {
+      webp: "/images/guides/tva-tutoriel-cover.webp",
+      avif: "/images/guides/tva-tutoriel-cover.avif",
+      width: 800,
+      height: 1132,
+      alt: "Couverture bleue du tutoriel FelexiaERP sur la déclaration de TVA et l’export SIMPL-TVA, pour ESSENTIEL et PRO.",
+    },
+  },
 ];
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

@@ -12,7 +12,7 @@ import { createPublicMetadata } from "@/lib/seo";
 import "@/styles/landing.css";
 import "@/styles/landing-motion.css";
 
-const description = "Articles pour facturer, suivre le stock et préparer vos échanges au Maroc. Le guide PDF de l’ERP complet se télécharge en bas de page, après un court formulaire.";
+const description = "Articles pour facturer, suivre la TVA et préparer vos échanges au Maroc. Les guides PDF se téléchargent en bas de page, après un court formulaire.";
 
 export const metadata = createPublicMetadata({
   title: "Guides et ressources pour PME au Maroc | Felexia",
@@ -64,7 +64,7 @@ export default async function GuidesPage({ searchParams }: { searchParams: Promi
           <div className="marketing-container">
             <p className={styles.kicker}>Ressources</p>
             <h1>Guides & ressources</h1>
-            <p className={styles.lede}>Des articles pour facturer, suivre le stock et préparer vos échanges. Le guide PDF de l’ERP complet est en bas de page.</p>
+            <p className={styles.lede}>Des articles pour facturer, déclarer la TVA et préparer vos échanges. Les guides PDF sont en bas de page.</p>
             <nav aria-label="Catégories">
               <ul className={styles.filters}>
                 <li><Link href="/guides" aria-current={active ? undefined : "page"}>Tous</Link></li>
@@ -114,7 +114,7 @@ export default async function GuidesPage({ searchParams }: { searchParams: Promi
               title="Les prochains articles"
               text="Un e-mail lorsqu’un article est publié. La case d’accord reste à cocher, et vous pouvez vous désinscrire."
             />
-            <aside className={styles.guideBanner} aria-labelledby="guide-pdf-title">
+            <aside className={styles.guideBanner} aria-label="Guides PDF">
               {PRODUCT_GUIDES.map((guide) => (
                 <div key={guide.slug} className={styles.guideRow}>
                   <picture className={styles.guideCover}>
@@ -124,7 +124,7 @@ export default async function GuidesPage({ searchParams }: { searchParams: Promi
                   </picture>
                   <div className={styles.guideCopy}>
                     <p className={styles.kicker}>{guide.kicker} · {guide.pages} pages</p>
-                    <h2 id="guide-pdf-title">{guide.title}</h2>
+                    <h2 id={`guide-pdf-${guide.slug}`}>{guide.title}</h2>
                     <p>{guide.description}</p>
                   </div>
                   <GuideDownloadButton slug={guide.slug} className="marketing-button marketing-button-primary">Télécharger le guide</GuideDownloadButton>

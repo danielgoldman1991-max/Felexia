@@ -31,6 +31,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/erp-maroc-pme": "ERP Maroc pour une PME — FelexiaERP",
   "/blog/avoir-facture-maroc": "Avoir facture Maroc — FelexiaERP",
   "/blog/numerotation-facture-maroc": "Numérotation facture Maroc — FelexiaERP",
+  "/blog/declaration-tva-export-simpl": "Déclaration TVA et export SIMPL — FelexiaERP",
   "/blog/tva-maroc-pme": "TVA au Maroc pour une PME — FelexiaERP",
   "/blog/relance-facture-impayee-maroc": "Relancer une facture impayée — FelexiaERP",
 };

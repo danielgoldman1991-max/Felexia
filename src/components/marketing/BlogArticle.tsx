@@ -5,6 +5,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { NewsletterBand } from "@/components/newsletter/NewsletterForm";
 import { LandingHeader } from "@/components/landing/LandingHeader";
 import styles from "@/components/marketing/blog.module.css";
+import { GuideDownloadButton } from "@/components/guides/GuideDownload";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { BLOG_ARTICLES, blogCategoryLabel } from "@/lib/content/blog/index";
 import type { BlogArticle as BlogArticleData, TextRun } from "@/lib/content/blog/types";
@@ -126,6 +127,14 @@ export function BlogArticle({ article }: { article: BlogArticleData }) {
                     </section>
                   );
                 }
+                if (block.type === "figure") {
+                  return (
+                    <figure key={index} className={styles.figure}>
+                      <img src={block.src} width={block.width} height={block.height} alt={block.alt} loading="lazy" decoding="async" />
+                      <figcaption>{block.caption}</figcaption>
+                    </figure>
+                  );
+                }
                 if (block.type === "example") {
                   return (
                     <section key={index} className={styles.example} aria-label={block.title}>
@@ -200,6 +209,13 @@ export function BlogArticle({ article }: { article: BlogArticleData }) {
                 </div>
                 <Link href={article.cta.href} className="marketing-button marketing-button-primary">{article.cta.label} <ArrowUpRight size={16} aria-hidden="true" /></Link>
               </aside>
+              {article.guideSlug ? (
+                <aside className={styles.guidePdf} aria-labelledby="tutoriel-pdf-titre">
+                  <h2 id="tutoriel-pdf-titre">Tutoriel PDF</h2>
+                  <p>Le même parcours est repris dans un PDF. Le formulaire demande votre e-mail, puis un lien signé sert le fichier depuis l’espace privé. Le dépôt sur le portail SIMPL reste le vôtre.</p>
+                  <GuideDownloadButton slug={article.guideSlug} className="marketing-button marketing-button-primary">Télécharger le tutoriel</GuideDownloadButton>
+                </aside>
+              ) : null}
               <p className={styles.disclaimer}>{article.disclaimer}</p>
             </article>
             <div className={styles.tocDesktop}><Toc article={article} /></div>

@@ -23,7 +23,8 @@ export type BlogBlock =
   | { type: "callout"; tone: "accountant" | "product" | "note"; title: string; paragraphs?: TextRun[][]; items?: readonly string[] }
   | { type: "table"; caption: string; columns: readonly string[]; rows: readonly (readonly string[])[] }
   | { type: "checklist"; title: string; items: readonly string[] }
-  | { type: "example"; kicker: string; title: string; note: string; rows: readonly { label: string; value: string; annotation: string }[] };
+  | { type: "example"; kicker: string; title: string; note: string; rows: readonly { label: string; value: string; annotation: string }[] }
+  | { type: "figure"; src: string; alt: string; caption: string; width: number; height: number };
 
 export type BlogArticle = {
   slug: string;
@@ -45,9 +46,12 @@ export type BlogArticle = {
   related: readonly { href: string; label: string }[];
   sources: readonly { label: string; href: string; consulted: string }[];
   disclaimer: string;
+  /** Lead-gated PDF registered in product-guides.ts. */
+  guideSlug?: string;
 };
 
 export const h2 = (id: string, text: string): BlogBlock => ({ type: "h2", id, text });
 export const h3 = (id: string, text: string): BlogBlock => ({ type: "h3", id, text });
 export const p = (...runs: TextRun[]): BlogBlock => ({ type: "p", runs });
 export const bullets = (items: TextRun[][]): BlogBlock => ({ type: "ul", items });
+export const figure = (src: string, alt: string, caption: string, width: number, height: number): BlogBlock => ({ type: "figure", src, alt, caption, width, height });

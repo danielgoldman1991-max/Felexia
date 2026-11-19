@@ -143,7 +143,7 @@
 .cardBody { flex: 1; padding: 16px 18px 18px; }
 .empty { margin: 28px 0 0; color: #3d4e66; font-size: 16px; line-height: 1.6; }
 .empty a { color: #2454d8; }
-.guideBanner { margin-top: 56px; }
+.guideBanner { display: grid; gap: 16px; margin-top: 56px; }
 .guideRow {
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr) auto;

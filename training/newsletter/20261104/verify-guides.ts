@@ -28,7 +28,13 @@ function request(url: string, body?: unknown, headers: Record<string, string> = 
 async function main() {
   const guide = getProductGuide("pro");
   check(guide?.pages === 32 && guide.filename === "FelexiaERP_PRO_Guide.pdf", "PRO guide is the 32-page product PDF");
-  check(PRODUCT_GUIDES.length === 1 && guideSource("pro") === "guide:pro", "Guide source is guide:<slug>");
+  check(PRODUCT_GUIDES.length === 2 && guideSource("pro") === "guide:pro" && guideSource("declaration-tva") === "guide:declaration-tva", "Each guide source is guide:<slug>");
+  const tvaGuide = getProductGuide("declaration-tva");
+  check(tvaGuide?.filename === "FelexiaERP_Tutoriel_Declaration_TVA.pdf" && tvaGuide.pages === 22, "TVA tutorial is the second gated PDF");
+  const tvaPdf = readFileSync(resolve("private/guides/FelexiaERP_Tutoriel_Declaration_TVA.pdf"));
+  check(tvaPdf.subarray(0, 5).toString() === "%PDF-" && !existsSync(resolve("public/guides/FelexiaERP_Tutoriel_Declaration_TVA.pdf")), "TVA PDF stays private");
+  const tvaLead = parseGuideBody({ email: "ada@example.com", guideConsent: true, newsletter: false, slug: "declaration-tva", fax_number: "" });
+  check(tvaLead.ok && !tvaLead.honeypot && tvaLead.lead.source === "guide:declaration-tva", "TVA guide request uses its own source");
   check(isPublicSitePath("/guides") && PUBLIC_SITE_PATHS.includes("/guides"), "Guides page is a public route");
   check(!isPublicSitePath("/newsletter/desinscription") && !isPublicSitePath("/api/guides/download"), "Download and unsubscribe stay off the public index");
 

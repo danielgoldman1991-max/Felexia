@@ -14,7 +14,6 @@ const article: BlogArticle = {
   publishedAt: "2026-11-03",
   updatedAt: "2026-11-03",
   author: "Équipe Felexia",
-  featured: true,
   cover: {
     webp: "/images/blog/blog-mentions-obligatoires-facture-maroc.webp",
     avif: "/images/blog/blog-mentions-obligatoires-facture-maroc.avif",
