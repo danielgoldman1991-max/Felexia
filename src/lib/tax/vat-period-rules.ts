@@ -28,6 +28,21 @@ export function creditNotePosted(sourceTypes: string[], side: "customer" | "supp
 
 export type VatRateLine = { taxRate: number; baseHt: number; vat: number; ttc: number };
 
+/** Date calendaire au Maroc. Une date déjà AAAA-MM-JJ n'est pas réinterprétée. */
+export function casablancaIsoDate(value: string | null | undefined) {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) return /^\d{4}-\d{2}-\d{2}/.test(trimmed) ? trimmed.slice(0, 10) : "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Casablanca",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(parsed);
+}
+
 export type VatPaymentSlice = {
   date: string;
   amount: number;
@@ -176,4 +191,77 @@ export function simplPaymentModeId(mode: string | null | undefined) {
 
 export function simplRegimeCode(regime: VatRegimeMode) {
   return regime === "debit" ? "2" : "1";
+}
+
+export type UnallocatedSupplierPayment = {
+  id: string;
+  supplierId: string;
+  date: string | null;
+  amount: number;
+  mode: string | null;
+  reference: string | null;
+};
+
+export type InvoicePaymentState = {
+  id: string;
+  supplierId: string | null;
+  allocations: VatPaymentSlice[];
+  paidAmount: number;
+  status: string | null;
+  paymentStatus: string | null;
+};
+
+export type ResolvedInvoicePayments = {
+  id: string;
+  payments: VatPaymentSlice[];
+  unallocated: boolean;
+};
+
+function markedPaid(state: Pick<InvoicePaymentState, "paidAmount" | "status" | "paymentStatus">) {
+  if (roundMad(state.paidAmount) > 0.009) return true;
+  const status = `${state.status ?? ""} ${state.paymentStatus ?? ""}`.toLowerCase();
+  return status.includes("paid") || status.includes("partial");
+}
+
+/** Les imputations priment. Le reste payé n'est ajouté que s'il existe une seule date de paiement disponible. */
+export function resolveUnallocatedPayments(
+  invoices: InvoicePaymentState[],
+  pool: UnallocatedSupplierPayment[],
+): ResolvedInvoicePayments[] {
+  const remaining = pool.map((payment) => ({ ...payment, left: roundMad(payment.amount) }));
+  return invoices.map((invoice) => {
+    const allocations = invoice.allocations.filter((payment) => payment.amount > 0.009 && payment.date);
+    const allocated = roundMad(allocations.reduce((sum, payment) => sum + payment.amount, 0));
+    const recorded = roundMad(Math.max(invoice.paidAmount, 0));
+    if (allocated > 0.009) {
+      const gap = roundMad(Math.max(recorded - allocated, 0));
+      if (gap <= 0.01) return { id: invoice.id, payments: allocations, unallocated: false };
+      const extra = takeSinglePayment(remaining, invoice.supplierId, gap);
+      if (!extra) return { id: invoice.id, payments: allocations, unallocated: true };
+      return { id: invoice.id, payments: [...allocations, extra], unallocated: false };
+    }
+    if (!markedPaid(invoice)) return { id: invoice.id, payments: [], unallocated: false };
+    const slice = takeSinglePayment(remaining, invoice.supplierId, recorded);
+    if (!slice) return { id: invoice.id, payments: [], unallocated: true };
+    return { id: invoice.id, payments: [slice], unallocated: false };
+  });
+}
+
+function takeSinglePayment(
+  pool: Array<UnallocatedSupplierPayment & { left: number }>,
+  supplierId: string | null,
+  needed: number,
+): VatPaymentSlice | null {
+  if (!supplierId || needed <= 0.009) return null;
+  const matches = pool.filter((payment) => payment.supplierId === supplierId && payment.left > 0.009 && casablancaIsoDate(payment.date));
+  if (matches.length !== 1) return null;
+  const payment = matches[0];
+  const amount = roundMad(Math.min(needed, payment.left));
+  payment.left = roundMad(payment.left - amount);
+  return {
+    date: casablancaIsoDate(payment.date),
+    amount,
+    mode: payment.mode,
+    reference: payment.reference,
+  };
 }
