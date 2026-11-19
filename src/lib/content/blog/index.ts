@@ -1,5 +1,7 @@
 import avoirFacture from "@/lib/content/blog/articles/avoir-facture-maroc";
 import numerotationFacture from "@/lib/content/blog/articles/numerotation-facture-maroc";
+import relanceFacture from "@/lib/content/blog/articles/relance-facture-impayee-maroc";
+import tvaMaroc from "@/lib/content/blog/articles/tva-maroc-pme";
 import choisir from "@/lib/content/blog/articles/choisir-entre-essentiel-et-pro";
 import erpMaroc from "@/lib/content/blog/articles/erp-maroc-pme";
 import iceFacture from "@/lib/content/blog/articles/ice-facture-maroc";
@@ -14,7 +16,7 @@ import plf2027 from "@/lib/content/blog/articles/plf-2027-pme-maroc";
 import retenueSource from "@/lib/content/blog/articles/retenue-source-auto-entrepreneur-plf-2027";
 import { BLOG_PILLARS, type BlogArticle, type BlogPillarSlug } from "@/lib/content/blog/types";
 
-export const BLOG_ARTICLES: readonly BlogArticle[] = [numerotationFacture, erpMaroc, avoirFacture, iceFacture, retenueSource, logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
+export const BLOG_ARTICLES: readonly BlogArticle[] = [tvaMaroc, relanceFacture, numerotationFacture, erpMaroc, avoirFacture, iceFacture, retenueSource, logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
 
 export function getBlogArticle(slug: string): BlogArticle | undefined {
   return BLOG_ARTICLES.find((article) => article.slug === slug);
