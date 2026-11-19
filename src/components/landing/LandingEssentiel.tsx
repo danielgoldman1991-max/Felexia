@@ -202,6 +202,8 @@ export function LandingEssentiel() {
           <h2>Déclaration de TVA et export XML SIMPL-TVA</h2>
           <p>Vous préparez la déclaration dans Felexia et vous exportez le relevé XML. Vous le déposez vous-même sur SIMPL. Felexia n’envoie rien à la DGI.</p>
           <div className={styles.resourceLinks}>
+            <Link href="/declaration-tva-maroc">Déclaration de TVA <ArrowUpRight size={14} aria-hidden="true" /></Link>
+            <Link href="/logiciel-comptabilite-maroc">Comptabilité <ArrowUpRight size={14} aria-hidden="true" /></Link>
             <Link href="/blog/declaration-tva-export-simpl">Tutoriel déclaration TVA <ArrowUpRight size={14} aria-hidden="true" /></Link>
             <Link href="/pricing">Tarifs <ArrowUpRight size={14} aria-hidden="true" /></Link>
             <Link href="/guides">Guides <ArrowUpRight size={14} aria-hidden="true" /></Link>

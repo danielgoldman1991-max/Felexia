@@ -20,7 +20,10 @@ const GOOGLE_OWNERSHIP_SHA256 = "24d198949233f761310ad02311e9ff611f1bcfdd4512186
 
 async function main() {
   check(PUBLIC_SITE_ORIGIN === "https://www.felexia.pro", "SEO and public consent use the fixed production www origin");
-  check(PUBLIC_SITE_PATHS.length === 28 && new Set(PUBLIC_SITE_PATHS).size === 28, "Public routes are explicit and unique");
+  check(PUBLIC_SITE_PATHS.length === 33 && new Set(PUBLIC_SITE_PATHS).size === 33, "Public routes are explicit and unique");
+  for (const path of ["/declaration-tva-maroc", "/logiciel-comptabilite-maroc", "/logiciel-paie-maroc", "/logiciel-gestion-stock-maroc", "/logiciel-devis-facture-maroc"]) {
+    check(isPublicSitePath(path), "New offer landing is public: " + path);
+  }
   for (const path of PUBLIC_SITE_PATHS) {
     const metadata = createPublicMetadata({ title: "Public title", description: "Public description", path });
     check(isPublicSitePath(path) && isPublicSitePath(path === "/" ? "/" : path + "/"), "Public pathname accepted: " + path);

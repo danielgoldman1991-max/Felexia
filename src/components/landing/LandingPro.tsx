@@ -31,6 +31,7 @@ export function LandingPro() {
             </div>
             <a href={getProQuoteHref()} className="pro-suite-quote">Demander un devis PRO <ArrowUpRight size={17} aria-hidden="true" /></a>
             <a className="pro-suite-whatsapp" href={getProWhatsAppHref()} target="_blank" rel="noopener noreferrer">Écrire sur WhatsApp</a>
+            <p className="pro-suite-links"><Link href="/logiciel-gestion-stock-maroc">Gestion de stock</Link> · <Link href="/logiciel-paie-maroc">Paie CNSS</Link> · <Link href="/logiciel-devis-facture-maroc">Devis et factures</Link></p>
           </div>
 
           <details className="pro-suite-more">
