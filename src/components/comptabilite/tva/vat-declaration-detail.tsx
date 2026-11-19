@@ -103,6 +103,7 @@ export function VatDeclarationDetail({ declaration, canWrite = false }: { declar
               />
             ) : null}
             <Button variant="secondary" asChild><Link href={`/comptabilite/tva/exports?from=${declaration.period_start}&to=${declaration.period_end}&frequency=${declaration.frequency}&preflight=1`}><FileText className="h-4 w-4" /> Exporter</Link></Button>
+            <Button variant="secondary" asChild><Link href={`/comptabilite/tva/declarations/${declaration.id}/releve-simpl`}>EDI SIMPL-TVA</Link></Button>
             {canArchive ? (
               <ActionForm
                 label="Archiver"
@@ -175,6 +176,13 @@ export function VatDeclarationDetail({ declaration, canWrite = false }: { declar
           <CardContent className="pt-6">
             <p className="text-xs font-medium uppercase text-[var(--muted)]">TVA récupérable</p>
             <p className="mt-2 text-2xl font-semibold"><MoneyDisplay value={declaration.deductible_vat} /></p>
+            {declaration.totals_by_rate && ("immobilisations" in (declaration.totals_by_rate as object) || "charges" in (declaration.totals_by_rate as object)) ? (
+              <p className="mt-2 text-xs text-[var(--muted)]">
+                Immobilisations <MoneyDisplay value={Number((declaration.totals_by_rate as { immobilisations?: { deductible?: number } }).immobilisations?.deductible ?? 0)} />
+                {" · "}
+                Charges <MoneyDisplay value={Number((declaration.totals_by_rate as { charges?: { deductible?: number } }).charges?.deductible ?? 0)} />
+              </p>
+            ) : null}
           </CardContent>
         </Card>
         <Card>
@@ -211,7 +219,7 @@ export function VatDeclarationDetail({ declaration, canWrite = false }: { declar
                 <tr><Th>Taux</Th><Th className="text-right">TVA collectée</Th><Th className="text-right">TVA récupérable</Th></tr>
               </thead>
               <tbody>
-                {["20", "14", "10", "7"].concat(Object.keys(declaration.totals_by_rate as Record<string, unknown>).filter((rate) => !["20", "14", "10", "7"].includes(rate))).map((rate) => {
+                {["20", "14", "10", "7"].concat(Object.keys(declaration.totals_by_rate as Record<string, unknown>).filter((rate) => !["20", "14", "10", "7", "immobilisations", "charges"].includes(rate) && Number.isFinite(Number(rate)))).map((rate) => {
                   const totals = (declaration.totals_by_rate as Record<string, { collected: number; deductible: number }>)[rate] ?? { collected: 0, deductible: 0 };
                   return (
                   <tr key={rate}>

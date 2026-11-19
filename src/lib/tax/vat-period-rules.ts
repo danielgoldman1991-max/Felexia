@@ -1,0 +1,179 @@
+import { roundMad } from "@/lib/tax/dgi-vat-mapping";
+
+export type VatRegimeMode = "encaissement" | "debit" | "mixed" | "unspecified";
+
+/** Encaissement, mixte ou régime non paramétré : la déduction suit la date du règlement. */
+export function deductionFollowsPayment(regime: VatRegimeMode) {
+  return regime !== "debit";
+}
+
+/** Compte de la classe 2, hors amortissements (28) et provisions (29). */
+export function isFixedAssetAccount(code: string | null | undefined) {
+  const digits = String(code ?? "").replace(/\s/g, "");
+  return /^2(?![89])\d*$/.test(digits);
+}
+
+export function isFixedAssetPurchase(input: { accountCodes?: string[]; marked?: boolean }) {
+  if (input.marked) return true;
+  return (input.accountCodes ?? []).some((code) => isFixedAssetAccount(code));
+}
+
+const CUSTOMER_CREDIT_TYPES = new Set(["customer_credit_note", "credit_note"]);
+const SUPPLIER_CREDIT_TYPES = new Set(["supplier_credit_note"]);
+
+export function creditNotePosted(sourceTypes: string[], side: "customer" | "supplier") {
+  const accepted = side === "customer" ? CUSTOMER_CREDIT_TYPES : SUPPLIER_CREDIT_TYPES;
+  return sourceTypes.some((type) => accepted.has(type));
+}
+
+export type VatRateLine = { taxRate: number; baseHt: number; vat: number; ttc: number };
+
+export type VatPaymentSlice = {
+  date: string;
+  amount: number;
+  mode?: string | null;
+  reference?: string | null;
+};
+
+export type PurchaseCandidate = {
+  id: string;
+  documentType: "INVOICE" | "CREDIT_NOTE";
+  number: string;
+  invoiceDate: string;
+  supplierName: string | null;
+  supplierIf: string | null;
+  supplierIce: string | null;
+  description: string | null;
+  totalTtc: number;
+  lines: VatRateLine[];
+  payments: VatPaymentSlice[];
+  accountCodes: string[];
+  markedFixedAsset: boolean;
+};
+
+export type PurchaseDeduction = {
+  included: boolean;
+  prorata: number;
+  paidInPeriod: number;
+  paymentDate: string | null;
+  paymentMode: string | null;
+  paymentReference: string | null;
+  fixedAsset: boolean;
+  lines: Array<{ taxRate: number; baseHt: number; vatOnInvoice: number; deductibleVat: number; ttc: number }>;
+  baseHt: number;
+  vatOnInvoice: number;
+  deductibleVat: number;
+  ttc: number;
+};
+
+function inPeriod(date: string, start: string, end: string) {
+  return date >= start && date <= end;
+}
+
+function scale(value: number, prorata: number, sign: number) {
+  return roundMad(roundMad(value * prorata) * sign);
+}
+
+export function selectPurchaseDeduction(
+  purchase: PurchaseCandidate,
+  period: { start: string; end: string },
+  regime: VatRegimeMode,
+): PurchaseDeduction {
+  const sign = purchase.documentType === "CREDIT_NOTE" ? -1 : 1;
+  const fixedAsset = isFixedAssetPurchase({ accountCodes: purchase.accountCodes, marked: purchase.markedFixedAsset });
+  const empty: PurchaseDeduction = {
+    included: false,
+    prorata: 0,
+    paidInPeriod: 0,
+    paymentDate: null,
+    paymentMode: null,
+    paymentReference: null,
+    fixedAsset,
+    lines: [],
+    baseHt: 0,
+    vatOnInvoice: 0,
+    deductibleVat: 0,
+    ttc: 0,
+  };
+  const grossVat = roundMad(purchase.lines.reduce((sum, line) => sum + line.vat, 0));
+  const grossTtc = roundMad(purchase.totalTtc);
+  if (purchase.documentType === "CREDIT_NOTE") {
+    if (!inPeriod(purchase.invoiceDate, period.start, period.end) || grossVat === 0) return empty;
+    return materialize(purchase, 1, sign, grossTtc, purchase.invoiceDate, null, null, fixedAsset);
+  }
+  if (deductionFollowsPayment(regime)) {
+    const payments = purchase.payments.filter((payment) => payment.date && inPeriod(payment.date, period.start, period.end) && payment.amount > 0);
+    const paid = roundMad(payments.reduce((sum, payment) => sum + payment.amount, 0));
+    if (paid <= 0 || grossTtc <= 0 || grossVat === 0) return empty;
+    const prorata = Math.min(paid / grossTtc, 1);
+    const latest = payments.reduce((best, payment) => payment.date > best.date ? payment : best);
+    return materialize(purchase, prorata, sign, paid, latest.date, latest.mode ?? null, latest.reference ?? null, fixedAsset);
+  }
+  if (!inPeriod(purchase.invoiceDate, period.start, period.end) || grossVat === 0) return empty;
+  return materialize(purchase, 1, sign, grossTtc, purchase.invoiceDate, null, null, fixedAsset);
+}
+
+function materialize(
+  purchase: PurchaseCandidate,
+  prorata: number,
+  sign: number,
+  paidInPeriod: number,
+  paymentDate: string,
+  paymentMode: string | null,
+  paymentReference: string | null,
+  fixedAsset: boolean,
+): PurchaseDeduction {
+  const lines = purchase.lines.map((line) => ({
+    taxRate: line.taxRate,
+    baseHt: scale(line.baseHt, prorata, sign),
+    vatOnInvoice: roundMad(line.vat * sign),
+    deductibleVat: scale(line.vat, prorata, sign),
+    ttc: scale(line.ttc, prorata, sign),
+  }));
+  return {
+    included: true,
+    prorata,
+    paidInPeriod: roundMad(paidInPeriod),
+    paymentDate,
+    paymentMode,
+    paymentReference,
+    fixedAsset,
+    lines,
+    baseHt: roundMad(lines.reduce((sum, line) => sum + line.baseHt, 0)),
+    vatOnInvoice: roundMad(lines.reduce((sum, line) => sum + line.vatOnInvoice, 0)),
+    deductibleVat: roundMad(lines.reduce((sum, line) => sum + line.deductibleVat, 0)),
+    ttc: roundMad(lines.reduce((sum, line) => sum + line.ttc, 0)),
+  };
+}
+
+export type SaleCandidate = {
+  id: string;
+  documentType: "INVOICE" | "CREDIT_NOTE";
+  issueDate: string;
+  lines: VatRateLine[];
+  postedSourceTypes: string[];
+};
+
+export function saleIncluded(sale: SaleCandidate, period: { start: string; end: string }) {
+  return inPeriod(sale.issueDate, period.start, period.end);
+}
+
+export function saleVat(sale: SaleCandidate) {
+  const sign = sale.documentType === "CREDIT_NOTE" ? -1 : 1;
+  return roundMad(sale.lines.reduce((sum, line) => sum + line.vat, 0) * sign);
+}
+
+export function simplPaymentModeId(mode: string | null | undefined) {
+  const key = String(mode ?? "").trim().toLowerCase();
+  if (["cash", "especes", "espèces", "espece"].includes(key)) return "1";
+  if (["cheque", "chèque", "check"].includes(key)) return "2";
+  if (["prelevement", "prélèvement", "direct_debit"].includes(key)) return "3";
+  if (["bank_transfer", "transfer", "virement"].includes(key)) return "4";
+  if (["effet", "bill", "lcn", "traite"].includes(key)) return "5";
+  if (["compensation", "offset"].includes(key)) return "6";
+  return "7";
+}
+
+export function simplRegimeCode(regime: VatRegimeMode) {
+  return regime === "debit" ? "2" : "1";
+}

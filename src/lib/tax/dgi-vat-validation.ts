@@ -188,6 +188,7 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
     });
   }
 
+  const cashDeduction = data.period.regime !== "debit";
   for (const document of data.purchaseDocuments) {
     const deductibleVat = roundMad(document.taxBreakdown.reduce((sum, row) => sum + row.deductibleVatMad, 0));
     const invoiceVat = roundMad(document.taxBreakdown.reduce((sum, row) => sum + row.vatOnInvoiceMad, 0));
@@ -264,7 +265,7 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
       message: "La facture fournisseur contient de la TVA mais aucun paiement exploitable n'a été trouvé.",
       suggestedFix: "Rattachez le paiement fournisseur pour calculer la TVA récupérable.",
     });
-    addIfMissing(issues, deductibleVat > 0 && !document.paymentMode, {
+    addIfMissing(issues, cashDeduction && deductibleVat > 0 && !document.paymentMode, {
       code: "PAYMENT_MODE_MISSING",
       severity: "blocking",
       source: "supplier_invoice",
@@ -275,7 +276,7 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
       message: "Un achat déduit n'a pas de mode de paiement.",
       suggestedFix: "Complétez le paiement fournisseur.",
     });
-    addIfMissing(issues, deductibleVat > 0 && !document.paymentReference, {
+    addIfMissing(issues, cashDeduction && deductibleVat > 0 && !document.paymentReference, {
       code: "PAYMENT_REFERENCE_MISSING",
       severity: "blocking",
       source: "supplier_invoice",
@@ -286,7 +287,7 @@ export function validateDgiVatExport(data: DgiVatExportData): DgiVatValidationIs
       message: "Un achat déduit n'a pas de référence de paiement.",
       suggestedFix: "Ajoutez la référence de virement, chèque ou opération bancaire.",
     });
-    addIfMissing(issues, deductibleVat > 0 && !document.paymentDate, {
+    addIfMissing(issues, cashDeduction && deductibleVat > 0 && !document.paymentDate, {
       code: "PAYMENT_DATE_MISSING",
       severity: "blocking",
       source: "supplier_invoice",

@@ -6,21 +6,27 @@ import { Input } from "@/components/ui/input";
 import { Table, Td, Th } from "@/components/ui/table";
 import { requireActiveWorkspace } from "@/lib/auth";
 import { loadVatDeductionInvoices } from "@/lib/tax/vat-deduction-query";
+import type { VatRegimeMode } from "@/lib/tax/vat-period-rules";
 import { DEDUCTION_HEADERS, deductionPeriod, deductionTable } from "@/lib/tax/vat-deduction-report";
 
 export const dynamic = "force-dynamic";
 
-export default async function VatDeductionsPage({ searchParams }: { searchParams?: Promise<{ from?: string; to?: string }> }) {
+function regimeOf(value: string | undefined): VatRegimeMode {
+  return value === "debit" || value === "encaissement" || value === "mixed" ? value : "unspecified";
+}
+
+export default async function VatDeductionsPage({ searchParams }: { searchParams?: Promise<{ from?: string; to?: string; regime?: string }> }) {
   const query = await searchParams;
   const from = query?.from ?? "";
   const to = query?.to ?? "";
+  const regime = regimeOf(query?.regime);
   const period = deductionPeriod(from, to);
-  const params = new URLSearchParams({ from, to });
+  const params = new URLSearchParams({ from, to, regime });
   let preview: { rows: string[][]; error?: string } | null = null;
   if (period.ok) {
     try {
       const workspace = await requireActiveWorkspace({ modules: ["tva", "comptabilite"], level: "read" });
-      const invoices = await loadVatDeductionInvoices(workspace.organization.id, period.from, period.to);
+      const invoices = await loadVatDeductionInvoices(workspace.organization.id, period.from, period.to, regime);
       preview = { rows: deductionTable(invoices).slice(1) };
     } catch (error) {
       const digest = error && typeof error === "object" ? (error as { digest?: string }).digest : undefined;
@@ -32,11 +38,18 @@ export default async function VatDeductionsPage({ searchParams }: { searchParams
     <ModulePage>
       <PageHeader
         title="Relevé des déductions"
-        description="Factures fournisseurs de la période : fournisseur, IF, ICE, numéro, date, HT, TVA, date et mode de paiement. Fichier préparatoire, sans dépôt DGI."
+        description="Même périmètre que la ligne 190 : règlements de la période en régime encaissement, date de facture en régime débit. Le total de TVA du relevé est la TVA déductible. Fichier préparatoire, sans dépôt DGI."
       />
       <form method="get" className="flex max-w-3xl flex-wrap items-end gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card)] p-4">
         <label className="text-sm">Du<Input className="mt-1" type="date" name="from" defaultValue={from} required /></label>
         <label className="text-sm">Au<Input className="mt-1" type="date" name="to" defaultValue={to} required /></label>
+        <label className="text-sm">Régime
+          <select className="mt-1 h-10 rounded-md border border-[var(--border)] bg-[var(--card)] px-3 text-sm" name="regime" defaultValue={regime}>
+            <option value="unspecified">Non paramétré (règlements)</option>
+            <option value="encaissement">Encaissement</option>
+            <option value="debit">Débit</option>
+          </select>
+        </label>
         <Button type="submit">Préparer</Button>
         {period.ok ? <Button variant="secondary" asChild><Link href={`/comptabilite/tva/deductions/export?${params}&format=csv`}>CSV</Link></Button> : null}
         {period.ok ? <Button variant="secondary" asChild><Link href={`/comptabilite/tva/deductions/export?${params}&format=xlsx`}>Excel</Link></Button> : null}
