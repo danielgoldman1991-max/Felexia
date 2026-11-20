@@ -14,7 +14,6 @@ const article: BlogArticle = {
   publishedAt: "2026-11-19",
   updatedAt: "2026-11-19",
   author: "Équipe Felexia",
-  featured: true,
   guideSlug: "declaration-tva",
   cover: {
     webp: "/images/blog/blog-declaration-tva-export-simpl.webp",

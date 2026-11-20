@@ -207,6 +207,7 @@ export const LANDING_GUIDES: readonly PublicGuide[] = [
     related: [
       { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
       { href: "/blog/facture-electronique-pdf-xml", label: "PDF et XML d’une facture" },
+      { href: "/blog/facture-electronique-questions-editeur-logiciel", label: "5 questions à poser à l’éditeur" },
       { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
       { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
       { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },

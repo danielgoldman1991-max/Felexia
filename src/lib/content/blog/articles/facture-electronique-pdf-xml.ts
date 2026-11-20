@@ -131,6 +131,7 @@ const article: BlogArticle = {
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/essentiel", label: "Offre ESSENTIEL" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+    { href: "/blog/facture-electronique-questions-editeur-logiciel", label: "5 questions à poser à l’éditeur" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
     { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel de gestion" },

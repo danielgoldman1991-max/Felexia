@@ -46,6 +46,7 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/modes-paiement-facture-maroc",
   "/blog/calendrier-fiscal-pme-maroc",
   "/blog/credit-tva-remboursement-maroc",
+  "/blog/facture-electronique-questions-editeur-logiciel",
   "/blog/tva-maroc-pme",
   "/blog/relance-facture-impayee-maroc",
   "/mentions-legales",

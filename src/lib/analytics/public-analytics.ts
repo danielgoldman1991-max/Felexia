@@ -55,6 +55,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/modes-paiement-facture-maroc": "Modes de paiement SIMPL — FelexiaERP",
   "/blog/calendrier-fiscal-pme-maroc": "Calendrier fiscal PME — FelexiaERP",
   "/blog/credit-tva-remboursement-maroc": "Crédit de TVA — FelexiaERP",
+  "/blog/facture-electronique-questions-editeur-logiciel": "5 questions à l’éditeur — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([
