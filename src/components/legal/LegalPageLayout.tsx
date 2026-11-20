@@ -136,7 +136,7 @@ export function LegalPageLayout({
   toc: LegalTocItem[];
   children: ReactNode;
 }) {
-  const publisher = legalValue(LEGAL_CONFIG.publisherName) ?? "Felexia Conseils";
+  const publisher = legalValue(LEGAL_CONFIG.publisherName) ?? "Felexia Pro";
 
   return (
     <div className="min-h-screen bg-white text-slate-900">

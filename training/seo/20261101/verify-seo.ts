@@ -102,7 +102,7 @@ async function main() {
   check(mentions?.sources.some((source) => source.href.includes("tax.gov.ma")) && mentions?.sources.some((source) => source.href.includes("sgg.gov.ma")), "Invoice article cites the DGI page and the official bulletin");
   const footer = readFileSync(resolve("src/components/landing/LandingFooter.tsx"), "utf8");
   check(footer.includes("https://www.instagram.com/felexiaerp/") && footer.includes("https://www.linkedin.com/company/felexiaerp/") && footer.includes("TODO") && !/facebook\.com/i.test(footer), "Footer links the known Instagram and LinkedIn profiles, and no invented Facebook profile");
-  check(!footer.includes("<h2") && footer.includes("Felexia Conseils"), "Footer navigation is not a heading, and the copyright line stays unchanged");
+  check(!footer.includes("<h2") && footer.includes("Felexia Pro") && !footer.includes("Felexia Conseils"), "Footer navigation is not a heading, and the copyright names Felexia Pro");
   const heroWebp = statSync(resolve("public/images/felexia-horizon-v1.webp")).size;
   const heroAvif = statSync(resolve("public/images/felexia-horizon-v1.avif")).size;
   const heroPng = statSync(resolve("public/images/felexia-horizon-v1.png")).size;

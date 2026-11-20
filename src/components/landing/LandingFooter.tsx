@@ -93,7 +93,7 @@ export function LandingFooter() {
         </div>
         <p className={styles.disclaimer}>Les fonctions fiscales, sociales et comptables de Felexia sont préparatoires : elles ne se substituent ni à l’expertise d’un professionnel (expert-comptable, conseiller fiscal) ni aux obligations déclaratives applicables au Maroc.</p>
         <div className={styles.bottom}>
-          <p>© {new Date().getFullYear()} Felexia Conseils. FelexiaERP — Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} Felexia Pro. FelexiaERP — Tous droits réservés.</p>
           <a className={styles.top} href="#top">Retour en haut <ArrowUpRight size={16} aria-hidden="true" /></a>
         </div>
       </div>

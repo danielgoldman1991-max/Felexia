@@ -2,7 +2,7 @@
  * Configuration juridique centrale de FelexiaERP.
  *
  * FelexiaERP est un produit / service SaaS faisant partie intégrante de la
- * société éditrice : Felexia Conseils.
+ * société éditrice : Felexia Pro.
  *
  * Seules les informations réelles doivent être renseignées. Toute information
  * juridique non disponible doit rester `null` (ligne masquée sur les pages)
@@ -15,7 +15,7 @@ const legalEmail = process.env.NEXT_PUBLIC_LEGAL_EMAIL?.trim() || "contact@felex
 
 export const LEGAL_CONFIG = {
   /** Société éditrice / exploitante du service. */
-  companyName: process.env.NEXT_PUBLIC_LEGAL_COMPANY_NAME ?? "Felexia Conseils",
+  companyName: process.env.NEXT_PUBLIC_LEGAL_COMPANY_NAME ?? "Felexia Pro",
 
   /** Produit / service. */
   productName: "FelexiaERP",

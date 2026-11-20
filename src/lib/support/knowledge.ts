@@ -28,7 +28,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "overview", title: "Felexia, votre gestion d’entreprise au Maroc",
     keywords: ["felexia", "erp", "gestion entreprise", "pme", "logiciel", "business management", "company", "المقاولة", "الشركة", "تسيير", "شنو", "chno", "chnou"],
-    content: "FelexiaERP est un service de gestion d’entreprise en ligne, édité par Felexia Conseils et pensé pour les PME marocaines. ESSENTIEL rassemble les ventes, les achats, les clients, les fournisseurs, la facturation, les règlements, la trésorerie et les journaux. PRO ouvre le périmètre ERP étendu. La facturation électronique est une fonctionnalité incluse, pas une offre qui remplace ESSENTIEL. Le service fonctionne dans un navigateur sur ordinateur, tablette et téléphone.",
+    content: "FelexiaERP est un service de gestion d’entreprise en ligne, édité par Felexia Pro et pensé pour les PME marocaines. ESSENTIEL rassemble les ventes, les achats, les clients, les fournisseurs, la facturation, les règlements, la trésorerie et les journaux. PRO ouvre le périmètre ERP étendu. La facturation électronique est une fonctionnalité incluse, pas une offre qui remplace ESSENTIEL. Le service fonctionne dans un navigateur sur ordinateur, tablette et téléphone.",
     href: "/#essentiel",
   },
   {
@@ -244,7 +244,7 @@ export const SUPPORT_KNOWLEDGE_ARTICLES: SupportKnowledgeArticle[] = [
   {
     id: "privacy-security", title: "Confidentialité, hébergement et données",
     keywords: ["sécurité", "securite", "confidentialité", "confidentialite", "données", "donnees", "hébergement", "hebergement", "rgpd", "cndp", "sauvegarde", "security", "privacy", "data", "hosting", "backup", "أمان", "خصوصية", "بيانات"],
-    content: "Felexia Conseils édite le service. L’infrastructure déclarée utilise Vercel pour le web, Supabase pour la base et l’authentification et Stripe pour le paiement ; Google intervient si vous choisissez sa connexion. Les données peuvent être traitées hors du Maroc : ne pas promettre un hébergement exclusivement au Maroc ou une sécurité absolue. Les accès métier sont limités par entreprise et rôle. La politique de confidentialité décrit les données et droits. Ne partagez pas de mot de passe, document d’identité, coordonnées de carte, dossier RH ou données client sensibles dans le chat public. L’assistant de visiteurs n’accède pas à votre espace privé. Aucune garantie chiffrée de disponibilité, sauvegarde ou délai de restauration ne doit être inventée.",
+    content: "Felexia Pro édite le service. L’infrastructure déclarée utilise Vercel pour le web, Supabase pour la base et l’authentification et Stripe pour le paiement ; Google intervient si vous choisissez sa connexion. Les données peuvent être traitées hors du Maroc : ne pas promettre un hébergement exclusivement au Maroc ou une sécurité absolue. Les accès métier sont limités par entreprise et rôle. La politique de confidentialité décrit les données et droits. Ne partagez pas de mot de passe, document d’identité, coordonnées de carte, dossier RH ou données client sensibles dans le chat public. L’assistant de visiteurs n’accède pas à votre espace privé. Aucune garantie chiffrée de disponibilité, sauvegarde ou délai de restauration ne doit être inventée.",
     href: "/confidentialite",
   },
   {
