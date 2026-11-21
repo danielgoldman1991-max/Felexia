@@ -27,6 +27,21 @@ export const PRODUCT_GUIDES: readonly ProductGuide[] = [
     },
   },
   {
+    slug: "essentiel",
+    kicker: "Offre ESSENTIEL",
+    title: "Guide produit FelexiaERP ESSENTIEL",
+    description: "24 pages pour découvrir la facturation, les règlements, la trésorerie, les journaux, la déclaration de TVA avec l’export SIMPL-TVA, la facture électronique et les sauvegardes. Les montants du document sont fictifs.",
+    pages: 24,
+    filename: "FelexiaERP_ESSENTIEL_Guide.pdf",
+    cover: {
+      webp: "/images/guides/felexia-essentiel-guide-cover.webp",
+      avif: "/images/guides/felexia-essentiel-guide-cover.avif",
+      width: 992,
+      height: 1404,
+      alt: "Couverture du guide produit FelexiaERP ESSENTIEL, offre de facturation, règlements, journaux et TVA pour les TPE et PME au Maroc, avec un aperçu de l’accueil.",
+    },
+  },
+  {
     slug: "declaration-tva",
     kicker: "TVA",
     title: "Tutoriel déclaration de TVA et SIMPL",
