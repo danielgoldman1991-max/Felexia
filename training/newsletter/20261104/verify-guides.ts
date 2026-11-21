@@ -28,7 +28,17 @@ function request(url: string, body?: unknown, headers: Record<string, string> = 
 async function main() {
   const guide = getProductGuide("pro");
   check(guide?.pages === 32 && guide.filename === "FelexiaERP_PRO_Guide.pdf", "PRO guide is the 32-page product PDF");
-  check(PRODUCT_GUIDES.length === 2 && guideSource("pro") === "guide:pro" && guideSource("declaration-tva") === "guide:declaration-tva", "Each guide source is guide:<slug>");
+  check(PRODUCT_GUIDES.length === 3 && guideSource("pro") === "guide:pro" && guideSource("essentiel") === "guide:essentiel" && guideSource("declaration-tva") === "guide:declaration-tva", "Each guide source is guide:<slug>");
+  const essentielGuide = getProductGuide("essentiel");
+  check(essentielGuide?.filename === "FelexiaERP_ESSENTIEL_Guide.pdf" && essentielGuide.pages === 24 && essentielGuide.kicker === "Offre ESSENTIEL", "ESSENTIEL guide is the 24-page gated product PDF");
+  check(PRODUCT_GUIDES.map((item) => item.slug).join(",") === "pro,essentiel,declaration-tva", "ESSENTIEL guide is listed next to the PRO guide");
+  const essentielPdf = readFileSync(resolve("private/guides/FelexiaERP_ESSENTIEL_Guide.pdf"));
+  check(essentielPdf.subarray(0, 5).toString() === "%PDF-" && essentielPdf.byteLength > 500_000 && !existsSync(resolve("public/guides/FelexiaERP_ESSENTIEL_Guide.pdf")), "ESSENTIEL PDF stays private");
+  const essentielWebp = statSync(resolve("public" + essentielGuide!.cover.webp));
+  const essentielAvif = statSync(resolve("public" + essentielGuide!.cover.avif));
+  check(essentielWebp.size < 150_000 && essentielAvif.size < 150_000 && essentielWebp.size > 1000 && essentielAvif.size > 1000, "ESSENTIEL cover images are optimized");
+  const essentielLead = parseGuideBody({ email: "ada@example.com", guideConsent: true, newsletter: false, slug: "essentiel", fax_number: "" });
+  check(essentielLead.ok && !essentielLead.honeypot && essentielLead.lead.source === "guide:essentiel", "ESSENTIEL guide request uses its own source");
   const tvaGuide = getProductGuide("declaration-tva");
   check(tvaGuide?.filename === "FelexiaERP_Tutoriel_Declaration_TVA.pdf" && tvaGuide.pages === 22, "TVA tutorial is the second gated PDF");
   const tvaPdf = readFileSync(resolve("private/guides/FelexiaERP_Tutoriel_Declaration_TVA.pdf"));
