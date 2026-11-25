@@ -52,7 +52,7 @@ export const TAIL_SPECS: ArticleSpec[] = [
       q("Le tableur envoie-t-il la TVA ?", "Non. Felexia non plus. Vous déposez le XML sur SIMPL."),
       q("Où voir le prix ?", "Sur la page Tarifs. ESSENTIEL a un prix public. PRO est sur devis."),
     ],
-    related: [tutorial, { href: "/pricing", label: "Tarifs" }, { href: "/blog/numerotation-facture-maroc", label: "Numérotation" }, essentiel, pro],
+    related: [tutorial, { href: "/pricing", label: "Tarifs" }, { href: "/blog/numerotation-facture-maroc", label: "Numérotation" }, { href: "/blog/gestion-stock-excel-maroc", label: "Stock sur Excel" }, essentiel, pro],
   }),
   artPaie(),
 ];

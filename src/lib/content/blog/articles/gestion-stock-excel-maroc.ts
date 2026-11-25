@@ -1,0 +1,213 @@
+import { publicOfferCopy } from "@/lib/content/blog/offers";
+import { h2, h3, p, type BlogArticle } from "@/lib/content/blog/types";
+
+const offer = publicOfferCopy();
+const consulted = "25/11/2026";
+
+const article: BlogArticle = {
+  slug: "gestion-stock-excel-maroc",
+  path: "/blog/gestion-stock-excel-maroc",
+  title: "Gestion de stock Excel Maroc : 7 signes | Felexia",
+  description: "Gestion de stock Excel Maroc : sept signes que le tableur ne suffit plus, et ce qu’un outil dédié relie aux réceptions, livraisons et emplacements.",
+  h1: "Gestion de stock sur Excel : 7 signes qu’il est temps de changer d’outil",
+  category: "stock-achats",
+  publishedAt: "2026-11-25",
+  updatedAt: "2026-11-25",
+  author: "Équipe Felexia",
+  featured: true,
+  cover: {
+    webp: "/images/blog/blog-gestion-stock-excel-maroc.webp",
+    avif: "/images/blog/blog-gestion-stock-excel-maroc.avif",
+    alt: "Illustration d’une étagère de cartons et d’un tableur fissuré relié par des flèches, aux couleurs bleu et menthe",
+    width: 1600,
+    height: 900,
+  },
+  essentials: [
+    "Un tableur de stock reste lisible tant qu’il n’existe qu’en une version et que chaque quantité renvoie à une pièce : réception, livraison ou comptage.",
+    "Sept signes montrent que le fichier ne décrit plus le stock : versions divergentes, dépendance à une personne, entrée sans réception, sortie sans livraison, emplacements mélangés, clôture impossible à reconstituer, marchandise confondue avec la facture.",
+    "L’article 145-II du CGI, édition 2026, demande à la fin de chaque exercice des inventaires détaillés, en quantités et en valeurs. Le XI écarte cet article pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique.",
+    "Felexia PRO suit les emplacements, les mouvements, les réceptions, les livraisons et un comptage par emplacement. Il ne calcule pas le prix de revient. L’essai public ouvre ESSENTIEL, sans ce suivi.",
+  ],
+  introduction: [
+    "Une gestion de stock Excel au Maroc tient tant que le fichier est unique et que chaque quantité renvoie à une pièce. Elle ne tient plus quand deux versions divergent, ou quand personne ne peut reconstituer l’inventaire de clôture. ",
+    "Ce guide donne les sept signes, ce que les articles 145-II et 8-I du Code général des impôts demandent en quantités et en valeurs, et ce qu’un outil dédié change. Le circuit des mouvements est dans ",
+    { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
+    ". Le même passage, côté facture, est dans ",
+    { href: "/blog/facture-excel-ou-logiciel-maroc", label: "Excel ou un logiciel de facturation" },
+    ".",
+  ],
+  blocks: [
+    h2("pourquoi-le-tableur", "Pourquoi le tableur tient encore"),
+    p("Un classeur convient au début. Une feuille, un article par ligne, une colonne pour la quantité. Une personne achète, range et livre. Le fichier tient dans un message. Ce geste n’est pas une erreur. Les signes qui suivent sont des observations de travail."),
+    h2("sept-signes", "Gestion de stock Excel au Maroc : les sept signes"),
+    p("Lisez la grille dans l’ordre. La dernière colonne dit ce qu’un outil dédié apporte sur ce point, d’après les parcours publiés. Elle ne promet pas un gain de temps."),
+    {
+      type: "table",
+      caption: "Sept signes, le risque concret, et ce qu’un outil dédié change",
+      columns: ["Signe", "Risque", "Ce qu’un outil dédié apporte"],
+      rows: [
+        [
+          "Plusieurs versions du même classeur",
+          "Personne ne sait quelle quantité est la bonne. Le dernier enregistrement écrase l’autre.",
+          "Une quantité par article et par emplacement, avec l’historique des mouvements.",
+        ],
+        [
+          "Le fichier dépend d’une seule personne",
+          "En son absence, l’équipe ne peut ni sortir un carton ni expliquer une quantité.",
+          "Plusieurs personnes ouvrent le même suivi, dans la limite d’utilisateurs publiée.",
+        ],
+        [
+          "Une entrée sans réception",
+          "Le carton est dans la feuille, sans commande fournisseur à laquelle le rattacher.",
+          "La réception est liée à la commande. Elle dit ce qui est arrivé, à part de la facture.",
+        ],
+        [
+          "Une sortie sans livraison",
+          "La quantité baisse, sans pièce qui dise quels articles sont partis.",
+          "La livraison indique les articles et les quantités qui quittent le stock.",
+        ],
+        [
+          "Les emplacements sont dans la même case",
+          "Un transfert est noté comme une sortie, ou deux lieux se mélangent.",
+          "Un transfert déplace une quantité d’un emplacement à l’autre. Elle reste dans l’entreprise.",
+        ],
+        [
+          "L’inventaire de clôture ne se reconstitue pas",
+          "Les quantités et les valeurs de fin d’exercice ne sortent pas du fichier.",
+          "Une session compte un emplacement, puis valide l’écart. La valeur se traite à part.",
+        ],
+        [
+          "La marchandise et la facture se confondent",
+          "Le stock semble à jour parce que la facture est saisie, ou l’inverse.",
+          "La réception suit la marchandise. La facture suit le montant dû. Les deux restent distinctes.",
+        ],
+      ],
+    },
+    h3("ce-que-ces-signes-partagent", "Ce que ces signes ont en commun"),
+    p("Chaque signe est un trou dans la trace : la quantité ne dit plus d’où elle vient. L’outil dédié garde le mouvement, la pièce et l’emplacement dans le même fil."),
+    p("Dans le suivi PRO, les écrans de stock signalent les articles dont la quantité a atteint le minimum saisi. C’est une lecture, pas une commande passée seule. La page ",
+      { href: "/logiciel-gestion-stock-maroc", label: "logiciel de gestion de stock" },
+      " le décrit ainsi. Aucune formule de valorisation n’y est publiée."),
+    h2("cloture", "Que demandent les articles 145 et 8 à la clôture ?"),
+    p("L’article 145-II du CGI, édition 2026 lue le 25 novembre 2026, demande aux contribuables d’établir, à la fin de chaque exercice, des inventaires détaillés, en quantités et en valeurs, des marchandises, des produits divers, des emballages et des matières consommables achetés pour la revente ou pour l’exploitation."),
+    p("Le paragraphe VI, pour l’impôt sur le revenu au régime du résultat net simplifié, redemande ces inventaires de stocks, en quantités et en valeurs, à la fin de chaque exercice. Le XI écarte l’article 145 entier pour les personnes physiques à la contribution professionnelle unique ou au régime de l’auto-entrepreneur, sauf l’adresse électronique du X. Le champ dépend donc du régime."),
+    p("L’article 8-I fixe l’évaluation : les stocks sont au prix de revient, ou au cours du jour si ce dernier est inférieur. Les travaux en cours restent au prix de revient. Felexia n’applique pas ce prix à votre place."),
+    {
+      type: "callout",
+      tone: "accountant",
+      title: "À vérifier avec votre expert-comptable",
+      paragraphs: [[
+        "Le 145-II demande un inventaire en quantités et en valeurs. Le 8-I dit comment évaluer les stocks pour le résultat fiscal qu’il définit. Le XI sort la contribution professionnelle unique et l’auto-entrepreneur de l’article 145, sauf l’adresse électronique. Un classeur peut aider à préparer un comptage. Il ne remplace pas la validation de votre conseil, ni une déclaration.",
+      ]],
+    },
+    h2("exemple-fictif", "Exemple fictif : deux fichiers, un écart de 12 cartons"),
+    p("Atlas Négoce n’existe pas. Cette société fictive range des cartons d’huile à Casablanca. L’ICE de démonstration est 000000000000000. Au matin, la réserve en compte 80 et le comptoir 0. Aucun prix de stock n’est calculé."),
+    {
+      type: "example",
+      kicker: "Exemple fictif",
+      title: "Cartons d’huile, réserve et comptoir",
+      note: "Départ : 80 cartons en réserve, 0 au comptoir. Les noms et l’ICE sont de démonstration.",
+      rows: [
+        { label: "Réception", value: "+ 20 cartons en réserve", annotation: "Liée à une commande fournisseur. 80 + 20 = 100." },
+        { label: "Livraison", value: "− 12 cartons depuis la réserve", annotation: "La livraison porte la sortie. 100 − 12 = 88." },
+        { label: "Transfert", value: "10 cartons vers le comptoir", annotation: "Réserve 78, comptoir 10. Total entreprise inchangé : 78 + 10 = 88." },
+        { label: "Autre fichier", value: "La réserve y reste à 100", annotation: "La réception est notée, la livraison oubliée. 100 − 88 = 12 cartons." },
+        { label: "Comptage", value: "Réserve comptée à 76", annotation: "Écart de 2 avec les 78 attendus. La session l’enregistre. Elle ne donne pas le prix de revient." },
+      ],
+    },
+    p("Le contrôle tient en une ligne : 80 + 20 − 12 − 10 = 78 en réserve, et les 10 cartons transférés sont au comptoir. Le total après la livraison reste 88. Le classeur qui affiche 100 décrit la réserve d’avant la sortie, pas le stock du soir."),
+    h2("erreurs-frequentes", "Erreurs fréquentes"),
+    p("Chercher les emplacements dans ESSENTIEL. Cette offre facture, encaisse et tient les journaux. Le suivi des quantités par emplacement est décrit dans PRO."),
+    p(`Ouvrir l’essai de ${offer.trial} pour compter les cartons. Cet essai, sans carte bancaire, ouvre ESSENTIEL. PRO se demande à part. Le bouton de la page ouvre un brouillon : le message part quand vous l’envoyez.`),
+    p("Noter un transfert comme une sortie. La quantité change de lieu. Elle ne quitte pas l’entreprise. Confondre aussi la réception et la facture fournisseur : l’une suit le carton, l’autre le montant dû."),
+    p("Tenir le comptage pour une valorisation. L’article 8-I parle de prix de revient et de cours du jour. La session enregistre des quantités et un écart. Elle ne signe pas cette valeur."),
+    p("Croire qu’une facture en PDF met le stock à jour. Felexia est prêt pour la facture électronique : il produit un PDF et un XML, puis les archive, après activation par l’administrateur. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée. Les fonctions seront mises à jour à la publication des textes. Ce parcours ne modifie pas une quantité."),
+    {
+      type: "callout",
+      tone: "product",
+      title: "Avec Felexia",
+      paragraphs: [[
+        `PRO ajoute au socle ESSENTIEL le stock : emplacements, entrées, sorties, transferts, historique, commandes et réceptions fournisseurs, livraisons, retours, et une session qui compte un emplacement puis valide l’écart. Le minimum saisi sert à repérer les quantités qui l’ont atteint. PRO est sur devis, jusqu’à ${offer.proUsers} utilisateurs et ${offer.proStorageGb} Go, sans plafond mensuel de documents commerciaux. `,
+        { href: "/pro", label: "La page PRO" },
+        " détaille le périmètre, puis ouvre un brouillon à envoyer.",
+      ], [
+        `ESSENTIEL facture, encaisse et tient les journaux, sans emplacements. Il est à ${offer.monthly} MAD HT par mois ou ${offer.yearly} MAD HT par an. L’essai de ${offer.trial}, sans carte, se lance à l’inscription et ouvre cette offre, pas le stock. Le PDF, le XML et l’archivage sont dans les deux offres après activation. Voir `,
+        { href: "/essentiel", label: "ESSENTIEL" },
+        ", ",
+        { href: "/logiciel-facturation-maroc", label: "le logiciel de facturation" },
+        " et ",
+        { href: "/facturation-electronique-maroc", label: "la facture électronique" },
+        ".",
+      ]],
+    },
+    h2("pour-qui", "Pour qui le changement est utile"),
+    p("Il est utile dès qu’une quantité quitte un lieu et qu’une autre personne doit la retrouver : négoce, distribution, atelier qui livre des marchandises. Une activité de services sans marchandise peut rester sur la facture et les règlements. Le devis PRO se prépare en décrivant les emplacements, qui réceptionne et qui livre."),
+    p("Le choix d’un outil plus large se lit dans ",
+      { href: "/blog/erp-maroc-pme", label: "ERP au Maroc pour une PME" },
+      " et dans ",
+      { href: "/blog/logiciel-gestion-pme-maroc", label: "les 10 critères pour choisir un logiciel de gestion" },
+      ". Rien ici ne classe les outils du marché, ni n’annonce un prix de PRO."),
+    {
+      type: "checklist",
+      title: "Avant de quitter le classeur",
+      items: [
+        "Une seule version du fichier est encore en circulation, ou plusieurs divergent déjà.",
+        "Chaque entrée récente se rattache à une réception, et chaque sortie à une livraison.",
+        "Un transfert entre deux lieux n’a pas été noté comme une sortie.",
+        "L’inventaire de clôture peut être repris en quantités, et la valeur discutée avec le conseil.",
+        "Le nombre de personnes qui doivent ouvrir le suivi est noté, dans la limite publiée.",
+        "Le stock recherché est bien celui de PRO : l’essai public n’ouvre pas ces écrans.",
+      ],
+    },
+  ],
+  questions: [
+    {
+      question: "Excel suffit-il pour le stock d’une petite activité ?",
+      answer: "Il suffit tant qu’une seule version du fichier existe et que chaque quantité se rattache à une réception, une livraison ou un comptage. Dès que deux personnes enregistrent, ou que la clôture demande un inventaire que le classeur ne reconstitue pas, le fichier ne décrit plus le stock.",
+    },
+    {
+      question: "Le CGI impose-t-il un inventaire des stocks ?",
+      answer: "L’article 145-II du CGI, édition 2026, demande aux contribuables, à la fin de chaque exercice, des inventaires détaillés en quantités et en valeurs des marchandises, produits, emballages et matières achetés pour la revente ou l’exploitation. Le VI le redemande au régime du résultat net simplifié. Le XI écarte l’article 145 pour la contribution professionnelle unique et l’auto-entrepreneur, sauf l’adresse électronique. Le champ se vérifie avec votre conseil.",
+    },
+    {
+      question: "L’essai gratuit permet-il de suivre le stock ?",
+      answer: `Non. L’essai de ${offer.trial}, sans carte bancaire, ouvre ESSENTIEL : factures, règlements et journaux. Les emplacements, les mouvements, les réceptions, les livraisons et le comptage sont dans PRO, sur devis.`,
+    },
+    {
+      question: "Felexia calcule-t-il le prix de revient des stocks ?",
+      answer: "Non. L’article 8-I du CGI évalue les stocks au prix de revient, ou au cours du jour si celui-ci est inférieur. Felexia enregistre des quantités, des mouvements et l’écart d’un comptage. La valeur se valide avec votre expert-comptable.",
+    },
+    {
+      question: "Faut-il PRO pour la facture électronique ?",
+      answer: "Non. Le PDF, le XML, l’émission et l’archivage sont dans ESSENTIEL et dans PRO, après activation par l’administrateur. Felexia est prêt pour la facture électronique dans ce sens. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée.",
+    },
+  ],
+  cta: {
+    label: "Demander un devis PRO",
+    href: "/pro",
+    note: `Le suivi des quantités est dans PRO. Le bouton ouvre la page, puis un brouillon à envoyer. L’essai gratuit de ${offer.trial}, sans carte bancaire, concerne ESSENTIEL, pas le stock. ${offer.offerPitch}`,
+  },
+  related: [
+    { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
+    { href: "/pro", label: "Périmètre de l’ERP PRO" },
+    { href: "/essentiel", label: "Facturer sans stock, avec ESSENTIEL" },
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+    { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/facture-excel-ou-logiciel-maroc", label: "Excel ou un logiciel de facturation" },
+    { href: "/blog/erp-maroc-pme", label: "ERP au Maroc pour une PME" },
+    { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel" },
+  ],
+  sources: [
+    { label: "Direction générale des impôts — Code général des impôts, édition 2026 (fichier « CGI 2026 FR.pdf » sur tax.gov.ma, édition listée au 30 décembre 2025). Article 8-I (évaluation des stocks au prix de revient, ou au cours du jour s’il est inférieur ; travaux en cours au prix de revient). Article 145-II, 145-VI-2° et 145-XI (inventaires de clôture en quantités et en valeurs ; régime simplifié ; exclusion de la contribution professionnelle unique et de l’auto-entrepreneur, sauf l’adresse électronique).", href: "https://www.tax.gov.ma/wps/wcm/connect/08712531-1e81-4e28-a38b-2bd9edf8e09e/CGI+2026+FR.pdf?MOD=AJPERES", consulted },
+    { label: "Direction générale des impôts — page Documentation fiscale, rubrique Code général des impôts, édition 2026 indiquée au 30 décembre 2025.", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },
+    { label: "Felexia — page PRO : emplacements, mouvements, réceptions, livraisons, retours, limites et devis.", href: "/pro", consulted },
+    { label: "Felexia — page ESSENTIEL : facturation, règlements et journaux, sans suivi des emplacements.", href: "/essentiel", consulted },
+    { label: "Felexia — page Tarifs : ESSENTIEL à 99 MAD HT par mois ou 1 188 MAD HT par an, essai de 15 jours, PRO sur devis, documents commerciaux sans plafond mensuel et 20 Go.", href: "/pricing", consulted },
+    { label: "Felexia — logiciel de gestion de stock : mouvements, réceptions, livraisons, alerte de seuil et inventaire physique dans PRO.", href: "/logiciel-gestion-stock-maroc", consulted },
+    { label: "Felexia — facturation électronique : PDF, XML, émission et archivage après activation, sans connexion officielle à la DGI.", href: "/facturation-electronique-maroc", consulted },
+    { label: "Felexia — logiciel de facturation au Maroc, pour le quotidien de facturation cité dans l’encadré.", href: "/logiciel-facturation-maroc", consulted },
+  ],
+  disclaimer: "Contenu informatif, non contractuel. Les règles évoluent : vérifiez auprès de l’administration fiscale ou de votre expert-comptable. Mis à jour le 25 novembre 2026.",
+};
+
+export default article;

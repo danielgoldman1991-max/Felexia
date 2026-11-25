@@ -12,7 +12,7 @@ const article: BlogArticle = {
   h1: "Logiciel de gestion de stock pour une PME au Maroc",
   category: "stock-achats",
   publishedAt: "2026-11-03",
-  updatedAt: "2026-11-03",
+  updatedAt: "2026-11-25",
   author: "Équipe Felexia",
   cover: {
     webp: "/images/blog/blog-gestion-de-stock-au-maroc.webp",
@@ -29,7 +29,10 @@ const article: BlogArticle = {
   ],
   introduction: [
     "Un logiciel de gestion de stock, pour une PME au Maroc, sert à savoir où sont les articles et quels documents ont fait entrer ou sortir une quantité. Dans Felexia, ce suivi fait partie de PRO. Il ne figure pas dans le descriptif public d’ESSENTIEL. ",
-    "Vous y retrouvez les emplacements, les mouvements, les réceptions et les livraisons. Un exemple fictif montre comment les quantités s’enchaînent, sans méthode de valorisation.",
+    "Vous y retrouvez les emplacements, les mouvements, les réceptions et les livraisons. Un exemple fictif montre comment les quantités s’enchaînent, sans méthode de valorisation. ",
+    "Si ce suivi est encore dans un classeur, les signes de passage sont dans ",
+    { href: "/blog/gestion-stock-excel-maroc", label: "Gestion de stock sur Excel" },
+    ".",
   ],
   blocks: [
     h2("ce-que-pro-montre", "Ce que PRO montre sur le stock"),
@@ -147,6 +150,7 @@ const article: BlogArticle = {
     note: `La page PRO présente le périmètre, puis ouvre un brouillon d’e-mail à envoyer. ${offer.offerPitch}`,
   },
   related: [
+    { href: "/blog/gestion-stock-excel-maroc", label: "Gestion de stock sur Excel" },
     { href: "/blog/declaration-tva-export-simpl", label: "Déclaration de TVA et export SIMPL-TVA" },
     { href: "/logiciel-gestion-stock-maroc", label: "Logiciel de gestion de stock" },
     { href: "/pro", label: "Périmètre de l’ERP PRO" },
@@ -160,7 +164,7 @@ const article: BlogArticle = {
     { label: "Felexia — page ESSENTIEL : facturation et trésorerie, sans suivi des emplacements", href: "/essentiel", consulted },
     { label: "Felexia — facturation électronique, incluse dans les deux offres après activation", href: "/facturation-electronique-maroc", consulted },
   ],
-  disclaimer: "Contenu informatif, non contractuel. Les sessions d'inventaire physique sont disponibles dans PRO. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 4 novembre 2026.",
+  disclaimer: "Contenu informatif, non contractuel. Les sessions d'inventaire physique sont disponibles dans PRO. Le traitement comptable du stock se valide avec votre conseil. Mis à jour le 25 novembre 2026.",
 };
 
 export default article;

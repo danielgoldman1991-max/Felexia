@@ -14,7 +14,6 @@ const article: BlogArticle = {
   publishedAt: "2026-11-20",
   updatedAt: "2026-11-20",
   author: "Équipe Felexia",
-  featured: true,
   cover: {
     webp: "/images/blog/blog-facture-electronique-questions-editeur-logiciel.webp",
     avif: "/images/blog/blog-facture-electronique-questions-editeur-logiciel.avif",
