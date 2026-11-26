@@ -174,6 +174,7 @@ const article: BlogArticle = {
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/modele-facture-maroc-ice", label: "Modèle de facture avec ICE" },
+    { href: "/blog/prix-logiciel-gestion-maroc", label: "Les postes de coût d’un logiciel de gestion" },
   ],
   sources: [
     { label: "Direction générale des impôts — Code général des impôts, édition 2026 (fichier « CGI 2026 FR.pdf » sur tax.gov.ma). Préambule : loi de finances n° 50-25, Bulletin officiel n° 7465 bis. Articles 91, 92, 94, 99-A, 99-B, 145 (III, VIII, IX, X, XI) et note 1064.", href: "https://www.tax.gov.ma/wps/wcm/connect/08712531-1e81-4e28-a38b-2bd9edf8e09e/CGI+2026+FR.pdf?MOD=AJPERES", consulted },

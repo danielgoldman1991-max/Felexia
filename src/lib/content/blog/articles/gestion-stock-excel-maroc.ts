@@ -14,7 +14,6 @@ const article: BlogArticle = {
   publishedAt: "2026-11-25",
   updatedAt: "2026-11-25",
   author: "Équipe Felexia",
-  featured: true,
   cover: {
     webp: "/images/blog/blog-gestion-stock-excel-maroc.webp",
     avif: "/images/blog/blog-gestion-stock-excel-maroc.avif",

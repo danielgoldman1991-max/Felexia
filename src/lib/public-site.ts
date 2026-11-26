@@ -48,6 +48,8 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/credit-tva-remboursement-maroc",
   "/blog/facture-electronique-questions-editeur-logiciel",
   "/blog/gestion-stock-excel-maroc",
+  "/blog/prix-logiciel-gestion-maroc",
+  "/blog/essai-gratuit-logiciel-gestion",
   "/blog/tva-maroc-pme",
   "/blog/relance-facture-impayee-maroc",
   "/mentions-legales",

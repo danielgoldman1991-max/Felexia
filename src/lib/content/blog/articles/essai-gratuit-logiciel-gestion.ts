@@ -1,0 +1,171 @@
+import { publicOfferCopy } from "@/lib/content/blog/offers";
+import { h2, h3, p, type BlogArticle } from "@/lib/content/blog/types";
+
+const offer = publicOfferCopy();
+const consulted = "26/11/2026";
+
+const article: BlogArticle = {
+  slug: "essai-gratuit-logiciel-gestion",
+  path: "/blog/essai-gratuit-logiciel-gestion",
+  title: "Essai gratuit logiciel de gestion : 15 jours | Felexia",
+  description: "Essai gratuit d’un logiciel de gestion : le plan des 15 jours pour tester la société, les factures, les règlements et les journaux avant de choisir.",
+  h1: "Tester un logiciel de gestion en 15 jours : le plan d’essai jour par jour",
+  category: "choix-logiciel",
+  publishedAt: "2026-11-26",
+  updatedAt: "2026-11-26",
+  author: "Équipe Felexia",
+  cover: {
+    webp: "/images/blog/blog-essai-gratuit-logiciel-gestion.webp",
+    avif: "/images/blog/blog-essai-gratuit-logiciel-gestion.avif",
+    alt: "Illustration d’un calendrier à coches, d’une liste de tâches validées et d’une cible dorée, aux couleurs bleu et menthe.",
+    width: 1600,
+    height: 900,
+  },
+  essentials: [
+    `L’essai gratuit dure ${offer.trial}. Il ne demande pas de carte bancaire. Il ouvre ESSENTIEL, pas PRO.`,
+    "Jours 1 à 5 : la société, les clients, les fournisseurs et les articles. Jours 6 à 12 : factures, avoirs, règlements, banque et caisse. Jours 13 et 14 : journaux, déclaration de TVA et parcours PDF/XML.",
+    "Les devis, les commandes, le stock et la paie ne sont pas dans l’essai. Ils se demandent avec PRO, sur devis.",
+    "Le quinzième jour sert à décider. Après l’échéance, les données restent consultables. Créer ou modifier demande un abonnement ESSENTIEL actif.",
+  ],
+  introduction: [
+    `Un essai gratuit de logiciel de gestion sert à tester votre quotidien, pas à parcourir tous les menus. En ${offer.trial}, tenez-vous au plan : société, tiers, factures, règlements, journaux. `,
+    "Les critères de choix, avant de créer le compte, sont dans ",
+    { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour un logiciel de gestion" },
+    ". Le prix public, si l’essai vous convient, est sur ",
+    { href: "/pricing", label: "la page Tarifs" },
+    ".",
+  ],
+  blocks: [
+    h2("plan", "Quel plan suivre pendant les 15 jours ?"),
+    p("Chaque ligne se fait dans ESSENTIEL, avec des pièces fictives d’abord si vous préférez ne pas engager un vrai client. Le jour 15 ne sert qu’à relire."),
+    {
+      type: "table",
+      caption: "Plan d’essai ESSENTIEL. PRO n’est pas ouvert par cet essai.",
+      columns: ["Jours", "À tester dans l’essai", "Hors essai"],
+      rows: [
+        ["1 et 2", "Logo, coordonnées, ICE, compte bancaire, caisse, utilisateurs dans la limite publiée", "Mise en place PRO"],
+        ["3 à 5", "Clients, fournisseurs, articles ou lignes libres", "Import des salariés, module PRO"],
+        ["6 à 9", "Factures de vente, avoirs, factures d’achat, PDF", "Devis, commandes, livraisons"],
+        ["10 à 12", "Règlements, y compris partiels, mouvements et transferts", "Prévisions et rapprochement"],
+        ["13 et 14", "Journaux, déclaration de TVA, export XML, PDF et XML après activation", "Dépôt sur SIMPL, connexion à la DGI"],
+        ["15", "Checklist et décision", "Demande de devis PRO, si le besoin y est"],
+      ],
+    },
+    h3("jours-1-2", "Jours 1 et 2 : la société"),
+    p(`Confirmez l’entreprise, puis le logo, les coordonnées et l’ICE. Ajoutez un compte bancaire et une caisse. Jusqu’à ${offer.users} utilisateurs : n’ouvrez que les accès utiles.`),
+    h3("jours-3-5", "Jours 3 à 5 : clients, fournisseurs, articles"),
+    p("Créez quelques clients et fournisseurs, puis un article ou une ligne libre. L’accueil décrit un import CSV des clients et des fournisseurs. L’import des salariés n’est pas dans l’essai."),
+    h3("jours-6-9", "Jours 6 à 9 : factures et avoirs, pas les devis"),
+    p("Émettez une facture de vente, puis un avoir. Saisissez une facture d’achat. Téléchargez le PDF et vérifiez le logo, les coordonnées et l’ICE. Les devis, les commandes et les livraisons ne s’ouvrent pas ici. Si vous en avez besoin, notez-le pour une demande PRO, sans les chercher dans l’essai."),
+    h3("jours-10-14", "Jours 10 à 14 : règlements, journaux, TVA"),
+    p("Rattachez un règlement à la facture, y compris un règlement partiel, sur le compte ou la caisse. Consultez les journaux. Préparez la déclaration de TVA et l’export XML, sans le déposer : le dépôt sur SIMPL reste le vôtre. Activez le parcours PDF et XML si vous voulez le voir. Felexia est prêt pour la facture électronique : le logiciel produit des factures en PDF et en XML et les archive. Cela ne signifie pas une connexion officielle à la DGI ni une signature électronique qualifiée."),
+    h2("checklist", "Ce qu’il faut avoir testé avant la fin de l’essai"),
+    {
+      type: "checklist",
+      title: "Avant le quinzième jour",
+      items: [
+        "Le PDF d’une facture de vente montre le logo, les coordonnées et l’ICE.",
+        "Un avoir est créé à côté de la facture.",
+        "Une facture fournisseur et un paiement sont enregistrés.",
+        "Un règlement partiel est rattaché, et le solde restant se relit.",
+        "Un journal de vente, d’achat, de banque ou de caisse s’ouvre.",
+        "L’export XML de TVA a été produit, et non déposé à votre place.",
+        "Le parcours PDF/XML est activé, ou noté comme non activé.",
+        "La liste de ce qui est dans PRO, et donc non testé, est écrite.",
+      ],
+    },
+    h2("hors-essai", "Ce que l’essai gratuit ne montre pas"),
+    p(`PRO ajoute les devis, les commandes, les livraisons, le stock, le plan comptable, les prévisions et une paie préparatoire. Jusqu’à ${offer.proUsers} utilisateurs et ${offer.proStorageGb} Go sont indiqués, sans prix public. L’essai de ${offer.trial} ne les ouvre pas. Le cadre est dans `,
+      { href: "/blog/erp-maroc-pme", label: "ERP au Maroc pour une PME" },
+      " et ",
+      { href: "/blog/choisir-entre-essentiel-et-pro", label: "ESSENTIEL ou PRO" },
+      "."),
+    h2("jour-15", "Le quinzième jour : décider"),
+    p("Relisez la checklist. Après l’échéance, l’accueil indique que l’espace passe en consultation : les données restent lisibles. Créer ou modifier demande un abonnement ESSENTIEL actif, au tarif de la page Tarifs."),
+    {
+      type: "example",
+      kicker: "Exemple fictif",
+      title: "Atelier Nour, un essai sur des pièces inventées",
+      note: "Aucun client réel. Aucun taux de taxe : le montant est un total saisi pour l’exemple.",
+      rows: [
+        { label: "Société", value: "Atelier Nour", annotation: "Fictive. ICE 000000000000000." },
+        { label: "Facture", value: "1 200,00 MAD", annotation: "Total saisi. Pas un tarif Felexia." },
+        { label: "Règlement", value: "400,00 MAD", annotation: "Rattaché à la facture." },
+        { label: "Reste", value: "800,00 MAD", annotation: "1 200,00 − 400,00 = 800,00." },
+        { label: "Devis", value: "Non testé", annotation: "PRO, hors essai." },
+      ],
+    },
+    {
+      type: "callout",
+      tone: "accountant",
+      title: "À vérifier avec votre expert-comptable",
+      paragraphs: [[
+        "L’export XML et les journaux préparent l’échange. Ils ne remplacent pas la relecture de votre conseil, ni le dépôt que vous faites vous-même. L’essai ne qualifie pas votre régime.",
+      ]],
+    },
+    {
+      type: "callout",
+      tone: "product",
+      title: "Avec Felexia",
+      paragraphs: [[
+        `L’essai ESSENTIEL dure ${offer.trial}, sans carte bancaire. Vous y testez les factures, les avoirs, les règlements, la banque, la caisse, les journaux et la déclaration de TVA, puis vous déposez le fichier vous-même. Le PDF reprend le logo et l’ICE saisis. Le prix ensuite publié est ${offer.essentielPrice}. `,
+        { href: "/essentiel", label: "La page ESSENTIEL" },
+        " liste ce périmètre. ",
+        { href: "/pro", label: "PRO" },
+        " se demande à part. Le parcours documentaire, avec ses limites, est sur ",
+        { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+        ".",
+      ]],
+    },
+  ],
+  questions: [
+    {
+      question: "L’essai gratuit demande-t-il une carte bancaire ?",
+      answer: `Non. L’essai ESSENTIEL de ${offer.trial} est gratuit et ne demande pas de carte. Vous créez le compte, puis vous confirmez les informations de l’entreprise.`,
+    },
+    {
+      question: "Que peut-on vraiment tester en 15 jours ?",
+      answer: "La société, les clients, les fournisseurs, les articles ou les lignes libres, les factures de vente et d’achat, les avoirs, les règlements, la banque, la caisse, les journaux, la déclaration de TVA et le parcours PDF/XML après activation.",
+    },
+    {
+      question: "Les devis font-ils partie de l’essai ?",
+      answer: "Non. Les devis, les commandes, les livraisons et le stock sont dans PRO. L’essai public ne les ouvre pas. PRO est sur devis, sans prix en ligne.",
+    },
+    {
+      question: "Que deviennent les données à la fin de l’essai ?",
+      answer: `L’accueil indique qu’après les ${offer.trial}, l’espace passe en consultation : les données restent lisibles. Créer ou modifier des opérations demande un abonnement ESSENTIEL actif, au tarif publié sur la page Tarifs.`,
+    },
+    {
+      question: "Felexia transmet-il la facture ou la TVA à la DGI pendant l’essai ?",
+      answer: "Non. Vous pouvez produire un PDF, un XML et un export de déclaration. Le dépôt sur SIMPL reste le vôtre. Il n’y a pas de connexion officielle à la DGI ni de signature électronique qualifiée.",
+    },
+  ],
+  cta: {
+    label: `Essayer Felexia ${offer.trial}, sans carte bancaire`,
+    href: "/login?mode=register",
+    note: offer.offerPitch,
+  },
+  related: [
+    { href: "/login?mode=register", label: "Créer un compte et commencer l’essai" },
+    { href: "/pricing", label: "Tarifs ESSENTIEL et PRO" },
+    { href: "/essentiel", label: "Offre ESSENTIEL" },
+    { href: "/pro", label: "ERP PRO, sur devis" },
+    { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
+    { href: "/facturation-electronique-maroc", label: "Facture électronique au Maroc" },
+    { href: "/blog/prix-logiciel-gestion-maroc", label: "Les postes de coût à comparer" },
+    { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel de gestion" },
+    { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
+    { href: "/blog/facture-excel-ou-logiciel-maroc", label: "Excel ou un logiciel de facturation" },
+    { href: "/blog/erp-maroc-pme", label: "ERP au Maroc pour une PME" },
+  ],
+  sources: [
+    { label: `Felexia — page Tarifs, consultée le 26 novembre 2026 : ESSENTIEL à ${offer.monthly} MAD HT par mois ou ${offer.yearly} MAD HT par an, essai de ${offer.trial} sans carte, jusqu’à ${offer.users} utilisateurs. PRO sur devis. Devis, commandes et stock hors ESSENTIEL.`, href: "/pricing", consulted },
+    { label: "Felexia — page ESSENTIEL : société, logo, ICE, articles ou lignes libres, factures, avoirs, achats, banque, caisse, journaux, déclaration de TVA, export XML, essai, consultation après échéance.", href: "/essentiel", consulted },
+    { label: "Felexia — page PRO : devis, commandes, livraisons, stock, comptabilité approfondie, dossiers du personnel, paie préparatoire. L’essai public concerne uniquement ESSENTIEL.", href: "/pro", consulted },
+    { label: "Felexia — accueil, questions fréquentes : absence de carte, consultation après les 15 jours, import CSV des clients et fournisseurs, export PDF et CSV.", href: "/", consulted },
+    { label: "Felexia — page Facture électronique au Maroc : PDF, XML, émission et archivage après activation, sans connexion officielle à la DGI.", href: "/facturation-electronique-maroc", consulted },
+  ],
+  disclaimer: "Contenu informatif, non contractuel. Les règles évoluent : vérifiez auprès de l’administration fiscale ou de votre expert-comptable. Les fonctions et les prix sont ceux publiés sur felexia.pro le 26 novembre 2026. Mis à jour le 26 novembre 2026.",
+};
+
+export default article;

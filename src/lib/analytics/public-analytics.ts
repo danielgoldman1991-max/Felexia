@@ -57,6 +57,8 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/credit-tva-remboursement-maroc": "Crédit de TVA — FelexiaERP",
   "/blog/facture-electronique-questions-editeur-logiciel": "5 questions à l’éditeur — FelexiaERP",
   "/blog/gestion-stock-excel-maroc": "Gestion de stock Excel — FelexiaERP",
+  "/blog/prix-logiciel-gestion-maroc": "Prix logiciel de gestion — FelexiaERP",
+  "/blog/essai-gratuit-logiciel-gestion": "Essai gratuit logiciel de gestion — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([

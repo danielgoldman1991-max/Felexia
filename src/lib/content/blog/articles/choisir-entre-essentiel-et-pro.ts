@@ -179,6 +179,7 @@ const article: BlogArticle = {
     { href: "/blog/gestion-de-stock-au-maroc", label: "Gestion de stock au Maroc" },
     { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel de gestion" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
+    { href: "/blog/essai-gratuit-logiciel-gestion", label: "Plan d’essai sur 15 jours" },
   ],
   sources: [
     { label: "Felexia — page Tarifs : prix ESSENTIEL, essai, limites et liste des fonctions des deux offres", href: "/pricing", consulted },
