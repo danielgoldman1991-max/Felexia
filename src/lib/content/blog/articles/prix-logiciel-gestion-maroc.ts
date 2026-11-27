@@ -19,7 +19,6 @@ const article: BlogArticle = {
   publishedAt: "2026-11-26",
   updatedAt: "2026-11-26",
   author: "Équipe Felexia",
-  featured: true,
   cover: {
     webp: "/images/blog/blog-prix-logiciel-gestion-maroc.webp",
     avif: "/images/blog/blog-prix-logiciel-gestion-maroc.avif",

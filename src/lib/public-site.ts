@@ -52,6 +52,7 @@ export const PUBLIC_SITE_PATHS = [
   "/blog/essai-gratuit-logiciel-gestion",
   "/blog/tva-maroc-pme",
   "/blog/relance-facture-impayee-maroc",
+  "/blog/preparer-facture-electronique-pme",
   "/mentions-legales",
   "/conditions",
   "/confidentialite",

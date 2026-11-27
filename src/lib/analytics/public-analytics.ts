@@ -59,6 +59,7 @@ const TITLES: Record<PublicSitePath, string> = {
   "/blog/gestion-stock-excel-maroc": "Gestion de stock Excel — FelexiaERP",
   "/blog/prix-logiciel-gestion-maroc": "Prix logiciel de gestion — FelexiaERP",
   "/blog/essai-gratuit-logiciel-gestion": "Essai gratuit logiciel de gestion — FelexiaERP",
+  "/blog/preparer-facture-electronique-pme": "Préparer la facture électronique — FelexiaERP",
 };
 const PRODUCTION_ORIGINS = [PUBLIC_SITE_ORIGIN, "https://felexia.pro"];
 const SEARCH_REFERRERS = new Set([

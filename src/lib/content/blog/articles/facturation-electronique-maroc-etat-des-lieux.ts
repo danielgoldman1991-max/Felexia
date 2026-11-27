@@ -74,7 +74,9 @@ const article: BlogArticle = {
     p("Le 4 novembre 2026, les sommaires du Bulletin officiel sur sgg.gov.ma, du 1er janvier 2018 à cette date, ne renvoient aucun texte pour les expressions exactes « facturation électronique », « facture électronique » et « système informatique de facturation ». Les décrets dont le sommaire contient « article 145 » ne renvoient rien non plus. La recherche porte sur les sommaires indexés, pas sur chaque page depuis 2018."),
     p("L’index consulté comprend le n° 7552 du 15 octobre 2026. Le n° 7554 bis du 22 octobre 2026, ouvert le même jour, porte sur des nominations au gouvernement. Tant qu’un décret n’est pas publié, l’article 145-IX ne fixe pas d’échéance."),
     h2("des-maintenant", "Que peut faire une PME dès maintenant ?"),
-    p("Le texte d’application manque. Les règles de facture, elles, sont déjà dans le code. Les préparer ne dépend pas du décret. Le guide des mentions détaille l’article 145-III. Ici, seulement ce qui sert le jour où un portail s’ouvrira."),
+    p("Le texte d’application manque. Les règles de facture, elles, sont déjà dans le code. Les préparer ne dépend pas du décret. Le guide des mentions détaille l’article 145-III. Ici, seulement ce qui sert le jour où un portail s’ouvrira. Voir le ",
+      { href: "/blog/preparer-facture-electronique-pme", label: "plan d’action interne" },
+      "."),
     {
       type: "checklist",
       title: "À tenir à jour sans attendre le décret",
@@ -176,6 +178,7 @@ const article: BlogArticle = {
     { href: "/blog/choisir-entre-essentiel-et-pro", label: "Choisir entre ESSENTIEL et PRO" },
     { href: "/blog/facture-electronique-pdf-xml", label: "PDF, XML et facture électronique" },
     { href: "/blog/facture-electronique-questions-editeur-logiciel", label: "5 questions à poser à l’éditeur" },
+    { href: "/blog/preparer-facture-electronique-pme", label: "Ce qu’une PME peut préparer dès maintenant" },
   ],
   sources: [
     { label: "Direction générale des impôts — page Documentation fiscale, édition du Code général des impôts 2026 listée au 30 décembre 2025", href: "https://www.tax.gov.ma/wps/portal/DGI/Documentation-fiscale/Arretes", consulted },

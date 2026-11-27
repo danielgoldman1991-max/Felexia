@@ -1,3 +1,4 @@
+import preparerFactureElectronique from "@/lib/content/blog/articles/preparer-facture-electronique-pme";
 import prixLogiciel from "@/lib/content/blog/articles/prix-logiciel-gestion-maroc";
 import essaiGratuit from "@/lib/content/blog/articles/essai-gratuit-logiciel-gestion";
 import stockExcel from "@/lib/content/blog/articles/gestion-stock-excel-maroc";
@@ -22,7 +23,7 @@ import retenueSource from "@/lib/content/blog/articles/retenue-source-auto-entre
 import { PR3_BLOG_ARTICLES } from "@/lib/content/blog/articles/pr3";
 import { BLOG_PILLARS, type BlogArticle, type BlogPillarSlug } from "@/lib/content/blog/types";
 
-export const BLOG_ARTICLES: readonly BlogArticle[] = [prixLogiciel, essaiGratuit, stockExcel, questionsEditeur, declarationTva, ...PR3_BLOG_ARTICLES, tvaMaroc, relanceFacture, numerotationFacture, erpMaroc, avoirFacture, iceFacture, retenueSource, logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
+export const BLOG_ARTICLES: readonly BlogArticle[] = [preparerFactureElectronique, prixLogiciel, essaiGratuit, stockExcel, questionsEditeur, declarationTva, ...PR3_BLOG_ARTICLES, tvaMaroc, relanceFacture, numerotationFacture, erpMaroc, avoirFacture, iceFacture, retenueSource, logicielGestion, pdfXml, autoEntrepreneur, plf2027, modeleFacture, etatDesLieux, mentions, choisir, stock];
 
 export function getBlogArticle(slug: string): BlogArticle | undefined {
   return BLOG_ARTICLES.find((article) => article.slug === slug);

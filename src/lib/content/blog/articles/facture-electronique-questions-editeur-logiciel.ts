@@ -37,7 +37,9 @@ const article: BlogArticle = {
   ],
   blocks: [
     h2("pourquoi-ces-questions", "Pourquoi poser ces questions avant de choisir"),
-    p("Vous signez pour des fonctions, pas pour un calendrier qui n’est pas publié. Le décret d’application de l’article 145-IX n’est pas dans les sommaires consultés le 20 novembre 2026. Demandez ce que le logiciel fait aujourd’hui : une page, un fichier de données, une archive, un envoi. Demandez séparément ce qui attendra un règlement."),
+    p("Vous signez pour des fonctions, pas pour un calendrier qui n’est pas publié. Le décret d’application de l’article 145-IX n’est pas dans les sommaires consultés le 20 novembre 2026. Demandez ce que le logiciel fait aujourd’hui : une page, un fichier de données, une archive, un envoi. Demandez séparément ce qui attendra un règlement. Le plan interne, chantier par chantier, est dans ",
+      { href: "/blog/preparer-facture-electronique-pme", label: "ce qu’une PME peut préparer dès maintenant" },
+      "."),
     p("Le quotidien, clients, factures et règlements, se juge à part. Les critères plus larges sont dans ",
       { href: "/blog/logiciel-gestion-pme-maroc", label: "Logiciel de gestion pour PME au Maroc : 10 critères" },
       "."),
@@ -160,6 +162,7 @@ const article: BlogArticle = {
     { href: "/logiciel-facturation-maroc", label: "Logiciel de facturation au Maroc" },
     { href: "/blog/facture-electronique-pdf-xml", label: "PDF, XML et facture électronique" },
     { href: "/blog/facturation-electronique-maroc-etat-des-lieux", label: "Où en est la facture électronique" },
+    { href: "/blog/preparer-facture-electronique-pme", label: "Ce qu’une PME peut préparer dès maintenant" },
     { href: "/blog/mentions-obligatoires-facture-maroc", label: "Mentions obligatoires d’une facture" },
     { href: "/blog/logiciel-gestion-pme-maroc", label: "10 critères pour choisir un logiciel de gestion" },
   ],
