@@ -1,4 +1,4 @@
-/* Actual public controller + child runtime under controlled browser boundaries.
+/* Actual public controller and leftover child runtime under controlled browser boundaries.
  * These checks make no Google request and do not prove hosted collection. */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -20,20 +20,30 @@ function load(file, dependencies = {}) {
 }
 const site = load("src/lib/public-site.ts");
 const analytics = load("src/lib/analytics/public-analytics.ts", { "@/lib/public-site": site });
+const ads = load("src/lib/analytics/google-ads.ts", { "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics });
 const checks = [];
 function check(name, run) { run(); checks.push({ name, passed: true }); }
 const consent = (choice = "accepted", time = now) => JSON.stringify({ version: 1, analytics: choice, updatedAt: time });
 const suffix = "?utm_source=google&utm_medium=cpc&utm_campaign=felexia_essentiel_maroc&utm_content=essentiel_a";
+function assertGranted(value) {
+  assert.equal(value.ad_storage, "granted");
+  assert.equal(value.ad_user_data, "granted");
+  assert.equal(value.ad_personalization, "granted");
+  assert.equal(value.analytics_storage, "granted");
+}
 function fixture({ href = site.PUBLIC_SITE_ORIGIN + "/essentiel" + suffix, stored = null } = {}) {
   const storage = new Map(stored ? [[analytics.ANALYTICS_CHOICE_KEY, stored]] : []);
   const writes = [];
-  const frames = [];
+  const created = [];
   const listeners = new Map();
   let url = new URL(href), hrefReads = 0;
+  const dataLayer = [];
   const browser = {
     location: { get origin() { return url.origin; }, get pathname() { return url.pathname; }, get href() { hrefReads++; return url.href; } },
     localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => { writes.push([key, value]); storage.set(key, value); } },
     get sessionStorage() { throw new Error("Campaign tracking must not introduce browser storage"); },
+    dataLayer,
+    gtag() { dataLayer.push(arguments); },
     addEventListener: (type, callback) => { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(callback); },
     removeEventListener: (type, callback) => listeners.get(type)?.delete(callback),
   };
@@ -43,24 +53,30 @@ function fixture({ href = site.PUBLIC_SITE_ORIGIN + "/essentiel" + suffix, store
     cookie: "auth-session=PRIVATE; _ga=old",
     addEventListener: (type, callback) => { assert.equal(type, "click"); click = callback; },
     removeEventListener: () => { click = null; },
-    createElement: (type) => { assert.equal(type, "iframe"); return { setAttribute() {}, onload: null, remove() { this.removed = true; } }; },
-    body: { appendChild(frame) {
-      const scripts = [];
-      const runtime = { URL, Date: ClockDate, parent: browser, location: { origin: url.origin }, localStorage: browser.localStorage,
-        document: { createElement: () => ({}), head: { appendChild: (script) => scripts.push(script) } }, scripts };
-      runtime.window = runtime;
-      vm.runInNewContext(analytics.analyticsRuntimeDocument().match(/<script>([\s\S]+?)<\/script>/)[1], runtime);
-      frame.contentWindow = runtime; frames.push(frame);
-    } },
+    createElement: (type) => { created.push(type); throw new Error("Public controller must not create " + type); },
+    body: { appendChild() { throw new Error("Public controller must not append a frame or script"); } },
   };
   const controller = new analytics.PublicAnalyticsController(browser, doc, "G-TEST123", () => {});
-  const commands = (frame = frames.at(-1)) => Array.from(frame?.contentWindow.dataLayer ?? [], (item) => Array.from(item));
-  const events = () => commands().filter((item) => item[0] === "event");
-  return { browser, doc, controller, frames, storage, writes, commands, events,
+  const commands = (target = browser) => Array.from(target.dataLayer ?? [], (item) => Array.from(item));
+  const events = (target = browser) => commands(target).filter((item) => item[0] === "event");
+  return { browser, doc, controller, created, storage, writes, commands, events,
     get hrefReads() { return hrefReads; }, get href() { return url.href; },
     navigate(value) { url = new URL(value, site.PUBLIC_SITE_ORIGIN); },
     click(href) { click?.({ target: new Element(href) }); },
   };
+}
+function attachRuntime(f) {
+  const scripts = [];
+  const runtime = {
+    URL, Date: ClockDate, parent: f.browser,
+    location: { origin: f.browser.location.origin, pathname: "/api/analytics/runtime" },
+    localStorage: f.browser.localStorage,
+    document: { createElement: () => ({}), head: { appendChild: (script) => scripts.push(script) } },
+    scripts,
+  };
+  runtime.window = runtime;
+  vm.runInNewContext(analytics.analyticsRuntimeDocument().match(/<script>([\s\S]+?)<\/script>/)[1], runtime);
+  return runtime;
 }
 check("Six fixed campaign variants map to GA campaign fields", () => {
   let count = 0;
@@ -88,27 +104,30 @@ check("Untrusted, duplicated, incomplete, mismatched and private campaign inputs
 });
 check("No URL attribution is read, stored or emitted before opt-in or after refusal", () => {
   const f = fixture(); const stop = f.controller.start();
-  assert.equal(f.hrefReads, 0); assert.equal(f.frames.length, 0); assert.equal(f.writes.length, 0);
+  assert.equal(f.hrefReads, 0); assert.equal(f.created.length, 0); assert.equal(f.writes.length, 0); assert.equal(f.commands().length, 0);
   f.controller.setChoice("refused"); f.controller.sync();
-  assert.equal(f.hrefReads, 0); assert.equal(f.frames.length, 0);
+  assert.equal(f.hrefReads, 0); assert.equal(f.created.length, 0); assert.equal(f.commands().length, 0);
   assert.deepEqual(f.writes.map(([key]) => key), [analytics.ANALYTICS_CHOICE_KEY]); stop();
 });
-check("Opt-in passes only campaign constants; GCLID, arbitrary query, fragment and search term never enter runtime", () => {
+check("Opt-in uses the parent gtag only, grants ads storage, and never forwards GCLID, arbitrary query, fragment or search terms", () => {
   const href = site.PUBLIC_SITE_ORIGIN + "/essentiel" + suffix + "&gclid=CLICK_SECRET&utm_term=private%40example.invalid&email=private%40example.invalid#PASSWORD";
-  const f = fixture({ href }); const stop = f.controller.start(); f.controller.setChoice("accepted"); f.frames[0].onload();
-  assert.equal(f.href, href); assert.equal(f.frames.length, 1);
+  const f = fixture({ href }); const stop = f.controller.start();
+  assert.equal(f.commands().length, 0); assert.equal(f.created.length, 0);
+  f.controller.setChoice("accepted");
+  assert.equal(ads.applyParentAdsConsent(f.browser, "accepted"), true);
+  assert.equal(f.href, href); assert.equal(f.created.length, 0);
   const commands = f.commands(); const config = commands.find((item) => item[0] === "config")[2];
   assert.equal(config.campaign_source, "google"); assert.equal(config.campaign_name, "felexia_essentiel_maroc");
   assert.equal(config.campaign_content, "essentiel_a"); assert.equal(config.page_location, site.PUBLIC_SITE_ORIGIN + "/essentiel");
   assert.equal(config.send_page_view, false); assert.equal(config.allow_google_signals, false);
   assert.ok(!/CLICK_SECRET|private@|PASSWORD|CONFIDENTIAL|gclid|utm_term/.test(JSON.stringify(commands)));
-  assert.equal(f.frames[0].contentWindow.scripts.length, 1);
   assert.deepEqual(f.writes.map(([key]) => key), [analytics.ANALYTICS_CHOICE_KEY]);
-  assert.ok(commands.filter((item) => item[0] === "consent").every((item) => item[2].ad_storage === "denied" && item[2].ad_user_data === "denied"));
+  const update = commands.find((item) => item[0] === "consent" && item[1] === "update")[2];
+  assertGranted(update);
   stop();
 });
 check("Public SPA navigation keeps fixed attribution and deduplicates page views; no signup or lead is fabricated", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start(); f.frames[0].onload();
+  const f = fixture({ stored: consent() }); const stop = f.controller.start();
   f.navigate("/pricing"); f.controller.sync(); f.controller.sync();
   f.click(site.PUBLIC_SITE_ORIGIN + "/login?mode=register&email=SECRET");
   f.click("mailto:private@example.invalid?subject=" + encodeURIComponent("Felexia PRO — demande de devis") + "&body=SECRET");
@@ -116,46 +135,61 @@ check("Public SPA navigation keeps fixed attribution and deduplicates page views
   assert.deepEqual(events.map((item) => item[1]), ["page_view", "page_view", "trial_cta_click", "pro_quote_click"]);
   assert.ok(events.every((item) => item[2].campaign_content === "essentiel_a"));
   assert.ok(!/SECRET|private@|signup_|lead_|trial_activated|company_created/.test(JSON.stringify(events)));
+  assert.equal(f.created.length, 0);
   stop();
 });
-check("Private boundary removes Google and drops in-memory campaign; ERP URL queries are not read", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start(); f.frames[0].onload();
+check("Private boundary disables Google and drops in-memory campaign; ERP URL queries are not read", () => {
+  const f = fixture({ stored: consent() }); const stop = f.controller.start();
   const reads = f.hrefReads; f.navigate("/login?email=PRIVATE&gclid=PRIVATE"); f.controller.sync();
-  assert.equal(f.hrefReads, reads); assert.equal(f.frames[0].removed, true);
-  assert.equal(f.frames[0].contentWindow["ga-disable-G-TEST123"], true);
-  f.navigate("/pro"); f.controller.sync(); f.frames[1].onload();
-  assert.equal(f.events()[0][2].campaign_name, undefined); stop();
+  assert.equal(f.hrefReads, reads); assert.equal(f.created.length, 0);
+  assert.equal(f.browser["ga-disable-G-TEST123"], true);
+  const before = f.events().length;
+  f.navigate("/pro"); f.controller.sync();
+  const next = f.events().slice(before);
+  assert.equal(next[0][1], "page_view");
+  assert.equal(next[0][2].campaign_name, undefined);
+  assert.equal(f.browser["ga-disable-G-TEST123"], false);
+  stop();
 });
-check("Consent expiry during an open page blocks the next click and destroys its runtime", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start(); const frame = f.frames[0]; frame.onload();
+check("Consent expiry during an open page blocks the next click and disables Google", () => {
+  const f = fixture({ stored: consent() }); const stop = f.controller.start();
   const before = f.events().length;
   now += 180 * 86400000;
   f.click(site.PUBLIC_SITE_ORIGIN + "/login?mode=register");
-  assert.equal(f.commands(frame).filter((item) => item[0] === "event").length, before);
-  assert.equal(frame.removed, true); assert.equal(frame.contentWindow["ga-disable-G-TEST123"], true);
+  assert.equal(f.events().length, before);
+  assert.equal(f.browser["ga-disable-G-TEST123"], true);
+  assert.equal(f.created.length, 0);
   stop();
 });
 check("Refusal followed by later opt-in cannot recover the previous in-memory campaign", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start(); f.frames[0].onload();
-  f.controller.setChoice("refused"); f.navigate("/pro"); f.controller.setChoice("accepted"); f.frames[1].onload();
-  assert.equal(f.events()[0][2].campaign_name, undefined); stop();
+  const f = fixture({ stored: consent() }); const stop = f.controller.start();
+  f.controller.setChoice("refused"); f.navigate("/pro"); f.controller.setChoice("accepted");
+  const next = f.events().filter((item) => item[1] === "page_view" && item[2].page_location === site.PUBLIC_SITE_ORIGIN + "/pro");
+  assert.equal(next[0][2].campaign_name, undefined);
+  assert.equal(f.created.length, 0);
+  stop();
 });
 check("Loss of consent storage while open blocks the next event without a new Google runtime", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start(); const frame = f.frames[0]; frame.onload();
+  const f = fixture({ stored: consent() }); const stop = f.controller.start();
   const before = f.events().length;
   f.browser.localStorage.getItem = () => { throw new Error("Storage blocked"); };
   f.click(site.PUBLIC_SITE_ORIGIN + "/login?mode=register");
-  assert.equal(f.commands(frame).filter((item) => item[0] === "event").length, before);
-  assert.equal(frame.removed, true); assert.equal(f.frames.length, 1); assert.equal(f.controller.getSnapshot().available, false); stop();
+  assert.equal(f.events().length, before);
+  assert.equal(f.browser["ga-disable-G-TEST123"], true);
+  assert.equal(f.created.length, 0);
+  assert.equal(f.controller.getSnapshot().available, false); stop();
 });
 check("Child bootstrap independently rejects forged campaign fields and arbitrary parameters", () => {
-  const f = fixture({ stored: consent() }); const stop = f.controller.start();
-  const runtime = f.frames[0].contentWindow;
+  const f = fixture({ stored: consent() });
+  const runtime = attachRuntime(f);
   assert.equal(runtime.felexiaStartAnalytics("G-TEST123", { page_location: site.PUBLIC_SITE_ORIGIN + "/essentiel", page_referrer: "",
     campaign_source: "google", campaign_medium: "cpc", campaign_name: "felexia_essentiel_maroc", campaign_content: "private@example.invalid", gclid: "SECRET", email: "SECRET" }), true);
-  const config = f.commands().find((item) => item[0] === "config")[2];
-  assert.equal(config.campaign_name, undefined); assert.ok(!/SECRET|private@/.test(JSON.stringify(f.commands()))); stop();
+  const config = f.commands(runtime).find((item) => item[0] === "config")[2];
+  assert.equal(config.campaign_name, undefined); assert.ok(!/SECRET|private@/.test(JSON.stringify(f.commands(runtime))));
+  const update = f.commands(runtime).find((item) => item[0] === "consent" && item[1] === "update")[2];
+  assertGranted(update);
 });
-const report = { passed: checks.length, failed: 0, scope: "Actual public controller and child bootstrap, browser and Google transport controlled; no live collection validation", checks };
+const report = { passed: checks.length, failed: 0, scope: "Actual public controller and leftover child bootstrap on the shared parent gtag; browser and Google transport controlled; no live collection validation", checks };
 fs.writeFileSync(path.join(__dirname, "verify-tracking-results.json"), JSON.stringify(report, null, 2) + "\n");
 console.log(JSON.stringify(report, null, 2));
+
