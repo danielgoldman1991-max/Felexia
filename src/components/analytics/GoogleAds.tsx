@@ -4,33 +4,13 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
 import {
-  applyParentAdsConsent,
-  flushTrialConversion,
+  consumeSignupConversion,
   googleAdsId,
-  GOOGLE_ADS_SIGNUP_COOKIE,
   isGoogleAdsSurface,
-  queueTrialConversion,
-  readSignupCookie,
-  readStoredAdsChoice,
 } from "@/lib/analytics/google-ads";
 
 function consumeSignupMarkers() {
-  const fromCookie = readSignupCookie(document.cookie);
-  if (fromCookie) {
-    document.cookie = `${GOOGLE_ADS_SIGNUP_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
-    queueTrialConversion(fromCookie, window.sessionStorage);
-  }
-  const current = new URL(window.location.href);
-  const fromQuery = current.searchParams.get("signup");
-  if (fromQuery) {
-    queueTrialConversion(fromQuery, window.sessionStorage);
-    current.searchParams.delete("signup");
-    const next = current.pathname + (current.searchParams.size ? `?${current.searchParams.toString()}` : "") + current.hash;
-    window.history.replaceState(window.history.state, "", next);
-  }
-  const choice = readStoredAdsChoice(window.localStorage);
-  if (choice) applyParentAdsConsent(window, choice);
-  flushTrialConversion(window, window.sessionStorage);
+  consumeSignupConversion(window, document, window.sessionStorage, window.localStorage);
 }
 
 /** Loads the Ads tag on public pages, login and onboarding. The ERP does not load it. */

@@ -4,6 +4,7 @@ import { isPublicSitePath } from "@/lib/public-site";
 export const DEFAULT_GOOGLE_ADS_ID = "AW-18492364232";
 export const GOOGLE_ADS_CONVERSION_LABEL = "7CimCP-S5rodEMir7PFE";
 export const GOOGLE_ADS_SIGNUP_COOKIE = "felexia_ads_signup";
+export const SIGNUP_COOKIE_MAX_AGE_SECONDS = 300;
 const PENDING_KEY = "felexia:ads-conversion-pending";
 const FIRED_PREFIX = "felexia:ads-conversion:";
 const SIGNUP_MAX_AGE_MS = 15 * 60 * 1000;
@@ -17,8 +18,9 @@ export type AdsConsentState = {
 };
 
 type Gtag = (...args: unknown[]) => void;
-type AdsWindow = Window & { gtag?: Gtag; dataLayer?: unknown[] };
+type AdsWindow = Window & { gtag?: Gtag; dataLayer?: unknown[]; localStorage?: MemoryStorage; document?: { cookie: string }; location?: { protocol?: string } };
 type MemoryStorage = { getItem(key: string): string | null; setItem(key: string, value: string): void; removeItem(key: string): void };
+type CookieJar = { cookie: string };
 
 export function googleAdsId(value = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID) {
   return value && /^AW-\d+$/.test(value) ? value : DEFAULT_GOOGLE_ADS_ID;
@@ -75,6 +77,31 @@ export function readStoredAdsChoice(storage: { getItem(key: string): string | nu
   }
 }
 
+export function signupCookieWrite(transactionId: string, secure: boolean) {
+  const id = trialTransactionId(transactionId);
+  if (!id) return "";
+  return `${GOOGLE_ADS_SIGNUP_COOKIE}=${encodeURIComponent(id)}; Max-Age=${SIGNUP_COOKIE_MAX_AGE_SECONDS}; Path=/; SameSite=Lax${secure ? "; Secure" : ""}`;
+}
+
+export function signupCookieClear(secure: boolean) {
+  return `${GOOGLE_ADS_SIGNUP_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax${secure ? "; Secure" : ""}`;
+}
+
+export function writeSignupCookie(transactionId: string, doc: CookieJar, secure: boolean) {
+  const value = signupCookieWrite(transactionId, secure);
+  if (!value) return false;
+  doc.cookie = value;
+  return true;
+}
+
+export function clearSignupCookie(doc: CookieJar, secure: boolean) {
+  doc.cookie = signupCookieClear(secure);
+}
+
+export function isSecurePage(browser: { location?: { protocol?: string } } | undefined) {
+  return browser?.location?.protocol === "https:";
+}
+
 export function queueTrialConversion(transactionId: string, storage: MemoryStorage) {
   const id = trialTransactionId(transactionId);
   if (!id || storage.getItem(FIRED_PREFIX + id)) return false;
@@ -82,19 +109,22 @@ export function queueTrialConversion(transactionId: string, storage: MemoryStora
   return true;
 }
 
-/** Records a signup conversion without changing navigation. Missing storage is ignored. */
+/** Stores the signup cookie and a same-tab pending flag. Does not send the tag: the destination page flushes after navigation. */
 export function rememberTrialConversion(transactionId: string, browser: Window | undefined) {
   try {
     const storage = browser?.sessionStorage;
     if (!storage) return false;
-    const queued = queueTrialConversion(transactionId, storage);
-    flushTrialConversion(browser as Window, storage);
-    return queued;
+    const id = trialTransactionId(transactionId);
+    if (!id) return false;
+    const doc = (browser as AdsWindow).document;
+    if (doc) writeSignupCookie(id, doc, isSecurePage(browser));
+    return queueTrialConversion(id, storage);
   } catch {
     return false;
   }
 }
 
+/** Sends the conversion only after a stored acceptance. Denied or missing consent keeps the pending id. */
 export function flushTrialConversion(browser: Window, storage: MemoryStorage, sendTo = googleAdsConversionSendTo()) {
   const id = trialTransactionId(storage.getItem(PENDING_KEY));
   if (!id) {
@@ -105,12 +135,35 @@ export function flushTrialConversion(browser: Window, storage: MemoryStorage, se
     storage.removeItem(PENDING_KEY);
     return false;
   }
+  const localStorage = (browser as AdsWindow).localStorage;
+  if (!localStorage || readStoredAdsChoice(localStorage) !== "accepted") return false;
   const gtag = (browser as AdsWindow).gtag;
   if (typeof gtag !== "function") return false;
   gtag("event", "conversion", { send_to: sendTo, value: 99.0, currency: "MAD", transaction_id: id });
   storage.setItem(FIRED_PREFIX + id, "1");
   storage.removeItem(PENDING_KEY);
   return true;
+}
+
+/** Queues a signup cookie if present, then flushes only when consent is accepted. The cookie is cleared only after a successful send. */
+export function consumeSignupConversion(browser: Window, doc: CookieJar, session: MemoryStorage, local: MemoryStorage) {
+  const fromCookie = readSignupCookie(doc.cookie);
+  if (fromCookie) queueTrialConversion(fromCookie, session);
+  const current = typeof browser.location?.href === "string" ? new URL(browser.location.href) : null;
+  if (current) {
+    const fromQuery = current.searchParams.get("signup");
+    if (fromQuery) {
+      queueTrialConversion(fromQuery, session);
+      current.searchParams.delete("signup");
+      const next = current.pathname + (current.searchParams.size ? `?${current.searchParams.toString()}` : "") + current.hash;
+      browser.history?.replaceState(browser.history.state, "", next);
+    }
+  }
+  const choice = readStoredAdsChoice(local);
+  if (choice) applyParentAdsConsent(browser, choice);
+  const fired = flushTrialConversion(browser, session);
+  if (fired) clearSignupCookie(doc, isSecurePage(browser));
+  return fired;
 }
 
 export function readSignupCookie(cookie: string) {
