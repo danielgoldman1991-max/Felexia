@@ -59,7 +59,7 @@ export function freshTrialSignup(createdAt: string | null | undefined, now = Dat
 
 /** Runs before gtag.js. Default storage is denied; a stored acceptance is applied immediately. */
 export function googleAdsConsentSource() {
-  return `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('consent','default',${JSON.stringify(adsConsentState(null))});try{var raw=localStorage.getItem(${JSON.stringify(ANALYTICS_CHOICE_KEY)});var choice=JSON.parse(raw);if(choice&&choice.version===1&&choice.analytics==='accepted'&&typeof choice.updatedAt==='number'&&Date.now()-choice.updatedAt>=0&&Date.now()-choice.updatedAt<15552000000){gtag('consent','update',${JSON.stringify(adsConsentState("accepted"))});}}catch(e){}`;
+  return `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('consent','default',${JSON.stringify(adsConsentState(null))});try{var raw=localStorage.getItem(${JSON.stringify(ANALYTICS_CHOICE_KEY)});var choice=JSON.parse(raw);if(choice&&choice.version===1&&choice.analytics==='accepted'&&typeof choice.updatedAt==='number'&&Date.now()-choice.updatedAt>=0&&Date.now()-choice.updatedAt<15552000000){gtag('consent','update',${JSON.stringify(adsConsentState("accepted"))});}}catch(e){}gtag('js',new Date());`;
 }
 
 export function applyParentAdsConsent(browser: Window, choice: Exclude<AdsConsentChoice, null>) {
@@ -192,9 +192,21 @@ export function googleTagScriptUrl(id = googleAdsId()) {
   return `${GOOGLE_TAGS_SCRIPT_ORIGIN}${id}`;
 }
 
+function dataLayerHasJs(browser: AdsWindow) {
+  const layer = browser.dataLayer;
+  if (!Array.isArray(layer)) return false;
+  return layer.some((item) => {
+    if (!item || typeof item !== "object") return false;
+    return (item as { 0?: unknown })[0] === "js";
+  });
+}
+
 export function configureGoogleTags(browser: Window, measurementId?: string | null) {
   const gtag = (browser as AdsWindow).gtag;
   if (typeof gtag !== "function") return false;
+  // gtag.js only starts sending hits after this official command. The consent
+  // snippet already queues it; this call is a fallback if the queue lost it.
+  if (!dataLayerHasJs(browser as AdsWindow)) gtag("js", new Date());
   gtag("config", googleAdsId());
   if (measurementId) {
     gtag("config", measurementId, {
