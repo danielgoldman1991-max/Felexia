@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicSitePath } from "@/lib/public-site";
 import { ANALYTICS_SETTINGS_EVENT, PublicAnalyticsController, validMeasurementId, type AnalyticsSnapshot } from "@/lib/analytics/public-analytics";
-import { applyParentAdsConsent, consumeSignupConversion } from "@/lib/analytics/google-ads";
+import { applyParentAdsConsent, configureGoogleTags, consumeSignupConversion } from "@/lib/analytics/google-ads";
+import { activateMetaPixel, trackMetaEvent, trackMetaPageView } from "@/lib/analytics/meta-pixel";
 import styles from "./PublicAnalytics.module.css";
 
 // Disabled until NEXT_PUBLIC_GA_MEASUREMENT_ID is a valid GA4 id (G-XXXXXXXX).
@@ -45,10 +46,20 @@ export function PublicAnalytics() {
   if (!publicPage || !snapshot.available || (snapshot.choice !== null && !settingsOpen)) return null;
 
   function choose(choice: "accepted" | "refused") {
-    controller.current?.setChoice(choice);
     applyParentAdsConsent(window, choice);
     if (choice === "accepted") {
-      try { consumeSignupConversion(window, document, window.sessionStorage, window.localStorage); } catch {}
+      try {
+        configureGoogleTags(window, validMeasurementId(MEASUREMENT_ID));
+        if (activateMetaPixel(window, document)) trackMetaPageView(window);
+      } catch {}
+    }
+    controller.current?.setChoice(choice);
+    if (choice === "accepted") {
+      try {
+        if (consumeSignupConversion(window, document, window.sessionStorage, window.localStorage)) {
+          trackMetaEvent(window, "CompleteRegistration");
+        }
+      } catch {}
     }
     closeSettings();
   }
