@@ -6,6 +6,7 @@ import {
   consumeSignupConversion,
   flushTrialConversion,
   freshTrialSignup,
+  configureGoogleTags,
   googleAdsConsentSource,
   googleAdsConversionSendTo,
   googleAdsId,
@@ -39,6 +40,8 @@ assert.equal(adsConsentState("accepted").analytics_storage, "granted");
 const consent = googleAdsConsentSource();
 assert.match(consent, /gtag\('consent','default',\{"ad_storage":"denied"/);
 assert.match(consent, /ad_user_data":"denied"/);
+assert.match(consent, /gtag\('js',new Date\(\)\)/);
+assert.ok(consent.indexOf("gtag('consent','default'") < consent.indexOf("gtag('js',new Date())"));
 assert.doesNotMatch(consent, /@|email|nom/i);
 assert.equal(isGoogleAdsSurface("/"), true);
 assert.equal(isGoogleAdsSurface("/essentiel"), true);
@@ -143,6 +146,20 @@ assert.equal(googleAdsWhatsAppLabel("WhatsAppClick01"), "WhatsAppClick01");
 assert.equal(googleAdsWhatsAppSendTo(), null);
 assert.equal(googleAdsWhatsAppSendTo("AW-18492364232", "WhatsAppClick01"), "AW-18492364232/WhatsAppClick01");
 assert.equal(googleTagScriptUrl(), "https://www.googletagmanager.com/gtag/js?id=AW-18492364232");
+const cfgCalls: unknown[][] = [];
+const cfgLayer: unknown[] = [];
+const cfgBrowser = {
+  dataLayer: cfgLayer,
+  gtag: (...args: unknown[]) => { cfgCalls.push(args); cfgLayer.push(args); },
+} as unknown as Window;
+assert.equal(configureGoogleTags(cfgBrowser, "G-TEST123"), true);
+assert.equal(cfgCalls[0][0], "js");
+assert.ok(cfgCalls[0][1] instanceof Date);
+assert.deepEqual(cfgCalls[1], ["config", "AW-18492364232"]);
+assert.deepEqual(cfgCalls[2]?.[0], "config");
+const afterFirst = cfgCalls.length;
+assert.equal(configureGoogleTags(cfgBrowser, "G-TEST123"), true);
+assert.equal(cfgCalls[afterFirst][0], "config", "js is not repeated once already queued");
 const waCalls: unknown[][] = [];
 const waBrowser = {
   gtag: (...args: unknown[]) => { waCalls.push(args); },
