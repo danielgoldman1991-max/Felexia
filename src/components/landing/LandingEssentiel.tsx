@@ -117,8 +117,8 @@ function TreasuryPreview({ id }: { id: string }) {
       <div className={styles.treasuryLayout}>
         <div className={styles.chartCard}>
           <div className={styles.chartHeading}><h4>Le fil de votre trésorerie</h4><span>MAD</span></div>
+          <p id={`${id}-chart-title`} className={styles.srOnly}>Évolution fictive de la trésorerie en novembre</p>
           <svg className={styles.chart} viewBox="0 0 520 208" role="img" aria-labelledby={`${id}-chart-title ${id}-chart-description`}>
-            <title id={`${id}-chart-title`}>Évolution fictive de la trésorerie en novembre</title>
             <desc id={`${id}-chart-description`}>Un solde initial de 11 400 MAD, 9 000 MAD de règlements clients et 2 400 MAD de paiements fournisseurs donnent un solde de 18 000 MAD.</desc>
             <g className={styles.chartGrid}><path d="M42 28H502M42 96H502M42 164H502" /></g>
             <g className={styles.chartLabels}><text x="0" y="32">20 k</text><text x="0" y="100">10 k</text><text x="23" y="168">0</text><text x="42" y="198">01 nov.</text><text x="167" y="198">07</text><text x="288" y="198">14</text><text x="401" y="198">21</text><text x="502" y="198" textAnchor="end">30 nov.</text></g>
