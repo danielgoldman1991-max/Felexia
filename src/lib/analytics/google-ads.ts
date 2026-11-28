@@ -175,3 +175,47 @@ export function readSignupCookie(cookie: string) {
     return null;
   }
 }
+
+export const GOOGLE_TAGS_SCRIPT_ORIGIN = "https://www.googletagmanager.com/gtag/js?id=";
+
+/** Conversion label for a WhatsApp click. Empty or malformed values stay disabled. */
+export function googleAdsWhatsAppLabel(value = process.env.NEXT_PUBLIC_GOOGLE_ADS_WHATSAPP_LABEL) {
+  const label = value?.trim() ?? "";
+  return /^[A-Za-z0-9_-]{8,64}$/.test(label) ? label : null;
+}
+
+export function googleAdsWhatsAppSendTo(id = googleAdsId(), label = googleAdsWhatsAppLabel()) {
+  return label ? `${id}/${label}` : null;
+}
+
+export function googleTagScriptUrl(id = googleAdsId()) {
+  return `${GOOGLE_TAGS_SCRIPT_ORIGIN}${id}`;
+}
+
+export function configureGoogleTags(browser: Window, measurementId?: string | null) {
+  const gtag = (browser as AdsWindow).gtag;
+  if (typeof gtag !== "function") return false;
+  gtag("config", googleAdsId());
+  if (measurementId) {
+    gtag("config", measurementId, {
+      send_page_view: false,
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+    });
+  }
+  return true;
+}
+
+export function trackGoogleAdsConversion(browser: Window, sendTo: string | null) {
+  if (!sendTo) return false;
+  const local = (browser as AdsWindow).localStorage;
+  if (!local || readStoredAdsChoice(local) !== "accepted") return false;
+  const gtag = (browser as AdsWindow).gtag;
+  if (typeof gtag !== "function") return false;
+  gtag("event", "conversion", { send_to: sendTo });
+  return true;
+}
+
+export function trackWhatsAppAdsConversion(browser: Window) {
+  return trackGoogleAdsConversion(browser, googleAdsWhatsAppSendTo());
+}

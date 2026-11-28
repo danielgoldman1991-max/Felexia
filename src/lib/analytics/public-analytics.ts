@@ -2,6 +2,7 @@ import { PUBLIC_SITE_ORIGIN, isPublicSitePath, type PublicSitePath } from "@/lib
 
 export const ANALYTICS_CHOICE_KEY = "felexia:analytics-consent:v1";
 export const ANALYTICS_SETTINGS_EVENT = "felexia:analytics-settings";
+export const GOOGLE_TAGS_READY_EVENT = "felexia:google-tags-ready";
 export const ANALYTICS_CHOICE_DAYS = 180;
 const CHOICE_LIFETIME = ANALYTICS_CHOICE_DAYS * 24 * 60 * 60 * 1_000;
 const COOKIE_LIFETIME = CHOICE_LIFETIME / 1_000;
@@ -214,7 +215,7 @@ export function analyticsRuntimeDocument(): string {
       window.gtag = function(){ window.dataLayer.push(arguments); };
       window.gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
       window.gtag('set',{allow_google_signals:false,allow_ad_personalization_signals:false,ads_data_redaction:true,url_passthrough:false});
-      window.gtag('consent','update',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+      window.gtag('consent','update',{analytics_storage:'granted',ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted'});
       window.gtag('js',new Date());
       window.gtag('config',id,config);
       var script = document.createElement('script');
@@ -230,15 +231,13 @@ export function analyticsRuntimeDocument(): string {
 }
 
 /**
- * Basic consent mode: no Google runtime exists until a persisted opt-in on a public page.
- * The disposable same-origin frame keeps Google's lifecycle and automatic document fields
- * separate from the ERP. It shares first-party GA cookies, but never receives parent URL,
- * DOM content, auth state, message text, user IDs or organisation IDs.
+ * Measurement starts only after a stored opt-in on a public page. Page views use the
+ * parent gtag instance (one gtag.js for Ads and GA4). Private routes send nothing and
+ * never receive the raw URL, document title, auth state or organisation identifiers.
  */
 export class PublicAnalyticsController {
   private readonly measurementId: string | null;
-  private frame: HTMLIFrameElement | null = null;
-  private frameReady = false;
+  private configured = false;
   private sentPath: string | null = null;
   private campaign: PublicCampaignParameters | null = null;
   private previousPublicLocation: string;
@@ -265,6 +264,7 @@ export class PublicAnalyticsController {
     this.browser.addEventListener("pagehide", this.suspend);
     this.browser.addEventListener("storage", this.onStorage);
     this.browser.addEventListener(PUBLIC_MARKETING_EVENT, this.onMarketing);
+    this.browser.addEventListener(GOOGLE_TAGS_READY_EVENT, this.sync);
     return () => {
       this.doc.removeEventListener("click", this.onClick, true);
       this.browser.removeEventListener("popstate", this.sync);
@@ -272,6 +272,7 @@ export class PublicAnalyticsController {
       this.browser.removeEventListener("pagehide", this.suspend);
       this.browser.removeEventListener("storage", this.onStorage);
       this.browser.removeEventListener(PUBLIC_MARKETING_EVENT, this.onMarketing);
+      this.browser.removeEventListener(GOOGLE_TAGS_READY_EVENT, this.sync);
       this.suspend();
     };
   }
@@ -302,7 +303,7 @@ export class PublicAnalyticsController {
     }
     const campaign = publicCampaignForUrl(this.browser.location.href);
     if (campaign) this.campaign = campaign;
-    if (!this.frame) this.createFrame();
+    this.ensureConfigured();
     this.flushPageView(path);
   };
 
@@ -364,31 +365,29 @@ export class PublicAnalyticsController {
     };
   }
 
-  private createFrame(): void {
-    if (!this.measurementId) return;
-    const frame = this.doc.createElement("iframe");
-    frame.title = "Mesure d’audience consentie";
-    frame.hidden = true;
-    frame.setAttribute("aria-hidden", "true");
-    frame.setAttribute("tabindex", "-1");
-    frame.referrerPolicy = "no-referrer";
-    // An actual HTTPS document can use first-party cookies; about:srcdoc cannot.
-    frame.src = this.browser.location.origin + "/api/analytics/runtime";
-    this.frame = frame;
-    frame.onload = () => {
-      if (this.frame !== frame) return;
-      this.readChoice();
-      const path = this.currentPath();
-      if (!path || !this.snapshot.available || this.snapshot.choice !== "accepted") { this.suspend(); return; }
-      try {
-        const runtime = frame.contentWindow as AnalyticsWindow | null;
-        if (!runtime?.felexiaStartAnalytics?.(this.measurementId!, this.parameters(path))) { this.suspend(); return; }
-        this.frameReady = true;
-        frame.onload = null;
-        this.sync();
-      } catch { this.suspend(); }
-    };
-    this.doc.body.appendChild(frame);
+  private parent(): AnalyticsWindow {
+    return this.browser as AnalyticsWindow;
+  }
+
+  private ensureConfigured(): void {
+    const gtag = this.parent().gtag;
+    if (!this.measurementId || this.configured || typeof gtag !== "function") return;
+    const path = this.currentPath();
+    if (!path) return;
+    this.parent()[`ga-disable-${this.measurementId}`] = false;
+    gtag("config", this.measurementId, {
+      send_to: this.measurementId,
+      send_page_view: false,
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      cookie_domain: "felexia.pro",
+      cookie_path: "/",
+      cookie_expires: COOKIE_LIFETIME,
+      cookie_update: false,
+      cookie_flags: "SameSite=Lax;Secure",
+      ...this.parameters(path),
+    });
+    this.configured = true;
   }
 
   private flushPageView(path: PublicSitePath): void {
@@ -411,23 +410,16 @@ export class PublicAnalyticsController {
       this.suspend();
       return null;
     }
-    if (!this.currentPath() || !this.snapshot.available || this.snapshot.choice !== "accepted" || !this.frameReady) return null;
-    return this.frame?.contentWindow as AnalyticsWindow | null;
+    if (!this.currentPath() || !this.configured || typeof this.parent().gtag !== "function") return null;
+    return this.parent();
   }
 
   private suspend = (): void => {
-    if (this.frame) {
-      const runtime = this.frame.contentWindow as AnalyticsWindow | null;
-      if (runtime && this.measurementId) {
-        // Disable first: a denied consent update must not turn into a cookieless ping.
-        runtime[`ga-disable-${this.measurementId}`] = true;
-        runtime.gtag?.("consent", "update", { analytics_storage: "denied", ad_storage: "denied", ad_user_data: "denied", ad_personalization: "denied" });
-      }
-      this.frame.onload = null;
-      this.frame.remove();
-      this.frame = null;
+    const runtime = this.parent();
+    if (this.configured && this.measurementId) {
+      runtime[`ga-disable-${this.measurementId}`] = true;
     }
-    this.frameReady = false;
+    this.configured = false;
     this.sentPath = null;
     this.campaign = null;
   };
