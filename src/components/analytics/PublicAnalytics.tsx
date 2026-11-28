@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicSitePath } from "@/lib/public-site";
 import { ANALYTICS_SETTINGS_EVENT, PublicAnalyticsController, validMeasurementId, type AnalyticsSnapshot } from "@/lib/analytics/public-analytics";
-import { applyParentAdsConsent } from "@/lib/analytics/google-ads";
+import { applyParentAdsConsent, consumeSignupConversion } from "@/lib/analytics/google-ads";
 import styles from "./PublicAnalytics.module.css";
 
 // Disabled until NEXT_PUBLIC_GA_MEASUREMENT_ID is a valid GA4 id (G-XXXXXXXX).
@@ -47,6 +47,9 @@ export function PublicAnalytics() {
   function choose(choice: "accepted" | "refused") {
     controller.current?.setChoice(choice);
     applyParentAdsConsent(window, choice);
+    if (choice === "accepted") {
+      try { consumeSignupConversion(window, document, window.sessionStorage, window.localStorage); } catch {}
+    }
     closeSettings();
   }
 
