@@ -9,6 +9,9 @@ import {
   googleAdsConsentSource,
   googleAdsConversionSendTo,
   googleAdsId,
+  googleAdsWhatsAppLabel,
+  googleAdsWhatsAppSendTo,
+  googleTagScriptUrl,
   isGoogleAdsSurface,
   queueTrialConversion,
   readSignupCookie,
@@ -16,8 +19,10 @@ import {
   SIGNUP_COOKIE_MAX_AGE_SECONDS,
   signupCookieClear,
   signupCookieWrite,
+  trackWhatsAppAdsConversion,
   trialTransactionId,
 } from "../src/lib/analytics/google-ads";
+import { activateMetaPixel, trackMetaEvent, validMetaPixelId } from "../src/lib/analytics/meta-pixel";
 
 const id = "11111111-1111-4111-8111-111111111111";
 assert.equal(googleAdsId(undefined), "AW-18492364232");
@@ -131,15 +136,46 @@ assert.match(onboardingJar.cookie, /Max-Age=0/, "cookie is cleared only after a 
 assert.equal(consumeSignupConversion(onboardingBrowser, onboardingJar, onboardingSession, acceptedLocal), false);
 assert.equal(onboardingCalls.filter((item) => item[0] === "event").length, 1);
 
+assert.equal(googleAdsWhatsAppLabel(undefined), null);
+assert.equal(googleAdsWhatsAppLabel(""), null);
+assert.equal(googleAdsWhatsAppLabel("short"), null);
+assert.equal(googleAdsWhatsAppLabel("WhatsAppClick01"), "WhatsAppClick01");
+assert.equal(googleAdsWhatsAppSendTo(), null);
+assert.equal(googleAdsWhatsAppSendTo("AW-18492364232", "WhatsAppClick01"), "AW-18492364232/WhatsAppClick01");
+assert.equal(googleTagScriptUrl(), "https://www.googletagmanager.com/gtag/js?id=AW-18492364232");
+const waCalls: unknown[][] = [];
+const waBrowser = {
+  gtag: (...args: unknown[]) => { waCalls.push(args); },
+  localStorage: acceptedLocalStorage(),
+} as unknown as Window;
+assert.equal(trackWhatsAppAdsConversion(waBrowser), false, "no WhatsApp conversion without a configured label");
+assert.equal(waCalls.length, 0);
+
+assert.equal(validMetaPixelId(undefined), null);
+assert.equal(validMetaPixelId("not-a-pixel"), null);
+assert.ok(validMetaPixelId("123456789012345"));
+const metaDoc = { createElement(type: string) { void type; return { async: false, src: "" }; }, getElementsByTagName() { return []; }, head: { appendChild(node: unknown) { void node; } }, body: { appendChild() {} } } as unknown as Document;
+const metaBrowser = {} as Window;
+const previous = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+process.env.NEXT_PUBLIC_META_PIXEL_ID = "123456789012345";
+assert.equal(activateMetaPixel(metaBrowser, metaDoc), true);
+assert.equal(trackMetaEvent(metaBrowser, "PageView"), true);
+assert.equal(trackMetaEvent(metaBrowser, "CompleteRegistration"), true);
+assert.equal(trackMetaEvent(metaBrowser, "Contact"), true);
+if (previous === undefined) delete process.env.NEXT_PUBLIC_META_PIXEL_ID; else process.env.NEXT_PUBLIC_META_PIXEL_ID = previous;
+
 const layout = readFileSync("src/app/layout.tsx", "utf8");
 const ads = readFileSync("src/components/analytics/GoogleAds.tsx", "utf8");
 assert.match(layout, /strategy="beforeInteractive"/);
 assert.match(ads, /strategy="afterInteractive"/);
-assert.match(ads, /googletagmanager\.com\/gtag\/js\?id=/);
+assert.match(ads, /googleTagScriptUrl/);
+assert.equal((ads.match(/<Script/g) ?? []).length, 1);
 assert.match(ads, /consumeSignupConversion/);
+assert.match(ads, /CompleteRegistration/);
+assert.match(ads, /trackWhatsAppAdsConversion/);
 assert.doesNotMatch(ads, /Max-Age=0; Path=\/; SameSite=Lax`;/);
 assert.match(readFileSync("src/components/auth/register-admin-form.tsx", "utf8"), /rememberTrialConversion\(signUpData\.user\.id, window\)/);
-assert.match(readFileSync("src/components/analytics/PublicAnalytics.tsx", "utf8"), /consumeSignupConversion/);
+assert.match(readFileSync("src/components/analytics/PublicAnalytics.tsx", "utf8"), /configureGoogleTags/);
 assert.match(readFileSync("src/app/auth/callback/route.ts", "utf8"), /maxAge: 300/);
 assert.match(readFileSync("src/app/auth/callback/route.ts", "utf8"), /GOOGLE_ADS_SIGNUP_COOKIE/);
 assert.equal(readFileSync("src/lib/auth-actions/signup.ts", "utf8").includes("signup="), false);

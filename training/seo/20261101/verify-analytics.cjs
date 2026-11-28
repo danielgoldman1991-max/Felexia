@@ -35,12 +35,15 @@ function browserFixture({ pathname = "/", origin = "https://www.felexia.pro", st
   const cookies = new Map([["_ga", "visitor"], ["_ga_TEST123", "session"], ["_gid", "legacy"], ["auth-session", "private"]]);
   const cookieWrites = [];
   const storage = new Map(stored ? [["felexia:analytics-consent:v1", stored]] : []);
+  const dataLayer = [];
   const browser = {
     location: { pathname, origin, href: origin + pathname },
     localStorage: {
       getItem(key) { if (storageFails) throw new Error("Storage denied"); return storage.get(key) ?? null; },
       setItem(key, value) { if (storageFails) throw new Error("Storage denied"); storage.set(key, value); },
     },
+    dataLayer,
+    gtag() { dataLayer.push(arguments); },
     addEventListener(type, handler) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(handler); },
     removeEventListener(type, handler) { listeners.get(type)?.delete(handler); },
     dispatchEvent(event) { for (const handler of listeners.get(event.type) ?? []) handler(event); },
@@ -85,8 +88,22 @@ const site = load("src/lib/public-site.ts");
 const analytics = load("src/lib/analytics/public-analytics.ts", { "@/lib/public-site": site }, { Element: FakeElement });
 const { PublicAnalyticsController, parseAnalyticsChoice, safeInitialReferrer, validMeasurementId, marketingEventForHref } = analytics;
 const consent = (choice = "accepted", time = Date.now()) => JSON.stringify({ version: 1, analytics: choice, updatedAt: time });
-const commands = (frame) => (frame.contentWindow.dataLayer ?? []).map((item) => Array.from(item));
-const events = (frame) => commands(frame).filter((command) => command[0] === "event");
+const commands = (target) => (target.dataLayer ?? []).map((item) => Array.from(item));
+const events = (target) => commands(target).filter((command) => command[0] === "event");
+function attachRuntime(f, { parent } = {}) {
+  const scripts = [];
+  const childDocument = { createElement(type) { assert.equal(type, "script"); return {}; }, head: { appendChild(script) { scripts.push(script); } } };
+  const runtime = {
+    document: childDocument,
+    location: { origin: f.browser.location.origin, pathname: "/api/analytics/runtime" },
+    parent: parent ?? f.browser,
+    localStorage: f.browser.localStorage,
+    URL, Date, scripts,
+  };
+  runtime.window = runtime;
+  vm.runInNewContext(analytics.analyticsRuntimeDocument().match(/<script>([\s\S]+?)<\/script>/)[1], runtime);
+  return runtime;
+}
 
 check("Measurement IDs are strict and fail closed", () => {
   assert.equal(validMeasurementId("G-TEST123"), "G-TEST123");
@@ -117,12 +134,14 @@ check("Marketing classification emits fixed event names and never raw destinatio
   assert.equal(marketingEventForHref("https://evil.invalid/login?mode=register", base), null);
 });
 
+
 const fixture = browserFixture();
 let snapshot;
 const controller = new PublicAnalyticsController(fixture.browser, fixture.doc, "G-TEST123", (value) => { snapshot = value; });
 const stop = controller.start();
 check("New visitor gets a choice without a Google script, frame or consent ping", () => {
   assert.equal(snapshot.available, true); assert.equal(snapshot.choice, null); assert.equal(fixture.frames.length, 0);
+  assert.equal(commands(fixture.browser).length, 0);
 });
 controller.setChoice("refused");
 check("Refusal persists and removes only GA cookies across host/apex scopes", () => {
@@ -134,40 +153,29 @@ check("Refusal persists and removes only GA cookies across host/apex scopes", ()
   assert.equal(parseAnalyticsChoice(fixture.storage.get(analytics.ANALYTICS_CHOICE_KEY), Date.now()), "refused");
 });
 controller.setChoice("accepted");
-const firstFrame = fixture.frames[0];
-check("Opt-in creates an inert same-origin HTTPS frame without srcdoc or Google autoload", () => {
-  assert.equal(fixture.frames.length, 1); assert.equal(firstFrame.referrerPolicy, "no-referrer");
-  assert.equal(firstFrame.src, "https://www.felexia.pro/api/analytics/runtime");
-  assert.equal(firstFrame.srcdoc, undefined);
-  assert.equal(firstFrame.contentWindow.scripts.length, 0);
-  assert.equal(commands(firstFrame).length, 0);
-});
-firstFrame.onload();
-check("Parent bootstrap rechecks opt-in then creates one Google tag with denied ads and safe first-party cookie configuration", () => {
-  const list = commands(firstFrame);
-  assert.equal(list[0][0], "consent"); assert.equal(list[0][1], "default");
-  assert.equal(list[0][2].analytics_storage, "denied"); assert.equal(list[0][2].ad_user_data, "denied");
-  const config = list.find((command) => command[0] === "config")[2];
-  assert.equal(config.send_page_view, false); assert.equal(config.allow_google_signals, false); assert.equal(config.allow_ad_personalization_signals, false);
-  assert.equal(config.page_location, "https://www.felexia.pro/"); assert.equal(config.page_referrer, "");
-  assert.equal(config.cookie_domain, "felexia.pro"); assert.equal(config.cookie_path, "/"); assert.equal(config.cookie_expires, 15552000);
-  assert.equal(events(firstFrame).length, 1);
-  assert.equal(firstFrame.contentWindow.scripts.length, 1);
-  assert.equal(firstFrame.contentWindow.scripts[0].src, "https://www.googletagmanager.com/gtag/js?id=G-TEST123");
-  assert.equal(firstFrame.contentWindow.scripts[0].referrerPolicy, "no-referrer");
+check("Opt-in uses the parent gtag, does not create a frame or a second Google script, and grants ads storage", () => {
+  assert.equal(fixture.frames.length, 0);
+  const list = commands(fixture.browser);
+  const config = list.find((command) => command[0] === "config");
+  assert.equal(config[1], "G-TEST123");
+  assert.equal(config[2].send_page_view, false); assert.equal(config[2].allow_google_signals, false); assert.equal(config[2].allow_ad_personalization_signals, false);
+  assert.equal(config[2].page_location, "https://www.felexia.pro/"); assert.equal(config[2].page_referrer, "");
+  assert.equal(config[2].cookie_domain, "felexia.pro"); assert.equal(config[2].cookie_path, "/"); assert.equal(config[2].cookie_expires, 15552000);
+  assert.equal(events(fixture.browser).length, 1);
+  assert.equal(events(fixture.browser)[0][1], "page_view");
 });
 controller.sync();
 fixture.browser.location.href += "?email=private@example.invalid#secret";
 controller.sync();
 check("Loaded public page has one pageview; repeated renders, queries and hashes do not duplicate it", () => {
-  assert.equal(events(firstFrame).length, 1); assert.equal(events(firstFrame)[0][1], "page_view");
+  assert.equal(events(fixture.browser).length, 1); assert.equal(events(fixture.browser)[0][1], "page_view");
 });
 fixture.navigate("/pricing"); controller.sync();
 fixture.click("https://wa.me/212614505090?text=SECRET");
 fixture.click("mailto:private@example.invalid?body=SECRET");
 fixture.click("mailto:private@example.invalid?subject=" + encodeURIComponent("Felexia PRO — demande de devis") + "&body=SECRET");
 check("Public route changes and allowed clicks send only canonical locations and fixed titles/events", () => {
-  const list = events(firstFrame);
+  const list = events(fixture.browser);
   assert.equal(list.filter((item) => item[1] === "page_view").length, 2);
   assert.ok(list.some((item) => item[1] === "whatsapp_click"));
   assert.ok(list.some((item) => item[1] === "contact_click"));
@@ -180,26 +188,24 @@ check("Public route changes and allowed clicks send only canonical locations and
 });
 fixture.click("https://www.felexia.pro/login?mode=register&email=private@example.invalid");
 check("Signup measures intention while the public page is still active", () => {
-  assert.ok(events(firstFrame).some((item) => item[1] === "trial_cta_click"));
-  assert.equal(fixture.removedFrames.length, 0);
+  assert.ok(events(fixture.browser).some((item) => item[1] === "trial_cta_click"));
+  assert.equal(fixture.frames.length, 0);
 });
 fixture.navigate("/dashboard"); controller.sync(); fixture.click("https://wa.me/212614505090");
-check("Private route commit disables and removes runtime; stored consent cannot revive it or send events", () => {
-  assert.equal(firstFrame.contentWindow["ga-disable-G-TEST123"], true);
-  assert.equal(fixture.removedFrames.length, 1);
-  assert.equal(commands(firstFrame).at(-1)[0], "consent");
-  assert.equal(commands(firstFrame).at(-1)[2].analytics_storage, "denied");
-  assert.equal(fixture.frames.length, 1); assert.equal(events(firstFrame).length, 6);
+check("Private route commit disables GA4; stored consent cannot send events from the ERP", () => {
+  assert.equal(fixture.browser["ga-disable-G-TEST123"], true);
+  assert.equal(fixture.frames.length, 0);
+  assert.equal(events(fixture.browser).length, 6);
 });
 fixture.navigate("/pro"); fixture.dispatch("popstate");
-const secondFrame = fixture.frames[1]; secondFrame.onload();
 fixture.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused")); fixture.dispatch("storage", { key: analytics.ANALYTICS_CHOICE_KEY });
-check("Returning to public reuses consent; cross-tab withdrawal destroys the runtime and blocks further events", () => {
-  assert.equal(events(secondFrame).length, 1); assert.equal(snapshot.choice, "refused");
-  assert.equal(secondFrame.contentWindow["ga-disable-G-TEST123"], true);
-  const before = events(secondFrame).length;
+check("Returning to public reuses consent; cross-tab withdrawal stops further events", () => {
+  assert.ok(events(fixture.browser).some((item) => item[1] === "page_view" && item[2].page_location === "https://www.felexia.pro/pro"));
+  assert.equal(snapshot.choice, "refused");
+  assert.equal(fixture.browser["ga-disable-G-TEST123"], true);
+  const before = events(fixture.browser).length;
   fixture.click("https://wa.me/212614505090"); controller.sync();
-  assert.equal(events(secondFrame).length, before); assert.equal(fixture.frames.length, 2);
+  assert.equal(events(fixture.browser).length, before); assert.equal(fixture.frames.length, 0);
 });
 stop();
 check("Cleanup removes all global subscriptions", () => {
@@ -215,76 +221,79 @@ check("Invalid ID, storage failure, preview origin and initial private route all
     const f = browserFixture(options);
     const c = new PublicAnalyticsController(f.browser, f.doc, id, () => {});
     const cleanup = c.start(); c.sync();
-    assert.equal(f.frames.length, 0); cleanup();
+    assert.equal(f.frames.length, 0);
+    assert.equal(events(f.browser).length, 0); cleanup();
   }
 });
-check("Late frame load after route exit cannot revive measurement", () => {
+check("A delayed tag-ready signal after leaving a public page cannot start measurement", () => {
   const f = browserFixture({ stored: consent() });
   const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
   const cleanup = c.start();
-  const frame = f.frames[0]; const lateLoad = frame.onload;
-  f.navigate("/auth/callback"); f.dispatch("popstate"); lateLoad();
-  assert.equal(events(frame).length, 0); assert.equal(f.frames.length, 1); cleanup();
+  f.navigate("/auth/callback"); f.dispatch("popstate");
+  const before = events(f.browser).length;
+  f.dispatch(analytics.GOOGLE_TAGS_READY_EVENT);
+  assert.equal(events(f.browser).length, before); cleanup();
 });
-check("A pending Google load emits only the latest public page once", () => {
+check("Rapid public route changes send each location once and keep the latest page", () => {
   const f = browserFixture({ stored: consent() });
   const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
   const cleanup = c.start();
-  const frame = f.frames[0];
   f.navigate("/essentiel"); c.sync(); f.navigate("/pricing"); c.sync();
-  assert.equal(events(frame).length, 0); assert.equal(f.frames.length, 1);
-  frame.onload(); c.sync();
-  assert.equal(events(frame).length, 1);
-  assert.equal(events(frame)[0][2].page_location, "https://www.felexia.pro/pricing");
-  cleanup();
+  const views = events(f.browser).filter((item) => item[1] === "page_view");
+  assert.equal(views.length, 3);
+  assert.equal(views.at(-1)[2].page_location, "https://www.felexia.pro/pricing");
+  c.sync();
+  assert.equal(events(f.browser).filter((item) => item[1] === "page_view").length, 3); cleanup();
 });
 check("Direct runtime document never starts Google, including an explicit standalone bootstrap call", () => {
   const f = browserFixture({ stored: consent() });
-  const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
-  const cleanup = c.start(); const frame = f.frames[0]; const runtime = frame.contentWindow;
+  const runtime = attachRuntime(f);
   runtime.parent = runtime;
   assert.equal(runtime.felexiaStartAnalytics("G-TEST123", { page_location: "https://www.felexia.pro/", page_referrer: "" }), false);
-  assert.equal(runtime.scripts.length, 0); assert.equal(commands(frame).length, 0); cleanup();
+  assert.equal(runtime.scripts.length, 0); assert.equal((runtime.dataLayer ?? []).length, 0);
 });
 check("Child bootstrap rejects missing consent, invalid IDs, private parent paths and unsafe parameter URLs", () => {
   for (const variant of ["consent", "id", "private", "query", "foreign"]) {
     const f = browserFixture({ stored: consent() });
-    const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
-    const cleanup = c.start(); const runtime = f.frames[0].contentWindow;
+    const runtime = attachRuntime(f);
     if (variant === "consent") f.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused"));
     if (variant === "private") f.navigate("/dashboard");
     const location = variant === "query" ? "https://www.felexia.pro/?email=private@example.invalid" : variant === "foreign" ? "https://evil.invalid/" : "https://www.felexia.pro/";
     assert.equal(runtime.felexiaStartAnalytics(variant === "id" ? "G-TEST123&secret=x" : "G-TEST123", { page_location: location, page_referrer: "" }), false);
-    assert.equal(runtime.scripts.length, 0); cleanup();
+    assert.equal(runtime.scripts.length, 0);
   }
 });
 check("Child ignores supplied title/content, sanitizes referrers, and cannot bootstrap twice", () => {
   const f = browserFixture({ stored: consent() });
-  const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
-  const cleanup = c.start(); const frame = f.frames[0]; const runtime = frame.contentWindow;
+  const runtime = attachRuntime(f);
   const input = { page_location: "https://www.felexia.pro/pro", page_title: "SECRET", page_referrer: "https://www.felexia.pro/dashboard?email=private@example.invalid", email: "private@example.invalid" };
   assert.equal(runtime.felexiaStartAnalytics("G-TEST123", input), true);
   assert.equal(runtime.felexiaStartAnalytics("G-TEST123", input), false);
   assert.equal(runtime.scripts.length, 1);
-  const config = commands(frame).find((command) => command[0] === "config")[2];
+  const config = commands(runtime).find((command) => command[0] === "config")[2];
   assert.equal(config.page_referrer, ""); assert.equal(config.page_title, "ERP PRO sur devis — FelexiaERP");
-  assert.ok(!JSON.stringify(commands(frame)).match(/SECRET|private@example/)); cleanup();
+  assert.ok(!JSON.stringify(commands(runtime)).match(/SECRET|private@example/));
+  const update = commands(runtime).find((command) => command[0] === "consent" && command[1] === "update");
+  assert.equal(update[2].ad_storage, "granted"); assert.equal(update[2].ad_user_data, "granted"); assert.equal(update[2].ad_personalization, "granted"); assert.equal(update[2].analytics_storage, "granted");
 });
-check("Consent withdrawn while the HTTPS frame loads cannot start Google", () => {
+check("Withdrawing consent stops collection", () => {
   const f = browserFixture({ stored: consent() });
   const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
-  const cleanup = c.start(); const frame = f.frames[0];
-  f.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused")); frame.onload();
-  assert.equal(frame.contentWindow.scripts.length, 0); assert.equal(f.removedFrames.length, 1); cleanup();
+  const cleanup = c.start();
+  assert.ok(events(f.browser).length >= 1);
+  f.storage.set(analytics.ANALYTICS_CHOICE_KEY, consent("refused")); f.dispatch("storage", { key: analytics.ANALYTICS_CHOICE_KEY });
+  const before = events(f.browser).length;
+  f.click("https://wa.me/212614505090"); c.sync();
+  assert.equal(events(f.browser).length, before);
+  assert.equal(f.browser["ga-disable-G-TEST123"], true); cleanup();
 });
 check("Storage failure during a consent change stops collection and clears cookies", () => {
   const f = browserFixture({ stored: consent() });
   const c = new PublicAnalyticsController(f.browser, f.doc, "G-TEST123", () => {});
-  const cleanup = c.start(); const frame = f.frames[0]; frame.onload();
+  const cleanup = c.start();
   f.failStorage(); c.setChoice("accepted"); c.sync();
   assert.equal(c.getSnapshot().available, false);
-  assert.equal(frame.contentWindow["ga-disable-G-TEST123"], true);
-  assert.equal(f.removedFrames.length, 1); assert.equal(f.frames.length, 1);
+  assert.equal(f.browser["ga-disable-G-TEST123"], true);
   assert.equal(f.cookies.has("_ga"), false); cleanup();
 });
 
@@ -299,9 +308,11 @@ const react = {
 react.useLayoutEffect = react.useEffect;
 const jsx = (type, props) => ({ type, props: props ?? {} });
 const googleAds = load("src/lib/analytics/google-ads.ts", { "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics });
+const metaPixel = load("src/lib/analytics/meta-pixel.ts", {});
 const ui = load("src/components/analytics/PublicAnalytics.tsx", {
   react, "react/jsx-runtime": { jsx, jsxs: jsx }, "next/navigation": { usePathname: () => pathname },
   "@/lib/public-site": site, "@/lib/analytics/public-analytics": analytics, "@/lib/analytics/google-ads": googleAds,
+  "@/lib/analytics/meta-pixel": metaPixel,
   "./PublicAnalytics.module.css": { default: {} },
 }, { window: uiFixture.browser, document: uiFixture.doc, process: { env: { NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TEST123" } }, HTMLElement: FakeElement, Event: class { constructor(type) { this.type = type; } } });
 function render() { cursor = 0; pendingEffects = []; const tree = ui.PublicAnalytics(); for (const run of pendingEffects) run(); return tree; }
